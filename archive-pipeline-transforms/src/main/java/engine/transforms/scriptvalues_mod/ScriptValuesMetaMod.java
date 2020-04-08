@@ -31,7 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -44,7 +44,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -223,7 +223,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     this.jsScripts = jsScripts;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -309,11 +309,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      String script = XMLHandler.getTagValue( transformNode, "script" );
-      String strCompatible = XMLHandler.getTagValue( transformNode, "compatible" );
-      optimizationLevel = XMLHandler.getTagValue( transformNode, "optimizationLevel" );
+      String script = XmlHandler.getTagValue( transformNode, "script" );
+      String strCompatible = XmlHandler.getTagValue( transformNode, "compatible" );
+      optimizationLevel = XmlHandler.getTagValue( transformNode, "optimizationLevel" );
 
       if ( strCompatible == null ) {
         compatible = true;
@@ -327,39 +327,39 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
         jsScripts = new ScriptValuesScript[ 1 ];
         jsScripts[ 0 ] = new ScriptValuesScript( ScriptValuesScript.TRANSFORM_SCRIPT, "ScriptValue", script );
       } else {
-        Node scripts = XMLHandler.getSubNode( transformNode, "jsScripts" );
-        int nrscripts = XMLHandler.countNodes( scripts, "jsScript" );
+        Node scripts = XmlHandler.getSubNode( transformNode, "jsScripts" );
+        int nrscripts = XmlHandler.countNodes( scripts, "jsScript" );
         jsScripts = new ScriptValuesScript[ nrscripts ];
         for ( int i = 0; i < nrscripts; i++ ) {
-          Node fnode = XMLHandler.getSubNodeByNr( scripts, "jsScript", i );
+          Node fnode = XmlHandler.getSubNodeByNr( scripts, "jsScript", i );
 
           jsScripts[ i ] =
             new ScriptValuesScript(
-              Integer.parseInt( XMLHandler.getTagValue( fnode, JSSCRIPT_TAG_TYPE ) ), XMLHandler.getTagValue(
-              fnode, JSSCRIPT_TAG_NAME ), XMLHandler.getTagValue( fnode, JSSCRIPT_TAG_SCRIPT ) );
+              Integer.parseInt( XmlHandler.getTagValue( fnode, JSSCRIPT_TAG_TYPE ) ), XmlHandler.getTagValue(
+              fnode, JSSCRIPT_TAG_NAME ), XmlHandler.getTagValue( fnode, JSSCRIPT_TAG_SCRIPT ) );
         }
       }
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldname[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        rename[ i ] = XMLHandler.getTagValue( fnode, "rename" );
-        type[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) );
+        fieldname[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        rename[ i ] = XmlHandler.getTagValue( fnode, "rename" );
+        type[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) );
 
-        String slen = XMLHandler.getTagValue( fnode, "length" );
-        String sprc = XMLHandler.getTagValue( fnode, "precision" );
+        String slen = XmlHandler.getTagValue( fnode, "length" );
+        String sprc = XmlHandler.getTagValue( fnode, "precision" );
         length[ i ] = Const.toInt( slen, -1 );
         precision[ i ] = Const.toInt( sprc, -1 );
-        replace[ i ] = "Y".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "replace" ) );
+        replace[ i ] = "Y".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "replace" ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ScriptValuesMetaMod.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -441,20 +441,20 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "compatible", compatible ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "optimizationLevel", optimizationLevel ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "compatible", compatible ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "optimizationLevel", optimizationLevel ) );
 
     retval.append( "    <jsScripts>" );
     for ( int i = 0; i < jsScripts.length; i++ ) {
       retval.append( "      <jsScript>" );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_TYPE, jsScripts[ i ].getScriptType() ) );
+        .append( "        " ).append( XmlHandler.addTagValue( JSSCRIPT_TAG_TYPE, jsScripts[ i ].getScriptType() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_NAME, jsScripts[ i ].getScriptName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( JSSCRIPT_TAG_SCRIPT, jsScripts[ i ].getScript() ) );
+        .append( "        " ).append( XmlHandler.addTagValue( JSSCRIPT_TAG_NAME, jsScripts[ i ].getScriptName() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( JSSCRIPT_TAG_SCRIPT, jsScripts[ i ].getScript() ) );
       retval.append( "      </jsScript>" );
     }
     retval.append( "    </jsScripts>" );
@@ -462,13 +462,13 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     retval.append( "    <fields>" );
     for ( int i = 0; i < fieldname.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldname[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", rename[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type",
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldname[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "rename", rename[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "type",
         ValueMetaFactory.getValueMetaName( type[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", length[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", precision[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace", replace[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "length", length[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "precision", precision[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "replace", replace[ i ] ) );
       retval.append( "      </field>" );
     }
     retval.append( "    </fields>" );
@@ -902,16 +902,16 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     try {
       Properties sysprops = System.getProperties();
       String strActPath = sysprops.getProperty( "user.dir" );
-      Document dom = XMLHandler.loadXMLFile( strActPath + "/plugins/transforms/ScriptValues_mod/plugin.xml" );
+      Document dom = XmlHandler.loadXMLFile( strActPath + "/plugins/transforms/ScriptValues_mod/plugin.xml" );
       Node transformNode = dom.getDocumentElement();
-      Node libraries = XMLHandler.getSubNode( transformNode, "js_libraries" );
-      int nbOfLibs = XMLHandler.countNodes( libraries, "js_lib" );
+      Node libraries = XmlHandler.getSubNode( transformNode, "js_libraries" );
+      int nbOfLibs = XmlHandler.countNodes( libraries, "js_lib" );
       additionalClasses = new ScriptValuesAddClasses[ nbOfLibs ];
       for ( int i = 0; i < nbOfLibs; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( libraries, "js_lib", i );
-        String strJarName = XMLHandler.getTagAttribute( fnode, "name" );
-        String strClassName = XMLHandler.getTagAttribute( fnode, "classname" );
-        String strJSName = XMLHandler.getTagAttribute( fnode, "js_name" );
+        Node fnode = XmlHandler.getSubNodeByNr( libraries, "js_lib", i );
+        String strJarName = XmlHandler.getTagAttribute( fnode, "name" );
+        String strClassName = XmlHandler.getTagAttribute( fnode, "classname" );
+        String strJSName = XmlHandler.getTagAttribute( fnode, "js_name" );
 
         Class<?> addClass =
           LoadAdditionalClass( strActPath + "/plugins/transforms/ScriptValues_mod/" + strJarName, strClassName );

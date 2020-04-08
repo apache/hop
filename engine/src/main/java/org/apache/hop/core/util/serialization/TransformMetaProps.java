@@ -108,7 +108,7 @@ public class TransformMetaProps<Meta extends ITransformMeta> {
    * Sets the properties of this TransformMetaProps on {@param transformMetaInterface}
    * <p>
    * This method mutates the transformMeta, as opposed to returning a new instance, to match
-   * more cleanly to Hop's {@link ITransformMeta#loadXML} design, which loads props into
+   * more cleanly to Hop's {@link ITransformMeta#loadXml} design, which loads props into
    * an instance.
    */
   public Meta to( Meta meta ) {

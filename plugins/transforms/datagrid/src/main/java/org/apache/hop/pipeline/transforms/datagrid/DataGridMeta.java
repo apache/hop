@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.datagrid;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -209,7 +209,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -254,34 +254,34 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       String slength, sprecision;
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        fieldType[ i ] = XMLHandler.getTagValue( fnode, "type" );
-        fieldFormat[ i ] = XMLHandler.getTagValue( fnode, "format" );
-        currency[ i ] = XMLHandler.getTagValue( fnode, "currency" );
-        decimal[ i ] = XMLHandler.getTagValue( fnode, "decimal" );
-        group[ i ] = XMLHandler.getTagValue( fnode, "group" );
-        slength = XMLHandler.getTagValue( fnode, "length" );
-        sprecision = XMLHandler.getTagValue( fnode, "precision" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        fieldType[ i ] = XmlHandler.getTagValue( fnode, "type" );
+        fieldFormat[ i ] = XmlHandler.getTagValue( fnode, "format" );
+        currency[ i ] = XmlHandler.getTagValue( fnode, "currency" );
+        decimal[ i ] = XmlHandler.getTagValue( fnode, "decimal" );
+        group[ i ] = XmlHandler.getTagValue( fnode, "group" );
+        slength = XmlHandler.getTagValue( fnode, "length" );
+        sprecision = XmlHandler.getTagValue( fnode, "precision" );
 
         fieldLength[ i ] = Const.toInt( slength, -1 );
         fieldPrecision[ i ] = Const.toInt( sprecision, -1 );
-        String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
+        String emptyString = XmlHandler.getTagValue( fnode, "set_empty_string" );
         setEmptyString[ i ] = !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString );
       }
 
-      Node datanode = XMLHandler.getSubNode( transformNode, "data" );
+      Node datanode = XmlHandler.getSubNode( transformNode, "data" );
       // NodeList childNodes = datanode.getChildNodes();
       dataLines = new ArrayList<List<String>>();
 
@@ -292,14 +292,14 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
           Node itemNode = lineNode.getFirstChild();
           while ( itemNode != null ) {
             if ( "item".equals( itemNode.getNodeName() ) ) {
-              String itemNodeValue = XMLHandler.getNodeValue( itemNode );
+              String itemNodeValue = XmlHandler.getNodeValue( itemNode );
               line.add( itemNodeValue );
             }
             itemNode = itemNode.getNextSibling();
           }
           /*
-           * for (int f=0;f<nrFields;f++) { Node itemNode = XMLHandler.getSubNodeByNr(lineNode, "item", f); String item
-           * = XMLHandler.getNodeValue(itemNode); line.add(item); }
+           * for (int f=0;f<nrFields;f++) { Node itemNode = XmlHandler.getSubNodeByNr(lineNode, "item", f); String item
+           * = XmlHandler.getNodeValue(itemNode); line.add(item); }
            */
           dataLines.add( line );
 
@@ -308,7 +308,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
         lineNode = lineNode.getNextSibling();
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -363,22 +363,22 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "type", fieldType[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", fieldFormat[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "currency", currency[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", decimal[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "group", group[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldLength[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "type", fieldType[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", fieldFormat[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "currency", currency[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", decimal[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "group", group[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }
@@ -388,7 +388,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
     for ( List<String> line : dataLines ) {
       retval.append( "      <line> " );
       for ( String item : line ) {
-        retval.append( XMLHandler.addTagValue( "item", item, false ) );
+        retval.append( XmlHandler.addTagValue( "item", item, false ) );
       }
       retval.append( " </line>" ).append( Const.CR );
     }

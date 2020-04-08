@@ -29,9 +29,9 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -174,18 +174,18 @@ public class ActionICheckDbConnections extends ActionBase implements Cloneable, 
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 120 );
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
     retval.append( "      <connections>" ).append( Const.CR );
     if ( connections != null ) {
       for ( int i = 0; i < connections.length; i++ ) {
         retval.append( "        <connection>" ).append( Const.CR );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "name", connections[ i ] == null ? null : connections[ i ].getName() ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "waitfor", waitfors[ i ] ) );
+          XmlHandler.addTagValue( "name", connections[ i ] == null ? null : connections[ i ].getName() ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "waitfor", waitfors[ i ] ) );
         retval
-          .append( "          " ).append( XMLHandler.addTagValue( "waittime", getWaitTimeCode( waittimes[ i ] ) ) );
+          .append( "          " ).append( XmlHandler.addTagValue( "waittime", getWaitTimeCode( waittimes[ i ] ) ) );
         retval.append( "        </connection>" ).append( Const.CR );
       }
     }
@@ -195,26 +195,26 @@ public class ActionICheckDbConnections extends ActionBase implements Cloneable, 
   }
 
   @Override
-  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      Node fields = XMLHandler.getSubNode( entrynode, "connections" );
+      super.loadXml( entrynode );
+      Node fields = XmlHandler.getSubNode( entrynode, "connections" );
 
       // How many hosts?
-      int nrFields = XMLHandler.countNodes( fields, "connection" );
+      int nrFields = XmlHandler.countNodes( fields, "connection" );
       connections = new DatabaseMeta[ nrFields ];
       waitfors = new String[ nrFields ];
       waittimes = new int[ nrFields ];
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "connection", i );
-        String dbname = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "connection", i );
+        String dbname = XmlHandler.getTagValue( fnode, "name" );
         connections[ i ] = DatabaseMeta.loadDatabase( metaStore, dbname );
-        waitfors[ i ] = XMLHandler.getTagValue( fnode, "waitfor" );
-        waittimes[ i ] = getWaitTimeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "waittime" ), "" ) );
+        waitfors[ i ] = XmlHandler.getTagValue( fnode, "waitfor" );
+        waittimes[ i ] = getWaitTimeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "waittime" ), "" ) );
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionCheckDbConnections.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node", xe.getMessage() ) );
     }
   }

@@ -109,8 +109,8 @@ public class HypersonicDatabaseMetaTest {
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
 
     assertEquals( "TRUNCATE TABLE FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR TIMESTAMP",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
@@ -204,52 +204,52 @@ public class HypersonicDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO ADD BAR  UNKNOWN",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBinary( "BAR", 16777250, 0 ), "", false, "", false ) );
 
-    assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   @Test
   public void testGetSQLSequenceExists() throws Exception {
-    String sql = hypersonicDatabaseMeta.getSQLSequenceExists( sequenceName );
+    String sql = hypersonicDatabaseMeta.getSqlSequenceExists( sequenceName );
     String expectedSql = "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaQouting.getSQLSequenceExists( sequenceName );
+    sql = hypersonicDatabaseMetaQouting.getSqlSequenceExists( sequenceName );
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaUppercase.getSQLSequenceExists( sequenceName );
+    sql = hypersonicDatabaseMetaUppercase.getSqlSequenceExists( sequenceName );
     assertEquals( expectedSql, sql );
   }
 
   @Test
   public void testGetSQLCurrentSequenceValue() throws Exception {
-    String sql = hypersonicDatabaseMeta.getSQLCurrentSequenceValue( sequenceName );
+    String sql = hypersonicDatabaseMeta.getSqlCurrentSequenceValue( sequenceName );
     String expectedSql =
       "SELECT seQuence.currval FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaQouting.getSQLCurrentSequenceValue( sequenceName );
+    sql = hypersonicDatabaseMetaQouting.getSqlCurrentSequenceValue( sequenceName );
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaUppercase.getSQLCurrentSequenceValue( sequenceName );
+    sql = hypersonicDatabaseMetaUppercase.getSqlCurrentSequenceValue( sequenceName );
     assertEquals( expectedSql, sql );
   }
 
   @Test
   public void testGetSQLNextSequenceValue() throws Exception {
-    String sql = hypersonicDatabaseMeta.getSQLNextSequenceValue( sequenceName );
+    String sql = hypersonicDatabaseMeta.getSqlNextSequenceValue( sequenceName );
     String expectedSql =
       "SELECT NEXT VALUE FOR seQuence FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaQouting.getSQLNextSequenceValue( sequenceName );
+    sql = hypersonicDatabaseMetaQouting.getSqlNextSequenceValue( sequenceName );
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaUppercase.getSQLNextSequenceValue( sequenceName );
+    sql = hypersonicDatabaseMetaUppercase.getSqlNextSequenceValue( sequenceName );
     assertEquals( expectedSql, sql );
   }
 
   @Test
   public void testGetSQLQueryFields() throws Exception {
-    String sql = hypersonicDatabaseMeta.getSQLQueryFields( tableName );
+    String sql = hypersonicDatabaseMeta.getSqlQueryFields( tableName );
     String expectedSql = "SELECT * FROM teST";
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaQouting.getSQLQueryFields( tableName );
+    sql = hypersonicDatabaseMetaQouting.getSqlQueryFields( tableName );
     assertEquals( expectedSql, sql );
-    sql = hypersonicDatabaseMetaUppercase.getSQLQueryFields( tableName );
+    sql = hypersonicDatabaseMetaUppercase.getSqlQueryFields( tableName );
     assertEquals( expectedSql, sql );
   }
 

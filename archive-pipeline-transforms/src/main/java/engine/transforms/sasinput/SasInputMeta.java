@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.sasinput;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -72,17 +72,17 @@ public class SasInputMeta extends BaseTransformMeta implements ITransform {
     outputFields = new ArrayList<SasInputField>();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      acceptingField = XMLHandler.getTagValue( transformNode, "accept_field" );
-      int nrFields = XMLHandler.countNodes( transformNode, XML_TAG_FIELD );
+      acceptingField = XmlHandler.getTagValue( transformNode, "accept_field" );
+      int nrFields = XmlHandler.countNodes( transformNode, XML_TAG_FIELD );
       outputFields = new ArrayList<SasInputField>();
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fieldNode = XMLHandler.getSubNodeByNr( transformNode, XML_TAG_FIELD, i );
+        Node fieldNode = XmlHandler.getSubNodeByNr( transformNode, XML_TAG_FIELD, i );
         outputFields.add( new SasInputField( fieldNode ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SASInputMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -117,14 +117,14 @@ public class SasInputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "accept_field", acceptingField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "accept_field", acceptingField ) );
     for ( SasInputField field : outputFields ) {
-      retval.append( XMLHandler.openTag( XML_TAG_FIELD ) );
-      retval.append( field.getXML() );
-      retval.append( XMLHandler.closeTag( XML_TAG_FIELD ) );
+      retval.append( XmlHandler.openTag( XML_TAG_FIELD ) );
+      retval.append( field.getXml() );
+      retval.append( XmlHandler.closeTag( XML_TAG_FIELD ) );
     }
 
     return retval.toString();

@@ -401,7 +401,7 @@ public class DatabaseExplorerDialog extends Dialog {
     bSQL.setEnabled( activeSchemaTable != null );
     bSQL.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        getSQL( activeSchemaTable );
+        getSql( activeSchemaTable );
       }
     } );
     FormData sqlData = new FormData();
@@ -691,7 +691,7 @@ public class DatabaseExplorerDialog extends Dialog {
       miSQL.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", table ) );
       miSQL.addSelectionListener( new SelectionAdapter() {
         public void widgetSelected( SelectionEvent e ) {
-          getSQL( table );
+          getSql( table );
         }
       } );
 
@@ -742,7 +742,7 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showTable( String tableName ) {
-    String sql = dbMeta.getSQLQueryFields( tableName );
+    String sql = dbMeta.getSqlQueryFields( tableName );
     GetQueryFieldsProgressDialog pd = new GetQueryFieldsProgressDialog( shell, dbMeta, sql );
     IRowMeta result = pd.open();
     if ( result != null ) {
@@ -826,7 +826,7 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
 
-  public void getSQL( String tableName ) {
+  public void getSql( String tableName ) {
     SQLEditor sql = new SQLEditor( dbMeta, shell, SWT.NONE, dbMeta, dbcache, "SELECT * FROM " + tableName );
     sql.open();
   }

@@ -22,7 +22,7 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.gui.IPrimitiveGC;
+import org.apache.hop.core.gui.IPrimitiveGc;
 import org.apache.hop.core.row.IRowMeta;
 
 @RowDistributionPlugin( code = "FakeDistribution", name = "Fake distribution",
@@ -46,7 +46,7 @@ public class FakeRowDistribution implements IRowDistribution {
   }
 
   @Override
-  public IPrimitiveGC.EImage getDistributionImage() {
-    return IPrimitiveGC.EImage.LOAD_BALANCE;
+  public IPrimitiveGc.EImage getDistributionImage() {
+    return IPrimitiveGc.EImage.LOAD_BALANCE;
   }
 }

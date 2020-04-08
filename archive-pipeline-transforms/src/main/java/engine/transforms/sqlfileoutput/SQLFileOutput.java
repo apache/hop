@@ -138,7 +138,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
 
     try {
       String sql =
-        data.db.getSQLOutput( schemaName, tableName, data.insertRowMeta, r, meta.getDateFormat() ) + ";";
+        data.db.getSqlOutput( schemaName, tableName, data.insertRowMeta, r, meta.getDateFormat() ) + ";";
 
       // Do we start a new line for this statement ?
       if ( meta.StartNewLine() ) {

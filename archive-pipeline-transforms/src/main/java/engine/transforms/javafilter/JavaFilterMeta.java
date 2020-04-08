@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.javafilter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -78,23 +78,23 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransform {
   public void allocate( int nrCalcs ) {
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     List<StreamInterface> targetStreams = getTransformIOMeta().getTargetStreams();
 
-    targetStreams.get( 0 ).setSubject( XMLHandler.getTagValue( transformNode, "send_true_to" ) );
-    targetStreams.get( 1 ).setSubject( XMLHandler.getTagValue( transformNode, "send_false_to" ) );
+    targetStreams.get( 0 ).setSubject( XmlHandler.getTagValue( transformNode, "send_true_to" ) );
+    targetStreams.get( 1 ).setSubject( XmlHandler.getTagValue( transformNode, "send_false_to" ) );
 
-    condition = XMLHandler.getTagValue( transformNode, "condition" );
+    condition = XmlHandler.getTagValue( transformNode, "condition" );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     List<StreamInterface> targetStreams = getTransformIOMeta().getTargetStreams();
-    retval.append( XMLHandler.addTagValue( "send_true_to", targetStreams.get( 0 ).getTransformName() ) );
-    retval.append( XMLHandler.addTagValue( "send_false_to", targetStreams.get( 1 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "send_true_to", targetStreams.get( 0 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "send_false_to", targetStreams.get( 1 ).getTransformName() ) );
 
-    retval.append( XMLHandler.addTagValue( "condition", condition ) );
+    retval.append( XmlHandler.addTagValue( "condition", condition ) );
 
     return retval.toString();
   }
@@ -102,7 +102,7 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransform {
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       JavaFilterMeta m = (JavaFilterMeta) obj;
-      return ( getXML() == m.getXML() );
+      return ( getXml() == m.getXml() );
     }
 
     return false;

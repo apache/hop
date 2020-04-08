@@ -25,7 +25,7 @@ package org.apache.hop.core.util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.PluginPropertyHandler.LoadXml;
 import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
@@ -98,7 +98,7 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
     this.getProperties().walk( new ReadFromPreferences( node ) );
   }
 
-  public void loadXML( final Node node, final List<DatabaseMeta> databaseMeta, final IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( final Node node, final List<DatabaseMeta> databaseMeta, final IMetaStore metaStore ) throws HopXmlException {
     this.getProperties().walk( new LoadXml( node ) );
     initDbMeta( databaseMeta );
   }
@@ -115,10 +115,10 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
   /**
    * {@inheritDoc}
    *
-   * @see BaseTransformMeta#getXML()
+   * @see BaseTransformMeta#getXml()
    */
   @Override
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     return PluginPropertyHandler.toXml( this.getProperties() );
   }
 

@@ -25,9 +25,9 @@ package org.apache.hop.workflow.actions.webserviceavailable;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -76,25 +76,25 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "url", url ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connectTimeOut", connectTimeOut ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "readTimeOut", readTimeOut ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "url", url ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connectTimeOut", connectTimeOut ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "readTimeOut", readTimeOut ) );
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      url = XMLHandler.getTagValue( entrynode, "url" );
-      connectTimeOut = XMLHandler.getTagValue( entrynode, "connectTimeOut" );
-      readTimeOut = XMLHandler.getTagValue( entrynode, "readTimeOut" );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+      super.loadXml( entrynode );
+      url = XmlHandler.getTagValue( entrynode, "url" );
+      connectTimeOut = XmlHandler.getTagValue( entrynode, "connectTimeOut" );
+      readTimeOut = XmlHandler.getTagValue( entrynode, "readTimeOut" );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Job_Entry_From_Xml_Node" ), xe );
     }
   }

@@ -23,8 +23,8 @@ public class Vertica5SequenceAndReleaseSavePointTest {
   @Test
   public void testSequenceSupport() {
     assertSupports( db, sequenceSupport );
-    assertEquals( "SELECT nextval('sequence_name')", db.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT currval('sequence_name')", db.getSQLCurrentSequenceValue( sequenceName ) );
+    assertEquals( "SELECT nextval('sequence_name')", db.getSqlNextSequenceValue( sequenceName ) );
+    assertEquals( "SELECT currval('sequence_name')", db.getSqlCurrentSequenceValue( sequenceName ) );
   }
 
   @Test
@@ -41,16 +41,16 @@ public class Vertica5SequenceAndReleaseSavePointTest {
     String dbType = db.getClass().getSimpleName();
     if ( expected ) {
       assertTrue( dbType, db.supportsSequences() );
-      assertFalse( dbType + ": List of Sequences", Utils.isEmpty( db.getSQLListOfSequences() ) );
-      assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( db.getSQLSequenceExists( "testSeq" ) ) );
-      assertFalse( dbType + ": Current Value", Utils.isEmpty( db.getSQLCurrentSequenceValue( "testSeq" ) ) );
-      assertFalse( dbType + ": Next Value", Utils.isEmpty( db.getSQLNextSequenceValue( "testSeq" ) ) );
+      assertFalse( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
+      assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
+      assertFalse( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
+      assertFalse( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
     } else {
       assertFalse( db.getClass().getSimpleName(), db.supportsSequences() );
-      assertTrue( dbType + ": List of Sequences", Utils.isEmpty( db.getSQLListOfSequences() ) );
-      assertTrue( dbType + ": Sequence Exists", Utils.isEmpty( db.getSQLSequenceExists( "testSeq" ) ) );
-      assertTrue( dbType + ": Current Value", Utils.isEmpty( db.getSQLCurrentSequenceValue( "testSeq" ) ) );
-      assertTrue( dbType + ": Next Value", Utils.isEmpty( db.getSQLNextSequenceValue( "testSeq" ) ) );
+      assertTrue( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
+      assertTrue( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
+      assertTrue( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
+      assertTrue( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
     }
   }
 }

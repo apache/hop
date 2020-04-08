@@ -110,10 +110,10 @@ public class AS400DatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR SET TIMESTAMP", nativeMeta.getModifyColumnStatement( "FOO",
       new ValueMetaTimestamp( "BAR" ), "", false, "", false ) ); // Fixed: http://jira.pentaho.com/browse/PDI-15570
 
-    assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT PREVIOUS VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT NEXT VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT PREVIOUS VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT NEXT VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
   }
 
   @Test

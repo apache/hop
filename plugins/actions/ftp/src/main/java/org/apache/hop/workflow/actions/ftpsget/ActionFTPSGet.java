@@ -30,12 +30,12 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -160,77 +160,77 @@ public class ActionFTPSGet extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 550 ); // 490 chars in spaces and tag names alone
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "FTPSdirectory", FTPSDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "targetdirectory", targetDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "binary", binaryMode ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remove", remove ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "only_new", onlyGettingNewFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "active", activeConnection ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "movefiles", movefiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "movetodirectory", movetodirectory ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "FTPSdirectory", FTPSDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "targetdirectory", targetDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "binary", binaryMode ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remove", remove ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "only_new", onlyGettingNewFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "movefiles", movefiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "movetodirectory", movetodirectory ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "adddate", adddate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addtime", addtime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "isaddresult", isaddresult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createmovefolder", createmovefolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "adddate", adddate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addtime", addtime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createmovefolder", createmovefolder ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_username", proxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+      XmlHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ifFileExists", getFileExistsAction( ifFileExists ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ifFileExists", getFileExistsAction( ifFileExists ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_limit", nr_limit ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nr_limit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      FTPSDirectory = XMLHandler.getTagValue( entrynode, "FTPSdirectory" );
-      targetDirectory = XMLHandler.getTagValue( entrynode, "targetdirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      binaryMode = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "binary" ) );
-      timeout = Const.toInt( XMLHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove" ) );
-      onlyGettingNewFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "only_new" ) );
-      activeConnection = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "active" ) );
+      super.loadXml( entrynode );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      FTPSDirectory = XmlHandler.getTagValue( entrynode, "FTPSdirectory" );
+      targetDirectory = XmlHandler.getTagValue( entrynode, "targetdirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      binaryMode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "binary" ) );
+      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
+      remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
+      onlyGettingNewFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "only_new" ) );
+      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
 
-      movefiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "movefiles" ) );
-      movetodirectory = XMLHandler.getTagValue( entrynode, "movetodirectory" );
+      movefiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "movefiles" ) );
+      movetodirectory = XmlHandler.getTagValue( entrynode, "movetodirectory" );
 
-      adddate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "adddate" ) );
-      addtime = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addtime" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      date_time_format = XMLHandler.getTagValue( entrynode, "date_time_format" );
+      adddate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddate" ) );
+      addtime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addtime" ) );
+      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
       AddDateBeforeExtension =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
 
-      String addresult = XMLHandler.getTagValue( entrynode, "isaddresult" );
+      String addresult = XmlHandler.getTagValue( entrynode, "isaddresult" );
 
       if ( Utils.isEmpty( addresult ) ) {
         isaddresult = true;
@@ -238,23 +238,23 @@ public class ActionFTPSGet extends ActionBase implements Cloneable, IAction {
         isaddresult = "Y".equalsIgnoreCase( addresult );
       }
 
-      createmovefolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createmovefolder" ) );
+      createmovefolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createmovefolder" ) );
 
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxy_username" );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxy_password" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
 
-      ifFileExists = getFileExistsIndex( XMLHandler.getTagValue( entrynode, "ifFileExists" ) );
-      nr_limit = XMLHandler.getTagValue( entrynode, "nr_limit" );
+      ifFileExists = getFileExistsIndex( XmlHandler.getTagValue( entrynode, "ifFileExists" ) );
+      nr_limit = XmlHandler.getTagValue( entrynode, "nr_limit" );
       success_condition =
-        Const.NVL( XMLHandler.getTagValue( entrynode, "success_condition" ), SUCCESS_IF_NO_ERRORS );
+        Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), SUCCESS_IF_NO_ERRORS );
       connectionType =
         FTPSConnection.getConnectionTypeByCode( Const.NVL(
-          XMLHandler.getTagValue( entrynode, "connection_type" ), "" ) );
+          XmlHandler.getTagValue( entrynode, "connection_type" ), "" ) );
     } catch ( Exception xe ) {
-      throw new HopXMLException( "Unable to load action of type 'FTPS' from XML node", xe );
+      throw new HopXmlException( "Unable to load action of type 'FTPS' from XML node", xe );
     }
   }
 

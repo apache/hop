@@ -27,12 +27,12 @@ import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.IExtensionData;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.ILogChannel;
@@ -48,7 +48,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -374,16 +374,16 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving
    * a workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series
-   * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically used
+   * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used
    * to construct the XML string.
    *
    * @return the xml representation of the action
    */
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "description", getDescription() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "type", configId ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "description", getDescription() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "type", configId ) );
 
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
 
@@ -392,23 +392,23 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
 
   /**
    * This method is called by PDI whenever a action needs to read its settings from XML. The XML node containing the
-   * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
+   * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
    * typically used to conveniently read the settings from the XML node.
    *
    * @param entrynode the top-level XML node
-   * @throws HopXMLException if any errors occur during the loading of the XML
+   * @throws HopXmlException if any errors occur during the loading of the XML
    */
-  public void loadXML( Node entrynode ) throws HopXMLException {
+  public void loadXml( Node entrynode ) throws HopXmlException {
     try {
-      setName( XMLHandler.getTagValue( entrynode, "name" ) );
-      setDescription( XMLHandler.getTagValue( entrynode, "description" ) );
+      setName( XmlHandler.getTagValue( entrynode, "name" ) );
+      setDescription( XmlHandler.getTagValue( entrynode, "description" ) );
 
       // Load the attribute groups map
       //
-      attributesMap = AttributesUtil.loadAttributes( XMLHandler.getSubNode( entrynode, AttributesUtil.XML_TAG ) );
+      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( entrynode, AttributesUtil.XML_TAG ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load base info for action", e );
+      throw new HopXmlException( "Unable to load base info for action", e );
     }
   }
 
@@ -477,7 +477,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
     return new ArrayList<>();
   }
 

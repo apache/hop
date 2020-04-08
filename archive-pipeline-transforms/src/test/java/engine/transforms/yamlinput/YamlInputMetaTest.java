@@ -160,7 +160,7 @@ public class YamlInputMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       YamlInputField actualInput = (YamlInputField) actual;
-      return ( testObject.getXML().equals( actualInput.getXML() ) );
+      return ( testObject.getXml().equals( actualInput.getXml() ) );
     }
   }
 

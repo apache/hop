@@ -62,23 +62,23 @@ public class InformixDatabaseMetaTest {
 
   @Test
   public void testSQLStatements() {
-    assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSQLTableExists( "FOO" ) );
-    assertEquals( "SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( "SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );
+    assertEquals( "SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( "SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
     assertEquals( "TRUNCATE TABLE FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO MODIFY BAR VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (1, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "LOCK TABLE FOO IN EXCLUSIVE MODE;" + lineSep + "LOCK TABLE BAR IN EXCLUSIVE MODE;" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
 
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO", "BAR" } ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] { "FOO", "BAR" } ) );
   }
 
   @Test

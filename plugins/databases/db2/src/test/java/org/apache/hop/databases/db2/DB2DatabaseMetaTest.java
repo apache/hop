@@ -144,15 +144,15 @@ public class DB2DatabaseMetaTest {
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
     assertEquals( "LOCK TABLE FOO IN SHARE MODE;" + lineSep + "LOCK TABLE BAR IN SHARE MODE;" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
 
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO", "BAR" } ) );
-    assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQSCHEMA = 'FOO' AND SEQNAME = 'BAR'", nativeMeta.getSQLSequenceExists( "FOO.BAR" ) );
-    assertEquals( "SELECT PREVIOUS VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT NEXT VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] { "FOO", "BAR" } ) );
+    assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQSCHEMA = 'FOO' AND SEQNAME = 'BAR'", nativeMeta.getSqlSequenceExists( "FOO.BAR" ) );
+    assertEquals( "SELECT PREVIOUS VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT NEXT VALUE FOR FOO FROM SYSIBM.SYSDUMMY1", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   @Test

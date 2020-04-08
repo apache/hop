@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.plugins.DatabasePluginType;
@@ -181,7 +181,7 @@ public class PGBulkLoaderTest {
     }
   }
 
-  private static PGBulkLoaderMeta getPgBulkLoaderMock( String DbNameOverride ) throws HopXMLException {
+  private static PGBulkLoaderMeta getPgBulkLoaderMock( String DbNameOverride ) throws HopXmlException {
     PGBulkLoaderMeta pgBulkLoaderMetaMock = mock( PGBulkLoaderMeta.class );
     when( pgBulkLoaderMetaMock.getDbNameOverride() ).thenReturn( DbNameOverride );
     DatabaseMeta databaseMeta = getDatabaseMetaSpy();
@@ -189,7 +189,7 @@ public class PGBulkLoaderTest {
     return pgBulkLoaderMetaMock;
   }
 
-  private static DatabaseMeta getDatabaseMetaSpy() throws HopXMLException {
+  private static DatabaseMeta getDatabaseMetaSpy() throws HopXmlException {
     DatabaseMeta databaseMeta = spy( new DatabaseMeta(
       CONNECTION_NAME, "POSTGRESQL", "Native",
       CONNECTION_DB_HOST, CONNECTION_DB_NAME, CONNECTION_DB_PORT,

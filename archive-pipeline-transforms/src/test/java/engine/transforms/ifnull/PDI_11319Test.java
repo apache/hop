@@ -20,7 +20,7 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transforms.ifnull.IfNullMeta.ValueTypes;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,8 +42,8 @@ public class PDI_11319Test {
   public void init() throws Exception {
     File v4 = new File( this.getClass().getResource( "v4.hpl" ).getFile() );
     File v5 = new File( this.getClass().getResource( "v5.hpl" ).getFile() );
-    xmlVersion4 = XMLHandler.loadXMLFile( v4 );
-    xmlVersion5 = XMLHandler.loadXMLFile( v5 );
+    xmlVersion4 = XmlHandler.loadXMLFile( v4 );
+    xmlVersion5 = XmlHandler.loadXMLFile( v5 );
     meta = new IfNullMeta();
   }
 
@@ -53,7 +53,7 @@ public class PDI_11319Test {
   @Test
   public void testLoadXMLVersion4() throws Exception {
     Node nullIfTransform = getNullIfTransform( xmlVersion4 );
-    meta.loadXML( nullIfTransform, null );
+    meta.loadXml( nullIfTransform, null );
 
     Assert.assertFalse( "Set Empty String is true", meta.isSetEmptyStringAll() );
     boolean[] expected = { false };
@@ -71,7 +71,7 @@ public class PDI_11319Test {
   @Test
   public void testLoadXMLVersion5() throws Exception {
     Node nullIfTransform = getNullIfTransform( xmlVersion5 );
-    meta.loadXML( nullIfTransform, null );
+    meta.loadXml( nullIfTransform, null );
 
     Assert.assertFalse( "Set Empty String is true", meta.isSetEmptyStringAll() );
     boolean[] expected = { true, false, false };
@@ -84,11 +84,11 @@ public class PDI_11319Test {
   }
 
   private Node getNullIfTransform( Node doc ) {
-    Node pipeline = XMLHandler.getSubNode( doc, "pipeline" );
-    List<Node> transforms = XMLHandler.getNodes( pipeline, "transform" );
+    Node pipeline = XmlHandler.getSubNode( doc, "pipeline" );
+    List<Node> transforms = XmlHandler.getNodes( pipeline, "transform" );
     Node nullIfTransform = null;
     for ( Node transform : transforms ) {
-      if ( "IfNull".equals( XMLHandler.getNodeValue( XMLHandler.getSubNode( transform, "type" ) ) ) ) {
+      if ( "IfNull".equals( XmlHandler.getNodeValue( XmlHandler.getSubNode( transform, "type" ) ) ) ) {
         nullIfTransform = transform;
         break;
       }

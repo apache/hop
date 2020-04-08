@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
@@ -73,16 +73,16 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
   private String[] samples;
 
   public FixedFileInputField( Node fnode ) {
-    name = XMLHandler.getTagValue( fnode, "name" );
-    type = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) );
-    format = XMLHandler.getTagValue( fnode, "format" );
-    trimType = ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) );
-    currency = XMLHandler.getTagValue( fnode, "currency" );
-    decimal = XMLHandler.getTagValue( fnode, "decimal" );
-    grouping = XMLHandler.getTagValue( fnode, "group" );
-    width = Const.toInt( XMLHandler.getTagValue( fnode, "width" ), -1 );
-    length = Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 );
-    precision = Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 );
+    name = XmlHandler.getTagValue( fnode, "name" );
+    type = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) );
+    format = XmlHandler.getTagValue( fnode, "format" );
+    trimType = ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) );
+    currency = XmlHandler.getTagValue( fnode, "currency" );
+    decimal = XmlHandler.getTagValue( fnode, "decimal" );
+    grouping = XmlHandler.getTagValue( fnode, "group" );
+    width = Const.toInt( XmlHandler.getTagValue( fnode, "width" ), -1 );
+    length = Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 );
+    precision = Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 );
 
   }
 
@@ -111,23 +111,23 @@ public class FixedFileInputField implements Cloneable, XMLInterface {
     return Objects.hashCode( name );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "type",
+    retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "name", name ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "type",
       ValueMetaFactory.getValueMetaName( type ) ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "format", format ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "format", format ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( "trim_type", ValueMetaString.getTrimTypeCode( trimType ) ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "currency", currency ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", decimal ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "group", grouping ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "width", width ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "length", length ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "precision", precision ) );
-    retval.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      XmlHandler.addTagValue( "trim_type", ValueMetaString.getTrimTypeCode( trimType ) ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "currency", currency ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", decimal ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "group", grouping ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "width", width ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "length", length ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", precision ) );
+    retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return retval.toString();
   }

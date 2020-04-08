@@ -32,7 +32,7 @@ public interface ILogTable extends ILogTableCore {
   /**
    * @return The log table meta-data in XML format.
    */
-  String getXML();
+  String getXml();
 
   /**
    * Load the information for this logging table from the workflow XML node
@@ -40,6 +40,6 @@ public interface ILogTable extends ILogTableCore {
    * @param workflowNode the node to load from
    * @param transforms   the transforms to reference (or null)
    */
-  void loadXML( Node workflowNode, List<TransformMeta> transforms );
+  void loadXml( Node workflowNode, List<TransformMeta> transforms );
 
 }

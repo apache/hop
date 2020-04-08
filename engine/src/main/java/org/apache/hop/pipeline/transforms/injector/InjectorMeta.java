@@ -27,12 +27,12 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -124,7 +124,7 @@ public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<In
     allocate( 0 );
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -140,16 +140,16 @@ public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<In
     precision = new int[ nrFields ];
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
     retval.append( "    <fields>" );
     for ( int i = 0; i < fieldname.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldname[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type",
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldname[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "type",
         ValueMetaFactory.getValueMetaName( type[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", length[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", precision[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "length", length[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "precision", precision[ i ] ) );
       retval.append( "      </field>" );
     }
     retval.append( "    </fields>" );
@@ -158,17 +158,17 @@ public class InjectorMeta extends BaseTransformMeta implements ITransformMeta<In
   }
 
   private void readData( Node transformNode ) {
-    Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-    int nrFields = XMLHandler.countNodes( fields, "field" );
+    Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+    int nrFields = XmlHandler.countNodes( fields, "field" );
 
     allocate( nrFields );
 
     for ( int i = 0; i < nrFields; i++ ) {
-      Node line = XMLHandler.getSubNodeByNr( fields, "field", i );
-      fieldname[ i ] = XMLHandler.getTagValue( line, "name" );
-      type[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( line, "type" ) );
-      length[ i ] = Const.toInt( XMLHandler.getTagValue( line, "length" ), -2 );
-      precision[ i ] = Const.toInt( XMLHandler.getTagValue( line, "precision" ), -2 );
+      Node line = XmlHandler.getSubNodeByNr( fields, "field", i );
+      fieldname[ i ] = XmlHandler.getTagValue( line, "name" );
+      type[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( line, "type" ) );
+      length[ i ] = Const.toInt( XmlHandler.getTagValue( line, "length" ), -2 );
+      precision[ i ] = Const.toInt( XmlHandler.getTagValue( line, "precision" ), -2 );
     }
 
   }

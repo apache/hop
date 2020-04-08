@@ -137,19 +137,19 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
     return " LIMIT " + nrRows;
   }
 
-  @Override public String getSQLQueryFields( String tableName ) {
+  @Override public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + " LIMIT 0";
   }
 
-  @Override public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  @Override public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
-  @Override public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  @Override public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT " + columnname + " FROM " + tableName + " LIMIT 0";
   }
 

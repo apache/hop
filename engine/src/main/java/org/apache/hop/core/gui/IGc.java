@@ -25,7 +25,7 @@ package org.apache.hop.core.gui;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public interface IGC extends IPrimitiveGC {
+public interface IGc extends IPrimitiveGc {
 
   void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification );
 

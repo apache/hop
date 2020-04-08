@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
@@ -35,7 +35,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
@@ -129,88 +129,88 @@ public class SlaveServerConfig {
     this.slaveServer = slaveServer;
   }
 
-  public String getXML() {
+  public String getXml() {
 
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) );
 
     for ( SlaveServer slaveServer : masters ) {
       xml.append( slaveServer.getXml() );
     }
 
-    XMLHandler.addTagValue( "report_to_masters", reportingToMasters );
+    XmlHandler.addTagValue( "report_to_masters", reportingToMasters );
 
     if ( slaveServer != null ) {
       xml.append( slaveServer.getXml() );
     }
 
-    XMLHandler.addTagValue( "joining", joining );
-    XMLHandler.addTagValue( "max_log_lines", maxLogLines );
-    XMLHandler.addTagValue( "max_log_timeout_minutes", maxLogTimeoutMinutes );
-    XMLHandler.addTagValue( "object_timeout_minutes", objectTimeoutMinutes );
+    XmlHandler.addTagValue( "joining", joining );
+    XmlHandler.addTagValue( "max_log_lines", maxLogLines );
+    XmlHandler.addTagValue( "max_log_timeout_minutes", maxLogTimeoutMinutes );
+    XmlHandler.addTagValue( "object_timeout_minutes", objectTimeoutMinutes );
 
-    xml.append( XMLHandler.openTag( XML_TAG_SEQUENCES ) );
+    xml.append( XmlHandler.openTag( XML_TAG_SEQUENCES ) );
     for ( SlaveSequence slaveSequence : slaveSequences ) {
-      xml.append( XMLHandler.openTag( SlaveSequence.XML_TAG ) );
-      xml.append( slaveSequence.getXML() );
-      xml.append( XMLHandler.closeTag( SlaveSequence.XML_TAG ) );
+      xml.append( XmlHandler.openTag( SlaveSequence.XML_TAG ) );
+      xml.append( slaveSequence.getXml() );
+      xml.append( XmlHandler.closeTag( SlaveSequence.XML_TAG ) );
     }
-    xml.append( XMLHandler.closeTag( XML_TAG_SEQUENCES ) );
+    xml.append( XmlHandler.closeTag( XML_TAG_SEQUENCES ) );
 
     if ( autoSequence != null ) {
-      xml.append( XMLHandler.openTag( XML_TAG_AUTOSEQUENCE ) );
-      xml.append( autoSequence.getXML() );
-      xml.append( XMLHandler.addTagValue( XML_TAG_AUTO_CREATE, automaticCreationAllowed ) );
-      xml.append( XMLHandler.closeTag( XML_TAG_AUTOSEQUENCE ) );
+      xml.append( XmlHandler.openTag( XML_TAG_AUTOSEQUENCE ) );
+      xml.append( autoSequence.getXml() );
+      xml.append( XmlHandler.addTagValue( XML_TAG_AUTO_CREATE, automaticCreationAllowed ) );
+      xml.append( XmlHandler.closeTag( XML_TAG_AUTOSEQUENCE ) );
     }
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
-  public SlaveServerConfig( ILogChannel log, Node node ) throws HopXMLException {
+  public SlaveServerConfig( ILogChannel log, Node node ) throws HopXmlException {
     this();
-    Node slaveNode = XMLHandler.getSubNode( node, SlaveServer.XML_TAG );
+    Node slaveNode = XmlHandler.getSubNode( node, SlaveServer.XML_TAG );
     if ( slaveNode != null ) {
       slaveServer = new SlaveServer( slaveNode );
       checkNetworkInterfaceSetting( log, slaveNode, slaveServer );
     }
 
-    Node mastersNode = XMLHandler.getSubNode( node, XML_TAG_MASTERS );
-    int nrMasters = XMLHandler.countNodes( mastersNode, SlaveServer.XML_TAG );
+    Node mastersNode = XmlHandler.getSubNode( node, XML_TAG_MASTERS );
+    int nrMasters = XmlHandler.countNodes( mastersNode, SlaveServer.XML_TAG );
     for ( int i = 0; i < nrMasters; i++ ) {
-      Node masterSlaveNode = XMLHandler.getSubNodeByNr( mastersNode, SlaveServer.XML_TAG, i );
+      Node masterSlaveNode = XmlHandler.getSubNodeByNr( mastersNode, SlaveServer.XML_TAG, i );
       SlaveServer masterSlaveServer = new SlaveServer( masterSlaveNode );
       checkNetworkInterfaceSetting( log, masterSlaveNode, masterSlaveServer );
       masterSlaveServer.setSslMode( slaveServer.isSslMode() );
       masters.add( masterSlaveServer );
     }
 
-    reportingToMasters = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "report_to_masters" ) );
+    reportingToMasters = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "report_to_masters" ) );
 
-    joining = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "joining" ) );
-    maxLogLines = Const.toInt( XMLHandler.getTagValue( node, "max_log_lines" ), 0 );
-    maxLogTimeoutMinutes = Const.toInt( XMLHandler.getTagValue( node, "max_log_timeout_minutes" ), 0 );
-    objectTimeoutMinutes = Const.toInt( XMLHandler.getTagValue( node, "object_timeout_minutes" ), 0 );
+    joining = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "joining" ) );
+    maxLogLines = Const.toInt( XmlHandler.getTagValue( node, "max_log_lines" ), 0 );
+    maxLogTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "max_log_timeout_minutes" ), 0 );
+    objectTimeoutMinutes = Const.toInt( XmlHandler.getTagValue( node, "object_timeout_minutes" ), 0 );
 
     // Read sequence information
     //
 
     // TODO : read databases back in
     //
-    Node sequencesNode = XMLHandler.getSubNode( node, "sequences" );
-    List<Node> seqNodes = XMLHandler.getNodes( sequencesNode, SlaveSequence.XML_TAG );
+    Node sequencesNode = XmlHandler.getSubNode( node, "sequences" );
+    List<Node> seqNodes = XmlHandler.getNodes( sequencesNode, SlaveSequence.XML_TAG );
     for ( Node seqNode : seqNodes ) {
       slaveSequences.add( new SlaveSequence( seqNode, databases ) );
     }
 
-    Node autoSequenceNode = XMLHandler.getSubNode( node, XML_TAG_AUTOSEQUENCE );
+    Node autoSequenceNode = XmlHandler.getSubNode( node, XML_TAG_AUTOSEQUENCE );
     if ( autoSequenceNode != null ) {
       autoSequence = new SlaveSequence( autoSequenceNode, databases );
       automaticCreationAllowed =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( autoSequenceNode, XML_TAG_AUTO_CREATE ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( autoSequenceNode, XML_TAG_AUTO_CREATE ) );
     }
 
     // Set Jetty Options
@@ -242,20 +242,20 @@ public class SlaveServerConfig {
 
     Map<String, String> jettyOptions = null;
 
-    Node jettyOptionsNode = XMLHandler.getSubNode( node, XML_TAG_JETTY_OPTIONS );
+    Node jettyOptionsNode = XmlHandler.getSubNode( node, XML_TAG_JETTY_OPTIONS );
 
     if ( jettyOptionsNode != null ) {
 
       jettyOptions = new HashMap<>();
-      if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) != null ) {
-        jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPTORS, XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) );
+      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) != null ) {
+        jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPTORS, XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPTORS ) );
       }
-      if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE ) != null ) {
-        jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE, XMLHandler.getTagValue( jettyOptionsNode,
+      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_ACCEPT_QUEUE_SIZE ) != null ) {
+        jettyOptions.put( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE, XmlHandler.getTagValue( jettyOptionsNode,
           XML_TAG_ACCEPT_QUEUE_SIZE ) );
       }
-      if ( XMLHandler.getTagValue( jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME ) != null ) {
-        jettyOptions.put( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME, XMLHandler.getTagValue( jettyOptionsNode,
+      if ( XmlHandler.getTagValue( jettyOptionsNode, XML_TAG_LOW_RES_MAX_IDLE_TIME ) != null ) {
+        jettyOptions.put( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME, XmlHandler.getTagValue( jettyOptionsNode,
           XML_TAG_LOW_RES_MAX_IDLE_TIME ) );
       }
     }
@@ -313,7 +313,7 @@ public class SlaveServerConfig {
   private void checkNetworkInterfaceSetting( ILogChannel log, Node slaveNode, SlaveServer slaveServer ) {
     // See if we need to grab the network interface to use and then override the host name
     //
-    String networkInterfaceName = XMLHandler.getTagValue( slaveNode, "network_interface" );
+    String networkInterfaceName = XmlHandler.getTagValue( slaveNode, "network_interface" );
     if ( !Utils.isEmpty( networkInterfaceName ) ) {
       // OK, so let's try to get the IP address for this network interface...
       //

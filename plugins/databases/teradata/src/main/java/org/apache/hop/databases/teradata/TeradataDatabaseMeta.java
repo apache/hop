@@ -111,12 +111,12 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
+  public String getSqlTableExists( String tablename ) {
     return "show table " + tablename;
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
+  public String getSqlColumnExists( String columnname, String tablename ) {
     return "SELECT * FROM DBC.columns WHERE tablename =" + tablename + " AND columnname =" + columnname;
   }
 

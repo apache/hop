@@ -108,19 +108,19 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
-  @Override public String getSQLQueryFields( String tableName ) {
+  @Override public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + " LIMIT 0";
   }
 
-  @Override public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  @Override public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
-  @Override public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  @Override public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT " + columnname + " FROM " + tableName + " LIMIT 0";
   }
 
@@ -379,7 +379,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableNames The names of the tables to lock
    * @return The SQL command to lock database tables for write purposes.
    */
-  @Override public String getSQLLockTables( String[] tableNames ) {
+  @Override public String getSqlLockTables( String[] tableNames ) {
     String sql = "LOCK TABLES ";
     for ( int i = 0; i < tableNames.length; i++ ) {
       if ( i > 0 ) {
@@ -396,7 +396,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName The name of the table to unlock
    * @return The SQL command to unlock a database table.
    */
-  @Override public String getSQLUnlockTables( String[] tableName ) {
+  @Override public String getSqlUnlockTables( String[] tableName ) {
     return "UNLOCK TABLES"; // This unlocks all tables
   }
 
@@ -429,7 +429,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
-  @Override public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField,
+  @Override public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField,
                                                                   String versionField ) {
     return "insert into " + schemaTable + "(" + keyField + ", " + versionField + ") values (1, 1)";
   }

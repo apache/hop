@@ -55,9 +55,6 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
   @Override public void debug() {
   }
 
-  @Override public void print() {
-  }
-
   @Override public void redraw() {
   }
 

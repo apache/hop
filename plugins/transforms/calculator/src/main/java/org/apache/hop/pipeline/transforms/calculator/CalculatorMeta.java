@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -94,26 +94,26 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
-    failIfNoFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "failIfNoFile" ) );
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+    failIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "failIfNoFile" ) );
 
-    int nrCalcs = XMLHandler.countNodes( transformNode, CalculatorMetaFunction.XML_TAG );
+    int nrCalcs = XmlHandler.countNodes( transformNode, CalculatorMetaFunction.XML_TAG );
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
-      Node calcnode = XMLHandler.getSubNodeByNr( transformNode, CalculatorMetaFunction.XML_TAG, i );
+      Node calcnode = XmlHandler.getSubNodeByNr( transformNode, CalculatorMetaFunction.XML_TAG, i );
       calculation[ i ] = new CalculatorMetaFunction( calcnode );
     }
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "failIfNoFile", failIfNoFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "failIfNoFile", failIfNoFile ) );
 
     if ( calculation != null ) {
       for ( CalculatorMetaFunction aCalculation : calculation ) {
-        retval.append( aCalculation.getXML() );
+        retval.append( aCalculation.getXml() );
       }
     }
 
@@ -124,7 +124,7 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       CalculatorMeta m = (CalculatorMeta) obj;
-      return ( getXML().equals( m.getXML() ) );
+      return ( getXml().equals( m.getXml() ) );
     }
 
     return false;

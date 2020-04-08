@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -97,41 +97,41 @@ public class MappingIODefinition implements Cloneable {
 
     this();
 
-    inputTransformName = XMLHandler.getTagValue( mappingNode, "input_transform" );
-    outputTransformName = XMLHandler.getTagValue( mappingNode, "output_transform" );
-    mainDataPath = "Y".equalsIgnoreCase( XMLHandler.getTagValue( mappingNode, "main_path" ) );
-    renamingOnOutput = "Y".equalsIgnoreCase( XMLHandler.getTagValue( mappingNode, "rename_on_output" ) );
-    description = XMLHandler.getTagValue( mappingNode, "description" );
+    inputTransformName = XmlHandler.getTagValue( mappingNode, "input_transform" );
+    outputTransformName = XmlHandler.getTagValue( mappingNode, "output_transform" );
+    mainDataPath = "Y".equalsIgnoreCase( XmlHandler.getTagValue( mappingNode, "main_path" ) );
+    renamingOnOutput = "Y".equalsIgnoreCase( XmlHandler.getTagValue( mappingNode, "rename_on_output" ) );
+    description = XmlHandler.getTagValue( mappingNode, "description" );
 
-    int nrConnectors = XMLHandler.countNodes( mappingNode, "connector" );
+    int nrConnectors = XmlHandler.countNodes( mappingNode, "connector" );
 
     for ( int i = 0; i < nrConnectors; i++ ) {
-      Node inputConnector = XMLHandler.getSubNodeByNr( mappingNode, "connector", i );
-      String parentField = XMLHandler.getTagValue( inputConnector, "parent" );
-      String childField = XMLHandler.getTagValue( inputConnector, "child" );
+      Node inputConnector = XmlHandler.getSubNodeByNr( mappingNode, "connector", i );
+      String parentField = XmlHandler.getTagValue( inputConnector, "parent" );
+      String childField = XmlHandler.getTagValue( inputConnector, "child" );
       valueRenames.add( new MappingValueRename( parentField, childField ) );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
-    xml.append( "    " ).append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) );
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "input_transform", inputTransformName ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "output_transform", outputTransformName ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "main_path", mainDataPath ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "rename_on_output", renamingOnOutput ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "description", description ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "input_transform", inputTransformName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "output_transform", outputTransformName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "main_path", mainDataPath ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "rename_on_output", renamingOnOutput ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
 
     for ( MappingValueRename valueRename : valueRenames ) {
-      xml.append( "       " ).append( XMLHandler.openTag( "connector" ) );
-      xml.append( XMLHandler.addTagValue( "parent", valueRename.getSourceValueName(), false ) );
-      xml.append( XMLHandler.addTagValue( "child", valueRename.getTargetValueName(), false ) );
-      xml.append( XMLHandler.closeTag( "connector" ) ).append( Const.CR );
+      xml.append( "       " ).append( XmlHandler.openTag( "connector" ) );
+      xml.append( XmlHandler.addTagValue( "parent", valueRename.getSourceValueName(), false ) );
+      xml.append( XmlHandler.addTagValue( "child", valueRename.getTargetValueName(), false ) );
+      xml.append( XmlHandler.closeTag( "connector" ) ).append( Const.CR );
     }
 
-    xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }

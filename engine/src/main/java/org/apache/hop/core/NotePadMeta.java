@@ -22,12 +22,12 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.IGUISize;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 /**
@@ -130,45 +130,45 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
       n.backgroundcolorgreen, n.backgroundcolorblue, n.bordercolorred, n.bordercolorgreen, n.bordercolorblue );
   }
 
-  public NotePadMeta( Node notepadnode ) throws HopXMLException {
+  public NotePadMeta( Node notepadnode ) throws HopXmlException {
     try {
-      note = XMLHandler.getTagValue( notepadnode, "note" );
-      String sxloc = XMLHandler.getTagValue( notepadnode, "xloc" );
-      String syloc = XMLHandler.getTagValue( notepadnode, "yloc" );
-      String swidth = XMLHandler.getTagValue( notepadnode, "width" );
-      String sheight = XMLHandler.getTagValue( notepadnode, "heigth" );
+      note = XmlHandler.getTagValue( notepadnode, "note" );
+      String sxloc = XmlHandler.getTagValue( notepadnode, "xloc" );
+      String syloc = XmlHandler.getTagValue( notepadnode, "yloc" );
+      String swidth = XmlHandler.getTagValue( notepadnode, "width" );
+      String sheight = XmlHandler.getTagValue( notepadnode, "heigth" );
       int x = Const.toInt( sxloc, 0 );
       int y = Const.toInt( syloc, 0 );
       this.location = new Point( x, y );
       this.width = Const.toInt( swidth, 0 );
       this.height = Const.toInt( sheight, 0 );
       this.selected = false;
-      this.fontname = XMLHandler.getTagValue( notepadnode, "fontname" );
-      this.fontsize = Const.toInt( XMLHandler.getTagValue( notepadnode, "fontsize" ), -1 );
-      this.fontbold = "Y".equalsIgnoreCase( XMLHandler.getTagValue( notepadnode, "fontbold" ) );
-      this.fontitalic = "Y".equalsIgnoreCase( XMLHandler.getTagValue( notepadnode, "fontitalic" ) );
+      this.fontname = XmlHandler.getTagValue( notepadnode, "fontname" );
+      this.fontsize = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontsize" ), -1 );
+      this.fontbold = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontbold" ) );
+      this.fontitalic = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontitalic" ) );
       // font color
-      this.fontcolorred = Const.toInt( XMLHandler.getTagValue( notepadnode, "fontcolorred" ), COLOR_RGB_BLACK_RED );
+      this.fontcolorred = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorred" ), COLOR_RGB_BLACK_RED );
       this.fontcolorgreen =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "fontcolorgreen" ), COLOR_RGB_BLACK_GREEN );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorgreen" ), COLOR_RGB_BLACK_GREEN );
       this.fontcolorblue =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "fontcolorblue" ), COLOR_RGB_BLACK_BLUE );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorblue" ), COLOR_RGB_BLACK_BLUE );
       // background color
       this.backgroundcolorred =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "backgroundcolorred" ), COLOR_RGB_DEFAULT_BG_RED );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorred" ), COLOR_RGB_DEFAULT_BG_RED );
       this.backgroundcolorgreen =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "backgroundcolorgreen" ), COLOR_RGB_DEFAULT_BG_GREEN );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorgreen" ), COLOR_RGB_DEFAULT_BG_GREEN );
       this.backgroundcolorblue =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "backgroundcolorblue" ), COLOR_RGB_DEFAULT_BG_BLUE );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorblue" ), COLOR_RGB_DEFAULT_BG_BLUE );
       // border color
       this.bordercolorred =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "bordercolorred" ), COLOR_RGB_DEFAULT_BORDER_RED );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorred" ), COLOR_RGB_DEFAULT_BORDER_RED );
       this.bordercolorgreen =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "bordercolorgreen" ), COLOR_RGB_DEFAULT_BORDER_GREEN );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorgreen" ), COLOR_RGB_DEFAULT_BORDER_GREEN );
       this.bordercolorblue =
-        Const.toInt( XMLHandler.getTagValue( notepadnode, "bordercolorblue" ), COLOR_RGB_DEFAULT_BORDER_BLUE );
+        Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorblue" ), COLOR_RGB_DEFAULT_BORDER_BLUE );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read Notepad info from XML", e );
+      throw new HopXmlException( "Unable to read Notepad info from XML", e );
     }
   }
 
@@ -310,28 +310,28 @@ public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
     StringBuilder retval = new StringBuilder( 100 );
 
     retval.append( "    <notepad>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "note", note ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "yloc", location.y ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "width", width ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "heigth", height ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "note", note ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "xloc", location.x ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "yloc", location.y ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "width", width ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "heigth", height ) );
     // Font
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontname", fontname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontsize", fontsize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontbold", fontbold ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontitalic", fontitalic ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontname", fontname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontsize", fontsize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontbold", fontbold ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontitalic", fontitalic ) );
     // Font color
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontcolorred", fontcolorred ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontcolorgreen", fontcolorgreen ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fontcolorblue", fontcolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorred", fontcolorred ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorgreen", fontcolorgreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorblue", fontcolorblue ) );
     // Background color
-    retval.append( "      " ).append( XMLHandler.addTagValue( "backgroundcolorred", backgroundcolorred ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "backgroundcolorgreen", backgroundcolorgreen ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "backgroundcolorblue", backgroundcolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorred", backgroundcolorred ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorgreen", backgroundcolorgreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorblue", backgroundcolorblue ) );
     // border color
-    retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorred", bordercolorred ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorgreen", bordercolorgreen ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "bordercolorblue", bordercolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorred", bordercolorred ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorgreen", bordercolorgreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorblue", bordercolorblue ) );
     retval.append( "    </notepad>" ).append( Const.CR );
 
     return retval.toString();

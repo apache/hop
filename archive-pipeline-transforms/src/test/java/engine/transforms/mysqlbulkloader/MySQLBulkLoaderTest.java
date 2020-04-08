@@ -26,7 +26,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.MySQLDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.RowMeta;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -110,12 +110,12 @@ public class MySQLBulkLoaderTest {
   }
 
   @Test
-  public void testFieldFormatType() throws HopXMLException {
+  public void testFieldFormatType() throws HopXmlException {
     MySQLBulkLoaderMeta lm = new MySQLBulkLoaderMeta();
-    Document document = XMLHandler.loadXMLFile( this.getClass().getResourceAsStream( "transform.xml" ) );
+    Document document = XmlHandler.loadXMLFile( this.getClass().getResourceAsStream( "transform.xml" ) );
     IMetaStore metastore = null;
     Node transformNode = (Node) document.getDocumentElement();
-    lm.loadXML( transformNode, metastore );
+    lm.loadXml( transformNode, metastore );
     int[] codes = lm.getFieldFormatType();
     assertEquals( 3, codes[ 0 ] );
     assertEquals( 4, codes[ 1 ] );

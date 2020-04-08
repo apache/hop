@@ -25,13 +25,12 @@ package org.apache.hop.partition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -121,35 +120,35 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
-    xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
+    xml.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "name", name ) );
     for ( int i = 0; i < partitionIDs.size(); i++ ) {
-      xml.append( "        " ).append( XMLHandler.openTag( "partition" ) ).append( Const.CR );
-      xml.append( "          " ).append( XMLHandler.addTagValue( "id", partitionIDs.get( i ) ) );
-      xml.append( "        " ).append( XMLHandler.closeTag( "partition" ) ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.openTag( "partition" ) ).append( Const.CR );
+      xml.append( "          " ).append( XmlHandler.addTagValue( "id", partitionIDs.get( i ) ) );
+      xml.append( "        " ).append( XmlHandler.closeTag( "partition" ) ).append( Const.CR );
     }
 
-    xml.append( "        " ).append( XMLHandler.addTagValue( "dynamic", dynamicallyDefined ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "dynamic", dynamicallyDefined ) );
     xml
       .append( "        " ).append(
-      XMLHandler.addTagValue( "nr_partitions", numberOfPartitions ) );
+      XmlHandler.addTagValue( "nr_partitions", numberOfPartitions ) );
 
-    xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     return xml.toString();
   }
 
   public PartitionSchema( Node partitionSchemaNode ) {
-    name = XMLHandler.getTagValue( partitionSchemaNode, "name" );
+    name = XmlHandler.getTagValue( partitionSchemaNode, "name" );
 
-    int nrIDs = XMLHandler.countNodes( partitionSchemaNode, "partition" );
+    int nrIDs = XmlHandler.countNodes( partitionSchemaNode, "partition" );
     partitionIDs = new ArrayList<>();
     for ( int i = 0; i < nrIDs; i++ ) {
-      Node partitionNode = XMLHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
-      partitionIDs.add( XMLHandler.getTagValue( partitionNode, "id" ) );
+      Node partitionNode = XmlHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
+      partitionIDs.add( XmlHandler.getTagValue( partitionNode, "id" ) );
     }
 
-    dynamicallyDefined = "Y".equalsIgnoreCase( XMLHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
-    numberOfPartitions = XMLHandler.getTagValue( partitionSchemaNode, "nr_partitions" );
+    dynamicallyDefined = "Y".equalsIgnoreCase( XmlHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
+    numberOfPartitions = XmlHandler.getTagValue( partitionSchemaNode, "nr_partitions" );
   }
 
   public List<String> calculatePartitionIds() {

@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.metrics.MetricsDuration;
 import org.junit.Before;
@@ -62,7 +62,7 @@ public class MetricsPainterTest {
 
   @Test( timeout = 1000 )
   public void testDrawTimeScaleLineInfinityLoop() {
-    IGC gCInterfaceMock = mock( IGC.class );
+    IGc gCInterfaceMock = mock( IGc.class );
     when( metricsPainter.getGc() ).thenReturn( gCInterfaceMock );
     doCallRealMethod().when( metricsPainter ).drawTimeScaleLine( heightStub, pixelsPerMsStub, periodInMsStub );
     when( gCInterfaceMock.textExtent( anyString() ) ).thenReturn( mock( Point.class ) );

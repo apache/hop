@@ -29,11 +29,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -93,26 +93,26 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename1", filename1 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename2", filename2 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename1", filename1 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename2", filename2 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      filename1 = XMLHandler.getTagValue( entrynode, "filename1" );
-      filename2 = XMLHandler.getTagValue( entrynode, "filename2" );
-      addFilenameToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+      super.loadXml( entrynode );
+      filename1 = XmlHandler.getTagValue( entrynode, "filename1" );
+      filename2 = XmlHandler.getTagValue( entrynode, "filename2" );
+      addFilenameToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_filename_result" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionFileCompare.ERROR_0001_Unable_To_Load_From_Xml_Node" ), xe );
     }
   }

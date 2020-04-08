@@ -310,7 +310,7 @@ public class FirebirdDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return "SELECT RDB$PROCEDURE_NAME "
       + "FROM RDB$PROCEDURES " + "WHERE RDB$OWNER_NAME = '" + getUsername().toUpperCase() + "' ";
   }

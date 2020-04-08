@@ -38,8 +38,8 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
-import org.apache.hop.core.xml.XMLHandlerCache;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.core.xml.XmlHandlerCache;
 import org.apache.hop.i18n.LanguageChoice;
 import org.junit.rules.ExternalResource;
 
@@ -78,7 +78,7 @@ public class RestoreHopEnvironment extends ExternalResource {
     Class.forName( ValueMetaBase.class.getName() );
     Class.forName( SimpleTimestampFormat.class.getName() );
     Class.forName( SimpleDateFormat.class.getName() );
-    Class.forName( XMLHandler.class.getName() );
+    Class.forName( XmlHandler.class.getName() );
     Class.forName( LogChannel.class.getName() );
     DatabaseMeta.init();
     ExtensionPointMap.getInstance().reInitialize();
@@ -98,7 +98,7 @@ public class RestoreHopEnvironment extends ExternalResource {
       Props.getInstance().reset();
     }
     HopVFS.getInstance().reset();
-    XMLHandlerCache.getInstance().clear();
+    XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
     // under no circumstance reset the LoggingRegistry
     //    LoggingRegistry.getInstance().reset();

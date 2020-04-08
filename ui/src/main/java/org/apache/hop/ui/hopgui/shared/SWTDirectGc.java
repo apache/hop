@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.shared;
 
 import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -49,12 +49,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * SWTGC draws on an Image. This class draws directly on an SWT GC. getImage() returns null as a consequence of not
+ * SwtGc draws on an Image. This class draws directly on an SWT GC. getImage() returns null as a consequence of not
  * being created nor used.
  *
  * @author matt
  */
-public class SWTDirectGC implements IGC {
+public class SWTDirectGc implements IGc {
 
   protected Color background;
 
@@ -92,7 +92,7 @@ public class SWTDirectGC implements IGC {
 
   private Point area;
 
-  public SWTDirectGC( GC gc, Point area, int iconsize ) {
+  public SWTDirectGc( GC gc, Point area, int iconsize ) {
     this.gc = gc;
     this.area = area;
     this.iconsize = iconsize;

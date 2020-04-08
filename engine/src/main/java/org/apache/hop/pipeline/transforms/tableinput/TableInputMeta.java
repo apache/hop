@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -102,7 +102,7 @@ public class TableInputMeta
   public void setConnection( String connectionName ) {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
-    } catch ( HopXMLException e ) {
+    } catch ( HopXmlException e ) {
       throw new RuntimeException( "Error loading conneciton '" + connectionName + "'", e );
     }
   }
@@ -152,18 +152,18 @@ public class TableInputMeta
   /**
    * @return Returns the sql.
    */
-  public String getSQL() {
+  public String getSql() {
     return sql;
   }
 
   /**
    * @param sql The sql to set.
    */
-  public void setSQL( String sql ) {
+  public void setSql( String sql ) {
     this.sql = sql;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -172,22 +172,22 @@ public class TableInputMeta
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( transformNode, "connection" ) );
-      sql = XMLHandler.getTagValue( transformNode, "sql" );
-      rowLimit = XMLHandler.getTagValue( transformNode, "limit" );
+      databaseMeta = DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "connection" ) );
+      sql = XmlHandler.getTagValue( transformNode, "sql" );
+      rowLimit = XmlHandler.getTagValue( transformNode, "limit" );
 
-      String lookupFromTransformName = XMLHandler.getTagValue( transformNode, "lookup" );
+      String lookupFromTransformName = XmlHandler.getTagValue( transformNode, "lookup" );
       IStream infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
       infoStream.setSubject( lookupFromTransformName );
 
-      executeEachInputRow = "Y".equals( XMLHandler.getTagValue( transformNode, "execute_each_row" ) );
-      variableReplacementActive = "Y".equals( XMLHandler.getTagValue( transformNode, "variables_active" ) );
-      lazyConversionActive = "Y".equals( XMLHandler.getTagValue( transformNode, "lazy_conversion_active" ) );
+      executeEachInputRow = "Y".equals( XmlHandler.getTagValue( transformNode, "execute_each_row" ) );
+      variableReplacementActive = "Y".equals( XmlHandler.getTagValue( transformNode, "variables_active" ) );
+      lazyConversionActive = "Y".equals( XmlHandler.getTagValue( transformNode, "lazy_conversion_active" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -284,18 +284,18 @@ public class TableInputMeta
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    "
-      + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sql", sql ) );
-    retval.append( "    " + XMLHandler.addTagValue( "limit", rowLimit ) );
+      + XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sql", sql ) );
+    retval.append( "    " + XmlHandler.addTagValue( "limit", rowLimit ) );
     IStream infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
-    retval.append( "    " + XMLHandler.addTagValue( "lookup", infoStream.getTransformName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "execute_each_row", executeEachInputRow ) );
-    retval.append( "    " + XMLHandler.addTagValue( "variables_active", variableReplacementActive ) );
-    retval.append( "    " + XMLHandler.addTagValue( "lazy_conversion_active", lazyConversionActive ) );
+    retval.append( "    " + XmlHandler.addTagValue( "lookup", infoStream.getTransformName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "execute_each_row", executeEachInputRow ) );
+    retval.append( "    " + XmlHandler.addTagValue( "variables_active", variableReplacementActive ) );
+    retval.append( "    " + XmlHandler.addTagValue( "lazy_conversion_active", lazyConversionActive ) );
 
     return retval.toString();
   }

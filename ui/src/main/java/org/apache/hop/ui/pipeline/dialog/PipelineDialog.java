@@ -2146,7 +2146,7 @@ public class PipelineDialog extends Dialog {
           return;
         }
         con = tii.getDatabaseMeta().getName();
-        tab = getTableFromSQL( tii.getSQL() );
+        tab = getTableFromSQL( tii.getSql() );
         if ( tab == null ) {
           tab = transformMeta.getName();
         }

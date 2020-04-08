@@ -34,10 +34,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -201,22 +201,22 @@ public class ActionSendNagiosPassiveICheck extends ActionBase implements Cloneab
     return level_type_Code[ i ];
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "password", password ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "responseTimeOut", responseTimeOut ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connectionTimeOut", connectionTimeOut ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "password", password ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "responseTimeOut", responseTimeOut ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connectionTimeOut", connectionTimeOut ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "senderServerName", senderServerName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "senderServiceName", senderServiceName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "message", message ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "senderServerName", senderServerName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "senderServiceName", senderServiceName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "message", message ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "encryptionMode", getEncryptionModeCode( encryptionMode ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "level", getLevelCode( level ) ) );
+      XmlHandler.addTagValue( "encryptionMode", getEncryptionModeCode( encryptionMode ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "level", getLevelCode( level ) ) );
 
     return retval.toString();
   }
@@ -247,25 +247,25 @@ public class ActionSendNagiosPassiveICheck extends ActionBase implements Cloneab
     return 0;
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      responseTimeOut = XMLHandler.getTagValue( entrynode, "responseTimeOut" );
-      connectionTimeOut = XMLHandler.getTagValue( entrynode, "connectionTimeOut" );
-      password = XMLHandler.getTagValue( entrynode, "password" );
+      super.loadXml( entrynode );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      responseTimeOut = XmlHandler.getTagValue( entrynode, "responseTimeOut" );
+      connectionTimeOut = XmlHandler.getTagValue( entrynode, "connectionTimeOut" );
+      password = XmlHandler.getTagValue( entrynode, "password" );
 
-      senderServerName = XMLHandler.getTagValue( entrynode, "senderServerName" );
-      senderServiceName = XMLHandler.getTagValue( entrynode, "senderServiceName" );
-      message = XMLHandler.getTagValue( entrynode, "message" );
+      senderServerName = XmlHandler.getTagValue( entrynode, "senderServerName" );
+      senderServiceName = XmlHandler.getTagValue( entrynode, "senderServiceName" );
+      message = XmlHandler.getTagValue( entrynode, "message" );
 
-      encryptionMode = getEncryptionModeByCode( XMLHandler.getTagValue( entrynode, "encryptionMode" ) );
-      level = getLevelByCode( XMLHandler.getTagValue( entrynode, "level" ) );
+      encryptionMode = getEncryptionModeByCode( XmlHandler.getTagValue( entrynode, "encryptionMode" ) );
+      level = getLevelByCode( XmlHandler.getTagValue( entrynode, "level" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'SendNagiosPassiveCheck' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'SendNagiosPassiveCheck' from XML node", xe );
     }
   }
 

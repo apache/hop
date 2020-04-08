@@ -24,8 +24,8 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
@@ -64,11 +64,11 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
     this( null, null, false );
   }
 
-  public PipelineHopMeta( Node hopnode, List<TransformMeta> transforms ) throws HopXMLException {
+  public PipelineHopMeta( Node hopnode, List<TransformMeta> transforms ) throws HopXmlException {
     try {
-      this.from = searchTransform( transforms, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_FROM_TAG ) );
-      this.to = searchTransform( transforms, XMLHandler.getTagValue( hopnode, PipelineHopMeta.XML_TO_TAG ) );
-      String en = XMLHandler.getTagValue( hopnode, "enabled" );
+      this.from = searchTransform( transforms, XmlHandler.getTagValue( hopnode, PipelineHopMeta.XML_FROM_TAG ) );
+      this.to = searchTransform( transforms, XmlHandler.getTagValue( hopnode, PipelineHopMeta.XML_TO_TAG ) );
+      String en = XmlHandler.getTagValue( hopnode, "enabled" );
 
       if ( en == null ) {
         enabled = true;
@@ -76,7 +76,7 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
         enabled = en.equalsIgnoreCase( "Y" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "PipelineHopMeta.Exception.UnableToLoadHopInfo" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "PipelineHopMeta.Exception.UnableToLoadHopInfo" ), e );
     }
   }
 
@@ -141,11 +141,11 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
     StringBuilder retval = new StringBuilder( 200 );
 
     if ( this.from != null && this.to != null ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-      retval.append( "      " ).append( XMLHandler.addTagValue( PipelineHopMeta.XML_FROM_TAG, this.from.getName() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( PipelineHopMeta.XML_TO_TAG, this.to.getName() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "enabled", enabled ) );
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_FROM_TAG, this.from.getName() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_TO_TAG, this.to.getName() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
+      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     }
 
     return retval.toString();

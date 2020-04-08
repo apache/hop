@@ -678,8 +678,8 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     if ( input.isSystemObjectFieldName() != null ) {
       wisSystemObjectField.setText( input.isSystemObjectFieldName() );
     }
-    if ( input.getSQLCreationFieldName() != null ) {
-      wSQLCreationField.setText( input.getSQLCreationFieldName() );
+    if ( input.getSqlCreationFieldName() != null ) {
+      wSQLCreationField.setText( input.getSqlCreationFieldName() );
     }
     wincludeCatalog.setSelection( input.isIncludeCatalog() );
     wincludeSchema.setSelection( input.isIncludeSchema() );
@@ -746,7 +746,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     info.setDatabase( pipelineMeta.findDatabase( wConnection.getText() ) );
     info.setSchemaName( wschemaname.getText() );
     info.setTablenameFieldName( wTablenameField.getText() );
-    info.setSQLCreationFieldName( wSQLCreationField.getText() );
+    info.setSqlCreationFieldName( wSQLCreationField.getText() );
     info.setObjectTypeFieldName( wObjectTypeField.getText() );
     info.setIsSystemObjectFieldName( wisSystemObjectField.getText() );
     info.setIncludeCatalog( wincludeCatalog.getSelection() );

@@ -463,7 +463,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
    */
   public void getData() {
     wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wSQL.setText( Const.nullToEmpty( jobEntry.getSQL() ) );
+    wSQL.setText( Const.nullToEmpty( jobEntry.getSql() ) );
     DatabaseMeta dbinfo = jobEntry.getDatabase();
     if ( dbinfo != null && dbinfo.getName() != null ) {
       wConnection.setText( dbinfo.getName() );
@@ -472,10 +472,10 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     }
 
     wUseSubs.setSelection( jobEntry.getUseVariableSubstitution() );
-    wSQLFromFile.setSelection( jobEntry.getSQLFromFile() );
+    wSQLFromFile.setSelection( jobEntry.getSqlFromFile() );
     wSendOneStatement.setSelection( jobEntry.isSendOneStatement() );
 
-    wFilename.setText( Const.nullToEmpty( jobEntry.getSQLFilename() ) );
+    wFilename.setText( Const.nullToEmpty( jobEntry.getSqlFilename() ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -506,10 +506,10 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
       return;
     }
     jobEntry.setName( wName.getText() );
-    jobEntry.setSQL( wSQL.getText() );
+    jobEntry.setSql( wSQL.getText() );
     jobEntry.setUseVariableSubstitution( wUseSubs.getSelection() );
-    jobEntry.setSQLFromFile( wSQLFromFile.getSelection() );
-    jobEntry.setSQLFilename( wFilename.getText() );
+    jobEntry.setSqlFromFile( wSQLFromFile.getSelection() );
+    jobEntry.setSqlFilename( wFilename.getText() );
     jobEntry.setSendOneStatement( wSendOneStatement.getSelection() );
     jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
     dispose();

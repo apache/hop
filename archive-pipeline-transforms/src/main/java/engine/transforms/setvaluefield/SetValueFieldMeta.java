@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.setvaluefield;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -87,7 +87,7 @@ public class SetValueFieldMeta extends BaseTransformMeta implements ITransform {
     this.replaceByFieldValue = replaceByFieldValue;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -108,21 +108,21 @@ public class SetValueFieldMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        replaceByFieldValue[ i ] = XMLHandler.getTagValue( fnode, "replaceby" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        replaceByFieldValue[ i ] = XmlHandler.getTagValue( fnode, "replaceby" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SetValueFieldMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -138,15 +138,15 @@ public class SetValueFieldMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <fields>" + Const.CR );
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "replaceby", replaceByFieldValue[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "replaceby", replaceByFieldValue[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );

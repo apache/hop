@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -513,7 +513,7 @@ public class LDAPInputMeta extends BaseTransformMeta implements LdapMeta {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -535,22 +535,22 @@ public class LDAPInputMeta extends BaseTransformMeta implements LdapMeta {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "usepaging", usePaging ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "pagesize", pagesize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "useauthentication", useAuthentication ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "host", Host ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "usepaging", usePaging ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "pagesize", pagesize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "useauthentication", useAuthentication ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "host", Host ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filterstring", filterString ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "searchbase", searchBase ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filterstring", filterString ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "searchbase", searchBase ) );
 
     /*
      * Describe the fields to read
@@ -558,42 +558,42 @@ public class LDAPInputMeta extends BaseTransformMeta implements LdapMeta {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[ i ].getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "attribute", inputFields[ i ].getAttribute() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", inputFields[ i ].getName() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "attribute", inputFields[ i ].getAttribute() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "attribute_fetch_as", inputFields[ i ].getFetchAttributeAsCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "sorted_key", inputFields[ i ].isSortedKey() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type", inputFields[ i ].getTypeDesc() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "format", inputFields[ i ].getFormat() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", inputFields[ i ].getLength() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", inputFields[ i ].getPrecision() ) );
+        XmlHandler.addTagValue( "attribute_fetch_as", inputFields[ i ].getFetchAttributeAsCode() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "sorted_key", inputFields[ i ].isSortedKey() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "type", inputFields[ i ].getTypeDesc() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "format", inputFields[ i ].getFormat() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "length", inputFields[ i ].getLength() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "precision", inputFields[ i ].getPrecision() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( "currency", inputFields[ i ].getCurrencySymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", inputFields[ i ].getDecimalSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "group", inputFields[ i ].getGroupSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", inputFields[ i ].getTrimTypeCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", inputFields[ i ].isRepeated() ) );
+        .append( "        " ).append( XmlHandler.addTagValue( "currency", inputFields[ i ].getCurrencySymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", inputFields[ i ].getDecimalSymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "group", inputFields[ i ].getGroupSymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", inputFields[ i ].getTrimTypeCode() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "repeat", inputFields[ i ].isRepeated() ) );
 
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", rowLimit ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "timelimit", timeLimit ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "multivaluedseparator", multiValuedSeparator ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicsearch", dynamicSearch ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicseachfieldname", dynamicSeachFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicfilter", dynamicFilter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicfilterfieldname", dynamicFilterFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "searchScope", getSearchScopeCode( searchScope ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "timelimit", timeLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "multivaluedseparator", multiValuedSeparator ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicsearch", dynamicSearch ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicseachfieldname", dynamicSeachFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicfilter", dynamicFilter ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicfilterfieldname", dynamicFilterFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "searchScope", getSearchScopeCode( searchScope ) ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trustStorePath", trustStorePath ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "trustStorePath", trustStorePath ) );
     retval.append( "    " ).append(
-      XMLHandler
+      XmlHandler
         .addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trustAllCertificates", trustAllCertificates ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "useCertificate", useCertificate ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "trustAllCertificates", trustAllCertificates ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "useCertificate", useCertificate ) );
 
     return retval.toString();
   }
@@ -605,81 +605,81 @@ public class LDAPInputMeta extends BaseTransformMeta implements LdapMeta {
     return searchScopeCode[ i ];
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      usePaging = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usepaging" ) );
-      pagesize = XMLHandler.getTagValue( transformNode, "pagesize" );
-      useAuthentication = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useauthentication" ) );
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      Host = XMLHandler.getTagValue( transformNode, "host" );
-      userName = XMLHandler.getTagValue( transformNode, "username" );
-      setPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "password" ) ) );
+      usePaging = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usepaging" ) );
+      pagesize = XmlHandler.getTagValue( transformNode, "pagesize" );
+      useAuthentication = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useauthentication" ) );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      Host = XmlHandler.getTagValue( transformNode, "host" );
+      userName = XmlHandler.getTagValue( transformNode, "username" );
+      setPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) ) );
 
-      port = XMLHandler.getTagValue( transformNode, "port" );
-      filterString = XMLHandler.getTagValue( transformNode, "filterstring" );
-      searchBase = XMLHandler.getTagValue( transformNode, "searchbase" );
+      port = XmlHandler.getTagValue( transformNode, "port" );
+      filterString = XmlHandler.getTagValue( transformNode, "filterstring" );
+      searchBase = XmlHandler.getTagValue( transformNode, "searchbase" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         inputFields[ i ] = new LDAPInputField();
 
-        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        inputFields[ i ].setAttribute( XMLHandler.getTagValue( fnode, "attribute" ) );
-        inputFields[ i ].setFetchAttributeAs( LDAPInputField.getFetchAttributeAsByCode( XMLHandler.getTagValue(
+        inputFields[ i ].setName( XmlHandler.getTagValue( fnode, "name" ) );
+        inputFields[ i ].setAttribute( XmlHandler.getTagValue( fnode, "attribute" ) );
+        inputFields[ i ].setFetchAttributeAs( LDAPInputField.getFetchAttributeAsByCode( XmlHandler.getTagValue(
           fnode, "attribute_fetch_as" ) ) );
-        String sortedkey = XMLHandler.getTagValue( fnode, "sorted_key" );
+        String sortedkey = XmlHandler.getTagValue( fnode, "sorted_key" );
         if ( sortedkey != null ) {
           inputFields[ i ].setSortedKey( YES.equalsIgnoreCase( sortedkey ) );
         } else {
           inputFields[ i ].setSortedKey( false );
         }
-        inputFields[ i ].setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        inputFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        inputFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
-        String srepeat = XMLHandler.getTagValue( fnode, "repeat" );
+        inputFields[ i ].setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
+        inputFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+        inputFields[ i ].setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
+        String srepeat = XmlHandler.getTagValue( fnode, "repeat" );
         if ( srepeat != null ) {
           inputFields[ i ].setRepeated( YES.equalsIgnoreCase( srepeat ) );
         } else {
           inputFields[ i ].setRepeated( false );
         }
-        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
 
-        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
+        inputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+        inputFields[ i ].setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
+        inputFields[ i ].setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
+        inputFields[ i ].setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
 
       }
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toInt( XMLHandler.getTagValue( transformNode, "limit" ), 0 );
-      timeLimit = Const.toInt( XMLHandler.getTagValue( transformNode, "timelimit" ), 0 );
-      multiValuedSeparator = XMLHandler.getTagValue( transformNode, "multivaluedseparator" );
-      dynamicSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamicsearch" ) );
-      dynamicSeachFieldName = XMLHandler.getTagValue( transformNode, "dynamicseachfieldname" );
-      dynamicFilter = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamicfilter" ) );
-      dynamicFilterFieldName = XMLHandler.getTagValue( transformNode, "dynamicfilterfieldname" );
+      rowLimit = Const.toInt( XmlHandler.getTagValue( transformNode, "limit" ), 0 );
+      timeLimit = Const.toInt( XmlHandler.getTagValue( transformNode, "timelimit" ), 0 );
+      multiValuedSeparator = XmlHandler.getTagValue( transformNode, "multivaluedseparator" );
+      dynamicSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamicsearch" ) );
+      dynamicSeachFieldName = XmlHandler.getTagValue( transformNode, "dynamicseachfieldname" );
+      dynamicFilter = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamicfilter" ) );
+      dynamicFilterFieldName = XmlHandler.getTagValue( transformNode, "dynamicfilterfieldname" );
       searchScope =
         getSearchScopeByCode( Const.NVL(
-          XMLHandler.getTagValue( transformNode, "searchScope" ),
+          XmlHandler.getTagValue( transformNode, "searchScope" ),
           getSearchScopeCode( LDAPConnection.SEARCH_SCOPE_SUBTREE_SCOPE ) ) );
 
-      protocol = XMLHandler.getTagValue( transformNode, "protocol" );
-      trustStorePath = XMLHandler.getTagValue( transformNode, "trustStorePath" );
+      protocol = XmlHandler.getTagValue( transformNode, "protocol" );
+      trustStorePath = XmlHandler.getTagValue( transformNode, "trustStorePath" );
       trustStorePassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "trustStorePassword" ) );
-      trustAllCertificates = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "trustAllCertificates" ) );
-      useCertificate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useCertificate" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "trustStorePassword" ) );
+      trustAllCertificates = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "trustAllCertificates" ) );
+      useCertificate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useCertificate" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "LDAPInputMeta.UnableToLoadFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "LDAPInputMeta.UnableToLoadFromXML" ), e );
     }
   }
 

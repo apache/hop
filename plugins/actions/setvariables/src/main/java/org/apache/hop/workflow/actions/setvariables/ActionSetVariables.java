@@ -28,11 +28,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -126,23 +126,23 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replacevars", replaceVars ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replacevars", replaceVars ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "file_variable_type", getVariableTypeCode( fileVariableType ) ) );
+      XmlHandler.addTagValue( "file_variable_type", getVariableTypeCode( fileVariableType ) ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( variableName != null ) {
       for ( int i = 0; i < variableName.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_name", variableName[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "variable_value", variableValue[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "variable_name", variableName[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "variable_value", variableValue[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
+          XmlHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -151,31 +151,31 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      replaceVars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "replacevars" ) );
+      super.loadXml( entrynode );
+      replaceVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "replacevars" ) );
 
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      fileVariableType = getVariableType( XMLHandler.getTagValue( entrynode, "file_variable_type" ) );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      fileVariableType = getVariableType( XmlHandler.getTagValue( entrynode, "file_variable_type" ) );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
       // How many field variableName?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        variableName[ i ] = XMLHandler.getTagValue( fnode, "variable_name" );
-        variableValue[ i ] = XMLHandler.getTagValue( fnode, "variable_value" );
-        variableType[ i ] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
+        variableName[ i ] = XmlHandler.getTagValue( fnode, "variable_name" );
+        variableValue[ i ] = XmlHandler.getTagValue( fnode, "variable_value" );
+        variableType[ i ] = getVariableType( XmlHandler.getTagValue( fnode, "variable_type" ) );
 
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionSetVariables.Meta.UnableLoadXML", xe
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionSetVariables.Meta.UnableLoadXML", xe
         .getMessage() ), xe );
     }
   }

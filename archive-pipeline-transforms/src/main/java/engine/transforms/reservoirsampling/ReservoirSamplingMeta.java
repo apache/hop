@@ -26,10 +26,10 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -107,13 +107,13 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
    *
    * @return a <code>String</code> containing the XML
    */
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
-    retval.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( XMLHandler.addTagValue( "sample_size", m_sampleSize ) );
-    retval.append( XMLHandler.addTagValue( "seed", m_randomSeed ) );
-    retval.append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.addTagValue( "sample_size", m_sampleSize ) );
+    retval.append( XmlHandler.addTagValue( "seed", m_randomSeed ) );
+    retval.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return retval.toString();
   }
@@ -127,7 +127,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       ReservoirSamplingMeta m = (ReservoirSamplingMeta) obj;
-      return ( getXML() == m.getXML() );
+      return ( getXml() == m.getXml() );
     }
 
     return false;
@@ -160,17 +160,17 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
    * Loads the meta data for this (configured) transform from XML.
    *
    * @param transformNode the transform to load
-   * @throws HopXMLException if an error occurs
+   * @throws HopXmlException if an error occurs
    */
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
 
-    int nrTransforms = XMLHandler.countNodes( transformNode, XML_TAG );
+    int nrTransforms = XmlHandler.countNodes( transformNode, XML_TAG );
 
     if ( nrTransforms > 0 ) {
-      Node reservoirnode = XMLHandler.getSubNodeByNr( transformNode, XML_TAG, 0 );
+      Node reservoirnode = XmlHandler.getSubNodeByNr( transformNode, XML_TAG, 0 );
 
-      m_sampleSize = XMLHandler.getTagValue( reservoirnode, "sample_size" );
-      m_randomSeed = XMLHandler.getTagValue( reservoirnode, "seed" );
+      m_sampleSize = XmlHandler.getTagValue( reservoirnode, "sample_size" );
+      m_randomSeed = XmlHandler.getTagValue( reservoirnode, "seed" );
 
     }
   }

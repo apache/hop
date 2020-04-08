@@ -259,7 +259,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT SEQNAME FROM SYSCAT.SEQUENCES";
   }
 
@@ -270,7 +270,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = '" + sequenceName.toUpperCase() + "'";
   }
 
@@ -281,7 +281,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The current value of a database sequence
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT PREVIOUS VALUE FOR " + sequenceName + " FROM SYSIBM.SYSDUMMY1";
   }
 
@@ -292,7 +292,7 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT NEXT VALUE FOR " + sequenceName + " FROM SYSIBM.SYSDUMMY1";
   }
 

@@ -25,14 +25,14 @@ package org.apache.hop.workflow.actions.writetolog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -87,28 +87,28 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logmessage", logmessage ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logmessage", logmessage ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "loglevel", ( getEntryLogLevel() == null ) ? null : getEntryLogLevel().getCode() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logsubject", logsubject ) );
+      XmlHandler.addTagValue( "loglevel", ( getEntryLogLevel() == null ) ? null : getEntryLogLevel().getCode() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logsubject", logsubject ) );
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      logmessage = XMLHandler.getTagValue( entrynode, "logmessage" );
-      entryLogLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
-      logsubject = XMLHandler.getTagValue( entrynode, "logsubject" );
+      super.loadXml( entrynode );
+      logmessage = XmlHandler.getTagValue( entrynode, "logmessage" );
+      entryLogLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
+      logsubject = XmlHandler.getTagValue( entrynode, "logsubject" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToLoadFromXML.Label" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "WriteToLog.Error.UnableToLoadFromXML.Label" ), e );
 
     }
   }

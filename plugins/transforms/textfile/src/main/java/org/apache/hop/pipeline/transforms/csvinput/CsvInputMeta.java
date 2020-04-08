@@ -30,7 +30,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -118,7 +118,7 @@ public class CsvInputMeta
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -142,22 +142,22 @@ public class CsvInputMeta
     bufferSize = "50000";
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      filename = XMLHandler.getTagValue( transformNode, getXmlCode( "FILENAME" ) );
-      filenameField = XMLHandler.getTagValue( transformNode, getXmlCode( "FILENAME_FIELD" ) );
-      rowNumField = XMLHandler.getTagValue( transformNode, getXmlCode( "ROW_NUM_FIELD" ) );
+      filename = XmlHandler.getTagValue( transformNode, getXmlCode( "FILENAME" ) );
+      filenameField = XmlHandler.getTagValue( transformNode, getXmlCode( "FILENAME_FIELD" ) );
+      rowNumField = XmlHandler.getTagValue( transformNode, getXmlCode( "ROW_NUM_FIELD" ) );
       includingFilename =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, getXmlCode( "INCLUDE_FILENAME" ) ) );
-      delimiter = XMLHandler.getTagValue( transformNode, getXmlCode( "DELIMITER" ) );
-      enclosure = XMLHandler.getTagValue( transformNode, getXmlCode( "ENCLOSURE" ) );
-      bufferSize = XMLHandler.getTagValue( transformNode, getXmlCode( "BUFFERSIZE" ) );
-      headerPresent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, getXmlCode( "HEADER_PRESENT" ) ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, getXmlCode( "INCLUDE_FILENAME" ) ) );
+      delimiter = XmlHandler.getTagValue( transformNode, getXmlCode( "DELIMITER" ) );
+      enclosure = XmlHandler.getTagValue( transformNode, getXmlCode( "ENCLOSURE" ) );
+      bufferSize = XmlHandler.getTagValue( transformNode, getXmlCode( "BUFFERSIZE" ) );
+      headerPresent = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, getXmlCode( "HEADER_PRESENT" ) ) );
       lazyConversionActive =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, getXmlCode( "LAZY_CONVERSION" ) ) );
-      isaddresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, getXmlCode( "ADD_FILENAME_RESULT" ) ) );
-      runningInParallel = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, getXmlCode( "PARALLEL" ) ) );
-      String nlp = XMLHandler.getTagValue( transformNode, getXmlCode( "NEWLINE_POSSIBLE" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, getXmlCode( "LAZY_CONVERSION" ) ) );
+      isaddresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, getXmlCode( "ADD_FILENAME_RESULT" ) ) );
+      runningInParallel = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, getXmlCode( "PARALLEL" ) ) );
+      String nlp = XmlHandler.getTagValue( transformNode, getXmlCode( "NEWLINE_POSSIBLE" ) );
       if ( Utils.isEmpty( nlp ) ) {
         if ( runningInParallel ) {
           newlinePossibleInFields = false;
@@ -167,34 +167,34 @@ public class CsvInputMeta
       } else {
         newlinePossibleInFields = "Y".equalsIgnoreCase( nlp );
       }
-      encoding = XMLHandler.getTagValue( transformNode, getXmlCode( "ENCODING" ) );
+      encoding = XmlHandler.getTagValue( transformNode, getXmlCode( "ENCODING" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, getXmlCode( "FIELDS" ) );
-      int nrFields = XMLHandler.countNodes( fields, getXmlCode( "FIELD" ) );
+      Node fields = XmlHandler.getSubNode( transformNode, getXmlCode( "FIELDS" ) );
+      int nrFields = XmlHandler.countNodes( fields, getXmlCode( "FIELD" ) );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
         inputFields[ i ] = new TextFileInputField();
 
-        Node fnode = XMLHandler.getSubNodeByNr( fields, getXmlCode( "FIELD" ), i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, getXmlCode( "FIELD" ), i );
 
-        inputFields[ i ].setName( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_NAME" ) ) );
+        inputFields[ i ].setName( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_NAME" ) ) );
         inputFields[ i ].setType(
-          ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_TYPE" ) ) ) );
-        inputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_FORMAT" ) ) );
-        inputFields[ i ].setCurrencySymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_CURRENCY" ) ) );
-        inputFields[ i ].setDecimalSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_DECIMAL" ) ) );
-        inputFields[ i ].setGroupSymbol( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_GROUP" ) ) );
+          ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_TYPE" ) ) ) );
+        inputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_FORMAT" ) ) );
+        inputFields[ i ].setCurrencySymbol( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_CURRENCY" ) ) );
+        inputFields[ i ].setDecimalSymbol( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_DECIMAL" ) ) );
+        inputFields[ i ].setGroupSymbol( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_GROUP" ) ) );
         inputFields[ i ]
-          .setLength( Const.toInt( XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_LENGTH" ) ), -1 ) );
+          .setLength( Const.toInt( XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_LENGTH" ) ), -1 ) );
         inputFields[ i ].setPrecision( Const.toInt(
-          XMLHandler.getTagValue( fnode, getXmlCode( "FIELD_PRECISION" ) ), -1 ) );
-        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue(
+          XmlHandler.getTagValue( fnode, getXmlCode( "FIELD_PRECISION" ) ), -1 ) );
+        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue(
           fnode, getXmlCode( "FIELD_TRIM_TYPE" ) ) ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -203,51 +203,51 @@ public class CsvInputMeta
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "FILENAME" ), filename ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "FILENAME_FIELD" ), filenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "ROW_NUM_FIELD" ), rowNumField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "INCLUDE_FILENAME" ), includingFilename ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "DELIMITER" ), delimiter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "ENCLOSURE" ), enclosure ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "HEADER_PRESENT" ), headerPresent ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "BUFFERSIZE" ), bufferSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "FILENAME" ), filename ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "FILENAME_FIELD" ), filenameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "ROW_NUM_FIELD" ), rowNumField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "INCLUDE_FILENAME" ), includingFilename ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "DELIMITER" ), delimiter ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "ENCLOSURE" ), enclosure ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "HEADER_PRESENT" ), headerPresent ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "BUFFERSIZE" ), bufferSize ) );
     retval
-      .append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "LAZY_CONVERSION" ), lazyConversionActive ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "ADD_FILENAME_RESULT" ), isaddresult ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "PARALLEL" ), runningInParallel ) );
+      .append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "LAZY_CONVERSION" ), lazyConversionActive ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "ADD_FILENAME_RESULT" ), isaddresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "PARALLEL" ), runningInParallel ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( getXmlCode( "NEWLINE_POSSIBLE" ), newlinePossibleInFields ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( getXmlCode( "ENCODING" ), encoding ) );
+      XmlHandler.addTagValue( getXmlCode( "NEWLINE_POSSIBLE" ), newlinePossibleInFields ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( getXmlCode( "ENCODING" ), encoding ) );
 
-    retval.append( "    " ).append( XMLHandler.openTag( getXmlCode( "FIELDS" ) ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( getXmlCode( "FIELDS" ) ) ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       TextFileInputField field = inputFields[ i ];
 
-      retval.append( "      " ).append( XMLHandler.openTag( getXmlCode( "FIELD" ) ) ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_NAME" ), field.getName() ) );
+      retval.append( "      " ).append( XmlHandler.openTag( getXmlCode( "FIELD" ) ) ).append( Const.CR );
+      retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_NAME" ), field.getName() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( getXmlCode( "FIELD_TYPE" ), ValueMetaFactory.getValueMetaName( field.getType() ) ) );
+        XmlHandler.addTagValue( getXmlCode( "FIELD_TYPE" ), ValueMetaFactory.getValueMetaName( field.getType() ) ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_FORMAT" ), field.getFormat() ) );
+        .append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_FORMAT" ), field.getFormat() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( getXmlCode( "FIELD_CURRENCY" ), field.getCurrencySymbol() ) );
+        XmlHandler.addTagValue( getXmlCode( "FIELD_CURRENCY" ), field.getCurrencySymbol() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( getXmlCode( "FIELD_DECIMAL" ), field.getDecimalSymbol() ) );
+        XmlHandler.addTagValue( getXmlCode( "FIELD_DECIMAL" ), field.getDecimalSymbol() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( getXmlCode( "FIELD_GROUP" ), field.getGroupSymbol() ) );
+        XmlHandler.addTagValue( getXmlCode( "FIELD_GROUP" ), field.getGroupSymbol() ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_LENGTH" ), field.getLength() ) );
+        .append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_LENGTH" ), field.getLength() ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( getXmlCode( "FIELD_PRECISION" ), field.getPrecision() ) );
+        XmlHandler.addTagValue( getXmlCode( "FIELD_PRECISION" ), field.getPrecision() ) );
       retval.append( "        " ).append(
-        XMLHandler
+        XmlHandler
           .addTagValue( getXmlCode( "FIELD_TRIM_TYPE" ), ValueMetaString.getTrimTypeCode( field.getTrimType() ) ) );
-      retval.append( "      " ).append( XMLHandler.closeTag( getXmlCode( "FIELD" ) ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.closeTag( getXmlCode( "FIELD" ) ) ).append( Const.CR );
     }
-    retval.append( "    " ).append( XMLHandler.closeTag( getXmlCode( "FIELDS" ) ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( getXmlCode( "FIELDS" ) ) ).append( Const.CR );
 
     return retval.toString();
   }

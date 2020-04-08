@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.shared;
 
 import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SWTGC implements IGC {
+public class SwtGc implements IGc {
 
   protected Color background;
 
@@ -89,7 +89,7 @@ public class SWTGC implements IGC {
   private Point area;
   private Transform transform;
 
-  public SWTGC( Device device, Point area, int iconsize ) {
+  public SwtGc( Device device, Point area, int iconsize ) {
     this.image = new Image( device, area.x, area.y );
     this.gc = new GC( image );
     this.images = GUIResource.getInstance().getImagesTransforms();

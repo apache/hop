@@ -24,11 +24,11 @@ package org.apache.hop.pipeline.transforms.syslog;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.syslog.SyslogDefs;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -61,7 +61,7 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -206,34 +206,34 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransform {
     return addHostName;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "messagefieldname", messagefieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "port", port ) );
-    retval.append( "    " + XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "facility", facility ) );
-    retval.append( "    " + XMLHandler.addTagValue( "priority", priority ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addTimestamp", addTimestamp ) );
-    retval.append( "    " + XMLHandler.addTagValue( "datePattern", datePattern ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addHostName", addHostName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "messagefieldname", messagefieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "port", port ) );
+    retval.append( "    " + XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "facility", facility ) );
+    retval.append( "    " + XmlHandler.addTagValue( "priority", priority ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addTimestamp", addTimestamp ) );
+    retval.append( "    " + XmlHandler.addTagValue( "datePattern", datePattern ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addHostName", addHostName ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      messagefieldname = XMLHandler.getTagValue( transformNode, "messagefieldname" );
-      port = XMLHandler.getTagValue( transformNode, "port" );
-      serverName = XMLHandler.getTagValue( transformNode, "servername" );
-      facility = XMLHandler.getTagValue( transformNode, "facility" );
-      priority = XMLHandler.getTagValue( transformNode, "priority" );
-      datePattern = XMLHandler.getTagValue( transformNode, "datePattern" );
-      addTimestamp = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addTimestamp" ) );
-      addHostName = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addHostName" ) );
+      messagefieldname = XmlHandler.getTagValue( transformNode, "messagefieldname" );
+      port = XmlHandler.getTagValue( transformNode, "port" );
+      serverName = XmlHandler.getTagValue( transformNode, "servername" );
+      facility = XmlHandler.getTagValue( transformNode, "facility" );
+      priority = XmlHandler.getTagValue( transformNode, "priority" );
+      datePattern = XmlHandler.getTagValue( transformNode, "datePattern" );
+      addTimestamp = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addTimestamp" ) );
+      addHostName = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addHostName" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SyslogMessageMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

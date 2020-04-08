@@ -28,7 +28,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformStatus;
@@ -80,7 +80,7 @@ public class SlaveServerPipelineStatus {
     this.statusDescription = statusDescription;
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     // See PDI-15781
     boolean sendResultXmlWithStatus = EnvUtil.getSystemProperty( "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N" ).equalsIgnoreCase( "Y" );
     return getXML( sendResultXmlWithStatus );
@@ -89,57 +89,57 @@ public class SlaveServerPipelineStatus {
   public String getXML( boolean sendResultXmlWithStatus ) throws HopException {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "pipeline_name", pipelineName ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "id", id ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "status_desc", statusDescription ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "error_desc", errorDescription ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "log_date", XMLHandler.date2string( logDate ) ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "paused", paused ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "pipeline_name", pipelineName ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "id", id ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "status_desc", statusDescription ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "error_desc", errorDescription ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "log_date", XmlHandler.date2string( logDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "paused", paused ) );
 
-    xml.append( "  " ).append( XMLHandler.openTag( "transform_status_list" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.openTag( "transform_status_list" ) ).append( Const.CR );
     for ( int i = 0; i < transformStatusList.size(); i++ ) {
       TransformStatus transformStatus = transformStatusList.get( i );
-      xml.append( "    " ).append( transformStatus.getXML() ).append( Const.CR );
+      xml.append( "    " ).append( transformStatus.getXml() ).append( Const.CR );
     }
-    xml.append( "  " ).append( XMLHandler.closeTag( "transform_status_list" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.closeTag( "transform_status_list" ) ).append( Const.CR );
 
-    xml.append( "  " ).append( XMLHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
 
     if ( result != null ) {
-      String resultXML = sendResultXmlWithStatus ? result.getXML() : result.getBasicXml();
+      String resultXML = sendResultXmlWithStatus ? result.getXml() : result.getBasicXml();
       xml.append( resultXML );
     }
 
-    xml.append( "  " ).append( XMLHandler.addTagValue( "logging_string", XMLHandler.buildCDATA( loggingString ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "logging_string", XmlHandler.buildCDATA( loggingString ) ) );
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
   public SlaveServerPipelineStatus( Node pipelineStatusNode ) throws HopException {
     this();
-    id = XMLHandler.getTagValue( pipelineStatusNode, "id" );
-    pipelineName = XMLHandler.getTagValue( pipelineStatusNode, "pipeline_name" );
-    statusDescription = XMLHandler.getTagValue( pipelineStatusNode, "status_desc" );
-    errorDescription = XMLHandler.getTagValue( pipelineStatusNode, "error_desc" );
-    logDate = XMLHandler.stringToDate( XMLHandler.getTagValue( pipelineStatusNode, "log_date" ) );
-    paused = "Y".equalsIgnoreCase( XMLHandler.getTagValue( pipelineStatusNode, "paused" ) );
+    id = XmlHandler.getTagValue( pipelineStatusNode, "id" );
+    pipelineName = XmlHandler.getTagValue( pipelineStatusNode, "pipeline_name" );
+    statusDescription = XmlHandler.getTagValue( pipelineStatusNode, "status_desc" );
+    errorDescription = XmlHandler.getTagValue( pipelineStatusNode, "error_desc" );
+    logDate = XmlHandler.stringToDate( XmlHandler.getTagValue( pipelineStatusNode, "log_date" ) );
+    paused = "Y".equalsIgnoreCase( XmlHandler.getTagValue( pipelineStatusNode, "paused" ) );
 
-    Node statusListNode = XMLHandler.getSubNode( pipelineStatusNode, "transform_status_list" );
-    int nr = XMLHandler.countNodes( statusListNode, TransformStatus.XML_TAG );
+    Node statusListNode = XmlHandler.getSubNode( pipelineStatusNode, "transform_status_list" );
+    int nr = XmlHandler.countNodes( statusListNode, TransformStatus.XML_TAG );
     for ( int i = 0; i < nr; i++ ) {
-      Node transformStatusNode = XMLHandler.getSubNodeByNr( statusListNode, TransformStatus.XML_TAG, i );
+      Node transformStatusNode = XmlHandler.getSubNodeByNr( statusListNode, TransformStatus.XML_TAG, i );
       TransformStatus transformStatus = new TransformStatus( transformStatusNode );
       transformStatusList.add( transformStatus );
     }
 
-    firstLoggingLineNr = Const.toInt( XMLHandler.getTagValue( pipelineStatusNode, "first_log_line_nr" ), 0 );
-    lastLoggingLineNr = Const.toInt( XMLHandler.getTagValue( pipelineStatusNode, "last_log_line_nr" ), 0 );
+    firstLoggingLineNr = Const.toInt( XmlHandler.getTagValue( pipelineStatusNode, "first_log_line_nr" ), 0 );
+    lastLoggingLineNr = Const.toInt( XmlHandler.getTagValue( pipelineStatusNode, "last_log_line_nr" ), 0 );
 
-    String loggingString64 = XMLHandler.getTagValue( pipelineStatusNode, "logging_string" );
+    String loggingString64 = XmlHandler.getTagValue( pipelineStatusNode, "logging_string" );
 
     if ( !Utils.isEmpty( loggingString64 ) ) {
       // This is a CDATA block with a Base64 encoded GZIP compressed stream of data.
@@ -158,7 +158,7 @@ public class SlaveServerPipelineStatus {
 
     // get the result object, if there is any...
     //
-    Node resultNode = XMLHandler.getSubNode( pipelineStatusNode, Result.XML_TAG );
+    Node resultNode = XmlHandler.getSubNode( pipelineStatusNode, Result.XML_TAG );
     if ( resultNode != null ) {
       try {
         result = new Result( resultNode );
@@ -171,8 +171,8 @@ public class SlaveServerPipelineStatus {
   }
 
   public static SlaveServerPipelineStatus fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    SlaveServerPipelineStatus status = new SlaveServerPipelineStatus( XMLHandler.getSubNode( document, XML_TAG ) );
+    Document document = XmlHandler.loadXMLString( xml );
+    SlaveServerPipelineStatus status = new SlaveServerPipelineStatus( XmlHandler.getSubNode( document, XML_TAG ) );
     return status;
   }
 

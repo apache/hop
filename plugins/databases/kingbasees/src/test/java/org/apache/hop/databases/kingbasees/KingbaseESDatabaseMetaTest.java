@@ -150,10 +150,10 @@ public class KingbaseESDatabaseMetaTest {
 
   @Test
   public void testSQLStatements() {
-    assertEquals( "SELECT currval('FOO')", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "SELECT relname AS sequence_name FROM sys_class WHERE relname = 'foo'", nativeMeta.getSQLSequenceExists( "FoO" ) );
-    assertEquals( "SELECT relname AS sequence_name FROM sys_class", nativeMeta.getSQLListOfSequences() );
+    assertEquals( "SELECT currval('FOO')", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT relname AS sequence_name FROM sys_class WHERE relname = 'foo'", nativeMeta.getSqlSequenceExists( "FoO" ) );
+    assertEquals( "SELECT relname AS sequence_name FROM sys_class", nativeMeta.getSqlListOfSequences() );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     String lineSep = System.getProperty( "line.separator" );
@@ -162,14 +162,14 @@ public class KingbaseESDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + lineSep + ";" + lineSep + "ALTER TABLE FOO ADD COLUMN BAR VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
     nativeMeta.setUsername( "FOoUsEr" );
     assertEquals( "select proname from sys_proc, sys_user where sys_user.usesysid = sys_proc.proowner and upper(sys_user.usename) = 'FOOUSER'",
-      nativeMeta.getSQLListOfProcedures() );
+      nativeMeta.getSqlListOfProcedures() );
     assertEquals( "LOCK TABLE FOO , BAR IN ACCESS EXCLUSIVE MODE;" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] {} ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] {} ) );
   }
 
   @Test

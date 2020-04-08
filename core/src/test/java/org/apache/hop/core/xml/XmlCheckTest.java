@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 
-public class XMLCheckTest {
+public class XmlCheckTest {
 
   @Test( expected = HopException.class )
   public void exceptionIsThrownWhenParsingXmlWithBigAmountOfExternalEntities() throws HopException {
@@ -48,7 +48,7 @@ public class XMLCheckTest {
         + "]>\n"
         + "<lolz>&lol9;</lolz>";
 
-    XMLCheck.isXMLWellFormed( new ByteArrayInputStream( maliciousXml.getBytes() ) );
+    XmlCheck.isXMLWellFormed( new ByteArrayInputStream( maliciousXml.getBytes() ) );
   }
 
 }

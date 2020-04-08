@@ -25,7 +25,7 @@ package org.apache.hop.www.jaxrs;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -101,23 +101,23 @@ public class ServerStatus {
 
   public ServerStatus( Node statusNode ) throws HopException {
     this();
-    statusDescription = XMLHandler.getTagValue( statusNode, "statusdesc" );
+    statusDescription = XmlHandler.getTagValue( statusNode, "statusdesc" );
 
-    memoryFree = Const.toLong( XMLHandler.getTagValue( statusNode, "memory_free" ), -1L );
-    memoryTotal = Const.toLong( XMLHandler.getTagValue( statusNode, "memory_total" ), -1L );
+    memoryFree = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_free" ), -1L );
+    memoryTotal = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_total" ), -1L );
 
-    String cpuCoresStr = XMLHandler.getTagValue( statusNode, "cpu_cores" );
+    String cpuCoresStr = XmlHandler.getTagValue( statusNode, "cpu_cores" );
     cpuCores = Const.toInt( cpuCoresStr, -1 );
-    String cpuProcessTimeStr = XMLHandler.getTagValue( statusNode, "cpu_process_time" );
+    String cpuProcessTimeStr = XmlHandler.getTagValue( statusNode, "cpu_process_time" );
     cpuProcessTime = Utils.isEmpty( cpuProcessTimeStr ) ? 0L : Long.valueOf( cpuProcessTimeStr );
 
-    uptime = Const.toLong( XMLHandler.getTagValue( statusNode, "uptime" ), -1 );
-    threadCount = Const.toInt( XMLHandler.getTagValue( statusNode, "thread_count" ), -1 );
-    loadAvg = Const.toDouble( XMLHandler.getTagValue( statusNode, "load_avg" ), -1.0 );
+    uptime = Const.toLong( XmlHandler.getTagValue( statusNode, "uptime" ), -1 );
+    threadCount = Const.toInt( XmlHandler.getTagValue( statusNode, "thread_count" ), -1 );
+    loadAvg = Const.toDouble( XmlHandler.getTagValue( statusNode, "load_avg" ), -1.0 );
 
-    osName = XMLHandler.getTagValue( statusNode, "os_name" );
-    osVersion = XMLHandler.getTagValue( statusNode, "os_version" );
-    osArchitecture = XMLHandler.getTagValue( statusNode, "os_arch" );
+    osName = XmlHandler.getTagValue( statusNode, "os_name" );
+    osVersion = XmlHandler.getTagValue( statusNode, "os_version" );
+    osArchitecture = XmlHandler.getTagValue( statusNode, "os_arch" );
   }
 
   /**

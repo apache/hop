@@ -32,7 +32,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
@@ -1184,9 +1184,9 @@ public class RowMeta implements IRowMeta {
   public RowMeta( Node node ) throws HopException {
     this();
 
-    int nrValues = XMLHandler.countNodes( node, ValueMetaBase.XML_META_TAG );
+    int nrValues = XmlHandler.countNodes( node, ValueMetaBase.XML_META_TAG );
     for ( int i = 0; i < nrValues; i++ ) {
-      IValueMeta valueMetaSource = new ValueMetaBase( XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_META_TAG, i ) );
+      IValueMeta valueMetaSource = new ValueMetaBase( XmlHandler.getSubNodeByNr( node, ValueMetaBase.XML_META_TAG, i ) );
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta( valueMetaSource.getName(), valueMetaSource.getType(),
         valueMetaSource.getLength(), valueMetaSource.getPrecision() );
       ValueMetaFactory.cloneInfo( valueMetaSource, valueMeta );
@@ -1233,7 +1233,7 @@ public class RowMeta implements IRowMeta {
       Object[] rowData = RowDataUtil.allocateRowData( size() );
 
       for ( int i = 0; i < size(); i++ ) {
-        Node valueDataNode = XMLHandler.getSubNodeByNr( node, ValueMetaBase.XML_DATA_TAG, i );
+        Node valueDataNode = XmlHandler.getSubNodeByNr( node, ValueMetaBase.XML_DATA_TAG, i );
         rowData[ i ] = getValueMeta( i ).getValue( valueDataNode );
       }
       return rowData;

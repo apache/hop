@@ -117,7 +117,7 @@ public class SynchronizeAfterMergeMetaTest implements InitializerInterface<ITran
     synchronizeAfterMerge.setUpdate( new Boolean[] { false, true } );
 
     synchronizeAfterMerge.afterInjectionSynchronization();
-    String ktrXml = synchronizeAfterMerge.getXML();
+    String ktrXml = synchronizeAfterMerge.getXml();
 
     int targetSz = synchronizeAfterMerge.getKeyStream().length;
 

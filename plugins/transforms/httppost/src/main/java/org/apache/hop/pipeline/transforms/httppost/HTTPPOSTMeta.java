@@ -28,14 +28,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -318,7 +318,7 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements ITransformMeta<HT
     this.fieldName = resultName;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -408,96 +408,96 @@ public class HTTPPOSTMeta extends BaseTransformMeta implements ITransformMeta<HT
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "postafile", postafile ) );
-    retval.append( "    " + XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "url", url ) );
-    retval.append( "    " + XMLHandler.addTagValue( "urlInField", urlInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "urlField", urlField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "requestEntity", requestEntity ) );
-    retval.append( "    " + XMLHandler.addTagValue( "httpLogin", httpLogin ) );
+    retval.append( "    " + XmlHandler.addTagValue( "postafile", postafile ) );
+    retval.append( "    " + XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "url", url ) );
+    retval.append( "    " + XmlHandler.addTagValue( "urlInField", urlInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "urlField", urlField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "requestEntity", requestEntity ) );
+    retval.append( "    " + XmlHandler.addTagValue( "httpLogin", httpLogin ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "    " + XMLHandler.addTagValue( "socketTimeout", socketTimeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "connectionTimeout", connectionTimeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "closeIdleConnectionsTime", closeIdleConnectionsTime ) );
+      + XmlHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "    " + XmlHandler.addTagValue( "socketTimeout", socketTimeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "connectionTimeout", connectionTimeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "closeIdleConnectionsTime", closeIdleConnectionsTime ) );
 
     retval.append( "    <lookup>" + Const.CR );
 
     for ( int i = 0; i < argumentField.length; i++ ) {
       retval.append( "      <arg>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", argumentField[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "parameter", argumentParameter[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "header", argumentHeader[ i ], false ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", argumentField[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "parameter", argumentParameter[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "header", argumentHeader[ i ], false ) );
       retval.append( "        </arg>" + Const.CR );
     }
     for ( int i = 0; i < queryField.length; i++ ) {
       retval.append( "      <query>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", queryField[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "parameter", queryParameter[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", queryField[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "parameter", queryParameter[ i ] ) );
       retval.append( "        </query>" + Const.CR );
     }
 
     retval.append( "      </lookup>" + Const.CR );
 
     retval.append( "    <result>" + Const.CR );
-    retval.append( "      " + XMLHandler.addTagValue( "name", fieldName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "code", resultCodeFieldName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "response_time", responseTimeFieldName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "response_header", responseHeaderFieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "name", fieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "code", resultCodeFieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "response_time", responseTimeFieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "response_header", responseHeaderFieldName ) );
     retval.append( "      </result>" + Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      postafile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "postafile" ) );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      url = XMLHandler.getTagValue( transformNode, "url" );
-      urlInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "urlInField" ) );
-      urlField = XMLHandler.getTagValue( transformNode, "urlField" );
-      requestEntity = XMLHandler.getTagValue( transformNode, "requestEntity" );
-      httpLogin = XMLHandler.getTagValue( transformNode, "httpLogin" );
-      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "httpPassword" ) );
-      proxyHost = XMLHandler.getTagValue( transformNode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( transformNode, "proxyPort" );
+      postafile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "postafile" ) );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      url = XmlHandler.getTagValue( transformNode, "url" );
+      urlInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "urlInField" ) );
+      urlField = XmlHandler.getTagValue( transformNode, "urlField" );
+      requestEntity = XmlHandler.getTagValue( transformNode, "requestEntity" );
+      httpLogin = XmlHandler.getTagValue( transformNode, "httpLogin" );
+      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "httpPassword" ) );
+      proxyHost = XmlHandler.getTagValue( transformNode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( transformNode, "proxyPort" );
 
-      socketTimeout = XMLHandler.getTagValue( transformNode, "socketTimeout" );
-      connectionTimeout = XMLHandler.getTagValue( transformNode, "connectionTimeout" );
-      closeIdleConnectionsTime = XMLHandler.getTagValue( transformNode, "closeIdleConnectionsTime" );
+      socketTimeout = XmlHandler.getTagValue( transformNode, "socketTimeout" );
+      connectionTimeout = XmlHandler.getTagValue( transformNode, "connectionTimeout" );
+      closeIdleConnectionsTime = XmlHandler.getTagValue( transformNode, "closeIdleConnectionsTime" );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
 
-      int nrargs = XMLHandler.countNodes( lookup, "arg" );
+      int nrargs = XmlHandler.countNodes( lookup, "arg" );
       allocate( nrargs );
       for ( int i = 0; i < nrargs; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( lookup, "arg", i );
-        argumentField[ i ] = XMLHandler.getTagValue( anode, "name" );
-        argumentParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
-        argumentHeader[ i ] = YES.equalsIgnoreCase( XMLHandler.getTagValue( anode, "header" ) );
+        Node anode = XmlHandler.getSubNodeByNr( lookup, "arg", i );
+        argumentField[ i ] = XmlHandler.getTagValue( anode, "name" );
+        argumentParameter[ i ] = XmlHandler.getTagValue( anode, "parameter" );
+        argumentHeader[ i ] = YES.equalsIgnoreCase( XmlHandler.getTagValue( anode, "header" ) );
       }
 
-      int nrquery = XMLHandler.countNodes( lookup, "query" );
+      int nrquery = XmlHandler.countNodes( lookup, "query" );
       allocateQuery( nrquery );
 
       for ( int i = 0; i < nrquery; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( lookup, "query", i );
-        queryField[ i ] = XMLHandler.getTagValue( anode, "name" );
-        queryParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
+        Node anode = XmlHandler.getSubNodeByNr( lookup, "query", i );
+        queryField[ i ] = XmlHandler.getTagValue( anode, "name" );
+        queryParameter[ i ] = XmlHandler.getTagValue( anode, "parameter" );
       }
 
-      fieldName = XMLHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
-      resultCodeFieldName = XMLHandler.getTagValue( transformNode, "result", "code" ); // Optional, can be null
-      responseTimeFieldName = XMLHandler.getTagValue( transformNode, "result", "response_time" ); // Optional, can be null
+      fieldName = XmlHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
+      resultCodeFieldName = XmlHandler.getTagValue( transformNode, "result", "code" ); // Optional, can be null
+      responseTimeFieldName = XmlHandler.getTagValue( transformNode, "result", "response_time" ); // Optional, can be null
       responseHeaderFieldName =
-        XMLHandler.getTagValue( transformNode, "result", "response_header" ); // Optional, can be null
+        XmlHandler.getTagValue( transformNode, "result", "response_header" ); // Optional, can be null
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "HTTPPOSTMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

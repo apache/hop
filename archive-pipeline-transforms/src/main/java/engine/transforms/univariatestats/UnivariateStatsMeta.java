@@ -27,12 +27,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -108,16 +108,16 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * Loads the meta data for this (configured) transform from XML.
    *
    * @param transformNode the transform to load
-   * @throws HopXMLException if an error occurs
+   * @throws HopXmlException if an error occurs
    */
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
 
-    int nrStats = XMLHandler.countNodes( transformNode, UnivariateStatsMetaFunction.XML_TAG );
+    int nrStats = XmlHandler.countNodes( transformNode, UnivariateStatsMetaFunction.XML_TAG );
 
     allocate( nrStats );
     for ( int i = 0; i < nrStats; i++ ) {
-      Node statnode = XMLHandler.getSubNodeByNr( transformNode, UnivariateStatsMetaFunction.XML_TAG, i );
+      Node statnode = XmlHandler.getSubNodeByNr( transformNode, UnivariateStatsMetaFunction.XML_TAG, i );
       m_stats[ i ] = new UnivariateStatsMetaFunction( statnode );
     }
   }
@@ -128,12 +128,12 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * @return a <code>String</code> containing the XML
    */
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     if ( m_stats != null ) {
       for ( int i = 0; i < m_stats.length; i++ ) {
-        retval.append( "       " ).append( m_stats[ i ].getXML() ).append( Const.CR );
+        retval.append( "       " ).append( m_stats[ i ].getXml() ).append( Const.CR );
       }
     }
     return retval.toString();
@@ -149,7 +149,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       UnivariateStatsMeta m = (UnivariateStatsMeta) obj;
-      return ( getXML().equals( m.getXML() ) );
+      return ( getXml().equals( m.getXml() ) );
     }
 
     return false;

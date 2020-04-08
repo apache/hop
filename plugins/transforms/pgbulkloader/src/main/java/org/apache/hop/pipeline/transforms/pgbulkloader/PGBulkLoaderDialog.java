@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
@@ -863,12 +863,12 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         new TransformMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =
             new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-              .getSQL() );
+              .getSql() );
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

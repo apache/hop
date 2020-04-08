@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -90,21 +90,21 @@ public class LDIFInputField implements Cloneable {
     this( "" );
   }
 
-  public String getXML() {
+  public String getXml() {
     String retval = "";
 
     retval += "      <field>" + Const.CR;
-    retval += "        " + XMLHandler.addTagValue( "name", getName() );
-    retval += "        " + XMLHandler.addTagValue( "attribut", getAttribut() );
-    retval += "        " + XMLHandler.addTagValue( "type", getTypeDesc() );
-    retval += "        " + XMLHandler.addTagValue( "format", getFormat() );
-    retval += "        " + XMLHandler.addTagValue( "currency", getCurrencySymbol() );
-    retval += "        " + XMLHandler.addTagValue( "decimal", getDecimalSymbol() );
-    retval += "        " + XMLHandler.addTagValue( "group", getGroupSymbol() );
-    retval += "        " + XMLHandler.addTagValue( "length", getLength() );
-    retval += "        " + XMLHandler.addTagValue( "precision", getPrecision() );
-    retval += "        " + XMLHandler.addTagValue( "trim_type", getTrimTypeCode() );
-    retval += "        " + XMLHandler.addTagValue( "repeat", isRepeated() );
+    retval += "        " + XmlHandler.addTagValue( "name", getName() );
+    retval += "        " + XmlHandler.addTagValue( "attribut", getAttribut() );
+    retval += "        " + XmlHandler.addTagValue( "type", getTypeDesc() );
+    retval += "        " + XmlHandler.addTagValue( "format", getFormat() );
+    retval += "        " + XmlHandler.addTagValue( "currency", getCurrencySymbol() );
+    retval += "        " + XmlHandler.addTagValue( "decimal", getDecimalSymbol() );
+    retval += "        " + XmlHandler.addTagValue( "group", getGroupSymbol() );
+    retval += "        " + XmlHandler.addTagValue( "length", getLength() );
+    retval += "        " + XmlHandler.addTagValue( "precision", getPrecision() );
+    retval += "        " + XmlHandler.addTagValue( "trim_type", getTrimTypeCode() );
+    retval += "        " + XmlHandler.addTagValue( "repeat", isRepeated() );
 
     retval += "        </field>" + Const.CR;
 
@@ -112,17 +112,17 @@ public class LDIFInputField implements Cloneable {
   }
 
   public LDIFInputField( Node fnode ) throws HopValueException {
-    setName( XMLHandler.getTagValue( fnode, "name" ) );
-    setAttribut( XMLHandler.getTagValue( fnode, "attribut" ) );
-    setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
-    setRepeated( !"N".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "repeat" ) ) );
+    setName( XmlHandler.getTagValue( fnode, "name" ) );
+    setAttribut( XmlHandler.getTagValue( fnode, "attribut" ) );
+    setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
+    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
+    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
+    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
+    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
+    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
+    setRepeated( !"N".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
 
   }
 

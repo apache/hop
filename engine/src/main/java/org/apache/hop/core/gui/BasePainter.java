@@ -27,9 +27,9 @@ import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.IPrimitiveGC.EColor;
-import org.apache.hop.core.gui.IPrimitiveGC.EImage;
-import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
+import org.apache.hop.core.gui.IPrimitiveGc.EColor;
+import org.apache.hop.core.gui.IPrimitiveGc.EImage;
+import org.apache.hop.core.gui.IPrimitiveGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
@@ -72,7 +72,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Object subject;
 
-  protected IGC gc;
+  protected IGc gc;
 
   private String noteFontName;
 
@@ -80,7 +80,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Hop candidate;
 
-  public BasePainter( IGC gc, Object subject, Point area, IScrollBar hori,
+  public BasePainter( IGc gc, Object subject, Point area, IScrollBar hori,
                       IScrollBar vert, Point dropCandidate, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
                       int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
@@ -407,11 +407,11 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.subject = subject;
   }
 
-  public IGC getGc() {
+  public IGc getGc() {
     return gc;
   }
 
-  public void setGc( IGC gc ) {
+  public void setGc( IGc gc ) {
     this.gc = gc;
   }
 

@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
@@ -161,9 +161,9 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
     T metaLoaded = createMeta();
-    String xml = "<transform>" + metaToSave.getXML() + "</transform>";
+    String xml = "<transform>" + metaToSave.getXml() + "</transform>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXML( XMLHandler.getSubNode( XMLHandler.loadXMLFile( is, null, false, false ), "transform" ),
+    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXMLFile( is, null, false, false ), "transform" ),
       metaStore );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
 

@@ -28,7 +28,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
@@ -57,7 +57,7 @@ public class FilesFromResultMeta extends BaseTransformMeta implements ITransform
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 

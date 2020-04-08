@@ -74,7 +74,7 @@ public class PipelineProfileFactory {
     // For now we read it all, later we add options to only read the first X rows
     //
     TableInputMeta readMeta = new TableInputMeta();
-    readMeta.setSQL( "SELECT * FROM " + schemaTable );
+    readMeta.setSql( "SELECT * FROM " + schemaTable );
     readMeta.setDatabaseMeta( databaseMeta );
     TransformMeta read = new TransformMeta( registry.getPluginId( TransformPluginType.class, readMeta ), "Read data", readMeta );
     read.setLocation( 50, 50 );

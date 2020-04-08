@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.pgpencryptstream;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -174,7 +174,7 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -208,28 +208,28 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XMLHandler.addTagValue( "gpglocation", gpglocation ) );
-    retval.append( "    " + XMLHandler.addTagValue( "keyname", keyname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "keynameInField", keynameInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "keynameFieldName", keynameFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "streamfield", streamfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "gpglocation", gpglocation ) );
+    retval.append( "    " + XmlHandler.addTagValue( "keyname", keyname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "keynameInField", keynameInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "keynameFieldName", keynameFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "streamfield", streamfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultFieldName ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      gpglocation = XMLHandler.getTagValue( transformNode, "gpglocation" );
-      keyname = XMLHandler.getTagValue( transformNode, "keyname" );
+      gpglocation = XmlHandler.getTagValue( transformNode, "gpglocation" );
+      keyname = XmlHandler.getTagValue( transformNode, "keyname" );
 
-      keynameInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "keynameInField" ) );
-      keynameFieldName = XMLHandler.getTagValue( transformNode, "keynameFieldName" );
-      streamfield = XMLHandler.getTagValue( transformNode, "streamfield" );
-      resultFieldName = XMLHandler.getTagValue( transformNode, "resultfieldname" );
+      keynameInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "keynameInField" ) );
+      keynameFieldName = XmlHandler.getTagValue( transformNode, "keynameFieldName" );
+      streamfield = XmlHandler.getTagValue( transformNode, "streamfield" );
+      resultFieldName = XmlHandler.getTagValue( transformNode, "resultfieldname" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "PGPEncryptStreamMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

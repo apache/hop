@@ -26,11 +26,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -85,24 +85,24 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fail_if_file_not_exists", failIfFileNotExists ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fail_if_file_not_exists", failIfFileNotExists ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      failIfFileNotExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_if_file_not_exists" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+      super.loadXml( entrynode );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      failIfFileNotExists = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "fail_if_file_not_exists" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionDeleteFile.Error_0001_Unable_To_Load_Job_From_Xml_Node" ), xe );
     }
   }

@@ -1033,12 +1033,12 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
 
-      SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =
             new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-              .getSQL() );
+              .getSql() );
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

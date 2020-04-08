@@ -30,14 +30,14 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -215,7 +215,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransform {
     this.autoCommit = autoCommit;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -290,64 +290,64 @@ public class DBProcMeta extends BaseTransformMeta implements ITransform {
     return;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval
-      .append( "    " ).append( XMLHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "procedure", procedure ) );
+      .append( "    " ).append( XmlHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "procedure", procedure ) );
     retval.append( "    <lookup>" ).append( Const.CR );
 
     for ( int i = 0; i < argument.length; i++ ) {
       retval.append( "      <arg>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", argument[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "direction", argumentDirection[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", argument[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "direction", argumentDirection[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( argumentType[ i ] ) ) );
+        XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( argumentType[ i ] ) ) );
       retval.append( "      </arg>" ).append( Const.CR );
     }
 
     retval.append( "    </lookup>" ).append( Const.CR );
 
     retval.append( "    <result>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", resultName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "type",
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", resultName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "type",
       ValueMetaFactory.getValueMetaName( resultType ) ) );
     retval.append( "    </result>" ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "auto_commit", autoCommit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "auto_commit", autoCommit ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       int i;
       int nrargs;
 
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       database = DatabaseMeta.loadDatabase( metaStore, con );
-      procedure = XMLHandler.getTagValue( transformNode, "procedure" );
+      procedure = XmlHandler.getTagValue( transformNode, "procedure" );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      nrargs = XMLHandler.countNodes( lookup, "arg" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      nrargs = XmlHandler.countNodes( lookup, "arg" );
 
       allocate( nrargs );
 
       for ( i = 0; i < nrargs; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( lookup, "arg", i );
+        Node anode = XmlHandler.getSubNodeByNr( lookup, "arg", i );
 
-        argument[ i ] = XMLHandler.getTagValue( anode, "name" );
-        argumentDirection[ i ] = XMLHandler.getTagValue( anode, "direction" );
-        argumentType[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( anode, "type" ) );
+        argument[ i ] = XmlHandler.getTagValue( anode, "name" );
+        argumentDirection[ i ] = XmlHandler.getTagValue( anode, "direction" );
+        argumentType[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( anode, "type" ) );
       }
 
-      resultName = XMLHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
+      resultName = XmlHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
       //
-      resultType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( transformNode, "result", "type" ) );
-      autoCommit = !"N".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "auto_commit" ) );
+      resultType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( transformNode, "result", "type" ) );
+      autoCommit = !"N".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "auto_commit" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "DBProcMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "DBProcMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

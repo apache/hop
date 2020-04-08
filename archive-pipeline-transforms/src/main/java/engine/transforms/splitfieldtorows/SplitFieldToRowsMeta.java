@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -125,21 +125,21 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta implements ITransfor
     this.splitField = splitField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      splitField = XMLHandler.getTagValue( transformNode, "splitfield" );
-      delimiter = XMLHandler.getTagValue( transformNode, "delimiter" );
-      newFieldname = XMLHandler.getTagValue( transformNode, "newfield" );
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      resetRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "resetrownumber" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      isDelimiterRegex = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "delimiter_is_regex" ) );
+      splitField = XmlHandler.getTagValue( transformNode, "splitfield" );
+      delimiter = XmlHandler.getTagValue( transformNode, "delimiter" );
+      newFieldname = XmlHandler.getTagValue( transformNode, "newfield" );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      resetRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "resetrownumber" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      isDelimiterRegex = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "delimiter_is_regex" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SplitFieldToRowsMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -170,16 +170,16 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta implements ITransfor
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "   " + XMLHandler.addTagValue( "splitfield", splitField ) );
-    retval.append( "   " + XMLHandler.addTagValue( "delimiter", delimiter ) );
-    retval.append( "   " + XMLHandler.addTagValue( "newfield", newFieldname ) );
-    retval.append( "   " + XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "   " + XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "   " + XMLHandler.addTagValue( "resetrownumber", resetRowNumber ) );
-    retval.append( "   " + XMLHandler.addTagValue( "delimiter_is_regex", isDelimiterRegex ) );
+    retval.append( "   " + XmlHandler.addTagValue( "splitfield", splitField ) );
+    retval.append( "   " + XmlHandler.addTagValue( "delimiter", delimiter ) );
+    retval.append( "   " + XmlHandler.addTagValue( "newfield", newFieldname ) );
+    retval.append( "   " + XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "   " + XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "   " + XmlHandler.addTagValue( "resetrownumber", resetRowNumber ) );
+    retval.append( "   " + XmlHandler.addTagValue( "delimiter_is_regex", isDelimiterRegex ) );
 
     return retval.toString();
   }

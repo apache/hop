@@ -494,7 +494,7 @@ public class Database implements IVariables, ILoggingObject {
             // Handle MSSQL Instance name. Would rather this was handled in the dialect
             // but cannot (without refactor) get to variablespace for variable substitution from
             // a BaseDatabaseMeta subclass.
-            String instance = environmentSubstitute( databaseMeta.getSQLServerInstance() );
+            String instance = environmentSubstitute( databaseMeta.getSqlServerInstance() );
             if ( !Utils.isEmpty( instance ) ) {
               url += ";instanceName=" + instance;
             }
@@ -1784,7 +1784,7 @@ public class Database implements IVariables, ILoggingObject {
    * @param tablename This is the properly quoted, and schema prefixed table name.
    */
   public IRowMeta getTableFields( String tablename ) throws HopDatabaseException {
-    return getQueryFields( databaseMeta.getSQLQueryFields( tablename ), false );
+    return getQueryFields( databaseMeta.getSqlQueryFields( tablename ), false );
   }
 
   public IRowMeta getQueryFields( String sql, boolean param ) throws HopDatabaseException {
@@ -1805,7 +1805,7 @@ public class Database implements IVariables, ILoggingObject {
         log.logDebug( "Checking if table [" + tablename + "] exists!" );
       }
       // Just try to read from the table.
-      String sql = databaseMeta.getSQLTableExists( tablename );
+      String sql = databaseMeta.getSqlTableExists( tablename );
       try {
         getOneRow( sql );
         return true;
@@ -1986,7 +1986,7 @@ public class Database implements IVariables, ILoggingObject {
       }
 
       // Just try to read from the table.
-      String sql = databaseMeta.getSQLColumnExists( columnname, tablename );
+      String sql = databaseMeta.getSqlColumnExists( columnname, tablename );
 
       try {
         getOneRow( sql );
@@ -2028,7 +2028,7 @@ public class Database implements IVariables, ILoggingObject {
       //
       // Get the info from the data dictionary...
       //
-      String sql = databaseMeta.getSQLSequenceExists( schemaSequence );
+      String sql = databaseMeta.getSqlSequenceExists( schemaSequence );
       ResultSet res = openQuery( sql );
       if ( res != null ) {
         Object[] row = getRow( res );
@@ -2206,7 +2206,7 @@ public class Database implements IVariables, ILoggingObject {
       return getTableFieldsMetaByDbMeta( schemaName, tableName );
     } else {
       String tableSchema = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
-      String sql = databaseMeta.getSQLQueryFields( tableSchema );
+      String sql = databaseMeta.getSqlQueryFields( tableSchema );
       return getQueryFields( sql, false );
     }
   }
@@ -4226,7 +4226,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   public String[] getProcedures() throws HopDatabaseException {
-    String sql = databaseMeta.getSQLListOfProcedures();
+    String sql = databaseMeta.getSqlListOfProcedures();
     if ( sql != null ) {
       List<Object[]> procs = getRows( sql, 1000 );
       String[] str = new String[ procs.size() ];
@@ -4299,7 +4299,7 @@ public class Database implements IVariables, ILoggingObject {
 
     // Get the SQL to lock the (quoted) tables
     //
-    String sql = databaseMeta.getSQLLockTables( tableNames );
+    String sql = databaseMeta.getSqlLockTables( tableNames );
     if ( sql != null ) {
       execStatements( sql );
     }
@@ -4325,7 +4325,7 @@ public class Database implements IVariables, ILoggingObject {
 
     // Get the SQL to unlock the (quoted) tables
     //
-    String sql = databaseMeta.getSQLUnlockTables( quotedTableNames );
+    String sql = databaseMeta.getSqlUnlockTables( quotedTableNames );
     if ( sql != null ) {
       execStatement( sql );
     }
@@ -4670,7 +4670,7 @@ public class Database implements IVariables, ILoggingObject {
    * @throws HopDatabaseException
    */
 
-  public String getSQLOutput( String schemaName, String tableName, IRowMeta fields, Object[] r,
+  public String getSqlOutput( String schemaName, String tableName, IRowMeta fields, Object[] r,
                               String dateFormat ) throws HopDatabaseException {
     StringBuilder ins = new StringBuilder( 128 );
 
@@ -4838,7 +4838,7 @@ public class Database implements IVariables, ILoggingObject {
    */
   public String[] getSequences() throws HopDatabaseException {
     if ( databaseMeta.supportsSequences() ) {
-      String sql = databaseMeta.getSQLListOfSequences();
+      String sql = databaseMeta.getSqlListOfSequences();
       if ( sql != null ) {
         List<Object[]> seqs = getRows( sql, 0 );
         String[] str = new String[ seqs.size() ];

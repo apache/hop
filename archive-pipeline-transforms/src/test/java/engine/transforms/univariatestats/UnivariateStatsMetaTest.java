@@ -26,11 +26,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -73,7 +73,7 @@ public class UnivariateStatsMetaTest {
 
       @Override
       public boolean validateTestObject( UnivariateStatsMetaFunction testObject, Object actual ) {
-        return testObject.getXML().equals( ( (UnivariateStatsMetaFunction) actual ).getXML() );
+        return testObject.getXml().equals( ( (UnivariateStatsMetaFunction) actual ).getXml() );
       }
 
       @Override
@@ -102,13 +102,13 @@ public class UnivariateStatsMetaTest {
   }
 
   @Test
-  public void testLegacyLoadXml() throws IOException, HopXMLException {
+  public void testLegacyLoadXml() throws IOException, HopXmlException {
     String legacyXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/legacyUnivariateStatsMetaTest.xml") );
     IMetaStore mockMetaStore = mock( IMetaStore.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    meta.loadXML( XMLHandler.loadXMLString( legacyXml ).getFirstChild(), mockMetaStore );
+    meta.loadXml( XmlHandler.loadXMLString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );
     UnivariateStatsMetaFunction first = meta.getInputFieldMetaFunctions()[ 0 ];
     assertEquals( "a", first.getSourceFieldName() );

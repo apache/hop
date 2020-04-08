@@ -32,11 +32,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -114,50 +114,50 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "separator", separator ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "enclosed", enclosed ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "optionenclosed", optionenclosed ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "lineterminated", lineterminated ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "limitlines", limitlines ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "listcolumn", listcolumn ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "highpriority", highpriority ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "outdumpvalue", outdumpvalue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "iffileexists", iffileexists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "separator", separator ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "enclosed", enclosed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "optionenclosed", optionenclosed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "lineterminated", lineterminated ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "limitlines", limitlines ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "listcolumn", listcolumn ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "highpriority", highpriority ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "outdumpvalue", outdumpvalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", iffileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      separator = XMLHandler.getTagValue( entrynode, "separator" );
-      enclosed = XMLHandler.getTagValue( entrynode, "enclosed" );
-      lineterminated = XMLHandler.getTagValue( entrynode, "lineterminated" );
-      limitlines = XMLHandler.getTagValue( entrynode, "limitlines" );
-      listcolumn = XMLHandler.getTagValue( entrynode, "listcolumn" );
-      highpriority = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "highpriority" ) );
-      optionenclosed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "optionenclosed" ) );
-      outdumpvalue = Const.toInt( XMLHandler.getTagValue( entrynode, "outdumpvalue" ), -1 );
-      iffileexists = Const.toInt( XMLHandler.getTagValue( entrynode, "iffileexists" ), -1 );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      super.loadXml( entrynode );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      separator = XmlHandler.getTagValue( entrynode, "separator" );
+      enclosed = XmlHandler.getTagValue( entrynode, "enclosed" );
+      lineterminated = XmlHandler.getTagValue( entrynode, "lineterminated" );
+      limitlines = XmlHandler.getTagValue( entrynode, "limitlines" );
+      listcolumn = XmlHandler.getTagValue( entrynode, "listcolumn" );
+      highpriority = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "highpriority" ) );
+      optionenclosed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "optionenclosed" ) );
+      outdumpvalue = Const.toInt( XmlHandler.getTagValue( entrynode, "outdumpvalue" ), -1 );
+      iffileexists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
-      addfiletoresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
+      addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'table exists' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'table exists' from XML node", e );
     }
   }
 

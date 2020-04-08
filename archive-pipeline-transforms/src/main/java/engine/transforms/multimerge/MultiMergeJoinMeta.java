@@ -27,12 +27,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -118,7 +118,7 @@ public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransform 
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -139,50 +139,50 @@ public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransform 
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     String[] inputTransformsNames = inputTransforms != null ? inputTransforms : ArrayUtils.EMPTY_STRING_ARRAY;
-    retval.append( "    " ).append( XMLHandler.addTagValue( "join_type", getJoinType() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "join_type", getJoinType() ) );
     for ( int i = 0; i < inputTransformsNames.length; i++ ) {
-      retval.append( "    " ).append( XMLHandler.addTagValue( "transform" + i, inputTransformsNames[ i ] ) );
+      retval.append( "    " ).append( XmlHandler.addTagValue( "transform" + i, inputTransformsNames[ i ] ) );
     }
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "number_input", inputTransformsNames.length ) );
-    retval.append( "    " ).append( XMLHandler.openTag( "keys" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "number_input", inputTransformsNames.length ) );
+    retval.append( "    " ).append( XmlHandler.openTag( "keys" ) ).append( Const.CR );
     for ( int i = 0; i < keyFields.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "key", keyFields[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "key", keyFields[ i ] ) );
     }
-    retval.append( "    " ).append( XMLHandler.closeTag( "keys" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( "keys" ) ).append( Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      Node keysNode = XMLHandler.getSubNode( transformNode, "keys" );
+      Node keysNode = XmlHandler.getSubNode( transformNode, "keys" );
 
-      int nrKeys = XMLHandler.countNodes( keysNode, "key" );
+      int nrKeys = XmlHandler.countNodes( keysNode, "key" );
 
       allocateKeys( nrKeys );
 
       for ( int i = 0; i < nrKeys; i++ ) {
-        Node keynode = XMLHandler.getSubNodeByNr( keysNode, "key", i );
-        keyFields[ i ] = XMLHandler.getNodeValue( keynode );
+        Node keynode = XmlHandler.getSubNodeByNr( keysNode, "key", i );
+        keyFields[ i ] = XmlHandler.getNodeValue( keynode );
       }
 
-      int nInputStreams = Integer.parseInt( XMLHandler.getTagValue( transformNode, "number_input" ) );
+      int nInputStreams = Integer.parseInt( XmlHandler.getTagValue( transformNode, "number_input" ) );
 
       allocateInputTransforms( nInputStreams );
 
       for ( int i = 0; i < nInputStreams; i++ ) {
-        inputTransforms[ i ] = XMLHandler.getTagValue( transformNode, "transform" + i );
+        inputTransforms[ i ] = XmlHandler.getTagValue( transformNode, "transform" + i );
       }
 
-      joinType = XMLHandler.getTagValue( transformNode, "join_type" );
+      joinType = XmlHandler.getTagValue( transformNode, "join_type" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "MultiMergeJoinMeta.Exception.UnableToLoadTransformMeta" ),
+      throw new HopXmlException( BaseMessages.getString( PKG, "MultiMergeJoinMeta.Exception.UnableToLoadTransformMeta" ),
         e );
     }
   }

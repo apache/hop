@@ -25,7 +25,7 @@ package org.apache.hop.www;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -160,7 +160,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
     PrintWriter out = response.getWriter();
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
     } else {
 
       response.setCharacterEncoding( "UTF-8" );
@@ -214,7 +214,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
           cache.remove( pipeline.getLogChannelId() );
 
           if ( useXML ) {
-            out.println( WebResult.OK.getXML() );
+            out.println( WebResult.OK.getXml() );
           } else {
 
             out.println( "<H1>"

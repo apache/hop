@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SwingGC;
+import org.apache.hop.core.gui.SwingGc;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -188,7 +188,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
     Point maximum = workflowMeta.getMaximum();
     maximum.multiply( magnification );
 
-    SwingGC gc = new SwingGC( null, maximum, 32, 0, 0 );
+    SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
     WorkflowPainter workflowPainter = new WorkflowPainter( gc, workflowMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, "Arial", 10, 1.0d );
     workflowPainter.setMagnification( magnification );
     workflowPainter.drawJob();

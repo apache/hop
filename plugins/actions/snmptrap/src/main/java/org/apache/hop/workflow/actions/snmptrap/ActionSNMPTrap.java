@@ -27,9 +27,9 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -155,42 +155,42 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "oid", oid ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "comstring", comString ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "message", message ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nrretry", nrretry ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "targettype", targettype ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "user", user ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "engineid", engineid ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "oid", oid ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "comstring", comString ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "message", message ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nrretry", nrretry ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "targettype", targettype ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "user", user ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "engineid", engineid ) );
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      oid = XMLHandler.getTagValue( entrynode, "oid" );
-      message = XMLHandler.getTagValue( entrynode, "message" );
-      comString = XMLHandler.getTagValue( entrynode, "comstring" );
-      timeout = XMLHandler.getTagValue( entrynode, "timeout" );
-      nrretry = XMLHandler.getTagValue( entrynode, "nrretry" );
-      targettype = XMLHandler.getTagValue( entrynode, "targettype" );
-      user = XMLHandler.getTagValue( entrynode, "user" );
-      passphrase = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "passphrase" ) );
-      engineid = XMLHandler.getTagValue( entrynode, "engineid" );
+      super.loadXml( entrynode );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      oid = XmlHandler.getTagValue( entrynode, "oid" );
+      message = XmlHandler.getTagValue( entrynode, "message" );
+      comString = XmlHandler.getTagValue( entrynode, "comstring" );
+      timeout = XmlHandler.getTagValue( entrynode, "timeout" );
+      nrretry = XmlHandler.getTagValue( entrynode, "nrretry" );
+      targettype = XmlHandler.getTagValue( entrynode, "targettype" );
+      user = XmlHandler.getTagValue( entrynode, "user" );
+      passphrase = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "passphrase" ) );
+      engineid = XmlHandler.getTagValue( entrynode, "engineid" );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'SNMPTrap' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'SNMPTrap' from XML node", xe );
     }
   }
 

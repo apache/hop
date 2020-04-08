@@ -27,11 +27,11 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -180,7 +180,7 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
    */
   private boolean displayitem;
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -622,86 +622,86 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      displayitem = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "displayitem" ) );
-      customrss = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "customrss" ) );
-      channeltitle = XMLHandler.getTagValue( transformNode, "channel_title" );
-      channeldescription = XMLHandler.getTagValue( transformNode, "channel_description" );
-      channellink = XMLHandler.getTagValue( transformNode, "channel_link" );
-      channelpubdate = XMLHandler.getTagValue( transformNode, "channel_pubdate" );
-      channelcopyright = XMLHandler.getTagValue( transformNode, "channel_copyright" );
+      displayitem = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "displayitem" ) );
+      customrss = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "customrss" ) );
+      channeltitle = XmlHandler.getTagValue( transformNode, "channel_title" );
+      channeldescription = XmlHandler.getTagValue( transformNode, "channel_description" );
+      channellink = XmlHandler.getTagValue( transformNode, "channel_link" );
+      channelpubdate = XmlHandler.getTagValue( transformNode, "channel_pubdate" );
+      channelcopyright = XmlHandler.getTagValue( transformNode, "channel_copyright" );
 
-      channelimagetitle = XMLHandler.getTagValue( transformNode, "channel_image_title" );
-      channelimagelink = XMLHandler.getTagValue( transformNode, "channel_image_link" );
-      channelimageurl = XMLHandler.getTagValue( transformNode, "channel_image_url" );
-      channelimagedescription = XMLHandler.getTagValue( transformNode, "channel_image_description" );
-      channellanguage = XMLHandler.getTagValue( transformNode, "channel_language" );
-      channelauthor = XMLHandler.getTagValue( transformNode, "channel_author" );
+      channelimagetitle = XmlHandler.getTagValue( transformNode, "channel_image_title" );
+      channelimagelink = XmlHandler.getTagValue( transformNode, "channel_image_link" );
+      channelimageurl = XmlHandler.getTagValue( transformNode, "channel_image_url" );
+      channelimagedescription = XmlHandler.getTagValue( transformNode, "channel_image_description" );
+      channellanguage = XmlHandler.getTagValue( transformNode, "channel_language" );
+      channelauthor = XmlHandler.getTagValue( transformNode, "channel_author" );
 
-      version = XMLHandler.getTagValue( transformNode, "version" );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
+      version = XmlHandler.getTagValue( transformNode, "version" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
 
-      addimage = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addimage" ) );
+      addimage = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addimage" ) );
 
       // Items ...
-      itemtitle = XMLHandler.getTagValue( transformNode, "item_title" );
-      itemdescription = XMLHandler.getTagValue( transformNode, "item_description" );
-      itemlink = XMLHandler.getTagValue( transformNode, "item_link" );
-      itempubdate = XMLHandler.getTagValue( transformNode, "item_pubdate" );
-      itemauthor = XMLHandler.getTagValue( transformNode, "item_author" );
+      itemtitle = XmlHandler.getTagValue( transformNode, "item_title" );
+      itemdescription = XmlHandler.getTagValue( transformNode, "item_description" );
+      itemlink = XmlHandler.getTagValue( transformNode, "item_link" );
+      itempubdate = XmlHandler.getTagValue( transformNode, "item_pubdate" );
+      itemauthor = XmlHandler.getTagValue( transformNode, "item_author" );
 
-      addgeorss = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addgeorss" ) );
-      usegeorssgml = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usegeorssgml" ) );
-      geopointlat = XMLHandler.getTagValue( transformNode, "geopointlat" );
-      geopointlong = XMLHandler.getTagValue( transformNode, "geopointlong" );
+      addgeorss = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addgeorss" ) );
+      usegeorssgml = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usegeorssgml" ) );
+      geopointlat = XmlHandler.getTagValue( transformNode, "geopointlat" );
+      geopointlong = XmlHandler.getTagValue( transformNode, "geopointlong" );
 
-      filenamefield = XMLHandler.getTagValue( transformNode, "file", "filename_field" );
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
+      filenamefield = XmlHandler.getTagValue( transformNode, "file", "filename_field" );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
 
       isfilenameinfield =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "is_filename_in_field" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "is_filename_in_field" ) );
       createparentfolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
-      extension = XMLHandler.getTagValue( transformNode, "file", "extention" );
-      transformNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "split" ) );
-      partNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "haspartno" ) );
-      dateInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_date" ) );
-      timeInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_time" ) );
-      AddToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "AddToResult" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
+      extension = XmlHandler.getTagValue( transformNode, "file", "extention" );
+      transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
+      partNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "haspartno" ) );
+      dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
+      timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
+      AddToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "AddToResult" ) );
 
-      Node keys = XMLHandler.getSubNode( transformNode, "fields" );
+      Node keys = XmlHandler.getSubNode( transformNode, "fields" );
       // Custom Channel fields
-      int nrchannelfields = XMLHandler.countNodes( keys, "channel_custom_fields" );
+      int nrchannelfields = XmlHandler.countNodes( keys, "channel_custom_fields" );
       allocate( nrchannelfields );
 
       for ( int i = 0; i < nrchannelfields; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( keys, "channel_custom_fields", i );
-        channelCustomTags[ i ] = XMLHandler.getTagValue( knode, "tag" );
-        ChannelCustomFields[ i ] = XMLHandler.getTagValue( knode, "field" );
+        Node knode = XmlHandler.getSubNodeByNr( keys, "channel_custom_fields", i );
+        channelCustomTags[ i ] = XmlHandler.getTagValue( knode, "tag" );
+        ChannelCustomFields[ i ] = XmlHandler.getTagValue( knode, "field" );
       }
       // Custom Item fields
-      int nritemfields = XMLHandler.countNodes( keys, "item_custom_fields" );
+      int nritemfields = XmlHandler.countNodes( keys, "item_custom_fields" );
       allocateitem( nritemfields );
 
       for ( int i = 0; i < nritemfields; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( keys, "item_custom_fields", i );
-        itemCustomTags[ i ] = XMLHandler.getTagValue( knode, "tag" );
-        ItemCustomFields[ i ] = XMLHandler.getTagValue( knode, "field" );
+        Node knode = XmlHandler.getSubNodeByNr( keys, "item_custom_fields", i );
+        itemCustomTags[ i ] = XmlHandler.getTagValue( knode, "tag" );
+        ItemCustomFields[ i ] = XmlHandler.getTagValue( knode, "field" );
       }
       // NameSpaces
-      Node keysNameSpaces = XMLHandler.getSubNode( transformNode, "namespaces" );
-      int nrnamespaces = XMLHandler.countNodes( keysNameSpaces, "namespace" );
+      Node keysNameSpaces = XmlHandler.getSubNode( transformNode, "namespaces" );
+      int nrnamespaces = XmlHandler.countNodes( keysNameSpaces, "namespace" );
       allocatenamespace( nrnamespaces );
       for ( int i = 0; i < nrnamespaces; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( keysNameSpaces, "namespace", i );
-        NameSpacesTitle[ i ] = XMLHandler.getTagValue( knode, "namespace_tag" );
-        NameSpaces[ i ] = XMLHandler.getTagValue( knode, "namespace_value" );
+        Node knode = XmlHandler.getSubNodeByNr( keysNameSpaces, "namespace", i );
+        NameSpacesTitle[ i ] = XmlHandler.getTagValue( knode, "namespace_tag" );
+        NameSpaces[ i ] = XmlHandler.getTagValue( knode, "namespace_value" );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -759,65 +759,65 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "displayitem", displayitem ) );
-    retval.append( "    " + XMLHandler.addTagValue( "customrss", customrss ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_title", channeltitle ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_description", channeldescription ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_link", channellink ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_pubdate", channelpubdate ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_copyright", channelcopyright ) );
+    retval.append( "    " + XmlHandler.addTagValue( "displayitem", displayitem ) );
+    retval.append( "    " + XmlHandler.addTagValue( "customrss", customrss ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_title", channeltitle ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_description", channeldescription ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_link", channellink ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_pubdate", channelpubdate ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_copyright", channelcopyright ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "channel_image_title", channelimagetitle ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_image_link", channelimagelink ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_image_url", channelimageurl ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_image_description", channelimagedescription ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_language", channellanguage ) );
-    retval.append( "    " + XMLHandler.addTagValue( "channel_author", channelauthor ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_image_title", channelimagetitle ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_image_link", channelimagelink ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_image_url", channelimageurl ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_image_description", channelimagedescription ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_language", channellanguage ) );
+    retval.append( "    " + XmlHandler.addTagValue( "channel_author", channelauthor ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "version", version ) );
-    retval.append( "    " + XMLHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "version", version ) );
+    retval.append( "    " + XmlHandler.addTagValue( "encoding", encoding ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "addimage", addimage ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addimage", addimage ) );
 
     // Items ...
 
-    retval.append( "    " + XMLHandler.addTagValue( "item_title", itemtitle ) );
-    retval.append( "    " + XMLHandler.addTagValue( "item_description", itemdescription ) );
-    retval.append( "    " + XMLHandler.addTagValue( "item_link", itemlink ) );
-    retval.append( "    " + XMLHandler.addTagValue( "item_pubdate", itempubdate ) );
-    retval.append( "    " + XMLHandler.addTagValue( "item_author", itemauthor ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addgeorss", addgeorss ) );
-    retval.append( "    " + XMLHandler.addTagValue( "usegeorssgml", usegeorssgml ) );
-    retval.append( "    " + XMLHandler.addTagValue( "geopointlat", geopointlat ) );
-    retval.append( "    " + XMLHandler.addTagValue( "geopointlong", geopointlong ) );
+    retval.append( "    " + XmlHandler.addTagValue( "item_title", itemtitle ) );
+    retval.append( "    " + XmlHandler.addTagValue( "item_description", itemdescription ) );
+    retval.append( "    " + XmlHandler.addTagValue( "item_link", itemlink ) );
+    retval.append( "    " + XmlHandler.addTagValue( "item_pubdate", itempubdate ) );
+    retval.append( "    " + XmlHandler.addTagValue( "item_author", itemauthor ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addgeorss", addgeorss ) );
+    retval.append( "    " + XmlHandler.addTagValue( "usegeorssgml", usegeorssgml ) );
+    retval.append( "    " + XmlHandler.addTagValue( "geopointlat", geopointlat ) );
+    retval.append( "    " + XmlHandler.addTagValue( "geopointlong", geopointlong ) );
 
     retval.append( "    <file>" + Const.CR );
-    retval.append( "      " + XMLHandler.addTagValue( "filename_field", filenamefield ) );
-    retval.append( "      " + XMLHandler.addTagValue( "name", fileName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "extention", extension ) );
-    retval.append( "      " + XMLHandler.addTagValue( "split", transformNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "haspartno", partNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_date", dateInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "is_filename_in_field", isfilenameinfield ) );
-    retval.append( "      " + XMLHandler.addTagValue( "create_parent_folder", createparentfolder ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addtoresult", AddToResult ) );
+    retval.append( "      " + XmlHandler.addTagValue( "filename_field", filenamefield ) );
+    retval.append( "      " + XmlHandler.addTagValue( "name", fileName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "extention", extension ) );
+    retval.append( "      " + XmlHandler.addTagValue( "split", transformNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "haspartno", partNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_date", dateInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_time", timeInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "is_filename_in_field", isfilenameinfield ) );
+    retval.append( "      " + XmlHandler.addTagValue( "create_parent_folder", createparentfolder ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addtoresult", AddToResult ) );
     retval.append( "      </file>" + Const.CR );
 
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < ChannelCustomFields.length; i++ ) {
       retval.append( "        <channel_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", channelCustomTags[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ChannelCustomFields[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "tag", channelCustomTags[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "field", ChannelCustomFields[ i ] ) );
       retval.append( "        </channel_custom_fields>" ).append( Const.CR );
     }
     for ( int i = 0; i < ItemCustomFields.length; i++ ) {
       retval.append( "        <Item_custom_fields>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "tag", itemCustomTags[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "field", ItemCustomFields[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "tag", itemCustomTags[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "field", ItemCustomFields[ i ] ) );
       retval.append( "        </Item_custom_fields>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
@@ -825,8 +825,8 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     retval.append( "      <namespaces>" ).append( Const.CR );
     for ( int i = 0; i < NameSpaces.length; i++ ) {
       retval.append( "        <namespace>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_tag", NameSpacesTitle[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "namespace_value", NameSpaces[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "namespace_tag", NameSpacesTitle[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "namespace_value", NameSpaces[ i ] ) );
       retval.append( "        </namespace>" ).append( Const.CR );
     }
     retval.append( "      </namespaces>" ).append( Const.CR );

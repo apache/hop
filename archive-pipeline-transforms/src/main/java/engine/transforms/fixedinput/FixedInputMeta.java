@@ -28,14 +28,14 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -106,7 +106,7 @@ public class FixedInputMeta extends BaseTransformMeta implements ITransform {
     allocate( 0 );
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -124,30 +124,30 @@ public class FixedInputMeta extends BaseTransformMeta implements ITransform {
     lineFeedPresent = true;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      filename = XMLHandler.getTagValue( transformNode, "filename" );
-      lineWidth = XMLHandler.getTagValue( transformNode, "line_width" );
-      bufferSize = XMLHandler.getTagValue( transformNode, "buffer_size" );
-      headerPresent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "header" ) );
-      lineFeedPresent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "line_feed" ) );
-      lazyConversionActive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "lazy_conversion" ) );
-      runningInParallel = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "parallel" ) );
-      fileType = getFileType( XMLHandler.getTagValue( transformNode, "file_type" ) );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      isaddresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "add_to_result_filenames" ) );
+      filename = XmlHandler.getTagValue( transformNode, "filename" );
+      lineWidth = XmlHandler.getTagValue( transformNode, "line_width" );
+      bufferSize = XmlHandler.getTagValue( transformNode, "buffer_size" );
+      headerPresent = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "header" ) );
+      lineFeedPresent = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "line_feed" ) );
+      lazyConversionActive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "lazy_conversion" ) );
+      runningInParallel = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "parallel" ) );
+      fileType = getFileType( XmlHandler.getTagValue( transformNode, "file_type" ) );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      isaddresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "add_to_result_filenames" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         fieldDefinition[ i ] = new FixedFileInputField( fnode );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -155,24 +155,24 @@ public class FixedInputMeta extends BaseTransformMeta implements ITransform {
     fieldDefinition = new FixedFileInputField[ nrFields ];
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "line_width", lineWidth ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "header", headerPresent ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "buffer_size", bufferSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "lazy_conversion", lazyConversionActive ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "line_feed", lineFeedPresent ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "parallel", runningInParallel ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "file_type", getFileTypeCode() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "line_width", lineWidth ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "header", headerPresent ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "buffer_size", bufferSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "lazy_conversion", lazyConversionActive ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "line_feed", lineFeedPresent ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "parallel", runningInParallel ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "file_type", getFileTypeCode() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "add_to_result_filenames", isaddresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "add_to_result_filenames", isaddresult ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldDefinition.length; i++ ) {
-      retval.append( fieldDefinition[ i ].getXML() );
+      retval.append( fieldDefinition[ i ].getXml() );
     }
     retval.append( "    </fields>" ).append( Const.CR );
 

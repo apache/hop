@@ -24,9 +24,9 @@ package org.apache.hop.core.dnd;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -133,17 +133,17 @@ public class DragAndDropContainer implements IXml {
     try {
       StringBuilder xml = new StringBuilder( 100 );
 
-      xml.append( XMLHandler.getXMLHeader() ); // UFT-8 XML header
-      xml.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+      xml.append( XmlHandler.getXMLHeader() ); // UFT-8 XML header
+      xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
       if ( id != null ) {
-        xml.append( "  " ).append( XMLHandler.addTagValue( "ID", id ) );
+        xml.append( "  " ).append( XmlHandler.addTagValue( "ID", id ) );
       }
-      xml.append( "  " ).append( XMLHandler.addTagValue( "DragType", getTypeCode() ) );
+      xml.append( "  " ).append( XmlHandler.addTagValue( "DragType", getTypeCode() ) );
       xml.append( "  " ).append(
-        XMLHandler
+        XmlHandler
           .addTagValue( "Data", new String( Base64.encodeBase64( data.getBytes( Const.XML_ENCODING ) ) ) ) );
-      xml.append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
       return xml.toString();
     } catch ( UnsupportedEncodingException e ) {
@@ -156,17 +156,17 @@ public class DragAndDropContainer implements IXml {
    *
    * @param xml The XML string to convert from
    */
-  public DragAndDropContainer( String xml ) throws HopXMLException {
+  public DragAndDropContainer( String xml ) throws HopXmlException {
     try {
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node dnd = XMLHandler.getSubNode( doc, XML_TAG );
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node dnd = XmlHandler.getSubNode( doc, XML_TAG );
 
-      id = XMLHandler.getTagValue( dnd, "ID" );
-      type = getType( XMLHandler.getTagValue( dnd, "DragType" ) );
+      id = XmlHandler.getTagValue( dnd, "ID" );
+      type = getType( XmlHandler.getTagValue( dnd, "DragType" ) );
       data =
-        new String( Base64.decodeBase64( XMLHandler.getTagValue( dnd, "Data" ).getBytes() ), Const.XML_ENCODING );
+        new String( Base64.decodeBase64( XmlHandler.getTagValue( dnd, "Data" ).getBytes() ), Const.XML_ENCODING );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unexpected error parsing Drag & Drop XML fragment: " + xml, e );
+      throw new HopXmlException( "Unexpected error parsing Drag & Drop XML fragment: " + xml, e );
     }
   }
 

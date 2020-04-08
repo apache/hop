@@ -24,7 +24,7 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -45,13 +45,13 @@ public class PipelineConfiguration {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
   }
 
-  public String getXML() throws IOException, HopException {
+  public String getXml() throws IOException, HopException {
     StringBuilder xml = new StringBuilder( 200 );
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
     xml.append( pipelineMeta.getXml() );
-    xml.append( pipelineExecutionConfiguration.getXML() );
+    xml.append( pipelineExecutionConfiguration.getXml() );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
@@ -59,15 +59,15 @@ public class PipelineConfiguration {
   }
 
   public PipelineConfiguration( Node configNode ) throws HopException {
-    Node trecNode = XMLHandler.getSubNode( configNode, PipelineExecutionConfiguration.XML_TAG );
+    Node trecNode = XmlHandler.getSubNode( configNode, PipelineExecutionConfiguration.XML_TAG );
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration( trecNode );
-    Node pipelineNode = XMLHandler.getSubNode( configNode, PipelineMeta.XML_TAG );
+    Node pipelineNode = XmlHandler.getSubNode( configNode, PipelineMeta.XML_TAG );
     pipelineMeta = new PipelineMeta( pipelineNode );
   }
 
   public static final PipelineConfiguration fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    Node configNode = XMLHandler.getSubNode( document, XML_TAG );
+    Document document = XmlHandler.loadXMLString( xml );
+    Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new PipelineConfiguration( configNode );
   }
 

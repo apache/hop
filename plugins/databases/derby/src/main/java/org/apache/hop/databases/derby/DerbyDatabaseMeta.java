@@ -287,7 +287,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
   }
 

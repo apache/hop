@@ -33,14 +33,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -69,8 +69,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLFormatter;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlFormatter;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.missing.MissingAction;
@@ -457,7 +457,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.xml.IXml#getXML()
+   * @see org.apache.hop.core.xml.IXml#getXml()
    */
   public String getXml() {
 
@@ -468,85 +468,85 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XMLHandler.addTagValue( "name", getName() ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) );
 
-    retval.append( "  " ).append( XMLHandler.addTagValue( "description", description ) );
-    retval.append( "  " ).append( XMLHandler.addTagValue( "extended_description", extendedDescription ) );
-    retval.append( "  " ).append( XMLHandler.addTagValue( "workflow_version", workflowVersion ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "description", description ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "workflow_version", workflowVersion ) );
     if ( workflowStatus >= 0 ) {
-      retval.append( "  " ).append( XMLHandler.addTagValue( "workflow_status", workflowStatus ) );
+      retval.append( "  " ).append( XmlHandler.addTagValue( "workflow_status", workflowStatus ) );
     }
 
-    retval.append( "  " ).append( XMLHandler.addTagValue( "created_user", createdUser ) );
-    retval.append( "  " ).append( XMLHandler.addTagValue( "created_date", XMLHandler.date2string( createdDate ) ) );
-    retval.append( "  " ).append( XMLHandler.addTagValue( "modified_user", modifiedUser ) );
-    retval.append( "  " ).append( XMLHandler.addTagValue( "modified_date", XMLHandler.date2string( modifiedDate ) ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
+    retval.append( "  " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
 
-    retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     String[] parameters = listParameters();
     for ( int idx = 0; idx < parameters.length; idx++ ) {
-      retval.append( "      " ).append( XMLHandler.openTag( "parameter" ) ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[ idx ] ) );
+      retval.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
       try {
         retval.append( "        " )
-          .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
+          .append( XmlHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
         retval.append( "        " )
-          .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
+          .append( XmlHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
       } catch ( UnknownParamException e ) {
         // skip the default value and/or description. This exception should never happen because we use listParameters()
         // above.
       }
-      retval.append( "      " ).append( XMLHandler.closeTag( "parameter" ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
     }
-    retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
 
     // Append the workflow logging information...
     //
     for ( ILogTable logTable : getLogTables() ) {
-      retval.append( logTable.getXML() );
+      retval.append( logTable.getXml() );
     }
 
-    retval.append( "   " ).append( XMLHandler.addTagValue( "pass_batchid", batchIdPassed ) );
+    retval.append( "   " ).append( XmlHandler.addTagValue( "pass_batchid", batchIdPassed ) );
 
-    retval.append( "  " ).append( XMLHandler.openTag( "actions" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.openTag( "actions" ) ).append( Const.CR );
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionCopy jge = getAction( i );
       retval.append( jge.getXml() );
     }
-    retval.append( "  " ).append( XMLHandler.closeTag( "actions" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.closeTag( "actions" ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XMLHandler.openTag( "hops" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.openTag( "hops" ) ).append( Const.CR );
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
       retval.append( hi.getXml() );
     }
-    retval.append( "  " ).append( XMLHandler.closeTag( "hops" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.closeTag( "hops" ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XMLHandler.openTag( "notepads" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.openTag( "notepads" ) ).append( Const.CR );
     for ( int i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
       retval.append( ni.getXml() );
     }
-    retval.append( "  " ).append( XMLHandler.closeTag( "notepads" ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.closeTag( "notepads" ) ).append( Const.CR );
 
     // Also store the attribute groups
     //
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
 
-    retval.append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
-    return XMLFormatter.format( retval.toString() );
+    return XmlFormatter.format( retval.toString() );
   }
 
   /**
    * Instantiates a new workflow meta.
    *
    * @param fname the fname
-   * @throws HopXMLException the kettle xml exception
+   * @throws HopXmlException the kettle xml exception
    */
-  public WorkflowMeta( String fname ) throws HopXMLException {
+  public WorkflowMeta( String fname ) throws HopXmlException {
     this( null, fname, null );
   }
 
@@ -556,25 +556,25 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param parentSpace
    * @param fname
    * @param metaStore
-   * @throws HopXMLException
+   * @throws HopXmlException
    */
-  public WorkflowMeta( IVariables parentSpace, String fname, IMetaStore metaStore ) throws HopXMLException {
+  public WorkflowMeta( IVariables parentSpace, String fname, IMetaStore metaStore ) throws HopXmlException {
     this.initializeVariablesFrom( parentSpace );
     this.metaStore = metaStore;
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XMLHandler.loadXMLFile( HopVFS.getFileObject( fname, this ) );
+      Document doc = XmlHandler.loadXMLFile( HopVFS.getFileObject( fname, this ) );
       if ( doc != null ) {
         // The jobnode
-        Node jobnode = XMLHandler.getSubNode( doc, XML_TAG );
+        Node jobnode = XmlHandler.getSubNode( doc, XML_TAG );
 
-        loadXML( jobnode, fname, metaStore );
+        loadXml( jobnode, fname, metaStore );
       } else {
-        throw new HopXMLException(
+        throw new HopXmlException(
           BaseMessages.getString( PKG, "WorkflowMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadJobFromXMLFile" ) + fname + "]", e );
     }
   }
@@ -583,24 +583,24 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Instantiates a new workflow meta.
    *
    * @param inputStream the input stream
-   * @throws HopXMLException the kettle xml exception
+   * @throws HopXmlException the kettle xml exception
    */
-  public WorkflowMeta( InputStream inputStream ) throws HopXMLException {
+  public WorkflowMeta( InputStream inputStream ) throws HopXmlException {
     this();
-    Document doc = XMLHandler.loadXMLFile( inputStream, null, false, false );
-    Node subNode = XMLHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
-    loadXML( subNode, null );
+    Document doc = XmlHandler.loadXMLFile( inputStream, null, false, false );
+    Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
+    loadXml( subNode, null );
   }
 
   /**
    * Create a new WorkflowMeta object by loading it from a a DOM node.
    *
    * @param workflowNode The node to load from
-   * @throws HopXMLException
+   * @throws HopXmlException
    */
-  public WorkflowMeta( Node workflowNode ) throws HopXMLException {
+  public WorkflowMeta( Node workflowNode ) throws HopXmlException {
     this();
-    loadXML( workflowNode, null );
+    loadXml( workflowNode, null );
   }
 
 
@@ -609,11 +609,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @param jobnode the jobnode
    * @param fname   The filename
-   * @throws HopXMLException the kettle xml exception
+   * @throws HopXmlException the kettle xml exception
    */
-  public void loadXML( Node jobnode, String fname )
-    throws HopXMLException {
-    loadXML( jobnode, fname, null );
+  public void loadXml( Node jobnode, String fname )
+    throws HopXmlException {
+    loadXml( jobnode, fname, null );
   }
 
   /**
@@ -622,9 +622,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param jobnode   The node to load from
    * @param fname     The filename
    * @param metaStore the MetaStore to use
-   * @throws HopXMLException
+   * @throws HopXmlException
    */
-  public void loadXML( Node jobnode, String fname, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node jobnode, String fname, IMetaStore metaStore ) throws HopXmlException {
     Props props = null;
     if ( Props.isInitialized() ) {
       props = Props.getInstance();
@@ -638,45 +638,45 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
       // get workflow info:
       //
-      setName( XMLHandler.getTagValue( jobnode, "name" ) );
+      setName( XmlHandler.getTagValue( jobnode, "name" ) );
 
       // description
-      description = XMLHandler.getTagValue( jobnode, "description" );
+      description = XmlHandler.getTagValue( jobnode, "description" );
 
       // extended description
-      extendedDescription = XMLHandler.getTagValue( jobnode, "extended_description" );
+      extendedDescription = XmlHandler.getTagValue( jobnode, "extended_description" );
 
       // workflow version
-      workflowVersion = XMLHandler.getTagValue( jobnode, "workflow_version" );
+      workflowVersion = XmlHandler.getTagValue( jobnode, "workflow_version" );
 
       // workflow status
-      workflowStatus = Const.toInt( XMLHandler.getTagValue( jobnode, "workflow_status" ), -1 );
+      workflowStatus = Const.toInt( XmlHandler.getTagValue( jobnode, "workflow_status" ), -1 );
 
       // Created user/date
-      createdUser = XMLHandler.getTagValue( jobnode, "created_user" );
-      String createDate = XMLHandler.getTagValue( jobnode, "created_date" );
+      createdUser = XmlHandler.getTagValue( jobnode, "created_user" );
+      String createDate = XmlHandler.getTagValue( jobnode, "created_date" );
 
       if ( createDate != null ) {
-        createdDate = XMLHandler.stringToDate( createDate );
+        createdDate = XmlHandler.stringToDate( createDate );
       }
 
       // Changed user/date
-      modifiedUser = XMLHandler.getTagValue( jobnode, "modified_user" );
-      String modDate = XMLHandler.getTagValue( jobnode, "modified_date" );
+      modifiedUser = XmlHandler.getTagValue( jobnode, "modified_user" );
+      String modDate = XmlHandler.getTagValue( jobnode, "modified_date" );
       if ( modDate != null ) {
-        modifiedDate = XMLHandler.stringToDate( modDate );
+        modifiedDate = XmlHandler.stringToDate( modDate );
       }
 
       // Read the named parameters.
-      Node paramsNode = XMLHandler.getSubNode( jobnode, XML_TAG_PARAMETERS );
-      int nrParams = XMLHandler.countNodes( paramsNode, "parameter" );
+      Node paramsNode = XmlHandler.getSubNode( jobnode, XML_TAG_PARAMETERS );
+      int nrParams = XmlHandler.countNodes( paramsNode, "parameter" );
 
       for ( int i = 0; i < nrParams; i++ ) {
-        Node paramNode = XMLHandler.getSubNodeByNr( paramsNode, "parameter", i );
+        Node paramNode = XmlHandler.getSubNodeByNr( paramsNode, "parameter", i );
 
-        String paramName = XMLHandler.getTagValue( paramNode, "name" );
-        String defValue = XMLHandler.getTagValue( paramNode, "default_value" );
-        String descr = XMLHandler.getTagValue( paramNode, "description" );
+        String paramName = XmlHandler.getTagValue( paramNode, "name" );
+        String defValue = XmlHandler.getTagValue( paramNode, "default_value" );
+        String descr = XmlHandler.getTagValue( paramNode, "description" );
 
         addParameterDefinition( paramName, defValue, descr );
       }
@@ -686,39 +686,39 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
        */
       // Backward compatibility...
       //
-      Node jobLogNode = XMLHandler.getSubNode( jobnode, WorkflowLogTable.XML_TAG );
+      Node jobLogNode = XmlHandler.getSubNode( jobnode, WorkflowLogTable.XML_TAG );
       if ( jobLogNode == null ) {
         // Load the XML
         //
-        workflowLogTable.setConnectionName( XMLHandler.getTagValue( jobnode, "logconnection" ) );
-        workflowLogTable.setTableName( XMLHandler.getTagValue( jobnode, "logtable" ) );
-        workflowLogTable.setBatchIdUsed( "Y".equalsIgnoreCase( XMLHandler.getTagValue( jobnode, "use_batchid" ) ) );
-        workflowLogTable.setLogFieldUsed( "Y".equalsIgnoreCase( XMLHandler.getTagValue( jobnode, "use_logfield" ) ) );
+        workflowLogTable.setConnectionName( XmlHandler.getTagValue( jobnode, "logconnection" ) );
+        workflowLogTable.setTableName( XmlHandler.getTagValue( jobnode, "logtable" ) );
+        workflowLogTable.setBatchIdUsed( "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "use_batchid" ) ) );
+        workflowLogTable.setLogFieldUsed( "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "use_logfield" ) ) );
         workflowLogTable.findField( WorkflowLogTable.ID.CHANNEL_ID ).setEnabled( false );
         workflowLogTable.findField( WorkflowLogTable.ID.LINES_REJECTED ).setEnabled( false );
       } else {
-        workflowLogTable.loadXML( jobLogNode, null );
+        workflowLogTable.loadXml( jobLogNode, null );
       }
 
-      Node channelLogTableNode = XMLHandler.getSubNode( jobnode, ChannelLogTable.XML_TAG );
+      Node channelLogTableNode = XmlHandler.getSubNode( jobnode, ChannelLogTable.XML_TAG );
       if ( channelLogTableNode != null ) {
-        channelLogTable.loadXML( channelLogTableNode, null );
+        channelLogTable.loadXml( channelLogTableNode, null );
       }
-      actionsLogTable.loadXML( jobnode, null );
+      actionsLogTable.loadXml( jobnode, null );
 
       for ( ILogTable extraLogTable : extraLogTables ) {
-        extraLogTable.loadXML( jobnode, null );
+        extraLogTable.loadXml( jobnode, null );
       }
 
-      batchIdPassed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( jobnode, "pass_batchid" ) );
+      batchIdPassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "pass_batchid" ) );
 
       /*
        * read the actions...
        */
-      Node entriesnode = XMLHandler.getSubNode( jobnode, "actions" );
-      int tr = XMLHandler.countNodes( entriesnode, "action" );
+      Node entriesnode = XmlHandler.getSubNode( jobnode, "actions" );
+      int tr = XmlHandler.countNodes( entriesnode, "action" );
       for ( int i = 0; i < tr; i++ ) {
-        Node entrynode = XMLHandler.getSubNodeByNr( entriesnode, "action", i );
+        Node entrynode = XmlHandler.getSubNodeByNr( entriesnode, "action", i );
         ActionCopy je = new ActionCopy( entrynode, metaStore );
 
         if ( je.isSpecial() && je.isMissing() ) {
@@ -755,32 +755,32 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         addAction( je );
       }
 
-      Node hopsnode = XMLHandler.getSubNode( jobnode, "hops" );
-      int ho = XMLHandler.countNodes( hopsnode, "hop" );
+      Node hopsnode = XmlHandler.getSubNode( jobnode, "hops" );
+      int ho = XmlHandler.countNodes( hopsnode, "hop" );
       for ( int i = 0; i < ho; i++ ) {
-        Node hopnode = XMLHandler.getSubNodeByNr( hopsnode, "hop", i );
+        Node hopnode = XmlHandler.getSubNodeByNr( hopsnode, "hop", i );
         WorkflowHopMeta hi = new WorkflowHopMeta( hopnode, this );
         workflowHops.add( hi );
       }
 
       // Read the notes...
-      Node notepadsnode = XMLHandler.getSubNode( jobnode, "notepads" );
-      int nrnotes = XMLHandler.countNodes( notepadsnode, "notepad" );
+      Node notepadsnode = XmlHandler.getSubNode( jobnode, "notepads" );
+      int nrnotes = XmlHandler.countNodes( notepadsnode, "notepad" );
       for ( int i = 0; i < nrnotes; i++ ) {
-        Node notepadnode = XMLHandler.getSubNodeByNr( notepadsnode, "notepad", i );
+        Node notepadnode = XmlHandler.getSubNodeByNr( notepadsnode, "notepad", i );
         NotePadMeta ni = new NotePadMeta( notepadnode );
         notes.add( ni );
       }
 
       // Load the attribute groups map
       //
-      attributesMap = AttributesUtil.loadAttributes( XMLHandler.getSubNode( jobnode, AttributesUtil.XML_TAG ) );
+      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( jobnode, AttributesUtil.XML_TAG ) );
 
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowMetaLoaded.id, this );
 
       clearChanged();
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadJobFromXMLNode" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadJobFromXMLNode" ), e );
     } finally {
       setInternalHopVariables();
     }
@@ -1641,30 +1641,30 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     this.batchIdPassed = batchIdPassed;
   }
 
-  public List<SQLStatement> getSQLStatements( IProgressMonitor monitor )
+  public List<SqlStatement> getSqlStatements( IProgressMonitor monitor )
     throws HopException {
-    return getSQLStatements( null, monitor );
+    return getSqlStatements( null, monitor );
   }
 
   /**
    * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
    *
-   * @return An ArrayList of SQLStatement objects.
+   * @return An ArrayList of SqlStatement objects.
    */
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore,
+  public List<SqlStatement> getSqlStatements( IMetaStore metaStore,
                                               IProgressMonitor monitor ) throws HopException {
     if ( monitor != null ) {
       monitor
         .beginTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLNeededForThisWorkflow" ), nrActions() + 1 );
     }
-    List<SQLStatement> stats = new ArrayList<SQLStatement>();
+    List<SqlStatement> stats = new ArrayList<SqlStatement>();
 
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionCopy copy = getAction( i );
       if ( monitor != null ) {
         monitor.subTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLForActionCopy" ) + copy + "]" );
       }
-      stats.addAll( copy.getEntry().getSQLStatements( metaStore, this ) );
+      stats.addAll( copy.getEntry().getSqlStatements( metaStore, this ) );
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
@@ -1681,12 +1681,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         IRowMeta fields = workflowLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
         String sql = db.getDDL( workflowLogTable.getTableName(), fields );
         if ( sql != null && sql.length() > 0 ) {
-          SQLStatement stat = new SQLStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
+          SqlStatement stat = new SqlStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
             workflowLogTable.getDatabaseMeta(), sql );
           stats.add( stat );
         }
       } catch ( HopDatabaseException dbe ) {
-        SQLStatement stat = new SQLStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
+        SqlStatement stat = new SqlStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
           workflowLogTable.getDatabaseMeta(), null );
         stat.setError(
           BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ErrorObtainingJobLogTableInfo" ) + dbe.getMessage() );

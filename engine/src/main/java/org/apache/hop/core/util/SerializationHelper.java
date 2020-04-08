@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -71,13 +71,13 @@ public class SerializationHelper {
       if ( field.getType().isArray() ) {
         try {
           // get the node (if available) for the field
-          Node fieldNode = XMLHandler.getSubNode( node, field.getName() );
+          Node fieldNode = XmlHandler.getSubNode( node, field.getName() );
           if ( fieldNode == null ) {
             // doesn't exist (this is possible if fields were empty/null when persisted)
             continue;
           }
           // get the Java classname for the array elements
-          String fieldClassName = XMLHandler.getTagAttribute( fieldNode, "class" );
+          String fieldClassName = XmlHandler.getTagAttribute( fieldNode, "class" );
           Class<?> clazz = null;
           // primitive types require special handling
           if ( fieldClassName.equals( "boolean" ) ) {
@@ -121,22 +121,22 @@ public class SerializationHelper {
             // roll through all of our array elements setting them as encountered
             if ( String.class.isAssignableFrom( clazz ) || Number.class.isAssignableFrom( clazz ) ) {
               Constructor<?> constructor = clazz.getConstructor( String.class );
-              Object instance = constructor.newInstance( XMLHandler.getTagAttribute( child, "value" ) );
+              Object instance = constructor.newInstance( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, instance );
             } else if ( Boolean.class.isAssignableFrom( clazz ) || boolean.class.isAssignableFrom( clazz ) ) {
-              Object value = Boolean.valueOf( XMLHandler.getTagAttribute( child, "value" ) );
+              Object value = Boolean.valueOf( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, value );
             } else if ( Integer.class.isAssignableFrom( clazz ) || int.class.isAssignableFrom( clazz ) ) {
-              Object value = Integer.valueOf( XMLHandler.getTagAttribute( child, "value" ) );
+              Object value = Integer.valueOf( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, value );
             } else if ( Float.class.isAssignableFrom( clazz ) || float.class.isAssignableFrom( clazz ) ) {
-              Object value = Float.valueOf( XMLHandler.getTagAttribute( child, "value" ) );
+              Object value = Float.valueOf( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, value );
             } else if ( Double.class.isAssignableFrom( clazz ) || double.class.isAssignableFrom( clazz ) ) {
-              Object value = Double.valueOf( XMLHandler.getTagAttribute( child, "value" ) );
+              Object value = Double.valueOf( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, value );
             } else if ( Long.class.isAssignableFrom( clazz ) || long.class.isAssignableFrom( clazz ) ) {
-              Object value = Long.valueOf( XMLHandler.getTagAttribute( child, "value" ) );
+              Object value = Long.valueOf( XmlHandler.getTagAttribute( child, "value" ) );
               Array.set( array, arrayIndex++, value );
             } else {
               // create an instance of 'fieldClassName'
@@ -155,13 +155,13 @@ public class SerializationHelper {
         // handle lists
         try {
           // get the node (if available) for the field
-          Node fieldNode = XMLHandler.getSubNode( node, field.getName() );
+          Node fieldNode = XmlHandler.getSubNode( node, field.getName() );
           if ( fieldNode == null ) {
             // doesn't exist (this is possible if fields were empty/null when persisted)
             continue;
           }
           // get the Java classname for the array elements
-          String fieldClassName = XMLHandler.getTagAttribute( fieldNode, "class" );
+          String fieldClassName = XmlHandler.getTagAttribute( fieldNode, "class" );
           Class<?> clazz = Class.forName( fieldClassName );
 
           // create a new, appropriately sized array
@@ -180,7 +180,7 @@ public class SerializationHelper {
             if ( String.class.isAssignableFrom( clazz )
               || Number.class.isAssignableFrom( clazz ) || Boolean.class.isAssignableFrom( clazz ) ) {
               Constructor<?> constructor = clazz.getConstructor( String.class );
-              Object instance = constructor.newInstance( XMLHandler.getTagAttribute( child, "value" ) );
+              Object instance = constructor.newInstance( XmlHandler.getTagAttribute( child, "value" ) );
               list.add( instance );
             } else {
               // read child, the same way as the parent
@@ -197,7 +197,7 @@ public class SerializationHelper {
       } else {
         // we're handling a regular field (not an array or list)
         try {
-          Object value = XMLHandler.getTagValue( node, field.getName() );
+          Object value = XmlHandler.getTagValue( node, field.getName() );
           if ( value == null ) {
             continue;
           }
@@ -227,13 +227,13 @@ public class SerializationHelper {
               field.set( object, instance );
             } else {
               // we don't know what we're handling, but we'll give it a shot
-              Node fieldNode = XMLHandler.getSubNode( node, field.getName() );
+              Node fieldNode = XmlHandler.getSubNode( node, field.getName() );
               if ( fieldNode == null ) {
                 // doesn't exist (this is possible if fields were empty/null when persisted)
                 continue;
               }
               // get the Java classname for the array elements
-              String fieldClassName = XMLHandler.getTagAttribute( fieldNode, "class" );
+              String fieldClassName = XmlHandler.getTagAttribute( fieldNode, "class" );
               Class<?> clazz = Class.forName( fieldClassName );
               Object instance = clazz.newInstance();
               field.set( object, instance );
@@ -249,7 +249,7 @@ public class SerializationHelper {
   }
 
   /**
-   * This method will perform the work that used to be done by hand in each kettle input meta for: getXML(). We handle
+   * This method will perform the work that used to be done by hand in each kettle input meta for: getXml(). We handle
    * all primitive types, complex user types, arrays, lists and any number of nested object levels, via recursion of
    * this method.
    *
@@ -289,7 +289,7 @@ public class SerializationHelper {
         if ( field.getType().isPrimitive()
           || String.class.isAssignableFrom( field.getType() ) || Number.class.isAssignableFrom( field.getType() ) ) {
           indent( buffer, indentLevel );
-          buffer.append( XMLHandler.addTagValue( field.getName(), fieldValue.toString() ) );
+          buffer.append( XmlHandler.addTagValue( field.getName(), fieldValue.toString() ) );
         } else if ( field.getType().isArray() ) {
           // write array values
           int length = Array.getLength( fieldValue );

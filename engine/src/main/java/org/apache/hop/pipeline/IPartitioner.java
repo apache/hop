@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.w3c.dom.Node;
@@ -53,17 +53,17 @@ import org.w3c.dom.Node;
  * The plugin needs to be able to serialize its settings to XML. The interface methods are as
  * follows.
  * <p>
- * <i><a href="#getXML()">public String getXML()</a></i>
+ * <i><a href="#getXml()">public String getXml()</a></i>
  * <p>
  * This method is called by PDI whenever the plugin needs to serialize its settings to XML. It is called when saving a
  * pipeline in HopGui. The method returns an XML string, containing the serialized settings. The string contains a
- * series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically
+ * series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically
  * used to construct the XML string.
  * <p>
- * <i><a href="#loadXML(org.w3c.dom.Node)">public void loadXML(...)</a></i>
+ * <i><a href="#loadXml(org.w3c.dom.Node)">public void loadXml(...)</a></i>
  * <p>
  * This method is called by PDI whenever a plugin needs to read its settings from XML. The XML node containing the
- * plugin's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
+ * plugin's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
  * typically used to conveniently read the settings from the XML node.
  * <p>
  * <i><a href="#getDialogClassName()">public String getDialogClassName()</i></a> </li>
@@ -150,14 +150,14 @@ public interface IPartitioner {
    *
    * @return the xml
    */
-  public String getXML();
+  public String getXml();
 
   /**
    * Load xml.
    *
    * @param partitioningMethodNode the partitioning method node
-   * @throws HopXMLException the kettle xml exception
+   * @throws HopXmlException the kettle xml exception
    */
-  public void loadXML( Node partitioningMethodNode ) throws HopXMLException;
+  public void loadXml( Node partitioningMethodNode ) throws HopXmlException;
 
 }

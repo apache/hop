@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -108,7 +108,7 @@ public class RowMetaTest {
     try ( InputStream in = RowMetaTest.class.getResourceAsStream( "rowMetaNode.xml" ) ) {
       testXmlNode = IOUtils.toString( in );
     }
-    Document xmlDoc = XMLHandler.loadXMLString( testXmlNode );
+    Document xmlDoc = XmlHandler.loadXMLString( testXmlNode );
     RowMeta rowMeta = spy( new RowMeta( xmlDoc.getFirstChild() ) );
     assertEquals( 2, rowMeta.getValueMetaList().size() );
     IValueMeta valueMeta = rowMeta.getValueMeta( 0 );

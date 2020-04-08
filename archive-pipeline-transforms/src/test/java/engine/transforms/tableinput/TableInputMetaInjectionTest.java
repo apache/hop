@@ -40,7 +40,7 @@ public class TableInputMetaInjectionTest extends BaseMetadataInjectionTest<Table
   public void test() throws Exception {
     check( "SQL", new StringGetter() {
       public String get() {
-        return meta.getSQL();
+        return meta.getSql();
       }
     } );
     check( "LIMIT", new StringGetter() {

@@ -157,14 +157,14 @@ public class ValueMapperMetaTest implements InitializerInterface<ITransform> {
     valueMapper.setTargetValue( new String[] { "targ1", "targ2" } );
 
     try {
-      String badXml = valueMapper.getXML();
+      String badXml = valueMapper.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     valueMapper.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = valueMapper.getXML();
+    String ktrXml = valueMapper.getXml();
 
     Assert.assertEquals( valueMapper.getSourceValue().length, valueMapper.getTargetValue().length );
 

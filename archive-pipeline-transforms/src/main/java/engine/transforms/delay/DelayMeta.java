@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.delay;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -63,15 +63,15 @@ public class DelayMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "scaletime", scaletime ) );
+    retval.append( "    " + XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "scaletime", scaletime ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -122,16 +122,16 @@ public class DelayMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      timeout = XMLHandler.getTagValue( transformNode, "timeout" );
-      scaletime = XMLHandler.getTagValue( transformNode, "scaletime" );
+      timeout = XmlHandler.getTagValue( transformNode, "timeout" );
+      scaletime = XmlHandler.getTagValue( transformNode, "scaletime" );
       // set all unknown values to seconds
       setScaleTimeCode( getScaleTimeCode() ); // compatibility reasons for pipelines before 3.1.1, see PDI-1850,
       // PDI-1532
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "DelayMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "DelayMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XMLParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -569,9 +569,9 @@ public class WebService extends BaseTransform implements ITransform {
 
       Node envelopeNode = doc.getFirstChild();
       String nsPrefix = envelopeNode.getPrefix();
-      Node bodyNode = XMLHandler.getSubNode( envelopeNode, nsPrefix + ":Body" );
+      Node bodyNode = XmlHandler.getSubNode( envelopeNode, nsPrefix + ":Body" );
       if ( bodyNode == null ) {
-        XMLHandler.getSubNode( envelopeNode, nsPrefix + ":body" ); // retry, just in case!
+        XmlHandler.getSubNode( envelopeNode, nsPrefix + ":body" ); // retry, just in case!
       }
 
       // Create a few objects to help do the layout of XML snippets we find along the way

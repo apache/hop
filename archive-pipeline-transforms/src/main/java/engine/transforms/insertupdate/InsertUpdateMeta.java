@@ -31,7 +31,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -40,7 +40,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -142,7 +142,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
   public void setConnection( String connectionName ) {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
-    } catch ( HopXMLException e ) {
+    } catch ( HopXmlException e ) {
       throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
   }
@@ -311,7 +311,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
     this.update = update;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -344,47 +344,47 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
       String csize;
       int nrkeys, nrvalues;
 
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      csize = XMLHandler.getTagValue( transformNode, "commit" );
+      csize = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = ( csize != null ) ? csize : "0";
-      schemaName = XMLHandler.getTagValue( transformNode, "lookup", "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "lookup", "table" );
-      updateBypassed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "update_bypassed" ) );
+      schemaName = XmlHandler.getTagValue( transformNode, "lookup", "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "lookup", "table" );
+      updateBypassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "update_bypassed" ) );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      nrkeys = XMLHandler.countNodes( lookup, "key" );
-      nrvalues = XMLHandler.countNodes( lookup, "value" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      nrkeys = XmlHandler.countNodes( lookup, "key" );
+      nrvalues = XmlHandler.countNodes( lookup, "value" );
 
       allocate( nrkeys, nrvalues );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
+        Node knode = XmlHandler.getSubNodeByNr( lookup, "key", i );
 
-        keyStream[ i ] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[ i ] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        keyStream[ i ] = XmlHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XmlHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XmlHandler.getTagValue( knode, "condition" );
         if ( keyCondition[ i ] == null ) {
           keyCondition[ i ] = "=";
         }
-        keyStream2[ i ] = XMLHandler.getTagValue( knode, "name2" );
+        keyStream2[ i ] = XmlHandler.getTagValue( knode, "name2" );
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
+        Node vnode = XmlHandler.getSubNodeByNr( lookup, "value", i );
 
-        updateLookup[ i ] = XMLHandler.getTagValue( vnode, "name" );
-        updateStream[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        updateLookup[ i ] = XmlHandler.getTagValue( vnode, "name" );
+        updateStream[ i ] = XmlHandler.getTagValue( vnode, "rename" );
         if ( updateStream[ i ] == null ) {
           updateStream[ i ] = updateLookup[ i ]; // default: the same name!
         }
-        String updateValue = XMLHandler.getTagValue( vnode, "update" );
+        String updateValue = XmlHandler.getTagValue( vnode, "update" );
         if ( updateValue == null ) {
           // default TRUE
           update[ i ] = Boolean.TRUE;
@@ -397,7 +397,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "InsertUpdateMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -429,32 +429,32 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 400 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "update_bypassed", updateBypassed ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "update_bypassed", updateBypassed ) );
     retval.append( "    <lookup>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", tableName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
 
     for ( int i = 0; i < keyStream.length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", keyStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", keyLookup[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", keyStream2[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", keyStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", keyLookup[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name2", keyStream2[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
     for ( int i = 0; i < updateLookup.length; i++ ) {
       retval.append( "      <value>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", updateLookup[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", updateStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "update", update[ i ].booleanValue() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", updateLookup[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "rename", updateStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "update", update[ i ].booleanValue() ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
 
@@ -668,7 +668,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -709,9 +709,9 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransform, P
 
             String sql = cr_table + cr_index;
             if ( sql.length() == 0 ) {
-              retval.setSQL( null );
+              retval.setSql( null );
             } else {
-              retval.setSQL( sql );
+              retval.setSql( sql );
             }
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "InsertUpdateMeta.ReturnValue.ErrorOccurred" )

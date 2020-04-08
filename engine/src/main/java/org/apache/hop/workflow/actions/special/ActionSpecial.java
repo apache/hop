@@ -27,9 +27,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
@@ -79,41 +79,41 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "start", start ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "dummy", dummy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "repeat", repeat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schedulerType", schedulerType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "intervalSeconds", intervalSeconds ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "intervalMinutes", intervalMinutes ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "hour", hour ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "minutes", minutes ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "weekDay", weekDay ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "DayOfMonth", dayOfMonth ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "start", start ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "dummy", dummy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "repeat", repeat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schedulerType", schedulerType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "intervalSeconds", intervalSeconds ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "intervalMinutes", intervalMinutes ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "hour", hour ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "minutes", minutes ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "weekDay", weekDay ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "DayOfMonth", dayOfMonth ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      start = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "start" ) );
-      dummy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "dummy" ) );
-      repeat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "repeat" ) );
-      setSchedulerType( Const.toInt( XMLHandler.getTagValue( entrynode, "schedulerType" ), NOSCHEDULING ) );
-      setIntervalSeconds( Const.toInt( XMLHandler.getTagValue( entrynode, "intervalSeconds" ), 0 ) );
-      setIntervalMinutes( Const.toInt( XMLHandler.getTagValue( entrynode, "intervalMinutes" ), 0 ) );
-      setHour( Const.toInt( XMLHandler.getTagValue( entrynode, "hour" ), 0 ) );
-      setMinutes( Const.toInt( XMLHandler.getTagValue( entrynode, "minutes" ), 0 ) );
-      setWeekDay( Const.toInt( XMLHandler.getTagValue( entrynode, "weekDay" ), 0 ) );
-      setDayOfMonth( Const.toInt( XMLHandler.getTagValue( entrynode, "dayOfMonth" ), 0 ) );
+      super.loadXml( entrynode );
+      start = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "start" ) );
+      dummy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "dummy" ) );
+      repeat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "repeat" ) );
+      setSchedulerType( Const.toInt( XmlHandler.getTagValue( entrynode, "schedulerType" ), NOSCHEDULING ) );
+      setIntervalSeconds( Const.toInt( XmlHandler.getTagValue( entrynode, "intervalSeconds" ), 0 ) );
+      setIntervalMinutes( Const.toInt( XmlHandler.getTagValue( entrynode, "intervalMinutes" ), 0 ) );
+      setHour( Const.toInt( XmlHandler.getTagValue( entrynode, "hour" ), 0 ) );
+      setMinutes( Const.toInt( XmlHandler.getTagValue( entrynode, "minutes" ), 0 ) );
+      setWeekDay( Const.toInt( XmlHandler.getTagValue( entrynode, "weekDay" ), 0 ) );
+      setDayOfMonth( Const.toInt( XmlHandler.getTagValue( entrynode, "dayOfMonth" ), 0 ) );
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'special' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'special' from XML node", e );
     }
   }
 

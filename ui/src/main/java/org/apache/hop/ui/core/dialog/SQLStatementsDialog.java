@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -68,7 +68,7 @@ public class SQLStatementsDialog extends Dialog {
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Statements Dialog", LoggingObjectType.HOPUI, null );
 
-  private List<SQLStatement> stats;
+  private List<SqlStatement> stats;
 
   private TableView wFields;
   private FormData fdFields;
@@ -86,7 +86,7 @@ public class SQLStatementsDialog extends Dialog {
 
   private IVariables variables;
 
-  public SQLStatementsDialog( Shell parent, IVariables variables, int style, List<SQLStatement> stats ) {
+  public SQLStatementsDialog( Shell parent, IVariables variables, int style, List<SqlStatement> stats ) {
     super( parent, style );
     this.stats = stats;
     this.props = PropsUI.getInstance();
@@ -232,12 +232,12 @@ public class SQLStatementsDialog extends Dialog {
    */
   public void getData() {
     for ( int i = 0; i < stats.size(); i++ ) {
-      SQLStatement stat = stats.get( i );
+      SqlStatement stat = stats.get( i );
       TableItem ti = wFields.table.getItem( i );
 
       String name = stat.getTransformName();
       DatabaseMeta dbinfo = stat.getDatabase();
-      String sql = stat.getSQL();
+      String sql = stat.getSql();
       String error = stat.getError();
 
       if ( name != null ) {
@@ -263,7 +263,7 @@ public class SQLStatementsDialog extends Dialog {
     wFields.optWidth( true );
   }
 
-  private String getSQL() {
+  private String getSql() {
     StringBuilder sql = new StringBuilder();
 
     int[] idx = wFields.table.getSelectionIndices();
@@ -277,7 +277,7 @@ public class SQLStatementsDialog extends Dialog {
     }
 
     for ( int i = 0; i < idx.length; i++ ) {
-      SQLStatement stat = stats.get( idx[ i ] );
+      SqlStatement stat = stats.get( idx[ i ] );
       DatabaseMeta di = stat.getDatabase();
       if ( i > 0 ) {
         sql
@@ -289,7 +289,7 @@ public class SQLStatementsDialog extends Dialog {
         ? di.getName() : BaseMessages.getString( PKG, "SQLStatementDialog.Log.Undefined" ) ) ) );
       if ( stat.hasSQL() ) {
         sql.append( "-- SQL                  : " );
-        sql.append( stat.getSQL() ).append( Const.CR );
+        sql.append( stat.getSql() ).append( Const.CR );
       }
       if ( stat.hasError() ) {
         sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Error", stat.getError() ) );
@@ -301,7 +301,7 @@ public class SQLStatementsDialog extends Dialog {
 
   // View SQL statement:
   private void view() {
-    String sql = getSQL();
+    String sql = getSql();
     EnterTextDialog etd =
       new EnterTextDialog(
         shell, BaseMessages.getString( PKG, "SQLStatementDialog.ViewSQL.Title" ), BaseMessages.getString(
@@ -323,7 +323,7 @@ public class SQLStatementsDialog extends Dialog {
 
     int errors = 0;
     for ( int i = 0; i < idx.length; i++ ) {
-      SQLStatement stat = stats.get( idx[ i ] );
+      SqlStatement stat = stats.get( idx[ i ] );
       if ( stat.hasError() ) {
         errors++;
       }
@@ -331,19 +331,19 @@ public class SQLStatementsDialog extends Dialog {
 
     if ( errors == 0 ) {
       for ( int i = 0; i < idx.length; i++ ) {
-        SQLStatement stat = stats.get( idx[ i ] );
+        SqlStatement stat = stats.get( idx[ i ] );
         DatabaseMeta di = stat.getDatabase();
         if ( di != null && !stat.hasError() ) {
           Database db = new Database( loggingObject, di );
           try {
             db.connect();
             try {
-              db.execStatements( stat.getSQL() );
+              db.execStatements( stat.getSql() );
             } catch ( HopDatabaseException dbe ) {
               errors++;
               new ErrorDialog(
                 shell, BaseMessages.getString( PKG, "SQLStatementDialog.Error.Title" ), BaseMessages.getString(
-                PKG, "SQLStatementDialog.Error.CouldNotExec", stat.getSQL() ), dbe );
+                PKG, "SQLStatementDialog.Error.CouldNotExec", stat.getSql() ), dbe );
             }
           } catch ( HopDatabaseException dbe ) {
             new ErrorDialog(

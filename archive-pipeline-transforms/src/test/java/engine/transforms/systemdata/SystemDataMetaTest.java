@@ -91,13 +91,13 @@ public class SystemDataMetaTest implements InitializerInterface<ITransform> {
     Document document = documentBuilder.parse( new InputSource( new StringReader( expectedXML ) ) );
     Node node = document;
     IMetaStore store = null;
-    systemDataMeta.loadXML( node, store );
+    systemDataMeta.loadXml( node, store );
     assertEquals( expectedSystemDataMeta, systemDataMeta );
   }
 
   @Test
   public void testGetXML() throws Exception {
-    String generatedXML = expectedSystemDataMeta.getXML();
+    String generatedXML = expectedSystemDataMeta.getXml();
     assertEquals( expectedXML.replaceAll( "\n", "" ).replaceAll( "\r", "" ), generatedXML.replaceAll( "\n", "" )
       .replaceAll( "\r", "" ) );
   }

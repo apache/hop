@@ -222,9 +222,9 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
     // Open the query with the optional parameters received from the source transforms.
     String sql = null;
     if ( meta.isVariableReplacementActive() ) {
-      sql = environmentSubstitute( meta.getSQL() );
+      sql = environmentSubstitute( meta.getSql() );
     } else {
-      sql = meta.getSQL();
+      sql = meta.getSql();
     }
 
     if ( log.isDetailed() ) {
@@ -308,7 +308,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
       // Verify some basic things first...
       //
       boolean passed = true;
-      if ( Utils.isEmpty( meta.getSQL() ) ) {
+      if ( Utils.isEmpty( meta.getSql() ) ) {
         logError( BaseMessages.getString( PKG, "TableInput.Exception.SQLIsNeeded" ) );
         passed = false;
       }

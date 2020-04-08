@@ -108,7 +108,7 @@ public class FixedInputMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       FixedFileInputField actualInput = (FixedFileInputField) actual;
-      return ( testObject.getXML().equals( actualInput.getXML() ) );
+      return ( testObject.getXml().equals( actualInput.getXml() ) );
     }
   }
 

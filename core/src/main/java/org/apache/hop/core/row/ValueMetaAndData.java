@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.math.BigDecimal;
@@ -107,7 +107,7 @@ public class ValueMetaAndData {
    * @return a String containing the XML to represent this Value.
    * @throws HopValueException in case there is a data conversion error, only throws in case of lazy conversion
    */
-  public String getXML() throws HopValueException {
+  public String getXml() throws HopValueException {
     IValueMeta meta = valueMeta.clone();
     meta.setDecimalSymbol( "." );
     meta.setGroupingSymbol( null );
@@ -115,18 +115,18 @@ public class ValueMetaAndData {
 
     StringBuilder retval = new StringBuilder( 128 );
     retval.append( "<" + XML_TAG + ">" );
-    retval.append( XMLHandler.addTagValue( "name", meta.getName(), false ) );
-    retval.append( XMLHandler.addTagValue( "type", meta.getTypeDesc(), false ) );
+    retval.append( XmlHandler.addTagValue( "name", meta.getName(), false ) );
+    retval.append( XmlHandler.addTagValue( "type", meta.getTypeDesc(), false ) );
     try {
-      retval.append( XMLHandler.addTagValue( "text", meta.getCompatibleString( valueData ), false ) );
+      retval.append( XmlHandler.addTagValue( "text", meta.getCompatibleString( valueData ), false ) );
     } catch ( HopValueException e ) {
       // LogWriter.getInstance().logError(toString(), Const.getStackTracker(e));
-      retval.append( XMLHandler.addTagValue( "text", "", false ) );
+      retval.append( XmlHandler.addTagValue( "text", "", false ) );
     }
-    retval.append( XMLHandler.addTagValue( "length", meta.getLength(), false ) );
-    retval.append( XMLHandler.addTagValue( "precision", meta.getPrecision(), false ) );
-    retval.append( XMLHandler.addTagValue( "isnull", meta.isNull( valueData ), false ) );
-    retval.append( XMLHandler.addTagValue( "mask", meta.getConversionMask(), false ) );
+    retval.append( XmlHandler.addTagValue( "length", meta.getLength(), false ) );
+    retval.append( XmlHandler.addTagValue( "precision", meta.getPrecision(), false ) );
+    retval.append( XmlHandler.addTagValue( "isnull", meta.isNull( valueData ), false ) );
+    retval.append( XmlHandler.addTagValue( "mask", meta.getConversionMask(), false ) );
     retval.append( "</" + XML_TAG + ">" );
 
     return retval.toString();
@@ -139,7 +139,7 @@ public class ValueMetaAndData {
    */
   public ValueMetaAndData( Node valnode ) {
     this();
-    loadXML( valnode );
+    loadXml( valnode );
   }
 
   /**
@@ -148,17 +148,17 @@ public class ValueMetaAndData {
    * @param valnode The XML Node to read from
    * @return true if all went well, false if something went wrong.
    */
-  public boolean loadXML( Node valnode ) {
+  public boolean loadXml( Node valnode ) {
     valueMeta = null;
 
     try {
-      String valname = XMLHandler.getTagValue( valnode, "name" );
-      int valtype = ValueMetaBase.getType( XMLHandler.getTagValue( valnode, "type" ) );
-      String text = XMLHandler.getTagValue( valnode, "text" );
-      boolean isnull = "Y".equalsIgnoreCase( XMLHandler.getTagValue( valnode, "isnull" ) );
-      int len = Const.toInt( XMLHandler.getTagValue( valnode, "length" ), -1 );
-      int prec = Const.toInt( XMLHandler.getTagValue( valnode, "precision" ), -1 );
-      String mask = XMLHandler.getTagValue( valnode, "mask" );
+      String valname = XmlHandler.getTagValue( valnode, "name" );
+      int valtype = ValueMetaBase.getType( XmlHandler.getTagValue( valnode, "type" ) );
+      String text = XmlHandler.getTagValue( valnode, "text" );
+      boolean isnull = "Y".equalsIgnoreCase( XmlHandler.getTagValue( valnode, "isnull" ) );
+      int len = Const.toInt( XmlHandler.getTagValue( valnode, "length" ), -1 );
+      int prec = Const.toInt( XmlHandler.getTagValue( valnode, "precision" ), -1 );
+      String mask = XmlHandler.getTagValue( valnode, "mask" );
 
       valueMeta = ValueMetaFactory.createValueMeta( valname, valtype, len, prec );
       valueData = text;

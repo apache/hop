@@ -133,22 +133,22 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 	}
 
 	@Override
-	public String getSQLListOfSchemas() {
+	public String getSqlListOfSchemas() {
 		return "SELECT SCHEMA_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SCHEMATA";
 	}
 
 	@Override
-	public String getSQLListOfProcedures() {
+	public String getSqlListOfProcedures() {
 		return "SELECT PROCEDURE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.PROCEDURES";
 	}
 
 	@Override
-	public String getSQLListOfSequences() {
+	public String getSqlListOfSequences() {
 		return "SELECT SEQUENCE_NAME AS \"name\" FROM " + getDatabaseName() + ".INFORMATION_SCHEMA.SEQUENCES";
 	}
 	
     @Override
-	public String getSQLNextSequenceValue( String sequenceName ) {
+	public String getSqlNextSequenceValue( String sequenceName ) {
 	    return "SELECT " + sequenceName + ".NEXTVAL FROM DUAL";
 	}
 		
@@ -266,21 +266,21 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 	 * @return The SQL to launch.
 	 */
 	@Override
-	public String getSQLQueryFields(String tableName) {
+	public String getSqlQueryFields(String tableName) {
 		return "SELECT * FROM " + tableName + " LIMIT 0";
 	}
 
 	@Override
-	public String getSQLTableExists(String tablename) {
-		return getSQLQueryFields(tablename);
+	public String getSqlTableExists(String tablename) {
+		return getSqlQueryFields(tablename);
 	}
 
 	@Override
-	public String getSQLColumnExists(String columnname, String tablename) {
-		return getSQLQueryColumnFields(columnname, tablename);
+	public String getSqlColumnExists(String columnname, String tablename) {
+		return getSqlQueryColumnFields(columnname, tablename);
 	}
 
-	public String getSQLQueryColumnFields(String columnname, String tableName) {
+	public String getSqlQueryColumnFields(String columnname, String tableName) {
 		return "SELECT " + columnname + " FROM " + tableName + " LIMIT 0";
 	}
 
@@ -376,7 +376,7 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 	}
 
 	@Override
-	public String getSQLInsertAutoIncUnknownDimensionRow(String schemaTable, String keyField, String versionField) {
+	public String getSqlInsertAutoIncUnknownDimensionRow(String schemaTable, String keyField, String versionField) {
 		return "insert into " + schemaTable + "(" + keyField + ", " + versionField + ") values (1, 1)";
 	}
 

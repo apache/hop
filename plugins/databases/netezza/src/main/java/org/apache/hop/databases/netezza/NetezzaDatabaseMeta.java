@@ -133,21 +133,21 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + getLimitClause( 1 );
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT " + columnname + " FROM " + tableName + getLimitClause( 1 );
   }
 
@@ -158,7 +158,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "select next value for " + sequenceName;
   }
 
@@ -169,7 +169,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the current value of a sequence.
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "select last_value from " + sequenceName;
   }
 
@@ -180,12 +180,12 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT seqname AS sequence_name from _v_sequence where seqname = '" + sequenceName.toLowerCase() + "'";
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT seqname AS sequence_name from _v_sequence";
   }
 
@@ -316,7 +316,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return null; // Netezza does not support database procedures
   }
 
@@ -383,7 +383,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     return null; // Netezza does not support exclusive locking
   }
 
@@ -392,7 +392,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL command to unlock a database table.
    */
   @Override
-  public String getSQLUnlockTables( String[] tableName ) {
+  public String getSqlUnlockTables( String[] tableName ) {
     return null; // commit unlocks everything!
   }
 

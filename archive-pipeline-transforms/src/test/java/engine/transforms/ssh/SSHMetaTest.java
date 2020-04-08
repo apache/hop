@@ -26,10 +26,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.BeforeClass;
@@ -57,7 +57,7 @@ public class SSHMetaTest {
   }
 
   @Test
-  public void testEncryptedPasswords() throws HopXMLException {
+  public void testEncryptedPasswords() throws HopXmlException {
     String plaintextPassword = "MyEncryptedPassword";
     String plaintextPassphrase = "MyEncryptedPassPhrase";
     String plaintextProxyPassword = "MyEncryptedProxyPassword";
@@ -68,18 +68,18 @@ public class SSHMetaTest {
     sshMeta.setProxyPassword( plaintextProxyPassword );
 
     StringBuilder xmlString = new StringBuilder( 50 );
-    xmlString.append( XMLHandler.getXMLHeader() ).append( Const.CR );
-    xmlString.append( XMLHandler.openTag( "transform" ) ).append( Const.CR );
-    xmlString.append( sshMeta.getXML() );
-    xmlString.append( XMLHandler.closeTag( "transform" ) ).append( Const.CR );
-    Node sshXMLNode = XMLHandler.loadXMLString( xmlString.toString(), "transform" );
+    xmlString.append( XmlHandler.getXMLHeader() ).append( Const.CR );
+    xmlString.append( XmlHandler.openTag( "transform" ) ).append( Const.CR );
+    xmlString.append( sshMeta.getXml() );
+    xmlString.append( XmlHandler.closeTag( "transform" ) ).append( Const.CR );
+    Node sshXMLNode = XmlHandler.loadXMLString( xmlString.toString(), "transform" );
 
     assertEquals( Encr.encryptPasswordIfNotUsingVariables( plaintextPassword ),
-      XMLHandler.getTagValue( sshXMLNode, "password" ) );
+      XmlHandler.getTagValue( sshXMLNode, "password" ) );
     assertEquals( Encr.encryptPasswordIfNotUsingVariables( plaintextPassphrase ),
-      XMLHandler.getTagValue( sshXMLNode, "passPhrase" ) );
+      XmlHandler.getTagValue( sshXMLNode, "passPhrase" ) );
     assertEquals( Encr.encryptPasswordIfNotUsingVariables( plaintextProxyPassword ),
-      XMLHandler.getTagValue( sshXMLNode, "proxyPassword" ) );
+      XmlHandler.getTagValue( sshXMLNode, "proxyPassword" ) );
   }
 
   @Test

@@ -25,12 +25,12 @@ package org.apache.hop.core.xml;
 import org.w3c.dom.Node;
 
 /**
- * This is an entry in an XMLHandlerCache
+ * This is an entry in an XmlHandlerCache
  *
  * @author Matt
  * @since 22-Apr-2006
  */
-public class XMLHandlerCacheEntry {
+public class XMlHandlerCacheEntry {
   private Node parentNode;
   private String tag;
 
@@ -38,7 +38,7 @@ public class XMLHandlerCacheEntry {
    * @param parentNode The parent node
    * @param tag        The tag
    */
-  public XMLHandlerCacheEntry( Node parentNode, String tag ) {
+  public XMlHandlerCacheEntry( Node parentNode, String tag ) {
     this.parentNode = parentNode;
     this.tag = tag;
   }
@@ -79,7 +79,7 @@ public class XMLHandlerCacheEntry {
     if ( object == null || getClass() != object.getClass() ) {
       return false;
     }
-    XMLHandlerCacheEntry entry = (XMLHandlerCacheEntry) object;
+    XMlHandlerCacheEntry entry = (XMlHandlerCacheEntry) object;
 
     return parentNode.equals( entry.getParentNode() ) && tag.equals( entry.getTag() );
   }

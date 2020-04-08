@@ -24,9 +24,9 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -59,23 +59,23 @@ public class PipelineDependency implements IXml, Cloneable {
   public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
-    xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "connection", db == null ? "" : db.getName() ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "table", tablename ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "field", fieldname ) );
-    xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "connection", db == null ? "" : db.getName() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "table", tablename ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "field", fieldname ) );
+    xml.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }
 
-  public PipelineDependency( Node depnode, List<DatabaseMeta> databases ) throws HopXMLException {
+  public PipelineDependency( Node depnode, List<DatabaseMeta> databases ) throws HopXmlException {
     try {
-      String depcon = XMLHandler.getTagValue( depnode, "connection" );
+      String depcon = XmlHandler.getTagValue( depnode, "connection" );
       db = DatabaseMeta.findDatabase( databases, depcon );
-      tablename = XMLHandler.getTagValue( depnode, "table" );
-      fieldname = XMLHandler.getTagValue( depnode, "field" );
+      tablename = XmlHandler.getTagValue( depnode, "table" );
+      fieldname = XmlHandler.getTagValue( depnode, "field" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "PipelineDependency.Exception.UnableToLoadPipeline" ), e );
     }
   }

@@ -76,11 +76,6 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
   void debug();
 
   /**
-   * Print the file
-   */
-  void print();
-
-  /**
    * Refresh the graphical file representation after model changes
    */
   void redraw();

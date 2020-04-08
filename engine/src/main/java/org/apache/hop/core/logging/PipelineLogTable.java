@@ -32,7 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -103,42 +103,42 @@ public class PipelineLogTable extends BaseLogTable implements Cloneable, ILogTab
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "connection", connectionName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "size_limit_lines", logSizeLimit ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "interval", logInterval ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "timeout_days", timeoutInDays ) );
+    retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "connection", connectionName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "size_limit_lines", logSizeLimit ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "interval", logInterval ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "timeout_days", timeoutInDays ) );
     retval.append( super.getFieldsXML() );
-    retval.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return retval.toString();
   }
 
-  public void loadXML( Node node, List<TransformMeta> transforms ) {
-    connectionName = XMLHandler.getTagValue( node, "connection" );
-    schemaName = XMLHandler.getTagValue( node, "schema" );
-    tableName = XMLHandler.getTagValue( node, "table" );
-    logSizeLimit = XMLHandler.getTagValue( node, "size_limit_lines" );
-    logInterval = XMLHandler.getTagValue( node, "interval" );
-    timeoutInDays = XMLHandler.getTagValue( node, "timeout_days" );
+  public void loadXml( Node node, List<TransformMeta> transforms ) {
+    connectionName = XmlHandler.getTagValue( node, "connection" );
+    schemaName = XmlHandler.getTagValue( node, "schema" );
+    tableName = XmlHandler.getTagValue( node, "table" );
+    logSizeLimit = XmlHandler.getTagValue( node, "size_limit_lines" );
+    logInterval = XmlHandler.getTagValue( node, "interval" );
+    timeoutInDays = XmlHandler.getTagValue( node, "timeout_days" );
 
-    int nr = XMLHandler.countNodes( node, BaseLogTable.XML_TAG );
+    int nr = XmlHandler.countNodes( node, BaseLogTable.XML_TAG );
     for ( int i = 0; i < nr; i++ ) {
-      Node fieldNode = XMLHandler.getSubNodeByNr( node, BaseLogTable.XML_TAG, i );
-      String id = XMLHandler.getTagValue( fieldNode, "id" );
+      Node fieldNode = XmlHandler.getSubNodeByNr( node, BaseLogTable.XML_TAG, i );
+      String id = XmlHandler.getTagValue( fieldNode, "id" );
       LogTableField field = findField( id );
       if ( field == null ) {
         field = fields.get( i );
       }
       if ( field != null ) {
-        field.setFieldName( XMLHandler.getTagValue( fieldNode, "name" ) );
-        field.setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( fieldNode, "enabled" ) ) );
-        field.setSubject( TransformMeta.findTransform( transforms, XMLHandler.getTagValue( fieldNode, "subject" ) ) );
+        field.setFieldName( XmlHandler.getTagValue( fieldNode, "name" ) );
+        field.setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( fieldNode, "enabled" ) ) );
+        field.setSubject( TransformMeta.findTransform( transforms, XmlHandler.getTagValue( fieldNode, "subject" ) ) );
       }
     }
   }

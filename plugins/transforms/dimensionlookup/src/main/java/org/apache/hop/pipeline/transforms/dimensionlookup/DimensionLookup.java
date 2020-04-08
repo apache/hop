@@ -1669,7 +1669,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               + databaseMeta.quoteField( meta.getVersionField() ) + ") values (0, 1)";
         } else {
           isql =
-            databaseMeta.getSQLInsertAutoIncUnknownDimensionRow( data.schemaTable, databaseMeta.quoteField( meta
+            databaseMeta.getSqlInsertAutoIncUnknownDimensionRow( data.schemaTable, databaseMeta.quoteField( meta
               .getKeyField() ), databaseMeta.quoteField( meta.getVersionField() ) );
         }
 

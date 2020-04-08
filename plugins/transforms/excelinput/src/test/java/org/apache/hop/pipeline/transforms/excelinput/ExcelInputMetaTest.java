@@ -396,13 +396,13 @@ public class ExcelInputMetaTest {
         + "    <rootUriNameFieldName/>" + SystemUtils.LINE_SEPARATOR
         + "    <extensionFieldName/>" + SystemUtils.LINE_SEPARATOR
         + "    <sizeFieldName/>" + SystemUtils.LINE_SEPARATOR
-        + "    <spreadsheet_type/>" + SystemUtils.LINE_SEPARATOR, meta.getXML() );
+        + "    <spreadsheet_type/>" + SystemUtils.LINE_SEPARATOR, meta.getXml() );
   }
 
   @Test
   public void testClone() throws HopException {
     ExcelInputMeta clone = (ExcelInputMeta) meta.clone();
-    Assert.assertEquals( meta.getXML(), clone.getXML() );
+    Assert.assertEquals( meta.getXml(), clone.getXml() );
   }
   // Note - removed cloneTest as it's now covered by the load/save tester.
 
@@ -420,7 +420,7 @@ public class ExcelInputMetaTest {
 
     excelInput.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = excelInput.getXML();
+    String ktrXml = excelInput.getXml();
 
     int targetLen = excelInput.getFileName().length;
     Assert.assertEquals( targetLen, excelInput.getFileMask().length );

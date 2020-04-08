@@ -23,7 +23,7 @@
 package org.apache.hop.core.xml;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class XMLHandlerUnitTest {
+public class XmlHandlerUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
   /**
    * @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" />
@@ -70,83 +70,83 @@ public class XMLHandlerUnitTest {
 
   @Test
   public void openTagWithNotNull() {
-    assertEquals( "<qwerty>", XMLHandler.openTag( "qwerty" ) );
+    assertEquals( "<qwerty>", XmlHandler.openTag( "qwerty" ) );
   }
 
   @Test
   public void openTagWithNull() {
-    assertEquals( "<null>", XMLHandler.openTag( null ) );
+    assertEquals( "<null>", XmlHandler.openTag( null ) );
   }
 
   @Test
   public void openTagWithExternalBuilder() {
     StringBuilder builder = new StringBuilder( "qwe" );
-    XMLHandler.openTag( builder, "rty" );
+    XmlHandler.openTag( builder, "rty" );
     assertEquals( "qwe<rty>", builder.toString() );
   }
 
   @Test
   public void closeTagWithNotNull() {
-    assertEquals( "</qwerty>", XMLHandler.closeTag( "qwerty" ) );
+    assertEquals( "</qwerty>", XmlHandler.closeTag( "qwerty" ) );
   }
 
   @Test
   public void closeTagWithNull() {
-    assertEquals( "</null>", XMLHandler.closeTag( null ) );
+    assertEquals( "</null>", XmlHandler.closeTag( null ) );
   }
 
   @Test
   public void closeTagWithExternalBuilder() {
     StringBuilder builder = new StringBuilder( "qwe" );
-    XMLHandler.closeTag( builder, "rty" );
+    XmlHandler.closeTag( builder, "rty" );
     assertEquals( "qwe</rty>", builder.toString() );
   }
 
   @Test
   public void buildCdataWithNotNull() {
-    assertEquals( "<![CDATA[qwerty]]>", XMLHandler.buildCDATA( "qwerty" ) );
+    assertEquals( "<![CDATA[qwerty]]>", XmlHandler.buildCDATA( "qwerty" ) );
   }
 
   @Test
   public void buildCdataWithNull() {
-    assertEquals( "<![CDATA[]]>", XMLHandler.buildCDATA( null ) );
+    assertEquals( "<![CDATA[]]>", XmlHandler.buildCDATA( null ) );
   }
 
   @Test
   public void buildCdataWithExternalBuilder() {
     StringBuilder builder = new StringBuilder( "qwe" );
-    XMLHandler.buildCDATA( builder, "rty" );
+    XmlHandler.buildCDATA( builder, "rty" );
     assertEquals( "qwe<![CDATA[rty]]>", builder.toString() );
   }
 
   @Test
   public void timestamp2stringTest() {
-    String actual = XMLHandler.timestamp2string( null );
+    String actual = XmlHandler.timestamp2string( null );
     assertNull( actual );
   }
 
   @Test
   public void date2stringTest() {
-    String actual = XMLHandler.date2string( null );
+    String actual = XmlHandler.date2string( null );
     assertNull( actual );
   }
 
   @Test
   public void addTagValueBigDecimal() {
     BigDecimal input = new BigDecimal( "1234567890123456789.01" );
-    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XMLHandler.addTagValue( "bigdec", input ) );
-    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XMLHandler.addTagValue( "bigdec", input, true ) );
-    assertEquals( "<bigdec>1234567890123456789.01</bigdec>", XMLHandler.addTagValue( "bigdec", input, false ) );
+    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XmlHandler.addTagValue( "bigdec", input ) );
+    assertEquals( "<bigdec>1234567890123456789.01</bigdec>" + cr, XmlHandler.addTagValue( "bigdec", input, true ) );
+    assertEquals( "<bigdec>1234567890123456789.01</bigdec>", XmlHandler.addTagValue( "bigdec", input, false ) );
   }
 
   @Test
   public void addTagValueBoolean() {
-    assertEquals( "<abool>Y</abool>" + cr, XMLHandler.addTagValue( "abool", true ) );
-    assertEquals( "<abool>Y</abool>" + cr, XMLHandler.addTagValue( "abool", true, true ) );
-    assertEquals( "<abool>Y</abool>", XMLHandler.addTagValue( "abool", true, false ) );
-    assertEquals( "<abool>N</abool>" + cr, XMLHandler.addTagValue( "abool", false ) );
-    assertEquals( "<abool>N</abool>" + cr, XMLHandler.addTagValue( "abool", false, true ) );
-    assertEquals( "<abool>N</abool>", XMLHandler.addTagValue( "abool", false, false ) );
+    assertEquals( "<abool>Y</abool>" + cr, XmlHandler.addTagValue( "abool", true ) );
+    assertEquals( "<abool>Y</abool>" + cr, XmlHandler.addTagValue( "abool", true, true ) );
+    assertEquals( "<abool>Y</abool>", XmlHandler.addTagValue( "abool", true, false ) );
+    assertEquals( "<abool>N</abool>" + cr, XmlHandler.addTagValue( "abool", false ) );
+    assertEquals( "<abool>N</abool>" + cr, XmlHandler.addTagValue( "abool", false, true ) );
+    assertEquals( "<abool>N</abool>", XmlHandler.addTagValue( "abool", false, false ) );
   }
 
   @Test
@@ -156,43 +156,43 @@ public class XMLHandlerUnitTest {
     aDate.set( 2014, ( 12 - 1 ), 29, 15, 59, 45 );
     aDate.set( Calendar.MILLISECOND, 789 );
 
-    assertEquals( "<adate>" + result + "</adate>" + cr, XMLHandler.addTagValue( "adate", aDate.getTime() ) );
-    assertEquals( "<adate>" + result + "</adate>" + cr, XMLHandler.addTagValue( "adate", aDate.getTime(), true ) );
-    assertEquals( "<adate>" + result + "</adate>", XMLHandler.addTagValue( "adate", aDate.getTime(), false ) );
+    assertEquals( "<adate>" + result + "</adate>" + cr, XmlHandler.addTagValue( "adate", aDate.getTime() ) );
+    assertEquals( "<adate>" + result + "</adate>" + cr, XmlHandler.addTagValue( "adate", aDate.getTime(), true ) );
+    assertEquals( "<adate>" + result + "</adate>", XmlHandler.addTagValue( "adate", aDate.getTime(), false ) );
   }
 
   @Test
   public void addTagValueLong() {
     long input = 123;
-    assertEquals( "<along>123</along>" + cr, XMLHandler.addTagValue( "along", input ) );
-    assertEquals( "<along>123</along>" + cr, XMLHandler.addTagValue( "along", input, true ) );
-    assertEquals( "<along>123</along>", XMLHandler.addTagValue( "along", input, false ) );
+    assertEquals( "<along>123</along>" + cr, XmlHandler.addTagValue( "along", input ) );
+    assertEquals( "<along>123</along>" + cr, XmlHandler.addTagValue( "along", input, true ) );
+    assertEquals( "<along>123</along>", XmlHandler.addTagValue( "along", input, false ) );
 
-    assertEquals( "<along>" + String.valueOf( Long.MAX_VALUE ) + "</along>", XMLHandler.addTagValue( "along", Long.MAX_VALUE, false ) );
-    assertEquals( "<along>" + String.valueOf( Long.MIN_VALUE ) + "</along>", XMLHandler.addTagValue( "along", Long.MIN_VALUE, false ) );
+    assertEquals( "<along>" + String.valueOf( Long.MAX_VALUE ) + "</along>", XmlHandler.addTagValue( "along", Long.MAX_VALUE, false ) );
+    assertEquals( "<along>" + String.valueOf( Long.MIN_VALUE ) + "</along>", XmlHandler.addTagValue( "along", Long.MIN_VALUE, false ) );
   }
 
   @Test
   public void addTagValueInt() {
     int input = 456;
-    assertEquals( "<anint>456</anint>" + cr, XMLHandler.addTagValue( "anint", input ) );
-    assertEquals( "<anint>456</anint>" + cr, XMLHandler.addTagValue( "anint", input, true ) );
-    assertEquals( "<anint>456</anint>", XMLHandler.addTagValue( "anint", input, false ) );
+    assertEquals( "<anint>456</anint>" + cr, XmlHandler.addTagValue( "anint", input ) );
+    assertEquals( "<anint>456</anint>" + cr, XmlHandler.addTagValue( "anint", input, true ) );
+    assertEquals( "<anint>456</anint>", XmlHandler.addTagValue( "anint", input, false ) );
 
-    assertEquals( "<anint>" + String.valueOf( Integer.MAX_VALUE ) + "</anint>", XMLHandler.addTagValue( "anint", Integer.MAX_VALUE, false ) );
-    assertEquals( "<anint>" + String.valueOf( Integer.MIN_VALUE ) + "</anint>", XMLHandler.addTagValue( "anint", Integer.MIN_VALUE, false ) );
+    assertEquals( "<anint>" + String.valueOf( Integer.MAX_VALUE ) + "</anint>", XmlHandler.addTagValue( "anint", Integer.MAX_VALUE, false ) );
+    assertEquals( "<anint>" + String.valueOf( Integer.MIN_VALUE ) + "</anint>", XmlHandler.addTagValue( "anint", Integer.MIN_VALUE, false ) );
   }
 
   @Test
   public void addTagValueDouble() {
     double input = 123.45;
-    assertEquals( "<adouble>123.45</adouble>" + cr, XMLHandler.addTagValue( "adouble", input ) );
-    assertEquals( "<adouble>123.45</adouble>" + cr, XMLHandler.addTagValue( "adouble", input, true ) );
-    assertEquals( "<adouble>123.45</adouble>", XMLHandler.addTagValue( "adouble", input, false ) );
+    assertEquals( "<adouble>123.45</adouble>" + cr, XmlHandler.addTagValue( "adouble", input ) );
+    assertEquals( "<adouble>123.45</adouble>" + cr, XmlHandler.addTagValue( "adouble", input, true ) );
+    assertEquals( "<adouble>123.45</adouble>", XmlHandler.addTagValue( "adouble", input, false ) );
 
-    assertEquals( "<adouble>" + String.valueOf( Double.MAX_VALUE ) + "</adouble>", XMLHandler.addTagValue( "adouble", Double.MAX_VALUE, false ) );
-    assertEquals( "<adouble>" + String.valueOf( Double.MIN_VALUE ) + "</adouble>", XMLHandler.addTagValue( "adouble", Double.MIN_VALUE, false ) );
-    assertEquals( "<adouble>" + String.valueOf( Double.MIN_NORMAL ) + "</adouble>", XMLHandler.addTagValue( "adouble", Double.MIN_NORMAL, false ) );
+    assertEquals( "<adouble>" + String.valueOf( Double.MAX_VALUE ) + "</adouble>", XmlHandler.addTagValue( "adouble", Double.MAX_VALUE, false ) );
+    assertEquals( "<adouble>" + String.valueOf( Double.MIN_VALUE ) + "</adouble>", XmlHandler.addTagValue( "adouble", Double.MIN_VALUE, false ) );
+    assertEquals( "<adouble>" + String.valueOf( Double.MIN_NORMAL ) + "</adouble>", XmlHandler.addTagValue( "adouble", Double.MIN_NORMAL, false ) );
   }
 
   @Test
@@ -200,9 +200,9 @@ public class XMLHandlerUnitTest {
     byte[] input = "Test Data".getBytes();
     String result = "H4sIAAAAAAAAAAtJLS5RcEksSQQAL4PL8QkAAAA=";
 
-    assertEquals( "<bytedata>" + result + "</bytedata>" + cr, XMLHandler.addTagValue( "bytedata", input ) );
-    assertEquals( "<bytedata>" + result + "</bytedata>" + cr, XMLHandler.addTagValue( "bytedata", input, true ) );
-    assertEquals( "<bytedata>" + result + "</bytedata>", XMLHandler.addTagValue( "bytedata", input, false ) );
+    assertEquals( "<bytedata>" + result + "</bytedata>" + cr, XmlHandler.addTagValue( "bytedata", input ) );
+    assertEquals( "<bytedata>" + result + "</bytedata>" + cr, XmlHandler.addTagValue( "bytedata", input, true ) );
+    assertEquals( "<bytedata>" + result + "</bytedata>", XmlHandler.addTagValue( "bytedata", input, false ) );
   }
 
   @Test
@@ -210,9 +210,9 @@ public class XMLHandlerUnitTest {
     String expected = "<testTag attributeTest=\"test attribute value \uD842\uDFB7\" >a\uD800\uDC01\uD842\uDFB7ﻉＤtest \uD802\uDF44&lt;</testTag>";
     String tagValueWithSurrogates = "a\uD800\uDC01\uD842\uDFB7ﻉＤtest \uD802\uDF44<";
     String attributeValueWithSurrogates = "test attribute value \uD842\uDFB7";
-    String result = XMLHandler.addTagValue( "testTag", tagValueWithSurrogates, false, "attributeTest", attributeValueWithSurrogates );
+    String result = XmlHandler.addTagValue( "testTag", tagValueWithSurrogates, false, "attributeTest", attributeValueWithSurrogates );
     assertEquals( expected, result );
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
     builder.parse( new ByteArrayInputStream( result.getBytes() ) );
   }
 
@@ -224,30 +224,30 @@ public class XMLHandlerUnitTest {
       + "[value_start (&#34;&#39;&lt;&amp;>) value_end]\" >"
       + "[value_start (&#34;&#39;&lt;&amp;&gt;) value_end]"
       + "</[value_start (&#34;&#39;&lt;&amp;&gt;) value_end]>";
-    String result = XMLHandler.addTagValue( testString, testString, false, testString, testString );
+    String result = XmlHandler.addTagValue( testString, testString, false, testString, testString );
     assertEquals( expectedStrAfterConversion, result );
   }
 
   @Test( expected = SAXParseException.class )
   public void createdDocumentBuilderThrowsExceptionWhenParsingXmlWithABigAmountOfExternalEntities() throws Exception {
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
     builder.parse( new ByteArrayInputStream( MALICIOUS_XML.getBytes() ) );
   }
 
-  @Test( expected = HopXMLException.class )
+  @Test( expected = HopXmlException.class )
   public void loadingXmlFromStreamThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities() throws Exception {
-    XMLHandler.loadXMLFile( new ByteArrayInputStream( MALICIOUS_XML.getBytes() ), "<def>", false, false );
+    XmlHandler.loadXMLFile( new ByteArrayInputStream( MALICIOUS_XML.getBytes() ), "<def>", false, false );
   }
 
-  @Test( expected = HopXMLException.class )
+  @Test( expected = HopXmlException.class )
   public void loadingXmlFromURLThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities() throws Exception {
     File tmpFile = createTmpFile( MALICIOUS_XML );
 
-    XMLHandler.loadXMLFile( tmpFile.toURI().toURL() );
+    XmlHandler.loadXMLFile( tmpFile.toURI().toURL() );
   }
 
   private File createTmpFile( String content ) throws Exception {
-    File tmpFile = File.createTempFile( "XMLHandlerUnitTest", ".xml" );
+    File tmpFile = File.createTempFile( "XmlHandlerUnitTest", ".xml" );
     tmpFile.deleteOnExit();
 
     try ( PrintWriter writer = new PrintWriter( tmpFile ) ) {
@@ -268,11 +268,11 @@ public class XMLHandlerUnitTest {
         + "<xpto>D</xpto>\n"
         + "</root>\n";
 
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
 
     Document parse = builder.parse( new ByteArrayInputStream( testXML.getBytes() ) );
     Node rootNode = parse.getFirstChild();
-    Node lastSubNode = XMLHandler.getSubNode( rootNode, "xpto" );
+    Node lastSubNode = XmlHandler.getSubNode( rootNode, "xpto" );
     assertNotNull( lastSubNode );
     assertEquals( "A", lastSubNode.getTextContent() );
   }
@@ -288,11 +288,11 @@ public class XMLHandlerUnitTest {
         + "<xpto>D</xpto>\n"
         + "</root>\n";
 
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
 
     Document parse = builder.parse( new ByteArrayInputStream( testXML.getBytes() ) );
     Node rootNode = parse.getFirstChild();
-    Node lastSubNode = XMLHandler.getLastSubNode( rootNode, "xpto" );
+    Node lastSubNode = XmlHandler.getLastSubNode( rootNode, "xpto" );
     assertNotNull( lastSubNode );
     assertEquals( "D", lastSubNode.getTextContent() );
   }
@@ -308,21 +308,21 @@ public class XMLHandlerUnitTest {
         + "<xpto>3</xpto>\n"
         + "</root>\n";
 
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
 
     Document parse = builder.parse( new ByteArrayInputStream( testXML.getBytes() ) );
     Node rootNode = parse.getFirstChild();
 
-    Node subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 0 );
+    Node subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 0 );
     assertNotNull( subNode );
     assertEquals( "0", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 1 );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 1 );
     assertNotNull( subNode );
     assertEquals( "1", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 2 );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 2 );
     assertNotNull( subNode );
     assertEquals( "2", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 3 );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 3 );
     assertNotNull( subNode );
     assertEquals( "3", subNode.getTextContent() );
   }
@@ -338,21 +338,21 @@ public class XMLHandlerUnitTest {
         + "<xpto>3</xpto>\n"
         + "</root>\n";
 
-    DocumentBuilder builder = XMLHandler.createDocumentBuilder( false, false );
+    DocumentBuilder builder = XmlHandler.createDocumentBuilder( false, false );
 
     Document parse = builder.parse( new ByteArrayInputStream( testXML.getBytes() ) );
     Node rootNode = parse.getFirstChild();
 
-    Node subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 0, false );
+    Node subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 0, false );
     assertNotNull( subNode );
     assertEquals( "0", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 1, false );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 1, false );
     assertNotNull( subNode );
     assertEquals( "1", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 2, false );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 2, false );
     assertNotNull( subNode );
     assertEquals( "2", subNode.getTextContent() );
-    subNode = XMLHandler.getSubNodeByNr( rootNode, "xpto", 3, false );
+    subNode = XmlHandler.getSubNodeByNr( rootNode, "xpto", 3, false );
     assertNotNull( subNode );
     assertEquals( "3", subNode.getTextContent() );
   }

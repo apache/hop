@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.w3c.dom.Node;
@@ -64,12 +64,12 @@ public class SslConfiguration {
 
   public SslConfiguration( Node sslConfigNode ) {
     super();
-    setKeyStore( XMLHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE ) );
-    setKeyStorePassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( sslConfigNode,
+    setKeyStore( XmlHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE ) );
+    setKeyStorePassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( sslConfigNode,
       XML_TAG_KEY_STORE_PASSWORD ) ) );
-    setKeyPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( sslConfigNode,
+    setKeyPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( sslConfigNode,
       XML_TAG_KEY_PASSWORD ) ) );
-    setKeyStoreType( XMLHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE_TYPE ) );
+    setKeyStoreType( XmlHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE_TYPE ) );
   }
 
   /**
@@ -138,19 +138,19 @@ public class SslConfiguration {
     this.keyPassword = keyPassword;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
-    xml.append( "        " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "        " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
     addXmlValue( xml, XML_TAG_KEY_STORE, keyStore );
     addXmlValue( xml, XML_TAG_KEY_STORE_PASSWORD, encrypt( keyStorePassword ) );
     addXmlValue( xml, XML_TAG_KEY_PASSWORD, encrypt( keyPassword ) );
-    xml.append( "        " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "        " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     return xml.toString();
   }
 
   private static void addXmlValue( StringBuilder xml, String key, String value ) {
     if ( !StringUtils.isBlank( value ) ) {
-      xml.append( "          " ).append( XMLHandler.addTagValue( key, value, false ) );
+      xml.append( "          " ).append( XmlHandler.addTagValue( key, value, false ) );
     }
   }
 

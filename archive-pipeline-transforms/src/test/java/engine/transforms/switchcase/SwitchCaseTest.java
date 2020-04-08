@@ -192,7 +192,7 @@ public class SwitchCaseTest {
 
     // load transform info value-case mapping from xml.
     List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
-    krasavez.meta.loadXML( loadTransformXmlMetadata( "SwitchCaseTest.xml" ), mock( IMetaStore.class ) );
+    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest.xml" ), mock( IMetaStore.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
     Set<RowSet> nulls = new HashSet<RowSet>();
@@ -260,7 +260,7 @@ public class SwitchCaseTest {
 
     // load transform info value-case mapping from xml.
     List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
-    krasavez.meta.loadXML( loadTransformXmlMetadata( "SwitchCaseBinaryTest.xml" ), mock( IMetaStore.class ) );
+    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseBinaryTest.xml" ), mock( IMetaStore.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
     Set<RowSet> nulls = new HashSet<RowSet>();
@@ -346,7 +346,7 @@ public class SwitchCaseTest {
   @Test
   public void processRow_NullsArePutIntoDefaultWhenNotSpecified() throws Exception {
     SwitchCaseCustom transform = new SwitchCaseCustom( mockHelper );
-    transform.meta.loadXML( loadTransformXmlMetadata( "SwitchCaseTest_PDI-12671.xml" ), mock( IMetaStore.class ) );
+    transform.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest_PDI-12671.xml" ), mock( IMetaStore.class ) );
 
     List<RowSet> outputRowSets = new LinkedList<RowSet>();
     for ( SwitchCaseTarget item : transform.meta.getCaseTargets() ) {

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -31,7 +31,7 @@ import java.util.List;
 
 public class PipelinePainterExtension {
 
-  public IGC gc;
+  public IGc gc;
   public List<AreaOwner> areaOwners;
   public PipelineMeta pipelineMeta;
   public TransformMeta transformMeta;
@@ -40,7 +40,7 @@ public class PipelinePainterExtension {
   public Point offset;
   public int iconSize;
 
-  public PipelinePainterExtension( IGC gc, List<AreaOwner> areaOwners, PipelineMeta pipelineMeta,
+  public PipelinePainterExtension( IGc gc, List<AreaOwner> areaOwners, PipelineMeta pipelineMeta,
                                    TransformMeta transformMeta, PipelineHopMeta pipelineHop, int x1, int y1, int x2, int y2, int mx, int my, Point offset,
                                    int iconSize ) {
     super();

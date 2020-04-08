@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.IDatabase;
@@ -1467,12 +1467,12 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
 
       if ( isValidRowMeta( prev ) ) {
-        SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
+        SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
             SQLEditor sqledit =
               new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-                .getSQL() );
+                .getSql() );
             sqledit.open();
           } else {
             String message = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogMessage" );

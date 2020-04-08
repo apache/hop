@@ -23,10 +23,10 @@
 package org.apache.hop.pipeline.transforms.sasinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.w3c.dom.Node;
 
@@ -80,32 +80,32 @@ public class SasInputField implements XMLInterface, Cloneable {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "name", name ) );
-    retval.append( "    " + XMLHandler.addTagValue( "rename", rename ) );
-    retval.append( "    " + XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( type ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "length", length ) );
-    retval.append( "    " + XMLHandler.addTagValue( "precision", precision ) );
-    retval.append( "    " + XMLHandler.addTagValue( "conversion_mask", conversionMask ) );
-    retval.append( "    " + XMLHandler.addTagValue( "decimal", decimalSymbol ) );
-    retval.append( "    " + XMLHandler.addTagValue( "grouping", groupingSymbol ) );
-    retval.append( "    " + XMLHandler.addTagValue( "trim_type", ValueMetaString.getTrimTypeCode( trimType ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "name", name ) );
+    retval.append( "    " + XmlHandler.addTagValue( "rename", rename ) );
+    retval.append( "    " + XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( type ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "length", length ) );
+    retval.append( "    " + XmlHandler.addTagValue( "precision", precision ) );
+    retval.append( "    " + XmlHandler.addTagValue( "conversion_mask", conversionMask ) );
+    retval.append( "    " + XmlHandler.addTagValue( "decimal", decimalSymbol ) );
+    retval.append( "    " + XmlHandler.addTagValue( "grouping", groupingSymbol ) );
+    retval.append( "    " + XmlHandler.addTagValue( "trim_type", ValueMetaString.getTrimTypeCode( trimType ) ) );
 
     return retval.toString();
   }
 
-  public SasInputField( Node node ) throws HopXMLException {
-    name = XMLHandler.getTagValue( node, "name" );
-    rename = XMLHandler.getTagValue( node, "rename" );
-    type = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( node, "type" ) );
-    length = Const.toInt( XMLHandler.getTagValue( node, "length" ), -1 );
-    precision = Const.toInt( XMLHandler.getTagValue( node, "precision" ), -1 );
-    conversionMask = XMLHandler.getTagValue( node, "conversion_mask" );
-    decimalSymbol = XMLHandler.getTagValue( node, "decimal" );
-    groupingSymbol = XMLHandler.getTagValue( node, "grouping" );
-    trimType = ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( node, "trim_type" ) );
+  public SasInputField( Node node ) throws HopXmlException {
+    name = XmlHandler.getTagValue( node, "name" );
+    rename = XmlHandler.getTagValue( node, "rename" );
+    type = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( node, "type" ) );
+    length = Const.toInt( XmlHandler.getTagValue( node, "length" ), -1 );
+    precision = Const.toInt( XmlHandler.getTagValue( node, "precision" ), -1 );
+    conversionMask = XmlHandler.getTagValue( node, "conversion_mask" );
+    decimalSymbol = XmlHandler.getTagValue( node, "decimal" );
+    groupingSymbol = XmlHandler.getTagValue( node, "grouping" );
+    trimType = ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( node, "trim_type" ) );
   }
 
   /**

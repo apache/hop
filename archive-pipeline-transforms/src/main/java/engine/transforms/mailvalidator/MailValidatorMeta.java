@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.mailvalidator;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -283,7 +283,7 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransform {
     return smtpCheck;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -332,46 +332,46 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "emailfield", emailfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "ResultAsString", ResultAsString ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "smtpCheck", smtpCheck ) );
+    retval.append( "    " + XmlHandler.addTagValue( "emailfield", emailfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "ResultAsString", ResultAsString ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "smtpCheck", smtpCheck ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "emailValideMsg", emailValideMsg ) );
-    retval.append( "    " + XMLHandler.addTagValue( "emailNotValideMsg", emailNotValideMsg ) );
-    retval.append( "    " + XMLHandler.addTagValue( "errorsFieldName", errorsFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "defaultSMTP", defaultSMTP ) );
-    retval.append( "    " + XMLHandler.addTagValue( "emailSender", emailSender ) );
-    retval.append( "    " + XMLHandler.addTagValue( "defaultSMTPField", defaultSMTPField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "emailValideMsg", emailValideMsg ) );
+    retval.append( "    " + XmlHandler.addTagValue( "emailNotValideMsg", emailNotValideMsg ) );
+    retval.append( "    " + XmlHandler.addTagValue( "errorsFieldName", errorsFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "defaultSMTP", defaultSMTP ) );
+    retval.append( "    " + XmlHandler.addTagValue( "emailSender", emailSender ) );
+    retval.append( "    " + XmlHandler.addTagValue( "defaultSMTPField", defaultSMTPField ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "isdynamicDefaultSMTP", isdynamicDefaultSMTP ) );
+    retval.append( "    " + XmlHandler.addTagValue( "isdynamicDefaultSMTP", isdynamicDefaultSMTP ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      emailfield = XMLHandler.getTagValue( transformNode, "emailfield" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
-      ResultAsString = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "ResultAsString" ) );
-      smtpCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "smtpCheck" ) );
+      emailfield = XmlHandler.getTagValue( transformNode, "emailfield" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      ResultAsString = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ResultAsString" ) );
+      smtpCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "smtpCheck" ) );
 
-      emailValideMsg = XMLHandler.getTagValue( transformNode, "emailValideMsg" );
-      emailNotValideMsg = XMLHandler.getTagValue( transformNode, "emailNotValideMsg" );
-      errorsFieldName = XMLHandler.getTagValue( transformNode, "errorsFieldName" );
-      timeout = XMLHandler.getTagValue( transformNode, "timeout" );
-      defaultSMTP = XMLHandler.getTagValue( transformNode, "defaultSMTP" );
-      emailSender = XMLHandler.getTagValue( transformNode, "emailSender" );
-      defaultSMTPField = XMLHandler.getTagValue( transformNode, "defaultSMTPField" );
+      emailValideMsg = XmlHandler.getTagValue( transformNode, "emailValideMsg" );
+      emailNotValideMsg = XmlHandler.getTagValue( transformNode, "emailNotValideMsg" );
+      errorsFieldName = XmlHandler.getTagValue( transformNode, "errorsFieldName" );
+      timeout = XmlHandler.getTagValue( transformNode, "timeout" );
+      defaultSMTP = XmlHandler.getTagValue( transformNode, "defaultSMTP" );
+      emailSender = XmlHandler.getTagValue( transformNode, "emailSender" );
+      defaultSMTPField = XmlHandler.getTagValue( transformNode, "defaultSMTPField" );
 
-      isdynamicDefaultSMTP = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "isdynamicDefaultSMTP" ) );
+      isdynamicDefaultSMTP = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "isdynamicDefaultSMTP" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "MailValidatorMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

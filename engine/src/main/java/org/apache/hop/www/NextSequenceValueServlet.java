@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -153,8 +153,8 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
     response.setCharacterEncoding( Const.XML_ENCODING );
 
     PrintStream out = new PrintStream( response.getOutputStream() );
-    out.println( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
-    out.println( XMLHandler.openTag( XML_TAG ) );
+    out.println( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+    out.println( XmlHandler.openTag( XML_TAG ) );
 
     try {
 
@@ -164,21 +164,21 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
       }
       if ( slaveSequence == null ) {
         response.sendError( HttpServletResponse.SC_NOT_FOUND );
-        out.println( XMLHandler.addTagValue( XML_TAG_ERROR, "Slave sequence '" + name + "' could not be found." ) );
+        out.println( XmlHandler.addTagValue( XML_TAG_ERROR, "Slave sequence '" + name + "' could not be found." ) );
       } else {
         ILoggingObject loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.CARTE, null );
         long nextValue = slaveSequence.getNextValue( loggingObject, increment );
-        out.println( XMLHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
-        out.println( XMLHandler.addTagValue( XML_TAG_INCREMENT, increment ) );
+        out.println( XmlHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
+        out.println( XmlHandler.addTagValue( XML_TAG_INCREMENT, increment ) );
       }
 
     } catch ( Exception e ) {
       response.sendError( HttpServletResponse.SC_NOT_FOUND );
-      out.println( XMLHandler.addTagValue( XML_TAG_ERROR, "Error retrieving next value from slave sequence: "
+      out.println( XmlHandler.addTagValue( XML_TAG_ERROR, "Error retrieving next value from slave sequence: "
         + Const.getStackTracker( e ) ) );
     }
 
-    out.println( XMLHandler.closeTag( XML_TAG ) );
+    out.println( XmlHandler.closeTag( XML_TAG ) );
   }
 
   public String toString() {

@@ -5,7 +5,7 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -62,13 +62,13 @@ public class HopGuiPipelineClipboardDelegate {
   public void pasteXML( PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
 
     try {
-      Document doc = XMLHandler.loadXMLString( clipcontent );
-      Node pipelineNode = XMLHandler.getSubNode( doc, XML_TAG_PIPELINE_TRANSFORMS );
+      Document doc = XmlHandler.loadXMLString( clipcontent );
+      Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG_PIPELINE_TRANSFORMS );
       // De-select all, re-select pasted transforms...
       pipelineMeta.unselectAll();
 
-      Node transformsNode = XMLHandler.getSubNode( pipelineNode, "transforms" );
-      int nr = XMLHandler.countNodes( transformsNode, "transform" );
+      Node transformsNode = XmlHandler.getSubNode( pipelineNode, "transforms" );
+      int nr = XmlHandler.countNodes( transformsNode, "transform" );
       if ( log.isDebug() ) {
         // "I found "+nr+" transforms to paste on location: "
         log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundTransforms", "" + nr ) + loc );
@@ -81,7 +81,7 @@ public class HopGuiPipelineClipboardDelegate {
 
       // Load the transforms...
       for ( int i = 0; i < nr; i++ ) {
-        Node transformNode = XMLHandler.getSubNodeByNr( transformsNode, "transform", i );
+        Node transformNode = XmlHandler.getSubNodeByNr( transformsNode, "transform", i );
         transforms[ i ] = new TransformMeta( transformNode, hopGui.getMetaStore() );
 
         if ( loc != null ) {
@@ -97,8 +97,8 @@ public class HopGuiPipelineClipboardDelegate {
       }
 
       // Load the hops...
-      Node hopsNode = XMLHandler.getSubNode( pipelineNode, "order" );
-      nr = XMLHandler.countNodes( hopsNode, "hop" );
+      Node hopsNode = XmlHandler.getSubNode( pipelineNode, "order" );
+      nr = XmlHandler.countNodes( hopsNode, "hop" );
       if ( log.isDebug() ) {
         // "I found "+nr+" hops to paste."
         log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundHops", "" + nr ) );
@@ -106,7 +106,7 @@ public class HopGuiPipelineClipboardDelegate {
       PipelineHopMeta[] hops = new PipelineHopMeta[ nr ];
 
       for ( int i = 0; i < nr; i++ ) {
-        Node hopNode = XMLHandler.getSubNodeByNr( hopsNode, "hop", i );
+        Node hopNode = XmlHandler.getSubNodeByNr( hopsNode, "hop", i );
         hops[ i ] = new PipelineHopMeta( hopNode, Arrays.asList( transforms ) );
       }
 
@@ -136,8 +136,8 @@ public class HopGuiPipelineClipboardDelegate {
       }
 
       // Load the notes...
-      Node notesNode = XMLHandler.getSubNode( pipelineNode, "notepads" );
-      nr = XMLHandler.countNodes( notesNode, "notepad" );
+      Node notesNode = XmlHandler.getSubNode( pipelineNode, "notepads" );
+      nr = XmlHandler.countNodes( notesNode, "notepad" );
       if ( log.isDebug() ) {
         // "I found "+nr+" notepads to paste."
         log.logDebug( BaseMessages.getString( PKG, "HopGui.Log.FoundNotepads", "" + nr ) );
@@ -145,7 +145,7 @@ public class HopGuiPipelineClipboardDelegate {
       NotePadMeta[] notes = new NotePadMeta[ nr ];
 
       for ( int i = 0; i < notes.length; i++ ) {
-        Node noteNode = XMLHandler.getSubNodeByNr( notesNode, "notepad", i );
+        Node noteNode = XmlHandler.getSubNodeByNr( notesNode, "notepad", i );
         notes[ i ] = new NotePadMeta( noteNode );
         Point p = notes[ i ].getLocation();
         notes[ i ].setLocation( p.x + offset.x, p.y + offset.y );
@@ -160,10 +160,10 @@ public class HopGuiPipelineClipboardDelegate {
       }
 
       // Set the error handling hops
-      Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING );
-      int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
+      Node errorHandlingNode = XmlHandler.getSubNode( pipelineNode, PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING );
+      int nrErrorHandlers = XmlHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
       for ( int i = 0; i < nrErrorHandlers; i++ ) {
-        Node transformErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
+        Node transformErrorMetaNode = XmlHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
         TransformErrorMeta transformErrorMeta =
           new TransformErrorMeta( pipelineMeta.getParentVariableSpace(), transformErrorMetaNode, pipelineMeta.getTransforms() );
 
@@ -212,18 +212,18 @@ public class HopGuiPipelineClipboardDelegate {
       return;
     }
 
-    StringBuilder xml = new StringBuilder( 5000 ).append( XMLHandler.getXMLHeader() );
+    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXMLHeader() );
     try {
-      xml.append( XMLHandler.openTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
+      xml.append( XmlHandler.openTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
+      xml.append( XmlHandler.openTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
       for ( TransformMeta transform : transforms ) {
-        xml.append( transform.getXML() );
+        xml.append( transform.getXml() );
       }
-      xml.append( XMLHandler.closeTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( XML_TAG_TRANSFORMS ) ).append( Const.CR );
 
       // Also check for the hops in between the selected transforms...
-      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( XmlHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
       for ( TransformMeta transform1 : transforms ) {
         for ( TransformMeta transform2 : transforms ) {
           if ( transform1 != transform2 ) {
@@ -235,25 +235,25 @@ public class HopGuiPipelineClipboardDelegate {
           }
         }
       }
-      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( XmlHandler.openTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( NotePadMeta note : notes ) {
           xml.append( note.getXml() );
         }
       }
-      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( PipelineMeta.XML_TAG_NOTEPADS ) ).append( Const.CR );
 
-      xml.append( XMLHandler.openTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      xml.append( XmlHandler.openTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
       for ( TransformMeta transform : transforms ) {
         if ( transform.getTransformErrorMeta() != null ) {
           xml.append( transform.getTransformErrorMeta().getXml() ).append( Const.CR );
         }
       }
-      xml.append( XMLHandler.closeTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( PipelineMeta.XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
 
-      xml.append( XMLHandler.closeTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
+      xml.append( XmlHandler.closeTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
 
       toClipboard( xml.toString() );
     } catch ( Exception ex ) {

@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -443,7 +443,7 @@ public class CalculatorMetaFunction implements Cloneable {
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       CalculatorMetaFunction mf = (CalculatorMetaFunction) obj;
-      return ( getXML().equals( mf.getXML() ) );
+      return ( getXml().equals( mf.getXml() ) );
     }
 
     return false;
@@ -451,7 +451,7 @@ public class CalculatorMetaFunction implements Cloneable {
 
   @Override
   public int hashCode() {
-    return getXML().hashCode();
+    return getXml().hashCode();
   }
 
   @Override
@@ -464,48 +464,48 @@ public class CalculatorMetaFunction implements Cloneable {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "field_name", fieldName ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "calc_type", getCalcTypeDesc() ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "field_a", fieldA ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "field_b", fieldB ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "field_c", fieldC ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "value_length", valueLength ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "value_precision", valuePrecision ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "remove", removedFromResult ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "conversion_mask", conversionMask ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "currency_symbol", currencySymbol ) );
-    xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "field_name", fieldName ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "calc_type", getCalcTypeDesc() ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "field_a", fieldA ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "field_b", fieldB ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "field_c", fieldC ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "value_length", valueLength ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "value_precision", valuePrecision ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "remove", removedFromResult ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "conversion_mask", conversionMask ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "currency_symbol", currencySymbol ) );
+    xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }
 
   public CalculatorMetaFunction( Node calcnode ) {
-    fieldName = XMLHandler.getTagValue( calcnode, "field_name" );
-    calcType = getCalcFunctionType( XMLHandler.getTagValue( calcnode, "calc_type" ) );
-    fieldA = XMLHandler.getTagValue( calcnode, "field_a" );
-    fieldB = XMLHandler.getTagValue( calcnode, "field_b" );
-    fieldC = XMLHandler.getTagValue( calcnode, "field_c" );
-    valueType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( calcnode, "value_type" ) );
-    valueLength = Const.toInt( XMLHandler.getTagValue( calcnode, "value_length" ), -1 );
-    valuePrecision = Const.toInt( XMLHandler.getTagValue( calcnode, "value_precision" ), -1 );
-    removedFromResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "remove" ) );
-    conversionMask = XMLHandler.getTagValue( calcnode, "conversion_mask" );
-    decimalSymbol = XMLHandler.getTagValue( calcnode, "decimal_symbol" );
-    groupingSymbol = XMLHandler.getTagValue( calcnode, "grouping_symbol" );
-    currencySymbol = XMLHandler.getTagValue( calcnode, "currency_symbol" );
+    fieldName = XmlHandler.getTagValue( calcnode, "field_name" );
+    calcType = getCalcFunctionType( XmlHandler.getTagValue( calcnode, "calc_type" ) );
+    fieldA = XmlHandler.getTagValue( calcnode, "field_a" );
+    fieldB = XmlHandler.getTagValue( calcnode, "field_b" );
+    fieldC = XmlHandler.getTagValue( calcnode, "field_c" );
+    valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( calcnode, "value_type" ) );
+    valueLength = Const.toInt( XmlHandler.getTagValue( calcnode, "value_length" ), -1 );
+    valuePrecision = Const.toInt( XmlHandler.getTagValue( calcnode, "value_precision" ), -1 );
+    removedFromResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "remove" ) );
+    conversionMask = XmlHandler.getTagValue( calcnode, "conversion_mask" );
+    decimalSymbol = XmlHandler.getTagValue( calcnode, "decimal_symbol" );
+    groupingSymbol = XmlHandler.getTagValue( calcnode, "grouping_symbol" );
+    currencySymbol = XmlHandler.getTagValue( calcnode, "currency_symbol" );
 
     // Fix 2.x backward compatibility
     // The conversion mask was added in a certain revision.
     // Anything that we load from before then should get masks set to retain backward compatibility
     //
-    if ( XMLHandler.getSubNode( calcnode, "conversion_mask" ) == null ) {
+    if ( XmlHandler.getSubNode( calcnode, "conversion_mask" ) == null ) {
       fixBackwardCompatibility();
     }
   }

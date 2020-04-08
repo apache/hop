@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -105,7 +105,7 @@ public class MailInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -128,60 +128,60 @@ public class MailInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   private void readData( Node transformNode ) {
-    servername = XMLHandler.getTagValue( transformNode, "servername" );
-    username = XMLHandler.getTagValue( transformNode, "username" );
-    password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "password" ) );
-    usessl = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usessl" ) );
-    sslport = XMLHandler.getTagValue( transformNode, "sslport" );
-    retrievemails = Const.toInt( XMLHandler.getTagValue( transformNode, "retrievemails" ), -1 );
-    firstmails = XMLHandler.getTagValue( transformNode, "firstmails" );
-    delete = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "delete" ) );
+    servername = XmlHandler.getTagValue( transformNode, "servername" );
+    username = XmlHandler.getTagValue( transformNode, "username" );
+    password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) );
+    usessl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usessl" ) );
+    sslport = XmlHandler.getTagValue( transformNode, "sslport" );
+    retrievemails = Const.toInt( XmlHandler.getTagValue( transformNode, "retrievemails" ), -1 );
+    firstmails = XmlHandler.getTagValue( transformNode, "firstmails" );
+    delete = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "delete" ) );
 
-    protocol = Const.NVL( XMLHandler.getTagValue( transformNode, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
+    protocol = Const.NVL( XmlHandler.getTagValue( transformNode, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
     valueimaplist =
       MailConnectionMeta.getValueImapListByCode( Const.NVL(
-        XMLHandler.getTagValue( transformNode, "valueimaplist" ), "" ) );
-    imapfirstmails = XMLHandler.getTagValue( transformNode, "imapfirstmails" );
-    imapfolder = XMLHandler.getTagValue( transformNode, "imapfolder" );
+        XmlHandler.getTagValue( transformNode, "valueimaplist" ), "" ) );
+    imapfirstmails = XmlHandler.getTagValue( transformNode, "imapfirstmails" );
+    imapfolder = XmlHandler.getTagValue( transformNode, "imapfolder" );
     // search term
-    senderSearch = XMLHandler.getTagValue( transformNode, "sendersearch" );
-    notTermSenderSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "nottermsendersearch" ) );
-    recipientSearch = XMLHandler.getTagValue( transformNode, "recipientsearch" );
-    notTermRecipientSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "notTermRecipientSearch" ) );
-    subjectSearch = XMLHandler.getTagValue( transformNode, "subjectsearch" );
-    notTermSubjectSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "nottermsubjectsearch" ) );
+    senderSearch = XmlHandler.getTagValue( transformNode, "sendersearch" );
+    notTermSenderSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "nottermsendersearch" ) );
+    recipientSearch = XmlHandler.getTagValue( transformNode, "recipientsearch" );
+    notTermRecipientSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "notTermRecipientSearch" ) );
+    subjectSearch = XmlHandler.getTagValue( transformNode, "subjectsearch" );
+    notTermSubjectSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "nottermsubjectsearch" ) );
     conditionReceivedDate =
-      MailConnectionMeta.getConditionByCode( Const.NVL( XMLHandler.getTagValue(
+      MailConnectionMeta.getConditionByCode( Const.NVL( XmlHandler.getTagValue(
         transformNode, "conditionreceiveddate" ), "" ) );
     notTermReceivedDateSearch =
-      "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "nottermreceiveddatesearch" ) );
-    receivedDate1 = XMLHandler.getTagValue( transformNode, "receivedDate1" );
-    receivedDate2 = XMLHandler.getTagValue( transformNode, "receivedDate2" );
-    includesubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includesubfolders" ) );
-    usedynamicfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usedynamicfolder" ) );
-    folderfield = XMLHandler.getTagValue( transformNode, "folderfield" );
-    proxyusername = XMLHandler.getTagValue( transformNode, "proxyusername" );
-    useproxy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useproxy" ) );
-    useBatch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, Tags.USE_BATCH ) );
+      "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "nottermreceiveddatesearch" ) );
+    receivedDate1 = XmlHandler.getTagValue( transformNode, "receivedDate1" );
+    receivedDate2 = XmlHandler.getTagValue( transformNode, "receivedDate2" );
+    includesubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includesubfolders" ) );
+    usedynamicfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usedynamicfolder" ) );
+    folderfield = XmlHandler.getTagValue( transformNode, "folderfield" );
+    proxyusername = XmlHandler.getTagValue( transformNode, "proxyusername" );
+    useproxy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useproxy" ) );
+    useBatch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, Tags.USE_BATCH ) );
     try {
-      batchSize = Integer.parseInt( XMLHandler.getTagValue( transformNode, Tags.BATCH_SIZE ) );
+      batchSize = Integer.parseInt( XmlHandler.getTagValue( transformNode, Tags.BATCH_SIZE ) );
     } catch ( NumberFormatException e ) {
       batchSize = DEFAULT_BATCH_SIZE;
     }
-    start = XMLHandler.getTagValue( transformNode, Tags.START_MSG );
-    end = XMLHandler.getTagValue( transformNode, Tags.END_MSG );
-    stopOnError = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, Tags.STOP_ON_ERROR ) );
+    start = XmlHandler.getTagValue( transformNode, Tags.START_MSG );
+    end = XmlHandler.getTagValue( transformNode, Tags.END_MSG );
+    stopOnError = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, Tags.STOP_ON_ERROR ) );
 
-    rowlimit = XMLHandler.getTagValue( transformNode, "rowlimit" );
-    Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-    int nrFields = XMLHandler.countNodes( fields, "field" );
+    rowlimit = XmlHandler.getTagValue( transformNode, "rowlimit" );
+    Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+    int nrFields = XmlHandler.countNodes( fields, "field" );
 
     allocate( nrFields );
     for ( int i = 0; i < nrFields; i++ ) {
-      Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+      Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
       inputFields[ i ] = new MailInputField();
-      inputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
-      inputFields[ i ].setColumn( MailInputField.getColumnByCode( XMLHandler.getTagValue( fnode, "column" ) ) );
+      inputFields[ i ].setName( XmlHandler.getTagValue( fnode, "name" ) );
+      inputFields[ i ].setColumn( MailInputField.getColumnByCode( XmlHandler.getTagValue( fnode, "column" ) ) );
     }
   }
 
@@ -240,49 +240,49 @@ public class MailInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
     String tab = "      ";
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", servername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", username ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", servername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", username ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usessl", usessl ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sslport", sslport ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "retrievemails", retrievemails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "firstmails", firstmails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "delete", delete ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protocol", protocol ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usessl", usessl ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sslport", sslport ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "retrievemails", retrievemails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "firstmails", firstmails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "delete", delete ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "valueimaplist", MailConnectionMeta.getValueImapListCode( valueimaplist ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "imapfirstmails", imapfirstmails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "imapfolder", imapfolder ) );
+      XmlHandler.addTagValue( "valueimaplist", MailConnectionMeta.getValueImapListCode( valueimaplist ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfirstmails", imapfirstmails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfolder", imapfolder ) );
     // search term
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sendersearch", senderSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nottermsendersearch", notTermSenderSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sendersearch", senderSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsendersearch", notTermSenderSearch ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "recipientsearch", recipientSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "notTermRecipientSearch", notTermRecipientSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "subjectsearch", subjectSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nottermsubjectsearch", notTermSubjectSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "recipientsearch", recipientSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "notTermRecipientSearch", notTermRecipientSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "subjectsearch", subjectSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsubjectsearch", notTermSubjectSearch ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "conditionreceiveddate", MailConnectionMeta
+      XmlHandler.addTagValue( "conditionreceiveddate", MailConnectionMeta
         .getConditionDateCode( conditionReceivedDate ) ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "nottermreceiveddatesearch", notTermReceivedDateSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "receiveddate1", receivedDate1 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "receiveddate2", receivedDate2 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "includesubfolders", includesubfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "useproxy", useproxy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyusername", proxyusername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usedynamicfolder", usedynamicfolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "folderfield", folderfield ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "rowlimit", rowlimit ) );
-    retval.append( tab ).append( XMLHandler.addTagValue( Tags.USE_BATCH, useBatch ) );
-    retval.append( tab ).append( XMLHandler.addTagValue( Tags.BATCH_SIZE, batchSize ) );
-    retval.append( tab ).append( XMLHandler.addTagValue( Tags.START_MSG, start ) );
-    retval.append( tab ).append( XMLHandler.addTagValue( Tags.END_MSG, end ) );
-    retval.append( tab ).append( XMLHandler.addTagValue( Tags.STOP_ON_ERROR, stopOnError ) );
+      XmlHandler.addTagValue( "nottermreceiveddatesearch", notTermReceivedDateSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate1", receivedDate1 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate2", receivedDate2 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "includesubfolders", includesubfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "useproxy", useproxy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyusername", proxyusername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usedynamicfolder", usedynamicfolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "folderfield", folderfield ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "rowlimit", rowlimit ) );
+    retval.append( tab ).append( XmlHandler.addTagValue( Tags.USE_BATCH, useBatch ) );
+    retval.append( tab ).append( XmlHandler.addTagValue( Tags.BATCH_SIZE, batchSize ) );
+    retval.append( tab ).append( XmlHandler.addTagValue( Tags.START_MSG, start ) );
+    retval.append( tab ).append( XmlHandler.addTagValue( Tags.END_MSG, end ) );
+    retval.append( tab ).append( XmlHandler.addTagValue( Tags.STOP_ON_ERROR, stopOnError ) );
 
     /*
      * Describe the fields to read
@@ -290,8 +290,8 @@ public class MailInputMeta extends BaseTransformMeta implements ITransform {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", inputFields[ i ].getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "column", inputFields[ i ].getColumnCode() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", inputFields[ i ].getName() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "column", inputFields[ i ].getColumnCode() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );

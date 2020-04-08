@@ -29,11 +29,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -136,61 +136,61 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 ); // 358 chars in just tags and spaces alone
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "foldername", foldername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "specify_wildcard", specifywildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destination_folder", destination_folder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", add_date ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", add_time ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "action", action ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "OverwriteFile", OverwriteFile ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifywildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination_folder", destination_folder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", add_date ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", add_time ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "action", action ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "OverwriteFile", OverwriteFile ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "CreateDestinationFolder", CreateDestinationFolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "RemovedSourceFilename", RemovedSourceFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "AddDestinationFilename", AddDestinationFilename ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "CreateDestinationFolder", CreateDestinationFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "RemovedSourceFilename", RemovedSourceFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDestinationFilename", AddDestinationFilename ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      foldername = XMLHandler.getTagValue( entrynode, "foldername" );
-      specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      wildcardexclude = XMLHandler.getTagValue( entrynode, "wildcardexclude" );
-      destination_folder = XMLHandler.getTagValue( entrynode, "destination_folder" );
-      nr_errors_less_than = XMLHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      add_date = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_date" ) );
-      add_time = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      super.loadXml( entrynode );
+      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
+      specifywildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      wildcardexclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
+      destination_folder = XmlHandler.getTagValue( entrynode, "destination_folder" );
+      nr_errors_less_than = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
+      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      add_date = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
+      add_time = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
+      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
       AddDateBeforeExtension =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
 
-      date_time_format = XMLHandler.getTagValue( entrynode, "date_time_format" );
-      action = XMLHandler.getTagValue( entrynode, "action" );
+      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      action = XmlHandler.getTagValue( entrynode, "action" );
 
-      OverwriteFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "OverwriteFile" ) );
+      OverwriteFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "OverwriteFile" ) );
       CreateDestinationFolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "CreateDestinationFolder" ) );
-      RemovedSourceFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "RemovedSourceFilename" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "CreateDestinationFolder" ) );
+      RemovedSourceFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "RemovedSourceFilename" ) );
       AddDestinationFilename =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "AddDestinationFilename" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDestinationFilename" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionCopyMoveResultFilenames.CanNotLoadFromXML", xe.getMessage() ) );
     }
   }

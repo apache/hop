@@ -27,14 +27,14 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -136,7 +136,7 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
     this.fieldType = fieldType;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -161,52 +161,52 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
     fieldPrecision = new int[ nrFields ];
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) );
-        String slength = XMLHandler.getTagValue( fnode, "length" );
-        String sprecision = XMLHandler.getTagValue( fnode, "precision" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) );
+        String slength = XmlHandler.getTagValue( fnode, "length" );
+        String sprecision = XmlHandler.getTagValue( fnode, "precision" );
 
         fieldLength[ i ] = Const.toInt( slength, -1 );
         fieldPrecision[ i ] = Const.toInt( sprecision, -1 );
       }
 
       selectingAndSortingUnspecifiedFields =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( fields, "select_unspecified" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( fields, "select_unspecified" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "MappingInputMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
         retval
-          .append( "        " ).append( XMLHandler.addTagValue( "type",
+          .append( "        " ).append( XmlHandler.addTagValue( "type",
           ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldLength[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }
 
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( "select_unspecified", selectingAndSortingUnspecifiedFields ) );
+      XmlHandler.addTagValue( "select_unspecified", selectingAndSortingUnspecifiedFields ) );
 
     retval.append( "    </fields>" ).append( Const.CR );
 

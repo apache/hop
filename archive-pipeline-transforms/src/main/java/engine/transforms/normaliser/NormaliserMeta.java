@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -128,7 +128,7 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -154,24 +154,24 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      typeField = XMLHandler.getTagValue( transformNode, "typefield" );
+      typeField = XmlHandler.getTagValue( transformNode, "typefield" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        normaliserFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        normaliserFields[ i ].setValue( XMLHandler.getTagValue( fnode, "value" ) );
-        normaliserFields[ i ].setNorm( XMLHandler.getTagValue( fnode, "norm" ) );
+        normaliserFields[ i ].setName( XmlHandler.getTagValue( fnode, "name" ) );
+        normaliserFields[ i ].setValue( XmlHandler.getTagValue( fnode, "value" ) );
+        normaliserFields[ i ].setNorm( XmlHandler.getTagValue( fnode, "norm" ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG,
+      throw new HopXmlException( BaseMessages.getString( PKG,
         "NormaliserMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -247,17 +247,17 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "   " + XMLHandler.addTagValue( "typefield", typeField ) );
+    retval.append( "   " + XmlHandler.addTagValue( "typefield", typeField ) );
 
     retval.append( "    <fields>" );
     for ( int i = 0; i < normaliserFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", normaliserFields[ i ].getName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", normaliserFields[ i ].getValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "norm", normaliserFields[ i ].getNorm() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", normaliserFields[ i ].getName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "value", normaliserFields[ i ].getValue() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "norm", normaliserFields[ i ].getNorm() ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );

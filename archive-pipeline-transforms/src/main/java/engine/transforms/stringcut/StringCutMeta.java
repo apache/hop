@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -110,7 +110,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransform {
     this.cutTo = cutTo;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -134,24 +134,24 @@ public class StringCutMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
       int nrkeys;
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "fields" );
-      nrkeys = XMLHandler.countNodes( lookup, "field" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "fields" );
+      nrkeys = XmlHandler.countNodes( lookup, "field" );
 
       allocate( nrkeys );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
-        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
-        cutFrom[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_from" ), "" );
-        cutTo[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "cut_to" ), "" );
+        Node fnode = XmlHandler.getSubNodeByNr( lookup, "field", i );
+        fieldInStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        cutFrom[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "cut_from" ), "" );
+        cutTo[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "cut_to" ), "" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "StringCutMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -165,17 +165,17 @@ public class StringCutMeta extends BaseTransformMeta implements ITransform {
     allocate( nrkeys );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_from", cutFrom[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cut_to", cutTo[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "cut_from", cutFrom[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "cut_to", cutTo[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 

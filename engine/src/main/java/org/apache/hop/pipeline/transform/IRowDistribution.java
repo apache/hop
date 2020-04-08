@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.gui.IPrimitiveGC.EImage;
+import org.apache.hop.core.gui.IPrimitiveGc.EImage;
 import org.apache.hop.core.row.IRowMeta;
 
 public interface IRowDistribution {

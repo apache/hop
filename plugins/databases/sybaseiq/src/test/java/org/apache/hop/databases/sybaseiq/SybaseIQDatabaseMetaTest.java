@@ -67,8 +67,8 @@ public class SybaseIQDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO MODIFY BAR VARCHAR(15) NULL",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
-    assertEquals( "SELECT * FROM FOO WHERE 1=2", nativeMeta.getSQLQueryFields( "FOO" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "SELECT * FROM FOO WHERE 1=2", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
   }
 

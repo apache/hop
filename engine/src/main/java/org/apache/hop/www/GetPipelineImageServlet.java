@@ -22,9 +22,8 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SwingGC;
+import org.apache.hop.core.gui.SwingGc;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -187,7 +186,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     Point maximum = pipelineMeta.getMaximum();
     maximum.multiply( magnification );
 
-    SwingGC gc = new SwingGC( null, maximum, 32, 0, 0 );
+    SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
     PipelinePainter pipelinePainter =
       new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, true, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );

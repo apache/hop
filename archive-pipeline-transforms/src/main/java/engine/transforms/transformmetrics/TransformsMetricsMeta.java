@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -86,7 +86,7 @@ public class TransformsMetricsMeta extends BaseTransformMeta implements ITransfo
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -215,55 +215,55 @@ public class TransformsMetricsMeta extends BaseTransformMeta implements ITransfo
 
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node transforms = XMLHandler.getSubNode( transformNode, "transforms" );
-      int nrTransforms = XMLHandler.countNodes( transforms, "transform" );
+      Node transforms = XmlHandler.getSubNode( transformNode, "transforms" );
+      int nrTransforms = XmlHandler.countNodes( transforms, "transform" );
 
       allocate( nrTransforms );
 
       for ( int i = 0; i < nrTransforms; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( transforms, "transform", i );
-        transformName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        transformCopyNr[ i ] = XMLHandler.getTagValue( fnode, "copyNr" );
-        transformRequired[ i ] = XMLHandler.getTagValue( fnode, "transformRequired" );
+        Node fnode = XmlHandler.getSubNodeByNr( transforms, "transform", i );
+        transformName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        transformCopyNr[ i ] = XmlHandler.getTagValue( fnode, "copyNr" );
+        transformRequired[ i ] = XmlHandler.getTagValue( fnode, "transformRequired" );
       }
-      transformnamefield = XMLHandler.getTagValue( transformNode, "transformnamefield" );
-      transformidfield = XMLHandler.getTagValue( transformNode, "transformidfield" );
-      transformlinesinputfield = XMLHandler.getTagValue( transformNode, "transformlinesinputfield" );
-      transformlinesoutputfield = XMLHandler.getTagValue( transformNode, "transformlinesoutputfield" );
-      transformlinesreadfield = XMLHandler.getTagValue( transformNode, "transformlinesreadfield" );
-      transformlinesupdatedfield = XMLHandler.getTagValue( transformNode, "transformlinesupdatedfield" );
-      transformlineswrittentfield = XMLHandler.getTagValue( transformNode, "transformlineswrittentfield" );
-      transformlineserrorsfield = XMLHandler.getTagValue( transformNode, "transformlineserrorsfield" );
-      transformsecondsfield = XMLHandler.getTagValue( transformNode, "transformsecondsfield" );
+      transformnamefield = XmlHandler.getTagValue( transformNode, "transformnamefield" );
+      transformidfield = XmlHandler.getTagValue( transformNode, "transformidfield" );
+      transformlinesinputfield = XmlHandler.getTagValue( transformNode, "transformlinesinputfield" );
+      transformlinesoutputfield = XmlHandler.getTagValue( transformNode, "transformlinesoutputfield" );
+      transformlinesreadfield = XmlHandler.getTagValue( transformNode, "transformlinesreadfield" );
+      transformlinesupdatedfield = XmlHandler.getTagValue( transformNode, "transformlinesupdatedfield" );
+      transformlineswrittentfield = XmlHandler.getTagValue( transformNode, "transformlineswrittentfield" );
+      transformlineserrorsfield = XmlHandler.getTagValue( transformNode, "transformlineserrorsfield" );
+      transformsecondsfield = XmlHandler.getTagValue( transformNode, "transformsecondsfield" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <transforms>" + Const.CR );
     for ( int i = 0; i < transformName.length; i++ ) {
       retval.append( "      <transform>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", transformName[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "copyNr", transformCopyNr[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "transformRequired", transformRequired[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", transformName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "copyNr", transformCopyNr[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "transformRequired", transformRequired[ i ] ) );
       retval.append( "        </transform>" + Const.CR );
     }
     retval.append( "      </transforms>" + Const.CR );
 
-    retval.append( "        " + XMLHandler.addTagValue( "transformnamefield", transformnamefield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformidfield", transformidfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlinesinputfield", transformlinesinputfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlinesoutputfield", transformlinesoutputfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlinesreadfield", transformlinesreadfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlinesupdatedfield", transformlinesupdatedfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlineswrittentfield", transformlineswrittentfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformlineserrorsfield", transformlineserrorsfield ) );
-    retval.append( "        " + XMLHandler.addTagValue( "transformsecondsfield", transformsecondsfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformnamefield", transformnamefield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformidfield", transformidfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlinesinputfield", transformlinesinputfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlinesoutputfield", transformlinesoutputfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlinesreadfield", transformlinesreadfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlinesupdatedfield", transformlinesupdatedfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlineswrittentfield", transformlineswrittentfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformlineserrorsfield", transformlineserrorsfield ) );
+    retval.append( "        " + XmlHandler.addTagValue( "transformsecondsfield", transformsecondsfield ) );
 
     return retval.toString();
   }

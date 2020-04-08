@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.transformmeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -61,7 +61,7 @@ public class TransformMetastructureMeta extends BaseTransformMeta implements ITr
   private String rowcountField;
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -72,21 +72,21 @@ public class TransformMetastructureMeta extends BaseTransformMeta implements ITr
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "outputRowcount", outputRowcount ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rowcountField", rowcountField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "outputRowcount", outputRowcount ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowcountField", rowcountField ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      outputRowcount = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "outputRowcount" ) );
-      rowcountField = XMLHandler.getTagValue( transformNode, "rowcountField" );
+      outputRowcount = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outputRowcount" ) );
+      rowcountField = XmlHandler.getTagValue( transformNode, "rowcountField" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

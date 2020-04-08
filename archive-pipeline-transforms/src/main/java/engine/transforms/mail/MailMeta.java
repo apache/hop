@@ -27,11 +27,11 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -165,7 +165,7 @@ public class MailMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -181,61 +181,61 @@ public class MailMeta extends BaseTransformMeta implements ITransform {
   }
 
   private void readData( Node transformNode ) {
-    setServer( XMLHandler.getTagValue( transformNode, "server" ) );
-    setPort( XMLHandler.getTagValue( transformNode, "port" ) );
-    setDestination( XMLHandler.getTagValue( transformNode, "destination" ) );
-    setDestinationCc( XMLHandler.getTagValue( transformNode, "destinationCc" ) );
-    setDestinationBCc( XMLHandler.getTagValue( transformNode, "destinationBCc" ) );
-    setReplyToAddresses( XMLHandler.getTagValue( transformNode, "replyToAddresses" ) );
-    setReplyAddress( XMLHandler.getTagValue( transformNode, "replyto" ) );
-    setReplyName( XMLHandler.getTagValue( transformNode, "replytoname" ) );
-    setSubject( XMLHandler.getTagValue( transformNode, "subject" ) );
-    setIncludeDate( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include_date" ) ) );
-    setIncludeSubFolders( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include_subfolders" ) ) );
-    setZipFilenameDynamic( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "zipFilenameDynamic" ) ) );
-    setisDynamicFilename( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "isFilenameDynamic" ) ) );
-    setDynamicFieldname( XMLHandler.getTagValue( transformNode, "dynamicFieldname" ) );
-    setDynamicWildcard( XMLHandler.getTagValue( transformNode, "dynamicWildcard" ) );
-    setAttachContentFromField( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "attachContentFromField" ) ) );
-    setAttachContentField( XMLHandler.getTagValue( transformNode, "attachContentField" ) );
-    setAttachContentFileNameField( XMLHandler.getTagValue( transformNode, "attachContentFileNameField" ) );
+    setServer( XmlHandler.getTagValue( transformNode, "server" ) );
+    setPort( XmlHandler.getTagValue( transformNode, "port" ) );
+    setDestination( XmlHandler.getTagValue( transformNode, "destination" ) );
+    setDestinationCc( XmlHandler.getTagValue( transformNode, "destinationCc" ) );
+    setDestinationBCc( XmlHandler.getTagValue( transformNode, "destinationBCc" ) );
+    setReplyToAddresses( XmlHandler.getTagValue( transformNode, "replyToAddresses" ) );
+    setReplyAddress( XmlHandler.getTagValue( transformNode, "replyto" ) );
+    setReplyName( XmlHandler.getTagValue( transformNode, "replytoname" ) );
+    setSubject( XmlHandler.getTagValue( transformNode, "subject" ) );
+    setIncludeDate( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_date" ) ) );
+    setIncludeSubFolders( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_subfolders" ) ) );
+    setZipFilenameDynamic( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "zipFilenameDynamic" ) ) );
+    setisDynamicFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "isFilenameDynamic" ) ) );
+    setDynamicFieldname( XmlHandler.getTagValue( transformNode, "dynamicFieldname" ) );
+    setDynamicWildcard( XmlHandler.getTagValue( transformNode, "dynamicWildcard" ) );
+    setAttachContentFromField( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "attachContentFromField" ) ) );
+    setAttachContentField( XmlHandler.getTagValue( transformNode, "attachContentField" ) );
+    setAttachContentFileNameField( XmlHandler.getTagValue( transformNode, "attachContentFileNameField" ) );
 
-    setDynamicZipFilenameField( XMLHandler.getTagValue( transformNode, "dynamicZipFilename" ) );
-    setSourceFileFoldername( XMLHandler.getTagValue( transformNode, "sourcefilefoldername" ) );
-    setSourceWildcard( XMLHandler.getTagValue( transformNode, "sourcewildcard" ) );
-    setContactPerson( XMLHandler.getTagValue( transformNode, "contact_person" ) );
-    setContactPhone( XMLHandler.getTagValue( transformNode, "contact_phone" ) );
-    setComment( XMLHandler.getTagValue( transformNode, "comment" ) );
-    setIncludingFiles( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include_files" ) ) );
-    setUsingAuthentication( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_auth" ) ) );
-    setUsingSecureAuthentication( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_secure_auth" ) ) );
-    setAuthenticationUser( XMLHandler.getTagValue( transformNode, "auth_user" ) );
-    setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue(
+    setDynamicZipFilenameField( XmlHandler.getTagValue( transformNode, "dynamicZipFilename" ) );
+    setSourceFileFoldername( XmlHandler.getTagValue( transformNode, "sourcefilefoldername" ) );
+    setSourceWildcard( XmlHandler.getTagValue( transformNode, "sourcewildcard" ) );
+    setContactPerson( XmlHandler.getTagValue( transformNode, "contact_person" ) );
+    setContactPhone( XmlHandler.getTagValue( transformNode, "contact_phone" ) );
+    setComment( XmlHandler.getTagValue( transformNode, "comment" ) );
+    setIncludingFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_files" ) ) );
+    setUsingAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_auth" ) ) );
+    setUsingSecureAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_secure_auth" ) ) );
+    setAuthenticationUser( XmlHandler.getTagValue( transformNode, "auth_user" ) );
+    setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue(
       transformNode, "auth_password" ) ) );
-    setOnlySendComment( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "only_comment" ) ) );
-    setUseHTML( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_HTML" ) ) );
-    setUsePriority( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_Priority" ) ) );
-    setEncoding( XMLHandler.getTagValue( transformNode, "encoding" ) );
-    setPriority( XMLHandler.getTagValue( transformNode, "priority" ) );
-    setImportance( XMLHandler.getTagValue( transformNode, "importance" ) );
-    setSensitivity( XMLHandler.getTagValue( transformNode, "sensitivity" ) );
-    setSecureConnectionType( XMLHandler.getTagValue( transformNode, "secureconnectiontype" ) );
-    setZipFiles( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "zip_files" ) ) );
-    setZipFilename( XMLHandler.getTagValue( transformNode, "zip_name" ) );
-    setZipLimitSize( XMLHandler.getTagValue( transformNode, "zip_limit_size" ) );
+    setOnlySendComment( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "only_comment" ) ) );
+    setUseHTML( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_HTML" ) ) );
+    setUsePriority( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_Priority" ) ) );
+    setEncoding( XmlHandler.getTagValue( transformNode, "encoding" ) );
+    setPriority( XmlHandler.getTagValue( transformNode, "priority" ) );
+    setImportance( XmlHandler.getTagValue( transformNode, "importance" ) );
+    setSensitivity( XmlHandler.getTagValue( transformNode, "sensitivity" ) );
+    setSecureConnectionType( XmlHandler.getTagValue( transformNode, "secureconnectiontype" ) );
+    setZipFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "zip_files" ) ) );
+    setZipFilename( XmlHandler.getTagValue( transformNode, "zip_name" ) );
+    setZipLimitSize( XmlHandler.getTagValue( transformNode, "zip_limit_size" ) );
 
-    Node images = XMLHandler.getSubNode( transformNode, "embeddedimages" );
+    Node images = XmlHandler.getSubNode( transformNode, "embeddedimages" );
     // How many field embedded images ?
-    int nrImages = XMLHandler.countNodes( images, "embeddedimage" );
+    int nrImages = XmlHandler.countNodes( images, "embeddedimage" );
 
     allocate( nrImages );
 
     // Read them all...
     for ( int i = 0; i < nrImages; i++ ) {
-      Node fnode = XMLHandler.getSubNodeByNr( images, "embeddedimage", i );
+      Node fnode = XmlHandler.getSubNodeByNr( images, "embeddedimage", i );
 
-      embeddedimages[ i ] = XMLHandler.getTagValue( fnode, "image_name" );
-      contentids[ i ] = XMLHandler.getTagValue( fnode, "content_id" );
+      embeddedimages[ i ] = XmlHandler.getTagValue( fnode, "image_name" );
+      contentids[ i ] = XmlHandler.getTagValue( fnode, "content_id" );
     }
   }
 
@@ -260,63 +260,63 @@ public class MailMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "server", this.server ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", this.port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destination", this.destination ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationCc", this.destinationCc ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationBCc", this.destinationBCc ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replyToAddresses", this.replyToAddresses ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replyto", this.replyAddress ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replytoname", this.replyName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "subject", this.subject ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_date", this.includeDate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", this.includeSubFolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zipFilenameDynamic", this.zipFilenameDynamic ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "isFilenameDynamic", this.isFilenameDynamic ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "server", this.server ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", this.port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination", this.destination ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationCc", this.destinationCc ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationBCc", this.destinationBCc ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replyToAddresses", this.replyToAddresses ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replyto", this.replyAddress ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replytoname", this.replyName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "subject", this.subject ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_date", this.includeDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", this.includeSubFolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zipFilenameDynamic", this.zipFilenameDynamic ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "isFilenameDynamic", this.isFilenameDynamic ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "attachContentFromField", this.attachContentFromField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "attachContentField", this.attachContentField ) );
+      XmlHandler.addTagValue( "attachContentFromField", this.attachContentFromField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "attachContentField", this.attachContentField ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "attachContentFileNameField", this.attachContentFileNameField ) );
+      XmlHandler.addTagValue( "attachContentFileNameField", this.attachContentFileNameField ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "dynamicFieldname", this.dynamicFieldname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "dynamicWildcard", this.dynamicWildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "dynamicZipFilename", this.dynamicZipFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sourcefilefoldername", this.sourcefilefoldername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sourcewildcard", this.sourcewildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "contact_person", this.contactPerson ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "contact_phone", this.contactPhone ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "comment", this.comment ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_files", this.includingFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zip_files", this.zipFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zip_name", this.zipFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zip_limit_size", this.ziplimitsize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_auth", this.usingAuthentication ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_secure_auth", this.usingSecureAuthentication ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "auth_user", this.authenticationUser ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicFieldname", this.dynamicFieldname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicWildcard", this.dynamicWildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "dynamicZipFilename", this.dynamicZipFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sourcefilefoldername", this.sourcefilefoldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sourcewildcard", this.sourcewildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_person", this.contactPerson ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_phone", this.contactPhone ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "comment", this.comment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_files", this.includingFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_files", this.zipFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_name", this.zipFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_limit_size", this.ziplimitsize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_auth", this.usingAuthentication ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_secure_auth", this.usingSecureAuthentication ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "auth_user", this.authenticationUser ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "auth_password", Encr
+      XmlHandler.addTagValue( "auth_password", Encr
         .encryptPasswordIfNotUsingVariables( this.authenticationPassword ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "only_comment", this.onlySendComment ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_HTML", this.useHTML ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_Priority", this.usePriority ) );
-    retval.append( "    " + XMLHandler.addTagValue( "encoding", this.encoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "priority", this.priority ) );
-    retval.append( "    " + XMLHandler.addTagValue( "importance", this.importance ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sensitivity", this.sensitivity ) );
-    retval.append( "    " + XMLHandler.addTagValue( "secureconnectiontype", this.secureConnectionType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "only_comment", this.onlySendComment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_HTML", this.useHTML ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_Priority", this.usePriority ) );
+    retval.append( "    " + XmlHandler.addTagValue( "encoding", this.encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "priority", this.priority ) );
+    retval.append( "    " + XmlHandler.addTagValue( "importance", this.importance ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sensitivity", this.sensitivity ) );
+    retval.append( "    " + XmlHandler.addTagValue( "secureconnectiontype", this.secureConnectionType ) );
 
     retval.append( "      <embeddedimages>" ).append( Const.CR );
     if ( embeddedimages != null ) {
       for ( int i = 0; i < embeddedimages.length; i++ ) {
         retval.append( "        <embeddedimage>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "content_id", contentids[ i ] ) );
         retval.append( "        </embeddedimage>" ).append( Const.CR );
       }
     }

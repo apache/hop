@@ -27,10 +27,10 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -156,26 +156,26 @@ public class SlaveSequence {
     }
   }
 
-  public SlaveSequence( Node node, List<DatabaseMeta> databases ) throws HopXMLException {
-    name = XMLHandler.getTagValue( node, "name" );
-    startValue = Const.toInt( XMLHandler.getTagValue( node, "start" ), 0 );
-    databaseMeta = DatabaseMeta.findDatabase( databases, XMLHandler.getTagValue( node, "connection" ) );
-    schemaName = XMLHandler.getTagValue( node, "schema" );
-    tableName = XMLHandler.getTagValue( node, "table" );
-    sequenceNameField = XMLHandler.getTagValue( node, "sequence_field" );
-    valueField = XMLHandler.getTagValue( node, "value_field" );
+  public SlaveSequence( Node node, List<DatabaseMeta> databases ) throws HopXmlException {
+    name = XmlHandler.getTagValue( node, "name" );
+    startValue = Const.toInt( XmlHandler.getTagValue( node, "start" ), 0 );
+    databaseMeta = DatabaseMeta.findDatabase( databases, XmlHandler.getTagValue( node, "connection" ) );
+    schemaName = XmlHandler.getTagValue( node, "schema" );
+    tableName = XmlHandler.getTagValue( node, "table" );
+    sequenceNameField = XmlHandler.getTagValue( node, "sequence_field" );
+    valueField = XmlHandler.getTagValue( node, "value_field" );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 100 );
 
-    xml.append( XMLHandler.addTagValue( "name", name ) );
-    xml.append( XMLHandler.addTagValue( "start", startValue ) );
-    xml.append( XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    xml.append( XMLHandler.addTagValue( "schema", schemaName ) );
-    xml.append( XMLHandler.addTagValue( "table", tableName ) );
-    xml.append( XMLHandler.addTagValue( "sequence_field", sequenceNameField ) );
-    xml.append( XMLHandler.addTagValue( "value_field", valueField ) );
+    xml.append( XmlHandler.addTagValue( "name", name ) );
+    xml.append( XmlHandler.addTagValue( "start", startValue ) );
+    xml.append( XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    xml.append( XmlHandler.addTagValue( "schema", schemaName ) );
+    xml.append( XmlHandler.addTagValue( "table", tableName ) );
+    xml.append( XmlHandler.addTagValue( "sequence_field", sequenceNameField ) );
+    xml.append( XmlHandler.addTagValue( "value_field", valueField ) );
 
     return xml.toString();
   }

@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -105,7 +105,7 @@ public class MergeRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -140,26 +140,26 @@ public class MergeRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <keys>" + Const.CR );
     for ( int i = 0; i < keyFields.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields[ i ] ) );
+      retval.append( "      " + XmlHandler.addTagValue( "key", keyFields[ i ] ) );
     }
     retval.append( "    </keys>" + Const.CR );
 
     retval.append( "    <values>" + Const.CR );
     for ( int i = 0; i < valueFields.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "value", valueFields[ i ] ) );
+      retval.append( "      " + XmlHandler.addTagValue( "value", valueFields[ i ] ) );
     }
     retval.append( "    </values>" + Const.CR );
 
-    retval.append( XMLHandler.addTagValue( "flag_field", flagField ) );
+    retval.append( XmlHandler.addTagValue( "flag_field", flagField ) );
 
     List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
-    retval.append( XMLHandler.addTagValue( "reference", infoStreams.get( 0 ).getTransformName() ) );
-    retval.append( XMLHandler.addTagValue( "compare", infoStreams.get( 1 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "reference", infoStreams.get( 0 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "compare", infoStreams.get( 1 ).getTransformName() ) );
     retval.append( "    <compare>" + Const.CR );
 
     retval.append( "    </compare>" + Const.CR );
@@ -167,37 +167,37 @@ public class MergeRowsMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      Node keysnode = XMLHandler.getSubNode( transformNode, "keys" );
-      Node valuesnode = XMLHandler.getSubNode( transformNode, "values" );
+      Node keysnode = XmlHandler.getSubNode( transformNode, "keys" );
+      Node valuesnode = XmlHandler.getSubNode( transformNode, "values" );
 
-      int nrKeys = XMLHandler.countNodes( keysnode, "key" );
-      int nrValues = XMLHandler.countNodes( valuesnode, "value" );
+      int nrKeys = XmlHandler.countNodes( keysnode, "key" );
+      int nrValues = XmlHandler.countNodes( valuesnode, "value" );
 
       allocate( nrKeys, nrValues );
 
       for ( int i = 0; i < nrKeys; i++ ) {
-        Node keynode = XMLHandler.getSubNodeByNr( keysnode, "key", i );
-        keyFields[ i ] = XMLHandler.getNodeValue( keynode );
+        Node keynode = XmlHandler.getSubNodeByNr( keysnode, "key", i );
+        keyFields[ i ] = XmlHandler.getNodeValue( keynode );
       }
 
       for ( int i = 0; i < nrValues; i++ ) {
-        Node valuenode = XMLHandler.getSubNodeByNr( valuesnode, "value", i );
-        valueFields[ i ] = XMLHandler.getNodeValue( valuenode );
+        Node valuenode = XmlHandler.getSubNodeByNr( valuesnode, "value", i );
+        valueFields[ i ] = XmlHandler.getNodeValue( valuenode );
       }
 
-      flagField = XMLHandler.getTagValue( transformNode, "flag_field" );
+      flagField = XmlHandler.getTagValue( transformNode, "flag_field" );
 
       List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
       StreamInterface referenceStream = infoStreams.get( 0 );
       StreamInterface compareStream = infoStreams.get( 1 );
 
-      compareStream.setSubject( XMLHandler.getTagValue( transformNode, "compare" ) );
-      referenceStream.setSubject( XMLHandler.getTagValue( transformNode, "reference" ) );
+      compareStream.setSubject( XmlHandler.getTagValue( transformNode, "compare" ) );
+      referenceStream.setSubject( XmlHandler.getTagValue( transformNode, "reference" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "MergeRowsMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }

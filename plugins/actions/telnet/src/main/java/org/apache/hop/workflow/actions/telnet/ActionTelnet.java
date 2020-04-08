@@ -26,11 +26,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.SocketUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -86,26 +86,26 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "hostname", hostname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "hostname", hostname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      hostname = XMLHandler.getTagValue( entrynode, "hostname" );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      timeout = XMLHandler.getTagValue( entrynode, "timeout" );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'Telnet' from XML node", xe );
+      super.loadXml( entrynode );
+      hostname = XmlHandler.getTagValue( entrynode, "hostname" );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      timeout = XmlHandler.getTagValue( entrynode, "timeout" );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'Telnet' from XML node", xe );
     }
   }
 

@@ -30,7 +30,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -84,7 +84,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
     condition = new Condition();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -121,11 +121,11 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( XMLHandler.addTagValue( "send_true_to", getTrueTransformName() ) );
-    retval.append( XMLHandler.addTagValue( "send_false_to", getFalseTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "send_true_to", getTrueTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "send_false_to", getFalseTransformName() ) );
     retval.append( "    <compare>" ).append( Const.CR );
 
     if ( condition != null ) {
@@ -137,13 +137,13 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      setTrueTransformName( XMLHandler.getTagValue( transformNode, "send_true_to" ) );
-      setFalseTransformName( XMLHandler.getTagValue( transformNode, "send_false_to" ) );
+      setTrueTransformName( XmlHandler.getTagValue( transformNode, "send_true_to" ) );
+      setFalseTransformName( XmlHandler.getTagValue( transformNode, "send_false_to" ) );
 
-      Node compare = XMLHandler.getSubNode( transformNode, "compare" );
-      Node condnode = XMLHandler.getSubNode( compare, "condition" );
+      Node compare = XmlHandler.getSubNode( transformNode, "compare" );
+      Node condnode = XmlHandler.getSubNode( compare, "condition" );
 
       // The new situation...
       if ( condnode != null ) {
@@ -152,14 +152,14 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
         // Old style condition: Line1 OR Line2 OR Line3: @deprecated!
         condition = new Condition();
 
-        int nrkeys = XMLHandler.countNodes( compare, "key" );
+        int nrkeys = XmlHandler.countNodes( compare, "key" );
         if ( nrkeys == 1 ) {
-          Node knode = XMLHandler.getSubNodeByNr( compare, "key", 0 );
+          Node knode = XmlHandler.getSubNodeByNr( compare, "key", 0 );
 
-          String key = XMLHandler.getTagValue( knode, "name" );
-          String value = XMLHandler.getTagValue( knode, "value" );
-          String field = XMLHandler.getTagValue( knode, "field" );
-          String comparator = XMLHandler.getTagValue( knode, "condition" );
+          String key = XmlHandler.getTagValue( knode, "name" );
+          String value = XmlHandler.getTagValue( knode, "value" );
+          String field = XmlHandler.getTagValue( knode, "field" );
+          String comparator = XmlHandler.getTagValue( knode, "condition" );
 
           condition.setOperator( Condition.OPERATOR_NONE );
           condition.setLeftValuename( key );
@@ -168,12 +168,12 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
           condition.setRightExact( new ValueMetaAndData( "value", value ) );
         } else {
           for ( int i = 0; i < nrkeys; i++ ) {
-            Node knode = XMLHandler.getSubNodeByNr( compare, "key", i );
+            Node knode = XmlHandler.getSubNodeByNr( compare, "key", i );
 
-            String key = XMLHandler.getTagValue( knode, "name" );
-            String value = XMLHandler.getTagValue( knode, "value" );
-            String field = XMLHandler.getTagValue( knode, "field" );
-            String comparator = XMLHandler.getTagValue( knode, "condition" );
+            String key = XmlHandler.getTagValue( knode, "name" );
+            String value = XmlHandler.getTagValue( knode, "value" );
+            String field = XmlHandler.getTagValue( knode, "field" );
+            String comparator = XmlHandler.getTagValue( knode, "condition" );
 
             Condition subc = new Condition();
             if ( i > 0 ) {
@@ -191,7 +191,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "FilterRowsMeta.Exception..UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -431,7 +431,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
   public void setConditionXML( String conditionXML ) {
     try {
       this.condition = new Condition( conditionXML );
-    } catch ( HopXMLException e ) {
+    } catch ( HopXmlException e ) {
       log.logError( e.getMessage() );
     }
   }

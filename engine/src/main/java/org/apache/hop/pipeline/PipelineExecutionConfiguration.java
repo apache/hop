@@ -34,7 +34,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -263,18 +263,18 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     this.logLevel = logLevel;
   }
 
-  public String getXML() throws IOException {
+  public String getXml() throws IOException {
     StringBuilder xml = new StringBuilder( 200 );
 
     xml.append( "  <" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "exec_local", executingLocally ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_local", executingLocally ) );
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "exec_remote", executingRemotely ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_remote", executingRemotely ) );
     if ( remoteServer != null ) {
       xml.append( "    " ).append( remoteServer.getXml() ).append( Const.CR );
     }
-    xml.append( "    " ).append( XMLHandler.addTagValue( "pass_export", passingExport ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "pass_export", passingExport ) );
 
     // Serialize the parameters...
     //
@@ -284,8 +284,8 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     for ( String name : paramNames ) {
       String value = parametersMap.get( name );
       xml.append( "    <parameter>" );
-      xml.append( XMLHandler.addTagValue( "name", name, false ) );
-      xml.append( XMLHandler.addTagValue( "value", value, false ) );
+      xml.append( XmlHandler.addTagValue( "name", name, false ) );
+      xml.append( XmlHandler.addTagValue( "value", value, false ) );
       xml.append( "</parameter>" ).append( Const.CR );
     }
     xml.append( "    </parameters>" ).append( Const.CR );
@@ -298,32 +298,32 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     for ( String name : variableNames ) {
       String value = variablesMap.get( name );
       xml.append( "    <variable>" );
-      xml.append( XMLHandler.addTagValue( "name", name, false ) );
-      xml.append( XMLHandler.addTagValue( "value", value, false ) );
+      xml.append( XmlHandler.addTagValue( "name", name, false ) );
+      xml.append( XmlHandler.addTagValue( "value", value, false ) );
       xml.append( "</variable>" ).append( Const.CR );
     }
     xml.append( "    </variables>" ).append( Const.CR );
 
     // IMPORTANT remote debugging is not yet supported
     //
-    // xml.append(pipelineDebugMeta.getXML());
+    // xml.append(pipelineDebugMeta.getXml());
 
-    xml.append( "    " ).append( XMLHandler.addTagValue( "log_level", logLevel.getCode() ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "log_file", setLogfile ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "log_filename", logFileName ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "log_file_append", setAppendLogfile ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "create_parent_folder", createParentFolder ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "clear_log", clearingLog ) );
-    xml.append( "    " ).append( XMLHandler.addTagValue( "show_subcomponents", showingSubComponents ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "log_level", logLevel.getCode() ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "log_file", setLogfile ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "log_filename", logFileName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "log_file_append", setAppendLogfile ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "clear_log", clearingLog ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "show_subcomponents", showingSubComponents ) );
     if ( passedBatchId != null ) {
-      xml.append( "    " ).append( XMLHandler.addTagValue( "passedBatchId", passedBatchId ) );
+      xml.append( "    " ).append( XmlHandler.addTagValue( "passedBatchId", passedBatchId ) );
     }
-    xml.append( "    " ).append( XMLHandler.addTagValue( "run_configuration", runConfiguration ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     // The source rows...
     //
     if ( previousResult != null ) {
-      xml.append( previousResult.getXML() );
+      xml.append( previousResult.getXml() );
     }
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
@@ -333,23 +333,23 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public PipelineExecutionConfiguration( Node trecNode ) throws HopException {
     this();
 
-    executingLocally = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "exec_local" ) );
+    executingLocally = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_local" ) );
 
-    executingRemotely = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "exec_remote" ) );
-    Node remoteHostNode = XMLHandler.getSubNode( trecNode, SlaveServer.XML_TAG );
+    executingRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_remote" ) );
+    Node remoteHostNode = XmlHandler.getSubNode( trecNode, SlaveServer.XML_TAG );
     if ( remoteHostNode != null ) {
       remoteServer = new SlaveServer( remoteHostNode );
     }
-    passingExport = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "pass_export" ) );
+    passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "pass_export" ) );
 
     // Read the variables...
     //
-    Node varsNode = XMLHandler.getSubNode( trecNode, "variables" );
-    int nrVariables = XMLHandler.countNodes( varsNode, "variable" );
+    Node varsNode = XmlHandler.getSubNode( trecNode, "variables" );
+    int nrVariables = XmlHandler.countNodes( varsNode, "variable" );
     for ( int i = 0; i < nrVariables; i++ ) {
-      Node argNode = XMLHandler.getSubNodeByNr( varsNode, "variable", i );
-      String name = XMLHandler.getTagValue( argNode, "name" );
-      String value = XMLHandler.getTagValue( argNode, "value" );
+      Node argNode = XmlHandler.getSubNodeByNr( varsNode, "variable", i );
+      String name = XmlHandler.getTagValue( argNode, "name" );
+      String value = XmlHandler.getTagValue( argNode, "value" );
       if ( !Utils.isEmpty( name ) ) {
         variablesMap.put( name, Const.NVL( value, "" ) );
       }
@@ -357,12 +357,12 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
     // Read the parameters...
     //
-    Node parmsNode = XMLHandler.getSubNode( trecNode, "parameters" );
-    int nrParams = XMLHandler.countNodes( parmsNode, "parameter" );
+    Node parmsNode = XmlHandler.getSubNode( trecNode, "parameters" );
+    int nrParams = XmlHandler.countNodes( parmsNode, "parameter" );
     for ( int i = 0; i < nrParams; i++ ) {
-      Node parmNode = XMLHandler.getSubNodeByNr( parmsNode, "parameter", i );
-      String name = XMLHandler.getTagValue( parmNode, "name" );
-      String value = XMLHandler.getTagValue( parmNode, "value" );
+      Node parmNode = XmlHandler.getSubNodeByNr( parmsNode, "parameter", i );
+      String name = XmlHandler.getTagValue( parmNode, "name" );
+      String value = XmlHandler.getTagValue( parmNode, "value" );
       if ( !Utils.isEmpty( name ) ) {
         parametersMap.put( name, value );
       }
@@ -370,20 +370,20 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
     // IMPORTANT: remote preview and remote debugging is NOT yet supported.
     //
-    logLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( trecNode, "log_level" ) );
-    setLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "log_file" ) );
-    logFileName = XMLHandler.getTagValue( trecNode, "log_filename" );
-    setAppendLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "log_file_append" ) );
-    createParentFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "create_parent_folder" ) );
-    clearingLog = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "clear_log" ) );
-    showingSubComponents = "Y".equalsIgnoreCase( XMLHandler.getTagValue( trecNode, "show_subcomponents" ) );
-    String sPassedBatchId = XMLHandler.getTagValue( trecNode, "passedBatchId" );
+    logLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( trecNode, "log_level" ) );
+    setLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "log_file" ) );
+    logFileName = XmlHandler.getTagValue( trecNode, "log_filename" );
+    setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "log_file_append" ) );
+    createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "create_parent_folder" ) );
+    clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "clear_log" ) );
+    showingSubComponents = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "show_subcomponents" ) );
+    String sPassedBatchId = XmlHandler.getTagValue( trecNode, "passedBatchId" );
     if ( !StringUtils.isEmpty( sPassedBatchId ) ) {
       passedBatchId = Long.parseLong( sPassedBatchId );
     }
-    runConfiguration = XMLHandler.getTagValue( trecNode, "run_configuration" );
+    runConfiguration = XmlHandler.getTagValue( trecNode, "run_configuration" );
 
-    Node resultNode = XMLHandler.getSubNode( trecNode, Result.XML_TAG );
+    Node resultNode = XmlHandler.getSubNode( trecNode, Result.XML_TAG );
     if ( resultNode != null ) {
       try {
         previousResult = new Result( resultNode );

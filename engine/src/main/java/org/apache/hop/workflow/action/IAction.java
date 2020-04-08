@@ -24,9 +24,9 @@ package org.apache.hop.workflow.action;
 
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -62,16 +62,16 @@ import java.util.Map;
  * The plugin needs to be able to serialize its settings to XML. The interface methods are as
  * follows:<br/>
  * <br/>
- * <a href="#getXML()"><code>String getXML()</code></a><br/>
+ * <a href="#getXml()"><code>String getXml()</code></a><br/>
  * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving a
  * workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series of
- * XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically used to
+ * XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used to
  * construct the XML string.<br/>
  * <br/>
- * <a href="#loadXML(org.w3c.dom.Node)">
- * <code>void loadXML(...)</code></a></br> This method is called by PDI whenever a action needs to read its
+ * <a href="#loadXml(org.w3c.dom.Node)">
+ * <code>void loadXml(...)</code></a></br> This method is called by PDI whenever a action needs to read its
  * settings from XML. The XML node containing the action's settings is passed in as an argument. Again, the helper
- * class org.apache.hop.core.xml.XMLHandler is typically used to conveniently read the settings from the XML node.<br/>
+ * class org.apache.hop.core.xml.XmlHandler is typically used to conveniently read the settings from the XML node.<br/>
  * <br/>
  * <br/>
  * <quote>Hint: When developing plugins, make sure the serialization code is in sync with the settings available from
@@ -234,24 +234,24 @@ public interface IAction {
 
   /**
    * This method is called by PDI whenever a action needs to read its settings from XML. The XML node containing the
-   * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is
+   * action's settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is
    * typically used to conveniently read the settings from the XML node.
    *
    * @param entrynode the top-level XML node
    * @param metaStore The metaStore to optionally load from.
-   * @throws HopXMLException if any errors occur during the loading of the XML
+   * @throws HopXmlException if any errors occur during the loading of the XML
    */
-  void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException;
+  void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException;
 
   /**
    * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving
    * a workflow in HopGui. The method returns an XML string, containing the serialized settings. The string contains a series
-   * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is typically used
+   * of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is typically used
    * to construct the XML string.
    *
    * @return the xml representation of the action
    */
-  String getXML();
+  String getXml();
 
   /**
    * Checks if the action has started
@@ -349,7 +349,7 @@ public interface IAction {
    * @return a list of SQL statements
    * @throws HopException if any errors occur during the generation of SQL statements
    */
-  List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException;
+  List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException;
 
   /**
    * Get the name of the class that implements the dialog for the action ActionBase provides a default

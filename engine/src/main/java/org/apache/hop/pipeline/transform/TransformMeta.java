@@ -31,7 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginLoaderException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.IPlugin;
@@ -39,7 +39,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -159,39 +159,39 @@ public class TransformMeta implements
     this( (String) null, (String) null, (ITransformMeta) null );
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     return getXML( true );
   }
 
   public String getXML( boolean includeInterface ) throws HopException {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( "  " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "name", getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "type", getTransformPluginId() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "description", description ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "distribute", distributes ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "custom_distribution", rowDistribution == null ? null
+    retval.append( "  " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "type", getTransformPluginId() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "distribute", distributes ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "custom_distribution", rowDistribution == null ? null
       : rowDistribution.getCode() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "copies", copiesString ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "copies", copiesString ) );
 
     retval.append( transformPartitioningMeta.getXml() );
     if ( targetTransformPartitioningMeta != null ) {
-      retval.append( XMLHandler.openTag( "target_transform_partitioning" ) ).append( targetTransformPartitioningMeta.getXml() )
-        .append( XMLHandler.closeTag( "target_transform_partitioning" ) );
+      retval.append( XmlHandler.openTag( "target_transform_partitioning" ) ).append( targetTransformPartitioningMeta.getXml() )
+        .append( XmlHandler.closeTag( "target_transform_partitioning" ) );
     }
 
     if ( includeInterface ) {
-      retval.append( transformMetaInterface.getXML() );
+      retval.append( transformMetaInterface.getXml() );
     }
 
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
 
-    retval.append( "    " ).append( XMLHandler.openTag( "GUI" ) ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "yloc", location.y ) );
-    retval.append( "    " ).append( XMLHandler.closeTag( "GUI" ) ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( "GUI" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "xloc", location.x ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "yloc", location.y ) );
+    retval.append( "    " ).append( XmlHandler.closeTag( "GUI" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR ).append( Const.CR );
 
     return retval.toString();
   }
@@ -202,14 +202,14 @@ public class TransformMeta implements
    * @param transformNode  The XML transform node.
    * @param metaStore The IMetaStore.
    */
-  public TransformMeta( Node transformNode, IMetaStore metaStore ) throws HopXMLException,
+  public TransformMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException,
     HopPluginLoaderException {
     this();
     PluginRegistry registry = PluginRegistry.getInstance();
 
     try {
-      name = XMLHandler.getTagValue( transformNode, "name" );
-      transformPluginId = XMLHandler.getTagValue( transformNode, "type" );
+      name = XmlHandler.getTagValue( transformNode, "name" );
+      transformPluginId = XmlHandler.getTagValue( transformNode, "type" );
       setDeprecationAndSuggestedTransform();
 
       // Create a new ITransformMeta object...
@@ -227,13 +227,13 @@ public class TransformMeta implements
 
         // Load the specifics from XML...
         if ( transformMetaInterface != null ) {
-          transformMetaInterface.loadXML( transformNode, metaStore );
+          transformMetaInterface.loadXml( transformNode, metaStore );
         }
 
         /* Handle info general to all transform types... */
-        description = XMLHandler.getTagValue( transformNode, "description" );
-        copiesString = XMLHandler.getTagValue( transformNode, "copies" );
-        String sdistri = XMLHandler.getTagValue( transformNode, "distribute" );
+        description = XmlHandler.getTagValue( transformNode, "description" );
+        copiesString = XmlHandler.getTagValue( transformNode, "copies" );
+        String sdistri = XmlHandler.getTagValue( transformNode, "distribute" );
         distributes = "Y".equalsIgnoreCase( sdistri );
         if ( sdistri == null ) {
           distributes = true; // default=distribute
@@ -241,11 +241,11 @@ public class TransformMeta implements
 
         // Load the attribute groups map
         //
-        attributesMap = AttributesUtil.loadAttributes( XMLHandler.getSubNode( transformNode, AttributesUtil.XML_TAG ) );
+        attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( transformNode, AttributesUtil.XML_TAG ) );
 
         // Determine the row distribution
         //
-        String rowDistributionCode = XMLHandler.getTagValue( transformNode, "custom_distribution" );
+        String rowDistributionCode = XmlHandler.getTagValue( transformNode, "custom_distribution" );
         rowDistribution =
           PluginRegistry.getInstance().loadClass( RowDistributionPluginType.class, rowDistributionCode,
             IRowDistribution.class );
@@ -254,8 +254,8 @@ public class TransformMeta implements
         //
         String xloc, yloc;
         int x, y;
-        xloc = XMLHandler.getTagValue( transformNode, "GUI", "xloc" );
-        yloc = XMLHandler.getTagValue( transformNode, "GUI", "yloc" );
+        xloc = XmlHandler.getTagValue( transformNode, "GUI", "xloc" );
+        yloc = XmlHandler.getTagValue( transformNode, "GUI", "yloc" );
         try {
           x = Integer.parseInt( xloc );
         } catch ( Exception e ) {
@@ -270,13 +270,13 @@ public class TransformMeta implements
 
         // The partitioning information?
         //
-        Node partNode = XMLHandler.getSubNode( transformNode, "partitioning" );
+        Node partNode = XmlHandler.getSubNode( transformNode, "partitioning" );
         transformPartitioningMeta = new TransformPartitioningMeta( partNode, metaStore );
 
         // Target partitioning information?
         //
-        Node targetPartNode = XMLHandler.getSubNode( transformNode, "target_transform_partitioning" );
-        partNode = XMLHandler.getSubNode( targetPartNode, "partitioning" );
+        Node targetPartNode = XmlHandler.getSubNode( transformNode, "target_transform_partitioning" );
+        partNode = XmlHandler.getSubNode( targetPartNode, "partitioning" );
         if ( partNode != null ) {
           targetTransformPartitioningMeta = new TransformPartitioningMeta( partNode, metaStore );
         }
@@ -284,7 +284,7 @@ public class TransformMeta implements
     } catch ( HopPluginLoaderException e ) {
       throw e;
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "TransformMeta.Exception.UnableToLoadTransformMeta" ) + e
+      throw new HopXmlException( BaseMessages.getString( PKG, "TransformMeta.Exception.UnableToLoadTransformMeta" ) + e
         .toString(), e );
     }
   }
@@ -292,10 +292,10 @@ public class TransformMeta implements
   public static TransformMeta fromXml( String metaXml ) {
     Document doc;
     try {
-      doc = XMLHandler.loadXMLString( metaXml );
-      Node transformNode = XMLHandler.getSubNode( doc, "transform" );
+      doc = XmlHandler.loadXMLString( metaXml );
+      Node transformNode = XmlHandler.getSubNode( doc, "transform" );
       return new TransformMeta( transformNode, null );
-    } catch ( HopXMLException | HopPluginLoaderException e ) {
+    } catch ( HopXmlException | HopPluginLoaderException e ) {
       throw new RuntimeException( e );
     }
   }

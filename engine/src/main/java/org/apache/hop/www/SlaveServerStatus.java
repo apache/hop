@@ -25,7 +25,7 @@ package org.apache.hop.www;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -81,38 +81,38 @@ public class SlaveServerStatus {
     this.jobStatusList = jobStatusList;
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
-    xml.append( XMLHandler.addTagValue( "statusdesc", statusDescription ) );
+    xml.append( XmlHandler.addTagValue( "statusdesc", statusDescription ) );
 
-    xml.append( XMLHandler.addTagValue( "memory_free", memoryFree ) );
-    xml.append( XMLHandler.addTagValue( "memory_total", memoryTotal ) );
+    xml.append( XmlHandler.addTagValue( "memory_free", memoryFree ) );
+    xml.append( XmlHandler.addTagValue( "memory_total", memoryTotal ) );
 
-    xml.append( XMLHandler.addTagValue( "cpu_cores", cpuCores ) );
-    xml.append( XMLHandler.addTagValue( "cpu_process_time", cpuProcessTime ) );
+    xml.append( XmlHandler.addTagValue( "cpu_cores", cpuCores ) );
+    xml.append( XmlHandler.addTagValue( "cpu_process_time", cpuProcessTime ) );
 
-    xml.append( XMLHandler.addTagValue( "uptime", uptime ) );
-    xml.append( XMLHandler.addTagValue( "thread_count", threadCount ) );
+    xml.append( XmlHandler.addTagValue( "uptime", uptime ) );
+    xml.append( XmlHandler.addTagValue( "thread_count", threadCount ) );
 
-    xml.append( XMLHandler.addTagValue( "load_avg", loadAvg ) );
+    xml.append( XmlHandler.addTagValue( "load_avg", loadAvg ) );
 
-    xml.append( XMLHandler.addTagValue( "os_name", osName ) );
-    xml.append( XMLHandler.addTagValue( "os_version", osVersion ) );
-    xml.append( XMLHandler.addTagValue( "os_arch", osArchitecture ) );
+    xml.append( XmlHandler.addTagValue( "os_name", osName ) );
+    xml.append( XmlHandler.addTagValue( "os_version", osVersion ) );
+    xml.append( XmlHandler.addTagValue( "os_arch", osArchitecture ) );
 
     xml.append( "  <pipeline_status_list>" ).append( Const.CR );
     for ( int i = 0; i < pipelineStatusList.size(); i++ ) {
       SlaveServerPipelineStatus pipelineStatus = pipelineStatusList.get( i );
-      xml.append( "    " ).append( pipelineStatus.getXML() ).append( Const.CR );
+      xml.append( "    " ).append( pipelineStatus.getXml() ).append( Const.CR );
     }
     xml.append( "  </pipeline_status_list>" ).append( Const.CR );
 
     xml.append( "  <job_status_list>" ).append( Const.CR );
     for ( int i = 0; i < jobStatusList.size(); i++ ) {
       SlaveServerWorkflowStatus jobStatus = jobStatusList.get( i );
-      xml.append( "    " ).append( jobStatus.getXML() ).append( Const.CR );
+      xml.append( "    " ).append( jobStatus.getXml() ).append( Const.CR );
     }
     xml.append( "  </job_status_list>" ).append( Const.CR );
 
@@ -123,44 +123,44 @@ public class SlaveServerStatus {
 
   public SlaveServerStatus( Node statusNode ) throws HopException {
     this();
-    statusDescription = XMLHandler.getTagValue( statusNode, "statusdesc" );
+    statusDescription = XmlHandler.getTagValue( statusNode, "statusdesc" );
 
-    memoryFree = Const.toLong( XMLHandler.getTagValue( statusNode, "memory_free" ), -1L );
-    memoryTotal = Const.toLong( XMLHandler.getTagValue( statusNode, "memory_total" ), -1L );
+    memoryFree = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_free" ), -1L );
+    memoryTotal = Const.toLong( XmlHandler.getTagValue( statusNode, "memory_total" ), -1L );
 
-    String cpuCoresStr = XMLHandler.getTagValue( statusNode, "cpu_cores" );
+    String cpuCoresStr = XmlHandler.getTagValue( statusNode, "cpu_cores" );
     cpuCores = Const.toInt( cpuCoresStr, -1 );
-    String cpuProcessTimeStr = XMLHandler.getTagValue( statusNode, "cpu_process_time" );
+    String cpuProcessTimeStr = XmlHandler.getTagValue( statusNode, "cpu_process_time" );
     cpuProcessTime = Utils.isEmpty( cpuProcessTimeStr ) ? 0L : Long.valueOf( cpuProcessTimeStr );
 
-    uptime = Const.toLong( XMLHandler.getTagValue( statusNode, "uptime" ), -1 );
-    threadCount = Const.toInt( XMLHandler.getTagValue( statusNode, "thread_count" ), -1 );
-    loadAvg = Const.toDouble( XMLHandler.getTagValue( statusNode, "load_avg" ), -1.0 );
+    uptime = Const.toLong( XmlHandler.getTagValue( statusNode, "uptime" ), -1 );
+    threadCount = Const.toInt( XmlHandler.getTagValue( statusNode, "thread_count" ), -1 );
+    loadAvg = Const.toDouble( XmlHandler.getTagValue( statusNode, "load_avg" ), -1.0 );
 
-    osName = XMLHandler.getTagValue( statusNode, "os_name" );
-    osVersion = XMLHandler.getTagValue( statusNode, "os_version" );
-    osArchitecture = XMLHandler.getTagValue( statusNode, "os_arch" );
+    osName = XmlHandler.getTagValue( statusNode, "os_name" );
+    osVersion = XmlHandler.getTagValue( statusNode, "os_version" );
+    osArchitecture = XmlHandler.getTagValue( statusNode, "os_arch" );
 
-    Node listPipelineNode = XMLHandler.getSubNode( statusNode, "pipeline_status_list" );
-    Node listWorkflowsNode = XMLHandler.getSubNode( statusNode, "job_status_list" );
+    Node listPipelineNode = XmlHandler.getSubNode( statusNode, "pipeline_status_list" );
+    Node listWorkflowsNode = XmlHandler.getSubNode( statusNode, "job_status_list" );
 
-    int nrPipelines = XMLHandler.countNodes( listPipelineNode, SlaveServerPipelineStatus.XML_TAG );
-    int nrWorkflows = XMLHandler.countNodes( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG );
+    int nrPipelines = XmlHandler.countNodes( listPipelineNode, SlaveServerPipelineStatus.XML_TAG );
+    int nrWorkflows = XmlHandler.countNodes( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG );
 
     for ( int i = 0; i < nrPipelines; i++ ) {
-      Node pipelineStatusNode = XMLHandler.getSubNodeByNr( listPipelineNode, SlaveServerPipelineStatus.XML_TAG, i );
+      Node pipelineStatusNode = XmlHandler.getSubNodeByNr( listPipelineNode, SlaveServerPipelineStatus.XML_TAG, i );
       pipelineStatusList.add( new SlaveServerPipelineStatus( pipelineStatusNode ) );
     }
 
     for ( int i = 0; i < nrWorkflows; i++ ) {
-      Node jobStatusNode = XMLHandler.getSubNodeByNr( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG, i );
+      Node jobStatusNode = XmlHandler.getSubNodeByNr( listWorkflowsNode, SlaveServerWorkflowStatus.XML_TAG, i );
       jobStatusList.add( new SlaveServerWorkflowStatus( jobStatusNode ) );
     }
   }
 
   public static SlaveServerStatus fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    return new SlaveServerStatus( XMLHandler.getSubNode( document, XML_TAG ) );
+    Document document = XmlHandler.loadXMLString( xml );
+    return new SlaveServerStatus( XmlHandler.getSubNode( document, XML_TAG ) );
   }
 
   /**

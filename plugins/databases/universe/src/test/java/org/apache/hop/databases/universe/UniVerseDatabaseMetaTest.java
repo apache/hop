@@ -93,7 +93,7 @@ public class UniVerseDatabaseMetaTest {
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
     assertEquals( "DELETE FROM FOO",
       nativeMeta.getTruncateTableStatement( "FOO" ) );
   }

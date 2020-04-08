@@ -206,14 +206,14 @@ public class UpdateMetaTest implements InitializerInterface<ITransform> {
     update.setUpdateStream( new String[] { "updlkup1", "updlkup2" } );
 
     try {
-      String badXml = update.getXML();
+      String badXml = update.getXml();
       fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     update.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = update.getXML();
+    String ktrXml = update.getXml();
 
     int targetSz = update.getKeyStream().length;
 

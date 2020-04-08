@@ -31,11 +31,11 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -94,67 +94,67 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sql", sql ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sql", sql ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "useVariableSubstitution", useVariableSubstitution ? "T" : "F" ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sqlfromfile", sqlfromfile ? "T" : "F" ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sqlfilename", sqlfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sendOneStatement", sendOneStatement ? "T" : "F" ) );
+      XmlHandler.addTagValue( "useVariableSubstitution", useVariableSubstitution ? "T" : "F" ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sqlfromfile", sqlfromfile ? "T" : "F" ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sqlfilename", sqlfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sendOneStatement", sendOneStatement ? "T" : "F" ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      sql = XMLHandler.getTagValue( entrynode, "sql" );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      String sSubs = XMLHandler.getTagValue( entrynode, "useVariableSubstitution" );
+      super.loadXml( entrynode );
+      sql = XmlHandler.getTagValue( entrynode, "sql" );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
+      String sSubs = XmlHandler.getTagValue( entrynode, "useVariableSubstitution" );
 
       if ( sSubs != null && sSubs.equalsIgnoreCase( "T" ) ) {
         useVariableSubstitution = true;
       }
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
-      String ssql = XMLHandler.getTagValue( entrynode, "sqlfromfile" );
+      String ssql = XmlHandler.getTagValue( entrynode, "sqlfromfile" );
       if ( ssql != null && ssql.equalsIgnoreCase( "T" ) ) {
         sqlfromfile = true;
       }
 
-      sqlfilename = XMLHandler.getTagValue( entrynode, "sqlfilename" );
+      sqlfilename = XmlHandler.getTagValue( entrynode, "sqlfilename" );
 
-      String sOneStatement = XMLHandler.getTagValue( entrynode, "sendOneStatement" );
+      String sOneStatement = XmlHandler.getTagValue( entrynode, "sendOneStatement" );
       if ( sOneStatement != null && sOneStatement.equalsIgnoreCase( "T" ) ) {
         sendOneStatement = true;
       }
 
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'sql' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'sql' from XML node", e );
     }
   }
 
-  public void setSQL( String sql ) {
+  public void setSql( String sql ) {
     this.sql = sql;
   }
 
-  public String getSQL() {
+  public String getSql() {
     return sql;
   }
 
-  public String getSQLFilename() {
+  public String getSqlFilename() {
     return sqlfilename;
   }
 
-  public void setSQLFilename( String sqlfilename ) {
+  public void setSqlFilename( String sqlfilename ) {
     this.sqlfilename = sqlfilename;
   }
 
@@ -166,11 +166,11 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
     useVariableSubstitution = subs;
   }
 
-  public void setSQLFromFile( boolean sqlfromfilein ) {
+  public void setSqlFromFile( boolean sqlfromfilein ) {
     sqlfromfile = sqlfromfilein;
   }
 
-  public boolean getSQLFromFile() {
+  public boolean getSqlFromFile() {
     return sqlfromfile;
   }
 

@@ -40,7 +40,7 @@ import java.util.List;
  *
  * @author Alexander Buloichik
  */
-public class XMLFormatter {
+public class XmlFormatter {
   private static final String TRANSFORM_PREFIX = "  ";
 
   private static XMLInputFactory INPUT_FACTORY = XMLInputFactory.newInstance();

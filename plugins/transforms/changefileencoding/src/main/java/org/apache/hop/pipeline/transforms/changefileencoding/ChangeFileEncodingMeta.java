@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.changefileencoding;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -146,7 +146,7 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -167,32 +167,32 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "filenamefield", filenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sourceencoding", sourceencoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "targetencoding", targetencoding ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addsourceresultfilenames", addsourceresultfilenames ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addtargetresultfilenames", addtargetresultfilenames ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "createparentfolder", createparentfolder ) );
+    retval.append( "    " + XmlHandler.addTagValue( "filenamefield", filenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sourceencoding", sourceencoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "targetencoding", targetencoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addsourceresultfilenames", addsourceresultfilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addtargetresultfilenames", addtargetresultfilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "createparentfolder", createparentfolder ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      filenamefield = XMLHandler.getTagValue( transformNode, "filenamefield" );
-      targetfilenamefield = XMLHandler.getTagValue( transformNode, "targetfilenamefield" );
-      sourceencoding = XMLHandler.getTagValue( transformNode, "sourceencoding" );
-      targetencoding = XMLHandler.getTagValue( transformNode, "targetencoding" );
-      addsourceresultfilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addsourceresultfilenames" ) );
-      addtargetresultfilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addtargetresultfilenames" ) );
-      createparentfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "createparentfolder" ) );
+      filenamefield = XmlHandler.getTagValue( transformNode, "filenamefield" );
+      targetfilenamefield = XmlHandler.getTagValue( transformNode, "targetfilenamefield" );
+      sourceencoding = XmlHandler.getTagValue( transformNode, "sourceencoding" );
+      targetencoding = XmlHandler.getTagValue( transformNode, "targetencoding" );
+      addsourceresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addsourceresultfilenames" ) );
+      addtargetresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addtargetresultfilenames" ) );
+      createparentfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createparentfolder" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "ChangeFileEncodingMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

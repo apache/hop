@@ -253,12 +253,12 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = '" + sequenceName + "'";
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT SEQUENCE_NAME FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES";
   }
 
@@ -269,7 +269,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The current value of a database sequence
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     // Note - the following only works for 2.x and higher HSQLDB. But we don't really use it anywhere
     return "SELECT " + sequenceName + ".currval FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = '"
       + sequenceName + "'";
@@ -282,7 +282,7 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT NEXT VALUE FOR " + sequenceName
       + " FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = '" + sequenceName + "'";
   }

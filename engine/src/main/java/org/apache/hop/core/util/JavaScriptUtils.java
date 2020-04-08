@@ -25,7 +25,7 @@ package org.apache.hop.core.util;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.mozilla.javascript.Context;
 
 import java.math.BigDecimal;
@@ -139,7 +139,7 @@ public class JavaScriptUtils {
         } catch ( Exception e ) {
           try {
             String string = Context.toString( value );
-            return XMLHandler.stringToDate( string );
+            return XmlHandler.stringToDate( string );
           } catch ( Exception e3 ) {
             throw new HopValueException( "Can't convert a string to a date" );
           }

@@ -32,7 +32,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -297,35 +297,35 @@ public class Translator {
     if ( file.exists() ) {
 
       try {
-        Document doc = XMLHandler.loadXMLFile( file );
-        Node configNode = XMLHandler.getSubNode( doc, "translator-config" );
+        Document doc = XmlHandler.loadXMLFile( file );
+        Node configNode = XmlHandler.getSubNode( doc, "translator-config" );
 
-        referenceLocale = XMLHandler.getTagValue( configNode, "reference-locale" );
-        singleMessagesFile = XMLHandler.getTagValue( configNode, "single-messages-file" );
+        referenceLocale = XmlHandler.getTagValue( configNode, "reference-locale" );
+        singleMessagesFile = XmlHandler.getTagValue( configNode, "single-messages-file" );
 
-        Node localeListNode = XMLHandler.getSubNode( configNode, "locale-list" );
-        int nrLocale = XMLHandler.countNodes( localeListNode, "locale" );
+        Node localeListNode = XmlHandler.getSubNode( configNode, "locale-list" );
+        int nrLocale = XmlHandler.countNodes( localeListNode, "locale" );
         if ( nrLocale > 0 ) {
           localeList.clear();
         }
         for ( int i = 0; i < nrLocale; i++ ) {
-          Node localeNode = XMLHandler.getSubNodeByNr( localeListNode, "locale", i );
-          String locale = XMLHandler.getNodeValue( localeNode );
+          Node localeNode = XmlHandler.getSubNodeByNr( localeListNode, "locale", i );
+          String locale = XmlHandler.getNodeValue( localeNode );
           localeList.add( locale );
         }
 
-        Node scanPhrasesNode = XMLHandler.getSubNode( configNode, "scan-phrases" );
-        java.util.List<Node> scanPhraseNodes = XMLHandler.getNodes( scanPhrasesNode, "scan-phrase" );
+        Node scanPhrasesNode = XmlHandler.getSubNode( configNode, "scan-phrases" );
+        java.util.List<Node> scanPhraseNodes = XmlHandler.getNodes( scanPhrasesNode, "scan-phrase" );
         scanPhrases = new ArrayList<>(  );
         for ( Node scanPhraseNode : scanPhraseNodes ) {
-          scanPhrases.add( XMLHandler.getNodeValue( scanPhraseNode ) );
+          scanPhrases.add( XmlHandler.getNodeValue( scanPhraseNode ) );
         }
 
-        Node filesToAvoidNode = XMLHandler.getSubNode( configNode, "files-to-avoid" );
-        java.util.List<Node> filesNodes = XMLHandler.getNodes( filesToAvoidNode, "filename" );
+        Node filesToAvoidNode = XmlHandler.getSubNode( configNode, "files-to-avoid" );
+        java.util.List<Node> filesNodes = XmlHandler.getNodes( filesToAvoidNode, "filename" );
         filesToAvoid = new ArrayList();
         for ( Node fileNode : filesNodes ) {
-          filesToAvoid.add( XMLHandler.getNodeValue( fileNode ) );
+          filesToAvoid.add( XmlHandler.getNodeValue( fileNode ) );
         }
       } catch ( Exception e ) {
         log.logError( "Translator", "Error reading translator.xml", e );

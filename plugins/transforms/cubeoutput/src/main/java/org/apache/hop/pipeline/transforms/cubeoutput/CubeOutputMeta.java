@@ -28,11 +28,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -77,7 +77,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -129,16 +129,16 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      filename = XMLHandler.getTagValue( transformNode, "file", "name" );
+      filename = XmlHandler.getTagValue( transformNode, "file", "name" );
       addToResultFilenames =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_to_result_filenames" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_to_result_filenames" ) );
       doNotOpenNewFileInit =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "CubeOutputMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
@@ -149,13 +149,13 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     doNotOpenNewFileInit = false;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <file>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
 
     retval.append( "    </file>" ).append( Const.CR );
 

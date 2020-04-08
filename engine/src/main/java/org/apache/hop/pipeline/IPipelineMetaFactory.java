@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopMissingPluginsException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.w3c.dom.Node;
 
 public interface IPipelineMetaFactory {
-  PipelineMeta create( Node pipelineNode ) throws HopXMLException, HopMissingPluginsException;
+  PipelineMeta create( Node pipelineNode ) throws HopXmlException, HopMissingPluginsException;
 }

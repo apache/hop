@@ -27,13 +27,13 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -80,21 +80,21 @@ public class JaninoMeta extends BaseTransformMeta implements ITransform {
     formula = new JaninoMetaFunction[ nrCalcs ];
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
-    int nrCalcs = XMLHandler.countNodes( transformNode, JaninoMetaFunction.XML_TAG );
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+    int nrCalcs = XmlHandler.countNodes( transformNode, JaninoMetaFunction.XML_TAG );
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
-      Node calcnode = XMLHandler.getSubNodeByNr( transformNode, JaninoMetaFunction.XML_TAG, i );
+      Node calcnode = XmlHandler.getSubNodeByNr( transformNode, JaninoMetaFunction.XML_TAG, i );
       formula[ i ] = new JaninoMetaFunction( calcnode );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     if ( formula != null ) {
       for ( int i = 0; i < formula.length; i++ ) {
-        retval.append( "       " + formula[ i ].getXML() + Const.CR );
+        retval.append( "       " + formula[ i ].getXml() + Const.CR );
       }
     }
 
@@ -104,7 +104,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransform {
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       JaninoMeta m = (JaninoMeta) obj;
-      return Objects.equals( getXML(), m.getXML() );
+      return Objects.equals( getXml(), m.getXml() );
     }
     return false;
   }

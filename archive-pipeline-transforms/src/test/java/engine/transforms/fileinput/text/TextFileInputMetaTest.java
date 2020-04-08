@@ -71,7 +71,7 @@ public class TextFileInputMetaTest {
     inputMeta.inputFiles = new BaseFileInputFiles();
     inputMeta.inputFiles.fileName = new String[] { FILE_NAME_VALID_PATH };
 
-    inputMeta.getXML();
+    inputMeta.getXml();
 
     assertEquals( inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.fileMask.length );
     assertEquals( inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.excludeFileMask.length );

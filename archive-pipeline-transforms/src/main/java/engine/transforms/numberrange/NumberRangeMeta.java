@@ -26,12 +26,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -69,24 +69,24 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransform {
     rules = new LinkedList<NumberRangeRule>();
   }
 
-  public NumberRangeMeta( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
-    loadXML( transformNode, metaStore );
+  public NumberRangeMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+    loadXml( transformNode, metaStore );
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "inputField", inputField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "outputField", outputField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "fallBackValue", getFallBackValue() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "inputField", inputField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "outputField", outputField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "fallBackValue", getFallBackValue() ) );
 
     retval.append( "    <rules>" ).append( Const.CR );
     for ( NumberRangeRule rule : rules ) {
       retval.append( "      <rule>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "lower_bound", rule.getLowerBound() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "upper_bound", rule.getUpperBound() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "value", rule.getValue() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "lower_bound", rule.getLowerBound() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "upper_bound", rule.getUpperBound() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "value", rule.getValue() ) );
       retval.append( "      </rule>" ).append( Const.CR );
     }
     retval.append( "    </rules>" ).append( Const.CR );
@@ -110,24 +110,24 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      inputField = XMLHandler.getTagValue( transformNode, "inputField" );
-      outputField = XMLHandler.getTagValue( transformNode, "outputField" );
+      inputField = XmlHandler.getTagValue( transformNode, "inputField" );
+      outputField = XmlHandler.getTagValue( transformNode, "outputField" );
 
       emptyRules();
-      String fallBackValue = XMLHandler.getTagValue( transformNode, "fallBackValue" );
+      String fallBackValue = XmlHandler.getTagValue( transformNode, "fallBackValue" );
       setFallBackValue( fallBackValue );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "rules" );
-      int count = XMLHandler.countNodes( fields, "rule" );
+      Node fields = XmlHandler.getSubNode( transformNode, "rules" );
+      int count = XmlHandler.countNodes( fields, "rule" );
       for ( int i = 0; i < count; i++ ) {
 
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "rule", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "rule", i );
 
-        String lowerBoundStr = XMLHandler.getTagValue( fnode, "lower_bound" );
-        String upperBoundStr = XMLHandler.getTagValue( fnode, "upper_bound" );
-        String value = XMLHandler.getTagValue( fnode, "value" );
+        String lowerBoundStr = XmlHandler.getTagValue( fnode, "lower_bound" );
+        String upperBoundStr = XmlHandler.getTagValue( fnode, "upper_bound" );
+        String value = XmlHandler.getTagValue( fnode, "value" );
 
         double lowerBound = Double.parseDouble( lowerBoundStr );
         double upperBound = Double.parseDouble( upperBoundStr );
@@ -135,7 +135,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransform {
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read transform info from XML node", e );
+      throw new HopXmlException( "Unable to read transform info from XML node", e );
     }
   }
 

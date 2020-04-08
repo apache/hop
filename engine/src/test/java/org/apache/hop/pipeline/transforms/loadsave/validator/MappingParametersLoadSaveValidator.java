@@ -48,6 +48,6 @@ public class MappingParametersLoadSaveValidator implements IFieldLoadSaveValidat
       return false;
     }
     MappingParameters actualInput = (MappingParameters) actual;
-    return ( testObject.getXML().equals( actualInput.getXML() ) );
+    return ( testObject.getXml().equals( actualInput.getXml() ) );
   }
 }

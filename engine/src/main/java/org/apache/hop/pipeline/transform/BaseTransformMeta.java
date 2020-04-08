@@ -26,13 +26,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.HopAttribute;
 import org.apache.hop.core.IHopAttribute;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -43,7 +43,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.resource.ResourceDefinition;
@@ -194,7 +194,7 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
    * @return String containing the XML describing this transform.
    * @throws HopException in case there is an XML conversion or encoding error
    */
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     return "";
   }
 
@@ -234,7 +234,7 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
 
 
   /**
-   * Standard method to return an SQLStatement object with SQL statements that the transform needs in order to work
+   * Standard method to return an SqlStatement object with SQL statements that the transform needs in order to work
    * correctly. This can mean "create table", "create index" statements but also "alter table ... add/drop/modify"
    * statements.
    *
@@ -242,13 +242,13 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
    * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
-   * @return The SQL Statements for this transform. If nothing has to be done, the SQLStatement.getSQL() == null. @see
-   * SQLStatement
+   * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
+   * SqlStatement
    */
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     // default: this doesn't require any SQL statements to be executed!
-    return new SQLStatement( transformMeta.getName(), null, null );
+    return new SqlStatement( transformMeta.getName(), null, null );
   }
 
   /**
@@ -701,17 +701,17 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
         inputStream = getClass().getResourceAsStream( transformAttributesFile );
       }
       if ( inputStream != null ) {
-        Document document = XMLHandler.loadXMLFile( inputStream );
-        Node attrsNode = XMLHandler.getSubNode( document, "attributes" );
-        List<Node> nodes = XMLHandler.getNodes( attrsNode, "attribute" );
+        Document document = XmlHandler.loadXMLFile( inputStream );
+        Node attrsNode = XmlHandler.getSubNode( document, "attributes" );
+        List<Node> nodes = XmlHandler.getNodes( attrsNode, "attribute" );
         attributes = new ArrayList<IHopAttribute>();
         for ( Node node : nodes ) {
-          String key = XMLHandler.getTagAttribute( node, "id" );
-          String xmlCode = XMLHandler.getTagValue( node, "xmlcode" );
-          String description = XMLHandler.getTagValue( node, "description" );
-          String tooltip = XMLHandler.getTagValue( node, "tooltip" );
-          int valueType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( node, "valuetype" ) );
-          String parentId = XMLHandler.getTagValue( node, "parentid" );
+          String key = XmlHandler.getTagAttribute( node, "id" );
+          String xmlCode = XmlHandler.getTagValue( node, "xmlcode" );
+          String description = XmlHandler.getTagValue( node, "description" );
+          String tooltip = XmlHandler.getTagValue( node, "tooltip" );
+          int valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( node, "valuetype" ) );
+          String parentId = XmlHandler.getTagValue( node, "parentid" );
 
           HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, valueType, findParent( attributes, parentId ) );
           attributes.add( attribute );
@@ -813,7 +813,7 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
     return null;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     // provided for API (compile & runtime) compatibility with v4
   }
 

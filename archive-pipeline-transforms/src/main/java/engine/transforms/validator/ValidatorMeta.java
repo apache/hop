@@ -26,13 +26,13 @@ package org.apache.hop.pipeline.transforms.validator;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -91,28 +91,28 @@ public class ValidatorMeta extends BaseTransformMeta implements ITransform {
     validations = new ArrayList<Validation>( nrValidations );
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
-    int nrCalcs = XMLHandler.countNodes( transformNode, Validation.XML_TAG );
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+    int nrCalcs = XmlHandler.countNodes( transformNode, Validation.XML_TAG );
     allocate( nrCalcs );
-    validatingAll = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "validate_all" ) );
-    concatenatingErrors = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "concat_errors" ) );
-    concatenationSeparator = XMLHandler.getTagValue( transformNode, "concat_separator" );
+    validatingAll = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "validate_all" ) );
+    concatenatingErrors = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "concat_errors" ) );
+    concatenationSeparator = XmlHandler.getTagValue( transformNode, "concat_separator" );
 
     for ( int i = 0; i < nrCalcs; i++ ) {
-      Node calcnode = XMLHandler.getSubNodeByNr( transformNode, Validation.XML_TAG, i );
+      Node calcnode = XmlHandler.getSubNodeByNr( transformNode, Validation.XML_TAG, i );
       validations.add( new Validation( calcnode ) );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( XMLHandler.addTagValue( "validate_all", validatingAll ) );
-    retval.append( XMLHandler.addTagValue( "concat_errors", concatenatingErrors ) );
-    retval.append( XMLHandler.addTagValue( "concat_separator", concatenationSeparator ) );
+    retval.append( XmlHandler.addTagValue( "validate_all", validatingAll ) );
+    retval.append( XmlHandler.addTagValue( "concat_errors", concatenatingErrors ) );
+    retval.append( XmlHandler.addTagValue( "concat_separator", concatenationSeparator ) );
 
     for ( int i = 0; i < validations.size(); i++ ) {
-      retval.append( "       " ).append( validations.get( i ).getXML() ).append( Const.CR );
+      retval.append( "       " ).append( validations.get( i ).getXml() ).append( Const.CR );
     }
 
     return retval.toString();
@@ -121,7 +121,7 @@ public class ValidatorMeta extends BaseTransformMeta implements ITransform {
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       ValidatorMeta m = (ValidatorMeta) obj;
-      return ( getXML() == m.getXML() );
+      return ( getXml() == m.getXml() );
     }
 
     return false;

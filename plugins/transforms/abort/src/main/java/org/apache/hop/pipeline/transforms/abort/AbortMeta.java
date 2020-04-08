@@ -26,10 +26,10 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -107,7 +107,7 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -120,35 +120,35 @@ public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "row_threshold", rowThreshold ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "message", message ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "always_log_rows", alwaysLogRows ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "abort_option", abortOption.toString() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "row_threshold", rowThreshold ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "message", message ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "always_log_rows", alwaysLogRows ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "abort_option", abortOption.toString() ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      rowThreshold = XMLHandler.getTagValue( transformNode, "row_threshold" );
-      message = XMLHandler.getTagValue( transformNode, "message" );
-      alwaysLogRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "always_log_rows" ) );
-      String abortOptionString = XMLHandler.getTagValue( transformNode, "abort_option" );
+      rowThreshold = XmlHandler.getTagValue( transformNode, "row_threshold" );
+      message = XmlHandler.getTagValue( transformNode, "message" );
+      alwaysLogRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "always_log_rows" ) );
+      String abortOptionString = XmlHandler.getTagValue( transformNode, "abort_option" );
       if ( !isEmpty( abortOptionString ) ) {
         abortOption = AbortOption.valueOf( abortOptionString );
       } else {
         // Backwards compatibility
-        String awe = XMLHandler.getTagValue( transformNode, "abort_with_error" );
+        String awe = XmlHandler.getTagValue( transformNode, "abort_with_error" );
         if ( awe == null ) {
           awe = "Y"; // existing pipelines will have to maintain backward compatibility with yes
         }
         abortOption = "Y".equalsIgnoreCase( awe ) ? AbortOption.ABORT_WITH_ERROR : AbortOption.ABORT;
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "AbortMeta.Exception.UnexpectedErrorInReadingTransformMetaFromRepository" ), e ); // TODO: Change wording
     }
   }

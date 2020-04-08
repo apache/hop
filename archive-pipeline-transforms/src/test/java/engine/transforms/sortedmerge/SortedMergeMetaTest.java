@@ -78,14 +78,14 @@ public class SortedMergeMetaTest {
     sortedMerge.setAscending( new boolean[] { false, true } );
 
     try {
-      String badXml = sortedMerge.getXML();
+      String badXml = sortedMerge.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     sortedMerge.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = sortedMerge.getXML();
+    String ktrXml = sortedMerge.getXml();
 
     int targetSz = sortedMerge.getFieldName().length;
 

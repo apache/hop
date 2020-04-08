@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XMLInterface;
 import org.apache.hop.pipeline.transform.TransformAttributesInterface;
 import org.w3c.dom.Node;
@@ -171,76 +171,76 @@ public class SelectMetadataChange implements Cloneable, XMLInterface {
     this.currencySymbol = currencySymbol;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) );
+    retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_NAME" ), name ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_NAME" ), name ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_RENAME" ), rename ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_RENAME" ), rename ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_TYPE" ),
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_TYPE" ),
         ValueMetaFactory.getValueMetaName( type ) ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_LENGTH" ), length ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_LENGTH" ), length ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_PRECISION" ), precision ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_PRECISION" ), precision ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_CONVERSION_MASK" ), conversionMask ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_CONVERSION_MASK" ), conversionMask ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LENIENT" ), Boolean
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LENIENT" ), Boolean
         .toString( dateFormatLenient ) ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ), dateFormatLocale ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ), dateFormatLocale ) );
     retval
       .append( "        " ).append(
-      XMLHandler.addTagValue(
+      XmlHandler.addTagValue(
         attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ), dateFormatTimeZone ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ), Boolean
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ), Boolean
         .toString( lenientStringToNumber ) ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_ENCODING" ), encoding ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_ENCODING" ), encoding ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_DECIMAL" ), decimalSymbol ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DECIMAL" ), decimalSymbol ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_GROUPING" ), groupingSymbol ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_GROUPING" ), groupingSymbol ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_CURRENCY" ), currencySymbol ) );
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_CURRENCY" ), currencySymbol ) );
     retval.append( "        " ).append(
-      XMLHandler.addTagValue( attributesInterface.getXmlCode( "META_STORAGE_TYPE" ), ValueMetaBase
+      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_STORAGE_TYPE" ), ValueMetaBase
         .getStorageTypeCode( storageType ) ) );
-    retval.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) );
+    retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) );
     return retval.toString();
   }
 
-  public void loadXML( Node metaNode ) {
-    name = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_NAME" ) );
-    rename = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_RENAME" ) );
+  public void loadXml( Node metaNode ) {
+    name = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_NAME" ) );
+    rename = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_RENAME" ) );
     type = ValueMetaFactory.getIdForValueMeta(
-      XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_TYPE" ) ) );
-    length = Const.toInt( XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_LENGTH" ) ), -2 );
+      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_TYPE" ) ) );
+    length = Const.toInt( XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_LENGTH" ) ), -2 );
     precision =
-      Const.toInt( XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_PRECISION" ) ), -2 );
+      Const.toInt( XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_PRECISION" ) ), -2 );
     storageType =
-      ValueMetaBase.getStorageType( XMLHandler.getTagValue( metaNode, attributesInterface
+      ValueMetaBase.getStorageType( XmlHandler.getTagValue( metaNode, attributesInterface
         .getXmlCode( "META_STORAGE_TYPE" ) ) );
-    conversionMask = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CONVERSION_MASK" ) );
+    conversionMask = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CONVERSION_MASK" ) );
     dateFormatLenient =
-      Boolean.parseBoolean( XMLHandler.getTagValue( metaNode, attributesInterface
+      Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, attributesInterface
         .getXmlCode( "META_DATE_FORMAT_LENIENT" ) ) );
     dateFormatLocale =
-      XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ) );
+      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ) );
     dateFormatTimeZone =
-      XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ) );
-    encoding = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
+      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ) );
+    encoding = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
     lenientStringToNumber =
-      Boolean.parseBoolean( XMLHandler.getTagValue( metaNode, attributesInterface
+      Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, attributesInterface
         .getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ) ) );
-    encoding = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
-    decimalSymbol = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DECIMAL" ) );
-    groupingSymbol = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_GROUPING" ) );
-    currencySymbol = XMLHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CURRENCY" ) );
+    encoding = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
+    decimalSymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DECIMAL" ) );
+    groupingSymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_GROUPING" ) );
+    currencySymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CURRENCY" ) );
   }
 
   public SelectMetadataChange clone() {

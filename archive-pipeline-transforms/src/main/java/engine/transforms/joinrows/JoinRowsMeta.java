@@ -28,12 +28,12 @@ import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -174,7 +174,7 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -185,16 +185,16 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      directory = XMLHandler.getTagValue( transformNode, "directory" );
-      prefix = XMLHandler.getTagValue( transformNode, "prefix" );
-      cacheSize = Const.toInt( XMLHandler.getTagValue( transformNode, "cache_size" ), -1 );
+      directory = XmlHandler.getTagValue( transformNode, "directory" );
+      prefix = XmlHandler.getTagValue( transformNode, "prefix" );
+      cacheSize = Const.toInt( XmlHandler.getTagValue( transformNode, "cache_size" ), -1 );
 
-      mainTransformName = XMLHandler.getTagValue( transformNode, "main" );
+      mainTransformName = XmlHandler.getTagValue( transformNode, "main" );
 
-      Node compare = XMLHandler.getSubNode( transformNode, "compare" );
-      Node condnode = XMLHandler.getSubNode( compare, "condition" );
+      Node compare = XmlHandler.getSubNode( transformNode, "compare" );
+      Node condnode = XmlHandler.getSubNode( compare, "condition" );
 
       // The new situation...
       if ( condnode != null ) {
@@ -204,7 +204,7 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransform {
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "JoinRowsMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -219,22 +219,22 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "directory", directory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "prefix", prefix ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
 
     if ( mainTransformName == null ) {
       mainTransformName = getLookupTransformName();
     }
-    retval.append( "      " ).append( XMLHandler.addTagValue( "main", mainTransformName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "main", mainTransformName ) );
 
     retval.append( "    <compare>" ).append( Const.CR );
 
     if ( condition != null ) {
-      retval.append( condition.getXML() );
+      retval.append( condition.getXml() );
     }
 
     retval.append( "    </compare>" ).append( Const.CR );

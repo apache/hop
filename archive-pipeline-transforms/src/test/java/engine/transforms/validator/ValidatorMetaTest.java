@@ -138,7 +138,7 @@ public class ValidatorMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       Validation actualInput = (Validation) actual;
-      return ( testObject.getXML().equals( actualInput.getXML() ) );
+      return ( testObject.getXml().equals( actualInput.getXml() ) );
     }
   }
 }

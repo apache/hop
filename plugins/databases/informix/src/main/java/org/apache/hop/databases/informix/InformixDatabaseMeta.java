@@ -107,21 +107,21 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT FIRST 1 * FROM " + tableName;
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT FIRST 1 " + columnname + " FROM " + tableName;
   }
 
@@ -237,7 +237,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   }
 
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
       sql.append( "LOCK TABLE " + tableNames[ i ] + " IN EXCLUSIVE MODE;" + Const.CR);
@@ -246,7 +246,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   }
 
   @Override
-  public String getSQLUnlockTables( String[] tableNames ) {
+  public String getSqlUnlockTables( String[] tableNames ) {
     return null;
   }
 
@@ -259,7 +259,7 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + keyField + ", " + versionField + ") values (1, 1)";
   }
 

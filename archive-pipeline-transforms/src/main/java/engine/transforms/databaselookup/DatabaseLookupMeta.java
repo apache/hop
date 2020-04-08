@@ -30,14 +30,14 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -362,7 +362,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransform,
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     streamKeyField1 = null;
     returnValueField = null;
 
@@ -402,60 +402,60 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransform,
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       String dtype;
       String csize;
 
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      cached = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "cache" ) );
-      loadingAllDataInCache = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "cache_load_all" ) );
-      csize = XMLHandler.getTagValue( transformNode, "cache_size" );
+      cached = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "cache" ) );
+      loadingAllDataInCache = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "cache_load_all" ) );
+      csize = XmlHandler.getTagValue( transformNode, "cache_size" );
       cacheSize = Const.toInt( csize, 0 );
-      schemaName = XMLHandler.getTagValue( transformNode, "lookup", "schema" );
-      tablename = XMLHandler.getTagValue( transformNode, "lookup", "table" );
+      schemaName = XmlHandler.getTagValue( transformNode, "lookup", "schema" );
+      tablename = XmlHandler.getTagValue( transformNode, "lookup", "table" );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
 
-      int nrkeys = XMLHandler.countNodes( lookup, "key" );
-      int nrvalues = XMLHandler.countNodes( lookup, "value" );
+      int nrkeys = XmlHandler.countNodes( lookup, "key" );
+      int nrvalues = XmlHandler.countNodes( lookup, "value" );
 
       allocate( nrkeys, nrvalues );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
+        Node knode = XmlHandler.getSubNodeByNr( lookup, "key", i );
 
-        streamKeyField1[ i ] = XMLHandler.getTagValue( knode, "name" );
-        tableKeyField[ i ] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        streamKeyField1[ i ] = XmlHandler.getTagValue( knode, "name" );
+        tableKeyField[ i ] = XmlHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XmlHandler.getTagValue( knode, "condition" );
         if ( keyCondition[ i ] == null ) {
           keyCondition[ i ] = "=";
         }
-        streamKeyField2[ i ] = XMLHandler.getTagValue( knode, "name2" );
+        streamKeyField2[ i ] = XmlHandler.getTagValue( knode, "name2" );
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
+        Node vnode = XmlHandler.getSubNodeByNr( lookup, "value", i );
 
-        returnValueField[ i ] = XMLHandler.getTagValue( vnode, "name" );
-        returnValueNewName[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        returnValueField[ i ] = XmlHandler.getTagValue( vnode, "name" );
+        returnValueNewName[ i ] = XmlHandler.getTagValue( vnode, "rename" );
         if ( returnValueNewName[ i ] == null ) {
           returnValueNewName[ i ] = returnValueField[ i ]; // default: the same name!
         }
-        returnValueDefault[ i ] = XMLHandler.getTagValue( vnode, "default" );
-        dtype = XMLHandler.getTagValue( vnode, "type" );
+        returnValueDefault[ i ] = XmlHandler.getTagValue( vnode, "default" );
+        dtype = XmlHandler.getTagValue( vnode, "type" );
         returnValueDefaultType[ i ] = ValueMetaFactory.getIdForValueMeta( dtype );
         if ( returnValueDefaultType[ i ] < 0 ) {
           // logError("unknown default value type: "+dtype+" for value "+value[i]+", default to type: String!");
           returnValueDefaultType[ i ] = IValueMeta.TYPE_STRING;
         }
       }
-      orderByClause = XMLHandler.getTagValue( lookup, "orderby" ); // Optional, can by null
-      failingOnMultipleResults = "Y".equalsIgnoreCase( XMLHandler.getTagValue( lookup, "fail_on_multiple" ) );
-      eatingRowOnLookupFailure = "Y".equalsIgnoreCase( XMLHandler.getTagValue( lookup, "eat_row_on_failure" ) );
+      orderByClause = XmlHandler.getTagValue( lookup, "orderby" ); // Optional, can by null
+      failingOnMultipleResults = "Y".equalsIgnoreCase( XmlHandler.getTagValue( lookup, "fail_on_multiple" ) );
+      eatingRowOnLookupFailure = "Y".equalsIgnoreCase( XmlHandler.getTagValue( lookup, "eat_row_on_failure" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "DatabaseLookupMeta.ERROR0001.UnableToLoadTransformFromXML" ), e );
     }
   }
@@ -523,38 +523,38 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransform,
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "cache", cached ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "cache_load_all", loadingAllDataInCache ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "cache", cached ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "cache_load_all", loadingAllDataInCache ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
     retval.append( "    <lookup>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "orderby", orderByClause ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fail_on_multiple", failingOnMultipleResults ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "eat_row_on_failure", eatingRowOnLookupFailure ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "orderby", orderByClause ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fail_on_multiple", failingOnMultipleResults ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "eat_row_on_failure", eatingRowOnLookupFailure ) );
 
     for ( int i = 0; i < streamKeyField1.length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", streamKeyField1[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", tableKeyField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", streamKeyField2[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", streamKeyField1[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", tableKeyField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name2", streamKeyField2[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
     for ( int i = 0; i < returnValueField.length; i++ ) {
       retval.append( "      <value>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", returnValueField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", returnValueNewName[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default", returnValueDefault[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", returnValueField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "rename", returnValueNewName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "default", returnValueDefault[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( returnValueDefaultType[ i ] ) ) );
+        XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( returnValueDefaultType[ i ] ) ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
 

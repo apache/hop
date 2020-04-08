@@ -1468,12 +1468,12 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
 
       if ( isValidRowMeta( prev ) ) {
-        SQLStatement sql = info.getSQLStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
+        SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
             SQLEditor sqledit =
               new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-                .getSQL() );
+                .getSql() );
             sqledit.open();
           } else {
             String message = getBaseMessage( "TableOutputDialog.NoSQL.DialogMessage" );

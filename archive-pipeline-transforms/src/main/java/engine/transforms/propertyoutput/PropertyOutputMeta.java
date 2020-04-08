@@ -27,13 +27,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -119,7 +119,7 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransform 
   private boolean append;
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -350,30 +350,30 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransform 
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      keyfield = XMLHandler.getTagValue( transformNode, "keyfield" );
-      valuefield = XMLHandler.getTagValue( transformNode, "valuefield" );
-      comment = XMLHandler.getTagValue( transformNode, "comment" );
+      keyfield = XmlHandler.getTagValue( transformNode, "keyfield" );
+      valuefield = XmlHandler.getTagValue( transformNode, "valuefield" );
+      comment = XmlHandler.getTagValue( transformNode, "comment" );
 
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
 
       createparentfolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
-      extension = XMLHandler.getTagValue( transformNode, "file", "extention" );
-      transformNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "split" ) );
-      partNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "haspartno" ) );
-      dateInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_date" ) );
-      timeInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_time" ) );
-      addToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "AddToResult" ) );
-      append = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "append" ) );
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
-      fileNameInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "fileNameInField" ) );
-      fileNameField = XMLHandler.getTagValue( transformNode, "fileNameField" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
+      extension = XmlHandler.getTagValue( transformNode, "file", "extention" );
+      transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
+      partNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "haspartno" ) );
+      dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
+      timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
+      addToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "AddToResult" ) );
+      append = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "append" ) );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
+      fileNameInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "fileNameInField" ) );
+      fileNameField = XmlHandler.getTagValue( transformNode, "fileNameField" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -388,29 +388,29 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransform 
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     // Items ...
 
-    retval.append( "    " + XMLHandler.addTagValue( "keyfield", keyfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "valuefield", valuefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "comment", comment ) );
+    retval.append( "    " + XmlHandler.addTagValue( "keyfield", keyfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "valuefield", valuefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "comment", comment ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "fileNameInField", fileNameInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "fileNameField", fileNameField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "fileNameInField", fileNameInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "fileNameField", fileNameField ) );
     retval.append( "    <file>" + Const.CR );
 
-    retval.append( "      " + XMLHandler.addTagValue( "name", fileName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "extention", extension ) );
-    retval.append( "      " + XMLHandler.addTagValue( "split", transformNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "haspartno", partNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_date", dateInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_time", timeInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "name", fileName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "extention", extension ) );
+    retval.append( "      " + XmlHandler.addTagValue( "split", transformNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "haspartno", partNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_date", dateInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_time", timeInFilename ) );
 
-    retval.append( "      " + XMLHandler.addTagValue( "create_parent_folder", createparentfolder ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addtoresult", addToResult ) );
-    retval.append( "    " + XMLHandler.addTagValue( "append", append ) );
+    retval.append( "      " + XmlHandler.addTagValue( "create_parent_folder", createparentfolder ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addtoresult", addToResult ) );
+    retval.append( "    " + XmlHandler.addTagValue( "append", append ) );
     retval.append( "      </file>" + Const.CR );
 
     return retval.toString();

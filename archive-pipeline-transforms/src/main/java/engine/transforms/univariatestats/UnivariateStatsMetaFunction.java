@@ -23,7 +23,7 @@
 
 package org.apache.hop.pipeline.transforms.univariatestats;
 
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.Objects;
@@ -84,45 +84,45 @@ public class UnivariateStatsMetaFunction implements Cloneable {
    */
   public UnivariateStatsMetaFunction( Node uniNode ) {
     String temp;
-    m_sourceFieldName = XMLHandler.getTagValue( uniNode, "source_field_name" );
+    m_sourceFieldName = XmlHandler.getTagValue( uniNode, "source_field_name" );
 
-    temp = XMLHandler.getTagValue( uniNode, "N" );
+    temp = XmlHandler.getTagValue( uniNode, "N" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_n = false;
     }
-    temp = XMLHandler.getTagValue( uniNode, "mean" );
+    temp = XmlHandler.getTagValue( uniNode, "mean" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_mean = false;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "stdDev" );
+    temp = XmlHandler.getTagValue( uniNode, "stdDev" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_stdDev = false;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "min" );
+    temp = XmlHandler.getTagValue( uniNode, "min" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_min = false;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "max" );
+    temp = XmlHandler.getTagValue( uniNode, "max" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_max = false;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "median" );
+    temp = XmlHandler.getTagValue( uniNode, "median" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_median = false;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "percentile" );
+    temp = XmlHandler.getTagValue( uniNode, "percentile" );
     try {
       m_arbitraryPercentile = Double.parseDouble( temp );
     } catch ( Exception ex ) {
       m_arbitraryPercentile = -1;
     }
 
-    temp = XMLHandler.getTagValue( uniNode, "interpolate" );
+    temp = XmlHandler.getTagValue( uniNode, "interpolate" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
       m_interpolatePercentile = false;
     }
@@ -138,7 +138,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
     if ( ( obj != null ) && ( obj.getClass().equals( this.getClass() ) ) ) {
       UnivariateStatsMetaFunction mf = (UnivariateStatsMetaFunction) obj;
 
-      return ( getXML().equals( mf.getXML() ) );
+      return ( getXml().equals( mf.getXml() ) );
     }
 
     return false;
@@ -155,18 +155,18 @@ public class UnivariateStatsMetaFunction implements Cloneable {
    *
    * @return an XML description of this UnivarateStatsMetaFunction
    */
-  public String getXML() {
+  public String getXml() {
     String xml = ( "<" + XML_TAG + ">" );
 
-    xml += XMLHandler.addTagValue( "source_field_name", m_sourceFieldName );
-    xml += XMLHandler.addTagValue( "N", m_n );
-    xml += XMLHandler.addTagValue( "mean", m_mean );
-    xml += XMLHandler.addTagValue( "stdDev", m_stdDev );
-    xml += XMLHandler.addTagValue( "min", m_min );
-    xml += XMLHandler.addTagValue( "max", m_max );
-    xml += XMLHandler.addTagValue( "median", m_median );
-    xml += XMLHandler.addTagValue( "percentile", "" + m_arbitraryPercentile );
-    xml += XMLHandler.addTagValue( "interpolate", m_interpolatePercentile );
+    xml += XmlHandler.addTagValue( "source_field_name", m_sourceFieldName );
+    xml += XmlHandler.addTagValue( "N", m_n );
+    xml += XmlHandler.addTagValue( "mean", m_mean );
+    xml += XmlHandler.addTagValue( "stdDev", m_stdDev );
+    xml += XmlHandler.addTagValue( "min", m_min );
+    xml += XmlHandler.addTagValue( "max", m_max );
+    xml += XmlHandler.addTagValue( "median", m_median );
+    xml += XmlHandler.addTagValue( "percentile", "" + m_arbitraryPercentile );
+    xml += XmlHandler.addTagValue( "interpolate", m_interpolatePercentile );
 
     xml += ( "</" + XML_TAG + ">" );
 

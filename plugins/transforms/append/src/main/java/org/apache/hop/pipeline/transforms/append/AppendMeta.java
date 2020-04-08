@@ -26,12 +26,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -72,7 +72,7 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -83,25 +83,25 @@ public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Appe
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    retval.append( XMLHandler.addTagValue( "head_name", infoStreams.get( 0 ).getTransformName() ) );
-    retval.append( XMLHandler.addTagValue( "tail_name", infoStreams.get( 1 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "head_name", infoStreams.get( 0 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "tail_name", infoStreams.get( 1 ).getTransformName() ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
       List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
       IStream headStream = infoStreams.get( 0 );
       IStream tailStream = infoStreams.get( 1 );
-      headStream.setSubject( XMLHandler.getTagValue( transformNode, "head_name" ) );
-      tailStream.setSubject( XMLHandler.getTagValue( transformNode, "tail_name" ) );
+      headStream.setSubject( XmlHandler.getTagValue( transformNode, "head_name" ) );
+      tailStream.setSubject( XmlHandler.getTagValue( transformNode, "tail_name" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "AppendMeta.Exception.UnableToLoadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "AppendMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
 

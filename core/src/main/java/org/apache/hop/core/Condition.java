@@ -23,13 +23,13 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -747,20 +747,20 @@ public class Condition implements Cloneable, IXml {
     String indent2 = Const.rightPad( " ", level + 1 );
     String indent3 = Const.rightPad( " ", level + 2 );
 
-    retval += indent1 + XMLHandler.openTag( XML_TAG ) + Const.CR;
+    retval += indent1 + XmlHandler.openTag( XML_TAG ) + Const.CR;
 
-    retval += indent2 + XMLHandler.addTagValue( "negated", isNegated() );
+    retval += indent2 + XmlHandler.addTagValue( "negated", isNegated() );
 
     if ( getOperator() != OPERATOR_NONE ) {
-      retval += indent2 + XMLHandler.addTagValue( "operator", Const.rtrim( getOperatorDesc() ) );
+      retval += indent2 + XmlHandler.addTagValue( "operator", Const.rtrim( getOperatorDesc() ) );
     }
 
     if ( isAtomic() ) {
-      retval += indent2 + XMLHandler.addTagValue( "leftvalue", getLeftValuename() );
-      retval += indent2 + XMLHandler.addTagValue( "function", getFunctionDesc() );
-      retval += indent2 + XMLHandler.addTagValue( "rightvalue", getRightValuename() );
+      retval += indent2 + XmlHandler.addTagValue( "leftvalue", getLeftValuename() );
+      retval += indent2 + XmlHandler.addTagValue( "function", getFunctionDesc() );
+      retval += indent2 + XmlHandler.addTagValue( "rightvalue", getRightValuename() );
       if ( getRightExact() != null ) {
-        retval += indent2 + getRightExact().getXML();
+        retval += indent2 + getRightExact().getXml();
       }
     } else {
       retval += indent2 + "<conditions>" + Const.CR;
@@ -771,53 +771,53 @@ public class Condition implements Cloneable, IXml {
       retval += indent3 + "</conditions>" + Const.CR;
     }
 
-    retval += indent2 + XMLHandler.closeTag( XML_TAG ) + Const.CR;
+    retval += indent2 + XmlHandler.closeTag( XML_TAG ) + Const.CR;
 
     return retval;
   }
 
-  public Condition( String xml ) throws HopXMLException {
-    this( XMLHandler.loadXMLString( xml, Condition.XML_TAG ) );
+  public Condition( String xml ) throws HopXmlException {
+    this( XmlHandler.loadXMLString( xml, Condition.XML_TAG ) );
   }
 
   /**
    * Build a new condition using an XML Document Node
    *
    * @param condnode
-   * @throws HopXMLException
+   * @throws HopXmlException
    */
-  public Condition( Node condnode ) throws HopXMLException {
+  public Condition( Node condnode ) throws HopXmlException {
     this();
 
     list = new ArrayList<Condition>();
     try {
-      String str_negated = XMLHandler.getTagValue( condnode, "negated" );
+      String str_negated = XmlHandler.getTagValue( condnode, "negated" );
       setNegated( "Y".equalsIgnoreCase( str_negated ) );
 
-      String str_operator = XMLHandler.getTagValue( condnode, "operator" );
+      String str_operator = XmlHandler.getTagValue( condnode, "operator" );
       setOperator( getOperator( str_operator ) );
 
-      Node conditions = XMLHandler.getSubNode( condnode, "conditions" );
-      int nrconditions = XMLHandler.countNodes( conditions, "condition" );
+      Node conditions = XmlHandler.getSubNode( condnode, "conditions" );
+      int nrconditions = XmlHandler.countNodes( conditions, "condition" );
       if ( nrconditions == 0 ) {
         // ATOMIC!
-        setLeftValuename( XMLHandler.getTagValue( condnode, "leftvalue" ) );
-        setFunction( getFunction( XMLHandler.getTagValue( condnode, "function" ) ) );
-        setRightValuename( XMLHandler.getTagValue( condnode, "rightvalue" ) );
-        Node exactnode = XMLHandler.getSubNode( condnode, ValueMetaAndData.XML_TAG );
+        setLeftValuename( XmlHandler.getTagValue( condnode, "leftvalue" ) );
+        setFunction( getFunction( XmlHandler.getTagValue( condnode, "function" ) ) );
+        setRightValuename( XmlHandler.getTagValue( condnode, "rightvalue" ) );
+        Node exactnode = XmlHandler.getSubNode( condnode, ValueMetaAndData.XML_TAG );
         if ( exactnode != null ) {
           ValueMetaAndData exact = new ValueMetaAndData( exactnode );
           setRightExact( exact );
         }
       } else {
         for ( int i = 0; i < nrconditions; i++ ) {
-          Node subcondnode = XMLHandler.getSubNodeByNr( conditions, "condition", i );
+          Node subcondnode = XmlHandler.getSubNodeByNr( conditions, "condition", i );
           Condition c = new Condition( subcondnode );
           addCondition( c );
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to create condition using xml: " + Const.CR + condnode, e );
+      throw new HopXmlException( "Unable to create condition using xml: " + Const.CR + condnode, e );
     }
   }
 

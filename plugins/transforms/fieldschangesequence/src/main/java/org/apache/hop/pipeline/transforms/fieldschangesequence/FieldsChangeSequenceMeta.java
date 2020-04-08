@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -92,7 +92,7 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -138,37 +138,37 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
     return increment;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      start = XMLHandler.getTagValue( transformNode, "start" );
-      increment = XMLHandler.getTagValue( transformNode, "increment" );
-      resultfieldName = XMLHandler.getTagValue( transformNode, "resultfieldName" );
+      start = XmlHandler.getTagValue( transformNode, "start" );
+      increment = XmlHandler.getTagValue( transformNode, "increment" );
+      resultfieldName = XmlHandler.getTagValue( transformNode, "resultfieldName" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "      " + XMLHandler.addTagValue( "start", start ) );
-    retval.append( "      " + XMLHandler.addTagValue( "increment", increment ) );
-    retval.append( "      " + XMLHandler.addTagValue( "resultfieldName", resultfieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "start", start ) );
+    retval.append( "      " + XmlHandler.addTagValue( "increment", increment ) );
+    retval.append( "      " + XmlHandler.addTagValue( "resultfieldName", resultfieldName ) );
 
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );

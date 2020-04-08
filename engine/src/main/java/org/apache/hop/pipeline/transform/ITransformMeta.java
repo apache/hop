@@ -23,11 +23,11 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -73,17 +73,17 @@ import java.util.Map;
  * The plugin needs to be able to serialize its settings to XML . The interface methods are as
  * follows.
  * <p>
- * <i><a href="#getXML()">public String getXML()</a></i>
+ * <i><a href="#getXml()">public String getXml()</a></i>
  * <p>
  * This method is called by PDI whenever a transform needs to serialize its settings to XML. It is called when saving a
  * pipeline in HopGui. The method returns an XML string, containing the serialized transform settings. The string
- * contains a series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XMLHandler is
+ * contains a series of XML tags, typically one tag per setting. The helper class org.apache.hop.core.xml.XmlHandler is
  * typically used to construct the XML string.
  * <p>
- * <i><a href="#loadXML(org.w3c.dom.Node)">public void loadXML(...)</a></i>
+ * <i><a href="#loadXml(org.w3c.dom.Node)">public void loadXml(...)</a></i>
  * <p>
  * This method is called by PDI whenever a transform needs to read its settings from XML. The XML node containing the transform's
- * settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XMLHandler is typically used to
+ * settings is passed in as an argument. Again, the helper class org.apache.hop.core.xml.XmlHandler is typically used to
  * conveniently read the transform settings from the XML node.
  * <p>
  * <li>
@@ -166,16 +166,16 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @return the XML that represents the metadata in this transform
    * @throws HopException in case there is a conversion or XML encoding error
    */
-  String getXML() throws HopException;
+  String getXml() throws HopException;
 
   /**
    * Load the values for this transform from an XML Node
    *
    * @param transformNode  the Node to get the info from
    * @param metaStore the metastore to optionally load external reference metadata from
-   * @throws HopXMLException When an unexpected XML error occurred. (malformed etc.)
+   * @throws HopXmlException When an unexpected XML error occurred. (malformed etc.)
    */
-  void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException;
+  void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException;
 
 
   /**
@@ -220,16 +220,6 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    */
   boolean excludeFromCopyDistributeVerification();
 
-  /**
-   * create the executing transform, needed by Pipeline to run.
-   *
-   * @param transformMeta          The transform info
-   * @param iTransformData the transform data interface linked to this transform. Here the transform can store temporary data, database connections,
-   *                          etc.
-   * @param copyNr            The copy nr to get
-   * @param pipelineMeta         The pipeline info
-   * @param pipeline             The launching pipeline
-   */
   ITransform createTransform( TransformMeta transformMeta, Data data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline );
 
   /**
@@ -256,7 +246,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
                       IRowMeta prev, String[] input, String[] output, IRowMeta info, IMetaStore metaStore ) throws HopTransformException;
 
   /**
-   * Standard method to return an SQLStatement object with SQL statements that the transform needs in order to work
+   * Standard method to return an SqlStatement object with SQL statements that the transform needs in order to work
    * correctly. This can mean "create table", "create index" statements but also "alter table ... add/drop/modify"
    * statements.
    *
@@ -264,10 +254,10 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
    * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
-   * @return The SQL Statements for this transform. If nothing has to be done, the SQLStatement.getSQL() == null. @see
-   * SQLStatement
+   * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
+   * SqlStatement
    */
-  SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                  IMetaStore metaStore ) throws HopTransformException;
 
   /**

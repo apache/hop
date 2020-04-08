@@ -32,7 +32,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -237,7 +237,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   public void setConnection( String connectionName ) {
     try {
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
-    } catch ( HopXMLException e ) {
+    } catch ( HopXmlException e ) {
       throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
   }
@@ -393,7 +393,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
     this.altRecordTerm = altRecordTerm;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -414,68 +414,68 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       // String csize, bsize, rsize, serror;
       // int nrvalues;
       this.databases = databases;
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
-      commitSize = XMLHandler.getTagValue( transformNode, "commit" );
+      commitSize = XmlHandler.getTagValue( transformNode, "commit" );
       if ( Utils.isEmpty( commitSize ) ) {
         commitSize = Integer.toString( DEFAULT_COMMIT_SIZE );
       }
 
-      bindSize = XMLHandler.getTagValue( transformNode, "bind_size" );
+      bindSize = XmlHandler.getTagValue( transformNode, "bind_size" );
       if ( Utils.isEmpty( bindSize ) ) {
         bindSize = Integer.toString( DEFAULT_BIND_SIZE );
       }
 
-      readSize = XMLHandler.getTagValue( transformNode, "read_size" );
+      readSize = XmlHandler.getTagValue( transformNode, "read_size" );
       if ( Utils.isEmpty( readSize ) ) {
         readSize = Integer.toString( DEFAULT_READ_SIZE );
       }
 
-      maxErrors = XMLHandler.getTagValue( transformNode, "errors" );
+      maxErrors = XmlHandler.getTagValue( transformNode, "errors" );
       if ( Utils.isEmpty( maxErrors ) ) {
         maxErrors = Integer.toString( DEFAULT_MAX_ERRORS );
       }
 
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "table" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
 
-      loadMethod = XMLHandler.getTagValue( transformNode, "load_method" );
-      loadAction = XMLHandler.getTagValue( transformNode, "load_action" );
-      sqlldr = XMLHandler.getTagValue( transformNode, "sqlldr" );
-      controlFile = XMLHandler.getTagValue( transformNode, "control_file" );
-      dataFile = XMLHandler.getTagValue( transformNode, "data_file" );
-      logFile = XMLHandler.getTagValue( transformNode, "log_file" );
-      badFile = XMLHandler.getTagValue( transformNode, "bad_file" );
-      discardFile = XMLHandler.getTagValue( transformNode, "discard_file" );
-      directPath = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "direct_path" ) );
-      eraseFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "erase_files" ) );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      dbNameOverride = XMLHandler.getTagValue( transformNode, "dbname_override" );
+      loadMethod = XmlHandler.getTagValue( transformNode, "load_method" );
+      loadAction = XmlHandler.getTagValue( transformNode, "load_action" );
+      sqlldr = XmlHandler.getTagValue( transformNode, "sqlldr" );
+      controlFile = XmlHandler.getTagValue( transformNode, "control_file" );
+      dataFile = XmlHandler.getTagValue( transformNode, "data_file" );
+      logFile = XmlHandler.getTagValue( transformNode, "log_file" );
+      badFile = XmlHandler.getTagValue( transformNode, "bad_file" );
+      discardFile = XmlHandler.getTagValue( transformNode, "discard_file" );
+      directPath = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "direct_path" ) );
+      eraseFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "erase_files" ) );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      dbNameOverride = XmlHandler.getTagValue( transformNode, "dbname_override" );
 
-      characterSetName = XMLHandler.getTagValue( transformNode, "character_set" );
-      failOnWarning = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "fail_on_warning" ) );
-      failOnError = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "fail_on_error" ) );
-      parallel = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "parallel" ) );
-      altRecordTerm = XMLHandler.getTagValue( transformNode, "alt_rec_term" );
+      characterSetName = XmlHandler.getTagValue( transformNode, "character_set" );
+      failOnWarning = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "fail_on_warning" ) );
+      failOnError = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "fail_on_error" ) );
+      parallel = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "parallel" ) );
+      altRecordTerm = XmlHandler.getTagValue( transformNode, "alt_rec_term" );
 
-      int nrvalues = XMLHandler.countNodes( transformNode, "mapping" );
+      int nrvalues = XmlHandler.countNodes( transformNode, "mapping" );
       allocate( nrvalues );
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( transformNode, "mapping", i );
+        Node vnode = XmlHandler.getSubNodeByNr( transformNode, "mapping", i );
 
-        fieldTable[ i ] = XMLHandler.getTagValue( vnode, "stream_name" );
-        fieldStream[ i ] = XMLHandler.getTagValue( vnode, "field_name" );
+        fieldTable[ i ] = XmlHandler.getTagValue( vnode, "stream_name" );
+        fieldStream[ i ] = XmlHandler.getTagValue( vnode, "field_name" );
         if ( fieldStream[ i ] == null ) {
           fieldStream[ i ] = fieldTable[ i ]; // default: the same name!
         }
-        String locDateMask = XMLHandler.getTagValue( vnode, "date_mask" );
+        String locDateMask = XmlHandler.getTagValue( vnode, "date_mask" );
         if ( locDateMask == null ) {
           dateMask[ i ] = "";
         } else {
@@ -488,7 +488,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "OraBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -526,43 +526,43 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
     allocate( nrvalues );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bind_size", bindSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "read_size", readSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "errors", maxErrors ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "load_method", loadMethod ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "load_action", loadAction ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sqlldr", sqlldr ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "control_file", controlFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "data_file", dataFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "log_file", logFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bad_file", badFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "discard_file", discardFile ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bind_size", bindSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "read_size", readSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "errors", maxErrors ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "load_method", loadMethod ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "load_action", loadAction ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sqlldr", sqlldr ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "control_file", controlFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "data_file", dataFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "log_file", logFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bad_file", badFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "discard_file", discardFile ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "direct_path", directPath ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "erase_files", eraseFiles ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dbname_override", dbNameOverride ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "direct_path", directPath ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "erase_files", eraseFiles ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dbname_override", dbNameOverride ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "character_set", characterSetName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "fail_on_warning", failOnWarning ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "fail_on_error", failOnError ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "parallel", parallel ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "alt_rec_term", altRecordTerm ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "character_set", characterSetName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "fail_on_warning", failOnWarning ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "fail_on_error", failOnError ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "parallel", parallel ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "alt_rec_term", altRecordTerm ) );
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field_name", fieldStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "date_mask", dateMask[ i ] ) );
       retval.append( "      </mapping>" ).append( Const.CR );
     }
 
@@ -708,7 +708,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -741,9 +741,9 @@ public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
             String sql = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
             if ( sql.length() == 0 ) {
-              retval.setSQL( null );
+              retval.setSql( null );
             } else {
-              retval.setSQL( sql );
+              retval.setSql( sql );
             }
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "OraBulkLoaderMeta.GetSQL.ErrorOccurred" )

@@ -82,14 +82,14 @@ public class AnalyticQueryMetaTest {
     analyticQuery.setValueField( new int[] { 0, 4, 8 } );
 
     try {
-      String badXml = analyticQuery.getXML();
+      String badXml = analyticQuery.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     analyticQuery.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = analyticQuery.getXML();
+    String ktrXml = analyticQuery.getXml();
 
     int targetSz = analyticQuery.getSubjectField().length;
 

@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.fileexists;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -132,7 +132,7 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransform {
     this.includefiletype = includefiletype;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -167,26 +167,26 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "filenamefield", filenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "includefiletype", includefiletype ) );
-    retval.append( "    " + XMLHandler.addTagValue( "filetypefieldname", filetypefieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
+    retval.append( "    " + XmlHandler.addTagValue( "filenamefield", filenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "includefiletype", includefiletype ) );
+    retval.append( "    " + XmlHandler.addTagValue( "filetypefieldname", filetypefieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      filenamefield = XMLHandler.getTagValue( transformNode, "filenamefield" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
-      includefiletype = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includefiletype" ) );
-      filetypefieldname = XMLHandler.getTagValue( transformNode, "filetypefieldname" );
-      addresultfilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addresultfilenames" ) );
+      filenamefield = XmlHandler.getTagValue( transformNode, "filenamefield" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      includefiletype = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includefiletype" ) );
+      filetypefieldname = XmlHandler.getTagValue( transformNode, "filetypefieldname" );
+      addresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfilenames" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "FileExistsMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

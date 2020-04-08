@@ -89,21 +89,21 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to launch.
    */
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + " WHERE 1=0";
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnName, String tableName ) {
-    return getSQLQueryColumnFields( columnName, tableName );
+  public String getSqlColumnExists( String columnName, String tableName ) {
+    return getSqlQueryColumnFields( columnName, tableName );
   }
 
-  public String getSQLQueryColumnFields( String columnName, String tableName ) {
+  public String getSqlQueryColumnFields( String columnName, String tableName ) {
     return "SELECT " + columnName + " FROM " + tableName + " WHERE 1=0";
   }
 
@@ -185,7 +185,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     int dotPos = sequenceName.indexOf( '.' );
     String sql = "";
     if ( dotPos == -1 ) {
@@ -208,7 +208,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The current value of a database sequence
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT " + sequenceName + ".currval FROM DUAL";
   }
 
@@ -219,7 +219,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT " + sequenceName + ".nextval FROM DUAL";
   }
 
@@ -434,14 +434,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL on this database to get a list of stored procedures.
    */
   @Override
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return "SELECT DISTINCT DECODE(package_name, NULL, '', package_name||'.') || object_name "
       + "FROM user_arguments "
       + "ORDER BY 1";
   }
 
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
       sql.append( "LOCK TABLE " ).append( tableNames[ i ] ).append( " IN EXCLUSIVE MODE;" ).append( Const.CR );
@@ -450,7 +450,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLUnlockTables( String[] tableNames ) {
+  public String getSqlUnlockTables( String[] tableNames ) {
     return null; // commit handles the unlocking!
   }
 
@@ -553,7 +553,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL on this database to get a list of sequences.
    */
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT SEQUENCE_NAME FROM all_sequences";
   }
 

@@ -165,13 +165,13 @@ public class VerticaDatabaseMetaTest {
     assertEquals( "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE FOO ALTER COLUMN BAR SET DATA TYPE VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
-    assertEquals( "SELECT FOO FROM BAR LIMIT 1", nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
-    assertEquals( "SELECT * FROM FOO LIMIT 1", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT 1 FROM FOO LIMIT 1", nativeMeta.getSQLTableExists( "FOO" ) );
-    assertEquals( "SELECT sequence_name FROM sequences WHERE sequence_name = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT sequence_name FROM sequences", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "SELECT currval('FOO')", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT FOO FROM BAR LIMIT 1", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT * FROM FOO LIMIT 1", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT 1 FROM FOO LIMIT 1", nativeMeta.getSqlTableExists( "FOO" ) );
+    assertEquals( "SELECT sequence_name FROM sequences WHERE sequence_name = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT sequence_name FROM sequences", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT currval('FOO')", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
 
   }
 

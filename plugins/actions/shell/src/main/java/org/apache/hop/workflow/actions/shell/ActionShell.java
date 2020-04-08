@@ -31,7 +31,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.FileLoggingEventListener;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
@@ -39,7 +39,7 @@ import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -129,60 +129,60 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "work_directory", workDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "exec_per_row", execPerRow ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "set_logfile", setLogfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logfile", logfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logext", logext ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", addDate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", addTime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "insertScript", insertScript ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "script", script ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "work_directory", workDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "exec_per_row", execPerRow ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "set_logfile", setLogfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logfile", logfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logext", logext ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", addDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", addTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "insertScript", insertScript ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "script", script ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "loglevel", ( logFileLevel == null ) ? null : logFileLevel.getCode() ) );
+      XmlHandler.addTagValue( "loglevel", ( logFileLevel == null ) ? null : logFileLevel.getCode() ) );
 
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
         // THE XML "DUBIOUS". DON'T REUSE IT. (Sven B)
-        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[ i ] ) );
+        retval.append( "      " ).append( XmlHandler.addTagValue( "argument" + i, arguments[ i ] ) );
       }
     }
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      setFileName( XMLHandler.getTagValue( entrynode, "filename" ) );
-      setWorkDirectory( XMLHandler.getTagValue( entrynode, "work_directory" ) );
-      argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      execPerRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "exec_per_row" ) );
-      setLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "set_logfile" ) );
-      setAppendLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "set_append_logfile" ) );
-      addDate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_date" ) );
-      addTime = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_time" ) );
-      logfile = XMLHandler.getTagValue( entrynode, "logfile" );
-      logext = XMLHandler.getTagValue( entrynode, "logext" );
-      logFileLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
-      insertScript = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "insertScript" ) );
+      super.loadXml( entrynode );
+      setFileName( XmlHandler.getTagValue( entrynode, "filename" ) );
+      setWorkDirectory( XmlHandler.getTagValue( entrynode, "work_directory" ) );
+      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      execPerRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "exec_per_row" ) );
+      setLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_logfile" ) );
+      setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
+      addDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
+      addTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
+      logfile = XmlHandler.getTagValue( entrynode, "logfile" );
+      logext = XmlHandler.getTagValue( entrynode, "logext" );
+      logFileLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
+      insertScript = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "insertScript" ) );
 
-      script = XMLHandler.getTagValue( entrynode, "script" );
+      script = XmlHandler.getTagValue( entrynode, "script" );
 
       // How many arguments?
       int argnr = 0;
-      while ( XMLHandler.getTagValue( entrynode, "argument" + argnr ) != null ) {
+      while ( XmlHandler.getTagValue( entrynode, "argument" + argnr ) != null ) {
         argnr++;
       }
       allocate( argnr );
@@ -191,10 +191,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       // THIS IS A VERY BAD WAY OF READING/SAVING AS IT MAKES
       // THE XML "DUBIOUS". DON'T REUSE IT.
       for ( int a = 0; a < argnr; a++ ) {
-        arguments[ a ] = XMLHandler.getTagValue( entrynode, "argument" + a );
+        arguments[ a ] = XmlHandler.getTagValue( entrynode, "argument" + a );
       }
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'shell' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'shell' from XML node", e );
     }
   }
 

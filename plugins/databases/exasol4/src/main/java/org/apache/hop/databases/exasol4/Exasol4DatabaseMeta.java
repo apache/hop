@@ -82,21 +82,21 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to launch.
    */
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT /*+FIRST_ROWS*/ * FROM " + tableName + " WHERE 1=0";
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT /*+FIRST_ROWS*/ " + columnname + " FROM " + tableName + " WHERE 1=0";
   }
 

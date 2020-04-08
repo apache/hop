@@ -29,7 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -398,7 +398,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -425,26 +425,26 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 400 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "include", includeFilename ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "include_field", filenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addresultfile", addResultFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "validating", validating ) );
-    retval.append( "    " + XMLHandler.addTagValue( "IsIgnoreEmptyFile", IsIgnoreEmptyFile ) );
-    retval.append( "    " + XMLHandler.addTagValue( "doNotFailIfNoFile", doNotFailIfNoFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "include", includeFilename ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "include_field", filenameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addresultfile", addResultFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "validating", validating ) );
+    retval.append( "    " + XmlHandler.addTagValue( "IsIgnoreEmptyFile", IsIgnoreEmptyFile ) );
+    retval.append( "    " + XmlHandler.addTagValue( "doNotFailIfNoFile", doNotFailIfNoFile ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
 
     retval.append( "    <file>" ).append( Const.CR );
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
 
     }
     retval.append( "    </file>" ).append( Const.CR );
@@ -452,14 +452,14 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       YamlInputField field = inputFields[ i ];
-      retval.append( field.getXML() );
+      retval.append( field.getXml() );
     }
     retval.append( "    </fields>" ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", rowLimit ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "IsInFields", inFields ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "IsAFile", IsAFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "YamlField", yamlField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "IsInFields", inFields ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "IsAFile", IsAFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "YamlField", yamlField ) );
 
     return retval.toString();
   }
@@ -486,51 +486,51 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      includeFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include" ) );
-      filenameField = XMLHandler.getTagValue( transformNode, "include_field" );
+      includeFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include" ) );
+      filenameField = XmlHandler.getTagValue( transformNode, "include_field" );
 
-      addResultFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addresultfile" ) );
-      validating = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "validating" ) );
-      IsIgnoreEmptyFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "IsIgnoreEmptyFile" ) );
-      doNotFailIfNoFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "doNotFailIfNoFile" ) );
+      addResultFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfile" ) );
+      validating = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "validating" ) );
+      IsIgnoreEmptyFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsIgnoreEmptyFile" ) );
+      doNotFailIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "doNotFailIfNoFile" ) );
 
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
 
-      Node filenode = XMLHandler.getSubNode( transformNode, "file" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFiles = XMLHandler.countNodes( filenode, "name" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFiles = XmlHandler.countNodes( filenode, "name" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFiles, nrFields );
 
       for ( int i = 0; i < nrFiles; i++ ) {
-        Node filenamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
-        Node filemasknode = XMLHandler.getSubNodeByNr( filenode, "filemask", i );
-        Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
-        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        Node filenamenode = XmlHandler.getSubNodeByNr( filenode, "name", i );
+        Node filemasknode = XmlHandler.getSubNodeByNr( filenode, "filemask", i );
+        Node fileRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
+        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr( filenode, "include_subfolders", i );
+        fileName[ i ] = XmlHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XmlHandler.getNodeValue( filemasknode );
+        fileRequired[ i ] = XmlHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XmlHandler.getNodeValue( includeSubFoldersnode );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         YamlInputField field = new YamlInputField( fnode );
         inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong( XMLHandler.getTagValue( transformNode, "limit" ), 0L );
-      inFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "IsInFields" ) );
-      IsAFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "IsAFile" ) );
-      yamlField = XMLHandler.getTagValue( transformNode, "YamlField" );
+      rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
+      inFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsInFields" ) );
+      IsAFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsAFile" ) );
+      yamlField = XmlHandler.getTagValue( transformNode, "YamlField" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "YamlInputMeta.Exception.ErrorLoadingXML", e
+      throw new HopXmlException( BaseMessages.getString( PKG, "YamlInputMeta.Exception.ErrorLoadingXML", e
         .toString() ) );
     }
   }

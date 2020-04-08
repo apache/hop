@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -185,7 +185,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     String load = request.getParameter( PARAMETER_LOAD ); // the resource to load
 
     response.setContentType( "text/xml" );
-    out.print( XMLHandler.getXMLHeader() );
+    out.print( XmlHandler.getXMLHeader() );
 
     response.setStatus( HttpServletResponse.SC_OK );
 
@@ -231,9 +231,9 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Workflow.CONFIGURATION_IN_EXPORT_FILENAME;
-          Document configDoc = XMLHandler.loadXMLFile( configUrl );
+          Document configDoc = XmlHandler.loadXMLFile( configUrl );
           WorkflowExecutionConfiguration workflowExecutionConfiguration =
-            new WorkflowExecutionConfiguration( XMLHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
+            new WorkflowExecutionConfiguration( XmlHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
 
           carteObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId( carteObjectId );
@@ -275,9 +275,9 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Also read the execution configuration information
           //
           String configUrl = "zip:" + archiveUrl + "!" + Pipeline.CONFIGURATION_IN_EXPORT_FILENAME;
-          Document configDoc = XMLHandler.loadXMLFile( configUrl );
+          Document configDoc = XmlHandler.loadXMLFile( configUrl );
           PipelineExecutionConfiguration executionConfiguration =
-            new PipelineExecutionConfiguration( XMLHandler.getSubNode(
+            new PipelineExecutionConfiguration( XmlHandler.getSubNode(
               configDoc, PipelineExecutionConfiguration.XML_TAG ) );
 
           carteObjectId = UUID.randomUUID().toString();

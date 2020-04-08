@@ -148,21 +148,21 @@ public class OracleDatabaseMetaTest {
   public void testOverriddenSQLStatements() throws Exception {
     assertEquals( " WHERE ROWNUM <= 5", nativeMeta.getLimitClause( 5 ) );
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
-    assertEquals( reusedFieldsQuery, nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( reusedFieldsQuery, nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( reusedFieldsQuery, nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( reusedFieldsQuery, nativeMeta.getSqlTableExists( "FOO" ) );
     String reusedColumnsQuery = "SELECT FOO FROM BAR WHERE 1=0";
-    assertEquals( reusedColumnsQuery, nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( reusedColumnsQuery, nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
-    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSQLSequenceExists( "foo" ) );
+    assertEquals( reusedColumnsQuery, nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( reusedColumnsQuery, nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSqlSequenceExists( "foo" ) );
 
     assertEquals( "SELECT * FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = 'BAR' AND SEQUENCE_OWNER = 'FOO'", nativeMeta
-      .getSQLSequenceExists( "FOO.BAR" ) );
+      .getSqlSequenceExists( "FOO.BAR" ) );
     assertEquals( "SELECT * FROM ALL_SEQUENCES WHERE SEQUENCE_NAME = 'BAR' AND SEQUENCE_OWNER = 'FOO'", nativeMeta
-      .getSQLSequenceExists( "foo.bar" ) );
+      .getSqlSequenceExists( "foo.bar" ) );
 
-    assertEquals( "SELECT FOO.currval FROM DUAL", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT FOO.nextval FROM DUAL", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT FOO.currval FROM DUAL", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT FOO.nextval FROM DUAL", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD ( FOO DATE ) ",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaTimestamp( "FOO" ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD ( FOO DATE ) ", nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "FOO" ), "",
@@ -214,15 +214,15 @@ public class OracleDatabaseMetaTest {
       "SELECT DISTINCT DECODE(package_name, NULL, '', package_name||'.') || object_name " + "FROM user_arguments "
         + "ORDER BY 1";
 
-    assertEquals( expectedProcSql, nativeMeta.getSQLListOfProcedures() );
+    assertEquals( expectedProcSql, nativeMeta.getSqlListOfProcedures() );
 
     String expectedLockOneItem = "LOCK TABLE FOO IN EXCLUSIVE MODE;" + lineSep;
-    assertEquals( expectedLockOneItem, nativeMeta.getSQLLockTables( new String[] { "FOO" } ) );
+    assertEquals( expectedLockOneItem, nativeMeta.getSqlLockTables( new String[] { "FOO" } ) );
     String expectedLockMultiItem =
       "LOCK TABLE FOO IN EXCLUSIVE MODE;" + lineSep + "LOCK TABLE BAR IN EXCLUSIVE MODE;" + lineSep;
-    assertEquals( expectedLockMultiItem, nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
-    assertNull( nativeMeta.getSQLUnlockTables( null ) ); // Commit unlocks tables
-    assertEquals( "SELECT SEQUENCE_NAME FROM all_sequences", nativeMeta.getSQLListOfSequences() );
+    assertEquals( expectedLockMultiItem, nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
+    assertNull( nativeMeta.getSqlUnlockTables( null ) ); // Commit unlocks tables
+    assertEquals( "SELECT SEQUENCE_NAME FROM all_sequences", nativeMeta.getSqlListOfSequences() );
     assertEquals(
       "BEGIN EXECUTE IMMEDIATE 'DROP TABLE FOO'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;",
       nativeMeta.getDropTableIfExistsStatement( "FOO" ) );
@@ -317,13 +317,13 @@ public class OracleDatabaseMetaTest {
   public void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
     assertTrue( dbType, nativeMeta.supportsSequences() );
-    assertFalse( dbType + ": List of Sequences", Utils.isEmpty( nativeMeta.getSQLListOfSequences() ) );
-    assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( nativeMeta.getSQLSequenceExists( "testSeq" ) ) );
-    assertFalse( dbType + ": Current Value", Utils.isEmpty( nativeMeta.getSQLCurrentSequenceValue( "testSeq" ) ) );
-    assertFalse( dbType + ": Next Value", Utils.isEmpty( nativeMeta.getSQLNextSequenceValue( "testSeq" ) ) );
+    assertFalse( dbType + ": List of Sequences", Utils.isEmpty( nativeMeta.getSqlListOfSequences() ) );
+    assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( nativeMeta.getSqlSequenceExists( "testSeq" ) ) );
+    assertFalse( dbType + ": Current Value", Utils.isEmpty( nativeMeta.getSqlCurrentSequenceValue( "testSeq" ) ) );
+    assertFalse( dbType + ": Next Value", Utils.isEmpty( nativeMeta.getSqlNextSequenceValue( "testSeq" ) ) );
     
-    assertEquals( "SELECT sequence_name.nextval FROM DUAL", nativeMeta.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "SELECT sequence_name.currval FROM DUAL", nativeMeta.getSQLCurrentSequenceValue( sequenceName ) );
+    assertEquals( "SELECT sequence_name.nextval FROM DUAL", nativeMeta.getSqlNextSequenceValue( sequenceName ) );
+    assertEquals( "SELECT sequence_name.currval FROM DUAL", nativeMeta.getSqlCurrentSequenceValue( sequenceName ) );
   }
   
   @Test

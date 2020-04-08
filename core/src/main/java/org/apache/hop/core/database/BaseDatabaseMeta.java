@@ -522,7 +522,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return the SQL to get the next value of a sequence. (Oracle/PGSQL only)
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "";
   }
 
@@ -533,7 +533,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The current value of a database sequence
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "";
   }
 
@@ -544,7 +544,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "";
   }
 
@@ -844,7 +844,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The SQL on this database to get a list of stored procedures.
    */
   @Override
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return null;
   }
 
@@ -852,7 +852,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The SQL on this database to get a list of sequences.
    */
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return null;
   }
 
@@ -872,7 +872,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The SQL to launch.
    */
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName;
   }
 
@@ -892,7 +892,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * supported on the target database. null is the default value
    */
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     return null;
   }
 
@@ -902,7 +902,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * database. null is the default value
    */
   @Override
-  public String getSQLUnlockTables( String[] tableNames ) {
+  public String getSqlUnlockTables( String[] tableNames ) {
     return null;
   }
 
@@ -1088,12 +1088,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
+  public String getSqlTableExists( String tablename ) {
     return "SELECT 1 FROM " + tablename;
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
+  public String getSqlColumnExists( String columnname, String tablename ) {
     return "SELECT " + columnname + " FROM " + tablename;
   }
 
@@ -1357,7 +1357,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return the SQL to retrieve the list of schemas or null if the JDBC metadata needs to be used.
    */
   @Override
-  public String getSQLListOfSchemas() {
+  public String getSqlListOfSchemas() {
     return null;
   }
 
@@ -1386,7 +1386,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + keyField + ", " + versionField + ") values (0, 1)";
   }
 
@@ -1854,7 +1854,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public String getSQLValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws HopValueException {
+  public String getSqlValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws HopValueException {
 
     StringBuilder ins = new StringBuilder();
 

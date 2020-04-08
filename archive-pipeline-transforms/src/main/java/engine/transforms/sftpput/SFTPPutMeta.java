@@ -27,10 +27,10 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.sftpput.JobEntrySFTPPUT;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -83,7 +83,7 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -92,43 +92,43 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      serverName = XMLHandler.getTagValue( transformNode, "servername" );
-      serverPort = XMLHandler.getTagValue( transformNode, "serverport" );
-      userName = XMLHandler.getTagValue( transformNode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "password" ) );
-      sourceFileFieldName = XMLHandler.getTagValue( transformNode, "sourceFileFieldName" );
-      remoteDirectoryFieldName = XMLHandler.getTagValue( transformNode, "remoteDirectoryFieldName" );
+      serverName = XmlHandler.getTagValue( transformNode, "servername" );
+      serverPort = XmlHandler.getTagValue( transformNode, "serverport" );
+      userName = XmlHandler.getTagValue( transformNode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) );
+      sourceFileFieldName = XmlHandler.getTagValue( transformNode, "sourceFileFieldName" );
+      remoteDirectoryFieldName = XmlHandler.getTagValue( transformNode, "remoteDirectoryFieldName" );
 
-      inputIsStream = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "inputIsStream" ) );
-      addFilenameResut = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addFilenameResut" ) );
+      inputIsStream = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "inputIsStream" ) );
+      addFilenameResut = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addFilenameResut" ) );
 
-      usekeyfilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usekeyfilename" ) );
-      keyfilename = XMLHandler.getTagValue( transformNode, "keyfilename" );
-      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "keyfilepass" ) );
-      compression = XMLHandler.getTagValue( transformNode, "compression" );
-      proxyType = XMLHandler.getTagValue( transformNode, "proxyType" );
-      proxyHost = XMLHandler.getTagValue( transformNode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( transformNode, "proxyPort" );
-      proxyUsername = XMLHandler.getTagValue( transformNode, "proxyUsername" );
+      usekeyfilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usekeyfilename" ) );
+      keyfilename = XmlHandler.getTagValue( transformNode, "keyfilename" );
+      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "keyfilepass" ) );
+      compression = XmlHandler.getTagValue( transformNode, "compression" );
+      proxyType = XmlHandler.getTagValue( transformNode, "proxyType" );
+      proxyHost = XmlHandler.getTagValue( transformNode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( transformNode, "proxyPort" );
+      proxyUsername = XmlHandler.getTagValue( transformNode, "proxyUsername" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "proxyPassword" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "proxyPassword" ) );
 
-      createRemoteFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "createRemoteFolder" ) );
+      createRemoteFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createRemoteFolder" ) );
 
-      boolean remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "remove" ) );
-      setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByCode( Const.NVL( XMLHandler.getTagValue(
+      boolean remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "remove" ) );
+      setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByCode( Const.NVL( XmlHandler.getTagValue(
         transformNode, "aftersftpput" ), "" ) ) );
       if ( remove && getAfterFTPS() == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING ) {
         setAfterFTPS( JobEntrySFTPPUT.AFTER_FTPSPUT_DELETE );
       }
-      destinationfolderFieldName = XMLHandler.getTagValue( transformNode, "destinationfolderFieldName" );
+      destinationfolderFieldName = XmlHandler.getTagValue( transformNode, "destinationfolderFieldName" );
       createDestinationFolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "createdestinationfolder" ) );
-      remoteFilenameFieldName = XMLHandler.getTagValue( transformNode, "remoteFilenameFieldName" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createdestinationfolder" ) );
+      remoteFilenameFieldName = XmlHandler.getTagValue( transformNode, "remoteFilenameFieldName" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -153,39 +153,39 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
     remoteFilenameFieldName = null;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sourceFileFieldName", sourceFileFieldName ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sourceFileFieldName", sourceFileFieldName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "remoteDirectoryFieldName", remoteDirectoryFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "inputIsStream", inputIsStream ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addFilenameResut", addFilenameResut ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keyfilename", keyfilename ) );
+      XmlHandler.addTagValue( "remoteDirectoryFieldName", remoteDirectoryFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "inputIsStream", inputIsStream ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addFilenameResut", addFilenameResut ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyfilename ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compression", compression ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyType", proxyType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyUsername", proxyUsername ) );
+      XmlHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compression", compression ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyType", proxyType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyUsername", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
+      XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "aftersftpput", JobEntrySFTPPUT.getAfterSFTPPutCode( getAfterFTPS() ) ) );
+      XmlHandler.addTagValue( "aftersftpput", JobEntrySFTPPUT.getAfterSFTPPutCode( getAfterFTPS() ) ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "destinationfolderFieldName", destinationfolderFieldName ) );
+      XmlHandler.addTagValue( "destinationfolderFieldName", destinationfolderFieldName ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "remoteFilenameFieldName", remoteFilenameFieldName ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "remoteFilenameFieldName", remoteFilenameFieldName ) );
 
     return retval.toString();
   }

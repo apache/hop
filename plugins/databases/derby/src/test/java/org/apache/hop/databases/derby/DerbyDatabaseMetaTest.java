@@ -165,7 +165,7 @@ public class DerbyDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO ALTER BAR VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", true ) );
 
-    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
   }
 

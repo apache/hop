@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -73,7 +73,7 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -85,38 +85,38 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
     return usevar;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      usevar = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usevar" ) );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      usevar = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usevar" ) );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       List<Field> fieldList = new ArrayList<>();
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         Field field = new Field();
-        field.setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        field.setReplaceValue( XMLHandler.getTagValue( fnode, "value" ) );
-        field.setReplaceMask( XMLHandler.getTagValue( fnode, "mask" ) );
-        String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
+        field.setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
+        field.setReplaceValue( XmlHandler.getTagValue( fnode, "value" ) );
+        field.setReplaceMask( XmlHandler.getTagValue( fnode, "mask" ) );
+        String emptyString = XmlHandler.getTagValue( fnode, "set_empty_string" );
         field.setEmptyString( !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString ) );
         fieldList.add( field );
       }
       setFields( fieldList );
     } catch ( Exception e ) {
-      throw new HopXMLException( "It was not possible to load the metadata for this transform from XML", e );
+      throw new HopXmlException( "It was not possible to load the metadata for this transform from XML", e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "   " + XMLHandler.addTagValue( "usevar", usevar ) );
+    retval.append( "   " + XmlHandler.addTagValue( "usevar", usevar ) );
     retval.append( "    <fields>" + Const.CR );
     fields.forEach( field -> {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", field.getFieldName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", field.getReplaceValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "mask", field.getReplaceMask() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "set_empty_string", field.isEmptyString() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", field.getFieldName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "value", field.getReplaceValue() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "mask", field.getReplaceMask() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "set_empty_string", field.isEmptyString() ) );
       retval.append( "        </field>" + Const.CR );
     } );
     retval.append( "      </fields>" + Const.CR );

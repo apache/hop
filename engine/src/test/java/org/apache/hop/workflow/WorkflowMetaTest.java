@@ -25,7 +25,7 @@ package org.apache.hop.workflow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.workflow.action.ActionCopy;
@@ -69,12 +69,12 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testPathExist() throws HopXMLException, IOException, URISyntaxException {
+  public void testPathExist() throws HopXmlException, IOException, URISyntaxException {
     assertTrue( testPath( "je1-je4" ) );
   }
 
   @Test
-  public void testPathNotExist() throws HopXMLException, IOException, URISyntaxException {
+  public void testPathNotExist() throws HopXmlException, IOException, URISyntaxException {
     assertFalse( testPath( "je2-je4" ) );
   }
 
@@ -225,7 +225,7 @@ public class WorkflowMetaTest {
 
     WorkflowMeta meta = new WorkflowMeta();
 
-    meta.loadXML( workflowNode, null, Mockito.mock( IMetaStore.class ) );
+    meta.loadXml( workflowNode, null, Mockito.mock( IMetaStore.class ) );
     Workflow workflow = new Workflow( meta );
     workflow.setInternalHopVariables( null );
   }

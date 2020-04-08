@@ -27,10 +27,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -88,29 +88,29 @@ public class ActionDeleteResultFilenamesI extends ActionBase implements Cloneabl
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 ); // 75 chars in just tag names and spaces
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "foldername", foldername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "specify_wildcard", specifywildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifywildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      foldername = XMLHandler.getTagValue( entrynode, "foldername" );
-      specifywildcard = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "specify_wildcard" ) );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      wildcardexclude = XMLHandler.getTagValue( entrynode, "wildcardexclude" );
+      super.loadXml( entrynode );
+      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
+      specifywildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      wildcardexclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionDeleteResultFilenames.CanNotLoadFromXML", xe.getMessage() ) );
     }
   }

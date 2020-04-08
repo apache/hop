@@ -31,11 +31,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -185,92 +185,92 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 550 );
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", servername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", username ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", servername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", username ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usessl", usessl ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sslport", sslport ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "outputdirectory", outputdirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filenamepattern", filenamepattern ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "retrievemails", retrievemails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "firstmails", firstmails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "delete", delete ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "savemessage", savemessage ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "saveattachment", saveattachment ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usessl", usessl ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sslport", sslport ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "outputdirectory", outputdirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filenamepattern", filenamepattern ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "retrievemails", retrievemails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "firstmails", firstmails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "delete", delete ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "savemessage", savemessage ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "saveattachment", saveattachment ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "usedifferentfolderforattachment", usedifferentfolderforattachment ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "attachmentfolder", attachmentfolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "attachmentwildcard", attachmentwildcard ) );
+      XmlHandler.addTagValue( "usedifferentfolderforattachment", usedifferentfolderforattachment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "attachmentfolder", attachmentfolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "attachmentwildcard", attachmentwildcard ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "valueimaplist", MailConnectionMeta.getValueImapListCode( valueimaplist ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "imapfirstmails", imapfirstmails ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "imapfolder", imapfolder ) );
+      XmlHandler.addTagValue( "valueimaplist", MailConnectionMeta.getValueImapListCode( valueimaplist ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfirstmails", imapfirstmails ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "imapfolder", imapfolder ) );
     // search term
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sendersearch", senderSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nottermsendersearch", notTermSenderSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sendersearch", senderSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsendersearch", notTermSenderSearch ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "receipientsearch", receipientSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "receipientsearch", receipientSearch ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "nottermreceipientsearch", notTermReceipientSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "subjectsearch", subjectSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nottermsubjectsearch", notTermSubjectSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "bodysearch", bodySearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nottermbodysearch", notTermBodySearch ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "nottermreceipientsearch", notTermReceipientSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "subjectsearch", subjectSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermsubjectsearch", notTermSubjectSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bodysearch", bodySearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nottermbodysearch", notTermBodySearch ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "conditionreceiveddate", MailConnectionMeta
+      XmlHandler.addTagValue( "conditionreceiveddate", MailConnectionMeta
         .getConditionDateCode( conditionReceivedDate ) ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "nottermreceiveddatesearch", notTermReceivedDateSearch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "receiveddate1", receivedDate1 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "receiveddate2", receivedDate2 ) );
+      XmlHandler.addTagValue( "nottermreceiveddatesearch", notTermReceivedDateSearch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate1", receivedDate1 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "receiveddate2", receivedDate2 ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "actiontype", MailConnectionMeta.getActionTypeCode( actiontype ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "movetoimapfolder", moveToIMAPFolder ) );
+      XmlHandler.addTagValue( "actiontype", MailConnectionMeta.getActionTypeCode( actiontype ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "movetoimapfolder", moveToIMAPFolder ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createmovetofolder", createmovetofolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createlocalfolder", createlocalfolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createmovetofolder", createmovetofolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createlocalfolder", createlocalfolder ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "aftergetimap", MailConnectionMeta.getAfterGetIMAPCode( aftergetimap ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "includesubfolders", includesubfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "useproxy", useproxy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyusername", proxyusername ) );
+      XmlHandler.addTagValue( "aftergetimap", MailConnectionMeta.getAfterGetIMAPCode( aftergetimap ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "includesubfolders", includesubfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "useproxy", useproxy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyusername", proxyusername ) );
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      servername = XMLHandler.getTagValue( entrynode, "servername" );
-      username = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      usessl = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "usessl" ) );
-      sslport = XMLHandler.getTagValue( entrynode, "sslport" );
-      outputdirectory = XMLHandler.getTagValue( entrynode, "outputdirectory" );
-      filenamepattern = XMLHandler.getTagValue( entrynode, "filenamepattern" );
+      super.loadXml( entrynode );
+      servername = XmlHandler.getTagValue( entrynode, "servername" );
+      username = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      usessl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usessl" ) );
+      sslport = XmlHandler.getTagValue( entrynode, "sslport" );
+      outputdirectory = XmlHandler.getTagValue( entrynode, "outputdirectory" );
+      filenamepattern = XmlHandler.getTagValue( entrynode, "filenamepattern" );
       if ( Utils.isEmpty( filenamepattern ) ) {
         filenamepattern = DEFAULT_FILE_NAME_PATTERN;
       }
-      retrievemails = Const.toInt( XMLHandler.getTagValue( entrynode, "retrievemails" ), -1 );
-      firstmails = XMLHandler.getTagValue( entrynode, "firstmails" );
-      delete = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "delete" ) );
+      retrievemails = Const.toInt( XmlHandler.getTagValue( entrynode, "retrievemails" ), -1 );
+      firstmails = XmlHandler.getTagValue( entrynode, "firstmails" );
+      delete = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "delete" ) );
 
       protocol =
-        Const.NVL( XMLHandler.getTagValue( entrynode, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
+        Const.NVL( XmlHandler.getTagValue( entrynode, "protocol" ), MailConnectionMeta.PROTOCOL_STRING_POP3 );
 
-      String sm = XMLHandler.getTagValue( entrynode, "savemessage" );
+      String sm = XmlHandler.getTagValue( entrynode, "savemessage" );
       if ( Utils.isEmpty( sm ) ) {
         savemessage = true;
       } else {
         savemessage = "Y".equalsIgnoreCase( sm );
       }
 
-      String sa = XMLHandler.getTagValue( entrynode, "saveattachment" );
+      String sa = XmlHandler.getTagValue( entrynode, "saveattachment" );
       if ( Utils.isEmpty( sa ) ) {
         saveattachment = true;
       } else {
@@ -278,45 +278,45 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       }
 
       usedifferentfolderforattachment =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "usedifferentfolderforattachment" ) );
-      attachmentfolder = XMLHandler.getTagValue( entrynode, "attachmentfolder" );
-      attachmentwildcard = XMLHandler.getTagValue( entrynode, "attachmentwildcard" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usedifferentfolderforattachment" ) );
+      attachmentfolder = XmlHandler.getTagValue( entrynode, "attachmentfolder" );
+      attachmentwildcard = XmlHandler.getTagValue( entrynode, "attachmentwildcard" );
       valueimaplist =
-        MailConnectionMeta.getValueImapListByCode( Const.NVL( XMLHandler
+        MailConnectionMeta.getValueImapListByCode( Const.NVL( XmlHandler
           .getTagValue( entrynode, "valueimaplist" ), "" ) );
-      imapfirstmails = XMLHandler.getTagValue( entrynode, "imapfirstmails" );
-      imapfolder = XMLHandler.getTagValue( entrynode, "imapfolder" );
+      imapfirstmails = XmlHandler.getTagValue( entrynode, "imapfirstmails" );
+      imapfolder = XmlHandler.getTagValue( entrynode, "imapfolder" );
       // search term
-      senderSearch = XMLHandler.getTagValue( entrynode, "sendersearch" );
-      notTermSenderSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "nottermsendersearch" ) );
-      receipientSearch = XMLHandler.getTagValue( entrynode, "receipientsearch" );
+      senderSearch = XmlHandler.getTagValue( entrynode, "sendersearch" );
+      notTermSenderSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermsendersearch" ) );
+      receipientSearch = XmlHandler.getTagValue( entrynode, "receipientsearch" );
       notTermReceipientSearch =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "nottermreceipientsearch" ) );
-      subjectSearch = XMLHandler.getTagValue( entrynode, "subjectsearch" );
-      notTermSubjectSearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "nottermsubjectsearch" ) );
-      bodySearch = XMLHandler.getTagValue( entrynode, "bodysearch" );
-      notTermBodySearch = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "nottermbodysearch" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermreceipientsearch" ) );
+      subjectSearch = XmlHandler.getTagValue( entrynode, "subjectsearch" );
+      notTermSubjectSearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermsubjectsearch" ) );
+      bodySearch = XmlHandler.getTagValue( entrynode, "bodysearch" );
+      notTermBodySearch = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermbodysearch" ) );
       conditionReceivedDate =
-        MailConnectionMeta.getConditionByCode( Const.NVL( XMLHandler.getTagValue(
+        MailConnectionMeta.getConditionByCode( Const.NVL( XmlHandler.getTagValue(
           entrynode, "conditionreceiveddate" ), "" ) );
       notTermReceivedDateSearch =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "nottermreceiveddatesearch" ) );
-      receivedDate1 = XMLHandler.getTagValue( entrynode, "receivedDate1" );
-      receivedDate2 = XMLHandler.getTagValue( entrynode, "receivedDate2" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "nottermreceiveddatesearch" ) );
+      receivedDate1 = XmlHandler.getTagValue( entrynode, "receivedDate1" );
+      receivedDate2 = XmlHandler.getTagValue( entrynode, "receivedDate2" );
       actiontype =
         MailConnectionMeta.getActionTypeByCode( Const
-          .NVL( XMLHandler.getTagValue( entrynode, "actiontype" ), "" ) );
-      moveToIMAPFolder = XMLHandler.getTagValue( entrynode, "movetoimapfolder" );
-      createmovetofolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createmovetofolder" ) );
-      createlocalfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createlocalfolder" ) );
+          .NVL( XmlHandler.getTagValue( entrynode, "actiontype" ), "" ) );
+      moveToIMAPFolder = XmlHandler.getTagValue( entrynode, "movetoimapfolder" );
+      createmovetofolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createmovetofolder" ) );
+      createlocalfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createlocalfolder" ) );
       aftergetimap =
         MailConnectionMeta.getAfterGetIMAPByCode( Const.NVL(
-          XMLHandler.getTagValue( entrynode, "aftergetimap" ), "" ) );
-      includesubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "includesubfolders" ) );
-      useproxy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "useproxy" ) );
-      proxyusername = XMLHandler.getTagValue( entrynode, "proxyusername" );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'get pop' from XML node", xe );
+          XmlHandler.getTagValue( entrynode, "aftergetimap" ), "" ) );
+      includesubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "includesubfolders" ) );
+      useproxy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useproxy" ) );
+      proxyusername = XmlHandler.getTagValue( entrynode, "proxyusername" );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'get pop' from XML node", xe );
     }
   }
 

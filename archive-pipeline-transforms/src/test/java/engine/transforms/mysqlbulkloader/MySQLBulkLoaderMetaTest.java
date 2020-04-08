@@ -111,14 +111,14 @@ public class MySQLBulkLoaderMetaTest {
     mySQLBulkLoader.setSchemaName( "test_schema" );
 
     try {
-      String badXml = mySQLBulkLoader.getXML();
+      String badXml = mySQLBulkLoader.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     mySQLBulkLoader.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = mySQLBulkLoader.getXML();
+    String ktrXml = mySQLBulkLoader.getXml();
 
     int targetSz = mySQLBulkLoader.getFieldTable().length;
     Assert.assertEquals( targetSz, mySQLBulkLoader.getFieldStream().length );

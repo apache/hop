@@ -30,14 +30,14 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -245,7 +245,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     fieldDatabase = new String[ nrRows ];
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -386,45 +386,45 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     return useBatchUpdate;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "table" );
-      commitSize = XMLHandler.getTagValue( transformNode, "commit" );
-      truncateTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "truncate" ) );
-      ignoreErrors = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "ignore_errors" ) );
-      useBatchUpdate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_batch" ) );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
+      commitSize = XmlHandler.getTagValue( transformNode, "commit" );
+      truncateTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "truncate" ) );
+      ignoreErrors = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ignore_errors" ) );
+      useBatchUpdate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_batch" ) );
 
       // If not present it will be false to be compatible with pre-v3.2
-      specifyFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "specify_fields" ) );
+      specifyFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "specify_fields" ) );
 
-      partitioningEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "partitioning_enabled" ) );
-      partitioningField = XMLHandler.getTagValue( transformNode, "partitioning_field" );
-      partitioningDaily = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "partitioning_daily" ) );
-      partitioningMonthly = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "partitioning_monthly" ) );
+      partitioningEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "partitioning_enabled" ) );
+      partitioningField = XmlHandler.getTagValue( transformNode, "partitioning_field" );
+      partitioningDaily = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "partitioning_daily" ) );
+      partitioningMonthly = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "partitioning_monthly" ) );
 
-      tableNameInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "tablename_in_field" ) );
-      tableNameField = XMLHandler.getTagValue( transformNode, "tablename_field" );
-      tableNameInTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "tablename_in_table" ) );
+      tableNameInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "tablename_in_field" ) );
+      tableNameField = XmlHandler.getTagValue( transformNode, "tablename_field" );
+      tableNameInTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "tablename_in_table" ) );
 
-      returningGeneratedKeys = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "return_keys" ) );
-      generatedKeyField = XMLHandler.getTagValue( transformNode, "return_field" );
+      returningGeneratedKeys = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "return_keys" ) );
+      generatedKeyField = XmlHandler.getTagValue( transformNode, "return_field" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrRows = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrRows = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrRows );
 
       for ( int i = 0; i < nrRows; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node knode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldDatabase[ i ] = XMLHandler.getTagValue( knode, "column_name" );
-        fieldStream[ i ] = XMLHandler.getTagValue( knode, "stream_name" );
+        fieldDatabase[ i ] = XmlHandler.getTagValue( knode, "column_name" );
+        fieldStream[ i ] = XmlHandler.getTagValue( knode, "stream_name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -443,37 +443,37 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     specifyFields = false;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    "
-      + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "    " + XMLHandler.addTagValue( "truncate", truncateTable ) );
-    retval.append( "    " + XMLHandler.addTagValue( "ignore_errors", ignoreErrors ) );
-    retval.append( "    " + XMLHandler.addTagValue( "use_batch", useBatchUpdate ) );
-    retval.append( "    " + XMLHandler.addTagValue( "specify_fields", specifyFields ) );
+      + XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "    " + XmlHandler.addTagValue( "truncate", truncateTable ) );
+    retval.append( "    " + XmlHandler.addTagValue( "ignore_errors", ignoreErrors ) );
+    retval.append( "    " + XmlHandler.addTagValue( "use_batch", useBatchUpdate ) );
+    retval.append( "    " + XmlHandler.addTagValue( "specify_fields", specifyFields ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "partitioning_enabled", partitioningEnabled ) );
-    retval.append( "    " + XMLHandler.addTagValue( "partitioning_field", partitioningField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "partitioning_daily", partitioningDaily ) );
-    retval.append( "    " + XMLHandler.addTagValue( "partitioning_monthly", partitioningMonthly ) );
+    retval.append( "    " + XmlHandler.addTagValue( "partitioning_enabled", partitioningEnabled ) );
+    retval.append( "    " + XmlHandler.addTagValue( "partitioning_field", partitioningField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "partitioning_daily", partitioningDaily ) );
+    retval.append( "    " + XmlHandler.addTagValue( "partitioning_monthly", partitioningMonthly ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "tablename_in_field", tableNameInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "tablename_field", tableNameField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "tablename_in_table", tableNameInTable ) );
+    retval.append( "    " + XmlHandler.addTagValue( "tablename_in_field", tableNameInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "tablename_field", tableNameField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "tablename_in_table", tableNameInTable ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "return_keys", returningGeneratedKeys ) );
-    retval.append( "    " + XMLHandler.addTagValue( "return_field", generatedKeyField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "return_keys", returningGeneratedKeys ) );
+    retval.append( "    " + XmlHandler.addTagValue( "return_field", generatedKeyField ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldDatabase.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "column_name", fieldDatabase[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "stream_name", fieldStream[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "column_name", fieldDatabase[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "stream_name", fieldStream[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
@@ -720,14 +720,14 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
-    return getSQLStatements( pipelineMeta, transformMeta, prev, null, false, null );
+    return getSqlStatements( pipelineMeta, transformMeta, prev, null, false, null );
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
                                         boolean use_autoinc, String pk ) {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
@@ -745,7 +745,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
               cr_table = null;
             }
 
-            retval.setSQL( cr_table );
+            retval.setSql( cr_table );
           } catch ( HopDatabaseException dbe ) {
             retval.setError( BaseMessages.getString( PKG, "TableOutputMeta.Error.ErrorConnecting", dbe
               .getMessage() ) );

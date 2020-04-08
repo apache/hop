@@ -111,7 +111,7 @@ public class MSAccessDatabaseMetaTest {
       odbcMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "insert into FOO(FOOVERSION) values (1)",
-      odbcMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      odbcMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
   }
 

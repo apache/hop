@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProvidesModelerMeta;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -44,7 +44,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -389,7 +389,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -411,50 +411,50 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.databases = databases;
     try {
       String commit, csize;
 
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tablename = XMLHandler.getTagValue( transformNode, "table" );
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tablename = XmlHandler.getTagValue( transformNode, "table" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      commit = XMLHandler.getTagValue( transformNode, "commit" );
+      commit = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( commit, 0 );
-      csize = XMLHandler.getTagValue( transformNode, "cache_size" );
+      csize = XmlHandler.getTagValue( transformNode, "cache_size" );
       cacheSize = Const.toInt( csize, 0 );
 
-      replaceFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "replace" ) );
-      preloadCache = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "preloadCache" ) );
-      useHash = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "crc" ) );
+      replaceFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace" ) );
+      preloadCache = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "preloadCache" ) );
+      useHash = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "crc" ) );
 
-      hashField = XMLHandler.getTagValue( transformNode, "crcfield" );
+      hashField = XmlHandler.getTagValue( transformNode, "crcfield" );
 
-      Node keys = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrkeys = XMLHandler.countNodes( keys, "key" );
+      Node keys = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrkeys = XmlHandler.countNodes( keys, "key" );
 
       allocate( nrkeys );
 
       // Read keys to dimension
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( keys, "key", i );
-        keyField[ i ] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[ i ] = XMLHandler.getTagValue( knode, "lookup" );
+        Node knode = XmlHandler.getSubNodeByNr( keys, "key", i );
+        keyField[ i ] = XmlHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XmlHandler.getTagValue( knode, "lookup" );
       }
 
       // If this is empty: use auto-increment field!
-      sequenceFrom = XMLHandler.getTagValue( transformNode, "sequence" );
+      sequenceFrom = XmlHandler.getTagValue( transformNode, "sequence" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      Node retkey = XMLHandler.getSubNode( fields, "return" );
-      technicalKeyField = XMLHandler.getTagValue( retkey, "name" );
-      useAutoinc = !"N".equalsIgnoreCase( XMLHandler.getTagValue( retkey, "use_autoinc" ) );
-      lastUpdateField = XMLHandler.getTagValue( transformNode, "last_update_field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      Node retkey = XmlHandler.getSubNode( fields, "return" );
+      technicalKeyField = XmlHandler.getTagValue( retkey, "name" );
+      useAutoinc = !"N".equalsIgnoreCase( XmlHandler.getTagValue( retkey, "use_autoinc" ) );
+      lastUpdateField = XmlHandler.getTagValue( transformNode, "last_update_field" );
 
-      setTechKeyCreation( XMLHandler.getTagValue( retkey, "creation_method" ) );
+      setTechKeyCreation( XmlHandler.getTagValue( retkey, "creation_method" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "CombinationLookupMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
@@ -504,39 +504,39 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 512 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connection",
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connection",
       databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replace", replaceFields ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "preloadCache", preloadCache ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "crc", useHash ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "crcfield", hashField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replace", replaceFields ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "preloadCache", preloadCache ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "crc", useHash ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "crcfield", hashField ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < keyField.length; i++ ) {
       retval.append( "        <key>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", keyField[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "lookup", keyLookup[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "name", keyField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "lookup", keyLookup[ i ] ) );
       retval.append( "        </key>" ).append( Const.CR );
     }
 
     retval.append( "        <return>" ).append( Const.CR );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "name", technicalKeyField ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "creation_method", techKeyCreation ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "use_autoinc", useAutoinc ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "name", technicalKeyField ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "creation_method", techKeyCreation ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "use_autoinc", useAutoinc ) );
     retval.append( "        </return>" ).append( Const.CR );
 
     retval.append( "      </fields>" ).append( Const.CR );
 
     // If sequence is empty: use auto-increment field!
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sequence", sequenceFrom ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "last_update_field", lastUpdateField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sequence", sequenceFrom ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "last_update_field", lastUpdateField ) );
 
     return retval.toString();
   }
@@ -709,9 +709,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     int i;
 
@@ -911,7 +911,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
                 cr_seq += Const.CR;
               }
             }
-            retval.setSQL( pipelineMeta.environmentSubstitute( cr_table + cr_uniq_index + cr_index + cr_seq ) );
+            retval.setSql( pipelineMeta.environmentSubstitute( cr_table + cr_uniq_index + cr_index + cr_seq ) );
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred" )
               + Const.CR + e.getMessage() );

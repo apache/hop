@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -240,7 +240,7 @@ public class RssInputMeta extends BaseTransformMeta implements ITransform {
     this.rowNumberField = rowNumberField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -261,61 +261,61 @@ public class RssInputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "url_in_field", urlInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "url_field_name", urlFieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "    " + XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "include_url", includeUrl ) );
-    retval.append( "    " + XMLHandler.addTagValue( "url_Field", urlField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "read_from", readfrom ) );
+    retval.append( "    " + XmlHandler.addTagValue( "url_in_field", urlInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "url_field_name", urlFieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "    " + XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "include_url", includeUrl ) );
+    retval.append( "    " + XmlHandler.addTagValue( "url_Field", urlField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "read_from", readfrom ) );
     retval.append( "    <urls>" + Const.CR );
     for ( int i = 0; i < url.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "url", url[ i ] ) );
+      retval.append( "      " + XmlHandler.addTagValue( "url", url[ i ] ) );
     }
     retval.append( "    </urls>" + Const.CR );
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       RssInputField field = inputFields[ i ];
-      retval.append( field.getXML() );
+      retval.append( field.getXml() );
     }
     retval.append( "      </fields>" + Const.CR );
-    retval.append( "    " + XMLHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " + XmlHandler.addTagValue( "limit", rowLimit ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      urlInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "url_in_field" ) );
-      urlFieldname = XMLHandler.getTagValue( transformNode, "url_field_name" );
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      includeUrl = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include_url" ) );
-      urlField = XMLHandler.getTagValue( transformNode, "url_Field" );
-      readfrom = XMLHandler.getTagValue( transformNode, "read_from" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
-      Node urlnode = XMLHandler.getSubNode( transformNode, "urls" );
-      int nrUrls = XMLHandler.countNodes( urlnode, "url" );
+      urlInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "url_in_field" ) );
+      urlFieldname = XmlHandler.getTagValue( transformNode, "url_field_name" );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      includeUrl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include_url" ) );
+      urlField = XmlHandler.getTagValue( transformNode, "url_Field" );
+      readfrom = XmlHandler.getTagValue( transformNode, "read_from" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
+      Node urlnode = XmlHandler.getSubNode( transformNode, "urls" );
+      int nrUrls = XmlHandler.countNodes( urlnode, "url" );
       allocate( nrUrls, nrFields );
       for ( int i = 0; i < nrUrls; i++ ) {
-        Node urlnamenode = XMLHandler.getSubNodeByNr( urlnode, "url", i );
-        url[ i ] = XMLHandler.getNodeValue( urlnamenode );
+        Node urlnamenode = XmlHandler.getSubNodeByNr( urlnode, "url", i );
+        url[ i ] = XmlHandler.getNodeValue( urlnamenode );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         RssInputField field = new RssInputField( fnode );
         inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong( XMLHandler.getTagValue( transformNode, "limit" ), 0L );
+      rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

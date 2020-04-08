@@ -38,7 +38,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -230,24 +230,24 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public SlaveServer( Node slaveNode ) {
     this();
-    this.name = XMLHandler.getTagValue( slaveNode, "name" );
-    this.hostname = XMLHandler.getTagValue( slaveNode, "hostname" );
-    this.port = XMLHandler.getTagValue( slaveNode, "port" );
-    this.webAppName = XMLHandler.getTagValue( slaveNode, "webAppName" );
-    this.username = XMLHandler.getTagValue( slaveNode, "username" );
-    this.password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( slaveNode, "password" ) );
-    this.proxyHostname = XMLHandler.getTagValue( slaveNode, "proxy_hostname" );
-    this.proxyPort = XMLHandler.getTagValue( slaveNode, "proxy_port" );
-    this.nonProxyHosts = XMLHandler.getTagValue( slaveNode, "non_proxy_hosts" );
-    this.propertiesMasterName = XMLHandler.getTagValue( slaveNode, "get_properties_from_master" );
+    this.name = XmlHandler.getTagValue( slaveNode, "name" );
+    this.hostname = XmlHandler.getTagValue( slaveNode, "hostname" );
+    this.port = XmlHandler.getTagValue( slaveNode, "port" );
+    this.webAppName = XmlHandler.getTagValue( slaveNode, "webAppName" );
+    this.username = XmlHandler.getTagValue( slaveNode, "username" );
+    this.password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( slaveNode, "password" ) );
+    this.proxyHostname = XmlHandler.getTagValue( slaveNode, "proxy_hostname" );
+    this.proxyPort = XmlHandler.getTagValue( slaveNode, "proxy_port" );
+    this.nonProxyHosts = XmlHandler.getTagValue( slaveNode, "non_proxy_hosts" );
+    this.propertiesMasterName = XmlHandler.getTagValue( slaveNode, "get_properties_from_master" );
     this.overrideExistingProperties =
-      "Y".equalsIgnoreCase( XMLHandler.getTagValue( slaveNode, "override_existing_properties" ) );
-    this.master = "Y".equalsIgnoreCase( XMLHandler.getTagValue( slaveNode, "master" ) );
+      "Y".equalsIgnoreCase( XmlHandler.getTagValue( slaveNode, "override_existing_properties" ) );
+    this.master = "Y".equalsIgnoreCase( XmlHandler.getTagValue( slaveNode, "master" ) );
     initializeVariablesFrom( null );
     this.log = new LogChannel( this );
 
-    setSslMode( "Y".equalsIgnoreCase( XMLHandler.getTagValue( slaveNode, SSL_MODE_TAG ) ) );
-    Node sslConfig = XMLHandler.getSubNode( slaveNode, SslConfiguration.XML_TAG );
+    setSslMode( "Y".equalsIgnoreCase( XmlHandler.getTagValue( slaveNode, SSL_MODE_TAG ) ) );
+    Node sslConfig = XmlHandler.getSubNode( slaveNode, SslConfiguration.XML_TAG );
     if ( sslConfig != null ) {
       setSslMode( true );
       this.sslConfig = new SslConfiguration( sslConfig );
@@ -261,24 +261,24 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    xml.append( "        " ).append( XMLHandler.addTagValue( "name", name ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "hostname", hostname ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "port", port ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "webAppName", webAppName ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "username", username ) );
-    xml.append( XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ), false ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_hostname", proxyHostname ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "master", master ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( SSL_MODE_TAG, isSslMode(), false ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "name", name ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "hostname", hostname ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "port", port ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "webAppName", webAppName ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "username", username ) );
+    xml.append( XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ), false ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "proxy_hostname", proxyHostname ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "master", master ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( SSL_MODE_TAG, isSslMode(), false ) );
     if ( sslConfig != null ) {
-      xml.append( sslConfig.getXML() );
+      xml.append( sslConfig.getXml() );
     }
 
-    xml.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }
@@ -810,13 +810,13 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public List<SlaveServerDetection> getSlaveServerDetections() throws Exception {
     String xml = execService( GetSlavesServlet.CONTEXT_PATH + "/" );
-    Document document = XMLHandler.loadXMLString( xml );
-    Node detectionsNode = XMLHandler.getSubNode( document, GetSlavesServlet.XML_TAG_SLAVESERVER_DETECTIONS );
-    int nrDetections = XMLHandler.countNodes( detectionsNode, SlaveServerDetection.XML_TAG );
+    Document document = XmlHandler.loadXMLString( xml );
+    Node detectionsNode = XmlHandler.getSubNode( document, GetSlavesServlet.XML_TAG_SLAVESERVER_DETECTIONS );
+    int nrDetections = XmlHandler.countNodes( detectionsNode, SlaveServerDetection.XML_TAG );
 
     List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
     for ( int i = 0; i < nrDetections; i++ ) {
-      Node detectionNode = XMLHandler.getSubNodeByNr( detectionsNode, SlaveServerDetection.XML_TAG, i );
+      Node detectionNode = XmlHandler.getSubNodeByNr( detectionsNode, SlaveServerDetection.XML_TAG, i );
       SlaveServerDetection detection = new SlaveServerDetection( detectionNode );
       detections.add( detection );
     }
@@ -1060,10 +1060,10 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
           + URLEncoder.encode( slaveSequenceName, "UTF-8" ) + "&" + NextSequenceValueServlet.PARAM_INCREMENT + "="
           + Long.toString( incrementValue ) );
 
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node seqNode = XMLHandler.getSubNode( doc, NextSequenceValueServlet.XML_TAG );
-      String nextValueString = XMLHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_VALUE );
-      String errorString = XMLHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_ERROR );
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node seqNode = XmlHandler.getSubNode( doc, NextSequenceValueServlet.XML_TAG );
+      String nextValueString = XmlHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_VALUE );
+      String errorString = XmlHandler.getTagValue( seqNode, NextSequenceValueServlet.XML_TAG_ERROR );
 
       if ( !Utils.isEmpty( errorString ) ) {
         throw new HopException( errorString );

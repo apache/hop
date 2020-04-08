@@ -44,22 +44,22 @@ import java.util.WeakHashMap;
  * @author Matt
  * @since 22-Apr-2006
  */
-public class XMLHandlerCache {
+public class XmlHandlerCache {
 
-  private static XMLHandlerCache instance;
+  private static XmlHandlerCache instance;
 
-  Map<XMLHandlerCacheEntry, Integer> cache;
+  Map<XMlHandlerCacheEntry, Integer> cache;
 
   private volatile int cacheHits;
 
-  private XMLHandlerCache() {
-    cache = Collections.synchronizedMap( new WeakHashMap<XMLHandlerCacheEntry, Integer>() );
+  private XmlHandlerCache() {
+    cache = Collections.synchronizedMap( new WeakHashMap<XMlHandlerCacheEntry, Integer>() );
     cacheHits = 0;
   }
 
-  public static synchronized XMLHandlerCache getInstance() {
+  public static synchronized XmlHandlerCache getInstance() {
     if ( instance == null ) {
-      return instance = new XMLHandlerCache();
+      return instance = new XmlHandlerCache();
     }
     return instance;
   }
@@ -69,7 +69,7 @@ public class XMLHandlerCache {
    *
    * @param entry The cache entry to store
    */
-  public void storeCache( XMLHandlerCacheEntry entry, int lastChildNr ) {
+  public void storeCache( XMlHandlerCacheEntry entry, int lastChildNr ) {
     cache.put( entry, lastChildNr );
   }
 
@@ -79,7 +79,7 @@ public class XMLHandlerCache {
    * @param entry The cache entry to look for.
    * @return the last child position or -1 if nothing was found.
    */
-  public int getLastChildNr( XMLHandlerCacheEntry entry ) {
+  public int getLastChildNr( XMlHandlerCacheEntry entry ) {
     Integer lastChildNr = cache.get( entry );
     if ( lastChildNr != null ) {
       cacheHits++;

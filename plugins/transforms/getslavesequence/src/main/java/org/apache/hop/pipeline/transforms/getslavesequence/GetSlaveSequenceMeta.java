@@ -26,12 +26,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -64,7 +64,7 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
   private String increment;
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -74,14 +74,14 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      valuename = XMLHandler.getTagValue( transformNode, "valuename" );
-      slaveServerName = XMLHandler.getTagValue( transformNode, "slave" );
-      sequenceName = XMLHandler.getTagValue( transformNode, "seqname" );
-      increment = XMLHandler.getTagValue( transformNode, "increment" );
+      valuename = XmlHandler.getTagValue( transformNode, "valuename" );
+      slaveServerName = XmlHandler.getTagValue( transformNode, "slave" );
+      sequenceName = XmlHandler.getTagValue( transformNode, "seqname" );
+      increment = XmlHandler.getTagValue( transformNode, "increment" );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "GetSequenceMeta.Exception.ErrorLoadingTransformMeta" ), e );
     }
   }
@@ -103,13 +103,13 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "valuename", valuename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "slave", slaveServerName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "seqname", sequenceName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "increment", increment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "valuename", valuename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "slave", slaveServerName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "seqname", sequenceName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "increment", increment ) );
 
     return retval.toString();
   }

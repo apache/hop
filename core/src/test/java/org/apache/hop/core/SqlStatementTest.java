@@ -31,7 +31,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class SQLStatementTest {
+public class SqlStatementTest {
   @Test
   public void testClass() throws HopException {
     final String name = "transformName";
@@ -39,17 +39,17 @@ public class SQLStatementTest {
     final String sql = "sql string";
     final String error = "error";
 
-    SQLStatement statement = new SQLStatement( name, dbMeta, sql );
+    SqlStatement statement = new SqlStatement( name, dbMeta, sql );
     assertSame( name, statement.getTransformName() );
     assertSame( dbMeta, statement.getDatabase() );
     assertTrue( statement.hasSQL() );
-    assertSame( sql, statement.getSQL() );
+    assertSame( sql, statement.getSql() );
     statement.setTransformName( null );
     assertNull( statement.getTransformName() );
     statement.setDatabase( null );
     assertNull( statement.getDatabase() );
-    statement.setSQL( null );
-    assertNull( statement.getSQL() );
+    statement.setSql( null );
+    assertNull( statement.getSql() );
     assertFalse( statement.hasSQL() );
     assertFalse( statement.hasError() );
     statement.setError( error );

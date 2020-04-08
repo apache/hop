@@ -34,11 +34,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -144,83 +144,83 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "datafiletype", datafiletype ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fieldterminator", fieldterminator ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "lineterminated", lineterminated ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "codepage", codepage ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "specificcodepage", specificcodepage ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "formatfilename", formatfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "firetriggers", firetriggers ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "checkconstraints", checkconstraints ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keepnulls", keepnulls ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keepidentity", keepidentity ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablock", tablock ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "startfile", startfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "endfile", endfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "orderby", orderby ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "orderdirection", orderdirection ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maxerrors", maxerrors ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "batchsize", batchsize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "rowsperbatch", rowsperbatch ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "errorfilename", errorfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "adddatetime", adddatetime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "truncate", truncate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "datafiletype", datafiletype ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldterminator", fieldterminator ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "lineterminated", lineterminated ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "codepage", codepage ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "specificcodepage", specificcodepage ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "formatfilename", formatfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "firetriggers", firetriggers ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "checkconstraints", checkconstraints ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keepnulls", keepnulls ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keepidentity", keepidentity ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablock", tablock ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "startfile", startfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "endfile", endfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "orderby", orderby ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "orderdirection", orderdirection ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maxerrors", maxerrors ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "batchsize", batchsize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "rowsperbatch", rowsperbatch ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "errorfilename", errorfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "adddatetime", adddatetime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "truncate", truncate ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      datafiletype = XMLHandler.getTagValue( entrynode, "datafiletype" );
-      fieldterminator = XMLHandler.getTagValue( entrynode, "fieldterminator" );
+      super.loadXml( entrynode );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      datafiletype = XmlHandler.getTagValue( entrynode, "datafiletype" );
+      fieldterminator = XmlHandler.getTagValue( entrynode, "fieldterminator" );
 
-      lineterminated = XMLHandler.getTagValue( entrynode, "lineterminated" );
-      codepage = XMLHandler.getTagValue( entrynode, "codepage" );
-      specificcodepage = XMLHandler.getTagValue( entrynode, "specificcodepage" );
-      formatfilename = XMLHandler.getTagValue( entrynode, "formatfilename" );
+      lineterminated = XmlHandler.getTagValue( entrynode, "lineterminated" );
+      codepage = XmlHandler.getTagValue( entrynode, "codepage" );
+      specificcodepage = XmlHandler.getTagValue( entrynode, "specificcodepage" );
+      formatfilename = XmlHandler.getTagValue( entrynode, "formatfilename" );
 
-      firetriggers = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "firetriggers" ) );
-      checkconstraints = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "checkconstraints" ) );
-      keepnulls = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "keepnulls" ) );
-      keepidentity = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "keepidentity" ) );
+      firetriggers = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "firetriggers" ) );
+      checkconstraints = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "checkconstraints" ) );
+      keepnulls = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "keepnulls" ) );
+      keepidentity = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "keepidentity" ) );
 
-      tablock = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "tablock" ) );
-      startfile = Const.toInt( XMLHandler.getTagValue( entrynode, "startfile" ), 0 );
-      endfile = Const.toInt( XMLHandler.getTagValue( entrynode, "endfile" ), 0 );
+      tablock = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "tablock" ) );
+      startfile = Const.toInt( XmlHandler.getTagValue( entrynode, "startfile" ), 0 );
+      endfile = Const.toInt( XmlHandler.getTagValue( entrynode, "endfile" ), 0 );
 
-      orderby = XMLHandler.getTagValue( entrynode, "orderby" );
-      orderdirection = XMLHandler.getTagValue( entrynode, "orderdirection" );
+      orderby = XmlHandler.getTagValue( entrynode, "orderby" );
+      orderdirection = XmlHandler.getTagValue( entrynode, "orderdirection" );
 
-      errorfilename = XMLHandler.getTagValue( entrynode, "errorfilename" );
+      errorfilename = XmlHandler.getTagValue( entrynode, "errorfilename" );
 
-      maxerrors = Const.toInt( XMLHandler.getTagValue( entrynode, "maxerrors" ), 0 );
-      batchsize = Const.toInt( XMLHandler.getTagValue( entrynode, "batchsize" ), 0 );
-      rowsperbatch = Const.toInt( XMLHandler.getTagValue( entrynode, "rowsperbatch" ), 0 );
-      adddatetime = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "adddatetime" ) );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      addfiletoresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
-      truncate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "truncate" ) );
+      maxerrors = Const.toInt( XmlHandler.getTagValue( entrynode, "maxerrors" ), 0 );
+      batchsize = Const.toInt( XmlHandler.getTagValue( entrynode, "batchsize" ), 0 );
+      rowsperbatch = Const.toInt( XmlHandler.getTagValue( entrynode, "rowsperbatch" ), 0 );
+      adddatetime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddatetime" ) );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
+      addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
+      truncate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "truncate" ) );
 
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'MSsql bulk load' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'MSsql bulk load' from XML node", e );
     }
   }
 

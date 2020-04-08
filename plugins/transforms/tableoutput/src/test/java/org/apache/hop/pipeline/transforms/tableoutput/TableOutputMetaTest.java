@@ -24,9 +24,9 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.utils.TestUtils;
 import org.junit.Before;
@@ -107,7 +107,7 @@ public class TableOutputMetaTest {
   public void testLoadXml() throws Exception {
 
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.loadXML( getTestNode(), metaStore );
+    tableOutputMeta.loadXml( getTestNode(), metaStore );
     assertEquals( "1000", tableOutputMeta.getCommitSize() );
     assertEquals( null, tableOutputMeta.getGeneratedKeyField() );
     assertEquals( "public", tableOutputMeta.getSchemaName() );
@@ -153,7 +153,7 @@ public class TableOutputMetaTest {
       + "          <stream_name>PRICEEACH</stream_name>\n"
       + "        </field>\n"
       + "    </fields>\n";
-    String actualXml = TestUtils.toUnixLineSeparators( tableOutputMeta.getXML() );
+    String actualXml = TestUtils.toUnixLineSeparators( tableOutputMeta.getXml() );
     assertEquals( expectedXml, actualXml );
   }
 
@@ -179,7 +179,7 @@ public class TableOutputMetaTest {
     tableOutputMeta.setFieldDatabase( new String[] { "d1", "d2", "d3" } );
     TableOutputMeta clone = (TableOutputMeta) tableOutputMeta.clone();
     assertNotSame( clone, tableOutputMeta );
-    assertEquals( clone.getXML(), tableOutputMeta.getXML() );
+    assertEquals( clone.getXml(), tableOutputMeta.getXml() );
   }
 
   @Test
@@ -196,7 +196,7 @@ public class TableOutputMetaTest {
     assertTrue( tableOutputMeta.supportsErrorHandling() );
   }
 
-  private Node getTestNode() throws HopXMLException {
+  private Node getTestNode() throws HopXmlException {
     String xml =
       "  <transform>\n"
         + "    <name>Table output</name>\n"
@@ -247,6 +247,6 @@ public class TableOutputMetaTest {
         + "      <draw>Y</draw>\n"
         + "      </GUI>\n"
         + "    </transform>\n";
-    return XMLHandler.loadXMLString( xml, "transform" );
+    return XmlHandler.loadXMLString( xml, "transform" );
   }
 }

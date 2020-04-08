@@ -83,7 +83,7 @@ public class DragAndDropContainerTest {
   }
 
   @Test
-  public void getXML() {
+  public void getXml() {
     DragAndDropContainer dnd = new DragAndDropContainer( DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE, "Transform Name" );
 
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

@@ -29,12 +29,12 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -153,38 +153,38 @@ public class ActionHTTP extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "url", url ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "targetfilename", targetFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "file_appended", fileAppended ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_added", dateTimeAdded ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "url", url ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "targetfilename", targetFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "file_appended", fileAppended ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_added", dateTimeAdded ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "targetfilename_extension", targetFilenameExtension ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "uploadfilename", uploadFilename ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "targetfilename_extension", targetFilenameExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "uploadfilename", uploadFilename ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "run_every_row", runForEveryRow ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "url_fieldname", urlFieldname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "upload_fieldname", uploadFieldname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "dest_fieldname", destinationFieldname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "run_every_row", runForEveryRow ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "url_fieldname", urlFieldname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "upload_fieldname", uploadFieldname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "dest_fieldname", destinationFieldname ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", username ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", username ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_host", proxyHostname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addfilenameresult", addfilenameresult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHostname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addfilenameresult", addfilenameresult ) );
     retval.append( "      <headers>" ).append( Const.CR );
     if ( headerName != null ) {
       for ( int i = 0; i < headerName.length; i++ ) {
         retval.append( "        <header>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "header_name", headerName[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "header_value", headerValue[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "header_name", headerName[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "header_value", headerValue[ i ] ) );
         retval.append( "        </header>" ).append( Const.CR );
       }
     }
@@ -194,44 +194,44 @@ public class ActionHTTP extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      url = XMLHandler.getTagValue( entrynode, "url" );
-      targetFilename = XMLHandler.getTagValue( entrynode, "targetfilename" );
-      fileAppended = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "file_appended" ) );
-      dateTimeAdded = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "date_time_added" ) );
-      targetFilenameExtension = Const.NVL( XMLHandler.getTagValue( entrynode, "targetfilename_extension" ),
-        XMLHandler.getTagValue( entrynode, "targetfilename_extention" ) );
+      super.loadXml( entrynode );
+      url = XmlHandler.getTagValue( entrynode, "url" );
+      targetFilename = XmlHandler.getTagValue( entrynode, "targetfilename" );
+      fileAppended = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "file_appended" ) );
+      dateTimeAdded = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "date_time_added" ) );
+      targetFilenameExtension = Const.NVL( XmlHandler.getTagValue( entrynode, "targetfilename_extension" ),
+        XmlHandler.getTagValue( entrynode, "targetfilename_extention" ) );
 
-      uploadFilename = XMLHandler.getTagValue( entrynode, "uploadfilename" );
+      uploadFilename = XmlHandler.getTagValue( entrynode, "uploadfilename" );
 
-      urlFieldname = XMLHandler.getTagValue( entrynode, "url_fieldname" );
-      uploadFieldname = XMLHandler.getTagValue( entrynode, "upload_fieldname" );
-      destinationFieldname = XMLHandler.getTagValue( entrynode, "dest_fieldname" );
-      runForEveryRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "run_every_row" ) );
+      urlFieldname = XmlHandler.getTagValue( entrynode, "url_fieldname" );
+      uploadFieldname = XmlHandler.getTagValue( entrynode, "upload_fieldname" );
+      destinationFieldname = XmlHandler.getTagValue( entrynode, "dest_fieldname" );
+      runForEveryRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "run_every_row" ) );
 
-      username = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
+      username = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
 
-      proxyHostname = XMLHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxy_port" );
-      nonProxyHosts = XMLHandler.getTagValue( entrynode, "non_proxy_hosts" );
+      proxyHostname = XmlHandler.getTagValue( entrynode, "proxy_host" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
+      nonProxyHosts = XmlHandler.getTagValue( entrynode, "non_proxy_hosts" );
       addfilenameresult =
-        "Y".equalsIgnoreCase( Const.NVL( XMLHandler.getTagValue( entrynode, "addfilenameresult" ), "Y" ) );
-      Node headers = XMLHandler.getSubNode( entrynode, "headers" );
+        "Y".equalsIgnoreCase( Const.NVL( XmlHandler.getTagValue( entrynode, "addfilenameresult" ), "Y" ) );
+      Node headers = XmlHandler.getSubNode( entrynode, "headers" );
 
       // How many field headerName?
-      int nrHeaders = XMLHandler.countNodes( headers, "header" );
+      int nrHeaders = XmlHandler.countNodes( headers, "header" );
       allocate( nrHeaders );
       for ( int i = 0; i < nrHeaders; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( headers, "header", i );
-        headerName[ i ] = XMLHandler.getTagValue( fnode, "header_name" );
-        headerValue[ i ] = XMLHandler.getTagValue( fnode, "header_value" );
+        Node fnode = XmlHandler.getSubNodeByNr( headers, "header", i );
+        headerName[ i ] = XmlHandler.getTagValue( fnode, "header_name" );
+        headerValue[ i ] = XmlHandler.getTagValue( fnode, "header_value" );
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'HTTP' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'HTTP' from XML node", xe );
     }
   }
 

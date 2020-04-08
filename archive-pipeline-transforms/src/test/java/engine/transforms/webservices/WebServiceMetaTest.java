@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.webservices;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -94,7 +94,7 @@ public class WebServiceMetaTest {
       fieldsOut.get( 0 ), "GetCurrentExchangeRateResult", "GetCurrentExchangeRateResult", "decimal", 6 );
     WebServiceMeta clone = webServiceMeta.clone();
     assertNotSame( clone, webServiceMeta );
-    assertEquals( clone.getXML(), webServiceMeta.getXML() );
+    assertEquals( clone.getXml(), webServiceMeta.getXml() );
   }
 
   void assertWebServiceField( WebServiceField webServiceField, String name, String wsName, String xsdType, int type ) {
@@ -184,7 +184,7 @@ public class WebServiceMetaTest {
 
   }
 
-  private Node getTestNode() throws HopXMLException {
+  private Node getTestNode() throws HopXmlException {
     String xml =
       "  <transform>\n"
         + "    <name>Web services lookup</name>\n"
@@ -246,7 +246,7 @@ public class WebServiceMetaTest {
         + "      <draw>Y</draw>\n"
         + "      </GUI>\n"
         + "    </transform>\n";
-    return XMLHandler.loadXMLString( xml, "transform" );
+    return XmlHandler.loadXMLString( xml, "transform" );
   }
 
 

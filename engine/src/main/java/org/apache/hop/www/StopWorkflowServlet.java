@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.owasp.encoder.Encode;
@@ -154,7 +154,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       if ( useXML ) {
         response.setContentType( "text/xml" );
         response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+        out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
       } else {
         response.setContentType( "text/html;charset=UTF-8" );
         out.println( "<HTML>" );
@@ -194,7 +194,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
 
         String message = BaseMessages.getString( PKG, "JobStatusServlet.Log.JobStopRequested", workflowName );
         if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_OK, message ).getXML() );
+          out.println( new WebResult( WebResult.STRING_OK, message ).getXml() );
         } else {
           out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
           out.println( "<a href=\""
@@ -205,7 +205,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       } else {
         String message = BaseMessages.getString( PKG, "StopJobServlet.Log.CoundNotFindWorkflow", workflowName );
         if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_ERROR, message ).getXML() );
+          out.println( new WebResult( WebResult.STRING_ERROR, message ).getXml() );
         } else {
           out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );
           out.println( "<a href=\""
@@ -216,7 +216,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       }
     } catch ( Exception ex ) {
       if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ).getXML() );
+        out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ).getXml() );
       } else {
         out.println( "<p>" );
         out.println( "<pre>" );

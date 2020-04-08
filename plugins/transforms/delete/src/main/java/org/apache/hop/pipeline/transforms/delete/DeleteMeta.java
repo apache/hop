@@ -25,18 +25,18 @@ package org.apache.hop.pipeline.transforms.delete;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -236,7 +236,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     this.tableName = tableName;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -261,37 +261,37 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       String csize;
       int nrkeys;
 
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      csize = XMLHandler.getTagValue( transformNode, "commit" );
+      csize = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = ( csize != null ) ? csize : "0";
-      schemaName = XMLHandler.getTagValue( transformNode, "lookup", "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "lookup", "table" );
+      schemaName = XmlHandler.getTagValue( transformNode, "lookup", "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "lookup", "table" );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      nrkeys = XMLHandler.countNodes( lookup, "key" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      nrkeys = XmlHandler.countNodes( lookup, "key" );
 
       allocate( nrkeys );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
+        Node knode = XmlHandler.getSubNodeByNr( lookup, "key", i );
 
-        keyStream[ i ] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[ i ] = XMLHandler.getTagValue( knode, "field" );
-        keyCondition[ i ] = XMLHandler.getTagValue( knode, "condition" );
+        keyStream[ i ] = XmlHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XmlHandler.getTagValue( knode, "field" );
+        keyCondition[ i ] = XmlHandler.getTagValue( knode, "condition" );
         if ( keyCondition[ i ] == null ) {
           keyCondition[ i ] = "=";
         }
-        keyStream2[ i ] = XMLHandler.getTagValue( knode, "name2" );
+        keyStream2[ i ] = XmlHandler.getTagValue( knode, "name2" );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "DeleteMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -308,23 +308,23 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     allocate( nrkeys );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
     retval.append( "    <lookup>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", tableName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
 
     for ( int i = 0; i < keyStream.length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", keyStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", keyLookup[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "condition", keyCondition[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name2", keyStream2[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", keyStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", keyLookup[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "condition", keyCondition[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name2", keyStream2[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
@@ -481,9 +481,9 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
@@ -518,9 +518,9 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
             String sql = cr_table + cr_index;
             if ( sql.length() == 0 ) {
-              retval.setSQL( null );
+              retval.setSql( null );
             } else {
-              retval.setSQL( sql );
+              retval.setSql( sql );
             }
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "DeleteMeta.Returnvalue.ErrorOccurred" )

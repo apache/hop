@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -226,7 +226,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
     this.isUnicode = isUnicode;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -262,36 +262,36 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       int nrkeys;
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "fields" );
-      nrkeys = XMLHandler.countNodes( lookup, "field" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "fields" );
+      nrkeys = XmlHandler.countNodes( lookup, "field" );
 
       allocate( nrkeys );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( lookup, "field", i );
 
-        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
-        useRegEx[ i ] = getCaseSensitiveByCode( Const.NVL( XMLHandler.getTagValue( fnode, "use_regex" ), "" ) );
-        replaceString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_string" ), "" );
-        replaceByString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_by_string" ), "" );
-        String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
+        fieldInStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        useRegEx[ i ] = getCaseSensitiveByCode( Const.NVL( XmlHandler.getTagValue( fnode, "use_regex" ), "" ) );
+        replaceString[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "replace_string" ), "" );
+        replaceByString[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "replace_by_string" ), "" );
+        String emptyString = XmlHandler.getTagValue( fnode, "set_empty_string" );
 
         setEmptyString[ i ] = !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString );
-        replaceFieldByString[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "replace_field_by_string" ), "" );
-        wholeWord[ i ] = getWholeWordByCode( Const.NVL( XMLHandler.getTagValue( fnode, "whole_word" ), "" ) );
+        replaceFieldByString[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "replace_field_by_string" ), "" );
+        wholeWord[ i ] = getWholeWordByCode( Const.NVL( XmlHandler.getTagValue( fnode, "whole_word" ), "" ) );
         caseSensitive[ i ] =
-          getCaseSensitiveByCode( Const.NVL( XMLHandler.getTagValue( fnode, "case_sensitive" ), "" ) );
+          getCaseSensitiveByCode( Const.NVL( XmlHandler.getTagValue( fnode, "case_sensitive" ), "" ) );
         isUnicode[ i ] =
-          getIsUniCodeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "is_unicode" ), "" ) );
+          getIsUniCodeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "is_unicode" ), "" ) );
 
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ReplaceStringMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -317,27 +317,27 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
     allocate( nrkeys );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "use_regex", getUseRegExCode( useRegEx[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_string", replaceString[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "replace_by_string", replaceByString[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "use_regex", getUseRegExCode( useRegEx[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "replace_string", replaceString[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "replace_by_string", replaceByString[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "replace_field_by_string", replaceFieldByString[ i ] ) );
+        XmlHandler.addTagValue( "replace_field_by_string", replaceFieldByString[ i ] ) );
       retval
-        .append( "        " ).append( XMLHandler.addTagValue( "whole_word", getWholeWordCode( wholeWord[ i ] ) ) );
+        .append( "        " ).append( XmlHandler.addTagValue( "whole_word", getWholeWordCode( wholeWord[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "case_sensitive", getCaseSensitiveCode( caseSensitive[ i ] ) ) );
+        XmlHandler.addTagValue( "case_sensitive", getCaseSensitiveCode( caseSensitive[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "is_unicode", getIsUniCodeCode( isUnicode[ i ] ) ) );
+        XmlHandler.addTagValue( "is_unicode", getIsUniCodeCode( isUnicode[ i ] ) ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 

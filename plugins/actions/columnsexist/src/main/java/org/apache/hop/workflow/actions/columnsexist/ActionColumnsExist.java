@@ -30,10 +30,10 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -96,21 +96,21 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "name", arguments[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -119,29 +119,29 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
+      super.loadXml( entrynode );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
 
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        arguments[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
 
     } catch ( HopException e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionColumnsExist.Meta.UnableLoadXml" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionColumnsExist.Meta.UnableLoadXml" ), e );
     }
   }
 

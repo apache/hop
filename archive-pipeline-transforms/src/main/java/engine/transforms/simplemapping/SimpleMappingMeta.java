@@ -28,11 +28,11 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
@@ -85,27 +85,27 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     mappingParameters = new MappingParameters();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XMLHandler.getTagValue( transformNode, "filename" );
+      fileName = XmlHandler.getTagValue( transformNode, "filename" );
 
-      Node mappingsNode = XMLHandler.getSubNode( transformNode, "mappings" );
+      Node mappingsNode = XmlHandler.getSubNode( transformNode, "mappings" );
 
       if ( mappingsNode == null ) {
-        throw new HopXMLException( "Unable to find <mappings> element in the transform XML" );
+        throw new HopXmlException( "Unable to find <mappings> element in the transform XML" );
       }
 
       // Read all the input mapping definitions...
       //
-      Node inputNode = XMLHandler.getSubNode( mappingsNode, "input" );
-      Node mappingNode = XMLHandler.getSubNode( inputNode, MappingIODefinition.XML_TAG );
+      Node inputNode = XmlHandler.getSubNode( mappingsNode, "input" );
+      Node mappingNode = XmlHandler.getSubNode( inputNode, MappingIODefinition.XML_TAG );
       if ( mappingNode != null ) {
         inputMapping = new MappingIODefinition( mappingNode );
       } else {
         inputMapping = new MappingIODefinition(); // empty
       }
-      Node outputNode = XMLHandler.getSubNode( mappingsNode, "output" );
-      mappingNode = XMLHandler.getSubNode( outputNode, MappingIODefinition.XML_TAG );
+      Node outputNode = XmlHandler.getSubNode( mappingsNode, "output" );
+      mappingNode = XmlHandler.getSubNode( outputNode, MappingIODefinition.XML_TAG );
       if ( mappingNode != null ) {
         outputMapping = new MappingIODefinition( mappingNode );
       } else {
@@ -114,11 +114,11 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
 
       // Load the mapping parameters too..
       //
-      Node mappingParametersNode = XMLHandler.getSubNode( mappingsNode, MappingParameters.XML_TAG );
+      Node mappingParametersNode = XmlHandler.getSubNode( mappingsNode, MappingParameters.XML_TAG );
       mappingParameters = new MappingParameters( mappingParametersNode );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SimpleMappingMeta.Exception.ErrorLoadingPipelineTransformFromXML" ), e );
     }
   }
@@ -128,26 +128,26 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
 
-    retval.append( "    " ).append( XMLHandler.openTag( "mappings" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( "mappings" ) ).append( Const.CR );
 
-    retval.append( "      " ).append( XMLHandler.openTag( "input" ) ).append( Const.CR );
-    retval.append( inputMapping.getXML() );
-    retval.append( "      " ).append( XMLHandler.closeTag( "input" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.openTag( "input" ) ).append( Const.CR );
+    retval.append( inputMapping.getXml() );
+    retval.append( "      " ).append( XmlHandler.closeTag( "input" ) ).append( Const.CR );
 
-    retval.append( "      " ).append( XMLHandler.openTag( "output" ) ).append( Const.CR );
-    retval.append( outputMapping.getXML() );
-    retval.append( "      " ).append( XMLHandler.closeTag( "output" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.openTag( "output" ) ).append( Const.CR );
+    retval.append( outputMapping.getXml() );
+    retval.append( "      " ).append( XmlHandler.closeTag( "output" ) ).append( Const.CR );
 
     // Add the mapping parameters too
     //
-    retval.append( "      " ).append( mappingParameters.getXML() ).append( Const.CR );
+    retval.append( "      " ).append( mappingParameters.getXml() ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.closeTag( "mappings" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( "mappings" ) ).append( Const.CR );
 
     return retval.toString();
   }

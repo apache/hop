@@ -48,7 +48,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -113,7 +113,7 @@ public class HopServer {
         //
         try {
           SlaveServerDetection slaveServerDetection = new SlaveServerDetection( slaveServer.getClient() );
-          master.sendXML( slaveServerDetection.getXML(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
+          master.sendXML( slaveServerDetection.getXml(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
           log.logBasic( "Registered this slave server to master slave server [" + master.toString() + "] on address ["
             + master.getServerAndPort() + "]" );
         } catch ( Exception e ) {
@@ -197,9 +197,9 @@ public class HopServer {
       }
       usingConfigFile = true;
       FileObject file = HopVFS.getFileObject( arguments[ 0 ] );
-      Document document = XMLHandler.loadXMLFile( file );
+      Document document = XmlHandler.loadXMLFile( file );
       setHopEnvironment(); // Must stand up server now to allow decryption of password
-      Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
+      Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
       config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
       if ( config.getAutoSequence() != null ) {
         config.readAutoSequences();

@@ -24,13 +24,13 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterValueDialog;
@@ -609,18 +609,18 @@ public class ConditionEditor extends Composite {
           public void widgetSelected( SelectionEvent e ) {
             String xml = GUIResource.getInstance().fromClipboard();
             try {
-              Document d = XMLHandler.loadXMLString( xml );
-              Node condNode = XMLHandler.getSubNode( d, "condition" );
+              Document d = XmlHandler.loadXMLString( xml );
+              Node condNode = XmlHandler.getSubNode( d, "condition" );
               if ( condNode != null ) {
                 Condition c = new Condition( condNode );
                 active_condition.addCondition( cond_nr, c );
                 widget.redraw();
               } else {
                 new ErrorDialog( shell, BaseMessages.getString( PKG, "ConditionEditor.Error" ), BaseMessages
-                  .getString( PKG, "ConditionEditor.NoConditionFoundXML" ), new HopXMLException( BaseMessages
+                  .getString( PKG, "ConditionEditor.NoConditionFoundXML" ), new HopXmlException( BaseMessages
                   .getString( PKG, "ConditionEditor.NoConditionFoundXML.Exception", Const.CR + Const.CR + xml ) ) );
               }
-            } catch ( HopXMLException ex ) {
+            } catch ( HopXmlException ex ) {
               new ErrorDialog( shell, BaseMessages.getString( PKG, "ConditionEditor.Error" ), BaseMessages
                 .getString( PKG, "ConditionEditor.ErrorParsingCondition" ), ex );
             }
@@ -636,18 +636,18 @@ public class ConditionEditor extends Composite {
           public void widgetSelected( SelectionEvent e ) {
             String xml = GUIResource.getInstance().fromClipboard();
             try {
-              Document d = XMLHandler.loadXMLString( xml );
-              Node condNode = XMLHandler.getSubNode( d, "condition" );
+              Document d = XmlHandler.loadXMLString( xml );
+              Node condNode = XmlHandler.getSubNode( d, "condition" );
               if ( condNode != null ) {
                 Condition c = new Condition( condNode );
                 active_condition.addCondition( cond_nr + 1, c );
                 widget.redraw();
               } else {
                 new ErrorDialog( shell, BaseMessages.getString( PKG, "ConditionEditor.Error" ), BaseMessages
-                  .getString( PKG, "ConditionEditor.NoConditionFoundXML" ), new HopXMLException( BaseMessages
+                  .getString( PKG, "ConditionEditor.NoConditionFoundXML" ), new HopXmlException( BaseMessages
                   .getString( PKG, "ConditionEditor.NoConditionFoundXML.Exception", Const.CR + Const.CR + xml ) ) );
               }
-            } catch ( HopXMLException ex ) {
+            } catch ( HopXmlException ex ) {
               new ErrorDialog( shell, BaseMessages.getString( PKG, "ConditionEditor.Error" ), BaseMessages
                 .getString( PKG, "ConditionEditor.ErrorParsingCondition" ), ex );
             }

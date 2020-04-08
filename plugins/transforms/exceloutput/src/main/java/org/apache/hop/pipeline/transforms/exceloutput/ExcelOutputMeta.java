@@ -29,7 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -814,7 +814,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -836,93 +836,93 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      headerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "header" ) );
-      footerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "footer" ) );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      append = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "append" ) );
-      String addToResult = XMLHandler.getTagValue( transformNode, "add_to_result_filenames" );
+      headerEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "header" ) );
+      footerEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "footer" ) );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      append = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "append" ) );
+      String addToResult = XmlHandler.getTagValue( transformNode, "add_to_result_filenames" );
       if ( Utils.isEmpty( addToResult ) ) {
         addToResultFilenames = true;
       } else {
         addToResultFilenames = "Y".equalsIgnoreCase( addToResult );
       }
 
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
-      extension = XMLHandler.getTagValue( transformNode, "file", "extention" );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
+      extension = XmlHandler.getTagValue( transformNode, "file", "extention" );
 
       doNotOpenNewFileInit =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
       createparentfolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
 
-      transformNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "split" ) );
-      dateInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_date" ) );
-      timeInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
-      date_time_format = XMLHandler.getTagValue( transformNode, "file", "date_time_format" );
-      usetempfiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "usetempfiles" ) );
+      transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
+      dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
+      timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
+      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
+      date_time_format = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
+      usetempfiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "usetempfiles" ) );
 
-      tempdirectory = XMLHandler.getTagValue( transformNode, "file", "tempdirectory" );
-      autoSizeColumns = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "autosizecolums" ) );
-      nullIsBlank = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "nullisblank" ) );
-      protectsheet = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "protect_sheet" ) );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "file", "password" ) );
-      splitEvery = Const.toInt( XMLHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
+      tempdirectory = XmlHandler.getTagValue( transformNode, "file", "tempdirectory" );
+      autoSizeColumns = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "autosizecolums" ) );
+      nullIsBlank = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "nullisblank" ) );
+      protectsheet = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "protect_sheet" ) );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "file", "password" ) );
+      splitEvery = Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
 
-      templateEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "template", "enabled" ) );
-      templateAppend = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "template", "append" ) );
-      templateFileName = XMLHandler.getTagValue( transformNode, "template", "filename" );
-      sheetname = XMLHandler.getTagValue( transformNode, "file", "sheetname" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      templateEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "template", "enabled" ) );
+      templateAppend = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "template", "append" ) );
+      templateFileName = XmlHandler.getTagValue( transformNode, "template", "filename" );
+      sheetname = XmlHandler.getTagValue( transformNode, "file", "sheetname" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new ExcelField();
-        outputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        outputFields[ i ].setType( XMLHandler.getTagValue( fnode, "type" ) );
-        outputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ].setName( XmlHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setType( XmlHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
       }
-      Node customnode = XMLHandler.getSubNode( transformNode, "custom" );
+      Node customnode = XmlHandler.getSubNode( transformNode, "custom" );
       header_font_name =
-        getFontNameByCode( Const.NVL( XMLHandler.getTagValue( customnode, "header_font_name" ), "" ) );
+        getFontNameByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_font_name" ), "" ) );
       header_font_size =
-        Const.NVL( XMLHandler.getTagValue( customnode, "header_font_size" ), "" + DEFAULT_FONT_SIZE );
-      header_font_bold = "Y".equalsIgnoreCase( XMLHandler.getTagValue( customnode, "header_font_bold" ) );
-      header_font_italic = "Y".equalsIgnoreCase( XMLHandler.getTagValue( customnode, "header_font_italic" ) );
+        Const.NVL( XmlHandler.getTagValue( customnode, "header_font_size" ), "" + DEFAULT_FONT_SIZE );
+      header_font_bold = "Y".equalsIgnoreCase( XmlHandler.getTagValue( customnode, "header_font_bold" ) );
+      header_font_italic = "Y".equalsIgnoreCase( XmlHandler.getTagValue( customnode, "header_font_italic" ) );
       header_font_underline =
-        getFontUnderlineByCode( Const.NVL( XMLHandler.getTagValue( customnode, "header_font_underline" ), "" ) );
+        getFontUnderlineByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_font_underline" ), "" ) );
       header_font_orientation =
         getFontOrientationByCode( Const
-          .NVL( XMLHandler.getTagValue( customnode, "header_font_orientation" ), "" ) );
+          .NVL( XmlHandler.getTagValue( customnode, "header_font_orientation" ), "" ) );
       header_font_color =
-        getFontColorByCode( Const.NVL( XMLHandler.getTagValue( customnode, "header_font_color" ), ""
+        getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_font_color" ), ""
           + FONT_COLOR_BLACK ) );
       header_background_color =
-        getFontColorByCode( Const.NVL( XMLHandler.getTagValue( customnode, "header_background_color" ), ""
+        getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_background_color" ), ""
           + FONT_COLOR_NONE ) );
-      header_row_height = XMLHandler.getTagValue( customnode, "header_row_height" );
+      header_row_height = XmlHandler.getTagValue( customnode, "header_row_height" );
       header_alignment =
-        getFontAlignmentByCode( Const.NVL( XMLHandler.getTagValue( customnode, "header_alignment" ), "" ) );
-      header_image = XMLHandler.getTagValue( customnode, "header_image" );
+        getFontAlignmentByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_alignment" ), "" ) );
+      header_image = XmlHandler.getTagValue( customnode, "header_image" );
       // Row font
-      row_font_name = getFontNameByCode( Const.NVL( XMLHandler.getTagValue( customnode, "row_font_name" ), "" ) );
-      row_font_size = Const.NVL( XMLHandler.getTagValue( customnode, "row_font_size" ), "" + DEFAULT_FONT_SIZE );
+      row_font_name = getFontNameByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_font_name" ), "" ) );
+      row_font_size = Const.NVL( XmlHandler.getTagValue( customnode, "row_font_size" ), "" + DEFAULT_FONT_SIZE );
       row_font_color =
-        getFontColorByCode( Const.NVL( XMLHandler.getTagValue( customnode, "row_font_color" ), ""
+        getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_font_color" ), ""
           + FONT_COLOR_BLACK ) );
       row_background_color =
-        getFontColorByCode( Const.NVL( XMLHandler.getTagValue( customnode, "row_background_color" ), ""
+        getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_background_color" ), ""
           + FONT_COLOR_NONE ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -1077,40 +1077,40 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 800 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "header", headerEnabled ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "footer", footerEnabled ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "append", append ) );
-    retval.append( "    " + XMLHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "header", headerEnabled ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "footer", footerEnabled ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "append", append ) );
+    retval.append( "    " + XmlHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
 
     retval.append( "    <file>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "extention", extension ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "create_parent_folder", createparentfolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "split", transformNrInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", dateInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sheetname", sheetname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "autosizecolums", autoSizeColumns ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nullisblank", nullIsBlank ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protect_sheet", protectsheet ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", fileName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "extention", extension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "create_parent_folder", createparentfolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "split", transformNrInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", dateInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", timeInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sheetname", sheetname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "autosizecolums", autoSizeColumns ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nullisblank", nullIsBlank ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protect_sheet", protectsheet ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "splitevery", splitEvery ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usetempfiles", usetempfiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tempdirectory", tempdirectory ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "splitevery", splitEvery ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usetempfiles", usetempfiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tempdirectory", tempdirectory ) );
     retval.append( "      </file>" ).append( Const.CR );
 
     retval.append( "    <template>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "enabled", templateEnabled ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "append", templateAppend ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", templateFileName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", templateEnabled ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "append", templateAppend ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", templateFileName ) );
     retval.append( "    </template>" ).append( Const.CR );
 
     retval.append( "    <fields>" ).append( Const.CR );
@@ -1119,36 +1119,36 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
 
       if ( field.getName() != null && field.getName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", field.getName() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "type", field.getTypeDesc() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", field.getFormat() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", field.getName() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "type", field.getTypeDesc() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", field.getFormat() ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }
     retval.append( "    </fields>" ).append( Const.CR );
 
     retval.append( "    <custom>" + Const.CR );
-    retval.append( "    " + XMLHandler.addTagValue( "header_font_name", getFontNameCode( header_font_name ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_font_size", header_font_size ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_font_bold", header_font_bold ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_font_italic", header_font_italic ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_name", getFontNameCode( header_font_name ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_size", header_font_size ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_bold", header_font_bold ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_italic", header_font_italic ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "header_font_underline", getFontUnderlineCode( header_font_underline ) ) );
+      + XmlHandler.addTagValue( "header_font_underline", getFontUnderlineCode( header_font_underline ) ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "header_font_orientation", getFontOrientationCode( header_font_orientation ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_font_color", getFontColorCode( header_font_color ) ) );
+      + XmlHandler.addTagValue( "header_font_orientation", getFontOrientationCode( header_font_orientation ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_color", getFontColorCode( header_font_color ) ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "header_background_color", getFontColorCode( header_background_color ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_row_height", header_row_height ) );
+      + XmlHandler.addTagValue( "header_background_color", getFontColorCode( header_background_color ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_row_height", header_row_height ) );
     retval
-      .append( "    " + XMLHandler.addTagValue( "header_alignment", getFontAlignmentCode( header_alignment ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "header_image", header_image ) );
+      .append( "    " + XmlHandler.addTagValue( "header_alignment", getFontAlignmentCode( header_alignment ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_image", header_image ) );
     // row font
-    retval.append( "    " + XMLHandler.addTagValue( "row_font_name", getFontNameCode( row_font_name ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "row_font_size", row_font_size ) );
-    retval.append( "    " + XMLHandler.addTagValue( "row_font_color", getFontColorCode( row_font_color ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "row_font_name", getFontNameCode( row_font_name ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "row_font_size", row_font_size ) );
+    retval.append( "    " + XmlHandler.addTagValue( "row_font_color", getFontColorCode( row_font_color ) ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "row_background_color", getFontColorCode( row_background_color ) ) );
+      + XmlHandler.addTagValue( "row_background_color", getFontColorCode( row_background_color ) ) );
     retval.append( "      </custom>" + Const.CR );
     return retval.toString();
   }

@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -329,7 +329,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -368,36 +368,36 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
       int nrkeys;
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "fields" );
-      nrkeys = XMLHandler.countNodes( lookup, "field" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "fields" );
+      nrkeys = XmlHandler.countNodes( lookup, "field" );
 
       allocate( nrkeys );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( lookup, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( lookup, "field", i );
 
-        fieldInStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "in_stream_name" ), "" );
-        fieldOutStream[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "out_stream_name" ), "" );
+        fieldInStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "in_stream_name" ), "" );
+        fieldOutStream[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "out_stream_name" ), "" );
 
-        trimType[ i ] = getTrimTypeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "trim_type" ), "" ) );
-        lowerUpper[ i ] = getLowerUpperByCode( Const.NVL( XMLHandler.getTagValue( fnode, "lower_upper" ), "" ) );
-        padding_type[ i ] = getPaddingByCode( Const.NVL( XMLHandler.getTagValue( fnode, "padding_type" ), "" ) );
-        padChar[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_char" ), "" );
-        padLen[ i ] = Const.NVL( XMLHandler.getTagValue( fnode, "pad_len" ), "" );
-        initCap[ i ] = getInitCapByCode( Const.NVL( XMLHandler.getTagValue( fnode, "init_cap" ), "" ) );
-        maskXML[ i ] = getMaskXMLByCode( Const.NVL( XMLHandler.getTagValue( fnode, "mask_xml" ), "" ) );
-        digits[ i ] = getDigitsByCode( Const.NVL( XMLHandler.getTagValue( fnode, "digits" ), "" ) );
+        trimType[ i ] = getTrimTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "trim_type" ), "" ) );
+        lowerUpper[ i ] = getLowerUpperByCode( Const.NVL( XmlHandler.getTagValue( fnode, "lower_upper" ), "" ) );
+        padding_type[ i ] = getPaddingByCode( Const.NVL( XmlHandler.getTagValue( fnode, "padding_type" ), "" ) );
+        padChar[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "pad_char" ), "" );
+        padLen[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "pad_len" ), "" );
+        initCap[ i ] = getInitCapByCode( Const.NVL( XmlHandler.getTagValue( fnode, "init_cap" ), "" ) );
+        maskXML[ i ] = getMaskXMLByCode( Const.NVL( XmlHandler.getTagValue( fnode, "mask_xml" ), "" ) );
+        digits[ i ] = getDigitsByCode( Const.NVL( XmlHandler.getTagValue( fnode, "digits" ), "" ) );
         remove_special_characters[ i ] =
-          getRemoveSpecialCharactersByCode( Const.NVL( XMLHandler.getTagValue(
+          getRemoveSpecialCharactersByCode( Const.NVL( XmlHandler.getTagValue(
             fnode, "remove_special_characters" ), "" ) );
 
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "StringOperationsMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -413,28 +413,28 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldInStream.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "in_stream_name", fieldInStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "out_stream_name", fieldOutStream[ i ] ) );
 
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode( trimType[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode( trimType[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "lower_upper", getLowerUpperCode( lowerUpper[ i ] ) ) );
+        XmlHandler.addTagValue( "lower_upper", getLowerUpperCode( lowerUpper[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "padding_type", getPaddingCode( padding_type[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_char", padChar[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pad_len", padLen[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "init_cap", getInitCapCode( initCap[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "mask_xml", getMaskXMLCode( maskXML[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "digits", getDigitsCode( digits[ i ] ) ) );
+        XmlHandler.addTagValue( "padding_type", getPaddingCode( padding_type[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "pad_char", padChar[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "pad_len", padLen[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "init_cap", getInitCapCode( initCap[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "mask_xml", getMaskXMLCode( maskXML[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "digits", getDigitsCode( digits[ i ] ) ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue(
+        XmlHandler.addTagValue(
           "remove_special_characters", getRemoveSpecialCharactersCode( remove_special_characters[ i ] ) ) );
 
       retval.append( "      </field>" ).append( Const.CR );

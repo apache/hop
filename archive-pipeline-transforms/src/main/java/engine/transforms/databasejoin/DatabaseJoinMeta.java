@@ -31,14 +31,14 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -194,7 +194,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     parameterField = null;
     parameterType = null;
     outerJoin = false;
@@ -221,28 +221,28 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      sql = XMLHandler.getTagValue( transformNode, "sql" );
-      outerJoin = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "outer_join" ) );
-      replacevars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "replace_vars" ) );
-      rowLimit = Const.toInt( XMLHandler.getTagValue( transformNode, "rowlimit" ), 0 );
+      sql = XmlHandler.getTagValue( transformNode, "sql" );
+      outerJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outer_join" ) );
+      replacevars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace_vars" ) );
+      rowLimit = Const.toInt( XmlHandler.getTagValue( transformNode, "rowlimit" ), 0 );
 
-      Node param = XMLHandler.getSubNode( transformNode, "parameter" );
-      int nrparam = XMLHandler.countNodes( param, "field" );
+      Node param = XmlHandler.getSubNode( transformNode, "parameter" );
+      int nrparam = XmlHandler.countNodes( param, "field" );
 
       allocate( nrparam );
 
       for ( int i = 0; i < nrparam; i++ ) {
-        Node pnode = XMLHandler.getSubNodeByNr( param, "field", i );
-        parameterField[ i ] = XMLHandler.getTagValue( pnode, "name" );
-        String ptype = XMLHandler.getTagValue( pnode, "type" );
+        Node pnode = XmlHandler.getSubNodeByNr( param, "field", i );
+        parameterField[ i ] = XmlHandler.getTagValue( pnode, "name" );
+        String ptype = XmlHandler.getTagValue( pnode, "type" );
         parameterType[ i ] = ValueMetaFactory.getIdForValueMeta( ptype );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages
+      throw new HopXmlException( BaseMessages
         .getString( PKG, "DatabaseJoinMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
@@ -336,22 +336,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rowlimit", rowLimit ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sql", sql ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "outer_join", outerJoin ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "replace_vars", replacevars ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowlimit", rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sql", sql ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "outer_join", outerJoin ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "replace_vars", replacevars ) );
     retval.append( "    <parameter>" ).append( Const.CR );
     for ( int i = 0; i < parameterField.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameterField[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( parameterType[ i ] ) ) );
+        XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( parameterType[ i ] ) ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </parameter>" ).append( Const.CR );

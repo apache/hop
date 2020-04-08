@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -120,29 +120,29 @@ public class TransformStatus {
       + Encode.forHtml( priority ) + "</th> " + "</tr>";
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     try {
       StringBuilder xml = new StringBuilder();
-      xml.append( XMLHandler.openTag( XML_TAG ) );
+      xml.append( XmlHandler.openTag( XML_TAG ) );
 
-      xml.append( XMLHandler.addTagValue( "transformName", transformName, false ) );
-      xml.append( XMLHandler.addTagValue( "copy", copy, false ) );
-      xml.append( XMLHandler.addTagValue( "linesRead", linesRead, false ) );
-      xml.append( XMLHandler.addTagValue( "linesWritten", linesWritten, false ) );
-      xml.append( XMLHandler.addTagValue( "linesInput", linesInput, false ) );
-      xml.append( XMLHandler.addTagValue( "linesOutput", linesOutput, false ) );
-      xml.append( XMLHandler.addTagValue( "linesUpdated", linesUpdated, false ) );
-      xml.append( XMLHandler.addTagValue( "linesRejected", linesRejected, false ) );
-      xml.append( XMLHandler.addTagValue( "errors", errors, false ) );
-      xml.append( XMLHandler.addTagValue( "statusDescription", statusDescription, false ) );
-      xml.append( XMLHandler.addTagValue( "seconds", seconds, false ) );
-      xml.append( XMLHandler.addTagValue( "speed", speed, false ) );
-      xml.append( XMLHandler.addTagValue( "priority", priority, false ) );
-      xml.append( XMLHandler.addTagValue( "stopped", stopped, false ) );
-      xml.append( XMLHandler.addTagValue( "paused", paused, false ) );
+      xml.append( XmlHandler.addTagValue( "transformName", transformName, false ) );
+      xml.append( XmlHandler.addTagValue( "copy", copy, false ) );
+      xml.append( XmlHandler.addTagValue( "linesRead", linesRead, false ) );
+      xml.append( XmlHandler.addTagValue( "linesWritten", linesWritten, false ) );
+      xml.append( XmlHandler.addTagValue( "linesInput", linesInput, false ) );
+      xml.append( XmlHandler.addTagValue( "linesOutput", linesOutput, false ) );
+      xml.append( XmlHandler.addTagValue( "linesUpdated", linesUpdated, false ) );
+      xml.append( XmlHandler.addTagValue( "linesRejected", linesRejected, false ) );
+      xml.append( XmlHandler.addTagValue( "errors", errors, false ) );
+      xml.append( XmlHandler.addTagValue( "statusDescription", statusDescription, false ) );
+      xml.append( XmlHandler.addTagValue( "seconds", seconds, false ) );
+      xml.append( XmlHandler.addTagValue( "speed", speed, false ) );
+      xml.append( XmlHandler.addTagValue( "priority", priority, false ) );
+      xml.append( XmlHandler.addTagValue( "stopped", stopped, false ) );
+      xml.append( XmlHandler.addTagValue( "paused", paused, false ) );
 
       if ( sampleRowMeta != null ) {
-        xml.append( XMLHandler.openTag( "samples" ) );
+        xml.append( XmlHandler.openTag( "samples" ) );
         xml.append( sampleRowMeta.getMetaXML() );
         xml.append( Const.CR );
         if ( sampleRows != null ) {
@@ -155,10 +155,10 @@ public class TransformStatus {
             }
           }
         }
-        xml.append( XMLHandler.closeTag( "samples" ) );
+        xml.append( XmlHandler.closeTag( "samples" ) );
       }
 
-      xml.append( XMLHandler.closeTag( XML_TAG ) );
+      xml.append( XmlHandler.closeTag( XML_TAG ) );
       return xml.toString();
     } catch ( Exception e ) {
       throw new HopException( "Unable to serialize transform '" + transformName + "' status data to XML", e );
@@ -166,29 +166,29 @@ public class TransformStatus {
   }
 
   public TransformStatus( Node node ) throws HopException {
-    transformName = XMLHandler.getTagValue( node, "transformName" );
-    copy = Integer.parseInt( XMLHandler.getTagValue( node, "copy" ) );
-    linesRead = Long.parseLong( XMLHandler.getTagValue( node, "linesRead" ) );
-    linesWritten = Long.parseLong( XMLHandler.getTagValue( node, "linesWritten" ) );
-    linesInput = Long.parseLong( XMLHandler.getTagValue( node, "linesInput" ) );
-    linesOutput = Long.parseLong( XMLHandler.getTagValue( node, "linesOutput" ) );
-    linesUpdated = Long.parseLong( XMLHandler.getTagValue( node, "linesUpdated" ) );
-    linesRejected = Long.parseLong( XMLHandler.getTagValue( node, "linesRejected" ) );
-    errors = Long.parseLong( XMLHandler.getTagValue( node, "errors" ) );
-    statusDescription = XMLHandler.getTagValue( node, "statusDescription" );
-    seconds = Double.parseDouble( XMLHandler.getTagValue( node, "seconds" ) );
-    speed = XMLHandler.getTagValue( node, "speed" );
-    priority = XMLHandler.getTagValue( node, "priority" );
-    stopped = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "stopped" ) );
-    paused = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "paused" ) );
+    transformName = XmlHandler.getTagValue( node, "transformName" );
+    copy = Integer.parseInt( XmlHandler.getTagValue( node, "copy" ) );
+    linesRead = Long.parseLong( XmlHandler.getTagValue( node, "linesRead" ) );
+    linesWritten = Long.parseLong( XmlHandler.getTagValue( node, "linesWritten" ) );
+    linesInput = Long.parseLong( XmlHandler.getTagValue( node, "linesInput" ) );
+    linesOutput = Long.parseLong( XmlHandler.getTagValue( node, "linesOutput" ) );
+    linesUpdated = Long.parseLong( XmlHandler.getTagValue( node, "linesUpdated" ) );
+    linesRejected = Long.parseLong( XmlHandler.getTagValue( node, "linesRejected" ) );
+    errors = Long.parseLong( XmlHandler.getTagValue( node, "errors" ) );
+    statusDescription = XmlHandler.getTagValue( node, "statusDescription" );
+    seconds = Double.parseDouble( XmlHandler.getTagValue( node, "seconds" ) );
+    speed = XmlHandler.getTagValue( node, "speed" );
+    priority = XmlHandler.getTagValue( node, "priority" );
+    stopped = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "stopped" ) );
+    paused = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "paused" ) );
 
-    Node samplesNode = XMLHandler.getSubNode( node, "samples" );
+    Node samplesNode = XmlHandler.getSubNode( node, "samples" );
     if ( samplesNode != null ) {
-      Node rowMetaNode = XMLHandler.getSubNode( samplesNode, RowMeta.XML_META_TAG );
+      Node rowMetaNode = XmlHandler.getSubNode( samplesNode, RowMeta.XML_META_TAG );
       if ( rowMetaNode != null ) {
         sampleRowMeta = new RowMeta( rowMetaNode );
         sampleRows = new ArrayList<Object[]>();
-        List<Node> dataNodes = XMLHandler.getNodes( samplesNode, RowMeta.XML_DATA_TAG );
+        List<Node> dataNodes = XmlHandler.getNodes( samplesNode, RowMeta.XML_DATA_TAG );
         for ( Node dataNode : dataNodes ) {
           Object[] sampleRow = sampleRowMeta.getRow( dataNode );
           sampleRows.add( sampleRow );
@@ -198,8 +198,8 @@ public class TransformStatus {
   }
 
   public TransformStatus fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    return new TransformStatus( XMLHandler.getSubNode( document, XML_TAG ) );
+    Document document = XmlHandler.loadXMLString( xml );
+    return new TransformStatus( XmlHandler.getSubNode( document, XML_TAG ) );
   }
 
   public String[] getPipelineLogFields() {

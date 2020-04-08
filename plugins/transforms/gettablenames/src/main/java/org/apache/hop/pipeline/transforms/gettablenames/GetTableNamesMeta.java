@@ -27,7 +27,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -148,14 +148,14 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
   /**
    * @return Returns the resultName.
    */
-  public String getSQLCreationFieldName() {
+  public String getSqlCreationFieldName() {
     return sqlcreationfieldname;
   }
 
   /**
    * @param sqlcreationfieldname The sqlcreationfieldname to set.
    */
-  public void setSQLCreationFieldName( String sqlcreationfieldname ) {
+  public void setSqlCreationFieldName( String sqlcreationfieldname ) {
     this.sqlcreationfieldname = sqlcreationfieldname;
   }
 
@@ -293,7 +293,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -357,59 +357,59 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "tablenamefieldname", tablenamefieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "objecttypefieldname", objecttypefieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "issystemobjectfieldname", issystemobjectfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sqlcreationfieldname", sqlcreationfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "tablenamefieldname", tablenamefieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "objecttypefieldname", objecttypefieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "issystemobjectfieldname", issystemobjectfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sqlcreationfieldname", sqlcreationfieldname ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "includeCatalog", includeCatalog ) );
-    retval.append( "    " + XMLHandler.addTagValue( "includeSchema", includeSchema ) );
-    retval.append( "    " + XMLHandler.addTagValue( "includeTable", includeTable ) );
-    retval.append( "    " + XMLHandler.addTagValue( "includeView", includeView ) );
-    retval.append( "    " + XMLHandler.addTagValue( "includeProcedure", includeProcedure ) );
-    retval.append( "    " + XMLHandler.addTagValue( "includeSynonym", includeSynonym ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addSchemaInOutput", addSchemaInOutput ) );
-    retval.append( "    " + XMLHandler.addTagValue( "dynamicSchema", dynamicSchema ) );
-    retval.append( "    " + XMLHandler.addTagValue( "schemaNameField", schemaNameField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeCatalog", includeCatalog ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeSchema", includeSchema ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeTable", includeTable ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeView", includeView ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeProcedure", includeProcedure ) );
+    retval.append( "    " + XmlHandler.addTagValue( "includeSynonym", includeSynonym ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addSchemaInOutput", addSchemaInOutput ) );
+    retval.append( "    " + XmlHandler.addTagValue( "dynamicSchema", dynamicSchema ) );
+    retval.append( "    " + XmlHandler.addTagValue( "schemaNameField", schemaNameField ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       this.metaStore = metaStore;
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       database = DatabaseMeta.loadDatabase( metaStore, con );
-      schemaname = XMLHandler.getTagValue( transformNode, "schemaname" );
-      tablenamefieldname = XMLHandler.getTagValue( transformNode, "tablenamefieldname" );
-      objecttypefieldname = XMLHandler.getTagValue( transformNode, "objecttypefieldname" );
-      sqlcreationfieldname = XMLHandler.getTagValue( transformNode, "sqlcreationfieldname" );
+      schemaname = XmlHandler.getTagValue( transformNode, "schemaname" );
+      tablenamefieldname = XmlHandler.getTagValue( transformNode, "tablenamefieldname" );
+      objecttypefieldname = XmlHandler.getTagValue( transformNode, "objecttypefieldname" );
+      sqlcreationfieldname = XmlHandler.getTagValue( transformNode, "sqlcreationfieldname" );
 
-      issystemobjectfieldname = XMLHandler.getTagValue( transformNode, "issystemobjectfieldname" );
-      includeCatalog = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeCatalog" ) );
-      includeSchema = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeSchema" ) );
-      includeTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeTable" ) );
-      includeView = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeView" ) );
-      includeProcedure = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeProcedure" ) );
-      includeSynonym = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "includeSynonym" ) );
-      addSchemaInOutput = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addSchemaInOutput" ) );
-      dynamicSchema = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamicSchema" ) );
-      schemaNameField = XMLHandler.getTagValue( transformNode, "schemaNameField" );
+      issystemobjectfieldname = XmlHandler.getTagValue( transformNode, "issystemobjectfieldname" );
+      includeCatalog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeCatalog" ) );
+      includeSchema = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeSchema" ) );
+      includeTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeTable" ) );
+      includeView = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeView" ) );
+      includeProcedure = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeProcedure" ) );
+      includeSynonym = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeSynonym" ) );
+      addSchemaInOutput = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addSchemaInOutput" ) );
+      dynamicSchema = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamicSchema" ) );
+      schemaNameField = XmlHandler.getTagValue( transformNode, "schemaNameField" );
 
-      if ( XMLHandler.getTagValue( transformNode, "schenameNameField" ) != null ) {
+      if ( XmlHandler.getTagValue( transformNode, "schenameNameField" ) != null ) {
         /*
          * Fix for wrong field name in the 7.0. Can be removed if we don't want to keep backward compatibility with 7.0
          * tranformations.
          */
-        schemaNameField = XMLHandler.getTagValue( transformNode, "schenameNameField" );
+        schemaNameField = XmlHandler.getTagValue( transformNode, "schenameNameField" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "GetTableNamesMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

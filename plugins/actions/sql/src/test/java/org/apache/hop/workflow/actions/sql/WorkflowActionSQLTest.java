@@ -52,10 +52,10 @@ public class WorkflowActionSQLTest extends WorkflowActionLoadSaveTestSupport<Act
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-      "sql", "getSQL",
+      "sql", "getSql",
       "useVariableSubstitution", "getUseVariableSubstitution",
-      "sqlfromfile", "getSQLFromFile",
-      "sqlfilename", "getSQLFilename",
+      "sqlfromfile", "getSqlFromFile",
+      "sqlfilename", "getSqlFilename",
       "sendOneStatement", "isSendOneStatement",
       "database", "getDatabase" );
   }
@@ -63,10 +63,10 @@ public class WorkflowActionSQLTest extends WorkflowActionLoadSaveTestSupport<Act
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-      "sql", "setSQL",
+      "sql", "setSql",
       "useVariableSubstitution", "setUseVariableSubstitution",
-      "sqlfromfile", "setSQLFromFile",
-      "sqlfilename", "setSQLFilename",
+      "sqlfromfile", "setSqlFromFile",
+      "sqlfilename", "setSqlFilename",
       "sendOneStatement", "setSendOneStatement",
       "database", "setDatabase" );
   }

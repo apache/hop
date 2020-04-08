@@ -183,7 +183,7 @@ public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       LDIFInputField actualInput = (LDIFInputField) actual;
-      return ( testObject.getXML().equals( actualInput.getXML() ) );
+      return ( testObject.getXml().equals( actualInput.getXml() ) );
     }
   }
 }

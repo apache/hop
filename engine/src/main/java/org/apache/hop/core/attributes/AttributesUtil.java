@@ -23,7 +23,7 @@
 package org.apache.hop.core.attributes;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class AttributesUtil {
   public static String getAttributesXml( Map<String, Map<String, String>> attributesMap, String xmlTag ) {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( xmlTag ) );
+    xml.append( XmlHandler.openTag( xmlTag ) );
 
     if ( attributesMap != null && !attributesMap.isEmpty() ) {
       List<String> groupNames = new ArrayList<>( attributesMap.keySet() );
@@ -74,23 +74,23 @@ public class AttributesUtil {
 
       for ( String groupName : groupNames ) {
 
-        xml.append( XMLHandler.openTag( XML_TAG_GROUP ) );
-        xml.append( XMLHandler.addTagValue( "name", groupName ) );
+        xml.append( XmlHandler.openTag( XML_TAG_GROUP ) );
+        xml.append( XmlHandler.addTagValue( "name", groupName ) );
 
         Map<String, String> attributes = attributesMap.get( groupName );
         List<String> keys = new ArrayList<>( attributes.keySet() );
         for ( String key : keys ) {
-          xml.append( XMLHandler.openTag( XML_TAG_ATTRIBUTE ) );
-          xml.append( XMLHandler.addTagValue( "key", key ) );
-          xml.append( XMLHandler.addTagValue( "value", attributes.get( key ) ) );
-          xml.append( XMLHandler.closeTag( XML_TAG_ATTRIBUTE ) );
+          xml.append( XmlHandler.openTag( XML_TAG_ATTRIBUTE ) );
+          xml.append( XmlHandler.addTagValue( "key", key ) );
+          xml.append( XmlHandler.addTagValue( "value", attributes.get( key ) ) );
+          xml.append( XmlHandler.closeTag( XML_TAG_ATTRIBUTE ) );
         }
 
-        xml.append( XMLHandler.closeTag( XML_TAG_GROUP ) );
+        xml.append( XmlHandler.closeTag( XML_TAG_GROUP ) );
       }
     }
 
-    xml.append( XMLHandler.closeTag( xmlTag ) ).append( Const.CR );
+    xml.append( XmlHandler.closeTag( xmlTag ) ).append( Const.CR );
 
     return xml.toString();
   }
@@ -106,15 +106,15 @@ public class AttributesUtil {
     Map<String, Map<String, String>> attributesMap = new HashMap<>();
 
     if ( attributesNode != null ) {
-      List<Node> groupNodes = XMLHandler.getNodes( attributesNode, XML_TAG_GROUP );
+      List<Node> groupNodes = XmlHandler.getNodes( attributesNode, XML_TAG_GROUP );
       for ( Node groupNode : groupNodes ) {
-        String groupName = XMLHandler.getTagValue( groupNode, "name" );
+        String groupName = XmlHandler.getTagValue( groupNode, "name" );
         Map<String, String> attributes = new HashMap<>();
         attributesMap.put( groupName, attributes );
-        List<Node> attributeNodes = XMLHandler.getNodes( groupNode, XML_TAG_ATTRIBUTE );
+        List<Node> attributeNodes = XmlHandler.getNodes( groupNode, XML_TAG_ATTRIBUTE );
         for ( Node attributeNode : attributeNodes ) {
-          String key = XMLHandler.getTagValue( attributeNode, "key" );
-          String value = XMLHandler.getTagValue( attributeNode, "value" );
+          String key = XmlHandler.getTagValue( attributeNode, "key" );
+          String value = XmlHandler.getTagValue( attributeNode, "value" );
           if ( key != null && value != null ) {
             attributes.put( key, value );
           }

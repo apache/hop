@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -103,7 +103,7 @@ public class ValueMapperMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -126,25 +126,25 @@ public class ValueMapperMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      fieldToUse = XMLHandler.getTagValue( transformNode, "field_to_use" );
-      targetField = XMLHandler.getTagValue( transformNode, "target_field" );
-      nonMatchDefault = XMLHandler.getTagValue( transformNode, "non_match_default" );
+      fieldToUse = XmlHandler.getTagValue( transformNode, "field_to_use" );
+      targetField = XmlHandler.getTagValue( transformNode, "target_field" );
+      nonMatchDefault = XmlHandler.getTagValue( transformNode, "non_match_default" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        sourceValue[ i ] = XMLHandler.getTagValue( fnode, "source_value" );
-        targetValue[ i ] = XMLHandler.getTagValue( fnode, "target_value" );
+        sourceValue[ i ] = XmlHandler.getTagValue( fnode, "source_value" );
+        targetValue[ i ] = XmlHandler.getTagValue( fnode, "target_value" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ValueMapperMeta.RuntimeError.UnableToReadXML.VALUEMAPPER0004" ), e );
     }
   }
@@ -200,19 +200,19 @@ public class ValueMapperMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "field_to_use", fieldToUse ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "target_field", targetField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "non_match_default", nonMatchDefault ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "field_to_use", fieldToUse ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "target_field", targetField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "non_match_default", nonMatchDefault ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < sourceValue.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "source_value", sourceValue[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "target_value", targetValue[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "source_value", sourceValue[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "target_value", targetValue[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );

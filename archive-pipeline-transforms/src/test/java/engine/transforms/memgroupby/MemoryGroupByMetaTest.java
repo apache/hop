@@ -340,14 +340,14 @@ public class MemoryGroupByMetaTest implements InitializerInterface<MemoryGroupBy
     memoryGroupBy.setAggregateType( new int[] { 12, 6, 15, 14, 23, 177, 13, 21 } );
 
     try {
-      String badXml = memoryGroupBy.getXML();
+      String badXml = memoryGroupBy.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     memoryGroupBy.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = memoryGroupBy.getXML();
+    String ktrXml = memoryGroupBy.getXml();
 
     int targetSz = memoryGroupBy.getSubjectField().length;
     Assert.assertEquals( targetSz, memoryGroupBy.getAggregateField().length );

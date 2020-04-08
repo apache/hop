@@ -105,7 +105,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<ITransform> {
   @Test
   public void testGetXML() throws Exception {
     LoadFileInputMeta testMeta = createMeta();
-    String xml = testMeta.getXML();
+    String xml = testMeta.getXml();
     assertEquals( xmlOrig.replaceAll( "\n", "" ).replaceAll( "\r", "" ), xml.replaceAll( "\n", "" ).replaceAll( "\r",
       "" ) );
   }
@@ -118,7 +118,7 @@ public class LoadFileInputMetaTest implements InitializerInterface<ITransform> {
     DocumentBuilder db = dbf.newDocumentBuilder();
     Document doc = db.parse( new InputSource( new StringReader( "<transform>" + xmlOrig + "</transform>" ) ) );
     IMetaStore metaStore = null;
-    testMeta.loadXML( doc.getFirstChild(), metaStore );
+    testMeta.loadXml( doc.getFirstChild(), metaStore );
     assertEquals( origMeta, testMeta );
   }
 
@@ -253,9 +253,9 @@ public class LoadFileInputMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       LoadFileInputField actual = (LoadFileInputField) actualObj;
-      boolean tst1 = ( actual.getXML().equals( testObject.getXML() ) );
+      boolean tst1 = ( actual.getXml().equals( testObject.getXml() ) );
       LoadFileInputField aClone = (LoadFileInputField) testObject.clone();
-      boolean tst2 = ( actual.getXML().equals( aClone.getXML() ) );
+      boolean tst2 = ( actual.getXml().equals( aClone.getXml() ) );
       return ( tst1 && tst2 );
     }
   }

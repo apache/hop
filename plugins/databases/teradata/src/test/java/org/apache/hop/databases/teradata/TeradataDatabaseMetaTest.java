@@ -121,9 +121,9 @@ public class TeradataDatabaseMetaTest {
 
   @Test
   public void testSQLStatements() {
-    assertEquals( "show table FOO", nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( "show table FOO", nativeMeta.getSqlTableExists( "FOO" ) );
     assertEquals( "SELECT * FROM DBC.columns WHERE tablename =BAR AND columnname =FOO",
-      nativeMeta.getSQLColumnExists( "FOO", "BAR" ) ); // Likely a bug - table/column not quoted.
+      nativeMeta.getSqlColumnExists( "FOO", "BAR" ) ); // Likely a bug - table/column not quoted.
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );

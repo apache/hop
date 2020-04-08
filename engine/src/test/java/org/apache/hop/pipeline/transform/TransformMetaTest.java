@@ -81,8 +81,8 @@ public class TransformMetaTest {
     TransformMeta meta = new TransformMeta( "id", "name", null );
     ITransformMeta smi = new Missing( meta.getName(), meta.getTransformPluginId() );
     meta.setTransformMetaInterface( smi );
-    TransformMeta fromXml = TransformMeta.fromXml( meta.getXML() );
-    assertThat( meta.getXML(), is( fromXml.getXML() ) );
+    TransformMeta fromXml = TransformMeta.fromXml( meta.getXml() );
+    assertThat( meta.getXml(), is( fromXml.getXml() ) );
   }
 
   private static TransformMeta createTestMeta() throws Exception {

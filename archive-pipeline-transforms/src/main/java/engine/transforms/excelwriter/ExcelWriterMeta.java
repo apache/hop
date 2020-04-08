@@ -28,13 +28,13 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -574,7 +574,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -596,84 +596,84 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      headerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "header" ) );
-      footerEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "footer" ) );
-      appendOmitHeader = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "appendOmitHeader" ) );
-      appendLines = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "appendLines" ) );
-      makeSheetActive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "makeSheetActive" ) );
-      appendOffset = Const.toInt( XMLHandler.getTagValue( transformNode, "appendOffset" ), 0 );
-      appendEmpty = Const.toInt( XMLHandler.getTagValue( transformNode, "appendEmpty" ), 0 );
+      headerEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "header" ) );
+      footerEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "footer" ) );
+      appendOmitHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "appendOmitHeader" ) );
+      appendLines = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "appendLines" ) );
+      makeSheetActive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "makeSheetActive" ) );
+      appendOffset = Const.toInt( XmlHandler.getTagValue( transformNode, "appendOffset" ), 0 );
+      appendEmpty = Const.toInt( XmlHandler.getTagValue( transformNode, "appendEmpty" ), 0 );
 
-      startingCell = XMLHandler.getTagValue( transformNode, "startingCell" );
-      rowWritingMethod = XMLHandler.getTagValue( transformNode, "rowWritingMethod" );
+      startingCell = XmlHandler.getTagValue( transformNode, "startingCell" );
+      rowWritingMethod = XmlHandler.getTagValue( transformNode, "rowWritingMethod" );
       forceFormulaRecalculation =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "forceFormulaRecalculation" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "forceFormulaRecalculation" ) );
       leaveExistingStylesUnchanged =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "leaveExistingStylesUnchanged" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "leaveExistingStylesUnchanged" ) );
 
-      String addToResult = XMLHandler.getTagValue( transformNode, "add_to_result_filenames" );
+      String addToResult = XmlHandler.getTagValue( transformNode, "add_to_result_filenames" );
       if ( Utils.isEmpty( addToResult ) ) {
         addToResultFilenames = true;
       } else {
         addToResultFilenames = "Y".equalsIgnoreCase( addToResult );
       }
 
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
-      extension = XMLHandler.getTagValue( transformNode, "file", "extention" );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
+      extension = XmlHandler.getTagValue( transformNode, "file", "extention" );
 
       doNotOpenNewFileInit =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
-      transformNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "split" ) );
-      dateInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_date" ) );
-      timeInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
-      date_time_format = XMLHandler.getTagValue( transformNode, "file", "date_time_format" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "do_not_open_newfile_init" ) );
+      transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
+      dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
+      timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
+      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
+      date_time_format = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
 
-      autosizecolums = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "autosizecolums" ) );
-      streamingData = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "stream_data" ) );
-      protectsheet = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "protect_sheet" ) );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "file", "password" ) );
-      protectedBy = XMLHandler.getTagValue( transformNode, "file", "protected_by" );
-      splitEvery = Const.toInt( XMLHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
+      autosizecolums = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "autosizecolums" ) );
+      streamingData = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "stream_data" ) );
+      protectsheet = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "protect_sheet" ) );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "file", "password" ) );
+      protectedBy = XmlHandler.getTagValue( transformNode, "file", "protected_by" );
+      splitEvery = Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
 
-      templateEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "template", "enabled" ) );
+      templateEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "template", "enabled" ) );
       templateSheetEnabled =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "template", "sheet_enabled" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "template", "sheet_enabled" ) );
       templateSheetHidden =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "template", "hidden" ) );
-      templateFileName = XMLHandler.getTagValue( transformNode, "template", "filename" );
-      templateSheetName = XMLHandler.getTagValue( transformNode, "template", "sheetname" );
-      sheetname = XMLHandler.getTagValue( transformNode, "file", "sheetname" );
-      ifFileExists = XMLHandler.getTagValue( transformNode, "file", "if_file_exists" );
-      ifSheetExists = XMLHandler.getTagValue( transformNode, "file", "if_sheet_exists" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "template", "hidden" ) );
+      templateFileName = XmlHandler.getTagValue( transformNode, "template", "filename" );
+      templateSheetName = XmlHandler.getTagValue( transformNode, "template", "sheetname" );
+      sheetname = XmlHandler.getTagValue( transformNode, "file", "sheetname" );
+      ifFileExists = XmlHandler.getTagValue( transformNode, "file", "if_file_exists" );
+      ifSheetExists = XmlHandler.getTagValue( transformNode, "file", "if_sheet_exists" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new ExcelWriter Field();
-        outputFields[ i ].setName( XMLHandler.getTagValue( fnode, "name" ) );
-        outputFields[ i ].setType( XMLHandler.getTagValue( fnode, "type" ) );
-        outputFields[ i ].setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        outputFields[ i ].setTitle( XMLHandler.getTagValue( fnode, "title" ) );
-        outputFields[ i ].setTitleStyleCell( XMLHandler.getTagValue( fnode, "titleStyleCell" ) );
-        outputFields[ i ].setStyleCell( XMLHandler.getTagValue( fnode, "styleCell" ) );
-        outputFields[ i ].setCommentField( XMLHandler.getTagValue( fnode, "commentField" ) );
-        outputFields[ i ].setCommentAuthorField( XMLHandler.getTagValue( fnode, "commentAuthorField" ) );
-        outputFields[ i ].setFormula( XMLHandler.getTagValue( fnode, "formula" ) != null
-          && XMLHandler.getTagValue( fnode, "formula" ).equalsIgnoreCase( "Y" ) );
-        outputFields[ i ].setHyperlinkField( XMLHandler.getTagValue( fnode, "hyperlinkField" ) );
+        outputFields[ i ].setName( XmlHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setType( XmlHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ].setTitle( XmlHandler.getTagValue( fnode, "title" ) );
+        outputFields[ i ].setTitleStyleCell( XmlHandler.getTagValue( fnode, "titleStyleCell" ) );
+        outputFields[ i ].setStyleCell( XmlHandler.getTagValue( fnode, "styleCell" ) );
+        outputFields[ i ].setCommentField( XmlHandler.getTagValue( fnode, "commentField" ) );
+        outputFields[ i ].setCommentAuthorField( XmlHandler.getTagValue( fnode, "commentAuthorField" ) );
+        outputFields[ i ].setFormula( XmlHandler.getTagValue( fnode, "formula" ) != null
+          && XmlHandler.getTagValue( fnode, "formula" ).equalsIgnoreCase( "Y" ) );
+        outputFields[ i ].setHyperlinkField( XmlHandler.getTagValue( fnode, "hyperlinkField" ) );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -811,53 +811,53 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 800 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "header", headerEnabled ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "footer", footerEnabled ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "makeSheetActive", makeSheetActive ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rowWritingMethod", rowWritingMethod ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "startingCell", startingCell ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "appendOmitHeader", appendOmitHeader ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "appendOffset", appendOffset ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "appendEmpty", appendEmpty ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rowWritingMethod", rowWritingMethod ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "header", headerEnabled ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "footer", footerEnabled ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "makeSheetActive", makeSheetActive ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowWritingMethod", rowWritingMethod ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "startingCell", startingCell ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "appendOmitHeader", appendOmitHeader ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "appendOffset", appendOffset ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "appendEmpty", appendEmpty ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowWritingMethod", rowWritingMethod ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "forceFormulaRecalculation", forceFormulaRecalculation ) );
+      XmlHandler.addTagValue( "forceFormulaRecalculation", forceFormulaRecalculation ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "leaveExistingStylesUnchanged", leaveExistingStylesUnchanged ) );
-    retval.append( "    " + XMLHandler.addTagValue( "appendLines", appendLines ) );
-    retval.append( "    " + XMLHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
+      XmlHandler.addTagValue( "leaveExistingStylesUnchanged", leaveExistingStylesUnchanged ) );
+    retval.append( "    " + XmlHandler.addTagValue( "appendLines", appendLines ) );
+    retval.append( "    " + XmlHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
 
     retval.append( "    <file>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "extention", extension ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "split", transformNrInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", dateInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sheetname", sheetname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "autosizecolums", autosizecolums ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "stream_data", streamingData ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protect_sheet", protectsheet ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", fileName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "extention", extension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "do_not_open_newfile_init", doNotOpenNewFileInit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "split", transformNrInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", dateInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", timeInFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sheetname", sheetname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "autosizecolums", autosizecolums ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "stream_data", streamingData ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protect_sheet", protectsheet ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protected_by", protectedBy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "splitevery", splitEvery ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "if_file_exists", ifFileExists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "if_sheet_exists", ifSheetExists ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protected_by", protectedBy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "splitevery", splitEvery ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "if_file_exists", ifFileExists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "if_sheet_exists", ifSheetExists ) );
 
     retval.append( "      </file>" ).append( Const.CR );
 
     retval.append( "    <template>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "enabled", templateEnabled ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sheet_enabled", templateSheetEnabled ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", templateFileName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sheetname", templateSheetName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "hidden", templateSheetHidden ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", templateEnabled ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sheet_enabled", templateSheetEnabled ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", templateFileName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sheetname", templateSheetName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "hidden", templateSheetHidden ) );
     retval.append( "    </template>" ).append( Const.CR );
 
     retval.append( "    <fields>" ).append( Const.CR );
@@ -866,17 +866,17 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
 
       if ( field.getName() != null && field.getName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", field.getName() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "type", field.getTypeDesc() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", field.getFormat() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "title", field.getTitle() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "titleStyleCell", field.getTitleStyleCell() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "styleCell", field.getStyleCell() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "commentField", field.getCommentField() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", field.getName() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "type", field.getTypeDesc() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", field.getFormat() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "title", field.getTitle() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "titleStyleCell", field.getTitleStyleCell() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "styleCell", field.getStyleCell() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "commentField", field.getCommentField() ) );
         retval.append( "        " ).append(
-          XMLHandler.addTagValue( "commentAuthorField", field.getCommentAuthorField() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "formula", field.isFormula() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "hyperlinkField", field.getHyperlinkField() ) );
+          XmlHandler.addTagValue( "commentAuthorField", field.getCommentAuthorField() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "formula", field.isFormula() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "hyperlinkField", field.getHyperlinkField() ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }

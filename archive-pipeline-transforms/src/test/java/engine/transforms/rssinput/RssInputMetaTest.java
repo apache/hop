@@ -142,9 +142,9 @@ public class RssInputMetaTest implements InitializerInterface<ITransform> {
         return false;
       }
       RssInputField actualInput = (RssInputField) actual;
-      boolean tst1 = ( testObject.getXML().equals( actualInput.getXML() ) );
+      boolean tst1 = ( testObject.getXml().equals( actualInput.getXml() ) );
       RssInputField aClone = (RssInputField) ( (RssInputField) actual ).clone();
-      boolean tst2 = ( testObject.getXML().equals( aClone.getXML() ) );
+      boolean tst2 = ( testObject.getXml().equals( aClone.getXml() ) );
       return ( tst1 && tst2 );
     }
   }

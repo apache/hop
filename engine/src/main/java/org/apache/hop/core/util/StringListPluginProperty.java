@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
       return;
     }
     final String value = asString( this.getValue() );
-    builder.append( XMLHandler.addTagValue( this.getKey(), value ) );
+    builder.append( XmlHandler.addTagValue( this.getKey(), value ) );
   }
 
   /**
@@ -106,7 +106,7 @@ public class StringListPluginProperty extends KeyValue<List<String>> implements 
    *
    */
   public void loadXml( final Node node ) {
-    final String stringValue = XMLHandler.getTagValue( node, this.getKey() );
+    final String stringValue = XmlHandler.getTagValue( node, this.getKey() );
     final List<String> values = fromString( stringValue );
     this.setValue( values );
   }

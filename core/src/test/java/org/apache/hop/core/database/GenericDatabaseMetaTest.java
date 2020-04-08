@@ -85,8 +85,8 @@ public class GenericDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR TIMESTAMP",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
@@ -180,7 +180,7 @@ public class GenericDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO ADD BAR  UNKNOWN",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBinary( "BAR", 16777250, 0 ), "", false, "", false ) );
 
-    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
 
   }
 
@@ -203,8 +203,8 @@ public class GenericDatabaseMetaTest {
     final String sequenceName = "sequence_name";
     
     IDatabase iDatabase = new GenericDatabaseMeta();
-    assertEquals( "", iDatabase.getSQLNextSequenceValue( sequenceName ) );
-    assertEquals( "", iDatabase.getSQLCurrentSequenceValue( sequenceName ) );
+    assertEquals( "", iDatabase.getSqlNextSequenceValue( sequenceName ) );
+    assertEquals( "", iDatabase.getSqlCurrentSequenceValue( sequenceName ) );
   }
   
   @Test

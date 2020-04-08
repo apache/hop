@@ -31,12 +31,12 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -199,51 +199,51 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 600 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "server", server ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destination", destination ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationCc", destinationCc ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationBCc", destinationBCc ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replyto", replyAddress ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replytoname", replyName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "subject", subject ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_date", includeDate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "contact_person", contactPerson ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "contact_phone", contactPhone ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "comment", comment ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_files", includingFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zip_files", zipFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zip_name", zipFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "server", server ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination", destination ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationCc", destinationCc ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationBCc", destinationBCc ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replyto", replyAddress ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replytoname", replyName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "subject", subject ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_date", includeDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_person", contactPerson ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "contact_phone", contactPhone ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "comment", comment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_files", includingFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_files", zipFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zip_name", zipFilename ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_auth", usingAuthentication ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_secure_auth", usingSecureAuthentication ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "auth_user", authenticationUser ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_auth", usingAuthentication ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_secure_auth", usingSecureAuthentication ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "auth_user", authenticationUser ) );
     retval.append( "      " ).append(
-      XMLHandler
+      XmlHandler
         .addTagValue( "auth_password", Encr.encryptPasswordIfNotUsingVariables( authenticationPassword ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "only_comment", onlySendComment ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_HTML", useHTML ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_Priority", usePriority ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "only_comment", onlySendComment ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_HTML", useHTML ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_Priority", usePriority ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "priority", priority ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "importance", importance ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sensitivity", sensitivity ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "priority", priority ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "importance", importance ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sensitivity", sensitivity ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "secureconnectiontype", secureConnectionType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replyToAddresses", replyToAddresses ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "secureconnectiontype", secureConnectionType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replyToAddresses", replyToAddresses ) );
 
     retval.append( "      <filetypes>" );
     if ( fileType != null ) {
       for ( int i = 0; i < fileType.length; i++ ) {
         retval.append( "        " ).append(
-          XMLHandler.addTagValue( "filetype", ResultFile.getTypeCode( fileType[ i ] ) ) );
+          XmlHandler.addTagValue( "filetype", ResultFile.getTypeCode( fileType[ i ] ) ) );
       }
     }
     retval.append( "      </filetypes>" );
@@ -252,8 +252,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     if ( embeddedimages != null ) {
       for ( int i = 0; i < embeddedimages.length; i++ ) {
         retval.append( "        <embeddedimage>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "content_id", contentids[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "image_name", embeddedimages[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "content_id", contentids[ i ] ) );
         retval.append( "        </embeddedimage>" ).append( Const.CR );
       }
     }
@@ -262,69 +262,69 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      setServer( XMLHandler.getTagValue( entrynode, "server" ) );
-      setPort( XMLHandler.getTagValue( entrynode, "port" ) );
-      setDestination( XMLHandler.getTagValue( entrynode, "destination" ) );
-      setDestinationCc( XMLHandler.getTagValue( entrynode, "destinationCc" ) );
-      setDestinationBCc( XMLHandler.getTagValue( entrynode, "destinationBCc" ) );
-      setReplyAddress( XMLHandler.getTagValue( entrynode, "replyto" ) );
-      setReplyName( XMLHandler.getTagValue( entrynode, "replytoname" ) );
-      setSubject( XMLHandler.getTagValue( entrynode, "subject" ) );
-      setIncludeDate( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_date" ) ) );
-      setContactPerson( XMLHandler.getTagValue( entrynode, "contact_person" ) );
-      setContactPhone( XMLHandler.getTagValue( entrynode, "contact_phone" ) );
-      setComment( XMLHandler.getTagValue( entrynode, "comment" ) );
-      setIncludingFiles( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_files" ) ) );
+      super.loadXml( entrynode );
+      setServer( XmlHandler.getTagValue( entrynode, "server" ) );
+      setPort( XmlHandler.getTagValue( entrynode, "port" ) );
+      setDestination( XmlHandler.getTagValue( entrynode, "destination" ) );
+      setDestinationCc( XmlHandler.getTagValue( entrynode, "destinationCc" ) );
+      setDestinationBCc( XmlHandler.getTagValue( entrynode, "destinationBCc" ) );
+      setReplyAddress( XmlHandler.getTagValue( entrynode, "replyto" ) );
+      setReplyName( XmlHandler.getTagValue( entrynode, "replytoname" ) );
+      setSubject( XmlHandler.getTagValue( entrynode, "subject" ) );
+      setIncludeDate( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_date" ) ) );
+      setContactPerson( XmlHandler.getTagValue( entrynode, "contact_person" ) );
+      setContactPhone( XmlHandler.getTagValue( entrynode, "contact_phone" ) );
+      setComment( XmlHandler.getTagValue( entrynode, "comment" ) );
+      setIncludingFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_files" ) ) );
 
-      setUsingAuthentication( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "use_auth" ) ) );
-      setUsingSecureAuthentication( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "use_secure_auth" ) ) );
-      setAuthenticationUser( XMLHandler.getTagValue( entrynode, "auth_user" ) );
-      setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue(
+      setUsingAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "use_auth" ) ) );
+      setUsingSecureAuthentication( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "use_secure_auth" ) ) );
+      setAuthenticationUser( XmlHandler.getTagValue( entrynode, "auth_user" ) );
+      setAuthenticationPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue(
         entrynode, "auth_password" ) ) );
 
-      setOnlySendComment( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "only_comment" ) ) );
-      setUseHTML( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "use_HTML" ) ) );
+      setOnlySendComment( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "only_comment" ) ) );
+      setUseHTML( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "use_HTML" ) ) );
 
-      setUsePriority( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "use_Priority" ) ) );
+      setUsePriority( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "use_Priority" ) ) );
 
-      setEncoding( XMLHandler.getTagValue( entrynode, "encoding" ) );
-      setPriority( XMLHandler.getTagValue( entrynode, "priority" ) );
-      setImportance( XMLHandler.getTagValue( entrynode, "importance" ) );
-      setSensitivity( XMLHandler.getTagValue( entrynode, "sensitivity" ) );
-      setSecureConnectionType( XMLHandler.getTagValue( entrynode, "secureconnectiontype" ) );
+      setEncoding( XmlHandler.getTagValue( entrynode, "encoding" ) );
+      setPriority( XmlHandler.getTagValue( entrynode, "priority" ) );
+      setImportance( XmlHandler.getTagValue( entrynode, "importance" ) );
+      setSensitivity( XmlHandler.getTagValue( entrynode, "sensitivity" ) );
+      setSecureConnectionType( XmlHandler.getTagValue( entrynode, "secureconnectiontype" ) );
 
-      Node ftsnode = XMLHandler.getSubNode( entrynode, "filetypes" );
-      int nrTypes = XMLHandler.countNodes( ftsnode, "filetype" );
+      Node ftsnode = XmlHandler.getSubNode( entrynode, "filetypes" );
+      int nrTypes = XmlHandler.countNodes( ftsnode, "filetype" );
       allocate( nrTypes );
       for ( int i = 0; i < nrTypes; i++ ) {
-        Node ftnode = XMLHandler.getSubNodeByNr( ftsnode, "filetype", i );
-        fileType[ i ] = ResultFile.getType( XMLHandler.getNodeValue( ftnode ) );
+        Node ftnode = XmlHandler.getSubNodeByNr( ftsnode, "filetype", i );
+        fileType[ i ] = ResultFile.getType( XmlHandler.getNodeValue( ftnode ) );
       }
 
-      setZipFiles( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "zip_files" ) ) );
-      setZipFilename( XMLHandler.getTagValue( entrynode, "zip_name" ) );
-      setReplyToAddresses( XMLHandler.getTagValue( entrynode, "replyToAddresses" ) );
+      setZipFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "zip_files" ) ) );
+      setZipFilename( XmlHandler.getTagValue( entrynode, "zip_name" ) );
+      setReplyToAddresses( XmlHandler.getTagValue( entrynode, "replyToAddresses" ) );
 
-      Node images = XMLHandler.getSubNode( entrynode, "embeddedimages" );
+      Node images = XmlHandler.getSubNode( entrynode, "embeddedimages" );
 
       // How many field embedded images ?
-      int nrImages = XMLHandler.countNodes( images, "embeddedimage" );
+      int nrImages = XmlHandler.countNodes( images, "embeddedimage" );
       allocateImages( nrImages );
 
       // Read them all...
       for ( int i = 0; i < nrImages; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( images, "embeddedimage", i );
+        Node fnode = XmlHandler.getSubNodeByNr( images, "embeddedimage", i );
 
-        embeddedimages[ i ] = XMLHandler.getTagValue( fnode, "image_name" );
-        contentids[ i ] = XMLHandler.getTagValue( fnode, "content_id" );
+        embeddedimages[ i ] = XmlHandler.getTagValue( fnode, "image_name" );
+        contentids[ i ] = XmlHandler.getTagValue( fnode, "content_id" );
       }
 
     } catch ( HopException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'mail' from XML node", xe );
+      throw new HopXmlException( "Unable to load action of type 'mail' from XML node", xe );
     }
   }
 
@@ -787,7 +787,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       if ( includeDate ) {
         messageText
           .append( endRow ).append( BaseMessages.getString( PKG, "JobMail.Log.Comment.MsgDate" ) + ": " )
-          .append( XMLHandler.date2string( new Date() ) ).append( endRow ).append( endRow );
+          .append( XmlHandler.date2string( new Date() ) ).append( endRow ).append( endRow );
       }
       if ( !onlySendComment && result != null ) {
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.PreviousResult" ) + ":" ).append(
@@ -1150,7 +1150,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
       if ( jer.getLogDate() != null ) {
         messageText.append( " (" );
-        messageText.append( XMLHandler.date2string( jer.getLogDate() ) );
+        messageText.append( XmlHandler.date2string( jer.getLogDate() ) );
         messageText.append( ')' );
       }
     }

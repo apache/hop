@@ -23,7 +23,7 @@
 package org.apache.hop.core.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.prefs.Preferences;
@@ -59,14 +59,14 @@ public class StringPluginProperty extends KeyValue<String> implements IPluginPro
    *
    */
   public void appendXml( final StringBuilder builder ) {
-    builder.append( XMLHandler.addTagValue( this.getKey(), this.getValue() ) );
+    builder.append( XmlHandler.addTagValue( this.getKey(), this.getValue() ) );
   }
 
   /**
    *
    */
   public void loadXml( final Node node ) {
-    final String value = XMLHandler.getTagValue( node, this.getKey() );
+    final String value = XmlHandler.getTagValue( node, this.getKey() );
     this.setValue( value );
   }
 

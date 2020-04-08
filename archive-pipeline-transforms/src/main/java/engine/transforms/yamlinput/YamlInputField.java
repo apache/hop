@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -80,20 +80,20 @@ public class YamlInputField implements Cloneable {
     this( "" );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 400 );
 
     retval.append( "      <field>" ).append( Const.CR );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "name", getName() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "path", getPath() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "type", getTypeDesc() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "format", getFormat() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "currency", getCurrencySymbol() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", getDecimalSymbol() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "group", getGroupSymbol() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "length", getLength() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "precision", getPrecision() ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "path", getPath() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
 
     retval.append( "      </field>" ).append( Const.CR );
 
@@ -101,16 +101,16 @@ public class YamlInputField implements Cloneable {
   }
 
   public YamlInputField( Node fnode ) throws HopValueException {
-    setName( XMLHandler.getTagValue( fnode, "name" ) );
-    setPath( XMLHandler.getTagValue( fnode, "path" ) );
-    setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-    setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-    setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-    setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-    setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
-    setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-    setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
-    setTrimType( getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+    setName( XmlHandler.getTagValue( fnode, "name" ) );
+    setPath( XmlHandler.getTagValue( fnode, "path" ) );
+    setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
+    setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+    setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
+    setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
+    setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
+    setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+    setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
+    setTrimType( getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
   }
 
   public static final int getTrimTypeByCode( String tt ) {

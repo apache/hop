@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -649,7 +649,7 @@ public class Mail extends BaseTransform implements ITransform {
 
     if ( meta.getIncludeDate() ) {
       messageText.append( BaseMessages.getString( PKG, "Mail.Log.Comment.MsgDate" ) + ": " ).append(
-        XMLHandler.date2string( new Date() ) ).append( Const.CR ).append( Const.CR );
+        XmlHandler.date2string( new Date() ) ).append( Const.CR ).append( Const.CR );
     }
 
     if ( !meta.isOnlySendComment() && ( !Utils.isEmpty( contactPerson ) || !Utils.isEmpty( contactPhone ) ) ) {

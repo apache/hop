@@ -25,7 +25,7 @@ package org.apache.hop.workflow.actions.success;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -67,20 +67,20 @@ public class ActionSuccess extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionSuccess.Meta.UnableToLoadFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionSuccess.Meta.UnableToLoadFromXML" ), e );
     }
   }
 

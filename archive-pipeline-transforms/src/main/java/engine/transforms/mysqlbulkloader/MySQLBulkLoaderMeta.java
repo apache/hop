@@ -32,7 +32,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -42,7 +42,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -240,7 +240,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     this.fieldStream = fieldStream;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -262,43 +262,43 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "table" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
 
-      fifoFileName = XMLHandler.getTagValue( transformNode, "fifo_file_name" );
+      fifoFileName = XmlHandler.getTagValue( transformNode, "fifo_file_name" );
 
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      enclosure = XMLHandler.getTagValue( transformNode, "enclosure" );
-      delimiter = XMLHandler.getTagValue( transformNode, "delimiter" );
-      escapeChar = XMLHandler.getTagValue( transformNode, "escape_char" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      enclosure = XmlHandler.getTagValue( transformNode, "enclosure" );
+      delimiter = XmlHandler.getTagValue( transformNode, "delimiter" );
+      escapeChar = XmlHandler.getTagValue( transformNode, "escape_char" );
 
-      bulkSize = XMLHandler.getTagValue( transformNode, "bulk_size" );
+      bulkSize = XmlHandler.getTagValue( transformNode, "bulk_size" );
 
-      replacingData = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "replace" ) );
-      ignoringErrors = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "ignore" ) );
-      localFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "local" ) );
+      replacingData = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace" ) );
+      ignoringErrors = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ignore" ) );
+      localFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "local" ) );
 
-      int nrvalues = XMLHandler.countNodes( transformNode, "mapping" );
+      int nrvalues = XmlHandler.countNodes( transformNode, "mapping" );
       allocate( nrvalues );
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( transformNode, "mapping", i );
+        Node vnode = XmlHandler.getSubNodeByNr( transformNode, "mapping", i );
 
-        fieldTable[ i ] = XMLHandler.getTagValue( vnode, "stream_name" );
-        fieldStream[ i ] = XMLHandler.getTagValue( vnode, "field_name" );
+        fieldTable[ i ] = XmlHandler.getTagValue( vnode, "stream_name" );
+        fieldStream[ i ] = XmlHandler.getTagValue( vnode, "field_name" );
         if ( fieldStream[ i ] == null ) {
           fieldStream[ i ] = fieldTable[ i ]; // default: the same name!
         }
-        fieldFormatType[ i ] = getFieldFormatType( XMLHandler.getTagValue( vnode, "field_format_ok" ) );
+        fieldFormatType[ i ] = getFieldFormatType( XmlHandler.getTagValue( vnode, "field_format_ok" ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG,
+      throw new HopXmlException( BaseMessages.getString( PKG,
         "MySQLBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -321,29 +321,29 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     allocate( 0 );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "delimiter", delimiter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "enclosure", enclosure ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "escape_char", escapeChar ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "replace", replacingData ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "ignore", ignoringErrors ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "local", localFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "fifo_file_name", fifoFileName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bulk_size", bulkSize ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "delimiter", delimiter ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "enclosure", enclosure ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "escape_char", escapeChar ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "replace", replacingData ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "ignore", ignoringErrors ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "local", localFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "fifo_file_name", fifoFileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bulk_size", bulkSize ) );
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field_name", fieldStream[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "field_format_ok", getFieldFormatTypeCode( fieldFormatType[ i ] ) ) );
+        XmlHandler.addTagValue( "field_format_ok", getFieldFormatTypeCode( fieldFormatType[ i ] ) ) );
       retval.append( "      </mapping>" ).append( Const.CR );
     }
 
@@ -488,7 +488,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -522,9 +522,9 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
             String sql = cr_table;
             if ( sql.length() == 0 ) {
-              retval.setSQL( null );
+              retval.setSql( null );
             } else {
-              retval.setSQL( sql );
+              retval.setSql( sql );
             }
           } catch ( HopException e ) {
             retval

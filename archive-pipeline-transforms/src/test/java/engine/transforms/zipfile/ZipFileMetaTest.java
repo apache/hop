@@ -25,10 +25,10 @@ package org.apache.hop.pipeline.transforms.zipfile;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -98,7 +98,7 @@ public class ZipFileMetaTest {
     zipFileMeta.setParentTransformMeta( mockParentTransformMeta );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     when( mockParentTransformMeta.getParentPipelineMeta() ).thenReturn( mockPipelineMeta );
-    zipFileMeta.loadXML( transformNode, metaStore );
+    zipFileMeta.loadXml( transformNode, metaStore );
     assertXmlOutputMeta( zipFileMeta );
   }
 
@@ -159,7 +159,7 @@ public class ZipFileMetaTest {
     assertEquals( "Do nothing", ZipFileMeta.getOperationTypeDesc( -1 ) );
   }
 
-  private Node getTestNode() throws HopXMLException {
+  private Node getTestNode() throws HopXmlException {
     String xml = "<transform>" + Const.CR
       + "<name>Zip file</name>" + Const.CR
       + "<type>ZipFile</type>" + Const.CR
@@ -187,7 +187,7 @@ public class ZipFileMetaTest {
       + "  <draw>Y</draw>" + Const.CR
       + "</GUI>" + Const.CR
       + "</transform>" + Const.CR;
-    return XMLHandler.loadXMLString( xml, "transform" );
+    return XmlHandler.loadXMLString( xml, "transform" );
   }
 
   private void assertXmlOutputMeta( ZipFileMeta zipOutputFile ) {
@@ -203,7 +203,7 @@ public class ZipFileMetaTest {
       + "    <overwritezipentry>Y</overwritezipentry>" + Const.CR
       + "    <createparentfolder>Y</createparentfolder>" + Const.CR
       + "    <keepsourcefolder>Y</keepsourcefolder>" + Const.CR
-      + "    <movetofolderfield/>" + Const.CR, zipOutputFile.getXML() );
+      + "    <movetofolderfield/>" + Const.CR, zipOutputFile.getXml() );
 
     zipOutputFile.setDefault();
 
@@ -215,6 +215,6 @@ public class ZipFileMetaTest {
       + "    <overwritezipentry>N</overwritezipentry>" + Const.CR
       + "    <createparentfolder>N</createparentfolder>" + Const.CR
       + "    <keepsourcefolder>N</keepsourcefolder>" + Const.CR
-      + "    <movetofolderfield/>" + Const.CR, zipOutputFile.getXML() );
+      + "    <movetofolderfield/>" + Const.CR, zipOutputFile.getXml() );
   }
 }

@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -162,7 +162,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XMLHandler.getXMLHeader() );
+      out.print( XmlHandler.getXMLHeader() );
     } else {
       response.setContentType( "text/html" );
       out.println( "<HTML>" );

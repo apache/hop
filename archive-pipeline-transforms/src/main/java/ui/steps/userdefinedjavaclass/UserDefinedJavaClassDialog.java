@@ -25,7 +25,7 @@ package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
@@ -601,7 +601,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       outXML.append( String.format( "\t<name>%s</name>\n", transformName ) );
       outXML.append( "\t<type>UserDefinedJavaClass</type>\n" );
       outXML.append( "\t<description/>\n\t" );
-      outXML.append( udjcMeta.getXML() );
+      outXML.append( udjcMeta.getXml() );
       outXML.append( "</transform>" );
       pw.println( outXML.toString() );
       pw.flush();
@@ -1092,7 +1092,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
           UserDefinedJavaClassDef.ClassType.TRANSFORM_CLASS, "Processor", UserDefinedJavaClassCodeSnippits
           .getSnippitsHelper().getDefaultCode() ) );
         input.replaceDefinitions( definitions );
-      } catch ( HopXMLException e ) {
+      } catch ( HopXmlException e ) {
         e.printStackTrace();
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorTitle" ),

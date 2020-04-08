@@ -32,7 +32,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.Workflow;
@@ -94,16 +94,16 @@ public class ActionLogTable extends BaseLogTable implements Cloneable, ILogTable
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "connection", connectionName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "timeout_days", timeoutInDays ) );
+    retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "connection", connectionName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "timeout_days", timeoutInDays ) );
     retval.append( super.getFieldsXML() );
-    retval.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return retval.toString();
   }
@@ -118,16 +118,16 @@ public class ActionLogTable extends BaseLogTable implements Cloneable, ILogTable
     super.replaceMeta( logTable );
   }
 
-  public void loadXML( Node jobnode, List<TransformMeta> transforms ) {
-    Node node = XMLHandler.getSubNode( jobnode, XML_TAG );
+  public void loadXml( Node jobnode, List<TransformMeta> transforms ) {
+    Node node = XmlHandler.getSubNode( jobnode, XML_TAG );
     if ( node == null ) {
       return;
     }
 
-    connectionName = XMLHandler.getTagValue( node, "connection" );
-    schemaName = XMLHandler.getTagValue( node, "schema" );
-    tableName = XMLHandler.getTagValue( node, "table" );
-    timeoutInDays = XMLHandler.getTagValue( node, "timeout_days" );
+    connectionName = XmlHandler.getTagValue( node, "connection" );
+    schemaName = XmlHandler.getTagValue( node, "schema" );
+    tableName = XmlHandler.getTagValue( node, "table" );
+    timeoutInDays = XmlHandler.getTagValue( node, "timeout_days" );
 
     super.loadFieldsXML( node );
   }

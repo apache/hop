@@ -145,26 +145,26 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + getLimitClause( 1 );
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT " + columnname + " FROM " + tableName + getLimitClause( 1 );
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences";
   }
 
@@ -175,7 +175,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT nextval('" + sequenceName + "')";
   }
 
@@ -186,7 +186,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT currval('" + sequenceName + "')";
   }
 
@@ -197,7 +197,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = '"
       + sequenceName.toLowerCase() + "'";
   }
@@ -362,10 +362,10 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.database.IDatabase#getSQLListOfProcedures()
+   * @see org.apache.hop.core.database.IDatabase#getSqlListOfProcedures()
    */
   @Override
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return "select proname " + "from pg_proc, pg_user " + "where pg_user.usesysid = pg_proc.proowner "
       + "and upper(pg_user.usename) = '" + getUsername().toUpperCase() + "' " + "order by proname";
   }
@@ -456,7 +456,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     String sql = "LOCK TABLE ";
     for ( int i = 0; i < tableNames.length; i++ ) {
       if ( i > 0 ) {
@@ -474,7 +474,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL command to unlock a database table.
    */
   @Override
-  public String getSQLUnlockTables( String[] tableName ) {
+  public String getSqlUnlockTables( String[] tableName ) {
     return null; // commit unlocks everything!
   }
 

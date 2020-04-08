@@ -31,12 +31,12 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -175,18 +175,18 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements ITransformMe
   /**
    * @return Returns the sqlfieldname.
    */
-  public String getSQLFieldName() {
+  public String getSqlFieldName() {
     return sqlfieldname;
   }
 
   /**
    * @param sqlfieldname The sqlfieldname to set.
    */
-  public void setSQLFieldName( String sqlfieldname ) {
+  public void setSqlFieldName( String sqlfieldname ) {
     this.sqlfieldname = sqlfieldname;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -196,20 +196,20 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements ITransformMe
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      sql = XMLHandler.getTagValue( transformNode, "sql" );
-      outerJoin = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "outer_join" ) );
-      replacevars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "replace_vars" ) );
-      queryonlyonchange = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "query_only_on_change" ) );
+      sql = XmlHandler.getTagValue( transformNode, "sql" );
+      outerJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outer_join" ) );
+      replacevars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace_vars" ) );
+      queryonlyonchange = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "query_only_on_change" ) );
 
-      rowLimit = Const.toInt( XMLHandler.getTagValue( transformNode, "rowlimit" ), 0 );
-      sqlfieldname = XMLHandler.getTagValue( transformNode, "sql_fieldname" );
+      rowLimit = Const.toInt( XmlHandler.getTagValue( transformNode, "rowlimit" ), 0 );
+      sqlfieldname = XmlHandler.getTagValue( transformNode, "sql_fieldname" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "DynamicSQLRowMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
@@ -273,17 +273,17 @@ public class DynamicSQLRowMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval
-      .append( "    " + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "rowlimit", rowLimit ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sql", sql ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outer_join", outerJoin ) );
-    retval.append( "    " + XMLHandler.addTagValue( "replace_vars", replacevars ) );
-    retval.append( "    " + XMLHandler.addTagValue( "sql_fieldname", sqlfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "query_only_on_change", queryonlyonchange ) );
+      .append( "    " + XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "rowlimit", rowLimit ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sql", sql ) );
+    retval.append( "    " + XmlHandler.addTagValue( "outer_join", outerJoin ) );
+    retval.append( "    " + XmlHandler.addTagValue( "replace_vars", replacevars ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sql_fieldname", sqlfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "query_only_on_change", queryonlyonchange ) );
 
     return retval.toString();
   }

@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -121,7 +121,7 @@ public class SwitchCaseMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -145,58 +145,58 @@ public class SwitchCaseMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( XMLHandler.addTagValue( "fieldname", fieldname ) );
-    retval.append( XMLHandler.addTagValue( "use_contains", isContains ) );
-    retval.append( XMLHandler.addTagValue( "case_value_type", ValueMetaBase.getTypeDesc( caseValueType ) ) );
-    retval.append( XMLHandler.addTagValue( "case_value_format", caseValueFormat ) );
-    retval.append( XMLHandler.addTagValue( "case_value_decimal", caseValueDecimal ) );
-    retval.append( XMLHandler.addTagValue( "case_value_group", caseValueGroup ) );
-    retval.append( XMLHandler.addTagValue( "default_target_transform",
+    retval.append( XmlHandler.addTagValue( "fieldname", fieldname ) );
+    retval.append( XmlHandler.addTagValue( "use_contains", isContains ) );
+    retval.append( XmlHandler.addTagValue( "case_value_type", ValueMetaBase.getTypeDesc( caseValueType ) ) );
+    retval.append( XmlHandler.addTagValue( "case_value_format", caseValueFormat ) );
+    retval.append( XmlHandler.addTagValue( "case_value_decimal", caseValueDecimal ) );
+    retval.append( XmlHandler.addTagValue( "case_value_group", caseValueGroup ) );
+    retval.append( XmlHandler.addTagValue( "default_target_transform",
       defaultTargetTransform != null ? defaultTargetTransform.getName() : defaultTargetTransformName
     ) );
 
-    retval.append( XMLHandler.openTag( XML_TAG_CASE_VALUES ) );
+    retval.append( XmlHandler.openTag( XML_TAG_CASE_VALUES ) );
     for ( SwitchCaseTarget target : caseTargets ) {
-      retval.append( XMLHandler.openTag( XML_TAG_CASE_VALUE ) );
-      retval.append( XMLHandler.addTagValue( "value",
+      retval.append( XmlHandler.openTag( XML_TAG_CASE_VALUE ) );
+      retval.append( XmlHandler.addTagValue( "value",
         target.caseValue != null ? target.caseValue : ""
       ) );
-      retval.append( XMLHandler.addTagValue( "target_transform",
+      retval.append( XmlHandler.addTagValue( "target_transform",
         target.caseTargetTransform != null ? target.caseTargetTransform.getName() : target.caseTargetTransformName
       ) );
-      retval.append( XMLHandler.closeTag( XML_TAG_CASE_VALUE ) );
+      retval.append( XmlHandler.closeTag( XML_TAG_CASE_VALUE ) );
     }
-    retval.append( XMLHandler.closeTag( XML_TAG_CASE_VALUES ) );
+    retval.append( XmlHandler.closeTag( XML_TAG_CASE_VALUES ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      fieldname = XMLHandler.getTagValue( transformNode, "fieldname" );
-      isContains = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_contains" ) );
-      caseValueType = ValueMetaBase.getType( XMLHandler.getTagValue( transformNode, "case_value_type" ) );
-      caseValueFormat = XMLHandler.getTagValue( transformNode, "case_value_format" );
-      caseValueDecimal = XMLHandler.getTagValue( transformNode, "case_value_decimal" );
-      caseValueGroup = XMLHandler.getTagValue( transformNode, "case_value_group" );
+      fieldname = XmlHandler.getTagValue( transformNode, "fieldname" );
+      isContains = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_contains" ) );
+      caseValueType = ValueMetaBase.getType( XmlHandler.getTagValue( transformNode, "case_value_type" ) );
+      caseValueFormat = XmlHandler.getTagValue( transformNode, "case_value_format" );
+      caseValueDecimal = XmlHandler.getTagValue( transformNode, "case_value_decimal" );
+      caseValueGroup = XmlHandler.getTagValue( transformNode, "case_value_group" );
 
-      defaultTargetTransformName = XMLHandler.getTagValue( transformNode, "default_target_transform" );
+      defaultTargetTransformName = XmlHandler.getTagValue( transformNode, "default_target_transform" );
 
-      Node casesNode = XMLHandler.getSubNode( transformNode, XML_TAG_CASE_VALUES );
-      int nrCases = XMLHandler.countNodes( casesNode, XML_TAG_CASE_VALUE );
+      Node casesNode = XmlHandler.getSubNode( transformNode, XML_TAG_CASE_VALUES );
+      int nrCases = XmlHandler.countNodes( casesNode, XML_TAG_CASE_VALUE );
       allocate();
       for ( int i = 0; i < nrCases; i++ ) {
-        Node caseNode = XMLHandler.getSubNodeByNr( casesNode, XML_TAG_CASE_VALUE, i );
+        Node caseNode = XmlHandler.getSubNodeByNr( casesNode, XML_TAG_CASE_VALUE, i );
         SwitchCaseTarget target = new SwitchCaseTarget();
-        target.caseValue = XMLHandler.getTagValue( caseNode, "value" );
-        target.caseTargetTransformName = XMLHandler.getTagValue( caseNode, "target_transform" );
+        target.caseValue = XmlHandler.getTagValue( caseNode, "value" );
+        target.caseTargetTransformName = XmlHandler.getTagValue( caseNode, "target_transform" );
         caseTargets.add( target );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SwitchCaseMeta.Exception..UnableToLoadTransformMetaFromXML" ), e );
     }
   }

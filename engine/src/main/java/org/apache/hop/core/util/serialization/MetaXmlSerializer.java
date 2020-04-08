@@ -20,7 +20,7 @@
 
 package org.apache.hop.core.util.serialization;
 
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -69,7 +69,7 @@ public class MetaXmlSerializer {
   }
 
   public static TransformMetaProps deserialize( Node node ) {
-    return deserialize( nodeToString( XMLHandler.getSubNode( node, TRANSFORM_TAG ) ) );
+    return deserialize( nodeToString( XmlHandler.getSubNode( node, TRANSFORM_TAG ) ) );
   }
 
 

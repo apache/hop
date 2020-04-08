@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.IPrimitiveGC;
+import org.apache.hop.core.gui.IPrimitiveGc;
 import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
@@ -1182,7 +1182,7 @@ public interface IValueMeta extends Cloneable {
    *
    * @param gc The graphical context to draw on.
    */
-  void drawValue( IPrimitiveGC gc, Object value ) throws HopValueException;
+  void drawValue( IPrimitiveGc gc, Object value ) throws HopValueException;
 
   /**
    * Investigate JDBC result set metadata at the specified index. If this value metadata is interested in handling this

@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -128,7 +128,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -156,57 +156,57 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
 
-    retval.append( XMLHandler.addTagValue( "join_type", getJoinType() ) );
-    retval.append( XMLHandler.addTagValue( "transform1", infoStreams.get( 0 ).getTransformName() ) );
-    retval.append( XMLHandler.addTagValue( "transform2", infoStreams.get( 1 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "join_type", getJoinType() ) );
+    retval.append( XmlHandler.addTagValue( "transform1", infoStreams.get( 0 ).getTransformName() ) );
+    retval.append( XmlHandler.addTagValue( "transform2", infoStreams.get( 1 ).getTransformName() ) );
 
     retval.append( "    <keys_1>" + Const.CR );
     for ( int i = 0; i < keyFields1.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields1[ i ] ) );
+      retval.append( "      " + XmlHandler.addTagValue( "key", keyFields1[ i ] ) );
     }
     retval.append( "    </keys_1>" + Const.CR );
 
     retval.append( "    <keys_2>" + Const.CR );
     for ( int i = 0; i < keyFields2.length; i++ ) {
-      retval.append( "      " + XMLHandler.addTagValue( "key", keyFields2[ i ] ) );
+      retval.append( "      " + XmlHandler.addTagValue( "key", keyFields2[ i ] ) );
     }
     retval.append( "    </keys_2>" + Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      Node keysNode1 = XMLHandler.getSubNode( transformNode, "keys_1" );
-      Node keysNode2 = XMLHandler.getSubNode( transformNode, "keys_2" );
+      Node keysNode1 = XmlHandler.getSubNode( transformNode, "keys_1" );
+      Node keysNode2 = XmlHandler.getSubNode( transformNode, "keys_2" );
 
-      int nrKeys1 = XMLHandler.countNodes( keysNode1, "key" );
-      int nrKeys2 = XMLHandler.countNodes( keysNode2, "key" );
+      int nrKeys1 = XmlHandler.countNodes( keysNode1, "key" );
+      int nrKeys2 = XmlHandler.countNodes( keysNode2, "key" );
 
       allocate( nrKeys1, nrKeys2 );
 
       for ( int i = 0; i < nrKeys1; i++ ) {
-        Node keynode = XMLHandler.getSubNodeByNr( keysNode1, "key", i );
-        keyFields1[ i ] = XMLHandler.getNodeValue( keynode );
+        Node keynode = XmlHandler.getSubNodeByNr( keysNode1, "key", i );
+        keyFields1[ i ] = XmlHandler.getNodeValue( keynode );
       }
 
       for ( int i = 0; i < nrKeys2; i++ ) {
-        Node keynode = XMLHandler.getSubNodeByNr( keysNode2, "key", i );
-        keyFields2[ i ] = XMLHandler.getNodeValue( keynode );
+        Node keynode = XmlHandler.getSubNodeByNr( keysNode2, "key", i );
+        keyFields2[ i ] = XmlHandler.getNodeValue( keynode );
       }
 
       List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
-      infoStreams.get( 0 ).setSubject( XMLHandler.getTagValue( transformNode, "transform1" ) );
-      infoStreams.get( 1 ).setSubject( XMLHandler.getTagValue( transformNode, "transform2" ) );
-      joinType = XMLHandler.getTagValue( transformNode, "join_type" );
+      infoStreams.get( 0 ).setSubject( XmlHandler.getTagValue( transformNode, "transform1" ) );
+      infoStreams.get( 1 ).setSubject( XmlHandler.getTagValue( transformNode, "transform2" ) );
+      joinType = XmlHandler.getTagValue( transformNode, "join_type" );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "MergeJoinMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }

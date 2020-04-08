@@ -27,11 +27,11 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -82,32 +82,32 @@ public class SingleThreaderMeta
     setDefault();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XMLHandler.getTagValue( transformNode, "filename" );
+      fileName = XmlHandler.getTagValue( transformNode, "filename" );
 
-      batchSize = XMLHandler.getTagValue( transformNode, "batch_size" );
-      batchTime = XMLHandler.getTagValue( transformNode, "batch_time" );
-      injectTransform = XMLHandler.getTagValue( transformNode, "inject_transform" );
-      retrieveTransform = XMLHandler.getTagValue( transformNode, "retrieve_transform" );
+      batchSize = XmlHandler.getTagValue( transformNode, "batch_size" );
+      batchTime = XmlHandler.getTagValue( transformNode, "batch_time" );
+      injectTransform = XmlHandler.getTagValue( transformNode, "inject_transform" );
+      retrieveTransform = XmlHandler.getTagValue( transformNode, "retrieve_transform" );
 
-      Node parametersNode = XMLHandler.getSubNode( transformNode, "parameters" );
+      Node parametersNode = XmlHandler.getSubNode( transformNode, "parameters" );
 
-      String passAll = XMLHandler.getTagValue( parametersNode, "pass_all_parameters" );
+      String passAll = XmlHandler.getTagValue( parametersNode, "pass_all_parameters" );
       passingAllParameters = Utils.isEmpty( passAll ) || "Y".equalsIgnoreCase( passAll );
 
-      int nrParameters = XMLHandler.countNodes( parametersNode, "parameter" );
+      int nrParameters = XmlHandler.countNodes( parametersNode, "parameter" );
 
       allocate( nrParameters );
 
       for ( int i = 0; i < nrParameters; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( parametersNode, "parameter", i );
+        Node knode = XmlHandler.getSubNodeByNr( parametersNode, "parameter", i );
 
-        parameters[ i ] = XMLHandler.getTagValue( knode, "name" );
-        parameterValues[ i ] = XMLHandler.getTagValue( knode, "value" );
+        parameters[ i ] = XmlHandler.getTagValue( knode, "name" );
+        parameterValues[ i ] = XmlHandler.getTagValue( knode, "value" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SingleThreaderMeta.Exception.ErrorLoadingPipelineTransformFromXML" ), e );
     }
   }
@@ -127,31 +127,31 @@ public class SingleThreaderMeta
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "batch_size", batchSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "batch_time", batchTime ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "inject_transform", injectTransform ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "retrieve_transform", retrieveTransform ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "batch_size", batchSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "batch_time", batchTime ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "inject_transform", injectTransform ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "retrieve_transform", retrieveTransform ) );
 
     if ( parameters != null ) {
-      retval.append( "      " ).append( XMLHandler.openTag( "parameters" ) );
+      retval.append( "      " ).append( XmlHandler.openTag( "parameters" ) );
 
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pass_all_parameters", passingAllParameters ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "pass_all_parameters", passingAllParameters ) );
 
       for ( int i = 0; i < parameters.length; i++ ) {
         // This is a better way of making the XML file than the arguments.
-        retval.append( "            " ).append( XMLHandler.openTag( "parameter" ) );
+        retval.append( "            " ).append( XmlHandler.openTag( "parameter" ) );
 
-        retval.append( "            " ).append( XMLHandler.addTagValue( "name", parameters[ i ] ) );
-        retval.append( "            " ).append( XMLHandler.addTagValue( "value", parameterValues[ i ] ) );
+        retval.append( "            " ).append( XmlHandler.addTagValue( "name", parameters[ i ] ) );
+        retval.append( "            " ).append( XmlHandler.addTagValue( "value", parameterValues[ i ] ) );
 
-        retval.append( "            " ).append( XMLHandler.closeTag( "parameter" ) );
+        retval.append( "            " ).append( XmlHandler.closeTag( "parameter" ) );
       }
-      retval.append( "      " ).append( XMLHandler.closeTag( "parameters" ) );
+      retval.append( "      " ).append( XmlHandler.closeTag( "parameters" ) );
     }
     return retval.toString();
   }

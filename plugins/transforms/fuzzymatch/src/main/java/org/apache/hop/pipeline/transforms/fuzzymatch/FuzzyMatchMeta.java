@@ -27,7 +27,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -340,7 +340,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
     this.separator = separator;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -386,44 +386,44 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
     return 0;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
 
-      String lookupFromTransformName = XMLHandler.getTagValue( transformNode, "from" );
+      String lookupFromTransformName = XmlHandler.getTagValue( transformNode, "from" );
       IStream infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
       infoStream.setSubject( lookupFromTransformName );
 
-      lookupfield = XMLHandler.getTagValue( transformNode, "lookupfield" );
-      mainstreamfield = XMLHandler.getTagValue( transformNode, "mainstreamfield" );
+      lookupfield = XmlHandler.getTagValue( transformNode, "lookupfield" );
+      mainstreamfield = XmlHandler.getTagValue( transformNode, "mainstreamfield" );
 
-      caseSensitive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "caseSensitive" ) );
-      closervalue = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "closervalue" ) );
-      minimalValue = XMLHandler.getTagValue( transformNode, "minimalValue" );
-      maximalValue = XMLHandler.getTagValue( transformNode, "maximalValue" );
-      separator = XMLHandler.getTagValue( transformNode, "separator" );
+      caseSensitive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "caseSensitive" ) );
+      closervalue = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "closervalue" ) );
+      minimalValue = XmlHandler.getTagValue( transformNode, "minimalValue" );
+      maximalValue = XmlHandler.getTagValue( transformNode, "maximalValue" );
+      separator = XmlHandler.getTagValue( transformNode, "separator" );
 
-      outputmatchfield = XMLHandler.getTagValue( transformNode, "outputmatchfield" );
-      outputvaluefield = XMLHandler.getTagValue( transformNode, "outputvaluefield" );
+      outputmatchfield = XmlHandler.getTagValue( transformNode, "outputmatchfield" );
+      outputvaluefield = XmlHandler.getTagValue( transformNode, "outputvaluefield" );
 
-      algorithm = getAlgorithmTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "algorithm" ), "" ) );
+      algorithm = getAlgorithmTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "algorithm" ), "" ) );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      int nrvalues = XMLHandler.countNodes( lookup, "value" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      int nrvalues = XmlHandler.countNodes( lookup, "value" );
 
       allocate( nrvalues );
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
+        Node vnode = XmlHandler.getSubNodeByNr( lookup, "value", i );
 
-        value[ i ] = XMLHandler.getTagValue( vnode, "name" );
-        valueName[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        value[ i ] = XmlHandler.getTagValue( vnode, "name" );
+        valueName[ i ] = XmlHandler.getTagValue( vnode, "rename" );
         if ( valueName[ i ] == null ) {
           valueName[ i ] = value[ i ]; // default: same name to return!
         }
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "FuzzyMatchMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -524,29 +524,29 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     IStream infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
-    retval.append( "    " + XMLHandler.addTagValue( "from", infoStream.getTransformName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "lookupfield", lookupfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "mainstreamfield", mainstreamfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outputmatchfield", outputmatchfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outputvaluefield", outputvaluefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "from", infoStream.getTransformName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "lookupfield", lookupfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "mainstreamfield", mainstreamfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "outputmatchfield", outputmatchfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "outputvaluefield", outputvaluefield ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "caseSensitive", caseSensitive ) );
-    retval.append( "    " + XMLHandler.addTagValue( "closervalue", closervalue ) );
-    retval.append( "    " + XMLHandler.addTagValue( "minimalValue", minimalValue ) );
-    retval.append( "    " + XMLHandler.addTagValue( "maximalValue", maximalValue ) );
-    retval.append( "    " + XMLHandler.addTagValue( "separator", separator ) );
+    retval.append( "    " + XmlHandler.addTagValue( "caseSensitive", caseSensitive ) );
+    retval.append( "    " + XmlHandler.addTagValue( "closervalue", closervalue ) );
+    retval.append( "    " + XmlHandler.addTagValue( "minimalValue", minimalValue ) );
+    retval.append( "    " + XmlHandler.addTagValue( "maximalValue", maximalValue ) );
+    retval.append( "    " + XmlHandler.addTagValue( "separator", separator ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "algorithm", getAlgorithmTypeCode( algorithm ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "algorithm", getAlgorithmTypeCode( algorithm ) ) );
 
     retval.append( "    <lookup>" + Const.CR );
     for ( int i = 0; i < value.length; i++ ) {
       retval.append( "      <value>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", value[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "rename", valueName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", value[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "rename", valueName[ i ] ) );
       retval.append( "      </value>" + Const.CR );
     }
     retval.append( "    </lookup>" + Const.CR );

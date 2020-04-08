@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -199,7 +199,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransform, Seria
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -230,39 +230,39 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransform, Seria
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      directory = XMLHandler.getTagValue( transformNode, "directory" );
-      prefix = XMLHandler.getTagValue( transformNode, "prefix" );
-      sortSize = XMLHandler.getTagValue( transformNode, "sort_size" );
-      freeMemoryLimit = XMLHandler.getTagValue( transformNode, "free_memory" );
-      compressFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "compress" ) );
-      compressFilesVariable = XMLHandler.getTagValue( transformNode, "compress_variable" );
-      onlyPassingUniqueRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "unique_rows" ) );
+      directory = XmlHandler.getTagValue( transformNode, "directory" );
+      prefix = XmlHandler.getTagValue( transformNode, "prefix" );
+      sortSize = XmlHandler.getTagValue( transformNode, "sort_size" );
+      freeMemoryLimit = XmlHandler.getTagValue( transformNode, "free_memory" );
+      compressFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "compress" ) );
+      compressFilesVariable = XmlHandler.getTagValue( transformNode, "compress_variable" );
+      onlyPassingUniqueRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "unique_rows" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
       String defaultStrength = Integer.toString( this.getDefaultCollationStrength() );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        String asc = XMLHandler.getTagValue( fnode, "ascending" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        String asc = XmlHandler.getTagValue( fnode, "ascending" );
         ascending[ i ] = "Y".equalsIgnoreCase( asc );
-        String sens = XMLHandler.getTagValue( fnode, "case_sensitive" );
-        String coll = Const.NVL( XMLHandler.getTagValue( fnode, "collator_enabled" ), "N" );
+        String sens = XmlHandler.getTagValue( fnode, "case_sensitive" );
+        String coll = Const.NVL( XmlHandler.getTagValue( fnode, "collator_enabled" ), "N" );
         caseSensitive[ i ] = Utils.isEmpty( sens ) || "Y".equalsIgnoreCase( sens );
         collatorEnabled[ i ] = "Y".equalsIgnoreCase( coll );
         collatorStrength[ i ] =
-          Integer.parseInt( Const.NVL( XMLHandler.getTagValue( fnode, "collator_strength" ), defaultStrength ) );
-        String presorted = XMLHandler.getTagValue( fnode, "presorted" );
+          Integer.parseInt( Const.NVL( XmlHandler.getTagValue( fnode, "collator_strength" ), defaultStrength ) );
+        String presorted = XmlHandler.getTagValue( fnode, "presorted" );
         preSortedField[ i ] = "Y".equalsIgnoreCase( presorted );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -290,25 +290,25 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransform, Seria
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 256 );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sort_size", sortSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "free_memory", freeMemoryLimit ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compress", compressFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compress_variable", compressFilesVariable ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "unique_rows", onlyPassingUniqueRows ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "directory", directory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "prefix", prefix ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sort_size", sortSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "free_memory", freeMemoryLimit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compress", compressFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compress_variable", compressFilesVariable ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "unique_rows", onlyPassingUniqueRows ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "ascending", ascending[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "case_sensitive", caseSensitive[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_enabled", collatorEnabled[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "collator_strength", collatorStrength[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "presorted", preSortedField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "ascending", ascending[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "case_sensitive", caseSensitive[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "collator_enabled", collatorEnabled[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "collator_strength", collatorStrength[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "presorted", preSortedField[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );

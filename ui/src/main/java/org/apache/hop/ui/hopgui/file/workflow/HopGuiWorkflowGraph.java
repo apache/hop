@@ -41,7 +41,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
@@ -60,12 +60,11 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -95,7 +94,7 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelega
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
-import org.apache.hop.ui.hopgui.shared.SWTGC;
+import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.ActionResult;
@@ -144,7 +143,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -2456,7 +2454,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public Image getJobImage( Device device, int x, int y, float magnificationFactor ) {
-    IGC gc = new SWTGC( device, new Point( x, y ), iconsize );
+    IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
@@ -2961,7 +2959,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String xml = workflowMeta.getXml();
       OutputStream out = HopVFS.getOutputStream( workflowMeta.getFilename(), false );
       try {
-        out.write( XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
+        out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         workflowMeta.clearChanged();
         redraw();
@@ -3158,33 +3156,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     toolItem.setImage( GUIResource.getInstance().getImageHideResults() );
   }
 
-
-  @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiWorkflowGraph-ToolBar-10060-Print",
-    label = "Print",
-    toolTip = "Print this workflow",
-    image = "ui/images/print.svg",
-    separator = true,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  )
-  @Override
-  public void print() {
-    PrintSpool ps = new PrintSpool();
-    Printer printer = ps.getPrinter( hopShell() );
-
-    // Create an image of the screen
-    Point max = workflowMeta.getMaximum();
-    Image img = getJobImage( printer, max.x, max.y, 1.0f );
-    ps.printImage( hopShell(), img );
-
-    img.dispose();
-    ps.dispose();
-  }
-
    /* TODO: re-introduce
-  public void getSQL() {
-    hopUi.getSQL();
+  public void getSql() {
+    hopUi.getSql();
   }
     */
 

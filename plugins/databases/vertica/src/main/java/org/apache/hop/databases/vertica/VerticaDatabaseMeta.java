@@ -225,18 +225,18 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return super.getSQLColumnExists( columnname, tablename ) + getLimitClause( 1 );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return super.getSqlColumnExists( columnname, tablename ) + getLimitClause( 1 );
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
-    return super.getSQLQueryFields( tableName ) + getLimitClause( 1 );
+  public String getSqlQueryFields( String tableName ) {
+    return super.getSqlQueryFields( tableName ) + getLimitClause( 1 );
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return super.getSQLTableExists( tablename ) + getLimitClause( 1 );
+  public String getSqlTableExists( String tablename ) {
+    return super.getSqlTableExists( tablename ) + getLimitClause( 1 );
   }
 
   @Override
@@ -285,12 +285,12 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT sequence_name FROM sequences WHERE sequence_name = '" + sequenceName + "'";
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT sequence_name FROM sequences";
   }
 
@@ -301,7 +301,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT currval('" + sequenceName + "')";
   }
 
@@ -312,7 +312,7 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT nextval('" + sequenceName + "')";
   }
 

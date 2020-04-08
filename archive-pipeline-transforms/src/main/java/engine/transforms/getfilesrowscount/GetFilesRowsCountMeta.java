@@ -28,7 +28,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -360,7 +360,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     this.rowsCountFieldName = rowsCountFieldName;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -379,26 +379,26 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "files_count", includeFilesCount ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "files_count_fieldname", filesCountFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rows_count_fieldname", rowsCountFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rowseparator_format", RowSeparator_format ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "row_separator", RowSeparator ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "isaddresult", isaddresult ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filefield", filefield ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename_Field", outputFilenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "smartCount", smartCount ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "files_count", includeFilesCount ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "files_count_fieldname", filesCountFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rows_count_fieldname", rowsCountFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowseparator_format", RowSeparator_format ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "row_separator", RowSeparator ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filefield", filefield ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename_Field", outputFilenameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "smartCount", smartCount ) );
 
     retval.append( "    <file>" ).append( Const.CR );
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -423,47 +423,47 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     return original;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      includeFilesCount = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "files_count" ) );
-      filesCountFieldName = XMLHandler.getTagValue( transformNode, "files_count_fieldname" );
-      rowsCountFieldName = XMLHandler.getTagValue( transformNode, "rows_count_fieldname" );
+      includeFilesCount = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "files_count" ) );
+      filesCountFieldName = XmlHandler.getTagValue( transformNode, "files_count_fieldname" );
+      rowsCountFieldName = XmlHandler.getTagValue( transformNode, "rows_count_fieldname" );
 
-      RowSeparator_format = scrubOldRowSeparator( XMLHandler.getTagValue( transformNode, "rowseparator_format" ) );
-      RowSeparator = XMLHandler.getTagValue( transformNode, "row_separator" );
+      RowSeparator_format = scrubOldRowSeparator( XmlHandler.getTagValue( transformNode, "rowseparator_format" ) );
+      RowSeparator = XmlHandler.getTagValue( transformNode, "row_separator" );
 
-      smartCount = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "smartCount" ) );
+      smartCount = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "smartCount" ) );
 
-      String addresult = XMLHandler.getTagValue( transformNode, "isaddresult" );
+      String addresult = XmlHandler.getTagValue( transformNode, "isaddresult" );
       if ( Utils.isEmpty( addresult ) ) {
         isaddresult = true;
       } else {
         isaddresult = "Y".equalsIgnoreCase( addresult );
       }
 
-      filefield = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "filefield" ) );
-      outputFilenameField = XMLHandler.getTagValue( transformNode, "filename_Field" );
+      filefield = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "filefield" ) );
+      outputFilenameField = XmlHandler.getTagValue( transformNode, "filename_Field" );
 
-      Node filenode = XMLHandler.getSubNode( transformNode, "file" );
-      int nrFiles = XMLHandler.countNodes( filenode, "name" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      int nrFiles = XmlHandler.countNodes( filenode, "name" );
       allocate( nrFiles );
 
       for ( int i = 0; i < nrFiles; i++ ) {
-        Node filenamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
-        Node filemasknode = XMLHandler.getSubNodeByNr( filenode, "filemask", i );
-        Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
-        Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
-        excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
-        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        Node filenamenode = XmlHandler.getSubNodeByNr( filenode, "name", i );
+        Node filemasknode = XmlHandler.getSubNodeByNr( filenode, "filemask", i );
+        Node excludefilemasknode = XmlHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
+        Node fileRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
+        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr( filenode, "include_subfolders", i );
+        fileName[ i ] = XmlHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XmlHandler.getNodeValue( filemasknode );
+        excludeFileMask[ i ] = XmlHandler.getNodeValue( excludefilemasknode );
+        fileRequired[ i ] = XmlHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XmlHandler.getNodeValue( includeSubFoldersnode );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

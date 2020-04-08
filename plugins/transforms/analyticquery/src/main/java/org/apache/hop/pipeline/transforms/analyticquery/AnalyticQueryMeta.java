@@ -27,7 +27,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -180,7 +180,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -199,32 +199,32 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      Node groupn = XMLHandler.getSubNode( transformNode, "group" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
+      Node groupn = XmlHandler.getSubNode( transformNode, "group" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
 
-      int sizegroup = XMLHandler.countNodes( groupn, "field" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int sizegroup = XmlHandler.countNodes( groupn, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( sizegroup, nrFields );
 
       for ( int i = 0; i < sizegroup; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( groupn, "field", i );
+        groupField[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        aggregateField[ i ] = XMLHandler.getTagValue( fnode, "aggregate" );
-        subjectField[ i ] = XMLHandler.getTagValue( fnode, "subject" );
-        aggregateType[ i ] = getType( XMLHandler.getTagValue( fnode, "type" ) );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        aggregateField[ i ] = XmlHandler.getTagValue( fnode, "aggregate" );
+        subjectField[ i ] = XmlHandler.getTagValue( fnode, "subject" );
+        aggregateType[ i ] = getType( XmlHandler.getTagValue( fnode, "type" ) );
 
-        valueField[ i ] = Integer.parseInt( XMLHandler.getTagValue( fnode, "valuefield" ) );
+        valueField[ i ] = Integer.parseInt( XmlHandler.getTagValue( fnode, "valuefield" ) );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "AnalyticQueryMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -306,13 +306,13 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
     retval.append( "      <group>" ).append( Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </group>" ).append( Const.CR );
@@ -320,10 +320,10 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < subjectField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "subject", subjectField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "valuefield", valueField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );

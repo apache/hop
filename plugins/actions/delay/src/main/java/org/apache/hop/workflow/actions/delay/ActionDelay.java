@@ -26,9 +26,9 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -79,25 +79,25 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maximumTimeout", maximumTimeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "scaletime", scaleTime ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maximumTimeout", maximumTimeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "scaletime", scaleTime ) );
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      maximumTimeout = XMLHandler.getTagValue( entrynode, "maximumTimeout" );
-      scaleTime = Integer.parseInt( XMLHandler.getTagValue( entrynode, "scaletime" ) );
+      super.loadXml( entrynode );
+      maximumTimeout = XmlHandler.getTagValue( entrynode, "maximumTimeout" );
+      scaleTime = Integer.parseInt( XmlHandler.getTagValue( entrynode, "scaletime" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionDelay.UnableToLoadFromXml.Label" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionDelay.UnableToLoadFromXml.Label" ), e );
     }
   }
 

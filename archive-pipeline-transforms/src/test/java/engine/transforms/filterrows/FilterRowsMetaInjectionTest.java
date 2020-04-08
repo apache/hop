@@ -56,6 +56,6 @@ public class FilterRowsMetaInjectionTest extends BaseMetadataInjectionTest<Filte
       public String get() {
         return meta.getConditionXML();
       }
-    }, new Condition().getXML() );
+    }, new Condition().getXml() );
   }
 }

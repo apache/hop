@@ -33,11 +33,11 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -203,38 +203,38 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "result_filenames_wildcard", resultFilenamesWildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "Result_field_file", ResultFieldFile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "Result_field_wildcard", ResultFieldWildcard ) );
+      XmlHandler.addTagValue( "result_filenames_wildcard", resultFilenamesWildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "Result_field_file", ResultFieldFile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "Result_field_wildcard", ResultFieldWildcard ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "Result_field_includesubfolders", ResultFieldIncludesubFolders ) );
+      XmlHandler.addTagValue( "Result_field_includesubfolders", ResultFieldIncludesubFolders ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( sourceFileFolder != null ) {
       for ( int i = 0; i < sourceFileFolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", sourceWildcard[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", sourceWildcard[ i ] ) );
         retval
-          .append( "          " ).append( XMLHandler.addTagValue( "include_subFolders", sourceIncludeSubfolders[ i ] ) );
+          .append( "          " ).append( XmlHandler.addTagValue( "include_subFolders", sourceIncludeSubfolders[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
     retval.append( "      </fields>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "comparevalue", comparevalue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "minvalue", minvalue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maxvalue", maxvalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "successnumbercondition", getSuccessNumberConditionCode( successConditionType ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "source_files", getSourceFilesCode( sourceFiles ) ) );
+      XmlHandler.addTagValue( "successnumbercondition", getSuccessNumberConditionCode( successConditionType ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "source_files", getSourceFilesCode( sourceFiles ) ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "evaluation_type", getEvaluationTypeCode( evaluationType ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "scale", getScaleCode( scale ) ) );
+      XmlHandler.addTagValue( "evaluation_type", getEvaluationTypeCode( evaluationType ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "scale", getScaleCode( scale ) ) );
     return retval.toString();
   }
 
@@ -260,41 +260,41 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     }
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        sourceFileFolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        sourceWildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
-        sourceIncludeSubfolders[ i ] = XMLHandler.getTagValue( fnode, "include_subFolders" );
+        sourceFileFolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
+        sourceWildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
+        sourceIncludeSubfolders[ i ] = XmlHandler.getTagValue( fnode, "include_subFolders" );
       }
 
-      resultFilenamesWildcard = XMLHandler.getTagValue( entrynode, "result_filenames_wildcard" );
-      ResultFieldFile = XMLHandler.getTagValue( entrynode, "result_field_file" );
-      ResultFieldWildcard = XMLHandler.getTagValue( entrynode, "result_field_wildcard" );
-      ResultFieldIncludesubFolders = XMLHandler.getTagValue( entrynode, "result_field_includesubfolders" );
-      comparevalue = XMLHandler.getTagValue( entrynode, "comparevalue" );
-      minvalue = XMLHandler.getTagValue( entrynode, "minvalue" );
-      maxvalue = XMLHandler.getTagValue( entrynode, "maxvalue" );
-      successConditionType = getSuccessNumberConditionByCode( Const.NVL( XMLHandler.getTagValue(
+      resultFilenamesWildcard = XmlHandler.getTagValue( entrynode, "result_filenames_wildcard" );
+      ResultFieldFile = XmlHandler.getTagValue( entrynode, "result_field_file" );
+      ResultFieldWildcard = XmlHandler.getTagValue( entrynode, "result_field_wildcard" );
+      ResultFieldIncludesubFolders = XmlHandler.getTagValue( entrynode, "result_field_includesubfolders" );
+      comparevalue = XmlHandler.getTagValue( entrynode, "comparevalue" );
+      minvalue = XmlHandler.getTagValue( entrynode, "minvalue" );
+      maxvalue = XmlHandler.getTagValue( entrynode, "maxvalue" );
+      successConditionType = getSuccessNumberConditionByCode( Const.NVL( XmlHandler.getTagValue(
           entrynode, "successnumbercondition" ), "" ) );
-      sourceFiles = getSourceFilesByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "source_files" ), "" ) );
+      sourceFiles = getSourceFilesByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "source_files" ), "" ) );
       evaluationType =
-        getEvaluationTypeByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "evaluation_type" ), "" ) );
-      scale = getScaleByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "scale" ), "" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString(
+        getEvaluationTypeByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "evaluation_type" ), "" ) );
+      scale = getScaleByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "scale" ), "" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "JobEvalFilesMetrics.Error.Exception.UnableLoadXML" ), xe );
     }
   }

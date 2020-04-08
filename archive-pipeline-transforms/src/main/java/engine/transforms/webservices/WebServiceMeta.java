@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -141,9 +141,9 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     fieldsOut = new ArrayList<WebServiceField>();
   }
 
-  public WebServiceMeta( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public WebServiceMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this();
-    loadXML( transformNode, metaStore );
+    loadXml( transformNode, metaStore );
   }
 
   @Override
@@ -219,31 +219,31 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     // Store the WebService URL
     //
-    retval.append( "    " + XMLHandler.addTagValue( "wsURL", getUrl() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsURL", getUrl() ) );
 
     // Store the operation
     //
-    retval.append( "    " + XMLHandler.addTagValue( "wsOperation", getOperationName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsOperationRequest", getOperationRequestName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsOperationNamespace", getOperationNamespace() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsInFieldContainer", getInFieldContainerName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsInFieldArgument", getInFieldArgumentName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsOutFieldContainer", getOutFieldContainerName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "wsOutFieldArgument", getOutFieldArgumentName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyHost", getProxyHost() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyPort", getProxyPort() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "httpLogin", getHttpLogin() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "httpPassword", getHttpPassword() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "callTransform", getCallTransform() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "passingInputData", isPassingInputData() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "compatible", isCompatible() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "repeating_element", getRepeatingElementName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "reply_as_string", isReturningReplyAsString() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsOperation", getOperationName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsOperationRequest", getOperationRequestName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsOperationNamespace", getOperationNamespace() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsInFieldContainer", getInFieldContainerName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsInFieldArgument", getInFieldArgumentName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsOutFieldContainer", getOutFieldContainerName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "wsOutFieldArgument", getOutFieldArgumentName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyHost", getProxyHost() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyPort", getProxyPort() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "httpLogin", getHttpLogin() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "httpPassword", getHttpPassword() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "callTransform", getCallTransform() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "passingInputData", isPassingInputData() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "compatible", isCompatible() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "repeating_element", getRepeatingElementName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "reply_as_string", isReturningReplyAsString() ) );
 
     // Store the field parameters
     //
@@ -254,9 +254,9 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     for ( int i = 0; i < getFieldsIn().size(); i++ ) {
       WebServiceField vField = getFieldsIn().get( i );
       retval.append( "    <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", vField.getName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "wsName", vField.getWsName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "xsdType", vField.getXsdType() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", vField.getName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "wsName", vField.getWsName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "xsdType", vField.getXsdType() ) );
       retval.append( "    </field>" + Const.CR );
     }
     retval.append( "      </fieldsIn>" + Const.CR );
@@ -267,9 +267,9 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     for ( int i = 0; i < getFieldsOut().size(); i++ ) {
       WebServiceField vField = getFieldsOut().get( i );
       retval.append( "    <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", vField.getName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "wsName", vField.getWsName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "xsdType", vField.getXsdType() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", vField.getName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "wsName", vField.getWsName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "xsdType", vField.getXsdType() ) );
       retval.append( "    </field>" + Const.CR );
     }
     retval.append( "      </fieldsOut>" + Const.CR );
@@ -277,44 +277,44 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     // Load the URL
     //
-    setUrl( XMLHandler.getTagValue( transformNode, "wsURL" ) );
+    setUrl( XmlHandler.getTagValue( transformNode, "wsURL" ) );
 
     // Load the operation
     //
-    setOperationName( XMLHandler.getTagValue( transformNode, "wsOperation" ) );
-    setOperationRequestName( XMLHandler.getTagValue( transformNode, "wsOperationRequest" ) );
-    setOperationNamespace( XMLHandler.getTagValue( transformNode, "wsOperationNamespace" ) );
-    setInFieldContainerName( XMLHandler.getTagValue( transformNode, "wsInFieldContainer" ) );
-    setInFieldArgumentName( XMLHandler.getTagValue( transformNode, "wsInFieldArgument" ) );
-    setOutFieldContainerName( XMLHandler.getTagValue( transformNode, "wsOutFieldContainer" ) );
-    setOutFieldArgumentName( XMLHandler.getTagValue( transformNode, "wsOutFieldArgument" ) );
-    setProxyHost( XMLHandler.getTagValue( transformNode, "proxyHost" ) );
-    setProxyPort( XMLHandler.getTagValue( transformNode, "proxyPort" ) );
-    setHttpLogin( XMLHandler.getTagValue( transformNode, "httpLogin" ) );
-    setHttpPassword( XMLHandler.getTagValue( transformNode, "httpPassword" ) );
-    setCallTransform( Const.toInt( XMLHandler.getTagValue( transformNode, "callTransform" ), DEFAULT_TRANSFORM ) );
-    setPassingInputData( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "passingInputData" ) ) );
-    String compat = XMLHandler.getTagValue( transformNode, "compatible" );
+    setOperationName( XmlHandler.getTagValue( transformNode, "wsOperation" ) );
+    setOperationRequestName( XmlHandler.getTagValue( transformNode, "wsOperationRequest" ) );
+    setOperationNamespace( XmlHandler.getTagValue( transformNode, "wsOperationNamespace" ) );
+    setInFieldContainerName( XmlHandler.getTagValue( transformNode, "wsInFieldContainer" ) );
+    setInFieldArgumentName( XmlHandler.getTagValue( transformNode, "wsInFieldArgument" ) );
+    setOutFieldContainerName( XmlHandler.getTagValue( transformNode, "wsOutFieldContainer" ) );
+    setOutFieldArgumentName( XmlHandler.getTagValue( transformNode, "wsOutFieldArgument" ) );
+    setProxyHost( XmlHandler.getTagValue( transformNode, "proxyHost" ) );
+    setProxyPort( XmlHandler.getTagValue( transformNode, "proxyPort" ) );
+    setHttpLogin( XmlHandler.getTagValue( transformNode, "httpLogin" ) );
+    setHttpPassword( XmlHandler.getTagValue( transformNode, "httpPassword" ) );
+    setCallTransform( Const.toInt( XmlHandler.getTagValue( transformNode, "callTransform" ), DEFAULT_TRANSFORM ) );
+    setPassingInputData( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "passingInputData" ) ) );
+    String compat = XmlHandler.getTagValue( transformNode, "compatible" );
     setCompatible( Utils.isEmpty( compat ) || "Y".equalsIgnoreCase( compat ) );
-    setRepeatingElementName( XMLHandler.getTagValue( transformNode, "repeating_element" ) );
-    setReturningReplyAsString( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "reply_as_string" ) ) );
+    setRepeatingElementName( XmlHandler.getTagValue( transformNode, "repeating_element" ) );
+    setReturningReplyAsString( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "reply_as_string" ) ) );
 
     // Load the input fields mapping
     //
     getFieldsIn().clear();
-    Node fields = XMLHandler.getSubNode( transformNode, "fieldsIn" );
-    int nrFields = XMLHandler.countNodes( fields, "field" );
+    Node fields = XmlHandler.getSubNode( transformNode, "fieldsIn" );
+    int nrFields = XmlHandler.countNodes( fields, "field" );
 
     for ( int i = 0; i < nrFields; ++i ) {
-      Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+      Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
       WebServiceField field = new WebServiceField();
-      field.setName( XMLHandler.getTagValue( fnode, "name" ) );
-      field.setWsName( XMLHandler.getTagValue( fnode, "wsName" ) );
-      field.setXsdType( XMLHandler.getTagValue( fnode, "xsdType" ) );
+      field.setName( XmlHandler.getTagValue( fnode, "name" ) );
+      field.setWsName( XmlHandler.getTagValue( fnode, "wsName" ) );
+      field.setXsdType( XmlHandler.getTagValue( fnode, "xsdType" ) );
       getFieldsIn().add( field );
 
     }
@@ -323,16 +323,16 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     //
     getFieldsOut().clear();
 
-    fields = XMLHandler.getSubNode( transformNode, "fieldsOut" );
-    nrFields = XMLHandler.countNodes( fields, "field" );
+    fields = XmlHandler.getSubNode( transformNode, "fieldsOut" );
+    nrFields = XmlHandler.countNodes( fields, "field" );
 
     for ( int i = 0; i < nrFields; ++i ) {
-      Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+      Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
       WebServiceField field = new WebServiceField();
-      field.setName( XMLHandler.getTagValue( fnode, "name" ) );
-      field.setWsName( XMLHandler.getTagValue( fnode, "wsName" ) );
-      field.setXsdType( XMLHandler.getTagValue( fnode, "xsdType" ) );
+      field.setName( XmlHandler.getTagValue( fnode, "name" ) );
+      field.setWsName( XmlHandler.getTagValue( fnode, "wsName" ) );
+      field.setXsdType( XmlHandler.getTagValue( fnode, "xsdType" ) );
       getFieldsOut().add( field );
     }
   }

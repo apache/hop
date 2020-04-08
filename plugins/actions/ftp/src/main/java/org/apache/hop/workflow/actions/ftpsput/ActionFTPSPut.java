@@ -27,10 +27,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.ftpsget.FTPSConnection;
@@ -108,61 +108,61 @@ public class ActionFTPSPut extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 400 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remoteDirectory", remoteDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "localDirectory", localDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "binary", binaryMode ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remove", remove ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "only_new", onlyPuttingNewFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "active", activeConnection ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remoteDirectory", remoteDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "localDirectory", localDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "binary", binaryMode ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remove", remove ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "only_new", onlyPuttingNewFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_username", proxyUsername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_password", proxyPassword ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_password", proxyPassword ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
+      XmlHandler.addTagValue( "connection_type", FTPSConnection.getConnectionTypeCode( connectionType ) ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      remoteDirectory = XMLHandler.getTagValue( entrynode, "remoteDirectory" );
-      localDirectory = XMLHandler.getTagValue( entrynode, "localDirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      binaryMode = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "binary" ) );
-      timeout = Const.toInt( XMLHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove" ) );
-      onlyPuttingNewFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "only_new" ) );
-      activeConnection = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "active" ) );
+      super.loadXml( entrynode );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      serverPort = XmlHandler.getTagValue( entrynode, "serverport" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      remoteDirectory = XmlHandler.getTagValue( entrynode, "remoteDirectory" );
+      localDirectory = XmlHandler.getTagValue( entrynode, "localDirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      binaryMode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "binary" ) );
+      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
+      remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
+      onlyPuttingNewFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "only_new" ) );
+      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
 
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxy_username" );
-      proxyPassword = XMLHandler.getTagValue( entrynode, "proxy_password" );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
+      proxyPassword = XmlHandler.getTagValue( entrynode, "proxy_password" );
       connectionType =
         FTPSConnection.getConnectionTypeByCode( Const.NVL(
-          XMLHandler.getTagValue( entrynode, "connection_type" ), "" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "JobFTPSPUT.Log.UnableToLoadFromXml" ), xe );
+          XmlHandler.getTagValue( entrynode, "connection_type" ), "" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "JobFTPSPUT.Log.UnableToLoadFromXml" ), xe );
     }
   }
 

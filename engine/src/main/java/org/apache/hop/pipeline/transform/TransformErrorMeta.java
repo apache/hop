@@ -31,7 +31,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.IXml;
 import org.w3c.dom.Node;
 
@@ -160,22 +160,22 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
   public String getXml() {
     StringBuilder xml = new StringBuilder( 300 );
 
-    xml.append( "      " ).append( XMLHandler.openTag( TransformErrorMeta.XML_ERROR_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.openTag( TransformErrorMeta.XML_ERROR_TAG ) ).append( Const.CR );
     xml.append( "        " ).append(
-      XMLHandler.addTagValue( TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG, sourceTransform != null ? sourceTransform.getName() : "" ) );
+      XmlHandler.addTagValue( TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG, sourceTransform != null ? sourceTransform.getName() : "" ) );
     xml.append( "        " ).append(
-      XMLHandler.addTagValue( TransformErrorMeta.XML_TARGET_TRANSFORM_TAG, targetTransform != null ? targetTransform.getName() : "" ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "is_enabled", enabled ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "nr_valuename", nrErrorsValuename ) );
+      XmlHandler.addTagValue( TransformErrorMeta.XML_TARGET_TRANSFORM_TAG, targetTransform != null ? targetTransform.getName() : "" ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "is_enabled", enabled ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "nr_valuename", nrErrorsValuename ) );
     xml
       .append( "        " ).append(
-      XMLHandler.addTagValue( "descriptions_valuename", errorDescriptionsValuename ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "fields_valuename", errorFieldsValuename ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "codes_valuename", errorCodesValuename ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "max_errors", maxErrors ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "max_pct_errors", maxPercentErrors ) );
-    xml.append( "        " ).append( XMLHandler.addTagValue( "min_pct_rows", minPercentRows ) );
-    xml.append( "      " ).append( XMLHandler.closeTag( TransformErrorMeta.XML_ERROR_TAG ) ).append( Const.CR );
+      XmlHandler.addTagValue( "descriptions_valuename", errorDescriptionsValuename ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "fields_valuename", errorFieldsValuename ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "codes_valuename", errorCodesValuename ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "max_errors", maxErrors ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "max_pct_errors", maxPercentErrors ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "min_pct_rows", minPercentRows ) );
+    xml.append( "      " ).append( XmlHandler.closeTag( TransformErrorMeta.XML_ERROR_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }
@@ -183,16 +183,16 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
   public TransformErrorMeta( IVariables variables, Node node, List<TransformMeta> transforms ) {
     this.variables = variables;
 
-    sourceTransform = TransformMeta.findTransform( transforms, XMLHandler.getTagValue( node, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG ) );
-    targetTransform = TransformMeta.findTransform( transforms, XMLHandler.getTagValue( node, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG ) );
-    enabled = "Y".equals( XMLHandler.getTagValue( node, "is_enabled" ) );
-    nrErrorsValuename = XMLHandler.getTagValue( node, "nr_valuename" );
-    errorDescriptionsValuename = XMLHandler.getTagValue( node, "descriptions_valuename" );
-    errorFieldsValuename = XMLHandler.getTagValue( node, "fields_valuename" );
-    errorCodesValuename = XMLHandler.getTagValue( node, "codes_valuename" );
-    maxErrors = XMLHandler.getTagValue( node, "max_errors" );
-    maxPercentErrors = XMLHandler.getTagValue( node, "max_pct_errors" );
-    minPercentRows = XMLHandler.getTagValue( node, "min_pct_rows" );
+    sourceTransform = TransformMeta.findTransform( transforms, XmlHandler.getTagValue( node, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG ) );
+    targetTransform = TransformMeta.findTransform( transforms, XmlHandler.getTagValue( node, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG ) );
+    enabled = "Y".equals( XmlHandler.getTagValue( node, "is_enabled" ) );
+    nrErrorsValuename = XmlHandler.getTagValue( node, "nr_valuename" );
+    errorDescriptionsValuename = XmlHandler.getTagValue( node, "descriptions_valuename" );
+    errorFieldsValuename = XmlHandler.getTagValue( node, "fields_valuename" );
+    errorCodesValuename = XmlHandler.getTagValue( node, "codes_valuename" );
+    maxErrors = XmlHandler.getTagValue( node, "max_errors" );
+    maxPercentErrors = XmlHandler.getTagValue( node, "max_pct_errors" );
+    minPercentRows = XmlHandler.getTagValue( node, "min_pct_rows" );
   }
 
   /**

@@ -31,7 +31,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
@@ -156,22 +156,22 @@ public class TransformPartitioningMeta implements IXml, Cloneable {
   public String getXml() {
     StringBuilder xml = new StringBuilder( 150 );
 
-    xml.append( "    " ).append( XMLHandler.openTag( "partitioning" ) ).append( Const.CR );
-    xml.append( "      " ).append( XMLHandler.addTagValue( "method", getMethodCode() ) );
+    xml.append( "    " ).append( XmlHandler.openTag( "partitioning" ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "method", getMethodCode() ) );
     xml.append( "      " ).append(
-      XMLHandler.addTagValue( "schema_name", partitionSchema != null ? partitionSchema.getName() : "" ) );
+      XmlHandler.addTagValue( "schema_name", partitionSchema != null ? partitionSchema.getName() : "" ) );
     if ( partitioner != null ) {
-      xml.append( partitioner.getXML() );
+      xml.append( partitioner.getXml() );
     }
-    xml.append( "    " ).append( XMLHandler.closeTag( "partitioning" ) ).append( Const.CR );
+    xml.append( "    " ).append( XmlHandler.closeTag( "partitioning" ) ).append( Const.CR );
 
     return xml.toString();
   }
 
   public TransformPartitioningMeta( Node partitioningMethodNode, IMetaStore metaStore ) throws HopException {
     this();
-    setMethod( getMethod( XMLHandler.getTagValue( partitioningMethodNode, "method" ) ) );
-    String partitionSchemaName = XMLHandler.getTagValue( partitioningMethodNode, "schema_name" );
+    setMethod( getMethod( XmlHandler.getTagValue( partitioningMethodNode, "method" ) ) );
+    String partitionSchemaName = XmlHandler.getTagValue( partitioningMethodNode, "schema_name" );
     if ( StringUtils.isEmpty(partitionSchemaName) ) {
       partitionSchema = new PartitionSchema(  );
     } else {
@@ -183,7 +183,7 @@ public class TransformPartitioningMeta implements IXml, Cloneable {
     }
     hasChanged = false;
     if ( partitioner != null ) {
-      partitioner.loadXML( partitioningMethodNode );
+      partitioner.loadXml( partitioningMethodNode );
     }
   }
 

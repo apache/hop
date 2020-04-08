@@ -22,8 +22,8 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testSetUpJettyOptionsAsSystemParameters() throws HopXMLException {
+  public void testSetUpJettyOptionsAsSystemParameters() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithAllOptions() );
 
     slServerConfig.setUpJettyOptions( configNode );
@@ -96,7 +96,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenNoOptionsNode() throws HopXMLException {
+  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenNoOptionsNode() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithNoOptionsNode() );
 
     slServerConfig.setUpJettyOptions( configNode );
@@ -110,7 +110,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenEmptyOptionsNode() throws HopXMLException {
+  public void testDoNotSetUpJettyOptionsAsSystemParameters_WhenEmptyOptionsNode() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithEmptyOptionsNode() );
 
     slServerConfig.setUpJettyOptions( configNode );
@@ -124,7 +124,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_Acceptors() throws HopXMLException {
+  public void testParseJettyOption_Acceptors() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithAcceptorsOnlyOption() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
@@ -137,7 +137,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_AcceptQueueSize() throws HopXMLException {
+  public void testParseJettyOption_AcceptQueueSize() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithAcceptQueueSizeOnlyOption() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
@@ -150,7 +150,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_LowResourcesMaxIdleTime() throws HopXMLException {
+  public void testParseJettyOption_LowResourcesMaxIdleTime() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithLowResourcesMaxIdleTimeeOnlyOption() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
@@ -163,7 +163,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_AllOptions() throws HopXMLException {
+  public void testParseJettyOption_AllOptions() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithAllOptions() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
@@ -182,7 +182,7 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_EmptyOptionsNode() throws HopXMLException {
+  public void testParseJettyOption_EmptyOptionsNode() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithEmptyOptionsNode() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
@@ -192,16 +192,16 @@ public class SlaveServerConfigTest {
   }
 
   @Test
-  public void testParseJettyOption_NoOptionsNode() throws HopXMLException {
+  public void testParseJettyOption_NoOptionsNode() throws HopXmlException {
     Node configNode = getConfigNode( getConfigWithNoOptionsNode() );
 
     Map<String, String> parseJettyOptions = slServerConfig.parseJettyOptions( configNode );
     assertNull( parseJettyOptions );
   }
 
-  private Node getConfigNode( String configString ) throws HopXMLException {
-    Document document = XMLHandler.loadXMLString( configString );
-    Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
+  private Node getConfigNode( String configString ) throws HopXmlException {
+    Document document = XmlHandler.loadXMLString( configString );
+    Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
     return configNode;
   }
 
@@ -242,7 +242,7 @@ public class SlaveServerConfigTest {
 
   private String getConfig( Map<String, String> jettyOptions ) {
     StringBuilder xml = new StringBuilder( 50 );
-    xml.append( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+    xml.append( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
     xml.append( "<" + XML_TAG_SLAVE_CONFIG + ">" ).append( Const.CR );
     if ( jettyOptions != null ) {
       xml.append( "<" + XML_TAG_JETTY_OPTIONS + ">" ).append( Const.CR );

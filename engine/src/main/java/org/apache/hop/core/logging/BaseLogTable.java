@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.w3c.dom.Node;
@@ -348,34 +348,34 @@ public abstract class BaseLogTable {
     StringBuilder retval = new StringBuilder();
 
     for ( LogTableField field : fields ) {
-      retval.append( "        " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "        " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-      retval.append( "          " ).append( XMLHandler.addTagValue( "id", field.getId() ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "enabled", field.isEnabled() ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", field.getFieldName() ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "id", field.getId() ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "enabled", field.isEnabled() ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "name", field.getFieldName() ) );
       if ( field.isSubjectAllowed() ) {
-        retval.append( "          " ).append( XMLHandler.addTagValue( "subject",
+        retval.append( "          " ).append( XmlHandler.addTagValue( "subject",
           field.getSubject() == null ? null : field.getSubject().toString() ) );
       }
 
-      retval.append( "        " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "        " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     }
 
     return retval.toString();
   }
 
   public void loadFieldsXML( Node node ) {
-    int nr = XMLHandler.countNodes( node, BaseLogTable.XML_TAG );
+    int nr = XmlHandler.countNodes( node, BaseLogTable.XML_TAG );
     for ( int i = 0; i < nr; i++ ) {
-      Node fieldNode = XMLHandler.getSubNodeByNr( node, BaseLogTable.XML_TAG, i );
-      String id = XMLHandler.getTagValue( fieldNode, "id" );
+      Node fieldNode = XmlHandler.getSubNodeByNr( node, BaseLogTable.XML_TAG, i );
+      String id = XmlHandler.getTagValue( fieldNode, "id" );
       LogTableField field = findField( id );
       if ( field == null && i < fields.size() ) {
         field = fields.get( i ); // backward compatible until we go GA
       }
       if ( field != null ) {
-        field.setFieldName( XMLHandler.getTagValue( fieldNode, "name" ) );
-        field.setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( fieldNode, "enabled" ) ) );
+        field.setFieldName( XmlHandler.getTagValue( fieldNode, "name" ) );
+        field.setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( fieldNode, "enabled" ) ) );
       }
     }
   }

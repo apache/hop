@@ -870,12 +870,12 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       TransformMeta transforminfo = new TransformMeta( BaseMessages.getString( PKG, "UpdateDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SQLStatement sql = info.getSQLStatements( pipelineMeta, transforminfo, prev, metaStore );
+      SQLStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =
             new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-              .getSQL() );
+              .getSql() );
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

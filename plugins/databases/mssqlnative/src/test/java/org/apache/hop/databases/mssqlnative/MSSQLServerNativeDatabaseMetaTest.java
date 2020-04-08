@@ -66,22 +66,22 @@ public class MSSQLServerNativeDatabaseMetaTest {
   }
 
   @Test
-  public void setSQLServerInstanceTest() {
+  public void setSqlServerInstanceTest() {
     DatabaseMeta dbmeta = new DatabaseMeta();
     IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
     IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
     dbmeta.setIDatabase( mssqlServerDatabaseMeta );
-    dbmeta.setSQLServerInstance( "" );
-    assertEquals( null , dbmeta.getSQLServerInstance());
-    dbmeta.setSQLServerInstance( "instance1" );
-    assertEquals(  "instance1" , dbmeta.getSQLServerInstance());
+    dbmeta.setSqlServerInstance( "" );
+    assertEquals( null , dbmeta.getSqlServerInstance());
+    dbmeta.setSqlServerInstance( "instance1" );
+    assertEquals(  "instance1" , dbmeta.getSqlServerInstance());
     dbmeta.setIDatabase( mssqlServerNativeDatabaseMeta );
-    dbmeta.setSQLServerInstance( "" );
-    assertEquals( null , dbmeta.getSQLServerInstance());
-    dbmeta.setSQLServerInstance( "instance1" );
-    assertEquals("instance1" , dbmeta.getSQLServerInstance());
+    dbmeta.setSqlServerInstance( "" );
+    assertEquals( null , dbmeta.getSqlServerInstance());
+    dbmeta.setSqlServerInstance( "instance1" );
+    assertEquals("instance1" , dbmeta.getSqlServerInstance());
   }
 
 /*  @Ignore

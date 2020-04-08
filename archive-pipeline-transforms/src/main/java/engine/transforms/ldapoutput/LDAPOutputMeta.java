@@ -26,11 +26,11 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -531,7 +531,7 @@ public class LDAPOutputMeta extends BaseTransformMeta implements LdapMeta {
     this.failIfNotExist = failIfNotExist;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -644,88 +644,88 @@ public class LDAPOutputMeta extends BaseTransformMeta implements LdapMeta {
     return derefAliasesTypeCode[ i ];
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "useauthentication", useAuthentication ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "host", Host ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "useauthentication", useAuthentication ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "host", Host ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dnFieldName", dnFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "failIfNotExist", failIfNotExist ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dnFieldName", dnFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "failIfNotExist", failIfNotExist ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "operationType", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "multivaluedseparator", multiValuedSeparator ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "searchBase", searchBase ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "referralType", getReferralTypeCode( referralType ) ) );
+      XmlHandler.addTagValue( "operationType", getOperationTypeCode( operationType ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "multivaluedseparator", multiValuedSeparator ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "searchBase", searchBase ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "referralType", getReferralTypeCode( referralType ) ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "derefAliasesType", getDerefAliasesCode( derefAliasesType ) ) );
+      XmlHandler.addTagValue( "derefAliasesType", getDerefAliasesCode( derefAliasesType ) ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "oldDnFieldName", oldDnFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "newDnFieldName", newDnFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "deleteRDN", deleteRDN ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "oldDnFieldName", oldDnFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "newDnFieldName", newDnFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "deleteRDN", deleteRDN ) );
 
     retval.append( "    <fields>" + Const.CR );
 
     for ( int i = 0; i < updateLookup.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", updateLookup[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", updateStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "update", update[ i ].booleanValue() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", updateLookup[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", updateStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "update", update[ i ].booleanValue() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
 
     retval.append( "      </fields>" + Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trustStorePath", trustStorePath ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "trustStorePath", trustStorePath ) );
     retval.append( "    " ).append(
-      XMLHandler
+      XmlHandler
         .addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trustAllCertificates", trustAllCertificates ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "useCertificate", useCertificate ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "trustAllCertificates", trustAllCertificates ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "useCertificate", useCertificate ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      useAuthentication = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useauthentication" ) );
-      Host = XMLHandler.getTagValue( transformNode, "host" );
-      userName = XMLHandler.getTagValue( transformNode, "username" );
-      setPassword( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "password" ) ) );
+      useAuthentication = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useauthentication" ) );
+      Host = XmlHandler.getTagValue( transformNode, "host" );
+      userName = XmlHandler.getTagValue( transformNode, "username" );
+      setPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) ) );
 
-      port = XMLHandler.getTagValue( transformNode, "port" );
-      dnFieldName = XMLHandler.getTagValue( transformNode, "dnFieldName" );
-      failIfNotExist = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "failIfNotExist" ) );
+      port = XmlHandler.getTagValue( transformNode, "port" );
+      dnFieldName = XmlHandler.getTagValue( transformNode, "dnFieldName" );
+      failIfNotExist = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "failIfNotExist" ) );
       operationType =
-        getOperationTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "operationType" ), "" ) );
-      multiValuedSeparator = XMLHandler.getTagValue( transformNode, "multivaluedseparator" );
-      searchBase = XMLHandler.getTagValue( transformNode, "searchBase" );
-      referralType = getReferralTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "referralType" ), "" ) );
+        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operationType" ), "" ) );
+      multiValuedSeparator = XmlHandler.getTagValue( transformNode, "multivaluedseparator" );
+      searchBase = XmlHandler.getTagValue( transformNode, "searchBase" );
+      referralType = getReferralTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "referralType" ), "" ) );
       derefAliasesType =
-        getDerefAliasesTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "derefAliasesType" ), "" ) );
+        getDerefAliasesTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "derefAliasesType" ), "" ) );
 
-      oldDnFieldName = XMLHandler.getTagValue( transformNode, "oldDnFieldName" );
-      newDnFieldName = XMLHandler.getTagValue( transformNode, "newDnFieldName" );
-      deleteRDN = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "deleteRDN" ) );
+      oldDnFieldName = XmlHandler.getTagValue( transformNode, "oldDnFieldName" );
+      newDnFieldName = XmlHandler.getTagValue( transformNode, "newDnFieldName" );
+      deleteRDN = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "deleteRDN" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        updateLookup[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        updateStream[ i ] = XMLHandler.getTagValue( fnode, "field" );
+        updateLookup[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        updateStream[ i ] = XmlHandler.getTagValue( fnode, "field" );
         if ( updateStream[ i ] == null ) {
           updateStream[ i ] = updateLookup[ i ]; // default: the same name!
         }
-        String updateValue = XMLHandler.getTagValue( fnode, "update" );
+        String updateValue = XmlHandler.getTagValue( fnode, "update" );
         if ( updateValue == null ) {
           // default TRUE
           update[ i ] = Boolean.TRUE;
@@ -738,15 +738,15 @@ public class LDAPOutputMeta extends BaseTransformMeta implements LdapMeta {
         }
       }
 
-      protocol = XMLHandler.getTagValue( transformNode, "protocol" );
-      trustStorePath = XMLHandler.getTagValue( transformNode, "trustStorePath" );
+      protocol = XmlHandler.getTagValue( transformNode, "protocol" );
+      trustStorePath = XmlHandler.getTagValue( transformNode, "trustStorePath" );
       trustStorePassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "trustStorePassword" ) );
-      trustAllCertificates = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "trustAllCertificates" ) );
-      useCertificate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useCertificate" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "trustStorePassword" ) );
+      trustAllCertificates = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "trustAllCertificates" ) );
+      useCertificate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useCertificate" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "LDAPOutputMeta.UnableToLoadFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "LDAPOutputMeta.UnableToLoadFromXML" ), e );
     }
   }
 

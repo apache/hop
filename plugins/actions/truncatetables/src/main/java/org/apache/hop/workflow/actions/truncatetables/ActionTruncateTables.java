@@ -30,10 +30,10 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -109,19 +109,19 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", this.connection == null ? null : this.connection.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", this.argFromPrevious ) );
+      XmlHandler.addTagValue( "connection", this.connection == null ? null : this.connection.getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", this.argFromPrevious ) );
     retval.append( "      <fields>" ).append( Const.CR );
     if ( tableNames != null ) {
       for ( int i = 0; i < this.tableNames.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", this.tableNames[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "schemaname", this.schemaNames[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "name", this.tableNames[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "schemaname", this.schemaNames[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -130,29 +130,29 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       this.connection = DatabaseMeta.loadDatabase( metaStore, dbname );
-      this.argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      this.argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        this.tableNames[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        this.schemaNames[ i ] = XMLHandler.getTagValue( fnode, "schemaname" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        this.tableNames[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        this.schemaNames[ i ] = XmlHandler.getTagValue( fnode, "schemaname" );
       }
     } catch ( HopException e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionTruncateTables.UnableLoadXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionTruncateTables.UnableLoadXML" ), e );
     }
   }
 

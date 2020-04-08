@@ -30,11 +30,11 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.IGC;
-import org.apache.hop.core.gui.IPrimitiveGC.EColor;
-import org.apache.hop.core.gui.IPrimitiveGC.EFont;
-import org.apache.hop.core.gui.IPrimitiveGC.EImage;
-import org.apache.hop.core.gui.IPrimitiveGC.ELineStyle;
+import org.apache.hop.core.gui.IGc;
+import org.apache.hop.core.gui.IPrimitiveGc.EColor;
+import org.apache.hop.core.gui.IPrimitiveGc.EFont;
+import org.apache.hop.core.gui.IPrimitiveGc.EImage;
+import org.apache.hop.core.gui.IPrimitiveGc.ELineStyle;
 import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
@@ -58,7 +58,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
   private List<ActionCopy> activeJobEntries;
   private List<ActionResult> actionResults;
 
-  public WorkflowPainter( IGC gc, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
+  public WorkflowPainter( IGc gc, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
                           IScrollBar vert, WorkflowHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
                           String noteFontName, int noteFontHeight, double zoomFactor ) {

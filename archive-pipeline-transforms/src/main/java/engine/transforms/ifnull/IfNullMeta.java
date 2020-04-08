@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.ifnull;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -220,7 +220,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransform {
     this.setEmptyStringAll = setEmptyStringAll;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -301,60 +301,60 @@ public class IfNullMeta extends BaseTransformMeta implements ITransform {
     this.valueTypes = valueTypes;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      selectFields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "selectFields" ) );
-      selectValuesType = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "selectValuesType" ) );
-      replaceAllByValue = XMLHandler.getTagValue( transformNode, "replaceAllByValue" );
-      replaceAllMask = XMLHandler.getTagValue( transformNode, "replaceAllMask" );
-      String setEmptyStringAllString = XMLHandler.getTagValue( transformNode, "setEmptyStringAll" );
+      selectFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "selectFields" ) );
+      selectValuesType = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "selectValuesType" ) );
+      replaceAllByValue = XmlHandler.getTagValue( transformNode, "replaceAllByValue" );
+      replaceAllMask = XmlHandler.getTagValue( transformNode, "replaceAllMask" );
+      String setEmptyStringAllString = XmlHandler.getTagValue( transformNode, "setEmptyStringAll" );
       setEmptyStringAll = !Utils.isEmpty( setEmptyStringAllString ) && "Y".equalsIgnoreCase( setEmptyStringAllString );
 
-      Node types = XMLHandler.getSubNode( transformNode, "valuetypes" );
-      int nrtypes = XMLHandler.countNodes( types, "valuetype" );
-      Node fieldNodes = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fieldNodes, "field" );
+      Node types = XmlHandler.getSubNode( transformNode, "valuetypes" );
+      int nrtypes = XmlHandler.countNodes( types, "valuetype" );
+      Node fieldNodes = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fieldNodes, "field" );
 
       allocate( nrtypes, nrFields );
 
       for ( int i = 0; i < nrtypes; i++ ) {
-        Node tnode = XMLHandler.getSubNodeByNr( types, "valuetype", i );
-        valueTypes[ i ].setTypeName( XMLHandler.getTagValue( tnode, "name" ) );
-        valueTypes[ i ].setTypereplaceValue( XMLHandler.getTagValue( tnode, "value" ) );
-        valueTypes[ i ].setTypereplaceMask( XMLHandler.getTagValue( tnode, "mask" ) );
-        String typeemptyString = XMLHandler.getTagValue( tnode, "set_type_empty_string" );
+        Node tnode = XmlHandler.getSubNodeByNr( types, "valuetype", i );
+        valueTypes[ i ].setTypeName( XmlHandler.getTagValue( tnode, "name" ) );
+        valueTypes[ i ].setTypereplaceValue( XmlHandler.getTagValue( tnode, "value" ) );
+        valueTypes[ i ].setTypereplaceMask( XmlHandler.getTagValue( tnode, "mask" ) );
+        String typeemptyString = XmlHandler.getTagValue( tnode, "set_type_empty_string" );
         valueTypes[ i ].setTypeEmptyString( !Utils.isEmpty( typeemptyString ) && "Y".equalsIgnoreCase(
           typeemptyString ) );
       }
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fieldNodes, "field", i );
-        fields[ i ].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        fields[ i ].setReplaceValue( XMLHandler.getTagValue( fnode, "value" ) );
-        fields[ i ].setReplaceMask( XMLHandler.getTagValue( fnode, "mask" ) );
-        String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
+        Node fnode = XmlHandler.getSubNodeByNr( fieldNodes, "field", i );
+        fields[ i ].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
+        fields[ i ].setReplaceValue( XmlHandler.getTagValue( fnode, "value" ) );
+        fields[ i ].setReplaceMask( XmlHandler.getTagValue( fnode, "mask" ) );
+        String emptyString = XmlHandler.getTagValue( fnode, "set_empty_string" );
         fields[ i ].setEmptyString( !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "It was not possibke to load the IfNull metadata from XML", e );
+      throw new HopXmlException( "It was not possibke to load the IfNull metadata from XML", e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XMLHandler.addTagValue( "replaceAllByValue", replaceAllByValue ) );
-    retval.append( "      " + XMLHandler.addTagValue( "replaceAllMask", replaceAllMask ) );
-    retval.append( "      " + XMLHandler.addTagValue( "selectFields", selectFields ) );
-    retval.append( "      " + XMLHandler.addTagValue( "selectValuesType", selectValuesType ) );
-    retval.append( "      " + XMLHandler.addTagValue( "setEmptyStringAll", setEmptyStringAll ) );
+    retval.append( "      " + XmlHandler.addTagValue( "replaceAllByValue", replaceAllByValue ) );
+    retval.append( "      " + XmlHandler.addTagValue( "replaceAllMask", replaceAllMask ) );
+    retval.append( "      " + XmlHandler.addTagValue( "selectFields", selectFields ) );
+    retval.append( "      " + XmlHandler.addTagValue( "selectValuesType", selectValuesType ) );
+    retval.append( "      " + XmlHandler.addTagValue( "setEmptyStringAll", setEmptyStringAll ) );
 
     retval.append( "    <valuetypes>" + Const.CR );
     for ( int i = 0; i < valueTypes.length; i++ ) {
       retval.append( "      <valuetype>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", valueTypes[ i ].getTypeName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", valueTypes[ i ].getTypereplaceValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "mask", valueTypes[ i ].getTypereplaceMask() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "set_type_empty_string", valueTypes[ i ]
+      retval.append( "        " + XmlHandler.addTagValue( "name", valueTypes[ i ].getTypeName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "value", valueTypes[ i ].getTypereplaceValue() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "mask", valueTypes[ i ].getTypereplaceMask() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "set_type_empty_string", valueTypes[ i ]
         .isSetTypeEmptyString() ) );
       retval.append( "        </valuetype>" + Const.CR );
     }
@@ -363,10 +363,10 @@ public class IfNullMeta extends BaseTransformMeta implements ITransform {
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fields.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", fields[ i ].getReplaceValue() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "mask", fields[ i ].getReplaceMask() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "set_empty_string", fields[ i ].isSetEmptyString() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "value", fields[ i ].getReplaceValue() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "mask", fields[ i ].getReplaceMask() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "set_empty_string", fields[ i ].isSetEmptyString() ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );

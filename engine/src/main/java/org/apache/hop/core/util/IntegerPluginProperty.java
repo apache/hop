@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.prefs.Preferences;
@@ -59,14 +59,14 @@ public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginP
    *
    */
   public void appendXml( final StringBuilder builder ) {
-    builder.append( XMLHandler.addTagValue( this.getKey(), this.getValue() ) );
+    builder.append( XmlHandler.addTagValue( this.getKey(), this.getValue() ) );
   }
 
   /**
    *
    */
   public void loadXml( final Node node ) {
-    final Integer value = Integer.parseInt( XMLHandler.getTagValue( node, this.getKey() ) );
+    final Integer value = Integer.parseInt( XmlHandler.getTagValue( node, this.getKey() ) );
     this.setValue( value );
   }
 

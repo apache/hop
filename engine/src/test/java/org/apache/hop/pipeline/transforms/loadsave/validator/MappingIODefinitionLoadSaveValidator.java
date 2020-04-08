@@ -57,6 +57,6 @@ public class MappingIODefinitionLoadSaveValidator implements IFieldLoadSaveValid
       return false;
     }
     MappingIODefinition actualInput = (MappingIODefinition) actual;
-    return ( testObject.getXML().equals( actualInput.getXML() ) );
+    return ( testObject.getXml().equals( actualInput.getXml() ) );
   }
 }

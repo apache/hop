@@ -145,15 +145,15 @@ public class PostgreSQLDatabaseMetaTest {
 
   @Test
   public void testSQLStatements() {
-    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSQLTableExists( "FOO" ) );
-    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
-    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "SELECT currval('FOO')", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists( "FOO" ) );
+    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT nextval('FOO')", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT currval('FOO')", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
     assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'foo'",
-      nativeMeta.getSQLSequenceExists( "FOO" ) );
+      nativeMeta.getSqlSequenceExists( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TIMESTAMP",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
@@ -237,12 +237,12 @@ public class PostgreSQLDatabaseMetaTest {
     odbcMeta.setUsername( "fOoUsEr" );
     assertEquals( "select proname " + "from pg_proc, pg_user " + "where pg_user.usesysid = pg_proc.proowner "
         + "and upper(pg_user.usename) = 'FOOUSER' order by proname",
-      odbcMeta.getSQLListOfProcedures() );
+      odbcMeta.getSqlListOfProcedures() );
 
     assertEquals( "LOCK TABLE FOO , BAR IN ACCESS EXCLUSIVE MODE;" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
 
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO" } ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] { "FOO" } ) );
   }
 
 }

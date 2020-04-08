@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.dimensionlookup;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -1785,12 +1785,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
 
       if ( message == null ) {
-        SQLStatement sql = info.getSQLStatements( pipelineMeta, transforminfo, prev, metaStore );
+        SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
             SQLEditor sqledit =
               new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-                .getSQL() );
+                .getSql() );
             sqledit.open();
           } else {
             MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

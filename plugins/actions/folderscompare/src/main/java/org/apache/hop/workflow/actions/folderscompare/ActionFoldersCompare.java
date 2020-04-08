@@ -30,11 +30,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -113,36 +113,36 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 ); // 133 chars in just spaces and tag names alone
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includesubfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compare_filecontent", comparefilecontent ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compare_filesize", comparefilesize ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includesubfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compare_filecontent", comparefilecontent ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compare_filesize", comparefilesize ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compareonly", compareonly ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename1", filename1 ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename2", filename2 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compareonly", compareonly ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename1", filename1 ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename2", filename2 ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      includesubfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
-      comparefilecontent = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filecontent" ) );
-      comparefilesize = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "compare_filesize" ) );
+      super.loadXml( entrynode );
+      includesubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      comparefilecontent = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "compare_filecontent" ) );
+      comparefilesize = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "compare_filesize" ) );
 
-      compareonly = XMLHandler.getTagValue( entrynode, "compareonly" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      filename1 = XMLHandler.getTagValue( entrynode, "filename1" );
-      filename2 = XMLHandler.getTagValue( entrynode, "filename2" );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "JobFoldersCompare.Meta.UnableLoadXML", xe
+      compareonly = XmlHandler.getTagValue( entrynode, "compareonly" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      filename1 = XmlHandler.getTagValue( entrynode, "filename1" );
+      filename2 = XmlHandler.getTagValue( entrynode, "filename2" );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "JobFoldersCompare.Meta.UnableLoadXML", xe
         .getMessage() ) );
     }
   }

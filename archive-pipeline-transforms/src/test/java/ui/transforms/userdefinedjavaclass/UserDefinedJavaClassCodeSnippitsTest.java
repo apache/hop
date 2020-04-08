@@ -20,7 +20,7 @@
 
 package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.junit.Assert;
@@ -38,7 +38,7 @@ public class UserDefinedJavaClassCodeSnippitsTest {
   }
 
   @Test
-  public void testSnippitsWellDefined() throws HopXMLException {
+  public void testSnippitsWellDefined() throws HopXmlException {
     List<String> snippitNames = new ArrayList<>();
     for ( Snippit snippit : UserDefinedJavaClassCodeSnippits.getSnippitsHelper().getSnippits() ) {
       Assert.assertNotNull( snippit.category );

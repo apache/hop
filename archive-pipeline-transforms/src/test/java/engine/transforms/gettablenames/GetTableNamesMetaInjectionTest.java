@@ -49,7 +49,7 @@ public class GetTableNamesMetaInjectionTest extends BaseMetadataInjectionTest<Ge
     } );
     check( "SQLCREATIONFIELDNAME", new StringGetter() {
       public String get() {
-        return meta.getSQLCreationFieldName();
+        return meta.getSqlCreationFieldName();
       }
     } );
     check( "OBJECTTYPEFIELDNAME", new StringGetter() {

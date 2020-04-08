@@ -148,9 +148,9 @@ public class MySQLDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( " LIMIT 15", nativeMeta.getLimitClause( 15 ) );
-    assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSQLTableExists( "FOO" ) );
-    assertEquals( "SELECT FOO FROM BAR LIMIT 0", nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists( "FOO" ) );
+    assertEquals( "SELECT FOO FROM BAR LIMIT 0", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR DATETIME",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
@@ -251,11 +251,11 @@ public class MySQLDatabaseMetaTest {
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaBinary( "BAR", 16777250, 0 ), "", false, "", false ) );
 
     assertEquals( "LOCK TABLES FOO WRITE, BAR WRITE;" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
 
-    assertEquals( "UNLOCK TABLES", nativeMeta.getSQLUnlockTables( new String[] {} ) );
+    assertEquals( "UNLOCK TABLES", nativeMeta.getSqlUnlockTables( new String[] {} ) );
 
-    assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (1, 1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (1, 1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   /**
@@ -448,10 +448,10 @@ public class MySQLDatabaseMetaTest {
   public void testSupportsSequence() {
     String dbType = nativeMeta.getClass().getSimpleName();
     assertFalse( dbType, nativeMeta.supportsSequences() );
-    assertTrue( Utils.isEmpty( nativeMeta.getSQLListOfSequences() ) );
-    assertEquals( "", nativeMeta.getSQLSequenceExists( "testSeq" ) );
-    assertEquals( "", nativeMeta.getSQLNextSequenceValue( "testSeq" ) );
-    assertEquals( "", nativeMeta.getSQLCurrentSequenceValue( "testSeq" ) );
+    assertTrue( Utils.isEmpty( nativeMeta.getSqlListOfSequences() ) );
+    assertEquals( "", nativeMeta.getSqlSequenceExists( "testSeq" ) );
+    assertEquals( "", nativeMeta.getSqlNextSequenceValue( "testSeq" ) );
+    assertEquals( "", nativeMeta.getSqlCurrentSequenceValue( "testSeq" ) );
   }
   
   private Connection mockConnection( DatabaseMetaData dbMetaData ) throws SQLException {

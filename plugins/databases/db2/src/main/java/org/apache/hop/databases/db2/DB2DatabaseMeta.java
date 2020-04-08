@@ -294,7 +294,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder();
     for ( int i = 0; i < tableNames.length; i++ ) {
       sql.append("LOCK TABLE " + tableNames[ i ] + " IN SHARE MODE;" + Const.CR);
@@ -303,7 +303,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLUnlockTables( String[] tableName ) {
+  public String getSqlUnlockTables( String[] tableName ) {
     return null; // lock release on commit point.
   }
 
@@ -341,7 +341,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT SEQNAME FROM SYSCAT.SEQUENCES";
   }
 
@@ -352,7 +352,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     if ( sequenceName.contains( "." ) ) {
       return "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQSCHEMA = '"
         + sequenceName.substring( 0, sequenceName.indexOf( '.' ) ).toUpperCase() + "' AND SEQNAME = '"
@@ -369,7 +369,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The current value of a database sequence
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT PREVIOUS VALUE FOR " + sequenceName + " FROM SYSIBM.SYSDUMMY1";
   }
 
@@ -380,7 +380,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to get the next value of a sequence. (Oracle only)
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT NEXT VALUE FOR " + sequenceName + " FROM SYSIBM.SYSDUMMY1";
   }
 
@@ -437,7 +437,7 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
   }
 

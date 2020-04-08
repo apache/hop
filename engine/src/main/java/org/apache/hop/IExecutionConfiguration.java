@@ -60,7 +60,7 @@ public interface IExecutionConfiguration extends Cloneable {
 
   void setVariablesMap( IVariables variablesMap );
 
-  String getXML() throws IOException;
+  String getXml() throws IOException;
 
   boolean isClearingLog();
 

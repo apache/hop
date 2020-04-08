@@ -28,14 +28,14 @@ import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.changed.IChanged;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGUIPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
@@ -93,29 +93,29 @@ public class ActionCopy implements Cloneable, IXml, IGUIPosition, IChanged,
   public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
-    retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
     entry.setParentWorkflowMeta( parentWorkflowMeta );  // Attempt to set the WorkflowMeta for entries that need it
-    retval.append( entry.getXML() );
+    retval.append( entry.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "parallel", launchingInParallel ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr", nr ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "xloc", location.x ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "yloc", location.y ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "parallel", launchingInParallel ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr", nr ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "xloc", location.x ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "yloc", location.y ) );
 
     retval.append( AttributesUtil.getAttributesXml( attributesMap, XML_ATTRIBUTE_JOB_ENTRY_COPY ) );
 
-    retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     return retval.toString();
   }
 
 
-  public ActionCopy( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
+  public ActionCopy( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String stype = XMLHandler.getTagValue( entrynode, "type" );
+      String stype = XmlHandler.getTagValue( entrynode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
       IPlugin jobPlugin = registry.findPluginWithId( ActionPluginType.class, stype, true );
       if ( jobPlugin == null ) {
-        String name = XMLHandler.getTagValue( entrynode, "name" );
+        String name = XmlHandler.getTagValue( entrynode, "name" );
         entry = new MissingAction( name, stype );
       } else {
         entry = registry.loadClass( jobPlugin, IAction.class );
@@ -126,16 +126,16 @@ public class ActionCopy implements Cloneable, IXml, IGUIPosition, IChanged,
           entry.setPluginId( jobPlugin.getIds()[ 0 ] );
         }
         entry.setMetaStore( metaStore ); // inject metastore
-        entry.loadXML( entrynode, metaStore );
+        entry.loadXml( entrynode, metaStore );
 
         // Handle GUI information: nr & location?
-        setNr( Const.toInt( XMLHandler.getTagValue( entrynode, "nr" ), 0 ) );
-        setLaunchingInParallel( "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "parallel" ) ) );
-        int x = Const.toInt( XMLHandler.getTagValue( entrynode, "xloc" ), 0 );
-        int y = Const.toInt( XMLHandler.getTagValue( entrynode, "yloc" ), 0 );
+        setNr( Const.toInt( XmlHandler.getTagValue( entrynode, "nr" ), 0 ) );
+        setLaunchingInParallel( "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "parallel" ) ) );
+        int x = Const.toInt( XmlHandler.getTagValue( entrynode, "xloc" ), 0 );
+        int y = Const.toInt( XmlHandler.getTagValue( entrynode, "yloc" ), 0 );
         setLocation( x, y );
 
-        Node jobEntryCopyAttributesNode = XMLHandler.getSubNode( entrynode, XML_ATTRIBUTE_JOB_ENTRY_COPY );
+        Node jobEntryCopyAttributesNode = XmlHandler.getSubNode( entrynode, XML_ATTRIBUTE_JOB_ENTRY_COPY );
         if ( jobEntryCopyAttributesNode != null ) {
           attributesMap = AttributesUtil.loadAttributes( jobEntryCopyAttributesNode );
         } else {
@@ -144,14 +144,14 @@ public class ActionCopy implements Cloneable, IXml, IGUIPosition, IChanged,
           // scenarios the Workflow worked as expected; so by trying to load the LAST one into the ActionCopy, we
           // simulate that behaviour.
           attributesMap =
-            AttributesUtil.loadAttributes( XMLHandler.getLastSubNode( entrynode, AttributesUtil.XML_TAG ) );
+            AttributesUtil.loadAttributes( XmlHandler.getLastSubNode( entrynode, AttributesUtil.XML_TAG ) );
         }
 
         setDeprecationAndSuggestedJobEntry();
       }
     } catch ( Throwable e ) {
       String message = "Unable to read Workflow Entry copy info from XML node : " + e.toString();
-      throw new HopXMLException( message, e );
+      throw new HopXmlException( message, e );
     }
   }
 

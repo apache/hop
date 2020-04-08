@@ -30,7 +30,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -285,7 +285,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     changed = true;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -344,73 +344,73 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     }
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node definitionsNode = XMLHandler.getSubNode( transformNode, ElementNames.definitions.name() );
-      int nrDefinitions = XMLHandler.countNodes( definitionsNode, ElementNames.definition.name() );
+      Node definitionsNode = XmlHandler.getSubNode( transformNode, ElementNames.definitions.name() );
+      int nrDefinitions = XmlHandler.countNodes( definitionsNode, ElementNames.definition.name() );
 
       for ( int i = 0; i < nrDefinitions; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( definitionsNode, ElementNames.definition.name(), i );
+        Node fnode = XmlHandler.getSubNodeByNr( definitionsNode, ElementNames.definition.name(), i );
         definitions.add( new UserDefinedJavaClassDef(
-          ClassType.valueOf( XMLHandler.getTagValue( fnode, ElementNames.class_type.name() ) ),
-          XMLHandler.getTagValue( fnode, ElementNames.class_name.name() ),
-          XMLHandler.getTagValue( fnode, ElementNames.class_source.name() ) ) );
+          ClassType.valueOf( XmlHandler.getTagValue( fnode, ElementNames.class_type.name() ) ),
+          XmlHandler.getTagValue( fnode, ElementNames.class_name.name() ),
+          XmlHandler.getTagValue( fnode, ElementNames.class_source.name() ) ) );
       }
       definitions = orderDefinitions( definitions );
 
-      Node fieldsNode = XMLHandler.getSubNode( transformNode, ElementNames.fields.name() );
-      int nrFields = XMLHandler.countNodes( fieldsNode, ElementNames.field.name() );
+      Node fieldsNode = XmlHandler.getSubNode( transformNode, ElementNames.fields.name() );
+      int nrFields = XmlHandler.countNodes( fieldsNode, ElementNames.field.name() );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fieldsNode, ElementNames.field.name(), i );
+        Node fnode = XmlHandler.getSubNodeByNr( fieldsNode, ElementNames.field.name(), i );
         fields.add( new FieldInfo(
-          XMLHandler.getTagValue( fnode, ElementNames.field_name.name() ),
-          ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, ElementNames.field_type.name() ) ),
-          Const.toInt( XMLHandler.getTagValue( fnode, ElementNames.field_length.name() ), -1 ),
-          Const.toInt( XMLHandler.getTagValue( fnode, ElementNames.field_precision.name() ), -1 ) ) );
+          XmlHandler.getTagValue( fnode, ElementNames.field_name.name() ),
+          ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, ElementNames.field_type.name() ) ),
+          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.field_length.name() ), -1 ),
+          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.field_precision.name() ), -1 ) ) );
       }
 
-      setClearingResultFields( !"N".equals( XMLHandler.getTagValue( transformNode, ElementNames.clear_result_fields
+      setClearingResultFields( !"N".equals( XmlHandler.getTagValue( transformNode, ElementNames.clear_result_fields
         .name() ) ) );
 
       infoTransformDefinitions.clear();
-      Node infosNode = XMLHandler.getSubNode( transformNode, ElementNames.infoTransforms.name() );
-      int nrInfos = XMLHandler.countNodes( infosNode, ElementNames.infoTransform.name() );
+      Node infosNode = XmlHandler.getSubNode( transformNode, ElementNames.infoTransforms.name() );
+      int nrInfos = XmlHandler.countNodes( infosNode, ElementNames.infoTransform.name() );
       for ( int i = 0; i < nrInfos; i++ ) {
-        Node infoNode = XMLHandler.getSubNodeByNr( infosNode, ElementNames.infoTransform.name(), i );
+        Node infoNode = XmlHandler.getSubNodeByNr( infosNode, ElementNames.infoTransform.name(), i );
         InfoTransformDefinition transformDefinition = new InfoTransformDefinition();
-        transformDefinition.tag = XMLHandler.getTagValue( infoNode, ElementNames.transform_tag.name() );
-        transformDefinition.transformName = XMLHandler.getTagValue( infoNode, ElementNames.transform_name.name() );
-        transformDefinition.description = XMLHandler.getTagValue( infoNode, ElementNames.transform_description.name() );
+        transformDefinition.tag = XmlHandler.getTagValue( infoNode, ElementNames.transform_tag.name() );
+        transformDefinition.transformName = XmlHandler.getTagValue( infoNode, ElementNames.transform_name.name() );
+        transformDefinition.description = XmlHandler.getTagValue( infoNode, ElementNames.transform_description.name() );
         infoTransformDefinitions.add( transformDefinition );
       }
 
       targetTransformDefinitions.clear();
-      Node targetsNode = XMLHandler.getSubNode( transformNode, ElementNames.target_transforms.name() );
-      int nrTargets = XMLHandler.countNodes( targetsNode, ElementNames.target_transform.name() );
+      Node targetsNode = XmlHandler.getSubNode( transformNode, ElementNames.target_transforms.name() );
+      int nrTargets = XmlHandler.countNodes( targetsNode, ElementNames.target_transform.name() );
       for ( int i = 0; i < nrTargets; i++ ) {
-        Node targetNode = XMLHandler.getSubNodeByNr( targetsNode, ElementNames.target_transform.name(), i );
+        Node targetNode = XmlHandler.getSubNodeByNr( targetsNode, ElementNames.target_transform.name(), i );
         TargetTransformDefinition transformDefinition = new TargetTransformDefinition();
-        transformDefinition.tag = XMLHandler.getTagValue( targetNode, ElementNames.transform_tag.name() );
-        transformDefinition.transformName = XMLHandler.getTagValue( targetNode, ElementNames.transform_name.name() );
-        transformDefinition.description = XMLHandler.getTagValue( targetNode, ElementNames.transform_description.name() );
+        transformDefinition.tag = XmlHandler.getTagValue( targetNode, ElementNames.transform_tag.name() );
+        transformDefinition.transformName = XmlHandler.getTagValue( targetNode, ElementNames.transform_name.name() );
+        transformDefinition.description = XmlHandler.getTagValue( targetNode, ElementNames.transform_description.name() );
         targetTransformDefinitions.add( transformDefinition );
       }
 
       usageParameters.clear();
-      Node parametersNode = XMLHandler.getSubNode( transformNode, ElementNames.usage_parameters.name() );
-      int nrParameters = XMLHandler.countNodes( parametersNode, ElementNames.usage_parameter.name() );
+      Node parametersNode = XmlHandler.getSubNode( transformNode, ElementNames.usage_parameters.name() );
+      int nrParameters = XmlHandler.countNodes( parametersNode, ElementNames.usage_parameter.name() );
       for ( int i = 0; i < nrParameters; i++ ) {
-        Node parameterNode = XMLHandler.getSubNodeByNr( parametersNode, ElementNames.usage_parameter.name(), i );
+        Node parameterNode = XmlHandler.getSubNodeByNr( parametersNode, ElementNames.usage_parameter.name(), i );
         UsageParameter usageParameter = new UsageParameter();
-        usageParameter.tag = XMLHandler.getTagValue( parameterNode, ElementNames.parameter_tag.name() );
-        usageParameter.value = XMLHandler.getTagValue( parameterNode, ElementNames.parameter_value.name() );
+        usageParameter.tag = XmlHandler.getTagValue( parameterNode, ElementNames.parameter_tag.name() );
+        usageParameter.value = XmlHandler.getTagValue( parameterNode, ElementNames.parameter_value.name() );
         usageParameter.description =
-          XMLHandler.getTagValue( parameterNode, ElementNames.parameter_description.name() );
+          XmlHandler.getTagValue( parameterNode, ElementNames.parameter_description.name() );
         usageParameters.add( usageParameter );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "UserDefinedJavaClassMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -494,18 +494,18 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( String.format( "\n    <%s>", ElementNames.definitions.name() ) );
     for ( UserDefinedJavaClassDef def : definitions ) {
       retval.append( String.format( "\n        <%s>", ElementNames.definition.name() ) );
       retval.append( "\n        " ).append(
-        XMLHandler.addTagValue( ElementNames.class_type.name(), def.getClassType().name() ) );
+        XmlHandler.addTagValue( ElementNames.class_type.name(), def.getClassType().name() ) );
       retval.append( "\n        " ).append(
-        XMLHandler.addTagValue( ElementNames.class_name.name(), def.getClassName() ) );
+        XmlHandler.addTagValue( ElementNames.class_name.name(), def.getClassName() ) );
       retval.append( "\n        " );
-      retval.append( XMLHandler.addTagValue( ElementNames.class_source.name(), def.getSource() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.class_source.name(), def.getSource() ) );
       retval.append( String.format( "\n        </%s>", ElementNames.definition.name() ) );
     }
     retval.append( String.format( "\n    </%s>", ElementNames.definitions.name() ) );
@@ -513,53 +513,53 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     retval.append( String.format( "\n    <%s>", ElementNames.fields.name() ) );
     for ( FieldInfo fi : fields ) {
       retval.append( String.format( "\n        <%s>", ElementNames.field.name() ) );
-      retval.append( "\n        " ).append( XMLHandler.addTagValue( ElementNames.field_name.name(), fi.name ) );
+      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.field_name.name(), fi.name ) );
       retval.append( "\n        " ).append(
-        XMLHandler.addTagValue( ElementNames.field_type.name(), ValueMetaFactory.getValueMetaName( fi.type ) ) );
-      retval.append( "\n        " ).append( XMLHandler.addTagValue( ElementNames.field_length.name(), fi.length ) );
+        XmlHandler.addTagValue( ElementNames.field_type.name(), ValueMetaFactory.getValueMetaName( fi.type ) ) );
+      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.field_length.name(), fi.length ) );
       retval.append( "\n        " ).append(
-        XMLHandler.addTagValue( ElementNames.field_precision.name(), fi.precision ) );
+        XmlHandler.addTagValue( ElementNames.field_precision.name(), fi.precision ) );
       retval.append( String.format( "\n        </%s>", ElementNames.field.name() ) );
     }
     retval.append( String.format( "\n    </%s>", ElementNames.fields.name() ) );
-    retval.append( XMLHandler.addTagValue( ElementNames.clear_result_fields.name(), clearingResultFields ) );
+    retval.append( XmlHandler.addTagValue( ElementNames.clear_result_fields.name(), clearingResultFields ) );
 
     // Add the XML for the info transform definitions...
     //
-    retval.append( XMLHandler.openTag( ElementNames.infoTransforms.name() ) );
+    retval.append( XmlHandler.openTag( ElementNames.infoTransforms.name() ) );
     for ( InfoTransformDefinition transformDefinition : infoTransformDefinitions ) {
-      retval.append( XMLHandler.openTag( ElementNames.infoTransform.name() ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
+      retval.append( XmlHandler.openTag( ElementNames.infoTransform.name() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
         ? transformDefinition.transformMeta.getName() : null ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
-      retval.append( XMLHandler.closeTag( ElementNames.infoTransform.name() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
+      retval.append( XmlHandler.closeTag( ElementNames.infoTransform.name() ) );
     }
-    retval.append( XMLHandler.closeTag( ElementNames.infoTransforms.name() ) );
+    retval.append( XmlHandler.closeTag( ElementNames.infoTransforms.name() ) );
 
     // Add the XML for the target transform definitions...
     //
-    retval.append( XMLHandler.openTag( ElementNames.target_transforms.name() ) );
+    retval.append( XmlHandler.openTag( ElementNames.target_transforms.name() ) );
     for ( TargetTransformDefinition transformDefinition : targetTransformDefinitions ) {
-      retval.append( XMLHandler.openTag( ElementNames.target_transform.name() ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
+      retval.append( XmlHandler.openTag( ElementNames.target_transform.name() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
         ? transformDefinition.transformMeta.getName() : null ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
-      retval.append( XMLHandler.closeTag( ElementNames.target_transform.name() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
+      retval.append( XmlHandler.closeTag( ElementNames.target_transform.name() ) );
     }
-    retval.append( XMLHandler.closeTag( ElementNames.target_transforms.name() ) );
+    retval.append( XmlHandler.closeTag( ElementNames.target_transforms.name() ) );
 
-    retval.append( XMLHandler.openTag( ElementNames.usage_parameters.name() ) );
+    retval.append( XmlHandler.openTag( ElementNames.usage_parameters.name() ) );
     for ( UsageParameter usageParameter : usageParameters ) {
-      retval.append( XMLHandler.openTag( ElementNames.usage_parameter.name() ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.parameter_tag.name(), usageParameter.tag ) );
-      retval.append( XMLHandler.addTagValue( ElementNames.parameter_value.name(), usageParameter.value ) );
-      retval.append( XMLHandler
+      retval.append( XmlHandler.openTag( ElementNames.usage_parameter.name() ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.parameter_tag.name(), usageParameter.tag ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.parameter_value.name(), usageParameter.value ) );
+      retval.append( XmlHandler
         .addTagValue( ElementNames.parameter_description.name(), usageParameter.description ) );
-      retval.append( XMLHandler.closeTag( ElementNames.usage_parameter.name() ) );
+      retval.append( XmlHandler.closeTag( ElementNames.usage_parameter.name() ) );
     }
-    retval.append( XMLHandler.closeTag( ElementNames.usage_parameters.name() ) );
+    retval.append( XmlHandler.closeTag( ElementNames.usage_parameters.name() ) );
 
     return retval.toString();
   }

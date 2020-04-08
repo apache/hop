@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -171,7 +171,7 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
     if ( useXML ) {
       response.setContentType( "text/xml" );
       response.setCharacterEncoding( Const.XML_ENCODING );
-      out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
     } else {
       response.setContentType( "text/html;charset=UTF-8" );
       out.println( "<HTML>" );
@@ -226,7 +226,7 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
 
         String message = BaseMessages.getString( PKG, "StartPipelineServlet.Log.PipelineStarted", pipelineName );
         if ( useXML ) {
-          out.println( new WebResult( WebResult.STRING_OK, message ).getXML() );
+          out.println( new WebResult( WebResult.STRING_OK, message ).getXml() );
         } else {
 
           out.println( "<H1>" + Encode.forHtml( message ) + "</H1>" );

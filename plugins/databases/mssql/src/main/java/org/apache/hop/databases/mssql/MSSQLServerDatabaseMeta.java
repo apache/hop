@@ -145,21 +145,21 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT TOP 1 * FROM " + tableName;
   }
 
   @Override
-  public String getSQLTableExists( String tablename ) {
-    return getSQLQueryFields( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return getSqlQueryFields( tablename );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return getSQLQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return getSqlQueryColumnFields( columnname, tablename );
   }
 
-  public String getSQLQueryColumnFields( String columnname, String tableName ) {
+  public String getSqlQueryColumnFields( String columnname, String tableName ) {
     return "SELECT TOP 1 " + columnname + " FROM " + tableName;
   }
 
@@ -169,7 +169,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * supported on the target database. null is the default value
    */
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     StringBuilder sql = new StringBuilder( 128 );
     for ( int i = 0; i < tableNames.length; i++ ) {
       sql.append( "SELECT top 0 * FROM " ).append( tableNames[ i ] ).append( " WITH (UPDLOCK, HOLDLOCK);" ).append(
@@ -318,7 +318,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * @param schemaName the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return "select o.name "
       + "from sysobjects o, sysusers u "
       + "where  xtype in ( 'FN', 'P' ) and o.uid = u.uid "
@@ -454,7 +454,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public String getSQLListOfSchemas() {
+  public String getSqlListOfSchemas() {
     return "select name from sys.schemas";
   }
 
@@ -472,22 +472,22 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
   }
 
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return String.format( "SELECT NEXT VALUE FOR %s", sequenceName );
   }
 
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return String.format( "SELECT current_value FROM sys.sequences WHERE name = '%s'", sequenceName );
   }
 
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return String.format( "SELECT 1 FROM sys.sequences WHERE name = '%s'", sequenceName );
   }
 
@@ -502,7 +502,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT name FROM sys.sequences";
   }
 

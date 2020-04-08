@@ -27,14 +27,14 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -355,7 +355,7 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -440,34 +440,34 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " ).append( XMLHandler.addTagValue( "applicationType", applicationType ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "method", method ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "url", url ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "urlInField", urlInField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicMethod", dynamicMethod ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "methodFieldName", methodFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "applicationType", applicationType ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "method", method ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "url", url ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "urlInField", urlInField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicMethod", dynamicMethod ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "methodFieldName", methodFieldName ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "urlField", urlField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bodyField", bodyField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "httpLogin", httpLogin ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "urlField", urlField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bodyField", bodyField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "httpLogin", httpLogin ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
+      XmlHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "preemptive", preemptive ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "preemptive", preemptive ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "trustStoreFile", trustStoreFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "trustStoreFile", trustStoreFile ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
+      XmlHandler.addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
 
     retval.append( "    <headers>" ).append( Const.CR );
     for ( int i = 0, len = ( headerName != null ? headerName.length : 0 ); i < len; i++ ) {
       retval.append( "      <header>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", headerField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", headerName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", headerField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", headerName[ i ] ) );
       retval.append( "        </header>" ).append( Const.CR );
     }
     retval.append( "      </headers>" ).append( Const.CR );
@@ -475,8 +475,8 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
     retval.append( "    <parameters>" ).append( Const.CR );
     for ( int i = 0, len = ( parameterName != null ? parameterName.length : 0 ); i < len; i++ ) {
       retval.append( "      <parameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", parameterField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameterName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[ i ] ) );
       retval.append( "        </parameter>" ).append( Const.CR );
     }
     retval.append( "      </parameters>" ).append( Const.CR );
@@ -484,74 +484,74 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
     retval.append( "    <matrixParameters>" ).append( Const.CR );
     for ( int i = 0, len = ( matrixParameterName != null ? matrixParameterName.length : 0 ); i < len; i++ ) {
       retval.append( "      <matrixParameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", matrixParameterField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", matrixParameterName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", matrixParameterField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", matrixParameterName[ i ] ) );
       retval.append( "        </matrixParameter>" ).append( Const.CR );
     }
     retval.append( "      </matrixParameters>" ).append( Const.CR );
 
     retval.append( "    <result>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", fieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "code", resultCodeFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "response_time", responseTimeFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "response_header", responseHeaderFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", fieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "code", resultCodeFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "response_time", responseTimeFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "response_header", responseHeaderFieldName ) );
     retval.append( "      </result>" ).append( Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      applicationType = XMLHandler.getTagValue( transformNode, "applicationType" );
-      method = XMLHandler.getTagValue( transformNode, "method" );
-      url = XMLHandler.getTagValue( transformNode, "url" );
-      urlInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "urlInField" ) );
-      methodFieldName = XMLHandler.getTagValue( transformNode, "methodFieldName" );
+      applicationType = XmlHandler.getTagValue( transformNode, "applicationType" );
+      method = XmlHandler.getTagValue( transformNode, "method" );
+      url = XmlHandler.getTagValue( transformNode, "url" );
+      urlInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "urlInField" ) );
+      methodFieldName = XmlHandler.getTagValue( transformNode, "methodFieldName" );
 
-      dynamicMethod = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamicMethod" ) );
-      urlField = XMLHandler.getTagValue( transformNode, "urlField" );
-      bodyField = XMLHandler.getTagValue( transformNode, "bodyField" );
-      httpLogin = XMLHandler.getTagValue( transformNode, "httpLogin" );
-      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "httpPassword" ) );
+      dynamicMethod = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamicMethod" ) );
+      urlField = XmlHandler.getTagValue( transformNode, "urlField" );
+      bodyField = XmlHandler.getTagValue( transformNode, "bodyField" );
+      httpLogin = XmlHandler.getTagValue( transformNode, "httpLogin" );
+      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "httpPassword" ) );
 
-      proxyHost = XMLHandler.getTagValue( transformNode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( transformNode, "proxyPort" );
-      preemptive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "preemptive" ) );
+      proxyHost = XmlHandler.getTagValue( transformNode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( transformNode, "proxyPort" );
+      preemptive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "preemptive" ) );
 
-      trustStoreFile = XMLHandler.getTagValue( transformNode, "trustStoreFile" );
+      trustStoreFile = XmlHandler.getTagValue( transformNode, "trustStoreFile" );
       trustStorePassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "trustStorePassword" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "trustStorePassword" ) );
 
-      Node headernode = XMLHandler.getSubNode( transformNode, "headers" );
-      int nrheaders = XMLHandler.countNodes( headernode, "header" );
-      Node paramnode = XMLHandler.getSubNode( transformNode, "parameters" );
-      int nrparameters = XMLHandler.countNodes( paramnode, "parameter" );
-      Node matrixparamnode = XMLHandler.getSubNode( transformNode, "matrixParameters" );
-      int nrmatrixparameters = XMLHandler.countNodes( matrixparamnode, "matrixParameter" );
+      Node headernode = XmlHandler.getSubNode( transformNode, "headers" );
+      int nrheaders = XmlHandler.countNodes( headernode, "header" );
+      Node paramnode = XmlHandler.getSubNode( transformNode, "parameters" );
+      int nrparameters = XmlHandler.countNodes( paramnode, "parameter" );
+      Node matrixparamnode = XmlHandler.getSubNode( transformNode, "matrixParameters" );
+      int nrmatrixparameters = XmlHandler.countNodes( matrixparamnode, "matrixParameter" );
 
       allocate( nrheaders, nrparameters, nrmatrixparameters );
       for ( int i = 0; i < nrheaders; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( headernode, "header", i );
-        headerField[ i ] = XMLHandler.getTagValue( anode, "field" );
-        headerName[ i ] = XMLHandler.getTagValue( anode, "name" );
+        Node anode = XmlHandler.getSubNodeByNr( headernode, "header", i );
+        headerField[ i ] = XmlHandler.getTagValue( anode, "field" );
+        headerName[ i ] = XmlHandler.getTagValue( anode, "name" );
       }
       for ( int i = 0; i < nrparameters; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( paramnode, "parameter", i );
-        parameterField[ i ] = XMLHandler.getTagValue( anode, "field" );
-        parameterName[ i ] = XMLHandler.getTagValue( anode, "name" );
+        Node anode = XmlHandler.getSubNodeByNr( paramnode, "parameter", i );
+        parameterField[ i ] = XmlHandler.getTagValue( anode, "field" );
+        parameterName[ i ] = XmlHandler.getTagValue( anode, "name" );
       }
       for ( int i = 0; i < nrmatrixparameters; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( matrixparamnode, "matrixParameter", i );
-        matrixParameterField[ i ] = XMLHandler.getTagValue( anode, "field" );
-        matrixParameterName[ i ] = XMLHandler.getTagValue( anode, "name" );
+        Node anode = XmlHandler.getSubNodeByNr( matrixparamnode, "matrixParameter", i );
+        matrixParameterField[ i ] = XmlHandler.getTagValue( anode, "field" );
+        matrixParameterName[ i ] = XmlHandler.getTagValue( anode, "name" );
       }
 
-      fieldName = XMLHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
-      resultCodeFieldName = XMLHandler.getTagValue( transformNode, "result", "code" ); // Optional, can be null
-      responseTimeFieldName = XMLHandler.getTagValue( transformNode, "result", "response_time" ); // Optional, can be null
-      responseHeaderFieldName = XMLHandler.getTagValue( transformNode, "result", "response_header" ); // Optional, can be null
+      fieldName = XmlHandler.getTagValue( transformNode, "result", "name" ); // Optional, can be null
+      resultCodeFieldName = XmlHandler.getTagValue( transformNode, "result", "code" ); // Optional, can be null
+      responseTimeFieldName = XmlHandler.getTagValue( transformNode, "result", "response_time" ); // Optional, can be null
+      responseHeaderFieldName = XmlHandler.getTagValue( transformNode, "result", "response_header" ); // Optional, can be null
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "RestMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "RestMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

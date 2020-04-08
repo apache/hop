@@ -33,10 +33,10 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.action.IAction;
@@ -156,23 +156,23 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", include_subfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "resultfilenames", resultfilenames ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", include_subfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultfilenames ) );
     retval.append( "      <fields>" ).append( Const.CR );
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[ i ] ) ) );
+          XmlHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[ i ] ) ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -224,36 +224,36 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
+      arg_from_previous = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      include_subfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
 
-      nr_errors_less_than = XMLHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      successCondition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      resultfilenames = XMLHandler.getTagValue( entrynode, "resultfilenames" );
+      nr_errors_less_than = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
+      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      resultfilenames = XmlHandler.getTagValue( entrynode, "resultfilenames" );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
+        source_filefolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
+        wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
         conversionTypes[ i ] =
-          getConversionTypeByCode( Const.NVL( XMLHandler.getTagValue( fnode, "ConversionType" ), "" ) );
+          getConversionTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "ConversionType" ), "" ) );
       }
-    } catch ( HopXMLException xe ) {
+    } catch ( HopXmlException xe ) {
 
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "JobDosToUnix.Error.Exception.UnableLoadXML" ), xe );
     }
   }

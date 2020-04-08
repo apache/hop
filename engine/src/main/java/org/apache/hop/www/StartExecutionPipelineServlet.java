@@ -25,7 +25,7 @@ package org.apache.hop.www;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.owasp.encoder.Encode;
@@ -154,7 +154,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     PrintWriter out = response.getWriter();
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
     } else {
       response.setContentType( "text/html;charset=UTF-8" );
       out.println( "<HTML>" );
@@ -196,7 +196,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
           startThreads( pipeline );
 
           if ( useXML ) {
-            out.println( WebResult.OK.getXML() );
+            out.println( WebResult.OK.getXml() );
           } else {
             out
               .println( "<H1>Pipeline "

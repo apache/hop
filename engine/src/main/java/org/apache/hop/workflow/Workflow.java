@@ -1616,7 +1616,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
 
         TopLevelResource topLevelResource =
           ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
-            metaStore, executionConfiguration.getXML(), CONFIGURATION_IN_EXPORT_FILENAME );
+            metaStore, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
         String result =
@@ -1629,7 +1629,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
         }
         carteObjectId = webResult.getId();
       } else {
-        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration ).getXML();
+        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration ).getXml();
 
         String reply = slaveServer.sendXML( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXMLString( reply );

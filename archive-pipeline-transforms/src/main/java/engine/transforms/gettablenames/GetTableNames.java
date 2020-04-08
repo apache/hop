@@ -411,7 +411,7 @@ public class GetTableNames extends BaseTransform implements ITransform {
       data.realTableNameFieldName = environmentSubstitute( meta.getTablenameFieldName() );
       data.realObjectTypeFieldName = environmentSubstitute( meta.getObjectTypeFieldName() );
       data.realIsSystemObjectFieldName = environmentSubstitute( meta.isSystemObjectFieldName() );
-      data.realSQLCreationFieldName = environmentSubstitute( meta.getSQLCreationFieldName() );
+      data.realSQLCreationFieldName = environmentSubstitute( meta.getSqlCreationFieldName() );
       if ( !meta.isIncludeCatalog()
         && !meta.isIncludeSchema() && !meta.isIncludeTable() && !meta.isIncludeView()
         && !meta.isIncludeProcedure() && !meta.isIncludeSynonym() ) {

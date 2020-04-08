@@ -99,7 +99,7 @@ public class DatabaseImpact {
     return valuename;
   }
 
-  public String getSQL() {
+  public String getSql() {
     return sql;
   }
 
@@ -158,7 +158,7 @@ public class DatabaseImpact {
     r.addValue(
       new ValueMetaString(
         BaseMessages.getString( PKG, "DatabaseImpact.RowDesc.Label.SQL" ) ),
-      getSQL() );
+      getSql() );
     r
       .addValue(
         new ValueMetaString(

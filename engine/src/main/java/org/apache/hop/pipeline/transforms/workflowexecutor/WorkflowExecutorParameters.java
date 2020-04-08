@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 /**
@@ -78,36 +78,36 @@ public class WorkflowExecutorParameters implements Cloneable {
 
   public WorkflowExecutorParameters( Node paramNode ) {
 
-    int nrVariables = XMLHandler.countNodes( paramNode, XML_VARIABLES_TAG );
+    int nrVariables = XmlHandler.countNodes( paramNode, XML_VARIABLES_TAG );
     variable = new String[ nrVariables ];
     field = new String[ nrVariables ];
     input = new String[ nrVariables ];
 
     for ( int i = 0; i < variable.length; i++ ) {
-      Node variableMappingNode = XMLHandler.getSubNodeByNr( paramNode, XML_VARIABLES_TAG, i );
+      Node variableMappingNode = XmlHandler.getSubNodeByNr( paramNode, XML_VARIABLES_TAG, i );
 
-      variable[ i ] = XMLHandler.getTagValue( variableMappingNode, "variable" );
-      field[ i ] = XMLHandler.getTagValue( variableMappingNode, "field" );
-      input[ i ] = XMLHandler.getTagValue( variableMappingNode, "input" );
+      variable[ i ] = XmlHandler.getTagValue( variableMappingNode, "variable" );
+      field[ i ] = XmlHandler.getTagValue( variableMappingNode, "field" );
+      input[ i ] = XmlHandler.getTagValue( variableMappingNode, "input" );
     }
 
-    inheritingAllVariables = "Y".equalsIgnoreCase( XMLHandler.getTagValue( paramNode, "inherit_all_vars" ) );
+    inheritingAllVariables = "Y".equalsIgnoreCase( XmlHandler.getTagValue( paramNode, "inherit_all_vars" ) );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 200 );
 
-    xml.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
     for ( int i = 0; i < variable.length; i++ ) {
-      xml.append( "      " ).append( XMLHandler.openTag( XML_VARIABLES_TAG ) );
-      xml.append( XMLHandler.addTagValue( "variable", variable[ i ], false ) );
-      xml.append( XMLHandler.addTagValue( "field", field[ i ], false ) );
-      xml.append( XMLHandler.addTagValue( "input", input[ i ], false ) );
-      xml.append( XMLHandler.closeTag( XML_VARIABLES_TAG ) ).append( Const.CR );
+      xml.append( "      " ).append( XmlHandler.openTag( XML_VARIABLES_TAG ) );
+      xml.append( XmlHandler.addTagValue( "variable", variable[ i ], false ) );
+      xml.append( XmlHandler.addTagValue( "field", field[ i ], false ) );
+      xml.append( XmlHandler.addTagValue( "input", input[ i ], false ) );
+      xml.append( XmlHandler.closeTag( XML_VARIABLES_TAG ) ).append( Const.CR );
     }
-    xml.append( "      " ).append( XMLHandler.addTagValue( "inherit_all_vars", inheritingAllVariables ) );
-    xml.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "inherit_all_vars", inheritingAllVariables ) );
+    xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }

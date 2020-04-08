@@ -107,14 +107,14 @@ public class SortRowsMetaTest {
     sortRows.setPreSortedField( new boolean[] { true, true, false } );
 
     try {
-      String badXml = sortRows.getXML();
+      String badXml = sortRows.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     sortRows.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = sortRows.getXML();
+    String ktrXml = sortRows.getXml();
 
     int targetSz = sortRows.getFieldName().length;
 

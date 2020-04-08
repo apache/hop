@@ -26,7 +26,7 @@ import org.apache.hop.core.HTTPProtocol;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.http.auth.AuthenticationException;
 import org.w3c.dom.Document;
 
@@ -355,7 +355,7 @@ public final class Wsdl implements java.io.Serializable {
 
     try {
       HTTPProtocol http = new HTTPProtocol();
-      Document doc = XMLHandler.loadXMLString( http.get( wsdlURI.toString(), username, password ), true, false );
+      Document doc = XmlHandler.loadXMLString( http.get( wsdlURI.toString(), username, password ), true, false );
       if ( doc != null ) {
         return ( wsdlReader.readWSDL( doc.getBaseURI(), doc ) );
       } else {

@@ -572,7 +572,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     };
     lsbSQLTable = new Listener() {
       public void handleEvent( Event e ) {
-        getSQL();
+        getSql();
       }
     };
 
@@ -609,7 +609,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     return jobEntry;
   }
 
-  private void getSQL() {
+  private void getSql() {
     DatabaseMeta inf = workflowMeta.findDatabase( wConnection.getText() );
     if ( inf != null ) {
       DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, workflowMeta.getDatabases() );

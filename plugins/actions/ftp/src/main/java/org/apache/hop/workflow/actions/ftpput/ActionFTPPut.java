@@ -33,10 +33,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
@@ -135,77 +135,77 @@ public class ActionFTPPut extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 450 ); // 365 characters in spaces and tag names alone
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remoteDirectory", remoteDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "localDirectory", localDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "binary", binaryMode ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remove", remove ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "only_new", onlyPuttingNewFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "active", activeConnection ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "control_encoding", controlEncoding ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remoteDirectory", remoteDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "localDirectory", localDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "binary", binaryMode ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remove", remove ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "only_new", onlyPuttingNewFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "control_encoding", controlEncoding ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_username", proxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
+      XmlHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "socksproxy_password", Encr
+      XmlHandler.addTagValue( "socksproxy_password", Encr
         .encryptPasswordIfNotUsingVariables( socksProxyPassword ) ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      remoteDirectory = XMLHandler.getTagValue( entrynode, "remoteDirectory" );
-      localDirectory = XMLHandler.getTagValue( entrynode, "localDirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      binaryMode = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "binary" ) );
-      timeout = Const.toInt( XMLHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove" ) );
-      onlyPuttingNewFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "only_new" ) );
-      activeConnection = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "active" ) );
-      controlEncoding = XMLHandler.getTagValue( entrynode, "control_encoding" );
+      super.loadXml( entrynode );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      serverPort = XmlHandler.getTagValue( entrynode, "serverport" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      remoteDirectory = XmlHandler.getTagValue( entrynode, "remoteDirectory" );
+      localDirectory = XmlHandler.getTagValue( entrynode, "localDirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      binaryMode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "binary" ) );
+      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
+      remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
+      onlyPuttingNewFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "only_new" ) );
+      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
+      controlEncoding = XmlHandler.getTagValue( entrynode, "control_encoding" );
 
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxy_username" );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxy_password" ) );
-      socksProxyHost = XMLHandler.getTagValue( entrynode, "socksproxy_host" );
-      socksProxyPort = XMLHandler.getTagValue( entrynode, "socksproxy_port" );
-      socksProxyUsername = XMLHandler.getTagValue( entrynode, "socksproxy_username" );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
+      socksProxyHost = XmlHandler.getTagValue( entrynode, "socksproxy_host" );
+      socksProxyPort = XmlHandler.getTagValue( entrynode, "socksproxy_port" );
+      socksProxyUsername = XmlHandler.getTagValue( entrynode, "socksproxy_username" );
       socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "socksproxy_password" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "socksproxy_password" ) );
 
       if ( controlEncoding == null ) {
         // if we couldn't retrieve an encoding, assume it's an old instance and
         // put in the the encoding used before v 2.4.0
         controlEncoding = LEGACY_CONTROL_ENCODING;
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "JobFTPPUT.Log.UnableToLoadFromXml" ), xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "JobFTPPUT.Log.UnableToLoadFromXml" ), xe );
     }
   }
 

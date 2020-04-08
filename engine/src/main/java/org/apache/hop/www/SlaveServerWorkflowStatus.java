@@ -28,7 +28,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.Pipeline;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -64,42 +64,42 @@ public class SlaveServerWorkflowStatus {
     this.statusDescription = statusDescription;
   }
 
-  public String getXML() throws HopException {
+  public String getXml() throws HopException {
     // See PDI-15781
     boolean sendResultXmlWithStatus = EnvUtil.getSystemProperty( "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N" ).equalsIgnoreCase( "Y" );
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "workflowname", workflowName ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "id", id ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "status_desc", statusDescription ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "error_desc", errorDescription ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "log_date", XMLHandler.date2string( logDate ) ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "logging_string", XMLHandler.buildCDATA( loggingString ) ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "workflowname", workflowName ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "id", id ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "status_desc", statusDescription ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "error_desc", errorDescription ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "log_date", XmlHandler.date2string( logDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "logging_string", XmlHandler.buildCDATA( loggingString ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "first_log_line_nr", firstLoggingLineNr ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "last_log_line_nr", lastLoggingLineNr ) );
 
     if ( result != null ) {
-      String resultXML = sendResultXmlWithStatus ? result.getXML() : result.getBasicXml();
+      String resultXML = sendResultXmlWithStatus ? result.getXml() : result.getBasicXml();
       xml.append( resultXML );
     }
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
   public SlaveServerWorkflowStatus( Node workflowStatusNode ) throws HopException {
     this();
-    workflowName = XMLHandler.getTagValue( workflowStatusNode, "workflowname" );
-    id = XMLHandler.getTagValue( workflowStatusNode, "id" );
-    statusDescription = XMLHandler.getTagValue( workflowStatusNode, "status_desc" );
-    errorDescription = XMLHandler.getTagValue( workflowStatusNode, "error_desc" );
-    logDate = XMLHandler.stringToDate( XMLHandler.getTagValue( workflowStatusNode, "log_date" ) );
-    firstLoggingLineNr = Const.toInt( XMLHandler.getTagValue( workflowStatusNode, "first_log_line_nr" ), 0 );
-    lastLoggingLineNr = Const.toInt( XMLHandler.getTagValue( workflowStatusNode, "last_log_line_nr" ), 0 );
+    workflowName = XmlHandler.getTagValue( workflowStatusNode, "workflowname" );
+    id = XmlHandler.getTagValue( workflowStatusNode, "id" );
+    statusDescription = XmlHandler.getTagValue( workflowStatusNode, "status_desc" );
+    errorDescription = XmlHandler.getTagValue( workflowStatusNode, "error_desc" );
+    logDate = XmlHandler.stringToDate( XmlHandler.getTagValue( workflowStatusNode, "log_date" ) );
+    firstLoggingLineNr = Const.toInt( XmlHandler.getTagValue( workflowStatusNode, "first_log_line_nr" ), 0 );
+    lastLoggingLineNr = Const.toInt( XmlHandler.getTagValue( workflowStatusNode, "last_log_line_nr" ), 0 );
 
-    String loggingString64 = XMLHandler.getTagValue( workflowStatusNode, "logging_string" );
+    String loggingString64 = XmlHandler.getTagValue( workflowStatusNode, "logging_string" );
 
     if ( !Utils.isEmpty( loggingString64 ) ) {
       // This is a CDATA block with a Base64 encoded GZIP compressed stream of data.
@@ -118,7 +118,7 @@ public class SlaveServerWorkflowStatus {
 
     // get the result object, if there is any...
     //
-    Node resultNode = XMLHandler.getSubNode( workflowStatusNode, Result.XML_TAG );
+    Node resultNode = XmlHandler.getSubNode( workflowStatusNode, Result.XML_TAG );
     if ( resultNode != null ) {
       try {
         result = new Result( resultNode );
@@ -130,8 +130,8 @@ public class SlaveServerWorkflowStatus {
   }
 
   public static SlaveServerWorkflowStatus fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    SlaveServerWorkflowStatus status = new SlaveServerWorkflowStatus( XMLHandler.getSubNode( document, XML_TAG ) );
+    Document document = XmlHandler.loadXMLString( xml );
+    SlaveServerWorkflowStatus status = new SlaveServerWorkflowStatus( XmlHandler.getSubNode( document, XML_TAG ) );
     return status;
   }
 

@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -192,7 +192,7 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -218,30 +218,30 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        algorithm[ i ] = XMLHandler.getTagValue( fnode, "algorithm" );
-        scheme[ i ] = XMLHandler.getTagValue( fnode, "scheme" );
-        secretKeyLength[ i ] = XMLHandler.getTagValue( fnode, "secretKeyLen" );
-        secretKeyCount[ i ] = XMLHandler.getTagValue( fnode, "secretKeyCount" );
+        algorithm[ i ] = XmlHandler.getTagValue( fnode, "algorithm" );
+        scheme[ i ] = XmlHandler.getTagValue( fnode, "scheme" );
+        secretKeyLength[ i ] = XmlHandler.getTagValue( fnode, "secretKeyLen" );
+        secretKeyCount[ i ] = XmlHandler.getTagValue( fnode, "secretKeyCount" );
       }
 
-      secretKeyFieldName = XMLHandler.getTagValue( transformNode, "secretKeyFieldName" );
-      secretKeyLengthFieldName = XMLHandler.getTagValue( transformNode, "secretKeyLengthFieldName" );
-      algorithmFieldName = XMLHandler.getTagValue( transformNode, "algorithmFieldName" );
+      secretKeyFieldName = XmlHandler.getTagValue( transformNode, "secretKeyFieldName" );
+      secretKeyLengthFieldName = XmlHandler.getTagValue( transformNode, "secretKeyLengthFieldName" );
+      algorithmFieldName = XmlHandler.getTagValue( transformNode, "algorithmFieldName" );
 
-      outputKeyInBinary = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "outputKeyInBinary" ) );
+      outputKeyInBinary = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outputKeyInBinary" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read transform information from XML", e );
+      throw new HopXmlException( "Unable to read transform information from XML", e );
     }
   }
 
@@ -293,26 +293,26 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < algorithm.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "algorithm", algorithm[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "scheme", scheme[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyLen", secretKeyLength[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "secretKeyCount", secretKeyCount[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "algorithm", algorithm[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "scheme", scheme[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "secretKeyLen", secretKeyLength[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "secretKeyCount", secretKeyCount[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" + Const.CR );
 
-    retval.append( "    " + XMLHandler.addTagValue( "secretKeyFieldName", secretKeyFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "secretKeyLengthFieldName", secretKeyLengthFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "algorithmFieldName", algorithmFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "algorithmFieldName", algorithmFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outputKeyInBinary", outputKeyInBinary ) );
+    retval.append( "    " + XmlHandler.addTagValue( "secretKeyFieldName", secretKeyFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "secretKeyLengthFieldName", secretKeyLengthFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "algorithmFieldName", algorithmFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "algorithmFieldName", algorithmFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "outputKeyInBinary", outputKeyInBinary ) );
     return retval.toString();
   }
 

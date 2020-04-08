@@ -27,14 +27,14 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -189,7 +189,7 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void loadXML(Node transformNode, IMetaStore metaStore) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore) throws HopXmlException {
     readData(transformNode, metaStore);
   }
 
@@ -236,54 +236,54 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append("    " + XMLHandler.addTagValue("processfield", processfield));
-    retval.append("    " + XMLHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    " + XMLHandler.addTagValue("errorfieldname", errorfieldname));
-    retval.append("    " + XMLHandler.addTagValue("exitvaluefieldname", exitvaluefieldname));
-    retval.append("    " + XMLHandler.addTagValue("failwhennotsuccess", failwhennotsuccess));
-    retval.append("    " + XMLHandler.addTagValue("outputlinedelimiter", outputLineDelimiter));
-    retval.append("    ").append(XMLHandler.addTagValue("argumentsInFields", argumentsInFields));
+    retval.append("    " + XmlHandler.addTagValue("processfield", processfield));
+    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
+    retval.append("    " + XmlHandler.addTagValue("errorfieldname", errorfieldname));
+    retval.append("    " + XmlHandler.addTagValue("exitvaluefieldname", exitvaluefieldname));
+    retval.append("    " + XmlHandler.addTagValue("failwhennotsuccess", failwhennotsuccess));
+    retval.append("    " + XmlHandler.addTagValue("outputlinedelimiter", outputLineDelimiter));
+    retval.append("    ").append( XmlHandler.addTagValue("argumentsInFields", argumentsInFields));
 
-    retval.append("    ").append(XMLHandler.openTag("argumentFields")).append(Const.CR);
+    retval.append("    ").append( XmlHandler.openTag("argumentFields")).append(Const.CR);
     for (int i = 0; i < argumentFieldNames.length; i++) {
-      retval.append("      ").append(XMLHandler.openTag("argumentField")).append(Const.CR);
-      retval.append("        ").append(XMLHandler.addTagValue("argumentFieldName", argumentFieldNames[i]));
-      retval.append("      ").append(XMLHandler.closeTag("argumentField")).append(Const.CR);
+      retval.append("      ").append( XmlHandler.openTag("argumentField")).append(Const.CR);
+      retval.append("        ").append( XmlHandler.addTagValue("argumentFieldName", argumentFieldNames[i]));
+      retval.append("      ").append( XmlHandler.closeTag("argumentField")).append(Const.CR);
     }
-    retval.append("    ").append(XMLHandler.closeTag("argumentFields")).append(Const.CR);
+    retval.append("    ").append( XmlHandler.closeTag("argumentFields")).append(Const.CR);
     return retval.toString();
   }
 
-  private void readData(Node transformNode, IMetaStore metaStore) throws HopXMLException {
+  private void readData(Node transformNode, IMetaStore metaStore) throws HopXmlException {
     try {
-      processfield = XMLHandler.getTagValue(transformNode, "processfield");
-      resultfieldname = XMLHandler.getTagValue(transformNode, "resultfieldname");
-      errorfieldname = XMLHandler.getTagValue(transformNode, "errorfieldname");
-      exitvaluefieldname = XMLHandler.getTagValue(transformNode, "exitvaluefieldname");
-      failwhennotsuccess = "Y".equalsIgnoreCase(XMLHandler.getTagValue(transformNode, "failwhennotsuccess"));
-      outputLineDelimiter = XMLHandler.getTagValue(transformNode, "outputlinedelimiter");
+      processfield = XmlHandler.getTagValue(transformNode, "processfield");
+      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
+      errorfieldname = XmlHandler.getTagValue(transformNode, "errorfieldname");
+      exitvaluefieldname = XmlHandler.getTagValue(transformNode, "exitvaluefieldname");
+      failwhennotsuccess = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "failwhennotsuccess"));
+      outputLineDelimiter = XmlHandler.getTagValue(transformNode, "outputlinedelimiter");
       if (outputLineDelimiter == null) {
         outputLineDelimiter = ""; // default to empty string for backward compatibility
       }
 
-      argumentsInFields = "Y".equalsIgnoreCase(XMLHandler.getTagValue(transformNode, "argumentsInFields"));
-      Node argumentFieldsNode = XMLHandler.getSubNode(transformNode, "argumentFields");
+      argumentsInFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue(transformNode, "argumentsInFields"));
+      Node argumentFieldsNode = XmlHandler.getSubNode(transformNode, "argumentFields");
       if (argumentFieldsNode == null) {
         argumentFieldNames = new String[0];
       } else {
-        int argumentFieldCount = XMLHandler.countNodes(argumentFieldsNode, "argumentField");
+        int argumentFieldCount = XmlHandler.countNodes(argumentFieldsNode, "argumentField");
         argumentFieldNames = new String[argumentFieldCount];
         for (int i = 0; i < argumentFieldCount; i++) {
-          Node fnode = XMLHandler.getSubNodeByNr(argumentFieldsNode, "argumentField", i);
-          argumentFieldNames[i] = XMLHandler.getTagValue(fnode, "argumentFieldName");
+          Node fnode = XmlHandler.getSubNodeByNr(argumentFieldsNode, "argumentField", i);
+          argumentFieldNames[i] = XmlHandler.getTagValue(fnode, "argumentFieldName");
         }
       }
 
     } catch (Exception e) {
-      throw new HopXMLException(
+      throw new HopXmlException(
               BaseMessages.getString(PKG, "ExecProcessMeta.Exception.UnableToReadTransformMeta"), e);
     }
   }

@@ -39,7 +39,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -49,7 +49,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -76,8 +76,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.core.xml.XMLFormatter;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlFormatter;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
@@ -2040,126 +2040,126 @@ public class PipelineMeta extends AbstractMeta
 
     StringBuilder retval = new StringBuilder( 800 );
 
-    retval.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_INFO ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_INFO ) ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "name", name ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "description", description ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "extended_description", extendedDescription ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "pipeline_version", pipelineVersion ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "pipeline_type", pipelineType.getCode() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "name", name ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_version", pipelineVersion ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_type", pipelineType.getCode() ) );
 
     if ( pipelineStatus >= 0 ) {
-      retval.append( "    " ).append( XMLHandler.addTagValue( "pipeline_status", pipelineStatus ) );
+      retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_status", pipelineStatus ) );
     }
 
     if ( includeNamedParameters ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
       String[] parameters = listParameters();
       for ( int idx = 0; idx < parameters.length; idx++ ) {
-        retval.append( "      " ).append( XMLHandler.openTag( "parameter" ) ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", parameters[ idx ] ) );
+        retval.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
         retval.append( "        " )
-          .append( XMLHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
+          .append( XmlHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
         retval.append( "        " )
-          .append( XMLHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
-        retval.append( "      " ).append( XMLHandler.closeTag( "parameter" ) ).append( Const.CR );
+          .append( XmlHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
+        retval.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
       }
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     }
 
     if ( includeLog ) {
-      retval.append( "    " ).append( XMLHandler.openTag( "log" ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.openTag( "log" ) ).append( Const.CR );
 
       // Add the metadata for the various logging tables
       //
-      retval.append( pipelineLogTable.getXML() );
-      retval.append( performanceLogTable.getXML() );
-      retval.append( channelLogTable.getXML() );
-      retval.append( transformLogTable.getXML() );
-      retval.append( metricsLogTable.getXML() );
+      retval.append( pipelineLogTable.getXml() );
+      retval.append( performanceLogTable.getXml() );
+      retval.append( channelLogTable.getXml() );
+      retval.append( transformLogTable.getXml() );
+      retval.append( metricsLogTable.getXml() );
 
-      retval.append( "    " ).append( XMLHandler.closeTag( "log" ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.closeTag( "log" ) ).append( Const.CR );
     }
 
-    retval.append( "    " ).append( XMLHandler.openTag( "maxdate" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( "maxdate" ) ).append( Const.CR );
     retval.append( "      " )
-      .append( XMLHandler.addTagValue( "connection", maxDateConnection == null ? "" : maxDateConnection.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", maxDateTable ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "field", maxDateField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "offset", maxDateOffset ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maxdiff", maxDateDifference ) );
-    retval.append( "    " ).append( XMLHandler.closeTag( "maxdate" ) ).append( Const.CR );
+      .append( XmlHandler.addTagValue( "connection", maxDateConnection == null ? "" : maxDateConnection.getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", maxDateTable ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "field", maxDateField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "offset", maxDateOffset ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maxdiff", maxDateDifference ) );
+    retval.append( "    " ).append( XmlHandler.closeTag( "maxdate" ) ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "size_rowset", sizeRowset ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "size_rowset", sizeRowset ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sleep_time_empty", sleepTimeEmpty ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sleep_time_full", sleepTimeFull ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_empty", sleepTimeEmpty ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_full", sleepTimeFull ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "unique_connections", usingUniqueConnections ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "unique_connections", usingUniqueConnections ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
 
     // Performance monitoring
     //
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "capture_transform_performance", capturingTransformPerformanceSnapShots ) );
+      .append( XmlHandler.addTagValue( "capture_transform_performance", capturingTransformPerformanceSnapShots ) );
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "transform_performance_capturing_delay", transformPerformanceCapturingDelay ) );
+      .append( XmlHandler.addTagValue( "transform_performance_capturing_delay", transformPerformanceCapturingDelay ) );
     retval.append( "    " )
-      .append( XMLHandler.addTagValue( "transform_performance_capturing_size_limit", transformPerformanceCapturingSizeLimit ) );
+      .append( XmlHandler.addTagValue( "transform_performance_capturing_size_limit", transformPerformanceCapturingSizeLimit ) );
 
     if ( includeDependencies ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
       for ( int i = 0; i < nrDependencies(); i++ ) {
         PipelineDependency td = getDependency( i );
         retval.append( td.getXml() );
       }
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
     }
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "created_user", createdUser ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "created_date", XMLHandler.date2string( createdDate ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "modified_user", modifiedUser ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "modified_date", XMLHandler.date2string( modifiedDate ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
 
     try {
-      retval.append( "    " ).append( XMLHandler.addTagValue( "key_for_session_key", keyForSessionKey ) );
+      retval.append( "    " ).append( XmlHandler.addTagValue( "key_for_session_key", keyForSessionKey ) );
     } catch ( Exception ex ) {
       log.logError( "Unable to decode key", ex );
     }
-    retval.append( "    " ).append( XMLHandler.addTagValue( "is_key_private", isKeyPrivate ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "is_key_private", isKeyPrivate ) );
 
-    retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_INFO ) ).append( Const.CR );
+    retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_INFO ) ).append( Const.CR );
 
     if ( includeNotePads ) {
-      retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( int i = 0; i < nrNotes(); i++ ) {
           NotePadMeta ni = getNote( i );
           retval.append( ni.getXml() );
         }
       }
-      retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
     }
 
     if ( includeTransforms ) {
-      retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
       for ( int i = 0; i < nrPipelineHops(); i++ ) {
         PipelineHopMeta pipelineHopMeta = getPipelineHop( i );
         retval.append( pipelineHopMeta.getXml() );
       }
-      retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_ORDER ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_ORDER ) ).append( Const.CR );
 
       /* The transforms... */
       for ( int i = 0; i < nrTransforms(); i++ ) {
         TransformMeta transformMeta = getTransform( i );
-        retval.append( transformMeta.getXML() );
+        retval.append( transformMeta.getXml() );
       }
 
       /* The error handling metadata on the transforms */
-      retval.append( "  " ).append( XMLHandler.openTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
       for ( int i = 0; i < nrTransforms(); i++ ) {
         TransformMeta transformMeta = getTransform( i );
 
@@ -2167,7 +2167,7 @@ public class PipelineMeta extends AbstractMeta
           retval.append( transformMeta.getTransformErrorMeta().getXml() );
         }
       }
-      retval.append( "  " ).append( XMLHandler.closeTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
     }
 
     // Also store the attribute groups
@@ -2175,9 +2175,9 @@ public class PipelineMeta extends AbstractMeta
     if ( includeAttributeGroups ) {
       retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
     }
-    retval.append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
-    return XMLFormatter.format( retval.toString() );
+    return XmlFormatter.format( retval.toString() );
   }
 
   /**
@@ -2187,18 +2187,18 @@ public class PipelineMeta extends AbstractMeta
    * @param metaStore            the metadata store to reference (or null if there is none)
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
   public PipelineMeta( String fname, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
-    throws HopXMLException, HopMissingPluginsException {
+    throws HopXmlException, HopMissingPluginsException {
     // if fname is not provided, there's not much we can do, throw an exception
     if ( StringUtils.isBlank( fname ) ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "PipelineMeta.Exception.MissingXMLFilePath" ) );
+      throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.MissingXMLFilePath" ) );
     }
 
     if ( metaStore == null ) {
-      throw new HopXMLException( "MetaStore references can't be null. When loading a pipeline Hop needs to be able to reference external metadata objects" );
+      throw new HopXmlException( "MetaStore references can't be null. When loading a pipeline Hop needs to be able to reference external metadata objects" );
     }
 
     this.metaStore = metaStore;
@@ -2208,31 +2208,31 @@ public class PipelineMeta extends AbstractMeta
     try {
       final FileObject pipelineFile = HopVFS.getFileObject( fname, parentVariableSpace );
       if ( !pipelineFile.exists() ) {
-        throw new HopXMLException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
+        throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
       }
-      doc = XMLHandler.loadXMLFile( pipelineFile );
-    } catch ( HopXMLException ke ) {
-      // if we have a HopXMLException, simply re-throw it
+      doc = XmlHandler.loadXMLFile( pipelineFile );
+    } catch ( HopXmlException ke ) {
+      // if we have a HopXmlException, simply re-throw it
       throw ke;
     } catch ( HopException | FileSystemException e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", fname ), e );
     }
 
     if ( doc != null ) {
       // Root node:
-      Node pipelineNode = XMLHandler.getSubNode( doc, XML_TAG );
+      Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG );
 
       if ( pipelineNode == null ) {
-        throw new HopXMLException( BaseMessages.getString(
+        throw new HopXmlException( BaseMessages.getString(
           PKG, "PipelineMeta.Exception.NotValidPipelineXML", fname ) );
       }
 
       // Load from this node...
-      loadXML( pipelineNode, fname, metaStore, setInternalVariables, parentVariableSpace );
+      loadXml( pipelineNode, fname, metaStore, setInternalVariables, parentVariableSpace );
 
     } else {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", fname ) );
     }
   }
@@ -2243,25 +2243,25 @@ public class PipelineMeta extends AbstractMeta
    * @param xmlStream            the XML input stream from which to read the pipeline definition
    * @param setInternalVariables whether to set internal variables as a result of the creation
    * @param parentVariableSpace  the parent variable space
-   * @throws HopXMLException            if any errors occur during parsing of the specified stream
+   * @throws HopXmlException            if any errors occur during parsing of the specified stream
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
   public PipelineMeta( InputStream xmlStream, boolean setInternalVariables, IVariables parentVariableSpace )
-    throws HopXMLException, HopMissingPluginsException {
-    Document doc = XMLHandler.loadXMLFile( xmlStream, null, false, false );
-    Node pipelineNode = XMLHandler.getSubNode( doc, XML_TAG );
-    loadXML( pipelineNode, setInternalVariables, parentVariableSpace );
+    throws HopXmlException, HopMissingPluginsException {
+    Document doc = XmlHandler.loadXMLFile( xmlStream, null, false, false );
+    Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG );
+    loadXml( pipelineNode, setInternalVariables, parentVariableSpace );
   }
 
   /**
    * Parse a file containing the XML that describes the pipeline.
    *
    * @param pipelineNode The XML node to load from
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public PipelineMeta( Node pipelineNode ) throws HopXMLException, HopMissingPluginsException {
-    loadXML( pipelineNode, false );
+  public PipelineMeta( Node pipelineNode ) throws HopXmlException, HopMissingPluginsException {
+    loadXml( pipelineNode, false );
   }
 
   /**
@@ -2269,12 +2269,12 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param pipelineNode         The XML node to load from
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node pipelineNode, boolean setInternalVariables ) throws HopXMLException,
+  public void loadXml( Node pipelineNode, boolean setInternalVariables ) throws HopXmlException,
     HopMissingPluginsException {
-    loadXML( pipelineNode, setInternalVariables, null );
+    loadXml( pipelineNode, setInternalVariables, null );
   }
 
   /**
@@ -2283,26 +2283,11 @@ public class PipelineMeta extends AbstractMeta
    * @param pipelineNode         The XML node to load from
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node pipelineNode, boolean setInternalVariables, IVariables parentVariableSpace ) throws HopXMLException, HopMissingPluginsException {
-    loadXML( pipelineNode, null, setInternalVariables, parentVariableSpace );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
-   *
-   * @param pipelineNode         The XML node to load from
-   * @param fname                The filename
-   * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
-   * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXML( Node pipelineNode, String fname, boolean setInternalVariables, IVariables parentVariableSpace )
-    throws HopXMLException, HopMissingPluginsException {
-    loadXML( pipelineNode, fname, null, setInternalVariables, parentVariableSpace );
+  public void loadXml( Node pipelineNode, boolean setInternalVariables, IVariables parentVariableSpace ) throws HopXmlException, HopMissingPluginsException {
+    loadXml( pipelineNode, null, setInternalVariables, parentVariableSpace );
   }
 
   /**
@@ -2312,11 +2297,26 @@ public class PipelineMeta extends AbstractMeta
    * @param fname                The filename
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXMLException            if any errors occur during parsing of the specified file
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXML( Node pipelineNode, String fname, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
-    throws HopXMLException, HopMissingPluginsException {
+  public void loadXml( Node pipelineNode, String fname, boolean setInternalVariables, IVariables parentVariableSpace )
+    throws HopXmlException, HopMissingPluginsException {
+    loadXml( pipelineNode, fname, null, setInternalVariables, parentVariableSpace );
+  }
+
+  /**
+   * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
+   *
+   * @param pipelineNode         The XML node to load from
+   * @param fname                The filename
+   * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
+   * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
+   * @throws HopXmlException            if any errors occur during parsing of the specified file
+   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
+   */
+  public void loadXml( Node pipelineNode, String fname, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
+    throws HopXmlException, HopMissingPluginsException {
 
     HopMissingPluginsException
       missingPluginsException =
@@ -2343,22 +2343,22 @@ public class PipelineMeta extends AbstractMeta
         setFilename( fname );
 
         // Read the notes...
-        Node notepadsnode = XMLHandler.getSubNode( pipelineNode, XML_TAG_NOTEPADS );
-        int nrnotes = XMLHandler.countNodes( notepadsnode, NotePadMeta.XML_TAG );
+        Node notepadsnode = XmlHandler.getSubNode( pipelineNode, XML_TAG_NOTEPADS );
+        int nrnotes = XmlHandler.countNodes( notepadsnode, NotePadMeta.XML_TAG );
         for ( int i = 0; i < nrnotes; i++ ) {
-          Node notepadnode = XMLHandler.getSubNodeByNr( notepadsnode, NotePadMeta.XML_TAG, i );
+          Node notepadnode = XmlHandler.getSubNodeByNr( notepadsnode, NotePadMeta.XML_TAG, i );
           NotePadMeta ni = new NotePadMeta( notepadnode );
           notes.add( ni );
         }
 
         // Handle Transforms
-        int s = XMLHandler.countNodes( pipelineNode, TransformMeta.XML_TAG );
+        int s = XmlHandler.countNodes( pipelineNode, TransformMeta.XML_TAG );
 
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.ReadingTransforms" ) + s + " transforms..." );
         }
         for ( int i = 0; i < s; i++ ) {
-          Node transformNode = XMLHandler.getSubNodeByNr( pipelineNode, TransformMeta.XML_TAG, i );
+          Node transformNode = XmlHandler.getSubNodeByNr( pipelineNode, TransformMeta.XML_TAG, i );
 
           if ( log.isDebug() ) {
             log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtTransform" ) + i );
@@ -2375,10 +2375,10 @@ public class PipelineMeta extends AbstractMeta
 
         // Read the error handling code of the transforms...
         //
-        Node errorHandlingNode = XMLHandler.getSubNode( pipelineNode, XML_TAG_TRANSFORM_ERROR_HANDLING );
-        int nrErrorHandlers = XMLHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
+        Node errorHandlingNode = XmlHandler.getSubNode( pipelineNode, XML_TAG_TRANSFORM_ERROR_HANDLING );
+        int nrErrorHandlers = XmlHandler.countNodes( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG );
         for ( int i = 0; i < nrErrorHandlers; i++ ) {
-          Node transformErrorMetaNode = XMLHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
+          Node transformErrorMetaNode = XmlHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
           TransformErrorMeta transformErrorMeta = new TransformErrorMeta( this, transformErrorMetaNode, transforms );
           if ( transformErrorMeta.getSourceTransform() != null ) {
             transformErrorMeta.getSourceTransform().setTransformErrorMeta( transformErrorMeta ); // a bit of a trick, I know.
@@ -2397,8 +2397,8 @@ public class PipelineMeta extends AbstractMeta
 
         // Handle Hops
         //
-        Node ordernode = XMLHandler.getSubNode( pipelineNode, XML_TAG_ORDER );
-        int n = XMLHandler.countNodes( ordernode, PipelineHopMeta.XML_HOP_TAG );
+        Node ordernode = XmlHandler.getSubNode( pipelineNode, XML_TAG_ORDER );
+        int n = XmlHandler.countNodes( ordernode, PipelineHopMeta.XML_HOP_TAG );
 
         if ( log.isDebug() ) {
           log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.WeHaveHops" ) + n + " hops..." );
@@ -2407,7 +2407,7 @@ public class PipelineMeta extends AbstractMeta
           if ( log.isDebug() ) {
             log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtHop" ) + i );
           }
-          Node hopnode = XMLHandler.getSubNodeByNr( ordernode, PipelineHopMeta.XML_HOP_TAG, i );
+          Node hopnode = XmlHandler.getSubNodeByNr( ordernode, PipelineHopMeta.XML_HOP_TAG, i );
 
           PipelineHopMeta hopinf = new PipelineHopMeta( hopnode, transforms );
           hopinf.setErrorHop( isErrorNode( errorHandlingNode, hopnode ) );
@@ -2417,108 +2417,108 @@ public class PipelineMeta extends AbstractMeta
         //
         // get pipeline info:
         //
-        Node infonode = XMLHandler.getSubNode( pipelineNode, XML_TAG_INFO );
+        Node infonode = XmlHandler.getSubNode( pipelineNode, XML_TAG_INFO );
 
         // Name
         //
-        setName( XMLHandler.getTagValue( infonode, "name" ) );
+        setName( XmlHandler.getTagValue( infonode, "name" ) );
 
         // description
         //
-        description = XMLHandler.getTagValue( infonode, "description" );
+        description = XmlHandler.getTagValue( infonode, "description" );
 
         // extended description
         //
-        extendedDescription = XMLHandler.getTagValue( infonode, "extended_description" );
+        extendedDescription = XmlHandler.getTagValue( infonode, "extended_description" );
 
         // pipeline version
         //
-        pipelineVersion = XMLHandler.getTagValue( infonode, "pipeline_version" );
+        pipelineVersion = XmlHandler.getTagValue( infonode, "pipeline_version" );
 
         // pipeline status
         //
-        pipelineStatus = Const.toInt( XMLHandler.getTagValue( infonode, "pipeline_status" ), -1 );
+        pipelineStatus = Const.toInt( XmlHandler.getTagValue( infonode, "pipeline_status" ), -1 );
 
-        String pipelineTypeCode = XMLHandler.getTagValue( infonode, "pipeline_type" );
+        String pipelineTypeCode = XmlHandler.getTagValue( infonode, "pipeline_type" );
         pipelineType = PipelineType.getPipelineTypeByCode( pipelineTypeCode );
 
         // Read logging table information
         //
-        Node logNode = XMLHandler.getSubNode( infonode, "log" );
+        Node logNode = XmlHandler.getSubNode( infonode, "log" );
         if ( logNode != null ) {
 
           // Backward compatibility...
           //
-          Node pipelineLogNode = XMLHandler.getSubNode( logNode, PipelineLogTable.XML_TAG );
+          Node pipelineLogNode = XmlHandler.getSubNode( logNode, PipelineLogTable.XML_TAG );
           if ( pipelineLogNode == null ) {
             // Load the XML
             //
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_READ )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "read" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "read" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_WRITTEN )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "write" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "write" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_INPUT )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "input" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "input" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_OUTPUT )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "output" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "output" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_UPDATED )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "update" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "update" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED )
-              .setSubject( findTransform( XMLHandler.getTagValue( infonode, "log", "rejected" ) ) );
+              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "rejected" ) ) );
 
-            pipelineLogTable.setConnectionName( XMLHandler.getTagValue( infonode, "log", "connection" ) );
-            pipelineLogTable.setSchemaName( XMLHandler.getTagValue( infonode, "log", "schema" ) );
-            pipelineLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "table" ) );
+            pipelineLogTable.setConnectionName( XmlHandler.getTagValue( infonode, "log", "connection" ) );
+            pipelineLogTable.setSchemaName( XmlHandler.getTagValue( infonode, "log", "schema" ) );
+            pipelineLogTable.setTableName( XmlHandler.getTagValue( infonode, "log", "table" ) );
             pipelineLogTable.findField( PipelineLogTable.ID.ID_BATCH )
-              .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "use_batchid" ) ) );
+              .setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "log", "use_batchid" ) ) );
             pipelineLogTable.findField( PipelineLogTable.ID.LOG_FIELD )
-              .setEnabled( "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "log", "USE_LOGFIELD" ) ) );
-            pipelineLogTable.setLogSizeLimit( XMLHandler.getTagValue( infonode, "log", "size_limit_lines" ) );
-            pipelineLogTable.setLogInterval( XMLHandler.getTagValue( infonode, "log", "interval" ) );
+              .setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "log", "USE_LOGFIELD" ) ) );
+            pipelineLogTable.setLogSizeLimit( XmlHandler.getTagValue( infonode, "log", "size_limit_lines" ) );
+            pipelineLogTable.setLogInterval( XmlHandler.getTagValue( infonode, "log", "interval" ) );
             pipelineLogTable.findField( PipelineLogTable.ID.CHANNEL_ID ).setEnabled( false );
             pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED ).setEnabled( false );
             performanceLogTable.setConnectionName( pipelineLogTable.getConnectionName() );
-            performanceLogTable.setTableName( XMLHandler.getTagValue( infonode, "log", "transform_performance_table" ) );
+            performanceLogTable.setTableName( XmlHandler.getTagValue( infonode, "log", "transform_performance_table" ) );
           } else {
-            pipelineLogTable.loadXML( pipelineLogNode, transforms );
+            pipelineLogTable.loadXml( pipelineLogNode, transforms );
           }
-          Node perfLogNode = XMLHandler.getSubNode( logNode, PerformanceLogTable.XML_TAG );
+          Node perfLogNode = XmlHandler.getSubNode( logNode, PerformanceLogTable.XML_TAG );
           if ( perfLogNode != null ) {
-            performanceLogTable.loadXML( perfLogNode, transforms );
+            performanceLogTable.loadXml( perfLogNode, transforms );
           }
-          Node channelLogNode = XMLHandler.getSubNode( logNode, ChannelLogTable.XML_TAG );
+          Node channelLogNode = XmlHandler.getSubNode( logNode, ChannelLogTable.XML_TAG );
           if ( channelLogNode != null ) {
-            channelLogTable.loadXML( channelLogNode, transforms );
+            channelLogTable.loadXml( channelLogNode, transforms );
           }
-          Node transformLogNode = XMLHandler.getSubNode( logNode, TransformLogTable.XML_TAG );
+          Node transformLogNode = XmlHandler.getSubNode( logNode, TransformLogTable.XML_TAG );
           if ( transformLogNode != null ) {
-            transformLogTable.loadXML( transformLogNode, transforms );
+            transformLogTable.loadXml( transformLogNode, transforms );
           }
-          Node metricsLogNode = XMLHandler.getSubNode( logNode, MetricsLogTable.XML_TAG );
+          Node metricsLogNode = XmlHandler.getSubNode( logNode, MetricsLogTable.XML_TAG );
           if ( metricsLogNode != null ) {
-            metricsLogTable.loadXML( metricsLogNode, transforms );
+            metricsLogTable.loadXml( metricsLogNode, transforms );
           }
         }
 
         // Maxdate range options...
-        String maxdatcon = XMLHandler.getTagValue( infonode, "maxdate", "connection" );
+        String maxdatcon = XmlHandler.getTagValue( infonode, "maxdate", "connection" );
         maxDateConnection = findDatabase( maxdatcon );
-        maxDateTable = XMLHandler.getTagValue( infonode, "maxdate", "table" );
-        maxDateField = XMLHandler.getTagValue( infonode, "maxdate", "field" );
-        String offset = XMLHandler.getTagValue( infonode, "maxdate", "offset" );
+        maxDateTable = XmlHandler.getTagValue( infonode, "maxdate", "table" );
+        maxDateField = XmlHandler.getTagValue( infonode, "maxdate", "field" );
+        String offset = XmlHandler.getTagValue( infonode, "maxdate", "offset" );
         maxDateOffset = Const.toDouble( offset, 0.0 );
-        String mdiff = XMLHandler.getTagValue( infonode, "maxdate", "maxdiff" );
+        String mdiff = XmlHandler.getTagValue( infonode, "maxdate", "maxdiff" );
         maxDateDifference = Const.toDouble( mdiff, 0.0 );
 
         // Check the dependencies as far as dates are concerned...
         // We calculate BEFORE we run the MAX of these dates
         // If the date is larger then enddate, startdate is set to MIN_DATE
         //
-        Node depsNode = XMLHandler.getSubNode( infonode, XML_TAG_DEPENDENCIES );
-        int nrDeps = XMLHandler.countNodes( depsNode, PipelineDependency.XML_TAG );
+        Node depsNode = XmlHandler.getSubNode( infonode, XML_TAG_DEPENDENCIES );
+        int nrDeps = XmlHandler.countNodes( depsNode, PipelineDependency.XML_TAG );
 
         for ( int i = 0; i < nrDeps; i++ ) {
-          Node depNode = XMLHandler.getSubNodeByNr( depsNode, PipelineDependency.XML_TAG, i );
+          Node depNode = XmlHandler.getSubNodeByNr( depsNode, PipelineDependency.XML_TAG, i );
 
           PipelineDependency pipelineDependency = new PipelineDependency( depNode, getDatabases() );
           if ( pipelineDependency.getDatabase() != null && pipelineDependency.getFieldname() != null ) {
@@ -2527,59 +2527,59 @@ public class PipelineMeta extends AbstractMeta
         }
 
         // Read the named parameters.
-        Node paramsNode = XMLHandler.getSubNode( infonode, XML_TAG_PARAMETERS );
-        int nrParams = XMLHandler.countNodes( paramsNode, "parameter" );
+        Node paramsNode = XmlHandler.getSubNode( infonode, XML_TAG_PARAMETERS );
+        int nrParams = XmlHandler.countNodes( paramsNode, "parameter" );
 
         for ( int i = 0; i < nrParams; i++ ) {
-          Node paramNode = XMLHandler.getSubNodeByNr( paramsNode, "parameter", i );
+          Node paramNode = XmlHandler.getSubNodeByNr( paramsNode, "parameter", i );
 
-          String paramName = XMLHandler.getTagValue( paramNode, "name" );
-          String defaultValue = XMLHandler.getTagValue( paramNode, "default_value" );
-          String descr = XMLHandler.getTagValue( paramNode, "description" );
+          String paramName = XmlHandler.getTagValue( paramNode, "name" );
+          String defaultValue = XmlHandler.getTagValue( paramNode, "default_value" );
+          String descr = XmlHandler.getTagValue( paramNode, "description" );
 
           addParameterDefinition( paramName, defaultValue, descr );
         }
 
         // Read the partitioning schemas
         //
-        Node partSchemasNode = XMLHandler.getSubNode( infonode, XML_TAG_PARTITIONSCHEMAS );
-        int nrPartSchemas = XMLHandler.countNodes( partSchemasNode, PartitionSchema.XML_TAG );
+        Node partSchemasNode = XmlHandler.getSubNode( infonode, XML_TAG_PARTITIONSCHEMAS );
+        int nrPartSchemas = XmlHandler.countNodes( partSchemasNode, PartitionSchema.XML_TAG );
         for ( int i = 0; i < nrPartSchemas; i++ ) {
-          Node partSchemaNode = XMLHandler.getSubNodeByNr( partSchemasNode, PartitionSchema.XML_TAG, i );
+          Node partSchemaNode = XmlHandler.getSubNodeByNr( partSchemasNode, PartitionSchema.XML_TAG, i );
           PartitionSchema partitionSchema = new PartitionSchema( partSchemaNode );
 
           partitionSchemas.add( partitionSchema );
         }
 
-        String srowset = XMLHandler.getTagValue( infonode, "size_rowset" );
+        String srowset = XmlHandler.getTagValue( infonode, "size_rowset" );
         sizeRowset = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
         sleepTimeEmpty =
-          Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
-        sleepTimeFull = Const.toInt( XMLHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
-        usingUniqueConnections = "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "unique_connections" ) );
+          Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
+        sleepTimeFull = Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
+        usingUniqueConnections = "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "unique_connections" ) );
 
-        usingThreadPriorityManagment = !"N".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "using_thread_priorities" ) );
+        usingThreadPriorityManagment = !"N".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
         // Performance monitoring for transforms...
         //
         capturingTransformPerformanceSnapShots =
-          "Y".equalsIgnoreCase( XMLHandler.getTagValue( infonode, "capture_transform_performance" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "capture_transform_performance" ) );
         transformPerformanceCapturingDelay =
-          Const.toLong( XMLHandler.getTagValue( infonode, "transform_performance_capturing_delay" ), 1000 );
-        transformPerformanceCapturingSizeLimit = XMLHandler.getTagValue( infonode, "transform_performance_capturing_size_limit" );
+          Const.toLong( XmlHandler.getTagValue( infonode, "transform_performance_capturing_delay" ), 1000 );
+        transformPerformanceCapturingSizeLimit = XmlHandler.getTagValue( infonode, "transform_performance_capturing_size_limit" );
 
         // Created user/date
-        createdUser = XMLHandler.getTagValue( infonode, "created_user" );
-        String createDate = XMLHandler.getTagValue( infonode, "created_date" );
+        createdUser = XmlHandler.getTagValue( infonode, "created_user" );
+        String createDate = XmlHandler.getTagValue( infonode, "created_date" );
         if ( createDate != null ) {
-          createdDate = XMLHandler.stringToDate( createDate );
+          createdDate = XmlHandler.stringToDate( createDate );
         }
 
         // Changed user/date
-        modifiedUser = XMLHandler.getTagValue( infonode, "modified_user" );
-        String modDate = XMLHandler.getTagValue( infonode, "modified_date" );
+        modifiedUser = XmlHandler.getTagValue( infonode, "modified_user" );
+        String modDate = XmlHandler.getTagValue( infonode, "modified_date" );
         if ( modDate != null ) {
-          modifiedDate = XMLHandler.stringToDate( modDate );
+          modifiedDate = XmlHandler.stringToDate( modDate );
         }
 
         if ( log.isDebug() ) {
@@ -2590,16 +2590,16 @@ public class PipelineMeta extends AbstractMeta
 
         // Load the attribute groups map
         //
-        attributesMap = AttributesUtil.loadAttributes( XMLHandler.getSubNode( pipelineNode, AttributesUtil.XML_TAG ) );
+        attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( pipelineNode, AttributesUtil.XML_TAG ) );
 
-        keyForSessionKey = XMLHandler.stringToBinary( XMLHandler.getTagValue( infonode, "key_for_session_key" ) );
-        isKeyPrivate = "Y".equals( XMLHandler.getTagValue( infonode, "is_key_private" ) );
+        keyForSessionKey = XmlHandler.stringToBinary( XmlHandler.getTagValue( infonode, "key_for_session_key" ) );
+        isKeyPrivate = "Y".equals( XmlHandler.getTagValue( infonode, "is_key_private" ) );
 
-      } catch ( HopXMLException xe ) {
-        throw new HopXMLException( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorReadingPipeline" ),
+      } catch ( HopXmlException xe ) {
+        throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorReadingPipeline" ),
           xe );
       } catch ( HopException e ) {
-        throw new HopXMLException( e );
+        throw new HopXmlException( e );
       } finally {
         initializeVariablesFrom( null );
         if ( setInternalVariables ) {
@@ -2614,7 +2614,7 @@ public class PipelineMeta extends AbstractMeta
       if ( !missingPluginsException.getMissingPluginDetailsList().isEmpty() ) {
         throw missingPluginsException;
       } else {
-        throw new HopXMLException( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorReadingPipeline" ),
+        throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorReadingPipeline" ),
           e );
       }
     } finally {
@@ -2814,8 +2814,8 @@ public class PipelineMeta extends AbstractMeta
     if ( errorHandingNode != null ) {
       NodeList errors = errorHandingNode.getChildNodes();
 
-      Node nodeHopFrom = XMLHandler.getSubNode( checkNode, PipelineHopMeta.XML_FROM_TAG );
-      Node nodeHopTo = XMLHandler.getSubNode( checkNode, PipelineHopMeta.XML_TO_TAG );
+      Node nodeHopFrom = XmlHandler.getSubNode( checkNode, PipelineHopMeta.XML_FROM_TAG );
+      Node nodeHopTo = XmlHandler.getSubNode( checkNode, PipelineHopMeta.XML_TO_TAG );
 
       int i = 0;
       while ( i < errors.getLength() ) {
@@ -2827,8 +2827,8 @@ public class PipelineMeta extends AbstractMeta
           continue;
         }
 
-        Node errorSourceNode = XMLHandler.getSubNode( errorNode, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG );
-        Node errorTagetNode = XMLHandler.getSubNode( errorNode, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG );
+        Node errorSourceNode = XmlHandler.getSubNode( errorNode, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG );
+        Node errorTagetNode = XmlHandler.getSubNode( errorNode, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG );
 
         String sourceContent = errorSourceNode.getTextContent().trim();
         String tagetContent = errorTagetNode.getTextContent().trim();
@@ -3416,25 +3416,25 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
    *
-   * @return An ArrayList of SQLStatement objects.
+   * @return An ArrayList of SqlStatement objects.
    * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public List<SQLStatement> getSQLStatements() throws HopTransformException {
-    return getSQLStatements( null );
+  public List<SqlStatement> getSqlStatements() throws HopTransformException {
+    return getSqlStatements( null );
   }
 
   /**
    * Builds a list of all the SQL statements that this pipeline needs in order to work properly.
    *
    * @param monitor a progress monitor listener to be updated as the SQL statements are generated
-   * @return An ArrayList of SQLStatement objects.
+   * @return An ArrayList of SqlStatement objects.
    * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public List<SQLStatement> getSQLStatements( IProgressMonitor monitor ) throws HopTransformException {
+  public List<SqlStatement> getSqlStatements( IProgressMonitor monitor ) throws HopTransformException {
     if ( monitor != null ) {
       monitor.beginTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForPipelineTask.Title" ), nrTransforms() + 1 );
     }
-    List<SQLStatement> stats = new ArrayList<>();
+    List<SqlStatement> stats = new ArrayList<>();
 
     for ( int i = 0; i < nrTransforms(); i++ ) {
       TransformMeta transformMeta = getTransform( i );
@@ -3443,8 +3443,8 @@ public class PipelineMeta extends AbstractMeta
           BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForTransformTask.Title", "" + transformMeta ) );
       }
       IRowMeta prev = getPrevTransformFields( transformMeta );
-      SQLStatement sql = transformMeta.getTransformMetaInterface().getSQLStatements( this, transformMeta, prev, metaStore );
-      if ( sql.getSQL() != null || sql.hasError() ) {
+      SqlStatement sql = transformMeta.getTransformMetaInterface().getSqlStatements( this, transformMeta, prev, metaStore );
+      if ( sql.getSql() != null || sql.hasError() ) {
         stats.add( sql );
       }
       if ( monitor != null ) {
@@ -3477,7 +3477,7 @@ public class PipelineMeta extends AbstractMeta
                   .getQuotedSchemaTableCombination( logTable.getSchemaName(), logTable.getTableName() );
               String sql = db.getDDL( schemaTable, fields );
               if ( !Utils.isEmpty( sql ) ) {
-                SQLStatement stat = new SQLStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), sql );
+                SqlStatement stat = new SqlStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), sql );
                 stats.add( stat );
               }
             } catch ( Exception e ) {
@@ -3491,7 +3491,7 @@ public class PipelineMeta extends AbstractMeta
           }
         }
       } catch ( HopDatabaseException dbe ) {
-        SQLStatement stat = new SQLStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), null );
+        SqlStatement stat = new SqlStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), null );
         stat.setError(
           BaseMessages.getString( PKG, "PipelineMeta.SQLStatement.ErrorDesc.ErrorObtainingPipelineLogTableInfo" )
             + dbe.getMessage() );
@@ -3514,13 +3514,13 @@ public class PipelineMeta extends AbstractMeta
    * @return the SQL statements needed to run this pipeline
    * @throws HopTransformException if any errors occur during SQL statement generation
    */
-  public String getSQLStatementsString() throws HopTransformException {
+  public String getSqlStatementsString() throws HopTransformException {
     String sql = "";
-    List<SQLStatement> stats = getSQLStatements();
+    List<SqlStatement> stats = getSqlStatements();
     for ( int i = 0; i < stats.size(); i++ ) {
-      SQLStatement stat = stats.get( i );
+      SqlStatement stat = stats.get( i );
       if ( !stat.hasError() && stat.hasSQL() ) {
-        sql += stat.getSQL();
+        sql += stat.getSql();
       }
     }
 
@@ -4733,22 +4733,22 @@ public class PipelineMeta extends AbstractMeta
    * Utility method to write the XML of this pipeline to a file, mostly for testing purposes.
    *
    * @param filename The filename to save to
-   * @throws HopXMLException in case something goes wrong.
+   * @throws HopXmlException in case something goes wrong.
    */
-  public void writeXML( String filename ) throws HopXMLException {
+  public void writeXML( String filename ) throws HopXmlException {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream( filename );
-      fos.write( XMLHandler.getXMLHeader().getBytes( Const.XML_ENCODING ) );
+      fos.write( XmlHandler.getXMLHeader().getBytes( Const.XML_ENCODING ) );
       fos.write( getXml().getBytes( Const.XML_ENCODING ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to save to XML file '" + filename + "'", e );
+      throw new HopXmlException( "Unable to save to XML file '" + filename + "'", e );
     } finally {
       if ( fos != null ) {
         try {
           fos.close();
         } catch ( IOException e ) {
-          throw new HopXMLException( "Unable to close file '" + filename + "'", e );
+          throw new HopXmlException( "Unable to close file '" + filename + "'", e );
         }
       }
     }
@@ -4897,7 +4897,7 @@ public class PipelineMeta extends AbstractMeta
     for ( TransformMeta transform : transforms ) {
       hashCodeBuilder
         .append( transform.getName() )
-        .append( transform.getTransformMetaInterface().getXML() )
+        .append( transform.getTransformMetaInterface().getXml() )
         .append( transform.isDoingErrorHandling() );
     }
     return hashCodeBuilder.toHashCode();

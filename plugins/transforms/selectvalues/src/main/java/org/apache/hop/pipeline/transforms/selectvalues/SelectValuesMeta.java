@@ -29,7 +29,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.FieldnameLineage;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -214,7 +214,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -265,38 +265,38 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
     return retval;
   }
 
-  private void readData( Node transform ) throws HopXMLException {
+  private void readData( Node transform ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transform, "fields" );
+      Node fields = XmlHandler.getSubNode( transform, "fields" );
 
-      int nrFields = XMLHandler.countNodes( fields, "field" );
-      int nrremove = XMLHandler.countNodes( fields, "remove" );
-      int nrmeta = XMLHandler.countNodes( fields, SelectMetadataChange.XML_TAG );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
+      int nrremove = XmlHandler.countNodes( fields, "remove" );
+      int nrmeta = XmlHandler.countNodes( fields, SelectMetadataChange.XML_TAG );
       allocate( nrFields, nrremove, nrmeta );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node line = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node line = XmlHandler.getSubNodeByNr( fields, "field", i );
         selectFields[ i ] = new SelectField();
-        selectFields[ i ].setName( XMLHandler.getTagValue( line, "name" ) );
-        selectFields[ i ].setRename( XMLHandler.getTagValue( line, "rename" ) );
-        selectFields[ i ].setLength( Const.toInt( XMLHandler.getTagValue( line, "length" ), UNDEFINED ) ); // $NON-NtagLS-1$
-        selectFields[ i ].setPrecision( Const.toInt( XMLHandler.getTagValue( line, "precision" ), UNDEFINED ) );
+        selectFields[ i ].setName( XmlHandler.getTagValue( line, "name" ) );
+        selectFields[ i ].setRename( XmlHandler.getTagValue( line, "rename" ) );
+        selectFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( line, "length" ), UNDEFINED ) ); // $NON-NtagLS-1$
+        selectFields[ i ].setPrecision( Const.toInt( XmlHandler.getTagValue( line, "precision" ), UNDEFINED ) );
       }
       selectingAndSortingUnspecifiedFields =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( fields, "select_unspecified" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( fields, "select_unspecified" ) );
 
       for ( int i = 0; i < nrremove; i++ ) {
-        Node line = XMLHandler.getSubNodeByNr( fields, "remove", i );
-        deleteName[ i ] = XMLHandler.getTagValue( line, "name" );
+        Node line = XmlHandler.getSubNodeByNr( fields, "remove", i );
+        deleteName[ i ] = XmlHandler.getTagValue( line, "name" );
       }
 
       for ( int i = 0; i < nrmeta; i++ ) {
-        Node metaNode = XMLHandler.getSubNodeByNr( fields, SelectMetadataChange.XML_TAG, i );
+        Node metaNode = XmlHandler.getSubNodeByNr( fields, SelectMetadataChange.XML_TAG, i );
         meta[ i ] = new SelectMetadataChange( this );
-        meta[ i ].loadXML( metaNode );
+        meta[ i ].loadXml( metaNode );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG,
+      throw new HopXmlException( BaseMessages.getString( PKG,
         "SelectValuesMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -487,33 +487,33 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <fields>" );
     for ( int i = 0; i < selectFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_NAME" ), selectFields[ i ]
+      retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_NAME" ), selectFields[ i ]
         .getName() ) );
       if ( selectFields[ i ].getRename() != null ) {
-        retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_RENAME" ), selectFields[ i ]
+        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_RENAME" ), selectFields[ i ]
           .getRename() ) );
       }
       if ( selectFields[ i ].getPrecision() > 0 ) {
-        retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_LENGTH" ), selectFields[ i ]
+        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_LENGTH" ), selectFields[ i ]
           .getLength() ) );
       }
       if ( selectFields[ i ].getPrecision() > 0 ) {
-        retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "FIELD_PRECISION" ), selectFields[ i ]
+        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_PRECISION" ), selectFields[ i ]
           .getPrecision() ) );
       }
       retval.append( "      </field>" );
     }
-    retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "SELECT_UNSPECIFIED" ),
+    retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "SELECT_UNSPECIFIED" ),
       selectingAndSortingUnspecifiedFields ) );
     for ( int i = 0; i < deleteName.length; i++ ) {
       retval.append( "      <remove>" );
-      retval.append( "        " ).append( XMLHandler.addTagValue( getXmlCode( "REMOVE_NAME" ), deleteName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "REMOVE_NAME" ), deleteName[ i ] ) );
       retval.append( "      </remove>" );
     }
     for ( int i = 0; i < meta.length; i++ ) {

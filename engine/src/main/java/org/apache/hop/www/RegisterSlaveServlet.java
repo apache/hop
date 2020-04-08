@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -129,15 +129,15 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements IHopServerP
     // We always use XML to reply here...
     //
     response.setContentType( "text/xml" );
-    out.print( XMLHandler.getXMLHeader() );
+    out.print( XmlHandler.getXMLHeader() );
     response.setStatus( HttpServletResponse.SC_OK );
 
     try {
       // First read the slave server information in memory from the request
       // Parse the XML, create a pipeline configuration
       //
-      Document document = XMLHandler.loadXMLFile( request.getInputStream() );
-      Node node = XMLHandler.getSubNode( document, SlaveServerDetection.XML_TAG );
+      Document document = XmlHandler.loadXMLFile( request.getInputStream() );
+      Node node = XmlHandler.getSubNode( document, SlaveServerDetection.XML_TAG );
       SlaveServerDetection slaveServerDetection = new SlaveServerDetection( node );
 
       // See if this slave server is already in our list...

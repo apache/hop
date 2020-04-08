@@ -27,7 +27,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -62,15 +62,15 @@ public class SlaveServerPipelineStatusTest {
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
     SlaveServerPipelineStatus ts = new SlaveServerPipelineStatus( pipelineName, id, status );
-    String resultXML = ts.getXML();
-    Node newPipelineStatus = XMLHandler.getSubNode( XMLHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
+    String resultXML = ts.getXml();
+    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerPipelineStatus.fromXML( resultXML ).getXML() );
+      SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XMLHandler.countNodes( newPipelineStatus, "log_date" ) );
+      XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
     assertTrue( "The \"log_date\" node should have a null value",
-      Utils.isEmpty( XMLHandler.getTagValue( newPipelineStatus, "log_date" ) ) );
+      Utils.isEmpty( XmlHandler.getTagValue( newPipelineStatus, "log_date" ) ) );
   }
 
   @Test
@@ -81,15 +81,15 @@ public class SlaveServerPipelineStatusTest {
     Date logDate = new Date();
     SlaveServerPipelineStatus ts = new SlaveServerPipelineStatus( pipelineName, id, status );
     ts.setLogDate( logDate );
-    String resultXML = ts.getXML();
-    Node newPipelineStatus = XMLHandler.getSubNode( XMLHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
+    String resultXML = ts.getXml();
+    Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerPipelineStatus.fromXML( resultXML ).getXML() );
+      SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XMLHandler.countNodes( newPipelineStatus, "log_date" ) );
-    assertEquals( "The \"log_date\" node should match the original value", XMLHandler.date2string( logDate ),
-      XMLHandler.getTagValue( newPipelineStatus, "log_date" ) );
+      XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
+    assertEquals( "The \"log_date\" node should match the original value", XmlHandler.date2string( logDate ),
+      XmlHandler.getTagValue( newPipelineStatus, "log_date" ) );
   }
 
   @Test
@@ -117,7 +117,7 @@ public class SlaveServerPipelineStatusTest {
     result.setRows( rows );
     pipelineStatus.setResult( result );
     //PDI-15781
-    Assert.assertFalse( pipelineStatus.getXML().contains( testData ) );
+    Assert.assertFalse( pipelineStatus.getXml().contains( testData ) );
     //PDI-17061
     Assert.assertTrue( pipelineStatus.getXML( true ).contains( testData ) );
   }

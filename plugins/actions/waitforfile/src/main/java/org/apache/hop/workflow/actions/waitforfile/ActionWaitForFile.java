@@ -29,11 +29,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -95,32 +95,32 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "file_size_check", fileSizeCheck ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "file_size_check", fileSizeCheck ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_filename_result", addFilenameToResult ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      maximumTimeout = XMLHandler.getTagValue( entrynode, "maximum_timeout" );
-      checkCycleTime = XMLHandler.getTagValue( entrynode, "check_cycle_time" );
-      successOnTimeout = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "success_on_timeout" ) );
-      fileSizeCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "file_size_check" ) );
-      addFilenameToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'wait for file' from XML node", xe );
+      super.loadXml( entrynode );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      maximumTimeout = XmlHandler.getTagValue( entrynode, "maximum_timeout" );
+      checkCycleTime = XmlHandler.getTagValue( entrynode, "check_cycle_time" );
+      successOnTimeout = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "success_on_timeout" ) );
+      fileSizeCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "file_size_check" ) );
+      addFilenameToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_filename_result" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'wait for file' from XML node", xe );
     }
   }
 

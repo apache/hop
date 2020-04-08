@@ -136,7 +136,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     return "SELECT nextval('" + sequenceName + "')";
   }
 
@@ -147,7 +147,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL to get the next value of a sequence.
    */
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     return "SELECT currval('" + sequenceName + "')";
   }
 
@@ -158,12 +158,12 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return "SELECT relname AS sequence_name FROM sys_class WHERE relname = '" + sequenceName.toLowerCase() + "'";
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT relname AS sequence_name FROM sys_class";
   }
 
@@ -299,7 +299,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @param the schema name to search in or null if you want to search the whole DB
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures() {
+  public String getSqlListOfProcedures() {
     return "select proname "
       + "from sys_proc, sys_user " + "where sys_user.usesysid = sys_proc.proowner "
       + "and upper(sys_user.usename) = '" + getUsername().toUpperCase() + "'";
@@ -395,7 +395,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL commands to lock database tables for write purposes.
    */
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     String sql = "LOCK TABLE ";
     for ( int i = 0; i < tableNames.length; i++ ) {
       if ( i > 0 ) {
@@ -413,7 +413,7 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return The SQL command to unlock a database table.
    */
   @Override
-  public String getSQLUnlockTables( String[] tableName ) {
+  public String getSqlUnlockTables( String[] tableName ) {
     return null; // commit unlocks everything!
   }
 

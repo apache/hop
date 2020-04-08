@@ -32,7 +32,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
@@ -49,7 +49,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.AliasedFileObject;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -331,94 +331,94 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      inputFiles.acceptingFilenames = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "accept_filenames" ) );
+      inputFiles.acceptingFilenames = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "accept_filenames" ) );
       inputFiles.passingThruFields =
-        YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "passing_through_fields" ) );
-      inputFiles.acceptingField = XMLHandler.getTagValue( transformNode, "accept_field" );
-      inputFiles.acceptingTransformName = XMLHandler.getTagValue( transformNode, "accept_transform_name" );
+        YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "passing_through_fields" ) );
+      inputFiles.acceptingField = XmlHandler.getTagValue( transformNode, "accept_field" );
+      inputFiles.acceptingTransformName = XmlHandler.getTagValue( transformNode, "accept_transform_name" );
 
-      content.separator = XMLHandler.getTagValue( transformNode, "separator" );
-      content.enclosure = XMLHandler.getTagValue( transformNode, "enclosure" );
-      content.breakInEnclosureAllowed = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "enclosure_breaks" ) );
-      content.escapeCharacter = XMLHandler.getTagValue( transformNode, "escapechar" );
-      content.header = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "header" ) );
-      content.nrHeaderLines = Const.toInt( XMLHandler.getTagValue( transformNode, "nr_headerlines" ), 1 );
-      content.footer = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "footer" ) );
-      content.nrFooterLines = Const.toInt( XMLHandler.getTagValue( transformNode, "nr_footerlines" ), 1 );
-      content.lineWrapped = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "line_wrapped" ) );
-      content.nrWraps = Const.toInt( XMLHandler.getTagValue( transformNode, "nr_wraps" ), 1 );
-      content.layoutPaged = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "layout_paged" ) );
-      content.nrLinesPerPage = Const.toInt( XMLHandler.getTagValue( transformNode, "nr_lines_per_page" ), 1 );
-      content.nrLinesDocHeader = Const.toInt( XMLHandler.getTagValue( transformNode, "nr_lines_doc_header" ), 1 );
-      String addToResult = XMLHandler.getTagValue( transformNode, "add_to_result_filenames" );
+      content.separator = XmlHandler.getTagValue( transformNode, "separator" );
+      content.enclosure = XmlHandler.getTagValue( transformNode, "enclosure" );
+      content.breakInEnclosureAllowed = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "enclosure_breaks" ) );
+      content.escapeCharacter = XmlHandler.getTagValue( transformNode, "escapechar" );
+      content.header = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "header" ) );
+      content.nrHeaderLines = Const.toInt( XmlHandler.getTagValue( transformNode, "nr_headerlines" ), 1 );
+      content.footer = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "footer" ) );
+      content.nrFooterLines = Const.toInt( XmlHandler.getTagValue( transformNode, "nr_footerlines" ), 1 );
+      content.lineWrapped = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "line_wrapped" ) );
+      content.nrWraps = Const.toInt( XmlHandler.getTagValue( transformNode, "nr_wraps" ), 1 );
+      content.layoutPaged = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "layout_paged" ) );
+      content.nrLinesPerPage = Const.toInt( XmlHandler.getTagValue( transformNode, "nr_lines_per_page" ), 1 );
+      content.nrLinesDocHeader = Const.toInt( XmlHandler.getTagValue( transformNode, "nr_lines_doc_header" ), 1 );
+      String addToResult = XmlHandler.getTagValue( transformNode, "add_to_result_filenames" );
       if ( Utils.isEmpty( addToResult ) ) {
         inputFiles.isaddresult = true;
       } else {
         inputFiles.isaddresult = "Y".equalsIgnoreCase( addToResult );
       }
 
-      String nempty = XMLHandler.getTagValue( transformNode, "noempty" );
+      String nempty = XmlHandler.getTagValue( transformNode, "noempty" );
       content.noEmptyLines = YES.equalsIgnoreCase( nempty ) || nempty == null;
-      content.includeFilename = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include" ) );
-      content.filenameField = XMLHandler.getTagValue( transformNode, "include_field" );
-      content.includeRowNumber = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      content.rowNumberByFile = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownumByFile" ) );
-      content.rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      content.fileFormat = XMLHandler.getTagValue( transformNode, "format" );
-      content.encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      content.length = XMLHandler.getTagValue( transformNode, "length" );
+      content.includeFilename = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include" ) );
+      content.filenameField = XmlHandler.getTagValue( transformNode, "include_field" );
+      content.includeRowNumber = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      content.rowNumberByFile = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownumByFile" ) );
+      content.rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      content.fileFormat = XmlHandler.getTagValue( transformNode, "format" );
+      content.encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      content.length = XmlHandler.getTagValue( transformNode, "length" );
 
-      Node filenode = XMLHandler.getSubNode( transformNode, "file" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      Node filtersNode = XMLHandler.getSubNode( transformNode, "filters" );
-      int nrfiles = XMLHandler.countNodes( filenode, "name" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
-      int nrfilters = XMLHandler.countNodes( filtersNode, "filter" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      Node filtersNode = XmlHandler.getSubNode( transformNode, "filters" );
+      int nrfiles = XmlHandler.countNodes( filenode, "name" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
+      int nrfilters = XmlHandler.countNodes( filtersNode, "filter" );
 
       allocate( nrfiles, nrFields, nrfilters );
 
       for ( int i = 0; i < nrfiles; i++ ) {
-        Node filenamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
-        Node filemasknode = XMLHandler.getSubNodeByNr( filenode, "filemask", i );
-        Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
-        Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
+        Node filenamenode = XmlHandler.getSubNodeByNr( filenode, "name", i );
+        Node filemasknode = XmlHandler.getSubNodeByNr( filenode, "filemask", i );
+        Node excludefilemasknode = XmlHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
+        Node fileRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
+        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr( filenode, "include_subfolders", i );
         inputFiles.fileName[ i ] = loadSource( filenode, filenamenode, i, metaStore );
-        inputFiles.fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
-        inputFiles.excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
-        inputFiles.fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
-        inputFiles.includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        inputFiles.fileMask[ i ] = XmlHandler.getNodeValue( filemasknode );
+        inputFiles.excludeFileMask[ i ] = XmlHandler.getNodeValue( excludefilemasknode );
+        inputFiles.fileRequired[ i ] = XmlHandler.getNodeValue( fileRequirednode );
+        inputFiles.includeSubFolders[ i ] = XmlHandler.getNodeValue( includeSubFoldersnode );
       }
 
-      content.fileType = XMLHandler.getTagValue( transformNode, "file", "type" );
-      content.fileCompression = XMLHandler.getTagValue( transformNode, "file", "compression" );
+      content.fileType = XmlHandler.getTagValue( transformNode, "file", "type" );
+      content.fileCompression = XmlHandler.getTagValue( transformNode, "file", "compression" );
       if ( content.fileCompression == null ) {
         content.fileCompression = "None";
-        if ( YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "zipped" ) ) ) {
+        if ( YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "zipped" ) ) ) {
           content.fileCompression = "Zip";
         }
       }
 
       // Backward compatibility : just one filter
-      if ( XMLHandler.getTagValue( transformNode, "filter" ) != null ) {
+      if ( XmlHandler.getTagValue( transformNode, "filter" ) != null ) {
         filter = new TextFileFilter[ 1 ];
         filter[ 0 ] = new TextFileFilter();
 
-        filter[ 0 ].setFilterPosition( Const.toInt( XMLHandler.getTagValue( transformNode, "filter_position" ), -1 ) );
-        filter[ 0 ].setFilterString( XMLHandler.getTagValue( transformNode, "filter_string" ) );
-        filter[ 0 ].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode,
+        filter[ 0 ].setFilterPosition( Const.toInt( XmlHandler.getTagValue( transformNode, "filter_position" ), -1 ) );
+        filter[ 0 ].setFilterString( XmlHandler.getTagValue( transformNode, "filter_string" ) );
+        filter[ 0 ].setFilterLastLine( YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode,
           "filter_is_last_line" ) ) );
-        filter[ 0 ].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "filter_is_positive" ) ) );
+        filter[ 0 ].setFilterPositive( YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "filter_is_positive" ) ) );
       } else {
         for ( int i = 0; i < nrfilters; i++ ) {
-          Node fnode = XMLHandler.getSubNodeByNr( filtersNode, "filter", i );
+          Node fnode = XmlHandler.getSubNodeByNr( filtersNode, "filter", i );
           filter[ i ] = new TextFileFilter();
 
-          filter[ i ].setFilterPosition( Const.toInt( XMLHandler.getTagValue( fnode, "filter_position" ), -1 ) );
+          filter[ i ].setFilterPosition( Const.toInt( XmlHandler.getTagValue( fnode, "filter_position" ), -1 ) );
 
-          String filterString = XMLHandler.getTagValue( fnode, "filter_string" );
+          String filterString = XmlHandler.getTagValue( fnode, "filter_string" );
           if ( filterString != null && filterString.startsWith( STRING_BASE64_PREFIX ) ) {
             filter[ i ].setFilterString( new String( Base64.decodeBase64( filterString.substring( STRING_BASE64_PREFIX
               .length() ).getBytes() ) ) );
@@ -426,73 +426,73 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
             filter[ i ].setFilterString( filterString );
           }
 
-          filter[ i ].setFilterLastLine( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_last_line" ) ) );
-          filter[ i ].setFilterPositive( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "filter_is_positive" ) ) );
+          filter[ i ].setFilterLastLine( YES.equalsIgnoreCase( XmlHandler.getTagValue( fnode, "filter_is_last_line" ) ) );
+          filter[ i ].setFilterPositive( YES.equalsIgnoreCase( XmlHandler.getTagValue( fnode, "filter_is_positive" ) ) );
         }
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         BaseFileField field = new BaseFileField();
 
-        field.setName( XMLHandler.getTagValue( fnode, "name" ) );
-        field.setType( ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        field.setFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        field.setCurrencySymbol( XMLHandler.getTagValue( fnode, "currency" ) );
-        field.setDecimalSymbol( XMLHandler.getTagValue( fnode, "decimal" ) );
-        field.setGroupSymbol( XMLHandler.getTagValue( fnode, "group" ) );
-        field.setNullString( XMLHandler.getTagValue( fnode, "nullif" ) );
-        field.setIfNullValue( XMLHandler.getTagValue( fnode, "ifnull" ) );
-        field.setPosition( Const.toInt( XMLHandler.getTagValue( fnode, "position" ), -1 ) );
-        field.setLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        field.setPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
-        field.setTrimType( ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
-        field.setRepeated( YES.equalsIgnoreCase( XMLHandler.getTagValue( fnode, "repeat" ) ) );
+        field.setName( XmlHandler.getTagValue( fnode, "name" ) );
+        field.setType( ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
+        field.setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+        field.setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
+        field.setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
+        field.setGroupSymbol( XmlHandler.getTagValue( fnode, "group" ) );
+        field.setNullString( XmlHandler.getTagValue( fnode, "nullif" ) );
+        field.setIfNullValue( XmlHandler.getTagValue( fnode, "ifnull" ) );
+        field.setPosition( Const.toInt( XmlHandler.getTagValue( fnode, "position" ), -1 ) );
+        field.setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+        field.setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
+        field.setTrimType( ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
+        field.setRepeated( YES.equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
 
         inputFields[ i ] = field;
       }
 
       // Is there a limit on the number of rows we process?
-      content.rowLimit = Const.toLong( XMLHandler.getTagValue( transformNode, "limit" ), 0L );
+      content.rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
 
-      errorHandling.errorIgnored = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "error_ignored" ) );
-      errorHandling.skipBadFiles = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "skip_bad_files" ) );
-      errorHandling.fileErrorField = XMLHandler.getTagValue( transformNode, "file_error_field" );
-      errorHandling.fileErrorMessageField = XMLHandler.getTagValue( transformNode, "file_error_message_field" );
-      errorLineSkipped = YES.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "error_line_skipped" ) );
-      errorCountField = XMLHandler.getTagValue( transformNode, "error_count_field" );
-      errorFieldsField = XMLHandler.getTagValue( transformNode, "error_fields_field" );
-      errorTextField = XMLHandler.getTagValue( transformNode, "error_text_field" );
+      errorHandling.errorIgnored = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "error_ignored" ) );
+      errorHandling.skipBadFiles = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "skip_bad_files" ) );
+      errorHandling.fileErrorField = XmlHandler.getTagValue( transformNode, "file_error_field" );
+      errorHandling.fileErrorMessageField = XmlHandler.getTagValue( transformNode, "file_error_message_field" );
+      errorLineSkipped = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "error_line_skipped" ) );
+      errorCountField = XmlHandler.getTagValue( transformNode, "error_count_field" );
+      errorFieldsField = XmlHandler.getTagValue( transformNode, "error_fields_field" );
+      errorTextField = XmlHandler.getTagValue( transformNode, "error_text_field" );
       errorHandling.warningFilesDestinationDirectory =
-        XMLHandler.getTagValue( transformNode, "bad_line_files_destination_directory" );
-      errorHandling.warningFilesExtension = XMLHandler.getTagValue( transformNode, "bad_line_files_extension" );
+        XmlHandler.getTagValue( transformNode, "bad_line_files_destination_directory" );
+      errorHandling.warningFilesExtension = XmlHandler.getTagValue( transformNode, "bad_line_files_extension" );
       errorHandling.errorFilesDestinationDirectory =
-        XMLHandler.getTagValue( transformNode, "error_line_files_destination_directory" );
-      errorHandling.errorFilesExtension = XMLHandler.getTagValue( transformNode, "error_line_files_extension" );
+        XmlHandler.getTagValue( transformNode, "error_line_files_destination_directory" );
+      errorHandling.errorFilesExtension = XmlHandler.getTagValue( transformNode, "error_line_files_extension" );
       errorHandling.lineNumberFilesDestinationDirectory =
-        XMLHandler.getTagValue( transformNode, "line_number_files_destination_directory" );
-      errorHandling.lineNumberFilesExtension = XMLHandler.getTagValue( transformNode, "line_number_files_extension" );
+        XmlHandler.getTagValue( transformNode, "line_number_files_destination_directory" );
+      errorHandling.lineNumberFilesExtension = XmlHandler.getTagValue( transformNode, "line_number_files_extension" );
       // Backward compatible
 
-      content.dateFormatLenient = !NO.equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "date_format_lenient" ) );
-      String dateLocale = XMLHandler.getTagValue( transformNode, "date_format_locale" );
+      content.dateFormatLenient = !NO.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "date_format_lenient" ) );
+      String dateLocale = XmlHandler.getTagValue( transformNode, "date_format_locale" );
       if ( dateLocale != null ) {
         content.dateFormatLocale = EnvUtil.createLocale( dateLocale );
       } else {
         content.dateFormatLocale = Locale.getDefault();
       }
 
-      additionalOutputFields.shortFilenameField = XMLHandler.getTagValue( transformNode, "shortFileFieldName" );
-      additionalOutputFields.pathField = XMLHandler.getTagValue( transformNode, "pathFieldName" );
-      additionalOutputFields.hiddenField = XMLHandler.getTagValue( transformNode, "hiddenFieldName" );
+      additionalOutputFields.shortFilenameField = XmlHandler.getTagValue( transformNode, "shortFileFieldName" );
+      additionalOutputFields.pathField = XmlHandler.getTagValue( transformNode, "pathFieldName" );
+      additionalOutputFields.hiddenField = XmlHandler.getTagValue( transformNode, "hiddenFieldName" );
       additionalOutputFields.lastModificationField =
-        XMLHandler.getTagValue( transformNode, "lastModificationTimeFieldName" );
-      additionalOutputFields.uriField = XMLHandler.getTagValue( transformNode, "uriNameFieldName" );
-      additionalOutputFields.rootUriField = XMLHandler.getTagValue( transformNode, "rootUriNameFieldName" );
-      additionalOutputFields.extensionField = XMLHandler.getTagValue( transformNode, "extensionFieldName" );
-      additionalOutputFields.sizeField = XMLHandler.getTagValue( transformNode, "sizeFieldName" );
+        XmlHandler.getTagValue( transformNode, "lastModificationTimeFieldName" );
+      additionalOutputFields.uriField = XmlHandler.getTagValue( transformNode, "uriNameFieldName" );
+      additionalOutputFields.rootUriField = XmlHandler.getTagValue( transformNode, "rootUriNameFieldName" );
+      additionalOutputFields.extensionField = XmlHandler.getTagValue( transformNode, "extensionFieldName" );
+      additionalOutputFields.sizeField = XmlHandler.getTagValue( transformNode, "sizeFieldName" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -732,38 +732,38 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 1500 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "accept_filenames", inputFiles.acceptingFilenames ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "passing_through_fields", inputFiles.passingThruFields ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "accept_field", inputFiles.acceptingField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "accept_transform_name", ( acceptingTransform != null ? acceptingTransform
+    retval.append( "    " ).append( XmlHandler.addTagValue( "accept_filenames", inputFiles.acceptingFilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "passing_through_fields", inputFiles.passingThruFields ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "accept_field", inputFiles.acceptingField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "accept_transform_name", ( acceptingTransform != null ? acceptingTransform
       .getName() : "" ) ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "separator", content.separator ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "enclosure", content.enclosure ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "enclosure_breaks", content.breakInEnclosureAllowed ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "escapechar", content.escapeCharacter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "header", content.header ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "nr_headerlines", content.nrHeaderLines ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "footer", content.footer ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "nr_footerlines", content.nrFooterLines ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "line_wrapped", content.lineWrapped ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "nr_wraps", content.nrWraps ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "layout_paged", content.layoutPaged ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "nr_lines_per_page", content.nrLinesPerPage ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "nr_lines_doc_header", content.nrLinesDocHeader ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "noempty", content.noEmptyLines ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "include", content.includeFilename ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "include_field", content.filenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum", content.includeRowNumber ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownumByFile", content.rowNumberByFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum_field", content.rowNumberField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "format", content.fileFormat ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "encoding", content.encoding ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "length", content.length ) );
-    retval.append( "    " + XMLHandler.addTagValue( "add_to_result_filenames", inputFiles.isaddresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "separator", content.separator ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "enclosure", content.enclosure ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "enclosure_breaks", content.breakInEnclosureAllowed ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "escapechar", content.escapeCharacter ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "header", content.header ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "nr_headerlines", content.nrHeaderLines ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "footer", content.footer ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "nr_footerlines", content.nrFooterLines ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "line_wrapped", content.lineWrapped ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "nr_wraps", content.nrWraps ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "layout_paged", content.layoutPaged ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "nr_lines_per_page", content.nrLinesPerPage ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "nr_lines_doc_header", content.nrLinesDocHeader ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "noempty", content.noEmptyLines ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "include", content.includeFilename ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "include_field", content.filenameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum", content.includeRowNumber ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownumByFile", content.rowNumberByFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum_field", content.rowNumberField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "format", content.fileFormat ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", content.encoding ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "length", content.length ) );
+    retval.append( "    " + XmlHandler.addTagValue( "add_to_result_filenames", inputFiles.isaddresult ) );
 
     retval.append( "    <file>" ).append( Const.CR );
     //we need the equals by size arrays for inputFiles.fileName[i], inputFiles.fileMask[i], inputFiles.fileRequired[i], inputFiles.includeSubFolders[i]
@@ -771,13 +771,13 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
     inputFiles.normalizeAllocation( inputFiles.fileName.length );
     for ( int i = 0; i < inputFiles.fileName.length; i++ ) {
       saveSource( retval, inputFiles.fileName[ i ] );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", inputFiles.fileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", inputFiles.excludeFileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", inputFiles.fileRequired[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", inputFiles.includeSubFolders[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "filemask", inputFiles.fileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "exclude_filemask", inputFiles.excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "file_required", inputFiles.fileRequired[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", inputFiles.includeSubFolders[ i ] ) );
     }
-    retval.append( "      " ).append( XMLHandler.addTagValue( "type", content.fileType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compression", ( content.fileCompression == null )
+    retval.append( "      " ).append( XmlHandler.addTagValue( "type", content.fileType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compression", ( content.fileCompression == null )
       ? "None" : content.fileCompression ) );
     retval.append( "    </file>" ).append( Const.CR );
 
@@ -793,12 +793,12 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       String filterEncoded = filterPrefix + new String( Base64.encodeBase64( filterBytes ) );
 
       retval.append( "      <filter>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_string", filterEncoded, false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_position", filter[ i ].getFilterPosition(),
+      retval.append( "        " ).append( XmlHandler.addTagValue( "filter_string", filterEncoded, false ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "filter_position", filter[ i ].getFilterPosition(),
         false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_last_line", filter[ i ].isFilterLastLine(),
+      retval.append( "        " ).append( XmlHandler.addTagValue( "filter_is_last_line", filter[ i ].isFilterLastLine(),
         false ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "filter_is_positive", filter[ i ].isFilterPositive(),
+      retval.append( "        " ).append( XmlHandler.addTagValue( "filter_is_positive", filter[ i ].isFilterPositive(),
         false ) );
       retval.append( "      </filter>" ).append( Const.CR );
     }
@@ -809,64 +809,64 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
       BaseFileField field = inputFields[ i ];
 
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", field.getName() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "type", field.getTypeDesc() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "format", field.getFormat() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "currency", field.getCurrencySymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", field.getDecimalSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "group", field.getGroupSymbol() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "nullif", field.getNullString() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "ifnull", field.getIfNullValue() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "position", field.getPosition() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "length", field.getLength() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "precision", field.getPrecision() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type", field.getTrimTypeCode() ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "repeat", field.isRepeated() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", field.getName() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "type", field.getTypeDesc() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "format", field.getFormat() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "currency", field.getCurrencySymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", field.getDecimalSymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "group", field.getGroupSymbol() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "nullif", field.getNullString() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "ifnull", field.getIfNullValue() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "position", field.getPosition() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "length", field.getLength() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "precision", field.getPrecision() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", field.getTrimTypeCode() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "repeat", field.isRepeated() ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", content.rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", content.rowLimit ) );
 
     // ERROR HANDLING
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_ignored", errorHandling.errorIgnored ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "skip_bad_files", errorHandling.skipBadFiles ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "file_error_field", errorHandling.fileErrorField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "file_error_message_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_ignored", errorHandling.errorIgnored ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "skip_bad_files", errorHandling.skipBadFiles ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "file_error_field", errorHandling.fileErrorField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "file_error_message_field",
       errorHandling.fileErrorMessageField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_skipped", errorLineSkipped ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_count_field", errorCountField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_fields_field", errorFieldsField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_text_field", errorTextField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_line_skipped", errorLineSkipped ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_count_field", errorCountField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_fields_field", errorFieldsField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_text_field", errorTextField ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bad_line_files_destination_directory",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bad_line_files_destination_directory",
       errorHandling.warningFilesDestinationDirectory ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "bad_line_files_extension",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "bad_line_files_extension",
       errorHandling.warningFilesExtension ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_files_destination_directory",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_line_files_destination_directory",
       errorHandling.errorFilesDestinationDirectory ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "error_line_files_extension",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "error_line_files_extension",
       errorHandling.errorFilesExtension ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "line_number_files_destination_directory",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "line_number_files_destination_directory",
       errorHandling.lineNumberFilesDestinationDirectory ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "line_number_files_extension",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "line_number_files_extension",
       errorHandling.lineNumberFilesExtension ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "date_format_lenient", content.dateFormatLenient ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "date_format_locale", content.dateFormatLocale != null
+    retval.append( "    " ).append( XmlHandler.addTagValue( "date_format_lenient", content.dateFormatLenient ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "date_format_locale", content.dateFormatLocale != null
       ? content.dateFormatLocale.toString() : null ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "shortFileFieldName",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "shortFileFieldName",
       additionalOutputFields.shortFilenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "pathFieldName", additionalOutputFields.pathField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "hiddenFieldName", additionalOutputFields.hiddenField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "lastModificationTimeFieldName",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "pathFieldName", additionalOutputFields.pathField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "hiddenFieldName", additionalOutputFields.hiddenField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "lastModificationTimeFieldName",
       additionalOutputFields.lastModificationField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "uriNameFieldName", additionalOutputFields.uriField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rootUriNameFieldName",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "uriNameFieldName", additionalOutputFields.uriField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rootUriNameFieldName",
       additionalOutputFields.rootUriField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "extensionFieldName",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "extensionFieldName",
       additionalOutputFields.extensionField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sizeFieldName", additionalOutputFields.sizeField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sizeFieldName", additionalOutputFields.sizeField ) );
 
     return retval.toString();
   }
@@ -1071,11 +1071,11 @@ public class TextFileInputMeta extends BaseFileInputMeta<BaseFileInputAdditional
   }
 
   protected String loadSource( Node filenode, Node filenamenode, int i, IMetaStore metaStore ) {
-    return XMLHandler.getNodeValue( filenamenode );
+    return XmlHandler.getNodeValue( filenamenode );
   }
 
   protected void saveSource( StringBuilder retVal, String source ) {
-    retVal.append( "      " ).append( XMLHandler.addTagValue( "name", source ) );
+    retVal.append( "      " ).append( XmlHandler.addTagValue( "name", source ) );
   }
 
   @Override

@@ -115,11 +115,11 @@ public class Exasol4DatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( " WHERE ROWNUM <= 15", nativeMeta.getLimitClause( 15 ) );
-    assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSqlTableExists( "FOO" ) );
 
-    assertEquals( "SELECT /*+FIRST_ROWS*/ FOO FROM BAR WHERE 1=0", nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( "SELECT /*+FIRST_ROWS*/ FOO FROM BAR WHERE 1=0", nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT /*+FIRST_ROWS*/ FOO FROM BAR WHERE 1=0", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( "SELECT /*+FIRST_ROWS*/ FOO FROM BAR WHERE 1=0", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
 
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO DROP COLUMN BAR" + lineSep,

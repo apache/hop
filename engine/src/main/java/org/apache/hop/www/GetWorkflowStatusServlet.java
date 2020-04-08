@@ -30,7 +30,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -54,7 +54,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
   public static final String CONTEXT_PATH = "/hop/workflowStatus";
 
   private static final byte[] XML_HEADER =
-    XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
+    XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
 
   @VisibleForTesting
   HopServerStatusCache cache = HopServerStatusCache.getInstance();
@@ -278,7 +278,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             jobStatus.setResult( workflow.getResult() ); // might be null
 
 
-            String xml = jobStatus.getXML();
+            String xml = jobStatus.getXml();
             data = xml.getBytes( Charset.forName( Const.XML_ENCODING ) );
             out = response.getOutputStream();
             response.setContentLength( XML_HEADER.length + data.length );
@@ -348,7 +348,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + workflow.getStatus() + "</td>" );
-          String dateStr = XMLHandler.date2string( workflow.getLogDate() );
+          String dateStr = XmlHandler.date2string( workflow.getLogDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
           out.print( "</table>" );

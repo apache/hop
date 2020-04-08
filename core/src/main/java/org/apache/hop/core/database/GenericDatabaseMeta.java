@@ -285,9 +285,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL to insert the unknown record into the SCD.
    */
   @Override
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
+      return databaseDialect.getSqlInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
     }
     return "insert into " + schemaTable + "(" + versionField + ") values (1)";
   }
@@ -376,27 +376,27 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLQueryFields( tableName );
+      return databaseDialect.getSqlQueryFields( tableName );
     }
-    return super.getSQLQueryFields( tableName );
+    return super.getSqlQueryFields( tableName );
   }
 
   @Override
-  public String getSQLColumnExists( String columnname, String tablename ) {
+  public String getSqlColumnExists( String columnname, String tablename ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLColumnExists( columnname, tablename );
+      return databaseDialect.getSqlColumnExists( columnname, tablename );
     }
-    return super.getSQLColumnExists( columnname, tablename );
+    return super.getSqlColumnExists( columnname, tablename );
   }
 
   @Override
-  public String getSQLTableExists( String tableName ) {
+  public String getSqlTableExists( String tableName ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLTableExists( tableName );
+      return databaseDialect.getSqlTableExists( tableName );
     }
-    return super.getSQLTableExists( tableName );
+    return super.getSqlTableExists( tableName );
   }
 
   @Override
@@ -416,11 +416,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLUnlockTables( String[] tableName ) {
+  public String getSqlUnlockTables( String[] tableName ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLUnlockTables( tableName );
+      return databaseDialect.getSqlUnlockTables( tableName );
     }
-    return super.getSQLUnlockTables( tableName );
+    return super.getSqlUnlockTables( tableName );
   }
 
   @Override
@@ -504,12 +504,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws
+  public String getSqlValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws
     HopValueException {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLValue( valueMeta, valueData, dateFormat );
+      return databaseDialect.getSqlValue( valueMeta, valueData, dateFormat );
     }
-    return super.getSQLValue( valueMeta, valueData, dateFormat );
+    return super.getSqlValue( valueMeta, valueData, dateFormat );
   }
 
   @Override
@@ -562,11 +562,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLListOfSchemas() {
+  public String getSqlListOfSchemas() {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLListOfSchemas();
+      return databaseDialect.getSqlListOfSchemas();
     }
-    return super.getSQLListOfSchemas();
+    return super.getSqlListOfSchemas();
   }
 
   @Override
@@ -762,11 +762,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLLockTables( String[] tableNames ) {
+  public String getSqlLockTables( String[] tableNames ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getSQLLockTables( tableNames );
+      return databaseDialect.getSqlLockTables( tableNames );
     }
-    return super.getSQLLockTables( tableNames );
+    return super.getSqlLockTables( tableNames );
   }
 
   @Override

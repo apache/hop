@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 
 import javax.servlet.ServletException;
@@ -139,8 +139,8 @@ public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugi
     response.setCharacterEncoding( Const.XML_ENCODING );
     PrintStream out = new PrintStream( response.getOutputStream() );
 
-    out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
-    out.println( XMLHandler.openTag( XML_TAG_SLAVESERVER_DETECTIONS ) );
+    out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+    out.println( XmlHandler.openTag( XML_TAG_SLAVESERVER_DETECTIONS ) );
 
     if ( getDetections() != null ) {
       for ( SlaveServerDetection slaveServer : getDetections() ) {
@@ -150,11 +150,11 @@ public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugi
           slaveServer.setActive( false );
           slaveServer.setLastInactiveDate( new Date() );
         }
-        out.println( slaveServer.getXML() );
+        out.println( slaveServer.getXml() );
       }
     }
 
-    out.println( XMLHandler.closeTag( XML_TAG_SLAVESERVER_DETECTIONS ) );
+    out.println( XmlHandler.closeTag( XML_TAG_SLAVESERVER_DETECTIONS ) );
 
   }
 

@@ -35,9 +35,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-public class XMLParserFactoryProducer {
+public class XmlParserFactoryProducer {
 
-  private static final Log logger = LogFactory.getLog( XMLParserFactoryProducer.class );
+  private static final Log logger = LogFactory.getLog( XmlParserFactoryProducer.class );
 
   /**
    * Creates an instance of {@link DocumentBuilderFactory} class with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.

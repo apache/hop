@@ -37,7 +37,7 @@ import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
@@ -191,7 +191,7 @@ public class PostgreSQLValueMetaBaseTest {
     IValueMeta valueMetaBaseByteArray = ValueMetaFactory.createValueMeta( byteTestValues.toString(), IValueMeta.TYPE_STRING );
     valueMetaBaseByteArray.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     assertEquals(
-      "<value-data><binary-string>" + Encode.forXml( XMLHandler.encodeBinaryData( byteTestValues ) )
+      "<value-data><binary-string>" + Encode.forXml( XmlHandler.encodeBinaryData( byteTestValues ) )
         + "</binary-string>" + Const.CR + "</value-data>",
       valueMetaBaseByteArray.getDataXML( byteTestValues ) );
   }
@@ -755,48 +755,48 @@ public class PostgreSQLValueMetaBaseTest {
     Node xmlNode = null;
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>String val</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data>String val</value-data>" ).getFirstChild();
     assertEquals( "String val", valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NUMBER );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data>689.2</value-data>" ).getFirstChild();
     assertEquals( 689.2, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_INTEGER );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>68933</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data>68933</value-data>" ).getFirstChild();
     assertEquals( 68933l, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_DATE );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
-    assertEquals( XMLHandler.stringToDate( "2017/11/27 08:47:10.000" ), valueMetaBase.getValue( xmlNode ) );
+    xmlNode = XmlHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.000</value-data>" ).getFirstChild();
+    assertEquals( XmlHandler.stringToDate( "2017/11/27 08:47:10.000" ), valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_TIMESTAMP );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
-    assertEquals( XMLHandler.stringToTimestamp( "2017/11/27 08:47:10.123456789" ), valueMetaBase.getValue( xmlNode ) );
+    xmlNode = XmlHandler.loadXMLString( "<value-data>2017/11/27 08:47:10.123456789</value-data>" ).getFirstChild();
+    assertEquals( XmlHandler.stringToTimestamp( "2017/11/27 08:47:10.123456789" ), valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BOOLEAN );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>Y</value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data>Y</value-data>" ).getFirstChild();
     assertEquals( true, valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_BINARY );
     byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-    String s = XMLHandler.encodeBinaryData( bytes );
-    xmlNode = XMLHandler.loadXMLString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
+    String s = XmlHandler.encodeBinaryData( bytes );
+    xmlNode = XmlHandler.loadXMLString( "<value-data>test<binary-value>" + s + "</binary-value></value-data>" ).getFirstChild();
     assertArrayEquals( bytes, (byte[]) valueMetaBase.getValue( xmlNode ) );
 
     valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_STRING );
-    xmlNode = XMLHandler.loadXMLString( "<value-data></value-data>" ).getFirstChild();
+    xmlNode = XmlHandler.loadXMLString( "<value-data></value-data>" ).getFirstChild();
     assertNull( valueMetaBase.getValue( xmlNode ) );
   }
 
   @Test( expected = HopException.class )
   public void testGetValueUnknownType() throws Exception {
     ValueMetaBase valueMetaBase = new ValueMetaBase( "test", IValueMeta.TYPE_NONE );
-    valueMetaBase.getValue( XMLHandler.loadXMLString( "<value-data>not empty</value-data>" ).getFirstChild() );
+    valueMetaBase.getValue( XmlHandler.loadXMLString( "<value-data>not empty</value-data>" ).getFirstChild() );
   }
 
   //TODO: fix timestamp comversion

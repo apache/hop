@@ -22,9 +22,9 @@
 
 package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClass;
 import org.w3c.dom.Document;
@@ -44,7 +44,7 @@ public class UserDefinedJavaClassCodeSnippits {
   private final Map<String, Snippit> snippitsMap = new HashMap<String, Snippit>();
   private final LogChannel log = new LogChannel( "UserDefinedJavaClassCodeSnippits" );
 
-  public static synchronized UserDefinedJavaClassCodeSnippits getSnippitsHelper() throws HopXMLException {
+  public static synchronized UserDefinedJavaClassCodeSnippits getSnippitsHelper() throws HopXmlException {
     if ( snippitsHelper == null ) {
       snippitsHelper = new UserDefinedJavaClassCodeSnippits();
       snippitsHelper.addSnippits( "codeSnippits.xml" );
@@ -55,9 +55,9 @@ public class UserDefinedJavaClassCodeSnippits {
   private UserDefinedJavaClassCodeSnippits() {
   }
 
-  public void addSnippits( String strFileName ) throws HopXMLException {
+  public void addSnippits( String strFileName ) throws HopXmlException {
     Document doc =
-      XMLHandler.loadXMLFile(
+      XmlHandler.loadXMLFile(
         UserDefinedJavaClassCodeSnippits.class.getResourceAsStream( strFileName ), null, false, false );
     buildSnippitList( doc );
   }
@@ -119,11 +119,11 @@ public class UserDefinedJavaClassCodeSnippits {
   }
 
   private void buildSnippitList( Document doc ) {
-    List<Node> nodes = XMLHandler.getNodes( XMLHandler.getSubNode( doc, "codeSnippits" ), "codeSnippit" );
+    List<Node> nodes = XmlHandler.getNodes( XmlHandler.getSubNode( doc, "codeSnippits" ), "codeSnippit" );
     for ( Node node : nodes ) {
       Snippit snippit =
-        new Snippit( Category.valueOf( XMLHandler.getTagValue( node, "category" ) ), XMLHandler.getTagValue(
-          node, "name" ), XMLHandler.getTagValue( node, "sample" ), XMLHandler.getTagValue( node, "code" ) );
+        new Snippit( Category.valueOf( XmlHandler.getTagValue( node, "category" ) ), XmlHandler.getTagValue(
+          node, "name" ), XmlHandler.getTagValue( node, "sample" ), XmlHandler.getTagValue( node, "code" ) );
       snippits.add( snippit );
       Snippit oldSnippit = snippitsMap.put( snippit.name, snippit );
       if ( oldSnippit != null ) {

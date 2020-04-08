@@ -26,10 +26,10 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -89,7 +89,7 @@ public class FilesToResultMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -98,18 +98,18 @@ public class FilesToResultMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.addTagValue( "filename_field", filenameField ) );
-    xml.append( XMLHandler.addTagValue( "file_type", ResultFile.getTypeCode( fileType ) ) );
+    xml.append( XmlHandler.addTagValue( "filename_field", filenameField ) );
+    xml.append( XmlHandler.addTagValue( "file_type", ResultFile.getTypeCode( fileType ) ) );
 
     return xml.toString();
   }
 
   private void readData( Node transformNode ) {
-    filenameField = XMLHandler.getTagValue( transformNode, "filename_field" );
-    fileType = ResultFile.getType( XMLHandler.getTagValue( transformNode, "file_type" ) );
+    filenameField = XmlHandler.getTagValue( transformNode, "filename_field" );
+    fileType = ResultFile.getType( XmlHandler.getTagValue( transformNode, "file_type" ) );
   }
 
   public void setDefault() {

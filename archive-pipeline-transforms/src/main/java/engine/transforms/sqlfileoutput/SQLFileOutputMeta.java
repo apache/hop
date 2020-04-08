@@ -31,13 +31,13 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -136,7 +136,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
 
   private boolean DoNotOpenNewFileInit;
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -452,36 +452,36 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
 
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tablename = XMLHandler.getTagValue( transformNode, "table" );
-      truncateTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "truncate" ) );
-      createTable = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "create" ) );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      dateformat = XMLHandler.getTagValue( transformNode, "dateformat" );
-      AddToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "AddToResult" ) );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tablename = XmlHandler.getTagValue( transformNode, "table" );
+      truncateTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "truncate" ) );
+      createTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "create" ) );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      dateformat = XmlHandler.getTagValue( transformNode, "dateformat" );
+      AddToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "AddToResult" ) );
 
-      StartNewLine = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "StartNewLine" ) );
+      StartNewLine = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "StartNewLine" ) );
 
-      fileName = XMLHandler.getTagValue( transformNode, "file", "name" );
+      fileName = XmlHandler.getTagValue( transformNode, "file", "name" );
       createparentfolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
-      extension = XMLHandler.getTagValue( transformNode, "file", "extention" );
-      fileAppended = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "append" ) );
-      transformNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "split" ) );
-      partNrInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "haspartno" ) );
-      dateInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_date" ) );
-      timeInFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "add_time" ) );
-      splitEvery = Const.toInt( XMLHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "create_parent_folder" ) );
+      extension = XmlHandler.getTagValue( transformNode, "file", "extention" );
+      fileAppended = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "append" ) );
+      transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
+      partNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "haspartno" ) );
+      dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
+      timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
+      splitEvery = Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 );
       DoNotOpenNewFileInit =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "DoNotOpenNewFileInit" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "DoNotOpenNewFileInit" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -493,32 +493,32 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
 
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    "
-      + XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " + XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "table", tablename ) );
-    retval.append( "    " + XMLHandler.addTagValue( "truncate", truncateTable ) );
-    retval.append( "    " + XMLHandler.addTagValue( "create", createTable ) );
-    retval.append( "    " + XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "dateformat", dateformat ) );
-    retval.append( "    " + XMLHandler.addTagValue( "addtoresult", AddToResult ) );
+      + XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " + XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "    " + XmlHandler.addTagValue( "truncate", truncateTable ) );
+    retval.append( "    " + XmlHandler.addTagValue( "create", createTable ) );
+    retval.append( "    " + XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "dateformat", dateformat ) );
+    retval.append( "    " + XmlHandler.addTagValue( "addtoresult", AddToResult ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "startnewline", StartNewLine ) );
+    retval.append( "    " + XmlHandler.addTagValue( "startnewline", StartNewLine ) );
 
     retval.append( "    <file>" + Const.CR );
-    retval.append( "      " + XMLHandler.addTagValue( "name", fileName ) );
-    retval.append( "      " + XMLHandler.addTagValue( "extention", extension ) );
-    retval.append( "      " + XMLHandler.addTagValue( "append", fileAppended ) );
-    retval.append( "      " + XMLHandler.addTagValue( "split", transformNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "haspartno", partNrInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_date", dateInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " + XMLHandler.addTagValue( "splitevery", splitEvery ) );
-    retval.append( "      " + XMLHandler.addTagValue( "create_parent_folder", createparentfolder ) );
-    retval.append( "      " + XMLHandler.addTagValue( "DoNotOpenNewFileInit", DoNotOpenNewFileInit ) );
+    retval.append( "      " + XmlHandler.addTagValue( "name", fileName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "extention", extension ) );
+    retval.append( "      " + XmlHandler.addTagValue( "append", fileAppended ) );
+    retval.append( "      " + XmlHandler.addTagValue( "split", transformNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "haspartno", partNrInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_date", dateInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "add_time", timeInFilename ) );
+    retval.append( "      " + XmlHandler.addTagValue( "splitevery", splitEvery ) );
+    retval.append( "      " + XmlHandler.addTagValue( "create_parent_folder", createparentfolder ) );
+    retval.append( "      " + XmlHandler.addTagValue( "DoNotOpenNewFileInit", DoNotOpenNewFileInit ) );
 
     retval.append( "      </file>" + Const.CR );
 
@@ -700,7 +700,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -720,7 +720,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
               cr_table = null;
             }
 
-            retval.setSQL( cr_table );
+            retval.setSql( cr_table );
           } catch ( HopDatabaseException dbe ) {
             retval.setError( BaseMessages.getString( PKG, "SQLFileOutputMeta.Error.ErrorConnecting", dbe
               .getMessage() ) );

@@ -39,7 +39,7 @@ import org.apache.hop.core.fileinput.CharsetToolkit;
 import org.apache.hop.core.util.HopJaroWinklerDistance;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLCheck;
+import org.apache.hop.core.xml.XmlCheck;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -1928,7 +1928,7 @@ public class ValueDataUtil {
     try {
       file = HopVFS.getFileObject( filename );
       throwsErrorOnFileNotFound( file );
-      return XMLCheck.isXMLFileWellFormed( file );
+      return XmlCheck.isXMLFileWellFormed( file );
     } catch ( HopFileNotFoundException e ) {
       if ( failIfNoFile ) {
         throw e;
@@ -1954,7 +1954,7 @@ public class ValueDataUtil {
       return false;
     }
     try {
-      return XMLCheck.isXMLWellFormed( new ByteArrayInputStream( metaA.getBinary( dataA ) ) );
+      return XmlCheck.isXMLWellFormed( new ByteArrayInputStream( metaA.getBinary( dataA ) ) );
     } catch ( Exception e ) {
       log.debug( e.getMessage() );
     }

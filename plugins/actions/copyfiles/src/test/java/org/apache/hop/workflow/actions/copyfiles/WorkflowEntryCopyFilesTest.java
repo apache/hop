@@ -23,7 +23,7 @@ package org.apache.hop.workflow.actions.copyfiles;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.Before;
@@ -121,13 +121,13 @@ public class WorkflowEntryCopyFilesTest {
     entry.destination_filefolder = destPath;
     entry.wildcard = new String[] { EMPTY };
 
-    String xml = "<entry>" + entry.getXML() + "</entry>";
+    String xml = "<entry>" + entry.getXml() + "</entry>";
     assertTrue( xml.contains( srcPath[ 0 ] ) );
     assertTrue( xml.contains( destPath[ 0 ] ) );
     ActionCopyFiles loadedentry = new ActionCopyFiles();
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    loadedentry.loadXML( XMLHandler.getSubNode(
-      XMLHandler.loadXMLFile( is,
+    loadedentry.loadXml( XmlHandler.getSubNode(
+      XmlHandler.loadXMLFile( is,
         null,
         false,
         false ),

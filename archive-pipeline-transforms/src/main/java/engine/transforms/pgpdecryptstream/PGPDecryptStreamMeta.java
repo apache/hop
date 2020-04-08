@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -167,7 +167,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -199,28 +199,28 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XMLHandler.addTagValue( "gpglocation", gpglocation ) );
+    retval.append( "    " + XmlHandler.addTagValue( "gpglocation", gpglocation ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "passhrase", Encr.encryptPasswordIfNotUsingVariables( passhrase ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "streamfield", streamfield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "passphraseFromField", passphraseFromField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "passphraseFieldName", passphraseFieldName ) );
+      XmlHandler.addTagValue( "passhrase", Encr.encryptPasswordIfNotUsingVariables( passhrase ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "streamfield", streamfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "passphraseFromField", passphraseFromField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "passphraseFieldName", passphraseFieldName ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      gpglocation = XMLHandler.getTagValue( transformNode, "gpglocation" );
-      passhrase = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "passhrase" ) );
-      streamfield = XMLHandler.getTagValue( transformNode, "streamfield" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
-      passphraseFromField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "passphraseFromField" ) );
-      passphraseFieldName = XMLHandler.getTagValue( transformNode, "passphraseFieldName" );
+      gpglocation = XmlHandler.getTagValue( transformNode, "gpglocation" );
+      passhrase = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "passhrase" ) );
+      streamfield = XmlHandler.getTagValue( transformNode, "streamfield" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      passphraseFromField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "passphraseFromField" ) );
+      passphraseFieldName = XmlHandler.getTagValue( transformNode, "passphraseFieldName" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "PGPDecryptStreamMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

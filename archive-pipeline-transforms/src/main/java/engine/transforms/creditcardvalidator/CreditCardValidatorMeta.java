@@ -25,14 +25,14 @@ package org.apache.hop.pipeline.transforms.creditcardvalidator;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -138,7 +138,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
     return notvalidmsg;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -177,28 +177,28 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "fieldname", fieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "cardtype", cardtype ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "onlydigits", onlydigits ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "notvalidmsg", notvalidmsg ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "cardtype", cardtype ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "onlydigits", onlydigits ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "notvalidmsg", notvalidmsg ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      fieldname = XMLHandler.getTagValue( transformNode, "fieldname" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
-      cardtype = XMLHandler.getTagValue( transformNode, "cardtype" );
-      notvalidmsg = XMLHandler.getTagValue( transformNode, "notvalidmsg" );
-      onlydigits = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "onlydigits" ) );
+      fieldname = XmlHandler.getTagValue( transformNode, "fieldname" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      cardtype = XmlHandler.getTagValue( transformNode, "cardtype" );
+      notvalidmsg = XmlHandler.getTagValue( transformNode, "notvalidmsg" );
+      onlydigits = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "onlydigits" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "CreditCardValidatorMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

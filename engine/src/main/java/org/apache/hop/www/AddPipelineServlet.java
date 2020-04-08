@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.ExecutionAdapter;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -163,7 +163,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XMLHandler.getXMLHeader() );
+      out.print( XmlHandler.getXMLHeader() );
     } else {
       response.setContentType( "text/html" );
       out.println( "<HTML>" );

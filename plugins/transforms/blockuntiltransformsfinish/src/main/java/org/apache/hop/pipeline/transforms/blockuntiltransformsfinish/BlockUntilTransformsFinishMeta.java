@@ -27,10 +27,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -69,7 +69,7 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -122,31 +122,31 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
 
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node transforms = XMLHandler.getSubNode( transformNode, "transforms" );
-      int nrTransforms = XMLHandler.countNodes( transforms, "transform" );
+      Node transforms = XmlHandler.getSubNode( transformNode, "transforms" );
+      int nrTransforms = XmlHandler.countNodes( transforms, "transform" );
 
       allocate( nrTransforms );
 
       for ( int i = 0; i < nrTransforms; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( transforms, "transform", i );
-        transformName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        transformCopyNr[ i ] = XMLHandler.getTagValue( fnode, "CopyNr" );
+        Node fnode = XmlHandler.getSubNodeByNr( transforms, "transform", i );
+        transformName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        transformCopyNr[ i ] = XmlHandler.getTagValue( fnode, "CopyNr" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <transforms>" + Const.CR );
     for ( int i = 0; i < transformName.length; i++ ) {
       retval.append( "      <transform>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", transformName[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "CopyNr", transformCopyNr[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", transformName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "CopyNr", transformCopyNr[ i ] ) );
 
       retval.append( "        </transform>" + Const.CR );
     }

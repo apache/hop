@@ -34,14 +34,14 @@ import static org.junit.Assert.assertEquals;
 public class XMLUtilsTest {
   @Test
   public void secureFeatureEnabledAfterDocBuilderFactoryCreation() throws Exception {
-    DocumentBuilderFactory documentBuilderFactory = XMLParserFactoryProducer.createSecureDocBuilderFactory();
+    DocumentBuilderFactory documentBuilderFactory = XmlParserFactoryProducer.createSecureDocBuilderFactory();
 
     assertEquals( true, documentBuilderFactory.getFeature( XMLConstants.FEATURE_SECURE_PROCESSING ) );
   }
 
   @Test
   public void secureFeatureEnabledAfterSAXParserFactoryCreation() throws Exception {
-    SAXParserFactory saxParserFactory = XMLParserFactoryProducer.createSecureSAXParserFactory();
+    SAXParserFactory saxParserFactory = XmlParserFactoryProducer.createSecureSAXParserFactory();
 
     assertEquals( true, saxParserFactory.getFeature( XMLConstants.FEATURE_SECURE_PROCESSING ) );
   }

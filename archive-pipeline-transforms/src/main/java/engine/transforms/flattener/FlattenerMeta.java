@@ -26,11 +26,11 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -84,7 +84,7 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransform {
     this.targetField = targetField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -131,34 +131,34 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      fieldName = XMLHandler.getTagValue( transformNode, "field_name" );
+      fieldName = XmlHandler.getTagValue( transformNode, "field_name" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        targetField[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        targetField[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "FlattenerMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XMLHandler.addTagValue( "field_name", fieldName ) );
+    retval.append( "      " + XmlHandler.addTagValue( "field_name", fieldName ) );
 
     retval.append( "      <fields>" + Const.CR );
     for ( int i = 0; i < targetField.length; i++ ) {
       retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XMLHandler.addTagValue( "name", targetField[ i ] ) );
+      retval.append( "          " + XmlHandler.addTagValue( "name", targetField[ i ] ) );
       retval.append( "          </field>" + Const.CR );
     }
     retval.append( "        </fields>" + Const.CR );

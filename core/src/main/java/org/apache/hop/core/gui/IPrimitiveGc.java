@@ -24,7 +24,7 @@ package org.apache.hop.core.gui;
 
 import java.awt.image.BufferedImage;
 
-public interface IPrimitiveGC {
+public interface IPrimitiveGc {
 
   enum EColor {
     BACKGROUND, BLACK, WHITE, RED, YELLOW, ORANGE, GREEN, BLUE, MAGENTA, GRAY, LIGHTGRAY, DARKGRAY, LIGHTBLUE, CRYSTAL,

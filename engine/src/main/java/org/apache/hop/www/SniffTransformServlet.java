@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.IRowListener;
@@ -336,9 +336,9 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           //
           response.setContentType( "text/xml" );
           response.setCharacterEncoding( Const.XML_ENCODING );
-          out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+          out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
 
-          out.println( XMLHandler.openTag( XML_TAG ) );
+          out.println( XmlHandler.openTag( XML_TAG ) );
 
           if ( metaData.bufferRowMeta != null ) {
 
@@ -348,7 +348,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
             // Nr of lines
             //
-            out.println( XMLHandler.addTagValue( "nr_rows", metaData.bufferRowData.size() ) );
+            out.println( XmlHandler.addTagValue( "nr_rows", metaData.bufferRowData.size() ) );
 
             // Rows of data
             //
@@ -358,7 +358,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
             }
           }
 
-          out.println( XMLHandler.closeTag( XML_TAG ) );
+          out.println( XmlHandler.closeTag( XML_TAG ) );
 
         } else {
           response.setContentType( "text/html;charset=UTF-8" );
@@ -421,7 +421,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
       } else {
         if ( useXML ) {
           out.println( new WebResult( WebResult.STRING_ERROR, BaseMessages.getString(
-            PKG, "SniffTransformServlet.Log.CoundNotFindSpecTransform", transformName ) ).getXML() );
+            PKG, "SniffTransformServlet.Log.CoundNotFindSpecTransform", transformName ) ).getXml() );
         } else {
           out.println( "<H1>"
             + Encode.forHtml( BaseMessages.getString(
@@ -434,7 +434,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
     } else {
       if ( useXML ) {
         out.println( new WebResult( WebResult.STRING_ERROR, BaseMessages.getString(
-          PKG, "SniffTransformServlet.Log.CoundNotFindSpecPipeline", pipelineName ) ).getXML() );
+          PKG, "SniffTransformServlet.Log.CoundNotFindSpecPipeline", pipelineName ) ).getXml() );
       } else {
         out.println( "<H1>"
           + Encode.forHtml( BaseMessages.getString(

@@ -22,10 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutputlegacy;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -67,12 +67,12 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
     this.fileAsCommand = fileAsCommand;
   }
 
-  protected void readData( Node transformNode, IMetaStore metastore ) throws HopXMLException {
+  protected void readData( Node transformNode, IMetaStore metastore ) throws HopXmlException {
     super.readData( transformNode, metastore );
     try {
-      fileAsCommand = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "file", "is_command" ) );
+      fileAsCommand = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "is_command" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -85,7 +85,7 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
   @Override
   protected void saveFileOptions( StringBuilder retval ) {
     super.saveFileOptions( retval );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "is_command", fileAsCommand ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_command", fileAsCommand ) );
   }
 
   @Override

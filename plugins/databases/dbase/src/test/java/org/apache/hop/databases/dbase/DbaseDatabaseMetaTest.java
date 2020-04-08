@@ -63,7 +63,7 @@ public class DbaseDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO MODIFY BAR VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOVERSION) values (1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   @Test

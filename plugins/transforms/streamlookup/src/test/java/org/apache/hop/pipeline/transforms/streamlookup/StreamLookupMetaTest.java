@@ -125,7 +125,7 @@ public class StreamLookupMetaTest implements IInitializerInterface<ITransformMet
 
     //run without exception
     streamLookupMeta.afterInjectionSynchronization();
-    streamLookupMeta.getXML();
+    streamLookupMeta.getXml();
 
     Assert.assertEquals( streamLookupMeta.getKeystream().length, streamLookupMeta.getValueName().length );
     Assert.assertEquals( streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefault().length );

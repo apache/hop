@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.Date;
@@ -90,24 +90,24 @@ public class SlaveServerDetection {
     this.lastInactiveDate = null; // It's active
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
     xml.append( slaveServer.getXml() );
-    xml.append( XMLHandler.addTagValue( "active", active ) );
-    xml.append( XMLHandler.addTagValue( "last_active_date", lastActiveDate ) );
-    xml.append( XMLHandler.addTagValue( "last_inactive_date", lastInactiveDate ) );
-    xml.append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( XmlHandler.addTagValue( "active", active ) );
+    xml.append( XmlHandler.addTagValue( "last_active_date", lastActiveDate ) );
+    xml.append( XmlHandler.addTagValue( "last_inactive_date", lastInactiveDate ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return xml.toString();
   }
 
   public SlaveServerDetection( Node node ) {
-    slaveServer = new SlaveServer( XMLHandler.getSubNode( node, SlaveServer.XML_TAG ) );
-    active = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "active" ) );
-    lastActiveDate = XMLHandler.stringToDate( XMLHandler.getTagValue( node, "last_active_date" ) );
-    lastInactiveDate = XMLHandler.stringToDate( XMLHandler.getTagValue( node, "last_inactive_date" ) );
+    slaveServer = new SlaveServer( XmlHandler.getSubNode( node, SlaveServer.XML_TAG ) );
+    active = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "active" ) );
+    lastActiveDate = XmlHandler.stringToDate( XmlHandler.getTagValue( node, "last_active_date" ) );
+    lastInactiveDate = XmlHandler.stringToDate( XmlHandler.getTagValue( node, "last_inactive_date" ) );
   }
 
   public boolean equals( Object ssd ) {

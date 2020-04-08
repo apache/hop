@@ -35,10 +35,10 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
@@ -187,89 +187,89 @@ public class ActionFTPDelete extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 550 ); // 448 characters in spaces and tag names alone
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ftpdirectory", ftpDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "active", activeConnection ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ftpdirectory", ftpDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "active", activeConnection ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "useproxy", useproxy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_host", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_port", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxy_username", proxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "useproxy", useproxy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_host", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxy_username", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+      XmlHandler.addTagValue( "proxy_password", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "publicpublickey", publicpublickey ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keyfilename", keyFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keyfilepass", keyFilePass ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "publicpublickey", publicpublickey ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilepass", keyFilePass ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_limit_success", nr_limit_success ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "copyprevious", copyprevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit_success", nr_limit_success ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
     retval.append( "      " ).append(
-      XMLHandler
+      XmlHandler
         .addTagValue( "ftps_connection_type", FTPSConnection.getConnectionTypeCode( FTPSConnectionType ) ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_username", socksProxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "socksproxy_password", Encr
+      XmlHandler.addTagValue( "socksproxy_password", Encr
         .encryptPasswordIfNotUsingVariables( getSocksProxyPassword() ) ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      protocol = XMLHandler.getTagValue( entrynode, "protocol" );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      ftpDirectory = XMLHandler.getTagValue( entrynode, "ftpdirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      timeout = Const.toInt( XMLHandler.getTagValue( entrynode, "timeout" ), 10000 );
-      activeConnection = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "active" ) );
+      protocol = XmlHandler.getTagValue( entrynode, "protocol" );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      ftpDirectory = XmlHandler.getTagValue( entrynode, "ftpdirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      timeout = Const.toInt( XmlHandler.getTagValue( entrynode, "timeout" ), 10000 );
+      activeConnection = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "active" ) );
 
-      useproxy = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "useproxy" ) );
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxy_host" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxy_port" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxy_username" );
+      useproxy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useproxy" ) );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxy_host" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxy_port" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxy_username" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxy_password" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
 
-      publicpublickey = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "publicpublickey" ) );
-      keyFilename = XMLHandler.getTagValue( entrynode, "keyfilename" );
-      keyFilePass = XMLHandler.getTagValue( entrynode, "keyfilepass" );
+      publicpublickey = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "publicpublickey" ) );
+      keyFilename = XmlHandler.getTagValue( entrynode, "keyfilename" );
+      keyFilePass = XmlHandler.getTagValue( entrynode, "keyfilepass" );
 
-      nr_limit_success = XMLHandler.getTagValue( entrynode, "nr_limit_success" );
-      success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      copyprevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copyprevious" ) );
+      nr_limit_success = XmlHandler.getTagValue( entrynode, "nr_limit_success" );
+      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
       FTPSConnectionType =
-        FTPSConnection.getConnectionTypeByCode( Const.NVL( XMLHandler.getTagValue(
+        FTPSConnection.getConnectionTypeByCode( Const.NVL( XmlHandler.getTagValue(
           entrynode, "ftps_connection_type" ), "" ) );
-      socksProxyHost = XMLHandler.getTagValue( entrynode, "socksproxy_host" );
-      socksProxyPort = XMLHandler.getTagValue( entrynode, "socksproxy_port" );
-      socksProxyUsername = XMLHandler.getTagValue( entrynode, "socksproxy_username" );
+      socksProxyHost = XmlHandler.getTagValue( entrynode, "socksproxy_host" );
+      socksProxyPort = XmlHandler.getTagValue( entrynode, "socksproxy_port" );
+      socksProxyUsername = XmlHandler.getTagValue( entrynode, "socksproxy_username" );
       socksProxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "socksproxy_password" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "socksproxy_password" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'ftp' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'ftp' from XML node", xe );
     }
   }
 

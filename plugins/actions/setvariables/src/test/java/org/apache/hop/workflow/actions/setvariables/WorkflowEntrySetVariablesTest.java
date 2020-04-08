@@ -24,7 +24,7 @@ package org.apache.hop.workflow.actions.setvariables;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
@@ -179,7 +179,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "JVM" ), metaStore );
+    entry.loadXml( getEntryNode( "nullVariable", null, "JVM" ), metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( System.getProperty( "nullVariable" ) );
@@ -188,7 +188,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable() throws Exception {
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metaStore );
+    entry.loadXml( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metaStore );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( entry.getVariable( "nullVariable" ) );
@@ -197,7 +197,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "JVM" ), metaStore );
+    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "JVM" ), metaStore );
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
@@ -207,7 +207,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull() throws Exception {
     IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXML( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metaStore );
+    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metaStore );
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
@@ -218,20 +218,20 @@ public class WorkflowEntrySetVariablesTest {
   public Node getEntryNode( String variable_name, String variable_value, String variable_type )
     throws ParserConfigurationException, SAXException, IOException {
     StringBuilder sb = new StringBuilder();
-    sb.append( XMLHandler.openTag( "workflow" ) );
-    sb.append( "      " ).append( XMLHandler.openTag( "fields" ) );
-    sb.append( "      " ).append( XMLHandler.openTag( "field" ) );
-    sb.append( "      " ).append( XMLHandler.addTagValue( "variable_name", variable_name ) );
+    sb.append( XmlHandler.openTag( "workflow" ) );
+    sb.append( "      " ).append( XmlHandler.openTag( "fields" ) );
+    sb.append( "      " ).append( XmlHandler.openTag( "field" ) );
+    sb.append( "      " ).append( XmlHandler.addTagValue( "variable_name", variable_name ) );
     if ( variable_value != null ) {
-      sb.append( "      " ).append( XMLHandler.addTagValue( "variable_value", variable_value ) );
+      sb.append( "      " ).append( XmlHandler.addTagValue( "variable_value", variable_value ) );
     }
     if ( variable_type != null ) {
       sb.append( "          " ).append(
-        XMLHandler.addTagValue( "variable_type", variable_type ) );
+        XmlHandler.addTagValue( "variable_type", variable_type ) );
     }
-    sb.append( "      " ).append( XMLHandler.closeTag( "field" ) );
-    sb.append( "      " ).append( XMLHandler.closeTag( "fields" ) );
-    sb.append( XMLHandler.closeTag( "workflow" ) );
+    sb.append( "      " ).append( XmlHandler.closeTag( "field" ) );
+    sb.append( "      " ).append( XmlHandler.closeTag( "fields" ) );
+    sb.append( XmlHandler.closeTag( "workflow" ) );
 
     InputStream stream = new ByteArrayInputStream( sb.toString().getBytes( StandardCharsets.UTF_8 ) );
     DocumentBuilder db;

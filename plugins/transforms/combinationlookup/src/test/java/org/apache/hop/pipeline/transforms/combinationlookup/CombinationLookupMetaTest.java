@@ -148,14 +148,14 @@ public class CombinationLookupMetaTest implements IInitializerInterface<ITransfo
     combinationLookup.setPreloadCache( false );
 
     try {
-      String badXml = combinationLookup.getXML();
+      String badXml = combinationLookup.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     combinationLookup.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = combinationLookup.getXML();
+    String ktrXml = combinationLookup.getXml();
 
     assertEquals( combinationLookup.getKeyField().length, combinationLookup.getKeyLookup().length );
 

@@ -26,19 +26,19 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -211,7 +211,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     this.dateMask = dateMask;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -232,33 +232,33 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
 
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "table" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
 
-      enclosure = XMLHandler.getTagValue( transformNode, "enclosure" );
-      delimiter = XMLHandler.getTagValue( transformNode, "delimiter" );
+      enclosure = XmlHandler.getTagValue( transformNode, "enclosure" );
+      delimiter = XmlHandler.getTagValue( transformNode, "delimiter" );
 
-      loadAction = XMLHandler.getTagValue( transformNode, "load_action" );
-      dbNameOverride = XMLHandler.getTagValue( transformNode, "dbname_override" );
-      stopOnError = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "stop_on_error" ) );
+      loadAction = XmlHandler.getTagValue( transformNode, "load_action" );
+      dbNameOverride = XmlHandler.getTagValue( transformNode, "dbname_override" );
+      stopOnError = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "stop_on_error" ) );
 
-      int nrvalues = XMLHandler.countNodes( transformNode, "mapping" );
+      int nrvalues = XmlHandler.countNodes( transformNode, "mapping" );
       allocate( nrvalues );
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( transformNode, "mapping", i );
+        Node vnode = XmlHandler.getSubNodeByNr( transformNode, "mapping", i );
 
-        fieldTable[ i ] = XMLHandler.getTagValue( vnode, "stream_name" );
-        fieldStream[ i ] = XMLHandler.getTagValue( vnode, "field_name" );
+        fieldTable[ i ] = XmlHandler.getTagValue( vnode, "stream_name" );
+        fieldStream[ i ] = XmlHandler.getTagValue( vnode, "field_name" );
         if ( fieldStream[ i ] == null ) {
           fieldStream[ i ] = fieldTable[ i ]; // default: the same name!
         }
-        String locDateMask = XMLHandler.getTagValue( vnode, "date_mask" );
+        String locDateMask = XmlHandler.getTagValue( vnode, "date_mask" );
         if ( locDateMask == null ) {
           dateMask[ i ] = "";
         } else {
@@ -272,7 +272,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "GPBulkLoaderMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -290,25 +290,25 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     allocate( nrvalues );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "load_action", loadAction ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dbname_override", dbNameOverride ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "enclosure", enclosure ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "delimiter", delimiter ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "stop_on_error", stopOnError ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "load_action", loadAction ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dbname_override", dbNameOverride ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "enclosure", enclosure ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "delimiter", delimiter ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "stop_on_error", stopOnError ) );
 
     for ( int i = 0; i < fieldTable.length; i++ ) {
       retval.append( "      <mapping>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldStream[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "date_mask", dateMask[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "stream_name", fieldTable[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field_name", fieldStream[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "date_mask", dateMask[ i ] ) );
       retval.append( "      </mapping>" ).append( Const.CR );
     }
 
@@ -454,9 +454,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) throws HopTransformException {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
@@ -487,9 +487,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
             String sql = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
             if ( sql.length() == 0 ) {
-              retval.setSQL( null );
+              retval.setSql( null );
             } else {
-              retval.setSQL( sql );
+              retval.setSql( sql );
             }
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "GPBulkLoaderMeta.GetSQL.ErrorOccurred" )

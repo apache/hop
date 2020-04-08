@@ -30,9 +30,7 @@ import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.DatabasePluginType;
@@ -190,14 +188,14 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return factory;
   }
 
-  public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXMLException {
+  public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXmlException {
     if ( metaStore == null || StringUtils.isEmpty( connectionName ) ) {
       return null; // Nothing to find or load
     }
     try {
       return createFactory( metaStore ).loadElement( connectionName );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load relational database connection '" + connectionName + "'", e );
+      throw new HopXmlException( "Unable to load relational database connection '" + connectionName + "'", e );
     }
   }
 
@@ -833,8 +831,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.supportsSequences();
   }
 
-  public String getSQLSequenceExists( String sequenceName ) {
-    return iDatabase.getSQLSequenceExists( sequenceName );
+  public String getSqlSequenceExists( String sequenceName ) {
+    return iDatabase.getSqlSequenceExists( sequenceName );
   }
 
   public boolean supportsBitmapIndex() {
@@ -1066,11 +1064,11 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
   public String getSeqNextvalSQL( String sequenceName ) {
-    return iDatabase.getSQLNextSequenceValue( sequenceName );
+    return iDatabase.getSqlNextSequenceValue( sequenceName );
   }
 
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
-    return iDatabase.getSQLCurrentSequenceValue( sequenceName );
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
+    return iDatabase.getSqlCurrentSequenceValue( sequenceName );
   }
 
   public boolean isFetchSizeSupported() {
@@ -1202,8 +1200,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    * @param tableName The table or schema-table combination. We expect this to be quoted properly already!
    * @return the SQL for to get the fields of this table.
    */
-  public String getSQLQueryFields( String tableName ) {
-    return iDatabase.getSQLQueryFields( tableName );
+  public String getSqlQueryFields( String tableName ) {
+    return iDatabase.getSqlQueryFields( tableName );
   }
 
   public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
@@ -1498,8 +1496,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures() {
-    return iDatabase.getSQLListOfProcedures();
+  public String getSqlListOfProcedures() {
+    return iDatabase.getSqlListOfProcedures();
   }
 
   /**
@@ -1523,8 +1521,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    * @return The SQL commands to lock database tables for write purposes. null is returned in case locking is not
    * supported on the target database.
    */
-  public String getSQLLockTables( String[] tableNames ) {
-    return iDatabase.getSQLLockTables( tableNames );
+  public String getSqlLockTables( String[] tableNames ) {
+    return iDatabase.getSqlLockTables( tableNames );
   }
 
   /**
@@ -1532,8 +1530,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    * @return The SQL commands to unlock databases tables. null is returned in case locking is not supported on the
    * target database.
    */
-  public String getSQLUnlockTables( String[] tableNames ) {
-    return iDatabase.getSQLUnlockTables( tableNames );
+  public String getSqlUnlockTables( String[] tableNames ) {
+    return iDatabase.getSqlUnlockTables( tableNames );
   }
 
   /**
@@ -1768,7 +1766,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
       // SQL: get list of procedures?
       r = new RowMetaAndData();
       r.addValue( par, IValueMeta.TYPE_STRING, "SQL: list of procedures" );
-      r.addValue( val, IValueMeta.TYPE_STRING, getSQLListOfProcedures() );
+      r.addValue( val, IValueMeta.TYPE_STRING, getSqlListOfProcedures() );
       list.add( r );
       // SQL: get truncate table statement?
       r = new RowMetaAndData();
@@ -1941,12 +1939,12 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return getName();
   }
 
-  public String getSQLTableExists( String tablename ) {
-    return iDatabase.getSQLTableExists( tablename );
+  public String getSqlTableExists( String tablename ) {
+    return iDatabase.getSqlTableExists( tablename );
   }
 
-  public String getSQLColumnExists( String columnname, String tablename ) {
-    return iDatabase.getSQLColumnExists( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tablename ) {
+    return iDatabase.getSqlColumnExists( columnname, tablename );
   }
 
   /**
@@ -2120,7 +2118,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return the SQL Server instance
    */
-  public String getSQLServerInstance() {
+  public String getSqlServerInstance() {
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return <somevalue>
     // --> MSSQL.instancename
@@ -2130,7 +2128,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @param instanceName the SQL Server instance
    */
-  public void setSQLServerInstance( String instanceName ) {
+  public void setSqlServerInstance( String instanceName ) {
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return set <somevalue>
     // --> MSSQL.instancename
@@ -2268,8 +2266,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.supportsNewLinesInSQL();
   }
 
-  public String getSQLListOfSchemas() {
-    return iDatabase.getSQLListOfSchemas();
+  public String getSqlListOfSchemas() {
+    return iDatabase.getSqlListOfSchemas();
   }
 
   public int getMaxColumnsInIndex() {
@@ -2288,8 +2286,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
-    return iDatabase.getSQLInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField ) {
+    return iDatabase.getSqlInsertAutoIncUnknownDimensionRow( schemaTable, keyField, versionField );
   }
 
   /**
@@ -2302,8 +2300,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return The SQL on this database to get a list of sequences.
    */
-  public String getSQLListOfSequences() {
-    return iDatabase.getSQLListOfSequences();
+  public String getSqlListOfSequences() {
+    return iDatabase.getSqlListOfSequences();
   }
 
   public String quoteSQLString( String string ) {

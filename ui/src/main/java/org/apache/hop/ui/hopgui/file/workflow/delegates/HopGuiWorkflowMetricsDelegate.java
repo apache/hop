@@ -35,7 +35,7 @@ import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.ui.hopgui.shared.SWTGC;
+import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -346,7 +346,7 @@ public class HopGuiWorkflowMetricsDelegate {
     bounds.height = Math.max( durations.size() * barHeight, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-    SWTGC gc = new SWTGC( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
+    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, barHeight );
     // checking according to method's contract
     drawAreas = painter.paint( durations );

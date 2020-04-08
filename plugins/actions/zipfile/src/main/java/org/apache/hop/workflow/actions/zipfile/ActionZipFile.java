@@ -35,12 +35,12 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -145,56 +145,56 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "zipfilename", zipFilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compressionrate", compressionRate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ifzipfileexists", ifZipFileExists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildCard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcardexclude", excludeWildCard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sourcedirectory", sourceDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "movetodirectory", movetoDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "afterzip", afterZip ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addfiletoresult", addFileToResult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "isfromprevious", isFromPrevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createparentfolder", createParentFolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "adddate", addDate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addtime", addTime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", dateTimeFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createMoveToDirectory", createMoveToDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includingSubFolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "stored_source_path_depth", storedSourcePathDepth ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "zipfilename", zipFilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compressionrate", compressionRate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ifzipfileexists", ifZipFileExists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildCard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", excludeWildCard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sourcedirectory", sourceDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "movetodirectory", movetoDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "afterzip", afterZip ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addFileToResult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "isfromprevious", isFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createparentfolder", createParentFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "adddate", addDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addtime", addTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createMoveToDirectory", createMoveToDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includingSubFolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "stored_source_path_depth", storedSourcePathDepth ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      zipFilename = XMLHandler.getTagValue( entrynode, "zipfilename" );
-      compressionRate = Const.toInt( XMLHandler.getTagValue( entrynode, "compressionrate" ), -1 );
-      ifZipFileExists = Const.toInt( XMLHandler.getTagValue( entrynode, "ifzipfileexists" ), -1 );
-      afterZip = Const.toInt( XMLHandler.getTagValue( entrynode, "afterzip" ), -1 );
-      wildCard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      excludeWildCard = XMLHandler.getTagValue( entrynode, "wildcardexclude" );
-      sourceDirectory = XMLHandler.getTagValue( entrynode, "sourcedirectory" );
-      movetoDirectory = XMLHandler.getTagValue( entrynode, "movetodirectory" );
-      addFileToResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
-      isFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "isfromprevious" ) );
-      createParentFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createparentfolder" ) );
-      addDate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "adddate" ) );
-      addTime = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addtime" ) );
-      specifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      dateTimeFormat = XMLHandler.getTagValue( entrynode, "date_time_format" );
-      createMoveToDirectory = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createMoveToDirectory" ) );
-      includingSubFolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
-      storedSourcePathDepth = XMLHandler.getTagValue( entrynode, "stored_source_path_depth" );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionZipFile.UnableLoadActionXML" ), xe );
+      super.loadXml( entrynode );
+      zipFilename = XmlHandler.getTagValue( entrynode, "zipfilename" );
+      compressionRate = Const.toInt( XmlHandler.getTagValue( entrynode, "compressionrate" ), -1 );
+      ifZipFileExists = Const.toInt( XmlHandler.getTagValue( entrynode, "ifzipfileexists" ), -1 );
+      afterZip = Const.toInt( XmlHandler.getTagValue( entrynode, "afterzip" ), -1 );
+      wildCard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      excludeWildCard = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
+      sourceDirectory = XmlHandler.getTagValue( entrynode, "sourcedirectory" );
+      movetoDirectory = XmlHandler.getTagValue( entrynode, "movetodirectory" );
+      addFileToResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
+      isFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "isfromprevious" ) );
+      createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createparentfolder" ) );
+      addDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddate" ) );
+      addTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addtime" ) );
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      createMoveToDirectory = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createMoveToDirectory" ) );
+      includingSubFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      storedSourcePathDepth = XmlHandler.getTagValue( entrynode, "stored_source_path_depth" );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionZipFile.UnableLoadActionXML" ), xe );
     }
   }
 

@@ -29,7 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -40,7 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -399,7 +399,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -540,77 +540,77 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <filter>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filterfiletype", fileTypeFilter.toString() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filterfiletype", fileTypeFilter.toString() ) );
     retval.append( "    </filter>" ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "doNotFailIfNoFile", doNotFailIfNoFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "isaddresult", isaddresult ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filefield", filefield ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename_Field", dynamicFilenameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "wildcard_Field", dynamicWildcardField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "doNotFailIfNoFile", doNotFailIfNoFile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filefield", filefield ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename_Field", dynamicFilenameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "wildcard_Field", dynamicWildcardField ) );
     retval
-      .append( "    " ).append( XMLHandler.addTagValue( "exclude_wildcard_Field", dynamicExcludeWildcardField ) );
+      .append( "    " ).append( XmlHandler.addTagValue( "exclude_wildcard_Field", dynamicExcludeWildcardField ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "dynamic_include_subfolders", dynamicIncludeSubFolders ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", rowLimit ) );
+      XmlHandler.addTagValue( "dynamic_include_subfolders", dynamicIncludeSubFolders ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", rowLimit ) );
 
     retval.append( "    <file>" ).append( Const.CR );
 
     for ( int i = 0; i < fileName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", fileName[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "filemask", fileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", fileRequired[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "name", fileName[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "filemask", fileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "exclude_filemask", excludeFileMask[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "file_required", fileRequired[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node filternode = XMLHandler.getSubNode( transformNode, "filter" );
-      Node filterfiletypenode = XMLHandler.getSubNode( filternode, "filterfiletype" );
-      fileTypeFilter = FileInputList.FileTypeFilter.getByName( XMLHandler.getNodeValue( filterfiletypenode ) );
-      doNotFailIfNoFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "doNotFailIfNoFile" ) );
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      isaddresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "isaddresult" ) );
-      filefield = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "filefield" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      dynamicFilenameField = XMLHandler.getTagValue( transformNode, "filename_Field" );
-      dynamicWildcardField = XMLHandler.getTagValue( transformNode, "wildcard_Field" );
-      dynamicExcludeWildcardField = XMLHandler.getTagValue( transformNode, "exclude_wildcard_Field" );
+      Node filternode = XmlHandler.getSubNode( transformNode, "filter" );
+      Node filterfiletypenode = XmlHandler.getSubNode( filternode, "filterfiletype" );
+      fileTypeFilter = FileInputList.FileTypeFilter.getByName( XmlHandler.getNodeValue( filterfiletypenode ) );
+      doNotFailIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "doNotFailIfNoFile" ) );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      isaddresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "isaddresult" ) );
+      filefield = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "filefield" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      dynamicFilenameField = XmlHandler.getTagValue( transformNode, "filename_Field" );
+      dynamicWildcardField = XmlHandler.getTagValue( transformNode, "wildcard_Field" );
+      dynamicExcludeWildcardField = XmlHandler.getTagValue( transformNode, "exclude_wildcard_Field" );
       dynamicIncludeSubFolders =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamic_include_subfolders" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamic_include_subfolders" ) );
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong( XMLHandler.getTagValue( transformNode, "limit" ), 0L );
+      rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
 
-      Node filenode = XMLHandler.getSubNode( transformNode, "file" );
-      int nrfiles = XMLHandler.countNodes( filenode, "name" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      int nrfiles = XmlHandler.countNodes( filenode, "name" );
 
       allocate( nrfiles );
 
       for ( int i = 0; i < nrfiles; i++ ) {
-        Node filenamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
-        Node filemasknode = XMLHandler.getSubNodeByNr( filenode, "filemask", i );
-        Node excludefilemasknode = XMLHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
-        Node fileRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        Node includeSubFoldersnode = XMLHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[ i ] = XMLHandler.getNodeValue( filenamenode );
-        fileMask[ i ] = XMLHandler.getNodeValue( filemasknode );
-        excludeFileMask[ i ] = XMLHandler.getNodeValue( excludefilemasknode );
-        fileRequired[ i ] = XMLHandler.getNodeValue( fileRequirednode );
-        includeSubFolders[ i ] = XMLHandler.getNodeValue( includeSubFoldersnode );
+        Node filenamenode = XmlHandler.getSubNodeByNr( filenode, "name", i );
+        Node filemasknode = XmlHandler.getSubNodeByNr( filenode, "filemask", i );
+        Node excludefilemasknode = XmlHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
+        Node fileRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
+        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr( filenode, "include_subfolders", i );
+        fileName[ i ] = XmlHandler.getNodeValue( filenamenode );
+        fileMask[ i ] = XmlHandler.getNodeValue( filemasknode );
+        excludeFileMask[ i ] = XmlHandler.getNodeValue( excludefilemasknode );
+        fileRequired[ i ] = XmlHandler.getNodeValue( fileRequirednode );
+        includeSubFolders[ i ] = XmlHandler.getNodeValue( includeSubFoldersnode );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

@@ -24,7 +24,7 @@ package org.apache.hop.www;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.PackageMessages;
 import org.owasp.encoder.Encode;
 
@@ -69,13 +69,13 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
 
       WebResult result = generateBody( request, response, useXML );
       if ( result != null ) {
-        out.println( result.getXML() );
+        out.println( result.getXml() );
       }
 
     } catch ( Exception e ) {
       String st = ExceptionUtils.getFullStackTrace( e );
       if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_ERROR, st ).getXML() );
+        out.println( new WebResult( WebResult.STRING_ERROR, st ).getXml() );
       } else {
         out.println( "<p><pre>" );
         out.println( Encode.forHtml( st ) );
@@ -111,7 +111,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
   protected void startXml( HttpServletResponse response, PrintWriter out ) throws IOException {
     response.setContentType( "text/xml" );
     response.setCharacterEncoding( Const.XML_ENCODING );
-    out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+    out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
   }
 
   abstract WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML )

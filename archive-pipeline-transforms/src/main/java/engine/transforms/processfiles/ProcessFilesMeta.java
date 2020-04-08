@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.processfiles;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -198,7 +198,7 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -219,17 +219,17 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "sourcefilenamefield", sourcefilenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sourcefilenamefield", sourcefilenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "overwritetargetfile", overwritetargetfile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "createparentfolder", createparentfolder ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "simulate", simulate ) );
+      XmlHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "overwritetargetfile", overwritetargetfile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "createparentfolder", createparentfolder ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "simulate", simulate ) );
 
     return retval.toString();
   }
@@ -241,19 +241,19 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
     return operationTypeCode[ i ];
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      sourcefilenamefield = XMLHandler.getTagValue( transformNode, "sourcefilenamefield" );
-      targetfilenamefield = XMLHandler.getTagValue( transformNode, "targetfilenamefield" );
+      sourcefilenamefield = XmlHandler.getTagValue( transformNode, "sourcefilenamefield" );
+      targetfilenamefield = XmlHandler.getTagValue( transformNode, "targetfilenamefield" );
       operationType =
-        getOperationTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "operation_type" ), "" ) );
-      addresultfilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addresultfilenames" ) );
-      overwritetargetfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "overwritetargetfile" ) );
-      createparentfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "createparentfolder" ) );
-      simulate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "simulate" ) );
+        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operation_type" ), "" ) );
+      addresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfilenames" ) );
+      overwritetargetfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "overwritetargetfile" ) );
+      createparentfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createparentfolder" ) );
+      simulate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "simulate" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages
+      throw new HopXmlException( BaseMessages
         .getString( PKG, "ProcessFilesMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }

@@ -27,13 +27,13 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -233,7 +233,7 @@ public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements IT
     this.messageField = fieldnamein;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -251,23 +251,23 @@ public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements IT
     this.secretKeyInField = secretKeyInField;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
       operationType =
-        getOperationTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "operation_type" ), "" ) );
-      algorithm = XMLHandler.getTagValue( transformNode, "algorithm" );
-      schema = XMLHandler.getTagValue( transformNode, "schema" );
-      secretKeyField = XMLHandler.getTagValue( transformNode, "secretKeyField" );
-      messageField = XMLHandler.getTagValue( transformNode, "messageField" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
+        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operation_type" ), "" ) );
+      algorithm = XmlHandler.getTagValue( transformNode, "algorithm" );
+      schema = XmlHandler.getTagValue( transformNode, "schema" );
+      secretKeyField = XmlHandler.getTagValue( transformNode, "secretKeyField" );
+      messageField = XmlHandler.getTagValue( transformNode, "messageField" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
 
-      setSecretKey( Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "secretKey" ) ) );
-      secretKeyInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "secretKeyInField" ) );
-      readKeyAsBinary = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "readKeyAsBinary" ) );
-      outputResultAsBinary = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "outputResultAsBinary" ) );
+      setSecretKey( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "secretKey" ) ) );
+      secretKeyInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "secretKeyInField" ) );
+      readKeyAsBinary = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "readKeyAsBinary" ) );
+      outputResultAsBinary = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outputResultAsBinary" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SymmetricCryptoMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -303,21 +303,21 @@ public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements IT
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XMLHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "algorithm", algorithm ) );
-    retval.append( "    " + XMLHandler.addTagValue( "schema", schema ) );
-    retval.append( "    " + XMLHandler.addTagValue( "secretKeyField", secretKeyField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "messageField", messageField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "algorithm", algorithm ) );
+    retval.append( "    " + XmlHandler.addTagValue( "schema", schema ) );
+    retval.append( "    " + XmlHandler.addTagValue( "secretKeyField", secretKeyField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "messageField", messageField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
 
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "secretKey", Encr.encryptPasswordIfNotUsingVariables( secretKey ) ) );
+      XmlHandler.addTagValue( "secretKey", Encr.encryptPasswordIfNotUsingVariables( secretKey ) ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "secretKeyInField", secretKeyInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "readKeyAsBinary", readKeyAsBinary ) );
-    retval.append( "    " + XMLHandler.addTagValue( "outputResultAsBinary", outputResultAsBinary ) );
+    retval.append( "    " + XmlHandler.addTagValue( "secretKeyInField", secretKeyInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "readKeyAsBinary", readKeyAsBinary ) );
+    retval.append( "    " + XmlHandler.addTagValue( "outputResultAsBinary", outputResultAsBinary ) );
 
     return retval.toString();
   }

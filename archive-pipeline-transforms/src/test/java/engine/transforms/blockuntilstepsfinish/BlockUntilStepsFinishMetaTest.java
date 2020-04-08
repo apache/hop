@@ -95,6 +95,6 @@ public class BlockUntilTransformsFinishMetaTest implements InitializerInterface<
     assertFalse( aClone == meta );
     assertTrue( Arrays.equals( meta.getTransformName(), aClone.getTransformName() ) );
     assertTrue( Arrays.equals( meta.getTransformCopyNr(), aClone.getTransformCopyNr() ) );
-    assertEquals( meta.getXML(), aClone.getXML() );
+    assertEquals( meta.getXml(), aClone.getXml() );
   }
 }

@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.edi2xml;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -72,23 +72,23 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() throws HopValueException {
+  public String getXml() throws HopValueException {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "   " + XMLHandler.addTagValue( "inputfield", inputField ) );
-    retval.append( "   " + XMLHandler.addTagValue( "outputfield", outputField ) );
+    retval.append( "   " + XmlHandler.addTagValue( "inputfield", inputField ) );
+    retval.append( "   " + XmlHandler.addTagValue( "outputfield", outputField ) );
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
 
     try {
-      setInputField( XMLHandler.getNodeValue( XMLHandler.getSubNode( transformNode, "inputfield" ) ) );
-      setOutputField( XMLHandler.getNodeValue( XMLHandler.getSubNode( transformNode, "outputfield" ) ) );
+      setInputField( XmlHandler.getNodeValue( XmlHandler.getSubNode( transformNode, "inputfield" ) ) );
+      setOutputField( XmlHandler.getNodeValue( XmlHandler.getSubNode( transformNode, "outputfield" ) ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Template Plugin Unable to read transform info from XML node", e );
+      throw new HopXmlException( "Template Plugin Unable to read transform info from XML node", e );
     }
 
   }

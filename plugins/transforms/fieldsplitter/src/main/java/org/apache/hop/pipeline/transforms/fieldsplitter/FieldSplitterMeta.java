@@ -28,7 +28,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -339,7 +339,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
     this.fieldTrimType = fieldTrimType;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -383,33 +383,33 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      splitField = XMLHandler.getTagValue( transformNode, "splitfield" );
-      delimiter = XMLHandler.getTagValue( transformNode, "delimiter" );
-      enclosure = XMLHandler.getTagValue( transformNode, "enclosure" );
+      splitField = XmlHandler.getTagValue( transformNode, "splitfield" );
+      delimiter = XmlHandler.getTagValue( transformNode, "delimiter" );
+      enclosure = XmlHandler.getTagValue( transformNode, "enclosure" );
 
-      final Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      final int nrFields = XMLHandler.countNodes( fields, "field" );
+      final Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      final int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        final Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        final Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        fieldID[ i ] = XMLHandler.getTagValue( fnode, "id" );
-        final String sidrem = XMLHandler.getTagValue( fnode, "idrem" );
-        final String stype = XMLHandler.getTagValue( fnode, "type" );
-        fieldFormat[ i ] = XMLHandler.getTagValue( fnode, "format" );
-        fieldGroup[ i ] = XMLHandler.getTagValue( fnode, "group" );
-        fieldDecimal[ i ] = XMLHandler.getTagValue( fnode, "decimal" );
-        fieldCurrency[ i ] = XMLHandler.getTagValue( fnode, "currency" );
-        final String slen = XMLHandler.getTagValue( fnode, "length" );
-        final String sprc = XMLHandler.getTagValue( fnode, "precision" );
-        fieldNullIf[ i ] = XMLHandler.getTagValue( fnode, "nullif" );
-        fieldIfNull[ i ] = XMLHandler.getTagValue( fnode, "ifnull" );
-        final String trim = XMLHandler.getTagValue( fnode, "trimtype" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        fieldID[ i ] = XmlHandler.getTagValue( fnode, "id" );
+        final String sidrem = XmlHandler.getTagValue( fnode, "idrem" );
+        final String stype = XmlHandler.getTagValue( fnode, "type" );
+        fieldFormat[ i ] = XmlHandler.getTagValue( fnode, "format" );
+        fieldGroup[ i ] = XmlHandler.getTagValue( fnode, "group" );
+        fieldDecimal[ i ] = XmlHandler.getTagValue( fnode, "decimal" );
+        fieldCurrency[ i ] = XmlHandler.getTagValue( fnode, "currency" );
+        final String slen = XmlHandler.getTagValue( fnode, "length" );
+        final String sprc = XmlHandler.getTagValue( fnode, "precision" );
+        fieldNullIf[ i ] = XmlHandler.getTagValue( fnode, "nullif" );
+        fieldIfNull[ i ] = XmlHandler.getTagValue( fnode, "ifnull" );
+        final String trim = XmlHandler.getTagValue( fnode, "trimtype" );
 
         fieldRemoveID[ i ] = "Y".equalsIgnoreCase( sidrem );
         fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( stype );
@@ -418,7 +418,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
         fieldTrimType[ i ] = ValueMetaString.getTrimTypeByCode( trim );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "FieldSplitterMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -483,44 +483,44 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     final StringBuilder retval = new StringBuilder( 500 );
 
     retval
-      .append( "   " ).append( XMLHandler.addTagValue( "splitfield", splitField ) )
-      .append( "   " ).append( XMLHandler.addTagValue( "delimiter", delimiter ) )
-      .append( "   " ).append( XMLHandler.addTagValue( "enclosure", enclosure ) );
+      .append( "   " ).append( XmlHandler.addTagValue( "splitfield", splitField ) )
+      .append( "   " ).append( XmlHandler.addTagValue( "delimiter", delimiter ) )
+      .append( "   " ).append( XmlHandler.addTagValue( "enclosure", enclosure ) );
 
     retval.append( "   " ).append( "<fields>" );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval
         .append( "      " ).append( "<field>" )
-        .append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) )
+        .append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "id", ArrayUtils.isEmpty( fieldID ) ? null : fieldID[ i ] ) )
+        .append( XmlHandler.addTagValue( "id", ArrayUtils.isEmpty( fieldID ) ? null : fieldID[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "idrem", ArrayUtils.isEmpty( fieldRemoveID ) ? false : fieldRemoveID[ i ] ) )
+        .append( XmlHandler.addTagValue( "idrem", ArrayUtils.isEmpty( fieldRemoveID ) ? false : fieldRemoveID[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "type",
+        .append( XmlHandler.addTagValue( "type",
           ValueMetaFactory.getValueMetaName( ArrayUtils.isEmpty( fieldType ) ? 0 : fieldType[ i ] ) ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "format", ArrayUtils.isEmpty( fieldFormat ) ? null : fieldFormat[ i ] ) )
+        .append( XmlHandler.addTagValue( "format", ArrayUtils.isEmpty( fieldFormat ) ? null : fieldFormat[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "group", ArrayUtils.isEmpty( fieldGroup ) ? null : fieldGroup[ i ] ) )
+        .append( XmlHandler.addTagValue( "group", ArrayUtils.isEmpty( fieldGroup ) ? null : fieldGroup[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "decimal", ArrayUtils.isEmpty( fieldDecimal ) ? null : fieldDecimal[ i ] ) )
+        .append( XmlHandler.addTagValue( "decimal", ArrayUtils.isEmpty( fieldDecimal ) ? null : fieldDecimal[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "currency", ArrayUtils.isEmpty( fieldCurrency ) ? null : fieldCurrency[ i ] ) )
+        .append( XmlHandler.addTagValue( "currency", ArrayUtils.isEmpty( fieldCurrency ) ? null : fieldCurrency[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "length", ArrayUtils.isEmpty( fieldLength ) ? -1 : fieldLength[ i ] ) )
+        .append( XmlHandler.addTagValue( "length", ArrayUtils.isEmpty( fieldLength ) ? -1 : fieldLength[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "precision", ArrayUtils.isEmpty( fieldPrecision ) ? -1 : fieldPrecision[ i ] ) )
+        .append( XmlHandler.addTagValue( "precision", ArrayUtils.isEmpty( fieldPrecision ) ? -1 : fieldPrecision[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "nullif", ArrayUtils.isEmpty( fieldNullIf ) ? null : fieldNullIf[ i ] ) )
+        .append( XmlHandler.addTagValue( "nullif", ArrayUtils.isEmpty( fieldNullIf ) ? null : fieldNullIf[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "ifnull", ArrayUtils.isEmpty( fieldIfNull ) ? null : fieldIfNull[ i ] ) )
+        .append( XmlHandler.addTagValue( "ifnull", ArrayUtils.isEmpty( fieldIfNull ) ? null : fieldIfNull[ i ] ) )
         .append( "        " )
-        .append( XMLHandler.addTagValue( "trimtype",
+        .append( XmlHandler.addTagValue( "trimtype",
           ValueMetaString.getTrimTypeCode( ArrayUtils.isEmpty( fieldTrimType ) ? 0 : fieldTrimType[ i ] ) ) )
         .append( "      " ).append( "</field>" );
     }

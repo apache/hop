@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.pipeline.transforms.scriptvalues_mod;
 
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,7 +37,7 @@ public class ScriptValuesHelp {
   private static Document dom;
   private static Hashtable<String, String> hatFunctionsList;
 
-  public ScriptValuesHelp( String strFileName ) throws HopXMLException {
+  public ScriptValuesHelp( String strFileName ) throws HopXmlException {
     super();
     xparseXmlFile( strFileName );
     buildFunctionList();
@@ -84,7 +84,7 @@ public class ScriptValuesHelp {
     return sRC;
   }
 
-  private static void xparseXmlFile( String strFileName ) throws HopXMLException {
+  private static void xparseXmlFile( String strFileName ) throws HopXmlException {
     try {
       InputStream is = ScriptValuesHelp.class.getResourceAsStream( strFileName );
       int c;
@@ -93,9 +93,9 @@ public class ScriptValuesHelp {
         buffer.append( (char) c );
       }
       is.close();
-      dom = XMLHandler.loadXMLString( buffer.toString() );
+      dom = XmlHandler.loadXMLString( buffer.toString() );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read script values help file from file [" + strFileName + "]", e );
+      throw new HopXmlException( "Unable to read script values help file from file [" + strFileName + "]", e );
     }
   }
 }

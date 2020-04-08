@@ -432,8 +432,8 @@ public class DynamicSQLRowDialog extends BaseTransformDialog implements ITransfo
     wLimit.setText( "" + input.getRowLimit() );
     wOuter.setSelection( input.isOuterJoin() );
     wuseVars.setSelection( input.isVariableReplace() );
-    if ( input.getSQLFieldName() != null ) {
-      wSQLFieldName.setText( input.getSQLFieldName() );
+    if ( input.getSqlFieldName() != null ) {
+      wSQLFieldName.setText( input.getSqlFieldName() );
     }
     wqueryOnlyOnChange.setSelection( input.isQueryOnlyOnChange() );
     if ( input.getDatabaseMeta() != null ) {
@@ -457,7 +457,7 @@ public class DynamicSQLRowDialog extends BaseTransformDialog implements ITransfo
 
     input.setRowLimit( Const.toInt( wLimit.getText(), 0 ) );
     input.setSql( wSQL.getText() );
-    input.setSQLFieldName( wSQLFieldName.getText() );
+    input.setSqlFieldName( wSQLFieldName.getText() );
     input.setOuterJoin( wOuter.getSelection() );
     input.setVariableReplace( wuseVars.getSelection() );
     input.setQueryOnlyOnChange( wqueryOnlyOnChange.getSelection() );

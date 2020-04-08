@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
@@ -71,7 +71,7 @@ public class AbortMetaTest {
   }
 
   @Test
-  public void testBackwardsCapatibilityAbortWithError() throws HopXMLException {
+  public void testBackwardsCapatibilityAbortWithError() throws HopXmlException {
     IMetaStore metaStore = mock( IMetaStore.class );
     AbortMeta meta = new AbortMeta();
 
@@ -81,8 +81,8 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "    <abort_with_error>Y</abort_with_error>\n"
       + "  </transform>";
-    Node node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, metaStore );
+    Node node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    meta.loadXml( node, metaStore );
     assertTrue( meta.isAbortWithError() );
 
     // Don't abort with error
@@ -91,8 +91,8 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "    <abort_with_error>N</abort_with_error>\n"
       + "  </transform>";
-    node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, metaStore );
+    node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    meta.loadXml( node, metaStore );
     assertTrue( meta.isAbort() );
 
     // Don't abort with error
@@ -100,8 +100,8 @@ public class AbortMetaTest {
       + "    <name>Abort</name>\n"
       + "    <type>Abort</type>\n"
       + "  </transform>";
-    node = XMLHandler.loadXMLString( inputXml ).getFirstChild();
-    meta.loadXML( node, metaStore );
+    node = XmlHandler.loadXMLString( inputXml ).getFirstChild();
+    meta.loadXml( node, metaStore );
     assertTrue( meta.isAbortWithError() );
   }
 }

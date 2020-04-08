@@ -30,11 +30,11 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -146,20 +146,20 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return getSuccessConditionByCode( tt );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "limit", limit ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "is_custom_sql", useCustomSQL ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "is_usevars", useVars ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "custom_sql", customSQL ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_rows_result", addRowsResult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "clear_result_rows", clearResultList ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "limit", limit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", useCustomSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", useVars ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", addRowsResult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_result_rows", clearResultList ) );
 
     return retval.toString();
   }
@@ -191,25 +191,25 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return successConditionsDesc[ i ];
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      super.loadXml( entrynode );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
       successCondition =
-        getSucessConditionByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "success_condition" ), "" ) );
-      limit = Const.NVL( XMLHandler.getTagValue( entrynode, "limit" ), "0" );
-      useCustomSQL = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "is_custom_sql" ) );
-      useVars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSQL = XMLHandler.getTagValue( entrynode, "custom_sql" );
-      addRowsResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_rows_result" ) );
-      clearResultList = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "clear_result_rows" ) );
+        getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
+      limit = Const.NVL( XmlHandler.getTagValue( entrynode, "limit" ), "0" );
+      useCustomSQL = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
+      useVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
+      customSQL = XmlHandler.getTagValue( entrynode, "custom_sql" );
+      addRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
+      clearResultList = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_result_rows" ) );
 
     } catch ( HopException e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionEvalTableContent.UnableLoadXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionEvalTableContent.UnableLoadXML" ), e );
     }
   }
 

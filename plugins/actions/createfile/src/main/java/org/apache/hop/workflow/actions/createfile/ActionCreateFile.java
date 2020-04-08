@@ -28,10 +28,10 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -86,27 +86,27 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fail_if_file_exists", failIfFileExists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_filename_result", addfilenameresult ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fail_if_file_exists", failIfFileExists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_filename_result", addfilenameresult ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      failIfFileExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_if_file_exists" ) );
-      addfilenameresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_filename_result" ) );
+      super.loadXml( entrynode );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      failIfFileExists = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "fail_if_file_exists" ) );
+      addfilenameresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_filename_result" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'create file' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'create file' from XML node", xe );
     }
   }
 

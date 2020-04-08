@@ -168,7 +168,7 @@ public class OraBulkLoaderMetaTest {
 
     oraBulkLoaderMeta.afterInjectionSynchronization();
     //run without exception
-    oraBulkLoaderMeta.getXML();
+    oraBulkLoaderMeta.getXml();
     Assert.assertEquals( oraBulkLoaderMeta.getFieldStream().length, oraBulkLoaderMeta.getDateMask().length );
   }
 

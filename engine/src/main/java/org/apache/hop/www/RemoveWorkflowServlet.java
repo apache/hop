@@ -26,7 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -196,8 +196,8 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
       if ( useXML ) {
         response.setContentType( "text/xml" );
         response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
-        out.print( WebResult.OK.getXML() );
+        out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+        out.print( WebResult.OK.getXml() );
       } else {
         response.setContentType( "text/html;charset=UTF-8" );
 

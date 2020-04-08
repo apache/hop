@@ -167,14 +167,14 @@ public class ReplaceStringMetaTest {
     replaceString.setIsUnicode( new int[] { 1, 0, 0, 1 } );
 
     try {
-      String badXml = replaceString.getXML();
+      String badXml = replaceString.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     replaceString.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = replaceString.getXML();
+    String ktrXml = replaceString.getXml();
 
     int targetSz = replaceString.getFieldInStream().length;
     Assert.assertEquals( targetSz, replaceString.getFieldOutStream().length );

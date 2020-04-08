@@ -24,8 +24,8 @@ package org.apache.hop.workflow;
 
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.w3c.dom.Node;
@@ -64,11 +64,11 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     }
   }
 
-  public WorkflowHopMeta( Node hopNode, List<ActionCopy> actions ) throws HopXMLException {
+  public WorkflowHopMeta( Node hopNode, List<ActionCopy> actions ) throws HopXmlException {
     try {
-      this.from = searchEntry( actions, XMLHandler.getTagValue( hopNode, WorkflowHopMeta.XML_FROM_TAG ) );
-      this.to = searchEntry( actions, XMLHandler.getTagValue( hopNode, WorkflowHopMeta.XML_TO_TAG ) );
-      String en = XMLHandler.getTagValue( hopNode, "enabled" );
+      this.from = searchEntry( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_FROM_TAG ) );
+      this.to = searchEntry( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_TO_TAG ) );
+      String en = XmlHandler.getTagValue( hopNode, "enabled" );
 
       if ( en == null ) {
         enabled = true;
@@ -76,7 +76,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
         enabled = en.equalsIgnoreCase( "Y" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfo" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfo" ), e );
     }
   }
 
@@ -89,15 +89,15 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     return null;
   }
 
-  public WorkflowHopMeta( Node hopnode, WorkflowMeta workflow ) throws HopXMLException {
+  public WorkflowHopMeta( Node hopnode, WorkflowMeta workflow ) throws HopXmlException {
     try {
-      String from_name = XMLHandler.getTagValue( hopnode, XML_FROM_TAG );
-      String to_name = XMLHandler.getTagValue( hopnode, XML_TO_TAG );
-      String sfrom_nr = XMLHandler.getTagValue( hopnode, "from_nr" );
-      String sto_nr = XMLHandler.getTagValue( hopnode, "to_nr" );
-      String senabled = XMLHandler.getTagValue( hopnode, "enabled" );
-      String sevaluation = XMLHandler.getTagValue( hopnode, "evaluation" );
-      String sunconditional = XMLHandler.getTagValue( hopnode, "unconditional" );
+      String from_name = XmlHandler.getTagValue( hopnode, XML_FROM_TAG );
+      String to_name = XmlHandler.getTagValue( hopnode, XML_TO_TAG );
+      String sfrom_nr = XmlHandler.getTagValue( hopnode, "from_nr" );
+      String sto_nr = XmlHandler.getTagValue( hopnode, "to_nr" );
+      String senabled = XmlHandler.getTagValue( hopnode, "enabled" );
+      String sevaluation = XmlHandler.getTagValue( hopnode, "evaluation" );
+      String sunconditional = XmlHandler.getTagValue( hopnode, "unconditional" );
 
       int from_nr, to_nr;
       from_nr = Const.toInt( sfrom_nr, 0 );
@@ -118,7 +118,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
       }
       unconditional = "Y".equalsIgnoreCase( sunconditional );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfoXML" ), e );
     }
   }
@@ -126,15 +126,15 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
   public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
     if ( ( null != this.from ) && ( null != this.to ) ) {
-      retval.append( "    " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-      retval.append( "      " ).append( XMLHandler.addTagValue( XML_FROM_TAG, this.from.getName() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( XML_TO_TAG, this.to.getName() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "from_nr", this.from.getNr() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "to_nr", this.to.getNr() ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "enabled", enabled ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "evaluation", evaluation ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "unconditional", unconditional ) );
-      retval.append( "    " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.addTagValue( XML_FROM_TAG, this.from.getName() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( XML_TO_TAG, this.to.getName() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "from_nr", this.from.getNr() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "to_nr", this.to.getNr() ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "evaluation", evaluation ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "unconditional", unconditional ) );
+      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     }
 
     return retval.toString();

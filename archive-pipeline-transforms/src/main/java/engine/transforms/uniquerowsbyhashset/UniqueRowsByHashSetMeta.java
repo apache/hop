@@ -25,10 +25,10 @@ package org.apache.hop.pipeline.transforms.uniquerowsbyhashset;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -116,7 +116,7 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta implements ITrans
     return errorDescription;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -131,25 +131,25 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta implements ITrans
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      storeValues = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "store_values" ) );
-      rejectDuplicateRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "reject_duplicate_row" ) );
-      errorDescription = XMLHandler.getTagValue( transformNode, "error_description" );
+      storeValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "store_values" ) );
+      rejectDuplicateRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "reject_duplicate_row" ) );
+      errorDescription = XmlHandler.getTagValue( transformNode, "error_description" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        compareFields[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        compareFields[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "UniqueRowsByHashSetMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -170,16 +170,16 @@ public class UniqueRowsByHashSetMeta extends BaseTransformMeta implements ITrans
                          iVariables variables, IMetaStore metaStore ) throws HopTransformException {
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XMLHandler.addTagValue( "store_values", storeValues ) );
-    retval.append( "      " + XMLHandler.addTagValue( "reject_duplicate_row", rejectDuplicateRow ) );
-    retval.append( "      " + XMLHandler.addTagValue( "error_description", errorDescription ) );
+    retval.append( "      " + XmlHandler.addTagValue( "store_values", storeValues ) );
+    retval.append( "      " + XmlHandler.addTagValue( "reject_duplicate_row", rejectDuplicateRow ) );
+    retval.append( "      " + XmlHandler.addTagValue( "error_description", errorDescription ) );
     retval.append( "    <fields>" );
     for ( int i = 0; i < compareFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", compareFields[ i ] ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );

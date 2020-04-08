@@ -28,7 +28,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -248,7 +248,7 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -258,23 +258,23 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      dbfFileName = XMLHandler.getTagValue( transformNode, "file_dbf" );
-      rowLimit = Const.toInt( XMLHandler.getTagValue( transformNode, "limit" ), 0 );
-      rowNrAdded = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "add_rownr" ) );
-      rowNrField = XMLHandler.getTagValue( transformNode, "field_rownr" );
+      dbfFileName = XmlHandler.getTagValue( transformNode, "file_dbf" );
+      rowLimit = Const.toInt( XmlHandler.getTagValue( transformNode, "limit" ), 0 );
+      rowNrAdded = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "add_rownr" ) );
+      rowNrField = XmlHandler.getTagValue( transformNode, "field_rownr" );
 
-      includeFilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "include" ) );
-      filenameField = XMLHandler.getTagValue( transformNode, "include_field" );
-      charactersetName = XMLHandler.getTagValue( transformNode, "charset_name" );
+      includeFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include" ) );
+      filenameField = XmlHandler.getTagValue( transformNode, "include_field" );
+      charactersetName = XmlHandler.getTagValue( transformNode, "charset_name" );
 
-      acceptingFilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "accept_filenames" ) );
-      acceptingField = XMLHandler.getTagValue( transformNode, "accept_field" );
-      acceptingTransformName = XMLHandler.getTagValue( transformNode, "accept_transform_name" );
+      acceptingFilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "accept_filenames" ) );
+      acceptingField = XmlHandler.getTagValue( transformNode, "accept_field" );
+      acceptingTransformName = XmlHandler.getTagValue( transformNode, "accept_transform_name" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "XBaseInputMeta.Exception.UnableToReadTransformMetaFromXML" ), e );
     }
   }
@@ -360,25 +360,25 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "file_dbf", dbfFileName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "limit", rowLimit ) );
-    retval.append( "    " + XMLHandler.addTagValue( "add_rownr", rowNrAdded ) );
-    retval.append( "    " + XMLHandler.addTagValue( "field_rownr", rowNrField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "file_dbf", dbfFileName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " + XmlHandler.addTagValue( "add_rownr", rowNrAdded ) );
+    retval.append( "    " + XmlHandler.addTagValue( "field_rownr", rowNrField ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "include", includeFilename ) );
-    retval.append( "    " + XMLHandler.addTagValue( "include_field", filenameField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "charset_name", charactersetName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "include", includeFilename ) );
+    retval.append( "    " + XmlHandler.addTagValue( "include_field", filenameField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "charset_name", charactersetName ) );
 
-    retval.append( "    " + XMLHandler.addTagValue( "accept_filenames", acceptingFilenames ) );
-    retval.append( "    " + XMLHandler.addTagValue( "accept_field", acceptingField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "accept_filenames", acceptingFilenames ) );
+    retval.append( "    " + XmlHandler.addTagValue( "accept_field", acceptingField ) );
     if ( ( acceptingTransformName == null ) && ( acceptingTransform != null ) ) {
       acceptingTransformName = acceptingTransform.getName();
     }
     retval.append( "    "
-      + XMLHandler.addTagValue( "accept_transform_name", acceptingTransformName ) );
+      + XmlHandler.addTagValue( "accept_transform_name", acceptingTransformName ) );
 
     return retval.toString();
   }

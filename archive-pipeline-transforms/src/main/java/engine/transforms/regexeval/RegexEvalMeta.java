@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -335,48 +335,48 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
     this.fieldTrimType = fieldTrimType;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      script = XMLHandler.getTagValue( transformNode, "script" );
-      matcher = XMLHandler.getTagValue( transformNode, "matcher" );
-      resultfieldname = XMLHandler.getTagValue( transformNode, "resultfieldname" );
-      usevar = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usevar" ) );
-      allowcapturegroups = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "allowcapturegroups" ) );
-      replacefields = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "replacefields" ) );
-      canoneq = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "canoneq" ) );
-      caseinsensitive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "caseinsensitive" ) );
-      comment = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "comment" ) );
-      dotall = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dotall" ) );
-      multiline = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "multiline" ) );
-      unicode = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "unicode" ) );
-      unix = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "unix" ) );
+      script = XmlHandler.getTagValue( transformNode, "script" );
+      matcher = XmlHandler.getTagValue( transformNode, "matcher" );
+      resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      usevar = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usevar" ) );
+      allowcapturegroups = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "allowcapturegroups" ) );
+      replacefields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replacefields" ) );
+      canoneq = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "canoneq" ) );
+      caseinsensitive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "caseinsensitive" ) );
+      comment = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "comment" ) );
+      dotall = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dotall" ) );
+      multiline = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "multiline" ) );
+      unicode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "unicode" ) );
+      unix = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "unix" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        final String stype = XMLHandler.getTagValue( fnode, "type" );
-        fieldFormat[ i ] = XMLHandler.getTagValue( fnode, "format" );
-        fieldGroup[ i ] = XMLHandler.getTagValue( fnode, "group" );
-        fieldDecimal[ i ] = XMLHandler.getTagValue( fnode, "decimal" );
-        fieldCurrency[ i ] = XMLHandler.getTagValue( fnode, "currency" );
-        final String slen = XMLHandler.getTagValue( fnode, "length" );
-        final String sprc = XMLHandler.getTagValue( fnode, "precision" );
-        fieldNullIf[ i ] = XMLHandler.getTagValue( fnode, "nullif" );
-        fieldIfNull[ i ] = XMLHandler.getTagValue( fnode, "ifnull" );
-        final String trim = XMLHandler.getTagValue( fnode, "trimtype" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        final String stype = XmlHandler.getTagValue( fnode, "type" );
+        fieldFormat[ i ] = XmlHandler.getTagValue( fnode, "format" );
+        fieldGroup[ i ] = XmlHandler.getTagValue( fnode, "group" );
+        fieldDecimal[ i ] = XmlHandler.getTagValue( fnode, "decimal" );
+        fieldCurrency[ i ] = XmlHandler.getTagValue( fnode, "currency" );
+        final String slen = XmlHandler.getTagValue( fnode, "length" );
+        final String sprc = XmlHandler.getTagValue( fnode, "precision" );
+        fieldNullIf[ i ] = XmlHandler.getTagValue( fnode, "nullif" );
+        fieldIfNull[ i ] = XmlHandler.getTagValue( fnode, "ifnull" );
+        final String trim = XmlHandler.getTagValue( fnode, "trimtype" );
         fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( stype );
         fieldLength[ i ] = Const.toInt( slen, -1 );
         fieldPrecision[ i ] = Const.toInt( sprc, -1 );
         fieldTrimType[ i ] = ValueMetaString.getTrimTypeByCode( trim );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "RegexEvalMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -474,46 +474,46 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
     return v;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    "
-      + XMLHandler.addTagValue( "script", script ) );
-    retval.append( "    " + XMLHandler.addTagValue( "matcher", matcher ) );
-    retval.append( "    " + XMLHandler.addTagValue( "resultfieldname", resultfieldname ) );
-    retval.append( "    " + XMLHandler.addTagValue( "usevar", usevar ) );
-    retval.append( "    " + XMLHandler.addTagValue( "allowcapturegroups", allowcapturegroups ) );
-    retval.append( "    " + XMLHandler.addTagValue( "replacefields", replacefields ) );
-    retval.append( "    " + XMLHandler.addTagValue( "canoneq", canoneq ) );
-    retval.append( "    " + XMLHandler.addTagValue( "caseinsensitive", caseinsensitive ) );
-    retval.append( "    " + XMLHandler.addTagValue( "comment", comment ) );
-    retval.append( "    " + XMLHandler.addTagValue( "dotall", dotall ) );
-    retval.append( "    " + XMLHandler.addTagValue( "multiline", multiline ) );
-    retval.append( "    " + XMLHandler.addTagValue( "unicode", unicode ) );
-    retval.append( "    " + XMLHandler.addTagValue( "unix", unix ) );
+      + XmlHandler.addTagValue( "script", script ) );
+    retval.append( "    " + XmlHandler.addTagValue( "matcher", matcher ) );
+    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultfieldname ) );
+    retval.append( "    " + XmlHandler.addTagValue( "usevar", usevar ) );
+    retval.append( "    " + XmlHandler.addTagValue( "allowcapturegroups", allowcapturegroups ) );
+    retval.append( "    " + XmlHandler.addTagValue( "replacefields", replacefields ) );
+    retval.append( "    " + XmlHandler.addTagValue( "canoneq", canoneq ) );
+    retval.append( "    " + XmlHandler.addTagValue( "caseinsensitive", caseinsensitive ) );
+    retval.append( "    " + XmlHandler.addTagValue( "comment", comment ) );
+    retval.append( "    " + XmlHandler.addTagValue( "dotall", dotall ) );
+    retval.append( "    " + XmlHandler.addTagValue( "multiline", multiline ) );
+    retval.append( "    " + XmlHandler.addTagValue( "unicode", unicode ) );
+    retval.append( "    " + XmlHandler.addTagValue( "unix", unix ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
         retval
-          .append( "        " ).append( XMLHandler.addTagValue( "type",
+          .append( "        " ).append( XmlHandler.addTagValue( "type",
           ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", fieldFormat[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "group", fieldGroup[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", fieldDecimal[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldLength[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "nullif", fieldNullIf[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "ifnull", fieldIfNull[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", fieldFormat[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "group", fieldGroup[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", fieldDecimal[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "nullif", fieldNullIf[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "ifnull", fieldIfNull[ i ] ) );
         retval.append( "        " ).append(
-          XMLHandler.addTagValue( "trimtype", ValueMetaString.getTrimTypeCode( fieldTrimType[ i ] ) ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "currency", fieldCurrency[ i ] ) );
+          XmlHandler.addTagValue( "trimtype", ValueMetaString.getTrimTypeCode( fieldTrimType[ i ] ) ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "currency", fieldCurrency[ i ] ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }

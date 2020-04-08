@@ -84,7 +84,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.workflow.Workflow;
@@ -2061,7 +2061,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
                 "" + td.getDatabase() ) );
             }
             if ( log.isDetailed() ) {
-              log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.Maxdepdate" ) + ( XMLHandler.date2string(
+              log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.Maxdepdate" ) + ( XmlHandler.date2string(
                 maxdepdate ) ) );
             }
           }
@@ -3373,7 +3373,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
         TopLevelResource topLevelResource =
           ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
-            metaStore, clonedConfiguration.getXML(), CONFIGURATION_IN_EXPORT_FILENAME );
+            metaStore, clonedConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
         //
@@ -3391,7 +3391,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
         // Now send it off to the remote server...
         //
-        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXML();
+        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXml();
         String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXMLString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {

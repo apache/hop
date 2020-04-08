@@ -23,8 +23,8 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -57,14 +57,14 @@ public class WebResult {
     this.id = id;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( "  " ).append( XMLHandler.addTagValue( "result", result ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "message", message ) );
-    xml.append( "  " ).append( XMLHandler.addTagValue( "id", id ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "result", result ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "message", message ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "id", id ) );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
@@ -73,13 +73,13 @@ public class WebResult {
 
   @Override
   public String toString() {
-    return getXML();
+    return getXml();
   }
 
   public WebResult( Node webResultNode ) {
-    result = XMLHandler.getTagValue( webResultNode, "result" );
-    message = XMLHandler.getTagValue( webResultNode, "message" );
-    id = XMLHandler.getTagValue( webResultNode, "id" );
+    result = XmlHandler.getTagValue( webResultNode, "result" );
+    message = XmlHandler.getTagValue( webResultNode, "message" );
+    id = XmlHandler.getTagValue( webResultNode, "id" );
   }
 
   public String getResult() {
@@ -98,14 +98,14 @@ public class WebResult {
     this.message = message;
   }
 
-  public static WebResult fromXMLString( String xml ) throws HopXMLException {
+  public static WebResult fromXMLString( String xml ) throws HopXmlException {
     try {
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, XML_TAG );
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, XML_TAG );
 
       return new WebResult( node );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "WebResult.Error.UnableCreateResult" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "WebResult.Error.UnableCreateResult" ), e );
     }
   }
 

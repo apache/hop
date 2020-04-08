@@ -128,7 +128,7 @@ public class CalculatorMetaTest implements IInitializerInterface<CalculatorMeta>
         return false;
       }
       CalculatorMetaFunction actualInput = (CalculatorMetaFunction) actual;
-      return ( testObject.getXML().equals( actualInput.getXML() ) );
+      return ( testObject.getXml().equals( actualInput.getXml() ) );
     }
   }
 }

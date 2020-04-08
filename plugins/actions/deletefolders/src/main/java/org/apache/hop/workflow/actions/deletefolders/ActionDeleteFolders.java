@@ -32,11 +32,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -117,19 +117,19 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "limit_folders", limitFolders ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "limit_folders", limitFolders ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", arguments[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "name", arguments[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -139,28 +139,28 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      argFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      successCondition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      limitFolders = XMLHandler.getTagValue( entrynode, "limit_folders" );
+      super.loadXml( entrynode );
+      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      limitFolders = XmlHandler.getTagValue( entrynode, "limit_folders" );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        arguments[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        arguments[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionDeleteFolders.UnableToLoadFromXml" ), xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionDeleteFolders.UnableToLoadFromXml" ), xe );
     }
   }
 

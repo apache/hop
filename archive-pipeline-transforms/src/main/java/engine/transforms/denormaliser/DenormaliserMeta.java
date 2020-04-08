@@ -26,12 +26,12 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -136,7 +136,7 @@ public class DenormaliserMeta extends BaseTransformMeta implements ITransform {
     this.denormaliserTargetField = pivotField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -204,60 +204,60 @@ public class DenormaliserMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      keyField = XMLHandler.getTagValue( transformNode, "key_field" );
+      keyField = XmlHandler.getTagValue( transformNode, "key_field" );
 
-      Node groupn = XMLHandler.getSubNode( transformNode, "group" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
+      Node groupn = XmlHandler.getSubNode( transformNode, "group" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
 
-      int sizegroup = XMLHandler.countNodes( groupn, "field" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int sizegroup = XmlHandler.countNodes( groupn, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( sizegroup, nrFields );
 
       for ( int i = 0; i < sizegroup; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( groupn, "field", i );
+        groupField[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         denormaliserTargetField[ i ] = new DenormaliserTargetField();
-        denormaliserTargetField[ i ].setFieldName( XMLHandler.getTagValue( fnode, "field_name" ) );
-        denormaliserTargetField[ i ].setKeyValue( XMLHandler.getTagValue( fnode, "key_value" ) );
-        denormaliserTargetField[ i ].setTargetName( XMLHandler.getTagValue( fnode, "target_name" ) );
-        denormaliserTargetField[ i ].setTargetType( XMLHandler.getTagValue( fnode, "target_type" ) );
-        denormaliserTargetField[ i ].setTargetFormat( XMLHandler.getTagValue( fnode, "target_format" ) );
+        denormaliserTargetField[ i ].setFieldName( XmlHandler.getTagValue( fnode, "field_name" ) );
+        denormaliserTargetField[ i ].setKeyValue( XmlHandler.getTagValue( fnode, "key_value" ) );
+        denormaliserTargetField[ i ].setTargetName( XmlHandler.getTagValue( fnode, "target_name" ) );
+        denormaliserTargetField[ i ].setTargetType( XmlHandler.getTagValue( fnode, "target_type" ) );
+        denormaliserTargetField[ i ].setTargetFormat( XmlHandler.getTagValue( fnode, "target_format" ) );
         denormaliserTargetField[ i ].setTargetLength( Const.toInt(
-          XMLHandler.getTagValue( fnode, "target_length" ), -1 ) );
-        denormaliserTargetField[ i ].setTargetPrecision( Const.toInt( XMLHandler.getTagValue(
+          XmlHandler.getTagValue( fnode, "target_length" ), -1 ) );
+        denormaliserTargetField[ i ].setTargetPrecision( Const.toInt( XmlHandler.getTagValue(
           fnode, "target_precision" ), -1 ) );
         denormaliserTargetField[ i ]
-          .setTargetDecimalSymbol( XMLHandler.getTagValue( fnode, "target_decimal_symbol" ) );
-        denormaliserTargetField[ i ].setTargetGroupingSymbol( XMLHandler.getTagValue(
+          .setTargetDecimalSymbol( XmlHandler.getTagValue( fnode, "target_decimal_symbol" ) );
+        denormaliserTargetField[ i ].setTargetGroupingSymbol( XmlHandler.getTagValue(
           fnode, "target_grouping_symbol" ) );
-        denormaliserTargetField[ i ].setTargetCurrencySymbol( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetCurrencySymbol( XmlHandler.getTagValue(
           fnode, "target_currency_symbol" ) );
-        denormaliserTargetField[ i ].setTargetNullString( XMLHandler.getTagValue( fnode, "target_null_string" ) );
-        denormaliserTargetField[ i ].setTargetAggregationType( XMLHandler.getTagValue(
+        denormaliserTargetField[ i ].setTargetNullString( XmlHandler.getTagValue( fnode, "target_null_string" ) );
+        denormaliserTargetField[ i ].setTargetAggregationType( XmlHandler.getTagValue(
           fnode, "target_aggregation_type" ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "DenormaliserMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XMLHandler.addTagValue( "key_field", keyField ) );
+    retval.append( "      " + XmlHandler.addTagValue( "key_field", keyField ) );
 
     retval.append( "      <group>" + Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XMLHandler.addTagValue( "name", groupField[ i ] ) );
+      retval.append( "          " + XmlHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "          </field>" + Const.CR );
     }
     retval.append( "        </group>" + Const.CR );
@@ -267,22 +267,22 @@ public class DenormaliserMeta extends BaseTransformMeta implements ITransform {
       DenormaliserTargetField field = denormaliserTargetField[ i ];
 
       retval.append( "        <field>" + Const.CR );
-      retval.append( "          " + XMLHandler.addTagValue( "field_name", field.getFieldName() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "key_value", field.getKeyValue() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_name", field.getTargetName() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_type", field.getTargetTypeDesc() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_format", field.getTargetFormat() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_length", field.getTargetLength() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_precision", field.getTargetPrecision() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "field_name", field.getFieldName() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "key_value", field.getKeyValue() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_name", field.getTargetName() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_type", field.getTargetTypeDesc() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_format", field.getTargetFormat() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_length", field.getTargetLength() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_precision", field.getTargetPrecision() ) );
       retval.append( "          "
-        + XMLHandler.addTagValue( "target_decimal_symbol", field.getTargetDecimalSymbol() ) );
+        + XmlHandler.addTagValue( "target_decimal_symbol", field.getTargetDecimalSymbol() ) );
       retval.append( "          "
-        + XMLHandler.addTagValue( "target_grouping_symbol", field.getTargetGroupingSymbol() ) );
+        + XmlHandler.addTagValue( "target_grouping_symbol", field.getTargetGroupingSymbol() ) );
       retval.append( "          "
-        + XMLHandler.addTagValue( "target_currency_symbol", field.getTargetCurrencySymbol() ) );
-      retval.append( "          " + XMLHandler.addTagValue( "target_null_string", field.getTargetNullString() ) );
+        + XmlHandler.addTagValue( "target_currency_symbol", field.getTargetCurrencySymbol() ) );
+      retval.append( "          " + XmlHandler.addTagValue( "target_null_string", field.getTargetNullString() ) );
       retval.append( "          "
-        + XMLHandler.addTagValue( "target_aggregation_type", field.getTargetAggregationTypeDesc() ) );
+        + XmlHandler.addTagValue( "target_aggregation_type", field.getTargetAggregationTypeDesc() ) );
       retval.append( "          </field>" + Const.CR );
     }
     retval.append( "        </fields>" + Const.CR );

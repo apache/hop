@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.nullif;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -33,7 +33,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -118,7 +118,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransform {
     this.fields = fields;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -142,21 +142,21 @@ public class NullIfMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fieldNodes = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fieldNodes, "field" );
+      Node fieldNodes = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fieldNodes, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fieldNodes, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fieldNodes, "field", i );
 
-        fields[ i ].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        fields[ i ].setFieldValue( XMLHandler.getTagValue( fnode, "value" ) );
+        fields[ i ].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
+        fields[ i ].setFieldValue( XmlHandler.getTagValue( fnode, "value" ) );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "NullIfMeta.Exception.UnableToReadTransformMetaFromXML" ),
+      throw new HopXmlException( BaseMessages.getString( PKG, "NullIfMeta.Exception.UnableToReadTransformMetaFromXML" ),
         e );
     }
   }
@@ -182,15 +182,15 @@ public class NullIfMeta extends BaseTransformMeta implements ITransform {
     return;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <fields>" + Const.CR );
 
     for ( int i = 0; i < fields.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
-      retval.append( "        " + XMLHandler.addTagValue( "value", fields[ i ].getFieldValue() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", fields[ i ].getFieldName() ) );
+      retval.append( "        " + XmlHandler.addTagValue( "value", fields[ i ].getFieldValue() ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );

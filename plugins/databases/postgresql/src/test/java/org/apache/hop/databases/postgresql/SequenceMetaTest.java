@@ -46,16 +46,16 @@ public class SequenceMetaTest {
     String dbType = db.getClass().getSimpleName();
     if ( expected ) {
       assertTrue( dbType, db.supportsSequences() );
-      assertFalse( dbType + ": List of Sequences", Utils.isEmpty( db.getSQLListOfSequences() ) );
-      assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( db.getSQLSequenceExists( "testSeq" ) ) );
-      assertFalse( dbType + ": Current Value", Utils.isEmpty( db.getSQLCurrentSequenceValue( "testSeq" ) ) );
-      assertFalse( dbType + ": Next Value", Utils.isEmpty( db.getSQLNextSequenceValue( "testSeq" ) ) );
+      assertFalse( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
+      assertFalse( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
+      assertFalse( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
+      assertFalse( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
     } else {
       assertFalse( db.getClass().getSimpleName(), db.supportsSequences() );
-      assertTrue( dbType + ": List of Sequences", Utils.isEmpty( db.getSQLListOfSequences() ) );
-      assertTrue( dbType + ": Sequence Exists", Utils.isEmpty( db.getSQLSequenceExists( "testSeq" ) ) );
-      assertTrue( dbType + ": Current Value", Utils.isEmpty( db.getSQLCurrentSequenceValue( "testSeq" ) ) );
-      assertTrue( dbType + ": Next Value", Utils.isEmpty( db.getSQLNextSequenceValue( "testSeq" ) ) );
+      assertTrue( dbType + ": List of Sequences", Utils.isEmpty( db.getSqlListOfSequences() ) );
+      assertTrue( dbType + ": Sequence Exists", Utils.isEmpty( db.getSqlSequenceExists( "testSeq" ) ) );
+      assertTrue( dbType + ": Current Value", Utils.isEmpty( db.getSqlCurrentSequenceValue( "testSeq" ) ) );
+      assertTrue( dbType + ": Next Value", Utils.isEmpty( db.getSqlNextSequenceValue( "testSeq" ) ) );
     }
   }
 
@@ -66,12 +66,12 @@ public class SequenceMetaTest {
     final String sequenceName = "sequence_name";
 
     iDatabase = new PostgreSQLDatabaseMeta();
-    assertEquals( "SELECT nextval('sequence_name')", iDatabase.getSQLNextSequenceValue( sequenceName ) );
+    assertEquals( "SELECT nextval('sequence_name')", iDatabase.getSqlNextSequenceValue( sequenceName ) );
     assertEquals( "SELECT currval('sequence_name')", iDatabase
-      .getSQLCurrentSequenceValue( sequenceName ) );
+      .getSqlCurrentSequenceValue( sequenceName ) );
     assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences", iDatabase
-      .getSQLListOfSequences() );
+      .getSqlListOfSequences() );
     assertEquals( "SELECT relname AS sequence_name FROM pg_catalog.pg_statio_all_sequences WHERE relname = 'sequence_name'",
-      iDatabase.getSQLSequenceExists( sequenceName ) );
+      iDatabase.getSqlSequenceExists( sequenceName ) );
   }
 }

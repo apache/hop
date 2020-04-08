@@ -31,14 +31,14 @@ import org.apache.hop.core.exception.HopEOFException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.IPrimitiveGC;
+import org.apache.hop.core.gui.IPrimitiveGc;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -255,18 +255,18 @@ public class ValueMetaBase implements IValueMeta {
   public ValueMetaBase( Node node ) throws HopException {
     this();
 
-    type = getType( XMLHandler.getTagValue( node, "type" ) );
-    storageType = getStorageType( XMLHandler.getTagValue( node, "storagetype" ) );
+    type = getType( XmlHandler.getTagValue( node, "type" ) );
+    storageType = getStorageType( XmlHandler.getTagValue( node, "storagetype" ) );
 
     switch ( storageType ) {
       case STORAGE_TYPE_INDEXED:
-        Node indexNode = XMLHandler.getSubNode( node, "index" );
-        int nrIndexes = XMLHandler.countNodes( indexNode, "value" );
+        Node indexNode = XmlHandler.getSubNode( node, "index" );
+        int nrIndexes = XmlHandler.countNodes( indexNode, "value" );
         index = new Object[ nrIndexes ];
 
         for ( int i = 0; i < index.length; i++ ) {
-          Node valueNode = XMLHandler.getSubNodeByNr( indexNode, "value", i );
-          String valueString = XMLHandler.getNodeValue( valueNode );
+          Node valueNode = XmlHandler.getSubNodeByNr( indexNode, "value", i );
+          String valueString = XmlHandler.getNodeValue( valueNode );
           if ( Utils.isEmpty( valueString ) ) {
             index[ i ] = null;
           } else {
@@ -281,7 +281,7 @@ public class ValueMetaBase implements IValueMeta {
                 index[ i ] = Long.parseLong( valueString );
                 break;
               case TYPE_DATE:
-                index[ i ] = XMLHandler.stringToDate( valueString );
+                index[ i ] = XmlHandler.stringToDate( valueString );
                 break;
               case TYPE_BIGNUMBER:
                 index[ i ] = new BigDecimal( valueString );
@@ -290,7 +290,7 @@ public class ValueMetaBase implements IValueMeta {
                 index[ i ] = Boolean.valueOf( "Y".equalsIgnoreCase( valueString ) );
                 break;
               case TYPE_BINARY:
-                index[ i ] = XMLHandler.stringToBinary( valueString );
+                index[ i ] = XmlHandler.stringToBinary( valueString );
                 break;
               default:
                 throw new HopException( toString()
@@ -303,8 +303,8 @@ public class ValueMetaBase implements IValueMeta {
       case STORAGE_TYPE_BINARY_STRING:
         // Load the storage meta data...
         //
-        Node storageMetaNode = XMLHandler.getSubNode( node, "storage-meta" );
-        Node storageValueMetaNode = XMLHandler.getSubNode( storageMetaNode, XML_META_TAG );
+        Node storageMetaNode = XmlHandler.getSubNode( node, "storage-meta" );
+        Node storageValueMetaNode = XmlHandler.getSubNode( storageMetaNode, XML_META_TAG );
         if ( storageValueMetaNode != null ) {
           storageMetadata = new ValueMetaBase( storageValueMetaNode );
         }
@@ -314,35 +314,35 @@ public class ValueMetaBase implements IValueMeta {
         break;
     }
 
-    name = XMLHandler.getTagValue( node, "name" );
-    length = Integer.parseInt( XMLHandler.getTagValue( node, "length" ) );
-    precision = Integer.parseInt( XMLHandler.getTagValue( node, "precision" ) );
-    origin = XMLHandler.getTagValue( node, "origin" );
-    comments = XMLHandler.getTagValue( node, "comments" );
-    conversionMask = XMLHandler.getTagValue( node, "conversion_Mask" );
-    decimalSymbol = XMLHandler.getTagValue( node, "decimal_symbol" );
-    groupingSymbol = XMLHandler.getTagValue( node, "grouping_symbol" );
-    currencySymbol = XMLHandler.getTagValue( node, "currency_symbol" );
-    trimType = getTrimTypeByCode( XMLHandler.getTagValue( node, "trim_type" ) );
-    caseInsensitive = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "case_insensitive" ) );
-    collatorDisabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "collator_disabled" ) );
-    if ( XMLHandler.getTagValue( node, "collator_strength" ) != null ) {
-      collatorStrength = Integer.parseInt( XMLHandler.getTagValue( node, "collator_strength" ) );
+    name = XmlHandler.getTagValue( node, "name" );
+    length = Integer.parseInt( XmlHandler.getTagValue( node, "length" ) );
+    precision = Integer.parseInt( XmlHandler.getTagValue( node, "precision" ) );
+    origin = XmlHandler.getTagValue( node, "origin" );
+    comments = XmlHandler.getTagValue( node, "comments" );
+    conversionMask = XmlHandler.getTagValue( node, "conversion_Mask" );
+    decimalSymbol = XmlHandler.getTagValue( node, "decimal_symbol" );
+    groupingSymbol = XmlHandler.getTagValue( node, "grouping_symbol" );
+    currencySymbol = XmlHandler.getTagValue( node, "currency_symbol" );
+    trimType = getTrimTypeByCode( XmlHandler.getTagValue( node, "trim_type" ) );
+    caseInsensitive = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "case_insensitive" ) );
+    collatorDisabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "collator_disabled" ) );
+    if ( XmlHandler.getTagValue( node, "collator_strength" ) != null ) {
+      collatorStrength = Integer.parseInt( XmlHandler.getTagValue( node, "collator_strength" ) );
     }
-    sortedDescending = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "sort_descending" ) );
-    outputPaddingEnabled = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "output_padding" ) );
-    dateFormatLenient = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "date_format_lenient" ) );
-    String dateFormatLocaleString = XMLHandler.getTagValue( node, "date_format_locale" );
+    sortedDescending = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "sort_descending" ) );
+    outputPaddingEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "output_padding" ) );
+    dateFormatLenient = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "date_format_lenient" ) );
+    String dateFormatLocaleString = XmlHandler.getTagValue( node, "date_format_locale" );
     if ( !Utils.isEmpty( dateFormatLocaleString ) ) {
       dateFormatLocale = EnvUtil.createLocale( dateFormatLocaleString );
     }
-    String dateTimeZoneString = XMLHandler.getTagValue( node, "date_format_timezone" );
+    String dateTimeZoneString = XmlHandler.getTagValue( node, "date_format_timezone" );
     if ( !Utils.isEmpty( dateTimeZoneString ) ) {
       dateFormatTimeZone = EnvUtil.createTimeZone( dateTimeZoneString );
     } else {
       dateFormatTimeZone = TimeZone.getDefault();
     }
-    lenientStringToNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "lenient_string_to_number" ) );
+    lenientStringToNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "lenient_string_to_number" ) );
   }
 
   /**
@@ -3156,14 +3156,14 @@ public class ValueMetaBase implements IValueMeta {
   public String getMetaXML() throws IOException {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_META_TAG ) );
+    xml.append( XmlHandler.openTag( XML_META_TAG ) );
 
-    xml.append( XMLHandler.addTagValue( "type", getTypeDesc() ) );
-    xml.append( XMLHandler.addTagValue( "storagetype", getStorageTypeCode( getStorageType() ) ) );
+    xml.append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
+    xml.append( XmlHandler.addTagValue( "storagetype", getStorageTypeCode( getStorageType() ) ) );
 
     switch ( storageType ) {
       case STORAGE_TYPE_INDEXED:
-        xml.append( XMLHandler.openTag( "index" ) );
+        xml.append( XmlHandler.openTag( "index" ) );
 
         // Save the indexed strings...
         //
@@ -3172,25 +3172,25 @@ public class ValueMetaBase implements IValueMeta {
             try {
               switch ( type ) {
                 case TYPE_STRING:
-                  xml.append( XMLHandler.addTagValue( "value", (String) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (String) index[ i ] ) );
                   break;
                 case TYPE_NUMBER:
-                  xml.append( XMLHandler.addTagValue( "value", (Double) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (Double) index[ i ] ) );
                   break;
                 case TYPE_INTEGER:
-                  xml.append( XMLHandler.addTagValue( "value", (Long) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (Long) index[ i ] ) );
                   break;
                 case TYPE_DATE:
-                  xml.append( XMLHandler.addTagValue( "value", (Date) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (Date) index[ i ] ) );
                   break;
                 case TYPE_BIGNUMBER:
-                  xml.append( XMLHandler.addTagValue( "value", (BigDecimal) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (BigDecimal) index[ i ] ) );
                   break;
                 case TYPE_BOOLEAN:
-                  xml.append( XMLHandler.addTagValue( "value", (Boolean) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (Boolean) index[ i ] ) );
                   break;
                 case TYPE_BINARY:
-                  xml.append( XMLHandler.addTagValue( "value", (byte[]) index[ i ] ) );
+                  xml.append( XmlHandler.addTagValue( "value", (byte[]) index[ i ] ) );
                   break;
                 default:
                   throw new IOException( toString() + " : Unable to serialize index storage type to XML for data type "
@@ -3203,16 +3203,16 @@ public class ValueMetaBase implements IValueMeta {
             }
           }
         }
-        xml.append( XMLHandler.closeTag( "index" ) );
+        xml.append( XmlHandler.closeTag( "index" ) );
         break;
 
       case STORAGE_TYPE_BINARY_STRING:
         // Save the storage meta data...
         //
         if ( storageMetadata != null ) {
-          xml.append( XMLHandler.openTag( "storage-meta" ) );
+          xml.append( XmlHandler.openTag( "storage-meta" ) );
           xml.append( storageMetadata.getMetaXML() );
-          xml.append( XMLHandler.closeTag( "storage-meta" ) );
+          xml.append( XmlHandler.closeTag( "storage-meta" ) );
         }
         break;
 
@@ -3220,29 +3220,29 @@ public class ValueMetaBase implements IValueMeta {
         break;
     }
 
-    xml.append( XMLHandler.addTagValue( "name", name ) );
-    xml.append( XMLHandler.addTagValue( "length", length ) );
-    xml.append( XMLHandler.addTagValue( "precision", precision ) );
-    xml.append( XMLHandler.addTagValue( "origin", origin ) );
-    xml.append( XMLHandler.addTagValue( "comments", comments ) );
-    xml.append( XMLHandler.addTagValue( "conversion_Mask", conversionMask ) );
-    xml.append( XMLHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
-    xml.append( XMLHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
-    xml.append( XMLHandler.addTagValue( "currency_symbol", currencySymbol ) );
-    xml.append( XMLHandler.addTagValue( "trim_type", getTrimTypeCode( trimType ) ) );
-    xml.append( XMLHandler.addTagValue( "case_insensitive", caseInsensitive ) );
-    xml.append( XMLHandler.addTagValue( "collator_disabled", collatorDisabled ) );
-    xml.append( XMLHandler.addTagValue( "collator_strength", collatorStrength ) );
-    xml.append( XMLHandler.addTagValue( "sort_descending", sortedDescending ) );
-    xml.append( XMLHandler.addTagValue( "output_padding", outputPaddingEnabled ) );
-    xml.append( XMLHandler.addTagValue( "date_format_lenient", dateFormatLenient ) );
-    xml.append( XMLHandler.addTagValue( "date_format_locale", dateFormatLocale != null ? dateFormatLocale.toString()
+    xml.append( XmlHandler.addTagValue( "name", name ) );
+    xml.append( XmlHandler.addTagValue( "length", length ) );
+    xml.append( XmlHandler.addTagValue( "precision", precision ) );
+    xml.append( XmlHandler.addTagValue( "origin", origin ) );
+    xml.append( XmlHandler.addTagValue( "comments", comments ) );
+    xml.append( XmlHandler.addTagValue( "conversion_Mask", conversionMask ) );
+    xml.append( XmlHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
+    xml.append( XmlHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
+    xml.append( XmlHandler.addTagValue( "currency_symbol", currencySymbol ) );
+    xml.append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode( trimType ) ) );
+    xml.append( XmlHandler.addTagValue( "case_insensitive", caseInsensitive ) );
+    xml.append( XmlHandler.addTagValue( "collator_disabled", collatorDisabled ) );
+    xml.append( XmlHandler.addTagValue( "collator_strength", collatorStrength ) );
+    xml.append( XmlHandler.addTagValue( "sort_descending", sortedDescending ) );
+    xml.append( XmlHandler.addTagValue( "output_padding", outputPaddingEnabled ) );
+    xml.append( XmlHandler.addTagValue( "date_format_lenient", dateFormatLenient ) );
+    xml.append( XmlHandler.addTagValue( "date_format_locale", dateFormatLocale != null ? dateFormatLocale.toString()
       : null ) );
-    xml.append( XMLHandler.addTagValue( "date_format_timezone", dateFormatTimeZone != null ? dateFormatTimeZone.getID()
+    xml.append( XmlHandler.addTagValue( "date_format_timezone", dateFormatTimeZone != null ? dateFormatTimeZone.getID()
       : null ) );
-    xml.append( XMLHandler.addTagValue( "lenient_string_to_number", lenientStringToNumber ) );
+    xml.append( XmlHandler.addTagValue( "lenient_string_to_number", lenientStringToNumber ) );
 
-    xml.append( XMLHandler.closeTag( XML_META_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_META_TAG ) );
 
     return xml.toString();
   }
@@ -3270,7 +3270,7 @@ public class ValueMetaBase implements IValueMeta {
                 string = Long.toString( (Long) object );
                 break;
               case TYPE_DATE:
-                string = XMLHandler.date2string( (Date) object );
+                string = XmlHandler.date2string( (Date) object );
                 break;
               case TYPE_BIGNUMBER:
                 string = ( (BigDecimal) object ).toString();
@@ -3279,10 +3279,10 @@ public class ValueMetaBase implements IValueMeta {
                 string = Boolean.toString( (Boolean) object );
                 break;
               case TYPE_BINARY:
-                string = XMLHandler.encodeBinaryData( (byte[]) object );
+                string = XmlHandler.encodeBinaryData( (byte[]) object );
                 break;
               case TYPE_TIMESTAMP:
-                string = XMLHandler.timestamp2string( (Timestamp) object );
+                string = XmlHandler.timestamp2string( (Timestamp) object );
                 break;
               case TYPE_INET:
                 string = ( (InetAddress) object ).toString();
@@ -3300,13 +3300,13 @@ public class ValueMetaBase implements IValueMeta {
             // Since the streams can be compressed, volume shouldn't be an issue
             // at all.
             //
-            string = XMLHandler.addTagValue( "binary-string", (byte[]) object );
-            xml.append( XMLHandler.openTag( XML_DATA_TAG ) ).append( string ).append( XMLHandler.closeTag( XML_DATA_TAG ) );
+            string = XmlHandler.addTagValue( "binary-string", (byte[]) object );
+            xml.append( XmlHandler.openTag( XML_DATA_TAG ) ).append( string ).append( XmlHandler.closeTag( XML_DATA_TAG ) );
             return xml.toString();
 
           case STORAGE_TYPE_INDEXED:
             // Just an index
-            string = XMLHandler.addTagValue( "index-value", (Integer) object );
+            string = XmlHandler.addTagValue( "index-value", (Integer) object );
             break;
 
           default:
@@ -3324,7 +3324,7 @@ public class ValueMetaBase implements IValueMeta {
       //
       string = "";
     }
-    xml.append( XMLHandler.addTagValue( XML_DATA_TAG, string ) );
+    xml.append( XmlHandler.addTagValue( XML_DATA_TAG, string ) );
 
     return xml.toString();
   }
@@ -3342,7 +3342,7 @@ public class ValueMetaBase implements IValueMeta {
 
     switch ( storageType ) {
       case STORAGE_TYPE_NORMAL:
-        String valueString = XMLHandler.getNodeValue( node );
+        String valueString = XmlHandler.getNodeValue( node );
         if ( Utils.isEmpty( valueString ) ) {
           return null;
         }
@@ -3357,15 +3357,15 @@ public class ValueMetaBase implements IValueMeta {
           case TYPE_INTEGER:
             return Long.parseLong( valueString );
           case TYPE_DATE:
-            return XMLHandler.stringToDate( valueString );
+            return XmlHandler.stringToDate( valueString );
           case TYPE_TIMESTAMP:
-            return XMLHandler.stringToTimestamp( valueString );
+            return XmlHandler.stringToTimestamp( valueString );
           case TYPE_BIGNUMBER:
             return new BigDecimal( valueString );
           case TYPE_BOOLEAN:
             return "Y".equalsIgnoreCase( valueString );
           case TYPE_BINARY:
-            return XMLHandler.stringToBinary( XMLHandler.getTagValue( node, "binary-value" ) );
+            return XmlHandler.stringToBinary( XmlHandler.getTagValue( node, "binary-value" ) );
           default:
             throw new HopException( toString() + " : Unable to de-serialize '" + valueString
               + "' from XML for data type " + getType() );
@@ -3378,15 +3378,15 @@ public class ValueMetaBase implements IValueMeta {
         // Since the streams can be compressed, volume shouldn't be an issue at
         // all.
         //
-        String binaryString = XMLHandler.getTagValue( node, "binary-string" );
+        String binaryString = XmlHandler.getTagValue( node, "binary-string" );
         if ( Utils.isEmpty( binaryString ) ) {
           return null;
         }
 
-        return XMLHandler.stringToBinary( binaryString );
+        return XmlHandler.stringToBinary( binaryString );
 
       case STORAGE_TYPE_INDEXED:
-        String indexString = XMLHandler.getTagValue( node, "index-value" );
+        String indexString = XmlHandler.getTagValue( node, "index-value" );
         if ( Utils.isEmpty( indexString ) ) {
           return null;
         }
@@ -4507,7 +4507,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public void drawValue( IPrimitiveGC gc, Object value ) throws HopValueException {
+  public void drawValue( IPrimitiveGc gc, Object value ) throws HopValueException {
     // Just draw the string by default.
     //
     gc.drawText( getString( value ), 0, 0 );

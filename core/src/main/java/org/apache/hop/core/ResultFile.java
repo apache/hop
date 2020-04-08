@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
@@ -83,7 +83,7 @@ public class ResultFile implements Cloneable {
   @Override
   public String toString() {
     return file.toString()
-      + " - " + getTypeDesc() + " - " + XMLHandler.date2string( timestamp )
+      + " - " + getTypeDesc() + " - " + XmlHandler.date2string( timestamp )
       + ( origin == null ? "" : " - " + origin ) + ( originParent == null ? "" : " - " + originParent );
 
   }
@@ -257,31 +257,31 @@ public class ResultFile implements Cloneable {
     return row;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) );
 
-    xml.append( XMLHandler.addTagValue( "type", getTypeCode() ) );
-    xml.append( XMLHandler.addTagValue( "file", file.getName().toString() ) );
-    xml.append( XMLHandler.addTagValue( "parentorigin", originParent ) );
-    xml.append( XMLHandler.addTagValue( "origin", origin ) );
-    xml.append( XMLHandler.addTagValue( "comment", comment ) );
-    xml.append( XMLHandler.addTagValue( "timestamp", timestamp ) );
+    xml.append( XmlHandler.addTagValue( "type", getTypeCode() ) );
+    xml.append( XmlHandler.addTagValue( "file", file.getName().toString() ) );
+    xml.append( XmlHandler.addTagValue( "parentorigin", originParent ) );
+    xml.append( XmlHandler.addTagValue( "origin", origin ) );
+    xml.append( XmlHandler.addTagValue( "comment", comment ) );
+    xml.append( XmlHandler.addTagValue( "timestamp", timestamp ) );
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
   public ResultFile( Node node ) throws HopFileException {
     try {
-      type = getType( XMLHandler.getTagValue( node, "type" ) );
-      file = HopVFS.getFileObject( XMLHandler.getTagValue( node, "file" ) );
-      originParent = XMLHandler.getTagValue( node, "parentorigin" );
-      origin = XMLHandler.getTagValue( node, "origin" );
-      comment = XMLHandler.getTagValue( node, "comment" );
-      timestamp = XMLHandler.stringToDate( XMLHandler.getTagValue( node, "timestamp" ) );
+      type = getType( XmlHandler.getTagValue( node, "type" ) );
+      file = HopVFS.getFileObject( XmlHandler.getTagValue( node, "file" ) );
+      originParent = XmlHandler.getTagValue( node, "parentorigin" );
+      origin = XmlHandler.getTagValue( node, "origin" );
+      comment = XmlHandler.getTagValue( node, "comment" );
+      timestamp = XmlHandler.stringToDate( XmlHandler.getTagValue( node, "timestamp" ) );
     } catch ( Exception e ) {
       throw new HopFileException( e );
     }

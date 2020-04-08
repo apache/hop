@@ -266,7 +266,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wVariables.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
-        setSQLToolTip();
+        setSqlToolTip();
       }
     } );
 
@@ -290,7 +290,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wLazyConversion.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
-        setSQLToolTip();
+        setSqlToolTip();
       }
     } );
 
@@ -331,7 +331,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wSQL.setLayoutData( fdSQL );
     wSQL.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
-        setSQLToolTip();
+        setSqlToolTip();
         setPosition();
       }
     } );
@@ -389,7 +389,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     };
     lsbTable = new Listener() {
       public void handleEvent( Event e ) {
-        getSQL();
+        getSql();
       }
     };
     lsDatefrom = new Listener() {
@@ -453,7 +453,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   }
 
-  protected void setSQLToolTip() {
+  protected void setSqlToolTip() {
     if ( wVariables.getSelection() ) {
       wSQL.setToolTipText( pipelineMeta.environmentSubstitute( wSQL.getText() ) );
     }
@@ -463,8 +463,8 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( input.getSQL() != null ) {
-      wSQL.setText( input.getSQL() );
+    if ( input.getSql() != null ) {
+      wSQL.setText( input.getSql() );
     }
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
@@ -483,7 +483,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wVariables.setSelection( input.isVariableReplacementActive() );
     wLazyConversion.setSelection( input.isLazyConversionActive() );
 
-    setSQLToolTip();
+    setSqlToolTip();
     setFlags();
 
     wTransformName.selectAll();
@@ -512,7 +512,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void getInfo( TableInputMeta meta, boolean preview ) {
-    meta.setSQL( preview && !Utils.isEmpty( wSQL.getSelectionText() ) ? wSQL.getSelectionText() : wSQL.getText() );
+    meta.setSql( preview && !Utils.isEmpty( wSQL.getSelectionText() ) ? wSQL.getSelectionText() : wSQL.getText() );
     meta.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     meta.setRowLimit( wLimit.getText() );
     IStream infoStream = input.getTransformIOMeta().getInfoStreams().get( 0 );
@@ -543,7 +543,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     dispose();
   }
 
-  private void getSQL() {
+  private void getSql() {
     DatabaseMeta inf = pipelineMeta.findDatabase( wConnection.getText() );
     if ( inf != null ) {
       DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, pipelineMeta.getDatabases() );

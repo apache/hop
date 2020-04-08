@@ -28,7 +28,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -91,7 +91,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -358,57 +358,57 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "dynamicCommandField", dynamicCommandField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "command", command ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "commandfieldname", commandfieldname ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "userName", userName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "dynamicCommandField", dynamicCommandField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "command", command ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "commandfieldname", commandfieldname ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "userName", userName ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "usePrivateKey", usePrivateKey ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "keyFileName", keyFileName ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "usePrivateKey", usePrivateKey ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "keyFileName", keyFileName ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "passPhrase", Encr.encryptPasswordIfNotUsingVariables( passPhrase ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "stdOutFieldName", stdOutFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "stdErrFieldName", stdErrFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "timeOut", timeOut ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "proxyUsername", proxyUsername ) );
+      XmlHandler.addTagValue( "passPhrase", Encr.encryptPasswordIfNotUsingVariables( passPhrase ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "stdOutFieldName", stdOutFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "stdErrFieldName", stdErrFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "timeOut", timeOut ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "proxyUsername", proxyUsername ) );
     retval.append( "    " ).append(
-      XMLHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+      XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      dynamicCommandField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "dynamicCommandField" ) );
-      command = XMLHandler.getTagValue( transformNode, "command" );
-      commandfieldname = XMLHandler.getTagValue( transformNode, "commandfieldname" );
-      port = XMLHandler.getTagValue( transformNode, "port" );
-      serverName = XMLHandler.getTagValue( transformNode, "servername" );
-      userName = XMLHandler.getTagValue( transformNode, "userName" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "password" ) );
+      dynamicCommandField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "dynamicCommandField" ) );
+      command = XmlHandler.getTagValue( transformNode, "command" );
+      commandfieldname = XmlHandler.getTagValue( transformNode, "commandfieldname" );
+      port = XmlHandler.getTagValue( transformNode, "port" );
+      serverName = XmlHandler.getTagValue( transformNode, "servername" );
+      userName = XmlHandler.getTagValue( transformNode, "userName" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) );
 
-      usePrivateKey = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "usePrivateKey" ) );
-      keyFileName = XMLHandler.getTagValue( transformNode, "keyFileName" );
+      usePrivateKey = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usePrivateKey" ) );
+      keyFileName = XmlHandler.getTagValue( transformNode, "keyFileName" );
       passPhrase =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "passPhrase" ) );
-      stdOutFieldName = XMLHandler.getTagValue( transformNode, "stdOutFieldName" );
-      stdErrFieldName = XMLHandler.getTagValue( transformNode, "stdErrFieldName" );
-      timeOut = XMLHandler.getTagValue( transformNode, "timeOut" );
-      proxyHost = XMLHandler.getTagValue( transformNode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( transformNode, "proxyPort" );
-      proxyUsername = XMLHandler.getTagValue( transformNode, "proxyUsername" );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "passPhrase" ) );
+      stdOutFieldName = XmlHandler.getTagValue( transformNode, "stdOutFieldName" );
+      stdErrFieldName = XmlHandler.getTagValue( transformNode, "stdErrFieldName" );
+      timeOut = XmlHandler.getTagValue( transformNode, "timeOut" );
+      proxyHost = XmlHandler.getTagValue( transformNode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( transformNode, "proxyPort" );
+      proxyUsername = XmlHandler.getTagValue( transformNode, "proxyUsername" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "proxyPassword" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "proxyPassword" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "SSHMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "SSHMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

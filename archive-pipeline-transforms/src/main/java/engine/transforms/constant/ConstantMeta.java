@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -220,7 +220,7 @@ public class ConstantMeta extends BaseTransformMeta implements ITransform {
     this.value = value;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -257,35 +257,35 @@ public class ConstantMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       String slength, sprecision;
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        fieldType[ i ] = XMLHandler.getTagValue( fnode, "type" );
-        fieldFormat[ i ] = XMLHandler.getTagValue( fnode, "format" );
-        currency[ i ] = XMLHandler.getTagValue( fnode, "currency" );
-        decimal[ i ] = XMLHandler.getTagValue( fnode, "decimal" );
-        group[ i ] = XMLHandler.getTagValue( fnode, "group" );
-        value[ i ] = XMLHandler.getTagValue( fnode, "nullif" );
-        slength = XMLHandler.getTagValue( fnode, "length" );
-        sprecision = XMLHandler.getTagValue( fnode, "precision" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        fieldType[ i ] = XmlHandler.getTagValue( fnode, "type" );
+        fieldFormat[ i ] = XmlHandler.getTagValue( fnode, "format" );
+        currency[ i ] = XmlHandler.getTagValue( fnode, "currency" );
+        decimal[ i ] = XmlHandler.getTagValue( fnode, "decimal" );
+        group[ i ] = XmlHandler.getTagValue( fnode, "group" );
+        value[ i ] = XmlHandler.getTagValue( fnode, "nullif" );
+        slength = XmlHandler.getTagValue( fnode, "length" );
+        sprecision = XmlHandler.getTagValue( fnode, "precision" );
 
         fieldLength[ i ] = Const.toInt( slength, -1 );
         fieldPrecision[ i ] = Const.toInt( sprecision, -1 );
-        String emptyString = XMLHandler.getTagValue( fnode, "set_empty_string" );
+        String emptyString = XmlHandler.getTagValue( fnode, "set_empty_string" );
         setEmptyString[ i ] = !Utils.isEmpty( emptyString ) && "Y".equalsIgnoreCase( emptyString );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -333,23 +333,23 @@ public class ConstantMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "type", fieldType[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", fieldFormat[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "currency", currency[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", decimal[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "group", group[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "nullif", value[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldLength[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "type", fieldType[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", fieldFormat[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "currency", currency[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", decimal[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "group", group[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "nullif", value[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "set_empty_string", setEmptyString[ i ] ) );
         retval.append( "      </field>" ).append( Const.CR );
       }
     }

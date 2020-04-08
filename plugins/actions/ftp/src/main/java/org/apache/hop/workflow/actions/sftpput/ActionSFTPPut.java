@@ -32,11 +32,11 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
@@ -146,41 +146,41 @@ public class ActionSFTPPut extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sftpdirectory", sftpDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "localdirectory", localDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "copyprevious", copyprevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "copypreviousfiles", copypreviousfiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addFilenameResut", addFilenameResut ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keyfilename", keyfilename ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sftpdirectory", sftpDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "localdirectory", localDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "copypreviousfiles", copypreviousfiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addFilenameResut", addFilenameResut ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyfilename ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compression", compression ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyType", proxyType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyUsername", proxyUsername ) );
+      XmlHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compression", compression ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyType", proxyType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyUsername", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
+      XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "aftersftpput", getAfterSFTPPutCode( getAfterFTPS() ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationfolder", destinationfolder ) );
+      XmlHandler.addTagValue( "aftersftpput", getAfterSFTPPutCode( getAfterFTPS() ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationfolder", destinationfolder ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "successWhenNoFile", successWhenNoFile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "successWhenNoFile", successWhenNoFile ) );
 
     return retval.toString();
   }
@@ -192,46 +192,46 @@ public class ActionSFTPPut extends ActionBase implements Cloneable, IAction {
     return afterFTPSCode[ i ];
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      sftpDirectory = XMLHandler.getTagValue( entrynode, "sftpdirectory" );
-      localDirectory = XMLHandler.getTagValue( entrynode, "localdirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      copyprevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copyprevious" ) );
-      copypreviousfiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copypreviousfiles" ) );
-      addFilenameResut = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addFilenameResut" ) );
+      super.loadXml( entrynode );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      serverPort = XmlHandler.getTagValue( entrynode, "serverport" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      sftpDirectory = XmlHandler.getTagValue( entrynode, "sftpdirectory" );
+      localDirectory = XmlHandler.getTagValue( entrynode, "localdirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
+      copypreviousfiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copypreviousfiles" ) );
+      addFilenameResut = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addFilenameResut" ) );
 
-      usekeyfilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "usekeyfilename" ) );
-      keyfilename = XMLHandler.getTagValue( entrynode, "keyfilename" );
-      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "keyfilepass" ) );
-      compression = XMLHandler.getTagValue( entrynode, "compression" );
-      proxyType = XMLHandler.getTagValue( entrynode, "proxyType" );
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxyPort" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxyUsername" );
+      usekeyfilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usekeyfilename" ) );
+      keyfilename = XmlHandler.getTagValue( entrynode, "keyfilename" );
+      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "keyfilepass" ) );
+      compression = XmlHandler.getTagValue( entrynode, "compression" );
+      proxyType = XmlHandler.getTagValue( entrynode, "proxyType" );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxyPort" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxyUsername" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxyPassword" ) );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxyPassword" ) );
 
-      createRemoteFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createRemoteFolder" ) );
+      createRemoteFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createRemoteFolder" ) );
 
-      boolean remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove" ) );
-      setAfterFTPS( getAfterSFTPPutByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "aftersftpput" ), "" ) ) );
+      boolean remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
+      setAfterFTPS( getAfterSFTPPutByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "aftersftpput" ), "" ) ) );
       if ( remove && getAfterFTPS() == AFTER_FTPSPUT_NOTHING ) {
         setAfterFTPS( AFTER_FTPSPUT_DELETE );
       }
-      destinationfolder = XMLHandler.getTagValue( entrynode, "destinationfolder" );
+      destinationfolder = XmlHandler.getTagValue( entrynode, "destinationfolder" );
       createDestinationFolder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createdestinationfolder" ) );
-      successWhenNoFile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "successWhenNoFile" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createdestinationfolder" ) );
+      successWhenNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "successWhenNoFile" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'SFTPPUT' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'SFTPPUT' from XML node", xe );
     }
   }
 

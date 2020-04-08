@@ -26,10 +26,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -141,31 +141,31 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "smtpCheck", smtpCheck ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "defaultSMTP", defaultSMTP ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "emailSender", emailSender ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "emailAddress", emailAddress ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "smtpCheck", smtpCheck ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "defaultSMTP", defaultSMTP ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "emailSender", emailSender ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "emailAddress", emailAddress ) );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      smtpCheck = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "smtpCheck" ) );
-      timeout = XMLHandler.getTagValue( entrynode, "timeout" );
-      defaultSMTP = XMLHandler.getTagValue( entrynode, "defaultSMTP" );
-      emailSender = XMLHandler.getTagValue( entrynode, "emailSender" );
-      emailAddress = XMLHandler.getTagValue( entrynode, "emailAddress" );
+      super.loadXml( entrynode );
+      smtpCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "smtpCheck" ) );
+      timeout = XmlHandler.getTagValue( entrynode, "timeout" );
+      defaultSMTP = XmlHandler.getTagValue( entrynode, "defaultSMTP" );
+      emailSender = XmlHandler.getTagValue( entrynode, "emailSender" );
+      emailAddress = XmlHandler.getTagValue( entrynode, "emailAddress" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "ActionMailValidator.Meta.UnableToLoadFromXML" ), e );
     }
   }

@@ -25,9 +25,9 @@ package org.apache.hop.workflow.actions.abort;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -77,22 +77,22 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( super.getXML() );
-    retval.append( XMLHandler.addTagValue( "message", message ) );
+    retval.append( super.getXml() );
+    retval.append( XmlHandler.addTagValue( "message", message ) );
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node entrynode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      message = XMLHandler.getTagValue( entrynode, "message" );
+      super.loadXml( entrynode );
+      message = XmlHandler.getTagValue( entrynode, "message" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionAbort.UnableToLoadFromXml.Label" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionAbort.UnableToLoadFromXml.Label" ), e );
     }
   }
 

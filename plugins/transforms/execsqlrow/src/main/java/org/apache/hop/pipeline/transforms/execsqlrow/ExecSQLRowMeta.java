@@ -28,12 +28,12 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -234,7 +234,7 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
     this.updateField = updateField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -243,26 +243,26 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
       String csize;
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      csize = XMLHandler.getTagValue( transformNode, "commit" );
+      csize = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( csize, 0 );
-      sqlField = XMLHandler.getTagValue( transformNode, "sql_field" );
+      sqlField = XmlHandler.getTagValue( transformNode, "sql_field" );
 
-      insertField = XMLHandler.getTagValue( transformNode, "insert_field" );
-      updateField = XMLHandler.getTagValue( transformNode, "update_field" );
-      deleteField = XMLHandler.getTagValue( transformNode, "delete_field" );
-      readField = XMLHandler.getTagValue( transformNode, "read_field" );
-      sqlFromfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "sqlFromfile" ) );
+      insertField = XmlHandler.getTagValue( transformNode, "insert_field" );
+      updateField = XmlHandler.getTagValue( transformNode, "update_field" );
+      deleteField = XmlHandler.getTagValue( transformNode, "delete_field" );
+      readField = XmlHandler.getTagValue( transformNode, "read_field" );
+      sqlFromfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "sqlFromfile" ) );
 
       sendOneStatement =
-        "Y".equalsIgnoreCase( Const.NVL( XMLHandler.getTagValue( transformNode, "sendOneStatement" ), "Y" ) );
+        "Y".equalsIgnoreCase( Const.NVL( XmlHandler.getTagValue( transformNode, "sendOneStatement" ), "Y" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ExecSQLRowMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -283,20 +283,20 @@ public class ExecSQLRowMeta extends BaseTransformMeta implements ITransformMeta<
     r.mergeRowMeta( add.getRowMeta() );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sql_field", sqlField ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sql_field", sqlField ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "insert_field", insertField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "update_field", updateField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "delete_field", deleteField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "read_field", readField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sqlFromfile", sqlFromfile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sendOneStatement", sendOneStatement ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "insert_field", insertField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "update_field", updateField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "delete_field", deleteField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "read_field", readField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sqlFromfile", sqlFromfile ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sendOneStatement", sendOneStatement ) );
     return retval.toString();
   }
 

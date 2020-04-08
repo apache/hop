@@ -31,19 +31,19 @@ import org.apache.hop.core.database.DatabaseMeta;
  * @author Matt
  * @since 02-dec-2004
  */
-public class SQLStatement {
+public class SqlStatement {
   private String transformName;
   private DatabaseMeta dbinfo;
   private String sql;
   private String error;
 
   /**
-   * Creates a new SQLStatement
+   * Creates a new SqlStatement
    *
    * @param dbinfo The database connection
    * @param sql    The sql to execute on the connection
    */
-  public SQLStatement( String transformName, DatabaseMeta dbinfo, String sql ) {
+  public SqlStatement( String transformName, DatabaseMeta dbinfo, String sql ) {
     this.transformName = transformName;
     this.dbinfo = dbinfo;
     this.sql = sql;
@@ -82,7 +82,7 @@ public class SQLStatement {
    *
    * @param sql The sql to execute, without trailing ";" or anything else.
    */
-  public void setSQL( String sql ) {
+  public void setSql( String sql ) {
     this.sql = sql;
   }
 
@@ -100,7 +100,7 @@ public class SQLStatement {
    *
    * @return The SQL to execute for this SQL Statement
    */
-  public String getSQL() {
+  public String getSql() {
     return sql;
   }
 

@@ -24,7 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
@@ -208,7 +208,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();
 
     if ( useXML ) {
-      out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
       SlaveServerStatus serverStatus = new SlaveServerStatus();
       serverStatus.setStatusDescription( "Online" );
 
@@ -233,7 +233,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       }
 
       try {
-        out.println( serverStatus.getXML() );
+        out.println( serverStatus.getXml() );
       } catch ( HopException e ) {
         throw new ServletException( "Unable to get the server status in XML format", e );
       }
@@ -382,7 +382,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"cellTableCellStatus_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XMLHandler.date2string( pipeline.getLogDate() );
+          String dateStr = XmlHandler.date2string( pipeline.getLogDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
@@ -479,7 +479,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"j-cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XMLHandler.date2string( workflow.getLogDate() );
+          String dateStr = XmlHandler.date2string( workflow.getLogDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "

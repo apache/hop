@@ -30,12 +30,12 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -210,27 +210,27 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      valuename = XMLHandler.getTagValue( transformNode, "valuename" );
+      valuename = XmlHandler.getTagValue( transformNode, "valuename" );
 
-      useDatabase = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_database" ) );
-      String conn = XMLHandler.getTagValue( transformNode, "connection" );
+      useDatabase = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_database" ) );
+      String conn = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, conn );
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      sequenceName = XMLHandler.getTagValue( transformNode, "seqname" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      sequenceName = XmlHandler.getTagValue( transformNode, "seqname" );
 
-      useCounter = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_counter" ) );
-      counterName = XMLHandler.getTagValue( transformNode, "counter_name" );
-      startAt = XMLHandler.getTagValue( transformNode, "start_at" );
-      incrementBy = XMLHandler.getTagValue( transformNode, "increment_by" );
-      maxValue = XMLHandler.getTagValue( transformNode, "max_value" );
+      useCounter = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_counter" ) );
+      counterName = XmlHandler.getTagValue( transformNode, "counter_name" );
+      startAt = XmlHandler.getTagValue( transformNode, "start_at" );
+      incrementBy = XmlHandler.getTagValue( transformNode, "increment_by" );
+      maxValue = XmlHandler.getTagValue( transformNode, "max_value" );
 
-      // TODO startAt = Const.toLong(XMLHandler.getTagValue(transformNode, "start_at"), 1);
-      // incrementBy = Const.toLong(XMLHandler.getTagValue(transformNode, "increment_by"), 1);
-      // maxValue = Const.toLong(XMLHandler.getTagValue(transformNode, "max_value"), 999999999L);
+      // TODO startAt = Const.toLong(XmlHandler.getTagValue(transformNode, "start_at"), 1);
+      // incrementBy = Const.toLong(XmlHandler.getTagValue(transformNode, "increment_by"), 1);
+      // maxValue = Const.toLong(XmlHandler.getTagValue(transformNode, "max_value"), 999999999L);
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "AddSequenceMeta.Exception.ErrorLoadingTransformMeta" ), e );
     }
   }
@@ -261,21 +261,21 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "valuename", valuename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_database", useDatabase ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "valuename", valuename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_database", useDatabase ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "seqname", sequenceName ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "seqname", sequenceName ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_counter", useCounter ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "counter_name", counterName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "start_at", startAt ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "increment_by", incrementBy ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "max_value", maxValue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_counter", useCounter ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "counter_name", counterName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "start_at", startAt ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "increment_by", incrementBy ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "max_value", maxValue ) );
 
     return retval.toString();
   }
@@ -325,7 +325,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -338,9 +338,9 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransform {
           db.connect();
           if ( !db.checkSequenceExists( schemaName, sequenceName ) ) {
             String cr_table = db.getCreateSequenceStatement( sequenceName, startAt, incrementBy, maxValue, true );
-            retval.setSQL( cr_table );
+            retval.setSql( cr_table );
           } else {
-            retval.setSQL( null ); // Empty string means: nothing to do: set it to null...
+            retval.setSql( null ); // Empty string means: nothing to do: set it to null...
           }
         } catch ( HopException e ) {
           retval.setError( BaseMessages.getString( PKG, "AddSequenceMeta.ErrorMessage.UnableToConnectDB" )

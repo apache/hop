@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.IPrimitiveGC.EColor;
-import org.apache.hop.core.gui.IPrimitiveGC.EFont;
+import org.apache.hop.core.gui.IPrimitiveGc.EColor;
+import org.apache.hop.core.gui.IPrimitiveGc.EFont;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.util.Utils;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MetricsPainter {
-  private IGC gc;
+  private IGc gc;
 
   private Long periodStart = null;
   private Long periodEnd = null;
@@ -59,7 +59,7 @@ public class MetricsPainter {
     }
   }
 
-  public MetricsPainter( IGC gc, int barHeight ) {
+  public MetricsPainter( IGc gc, int barHeight ) {
     this.setGc( gc );
     this.barHeight = barHeight;
   }
@@ -164,12 +164,12 @@ public class MetricsPainter {
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  IGC getGc() {
+  IGc getGc() {
     return gc;
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  void setGc( IGC gc ) {
+  void setGc( IGc gc ) {
     this.gc = gc;
   }
 }

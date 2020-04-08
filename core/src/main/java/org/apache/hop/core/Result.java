@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -597,22 +597,22 @@ public class Result implements Cloneable {
    *
    * @return This Result object serialized as XML
    */
-  public String getXML() {
+  public String getXml() {
     try {
 
       StringBuilder xml = new StringBuilder();
-      xml.append( XMLHandler.openTag( XML_TAG ) );
+      xml.append( XmlHandler.openTag( XML_TAG ) );
       setBasicXmlAttrs( xml );
 
       // Export the result files
       //
-      xml.append( XMLHandler.openTag( XML_FILES_TAG ) );
+      xml.append( XmlHandler.openTag( XML_FILES_TAG ) );
       for ( ResultFile resultFile : resultFiles.values() ) {
-        xml.append( resultFile.getXML() );
+        xml.append( resultFile.getXml() );
       }
-      xml.append( XMLHandler.closeTag( XML_FILES_TAG ) );
+      xml.append( XmlHandler.closeTag( XML_FILES_TAG ) );
 
-      xml.append( XMLHandler.openTag( XML_ROWS_TAG ) );
+      xml.append( XmlHandler.openTag( XML_ROWS_TAG ) );
       boolean firstRow = true;
       IRowMeta rowMeta = null;
       for ( RowMetaAndData row : rows ) {
@@ -623,9 +623,9 @@ public class Result implements Cloneable {
         }
         xml.append( rowMeta.getDataXML( row.getData() ) );
       }
-      xml.append( XMLHandler.closeTag( XML_ROWS_TAG ) );
+      xml.append( XmlHandler.closeTag( XML_ROWS_TAG ) );
 
-      xml.append( XMLHandler.closeTag( XML_TAG ) );
+      xml.append( XmlHandler.closeTag( XML_TAG ) );
 
       return xml.toString();
     } catch ( IOException e ) {
@@ -636,35 +636,35 @@ public class Result implements Cloneable {
   private StringBuilder setBasicXmlAttrs( StringBuilder xml ) {
     // First the metrics...
     //
-    xml.append( XMLHandler.addTagValue( "lines_input", nrLinesInput ) );
-    xml.append( XMLHandler.addTagValue( "lines_output", nrLinesOutput ) );
-    xml.append( XMLHandler.addTagValue( "lines_read", nrLinesRead ) );
-    xml.append( XMLHandler.addTagValue( "lines_written", nrLinesWritten ) );
-    xml.append( XMLHandler.addTagValue( "lines_updated", nrLinesUpdated ) );
-    xml.append( XMLHandler.addTagValue( "lines_rejected", nrLinesRejected ) );
-    xml.append( XMLHandler.addTagValue( "lines_deleted", nrLinesDeleted ) );
-    xml.append( XMLHandler.addTagValue( "nr_errors", nrErrors ) );
-    xml.append( XMLHandler.addTagValue( "nr_files_retrieved", nrFilesRetrieved ) );
-    xml.append( XMLHandler.addTagValue( "entry_nr", entryNr ) );
+    xml.append( XmlHandler.addTagValue( "lines_input", nrLinesInput ) );
+    xml.append( XmlHandler.addTagValue( "lines_output", nrLinesOutput ) );
+    xml.append( XmlHandler.addTagValue( "lines_read", nrLinesRead ) );
+    xml.append( XmlHandler.addTagValue( "lines_written", nrLinesWritten ) );
+    xml.append( XmlHandler.addTagValue( "lines_updated", nrLinesUpdated ) );
+    xml.append( XmlHandler.addTagValue( "lines_rejected", nrLinesRejected ) );
+    xml.append( XmlHandler.addTagValue( "lines_deleted", nrLinesDeleted ) );
+    xml.append( XmlHandler.addTagValue( "nr_errors", nrErrors ) );
+    xml.append( XmlHandler.addTagValue( "nr_files_retrieved", nrFilesRetrieved ) );
+    xml.append( XmlHandler.addTagValue( "entry_nr", entryNr ) );
 
     // The high level results...
     //
-    xml.append( XMLHandler.addTagValue( "result", result ) );
-    xml.append( XMLHandler.addTagValue( "exit_status", exitStatus ) );
-    xml.append( XMLHandler.addTagValue( "is_stopped", stopped ) );
-    xml.append( XMLHandler.addTagValue( "log_channel_id", logChannelId ) );
-    xml.append( XMLHandler.addTagValue( "log_text", logText ) );
-    xml.append( XMLHandler.addTagValue( "elapsedTimeMillis", elapsedTimeMillis ) );
-    xml.append( XMLHandler.addTagValue( "executionId", executionId ) );
+    xml.append( XmlHandler.addTagValue( "result", result ) );
+    xml.append( XmlHandler.addTagValue( "exit_status", exitStatus ) );
+    xml.append( XmlHandler.addTagValue( "is_stopped", stopped ) );
+    xml.append( XmlHandler.addTagValue( "log_channel_id", logChannelId ) );
+    xml.append( XmlHandler.addTagValue( "log_text", logText ) );
+    xml.append( XmlHandler.addTagValue( "elapsedTimeMillis", elapsedTimeMillis ) );
+    xml.append( XmlHandler.addTagValue( "executionId", executionId ) );
 
     return xml;
   }
 
   public String getBasicXml() {
     StringBuilder xml = new StringBuilder();
-    xml.append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) );
     setBasicXmlAttrs( xml );
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
     return xml.toString();
   }
 
@@ -679,36 +679,36 @@ public class Result implements Cloneable {
 
     // First we read the metrics...
     //
-    nrLinesInput = Const.toLong( XMLHandler.getTagValue( node, "lines_input" ), 0L );
-    nrLinesOutput = Const.toLong( XMLHandler.getTagValue( node, "lines_output" ), 0L );
-    nrLinesRead = Const.toLong( XMLHandler.getTagValue( node, "lines_read" ), 0L );
-    nrLinesWritten = Const.toLong( XMLHandler.getTagValue( node, "lines_written" ), 0L );
-    nrLinesUpdated = Const.toLong( XMLHandler.getTagValue( node, "lines_updated" ), 0L );
-    nrLinesRejected = Const.toLong( XMLHandler.getTagValue( node, "lines_rejected" ), 0L );
-    nrLinesDeleted = Const.toLong( XMLHandler.getTagValue( node, "lines_deleted" ), 0L );
-    nrErrors = Const.toLong( XMLHandler.getTagValue( node, "nr_errors" ), 0L );
-    nrFilesRetrieved = Const.toLong( XMLHandler.getTagValue( node, "nr_files_retrieved" ), 0L );
-    entryNr = Const.toLong( XMLHandler.getTagValue( node, "entry_nr" ), 0L );
+    nrLinesInput = Const.toLong( XmlHandler.getTagValue( node, "lines_input" ), 0L );
+    nrLinesOutput = Const.toLong( XmlHandler.getTagValue( node, "lines_output" ), 0L );
+    nrLinesRead = Const.toLong( XmlHandler.getTagValue( node, "lines_read" ), 0L );
+    nrLinesWritten = Const.toLong( XmlHandler.getTagValue( node, "lines_written" ), 0L );
+    nrLinesUpdated = Const.toLong( XmlHandler.getTagValue( node, "lines_updated" ), 0L );
+    nrLinesRejected = Const.toLong( XmlHandler.getTagValue( node, "lines_rejected" ), 0L );
+    nrLinesDeleted = Const.toLong( XmlHandler.getTagValue( node, "lines_deleted" ), 0L );
+    nrErrors = Const.toLong( XmlHandler.getTagValue( node, "nr_errors" ), 0L );
+    nrFilesRetrieved = Const.toLong( XmlHandler.getTagValue( node, "nr_files_retrieved" ), 0L );
+    entryNr = Const.toLong( XmlHandler.getTagValue( node, "entry_nr" ), 0L );
 
     // The high level results...
     //
-    result = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "result" ) );
-    exitStatus = Integer.parseInt( XMLHandler.getTagValue( node, "exit_status" ) );
-    stopped = "Y".equalsIgnoreCase( XMLHandler.getTagValue( node, "is_stopped" ) );
+    result = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "result" ) );
+    exitStatus = Integer.parseInt( XmlHandler.getTagValue( node, "exit_status" ) );
+    stopped = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "is_stopped" ) );
 
-    logChannelId = XMLHandler.getTagValue( node, "log_channel_id" );
-    logText = XMLHandler.getTagValue( node, "log_text" );
+    logChannelId = XmlHandler.getTagValue( node, "log_channel_id" );
+    logText = XmlHandler.getTagValue( node, "log_text" );
 
-    elapsedTimeMillis = Const.toLong( XMLHandler.getTagValue( node, "elapsedTimeMillis" ), 0L );
-    executionId = XMLHandler.getTagValue( node, "executionId" );
+    elapsedTimeMillis = Const.toLong( XmlHandler.getTagValue( node, "elapsedTimeMillis" ), 0L );
+    executionId = XmlHandler.getTagValue( node, "executionId" );
 
     // Now read back the result files...
     //
-    Node resultFilesNode = XMLHandler.getSubNode( node, XML_FILES_TAG );
-    int nrResultFiles = XMLHandler.countNodes( resultFilesNode, XML_FILE_TAG );
+    Node resultFilesNode = XmlHandler.getSubNode( node, XML_FILES_TAG );
+    int nrResultFiles = XmlHandler.countNodes( resultFilesNode, XML_FILE_TAG );
     for ( int i = 0; i < nrResultFiles; i++ ) {
       try {
-        ResultFile resultFile = new ResultFile( XMLHandler.getSubNodeByNr( resultFilesNode, XML_FILE_TAG, i ) );
+        ResultFile resultFile = new ResultFile( XmlHandler.getSubNodeByNr( resultFilesNode, XML_FILE_TAG, i ) );
         resultFiles.put( resultFile.getFile().toString(), resultFile );
       } catch ( HopFileException e ) {
         throw new HopException( "Unexpected error reading back a ResultFile object from XML", e );
@@ -717,12 +717,12 @@ public class Result implements Cloneable {
 
     // Let's also read back the result rows...
     //
-    Node resultRowsNode = XMLHandler.getSubNode( node, XML_ROWS_TAG );
-    List<Node> resultNodes = XMLHandler.getNodes( resultRowsNode, RowMeta.XML_DATA_TAG );
+    Node resultRowsNode = XmlHandler.getSubNode( node, XML_ROWS_TAG );
+    List<Node> resultNodes = XmlHandler.getNodes( resultRowsNode, RowMeta.XML_DATA_TAG );
     if ( !resultNodes.isEmpty() ) {
       // OK, get the metadata first...
       //
-      RowMeta rowMeta = new RowMeta( XMLHandler.getSubNode( resultRowsNode, RowMeta.XML_META_TAG ) );
+      RowMeta rowMeta = new RowMeta( XmlHandler.getSubNode( resultRowsNode, RowMeta.XML_META_TAG ) );
       for ( Node resultNode : resultNodes ) {
         Object[] rowData = rowMeta.getRow( resultNode );
         rows.add( new RowMetaAndData( rowMeta, rowData ) );

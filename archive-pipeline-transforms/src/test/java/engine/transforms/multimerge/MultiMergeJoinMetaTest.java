@@ -106,7 +106,7 @@ public class MultiMergeJoinMetaTest implements InitializerInterface<ITransform> 
     String[] inputTransforms = new String[] { "Transform1", "Transform2" };
     multiMergeMeta.setInputTransforms( inputTransforms );
     multiMergeMeta.setKeyFields( new String[] { "Key1", "Key2" } );
-    String xml = multiMergeMeta.getXML();
+    String xml = multiMergeMeta.getXml();
     Assert.assertTrue( xml.contains( "transform0" ) );
     Assert.assertTrue( xml.contains( "transform1" ) );
 

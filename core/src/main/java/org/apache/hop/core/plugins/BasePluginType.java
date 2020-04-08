@@ -30,13 +30,13 @@ import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessageUtil;
 import org.scannotation.AnnotationDB;
@@ -225,7 +225,7 @@ public abstract class BasePluginType implements IPluginType {
 
       registerPlugins( inputStream );
 
-    } catch ( HopXMLException e ) {
+    } catch ( HopXmlException e ) {
       throw new HopPluginException( "Unable to read the kettle XML config file: " + xmlFile, e );
     } finally {
       IOUtils.closeQuietly( inputStream );
@@ -252,13 +252,13 @@ public abstract class BasePluginType implements IPluginType {
    *
    * @param inputStream
    * @throws HopPluginException
-   * @throws HopXMLException
+   * @throws HopXmlException
    */
-  protected void registerPlugins( InputStream inputStream ) throws HopPluginException, HopXMLException {
-    Document document = XMLHandler.loadXMLFile( inputStream, null, true, false );
+  protected void registerPlugins( InputStream inputStream ) throws HopPluginException, HopXmlException {
+    Document document = XmlHandler.loadXMLFile( inputStream, null, true, false );
 
-    Node repsNode = XMLHandler.getSubNode( document, getMainTag() );
-    List<Node> repsNodes = XMLHandler.getNodes( repsNode, getSubTag() );
+    Node repsNode = XmlHandler.getSubNode( document, getMainTag() );
+    List<Node> repsNodes = XmlHandler.getNodes( repsNode, getSubTag() );
 
     for ( Node repNode : repsNodes ) {
       registerPluginFromXmlResource( repNode, getPath(), this.getClass(), true, null );
@@ -472,7 +472,7 @@ public abstract class BasePluginType implements IPluginType {
                                                    Class<? extends IPluginType> pluginType, boolean nativePlugin, URL pluginFolder ) throws HopPluginException {
     try {
 
-      String id = XMLHandler.getTagAttribute( pluginNode, "id" );
+      String id = XmlHandler.getTagAttribute( pluginNode, "id" );
       String description = getTagOrAttribute( pluginNode, "description" );
       String iconfile = getTagOrAttribute( pluginNode, "iconfile" );
       String tooltip = getTagOrAttribute( pluginNode, "tooltip" );
@@ -492,14 +492,14 @@ public abstract class BasePluginType implements IPluginType {
         id = classname;
       }
 
-      Node libsnode = XMLHandler.getSubNode( pluginNode, "libraries" );
-      int nrlibs = XMLHandler.countNodes( libsnode, "library" );
+      Node libsnode = XmlHandler.getSubNode( pluginNode, "libraries" );
+      int nrlibs = XmlHandler.countNodes( libsnode, "library" );
 
       List<String> jarFiles = new ArrayList<>();
       if ( path != null ) {
         for ( int j = 0; j < nrlibs; j++ ) {
-          Node libnode = XMLHandler.getSubNodeByNr( libsnode, "library", j );
-          String jarfile = XMLHandler.getTagAttribute( libnode, "name" );
+          Node libnode = XmlHandler.getSubNodeByNr( libsnode, "library", j );
+          String jarfile = XmlHandler.getTagAttribute( libnode, "name" );
           jarFiles.add( new File( path + Const.FILE_SEPARATOR + jarfile ).getAbsolutePath() );
         }
       }
@@ -572,9 +572,9 @@ public abstract class BasePluginType implements IPluginType {
   }
 
   protected String getTagOrAttribute( Node pluginNode, String tag ) {
-    String string = XMLHandler.getTagValue( pluginNode, tag );
+    String string = XmlHandler.getTagValue( pluginNode, tag );
     if ( string == null ) {
-      string = XMLHandler.getTagAttribute( pluginNode, tag );
+      string = XmlHandler.getTagAttribute( pluginNode, tag );
     }
     return string;
   }
@@ -609,13 +609,13 @@ public abstract class BasePluginType implements IPluginType {
   protected Map<String, String> readPluginLocale( Node pluginNode, String localizedTag, String translationTag ) {
     Map<String, String> map = new Hashtable<String, String>();
 
-    Node locTipsNode = XMLHandler.getSubNode( pluginNode, localizedTag );
-    int nrLocTips = XMLHandler.countNodes( locTipsNode, translationTag );
+    Node locTipsNode = XmlHandler.getSubNode( pluginNode, localizedTag );
+    int nrLocTips = XmlHandler.countNodes( locTipsNode, translationTag );
     for ( int j = 0; j < nrLocTips; j++ ) {
-      Node locTipNode = XMLHandler.getSubNodeByNr( locTipsNode, translationTag, j );
+      Node locTipNode = XmlHandler.getSubNodeByNr( locTipsNode, translationTag, j );
       if ( locTipNode != null ) {
-        String locale = XMLHandler.getTagAttribute( locTipNode, "locale" );
-        String locTip = XMLHandler.getNodeValue( locTipNode );
+        String locale = XmlHandler.getTagAttribute( locTipNode, "locale" );
+        String locTip = XmlHandler.getNodeValue( locTipNode );
 
         if ( !Utils.isEmpty( locale ) && !Utils.isEmpty( locTip ) ) {
           map.put( locale.toLowerCase(), locTip );
@@ -660,11 +660,11 @@ public abstract class BasePluginType implements IPluginType {
       if ( dependenciesFile.exists() ) {
         // Add the files in the dependencies folders to the classpath...
         //
-        Document document = XMLHandler.loadXMLFile( dependenciesFile );
-        Node dependenciesNode = XMLHandler.getSubNode( document, "dependencies" );
-        List<Node> folderNodes = XMLHandler.getNodes( dependenciesNode, "folder" );
+        Document document = XmlHandler.loadXMLFile( dependenciesFile );
+        Node dependenciesNode = XmlHandler.getSubNode( document, "dependencies" );
+        List<Node> folderNodes = XmlHandler.getNodes( dependenciesNode, "folder" );
         for ( Node folderNode : folderNodes ) {
-          String relativeFolderName = XMLHandler.getNodeValue( folderNode );
+          String relativeFolderName = XmlHandler.getNodeValue( folderNode );
           String dependenciesFolderName = parentFolderName + Const.FILE_SEPARATOR + relativeFolderName;
           File dependenciesFolder = new File( dependenciesFolderName );
           if ( dependenciesFolder.exists() ) {

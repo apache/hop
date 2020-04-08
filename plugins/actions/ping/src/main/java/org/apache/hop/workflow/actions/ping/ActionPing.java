@@ -26,10 +26,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -100,39 +100,39 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 100 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "hostname", hostname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nbr_packets", nbrPackets ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "hostname", hostname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nbr_packets", nbrPackets ) );
 
     // TODO: The following line may be removed 3 versions after 2.5.0
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nbrpaquets", nbrPackets ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "timeout", timeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nbrpaquets", nbrPackets ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "timeout", timeout ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "pingtype", pingtype ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "pingtype", pingtype ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
       String nbrPaquets;
-      super.loadXML( entrynode );
-      hostname = XMLHandler.getTagValue( entrynode, "hostname" );
-      nbrPackets = XMLHandler.getTagValue( entrynode, "nbr_packets" );
+      super.loadXml( entrynode );
+      hostname = XmlHandler.getTagValue( entrynode, "hostname" );
+      nbrPackets = XmlHandler.getTagValue( entrynode, "nbr_packets" );
 
       // TODO: The following lines may be removed 3 versions after 2.5.0
-      nbrPaquets = XMLHandler.getTagValue( entrynode, "nbrpaquets" );
+      nbrPaquets = XmlHandler.getTagValue( entrynode, "nbrpaquets" );
       if ( nbrPackets == null && nbrPaquets != null ) {
         // if only nbrpaquets exists this means that the file was
         // save by a version 2.5.0 ping action
         nbrPackets = nbrPaquets;
       }
-      timeout = XMLHandler.getTagValue( entrynode, "timeout" );
-      pingtype = XMLHandler.getTagValue( entrynode, "pingtype" );
+      timeout = XmlHandler.getTagValue( entrynode, "timeout" );
+      pingtype = XmlHandler.getTagValue( entrynode, "pingtype" );
       if ( Utils.isEmpty( pingtype ) ) {
         pingtype = classicPing;
         ipingtype = iclassicPing;
@@ -145,8 +145,8 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
           ipingtype = iclassicPing;
         }
       }
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'ping' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'ping' from XML node", xe );
     }
   }
 

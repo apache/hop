@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,7 +47,7 @@ public class GetSQLProgressDialog {
 
   private Shell shell;
   private PipelineMeta pipelineMeta;
-  private List<SQLStatement> stats;
+  private List<SqlStatement> stats;
 
   /**
    * Creates a new dialog that will handle the wait while getting the SQL for a pipeline...
@@ -57,7 +57,7 @@ public class GetSQLProgressDialog {
     this.pipelineMeta = pipelineMeta;
   }
 
-  public List<SQLStatement> open() {
+  public List<SqlStatement> open() {
     IRunnableWithProgress op = new IRunnableWithProgress() {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         // This is running in a new process: copy some HopVariables info
@@ -65,7 +65,7 @@ public class GetSQLProgressDialog {
         // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
         try {
-          stats = pipelineMeta.getSQLStatements( new ProgressMonitorAdapter( monitor ) );
+          stats = pipelineMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
         } catch ( HopException e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "GetSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) );

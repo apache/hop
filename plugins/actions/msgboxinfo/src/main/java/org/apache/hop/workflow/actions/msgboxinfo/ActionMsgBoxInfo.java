@@ -26,11 +26,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.GUIFactory;
 import org.apache.hop.core.gui.IThreadDialogs;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
@@ -74,24 +74,24 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "bodymessage", bodymessage ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "titremessage", titremessage ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bodymessage", bodymessage ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "titremessage", titremessage ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      bodymessage = XMLHandler.getTagValue( entrynode, "bodymessage" );
-      titremessage = XMLHandler.getTagValue( entrynode, "titremessage" );
+      super.loadXml( entrynode );
+      bodymessage = XmlHandler.getTagValue( entrynode, "bodymessage" );
+      titremessage = XmlHandler.getTagValue( entrynode, "titremessage" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load action of type 'Msgbox Info' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'Msgbox Info' from XML node", e );
     }
   }
 

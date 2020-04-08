@@ -5,7 +5,7 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -114,8 +114,8 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   @Override public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
     try {
       if ( checkContent ) {
-        Document document = XMLHandler.loadXMLFile( filename );
-        Node pipelineNode = XMLHandler.getSubNode( document, PipelineMeta.XML_TAG );
+        Document document = XmlHandler.loadXMLFile( filename );
+        Node pipelineNode = XmlHandler.getSubNode( document, PipelineMeta.XML_TAG );
         return pipelineNode != null;
       } else {
         return super.isHandledBy( filename, checkContent );

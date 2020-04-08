@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.util.serialization;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -44,12 +44,12 @@ import static org.apache.hop.core.util.serialization.TransformMetaProps.from;
 public abstract class BaseSerializingMeta<Main extends ITransform, Data extends ITransformData>
   extends BaseTransformMeta implements ITransformMeta<Main, Data> {
 
-  @Override public String getXML() {
+  @Override public String getXml() {
     return serialize( from( this ) );
   }
 
-  @Override public void loadXML(
-    Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  @Override public void loadXml(
+    Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     deserialize( transformNode ).to( this );
   }
 

@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.zipfile;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -182,7 +182,7 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransform {
     this.createparentfolder = createparentfolder;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -207,36 +207,36 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransform {
     return operationTypeCode[ i ];
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "    " + XMLHandler.addTagValue( "sourcefilenamefield", sourcefilenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
-    retval.append( "    " + XMLHandler.addTagValue( "baseFolderField", baseFolderField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "overwritezipentry", overwritezipentry ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "createparentfolder", createparentfolder ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "keepsourcefolder", keepsourcefolder ) );
-    retval.append( "    " + XMLHandler.addTagValue( "movetofolderfield", movetofolderfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "sourcefilenamefield", sourcefilenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "targetfilenamefield", targetfilenamefield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "baseFolderField", baseFolderField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "operation_type", getOperationTypeCode( operationType ) ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addresultfilenames", addresultfilenames ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "overwritezipentry", overwritezipentry ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "createparentfolder", createparentfolder ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "keepsourcefolder", keepsourcefolder ) );
+    retval.append( "    " + XmlHandler.addTagValue( "movetofolderfield", movetofolderfield ) );
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      sourcefilenamefield = XMLHandler.getTagValue( transformNode, "sourcefilenamefield" );
-      targetfilenamefield = XMLHandler.getTagValue( transformNode, "targetfilenamefield" );
-      baseFolderField = XMLHandler.getTagValue( transformNode, "baseFolderField" );
+      sourcefilenamefield = XmlHandler.getTagValue( transformNode, "sourcefilenamefield" );
+      targetfilenamefield = XmlHandler.getTagValue( transformNode, "targetfilenamefield" );
+      baseFolderField = XmlHandler.getTagValue( transformNode, "baseFolderField" );
       operationType =
-        getOperationTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "operation_type" ), "" ) );
-      addresultfilenames = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addresultfilenames" ) );
-      overwritezipentry = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "overwritezipentry" ) );
-      createparentfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "createparentfolder" ) );
-      keepsourcefolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "keepsourcefolder" ) );
-      movetofolderfield = XMLHandler.getTagValue( transformNode, "movetofolderfield" );
+        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operation_type" ), "" ) );
+      addresultfilenames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfilenames" ) );
+      overwritezipentry = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "overwritezipentry" ) );
+      createparentfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createparentfolder" ) );
+      keepsourcefolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "keepsourcefolder" ) );
+      movetofolderfield = XmlHandler.getTagValue( transformNode, "movetofolderfield" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ZipFileMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ZipFileMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

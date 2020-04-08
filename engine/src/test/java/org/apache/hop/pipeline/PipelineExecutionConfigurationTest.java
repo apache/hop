@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -73,27 +73,27 @@ public class PipelineExecutionConfigurationTest {
     tec.setPassedBatchId( passedBatchId0 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = tec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
+      String xml = tec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );
     }
     tec.setPassedBatchId( passedBatchId1 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = tec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
+      String xml = tec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );
     }
     tec.setPassedBatchId( passedBatchId2 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = tec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
+      String xml = tec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, PipelineExecutionConfiguration.XML_TAG );
       PipelineExecutionConfiguration tecCopy = new PipelineExecutionConfiguration( node );
       assertEquals( "xml-copy", tec.getPassedBatchId(), tecCopy.getPassedBatchId() );
     }

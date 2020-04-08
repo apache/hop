@@ -28,7 +28,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -233,7 +233,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransform {
     this.rowLimit = rowLimit;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -340,48 +340,48 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransform {
 
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum", includeRowNumber ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "foldername_dynamic", isFoldernameDynamic ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "rownum_field", rowNumberField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "foldername_field", dynamicFoldernameField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum", includeRowNumber ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "foldername_dynamic", isFoldernameDynamic ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rownum_field", rowNumberField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "foldername_field", dynamicFoldernameField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", rowLimit ) );
     retval.append( "    <file>" ).append( Const.CR );
 
     for ( int i = 0; i < folderName.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.addTagValue( "name", folderName[ i ] ) );
-      retval.append( "      " ).append( XMLHandler.addTagValue( "file_required", folderRequired[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "name", folderName[ i ] ) );
+      retval.append( "      " ).append( XmlHandler.addTagValue( "file_required", folderRequired[ i ] ) );
     }
     retval.append( "    </file>" ).append( Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      includeRowNumber = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "rownum" ) );
-      isFoldernameDynamic = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "foldername_dynamic" ) );
-      rowNumberField = XMLHandler.getTagValue( transformNode, "rownum_field" );
-      dynamicFoldernameField = XMLHandler.getTagValue( transformNode, "foldername_field" );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      isFoldernameDynamic = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "foldername_dynamic" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      dynamicFoldernameField = XmlHandler.getTagValue( transformNode, "foldername_field" );
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong( XMLHandler.getTagValue( transformNode, "limit" ), 0L );
+      rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
 
-      Node filenode = XMLHandler.getSubNode( transformNode, "file" );
-      int nrfiles = XMLHandler.countNodes( filenode, "name" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      int nrfiles = XmlHandler.countNodes( filenode, "name" );
 
       allocate( nrfiles );
 
       for ( int i = 0; i < nrfiles; i++ ) {
-        Node folderNamenode = XMLHandler.getSubNodeByNr( filenode, "name", i );
-        Node folderRequirednode = XMLHandler.getSubNodeByNr( filenode, "file_required", i );
-        folderName[ i ] = XMLHandler.getNodeValue( folderNamenode );
-        folderRequired[ i ] = XMLHandler.getNodeValue( folderRequirednode );
+        Node folderNamenode = XmlHandler.getSubNodeByNr( filenode, "name", i );
+        Node folderRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
+        folderName[ i ] = XmlHandler.getNodeValue( folderNamenode );
+        folderRequired[ i ] = XmlHandler.getNodeValue( folderRequirednode );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 

@@ -150,11 +150,11 @@ public class MSSQLServerDatabaseMetaTest {
 
   @Test
   public void testSQLStatements() {
-    assertEquals( "SELECT TOP 1 * FROM FOO", nativeMeta.getSQLQueryFields( "FOO" ) );
+    assertEquals( "SELECT TOP 1 * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "SELECT top 0 * FROM FOO WITH (UPDLOCK, HOLDLOCK);"
         + lineSep + "SELECT top 0 * FROM BAR WITH (UPDLOCK, HOLDLOCK);" + lineSep,
-      nativeMeta.getSQLLockTables( new String[] { "FOO", "BAR" } ) );
+      nativeMeta.getSqlLockTables( new String[] { "FOO", "BAR" } ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR DATETIME",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaDate( "BAR" ), "", false, "", false ) );
@@ -176,14 +176,14 @@ public class MSSQLServerDatabaseMetaTest {
     odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "select o.name from sysobjects o, sysusers u where  xtype in ( 'FN', 'P' ) and o.uid = u.uid order by o.name",
-      nativeMeta.getSQLListOfProcedures() );
+      nativeMeta.getSqlListOfProcedures() );
 
-    assertEquals( "select name from sys.schemas", nativeMeta.getSQLListOfSchemas() );
-    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
-    assertEquals( "SELECT NEXT VALUE FOR FOO", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "SELECT current_value FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT 1 FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT name FROM sys.sequences", nativeMeta.getSQLListOfSequences() );
+    assertEquals( "select name from sys.schemas", nativeMeta.getSqlListOfSchemas() );
+    assertEquals( "insert into FOO(FOOVERSION) values (1)", nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+    assertEquals( "SELECT NEXT VALUE FOR FOO", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT current_value FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT 1 FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT name FROM sys.sequences", nativeMeta.getSqlListOfSequences() );
   }
 
   @Test

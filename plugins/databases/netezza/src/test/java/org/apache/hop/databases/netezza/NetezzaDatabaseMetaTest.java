@@ -117,23 +117,23 @@ public class NetezzaDatabaseMetaTest {
   @Test
   public void testSQLStatements() {
     assertEquals( " limit 15", nativeMeta.getLimitClause( 15 ) );
-    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists( "FOO" ) );
 
-    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
-    assertEquals( "select next value for FOO", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "select last_value from FOO", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT seqname AS sequence_name from _v_sequence where seqname = 'foo'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT seqname AS sequence_name from _v_sequence", nativeMeta.getSQLListOfSequences() );
+    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
+    assertEquals( "select next value for FOO", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "select last_value from FOO", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT seqname AS sequence_name from _v_sequence where seqname = 'foo'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT seqname AS sequence_name from _v_sequence", nativeMeta.getSqlListOfSequences() );
     assertNull( nativeMeta.getAddColumnStatement( "", null, "", false, "", false ) );
     assertNull( nativeMeta.getDropColumnStatement( "", null, "", false, "", false ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "ALTER TABLE FOO MODIFY COLUMN BAR" + lineSep + ";" + lineSep,
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), null, false, null, false ) ); // Pretty sure this is a bug ...
-    assertNull( nativeMeta.getSQLListOfProcedures() );
-    assertNull( nativeMeta.getSQLLockTables( new String[] {} ) );
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] {} ) );
+    assertNull( nativeMeta.getSqlListOfProcedures() );
+    assertNull( nativeMeta.getSqlLockTables( new String[] {} ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] {} ) );
   }
 
   @Test

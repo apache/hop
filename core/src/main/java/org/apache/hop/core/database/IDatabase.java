@@ -245,7 +245,7 @@ public interface IDatabase extends Cloneable {
    * @param tableName The name of the table to determine the layout for
    * @return The SQL to launch.
    */
-  public String getSQLQueryFields( String tableName );
+  public String getSqlQueryFields( String tableName );
 
   /**
    * Get the not found technical key.
@@ -282,7 +282,7 @@ public interface IDatabase extends Cloneable {
    * @param sequenceName The sequence name
    * @return the SQL to get the next value of a sequence.
    */
-  public String getSQLNextSequenceValue( String sequenceName );
+  public String getSqlNextSequenceValue( String sequenceName );
 
   /**
    * Get the current value of a database sequence
@@ -290,7 +290,7 @@ public interface IDatabase extends Cloneable {
    * @param sequenceName The sequence to check
    * @return The current value of a database sequence
    */
-  public String getSQLCurrentSequenceValue( String sequenceName );
+  public String getSqlCurrentSequenceValue( String sequenceName );
 
   /**
    * Check if a sequence exists.
@@ -298,7 +298,7 @@ public interface IDatabase extends Cloneable {
    * @param sequenceName The sequence to check
    * @return The SQL to get the name of the sequence back from the databases data dictionary
    */
-  public String getSQLSequenceExists( String sequenceName );
+  public String getSqlSequenceExists( String sequenceName );
 
   /**
    * Checks whether or not the command setFetchSize() is supported by the JDBC driver...
@@ -497,7 +497,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return The SQL on this database to get a list of stored procedures.
    */
-  public String getSQLListOfProcedures();
+  public String getSqlListOfProcedures();
 
   /**
    * @param tableName The table to be truncated.
@@ -516,14 +516,14 @@ public interface IDatabase extends Cloneable {
    * @return The SQL command to lock database tables for write purposes. null is returned in case locking is not
    * supported on the target database.
    */
-  public String getSQLLockTables( String[] tableNames );
+  public String getSqlLockTables( String[] tableNames );
 
   /**
    * @param tableNames The names of the tables to unlock
    * @return The SQL command to unlock the database tables. null is returned in case locking is not supported on the
    * target database.
    */
-  public String getSQLUnlockTables( String[] tableNames );
+  public String getSqlUnlockTables( String[] tableNames );
 
   /**
    * @return true if the database resultsets support getTimeStamp() to retrieve date-time. (Date)
@@ -626,7 +626,7 @@ public interface IDatabase extends Cloneable {
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
    * have the table.
    */
-  public String getSQLTableExists( String tablename );
+  public String getSqlTableExists( String tablename );
 
   /**
    * @param column    The column to verify the existance for
@@ -634,7 +634,7 @@ public interface IDatabase extends Cloneable {
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
    * have the column.
    */
-  public String getSQLColumnExists( String column, String tablename );
+  public String getSqlColumnExists( String column, String tablename );
 
   /**
    * @return true if the database is streaming results (normally this is an option just for MySQL).
@@ -770,7 +770,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return the SQL to retrieve the list of schemas
    */
-  public String getSQLListOfSchemas();
+  public String getSqlListOfSchemas();
 
   /**
    * @return The maximum number of columns in a database, <=0 means: no known limit
@@ -790,7 +790,7 @@ public interface IDatabase extends Cloneable {
    * @param versionField the version field
    * @return the SQL to insert the unknown record into the SCD.
    */
-  public String getSQLInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField );
+  public String getSqlInsertAutoIncUnknownDimensionRow( String schemaTable, String keyField, String versionField );
 
   /**
    * @return true if this is a relational database you can explore. Return false for SAP, PALO, etc.
@@ -800,7 +800,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return The SQL on this database to get a list of sequences.
    */
-  public String getSQLListOfSequences();
+  public String getSqlListOfSequences();
 
   /**
    * Adds quotes around the string according to the database dialect and also escapes special characters like CR, LF and
@@ -987,7 +987,7 @@ public interface IDatabase extends Cloneable {
    * @return The value SQL clause
    * @throws HopValueException in case there is a data conversion error.
    */
-  public String getSQLValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws HopValueException;
+  public String getSqlValue( IValueMeta valueMeta, Object valueData, String dateFormat ) throws HopValueException;
 
   /**
    * @return true if this database only supports metadata retrieval on a result set, never on a statement (even if the

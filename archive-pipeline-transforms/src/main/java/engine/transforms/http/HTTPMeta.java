@@ -27,14 +27,14 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -274,7 +274,7 @@ public class HTTPMeta extends BaseTransformMeta implements ITransform {
     this.urlField = urlField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -357,91 +357,91 @@ public class HTTPMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "url", url ) );
-    retval.append( "    " + XMLHandler.addTagValue( "urlInField", urlInField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "urlField", urlField ) );
-    retval.append( "    " + XMLHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " + XMLHandler.addTagValue( "httpLogin", httpLogin ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "url", url ) );
+    retval.append( "    " + XmlHandler.addTagValue( "urlInField", urlInField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "urlField", urlField ) );
+    retval.append( "    " + XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "    " + XmlHandler.addTagValue( "httpLogin", httpLogin ) );
     retval.append( "    "
-      + XMLHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "    " + XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "    " + XMLHandler.addTagValue( "socketTimeout", socketTimeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "connectionTimeout", connectionTimeout ) );
-    retval.append( "    " + XMLHandler.addTagValue( "closeIdleConnectionsTime", closeIdleConnectionsTime ) );
+      + XmlHandler.addTagValue( "httpPassword", Encr.encryptPasswordIfNotUsingVariables( httpPassword ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "    " + XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "    " + XmlHandler.addTagValue( "socketTimeout", socketTimeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "connectionTimeout", connectionTimeout ) );
+    retval.append( "    " + XmlHandler.addTagValue( "closeIdleConnectionsTime", closeIdleConnectionsTime ) );
 
     retval.append( "    <lookup>" ).append( Const.CR );
 
     for ( int i = 0; i < argumentField.length; i++ ) {
       retval.append( "      <arg>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", argumentField[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "parameter", argumentParameter[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", argumentField[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "parameter", argumentParameter[ i ] ) );
       retval.append( "      </arg>" ).append( Const.CR );
     }
     for ( int i = 0; i < headerField.length; i++ ) {
       retval.append( "      <header>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", headerField[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "parameter", headerParameter[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", headerField[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "parameter", headerParameter[ i ] ) );
       retval.append( "      </header>" + Const.CR );
     }
 
     retval.append( "    </lookup>" ).append( Const.CR );
 
     retval.append( "    <result>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", fieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "code", resultCodeFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "response_time", responseTimeFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "response_header", responseHeaderFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", fieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "code", resultCodeFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "response_time", responseTimeFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "response_header", responseHeaderFieldName ) );
     retval.append( "    </result>" ).append( Const.CR );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
       int nrargs;
 
-      url = XMLHandler.getTagValue( transformNode, "url" );
-      urlInField = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "urlInField" ) );
-      urlField = XMLHandler.getTagValue( transformNode, "urlField" );
-      encoding = XMLHandler.getTagValue( transformNode, "encoding" );
-      httpLogin = XMLHandler.getTagValue( transformNode, "httpLogin" );
-      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( transformNode, "httpPassword" ) );
-      proxyHost = XMLHandler.getTagValue( transformNode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( transformNode, "proxyPort" );
+      url = XmlHandler.getTagValue( transformNode, "url" );
+      urlInField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "urlInField" ) );
+      urlField = XmlHandler.getTagValue( transformNode, "urlField" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      httpLogin = XmlHandler.getTagValue( transformNode, "httpLogin" );
+      httpPassword = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "httpPassword" ) );
+      proxyHost = XmlHandler.getTagValue( transformNode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( transformNode, "proxyPort" );
 
-      socketTimeout = XMLHandler.getTagValue( transformNode, "socketTimeout" );
-      connectionTimeout = XMLHandler.getTagValue( transformNode, "connectionTimeout" );
-      closeIdleConnectionsTime = XMLHandler.getTagValue( transformNode, "closeIdleConnectionsTime" );
+      socketTimeout = XmlHandler.getTagValue( transformNode, "socketTimeout" );
+      connectionTimeout = XmlHandler.getTagValue( transformNode, "connectionTimeout" );
+      closeIdleConnectionsTime = XmlHandler.getTagValue( transformNode, "closeIdleConnectionsTime" );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      nrargs = XMLHandler.countNodes( lookup, "arg" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      nrargs = XmlHandler.countNodes( lookup, "arg" );
 
-      int nrheaders = XMLHandler.countNodes( lookup, "header" );
+      int nrheaders = XmlHandler.countNodes( lookup, "header" );
       allocate( nrargs, nrheaders );
 
       for ( int i = 0; i < nrargs; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( lookup, "arg", i );
+        Node anode = XmlHandler.getSubNodeByNr( lookup, "arg", i );
 
-        argumentField[ i ] = XMLHandler.getTagValue( anode, "name" );
-        argumentParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
+        argumentField[ i ] = XmlHandler.getTagValue( anode, "name" );
+        argumentParameter[ i ] = XmlHandler.getTagValue( anode, "parameter" );
       }
 
       for ( int i = 0; i < nrheaders; i++ ) {
-        Node anode = XMLHandler.getSubNodeByNr( lookup, "header", i );
-        headerField[ i ] = XMLHandler.getTagValue( anode, "name" );
-        headerParameter[ i ] = XMLHandler.getTagValue( anode, "parameter" );
+        Node anode = XmlHandler.getSubNodeByNr( lookup, "header", i );
+        headerField[ i ] = XmlHandler.getTagValue( anode, "name" );
+        headerParameter[ i ] = XmlHandler.getTagValue( anode, "parameter" );
       }
 
-      fieldName = XMLHandler.getTagValue( transformNode, "result", "name" );
-      resultCodeFieldName = XMLHandler.getTagValue( transformNode, "result", "code" );
-      responseTimeFieldName = XMLHandler.getTagValue( transformNode, "result", "response_time" );
-      responseHeaderFieldName = XMLHandler.getTagValue( transformNode, "result", "response_header" );
+      fieldName = XmlHandler.getTagValue( transformNode, "result", "name" );
+      resultCodeFieldName = XmlHandler.getTagValue( transformNode, "result", "code" );
+      responseTimeFieldName = XmlHandler.getTagValue( transformNode, "result", "response_time" );
+      responseHeaderFieldName = XmlHandler.getTagValue( transformNode, "result", "response_header" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "HTTPMeta.Exception.UnableToReadTransformMeta" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "HTTPMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
 

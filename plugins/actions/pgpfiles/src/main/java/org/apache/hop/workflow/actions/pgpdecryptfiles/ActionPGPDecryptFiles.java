@@ -34,11 +34,11 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -174,47 +174,47 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "gpglocation", gpglocation ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", include_subfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_result_filesname", add_result_filesname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destination_is_a_file", destination_is_a_file ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpglocation ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", include_subfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", add_result_filesname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination_is_a_file", destination_is_a_file ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "create_destination_folder", create_destination_folder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", add_date ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", add_time ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
+      XmlHandler.addTagValue( "create_destination_folder", create_destination_folder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", add_date ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", add_time ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "DoNotKeepFolderStructure", DoNotKeepFolderStructure ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "iffileexists", iffileexists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destinationFolder", destinationFolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ifmovedfileexists", ifmovedfileexists ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "moved_date_time_format", moved_date_time_format ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "create_move_to_folder", create_move_to_folder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_moved_date", add_moved_date ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_moved_time", add_moved_time ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "SpecifyMoveFormat", SpecifyMoveFormat ) );
+      XmlHandler.addTagValue( "DoNotKeepFolderStructure", DoNotKeepFolderStructure ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", iffileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destinationFolder", destinationFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ifmovedfileexists", ifmovedfileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "moved_date_time_format", moved_date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "create_move_to_folder", create_move_to_folder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_date", add_moved_date ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_time", add_moved_time ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyMoveFormat", SpecifyMoveFormat ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "AddMovedDateBeforeExtension", AddMovedDateBeforeExtension ) );
+      XmlHandler.addTagValue( "AddMovedDateBeforeExtension", AddMovedDateBeforeExtension ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     if ( source_filefolder != null ) {
       for ( int i = 0; i < source_filefolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase[ i ] ) ) );
+          XmlHandler.addTagValue( "passphrase", Encr.encryptPasswordIfNotUsingVariables( passphrase[ i ] ) ) );
         retval.append( "          " ).append(
-          XMLHandler.addTagValue( "destination_filefolder", destination_filefolder[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
+          XmlHandler.addTagValue( "destination_filefolder", destination_filefolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -223,56 +223,56 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      gpglocation = XMLHandler.getTagValue( entrynode, "gpglocation" );
-      arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
-      add_result_filesname = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_result_filesname" ) );
-      destination_is_a_file = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "destination_is_a_file" ) );
+      super.loadXml( entrynode );
+      gpglocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
+      arg_from_previous = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      include_subfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      add_result_filesname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
+      destination_is_a_file = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "destination_is_a_file" ) );
       create_destination_folder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "create_destination_folder" ) );
-      add_date = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_date" ) );
-      add_time = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_destination_folder" ) );
+      add_date = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
+      add_time = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
+      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
       AddDateBeforeExtension =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
       DoNotKeepFolderStructure =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "DoNotKeepFolderStructure" ) );
-      date_time_format = XMLHandler.getTagValue( entrynode, "date_time_format" );
-      nr_errors_less_than = XMLHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      success_condition = XMLHandler.getTagValue( entrynode, "success_condition" );
-      iffileexists = XMLHandler.getTagValue( entrynode, "iffileexists" );
-      destinationFolder = XMLHandler.getTagValue( entrynode, "destinationFolder" );
-      ifmovedfileexists = XMLHandler.getTagValue( entrynode, "ifmovedfileexists" );
-      moved_date_time_format = XMLHandler.getTagValue( entrynode, "moved_date_time_format" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "DoNotKeepFolderStructure" ) );
+      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      nr_errors_less_than = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
+      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      iffileexists = XmlHandler.getTagValue( entrynode, "iffileexists" );
+      destinationFolder = XmlHandler.getTagValue( entrynode, "destinationFolder" );
+      ifmovedfileexists = XmlHandler.getTagValue( entrynode, "ifmovedfileexists" );
+      moved_date_time_format = XmlHandler.getTagValue( entrynode, "moved_date_time_format" );
       AddMovedDateBeforeExtension =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "AddMovedDateBeforeExtension" ) );
-      create_move_to_folder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "create_move_to_folder" ) );
-      add_moved_date = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_moved_date" ) );
-      add_moved_time = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_moved_time" ) );
-      SpecifyMoveFormat = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "SpecifyMoveFormat" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddMovedDateBeforeExtension" ) );
+      create_move_to_folder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_move_to_folder" ) );
+      add_moved_date = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_date" ) );
+      add_moved_time = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_time" ) );
+      SpecifyMoveFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyMoveFormat" ) );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[ i ] = XMLHandler.getTagValue( fnode, "source_filefolder" );
-        passphrase[ i ] = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( fnode, "passphrase" ) );
-        destination_filefolder[ i ] = XMLHandler.getTagValue( fnode, "destination_filefolder" );
-        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
+        source_filefolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
+        passphrase[ i ] = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( fnode, "passphrase" ) );
+        destination_filefolder[ i ] = XmlHandler.getTagValue( fnode, "destination_filefolder" );
+        wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
       }
-    } catch ( HopXMLException xe ) {
+    } catch ( HopXmlException xe ) {
 
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ActionPGPDecryptFiles.Error.Exception.UnableLoadXML" ), xe );
     }
   }

@@ -31,11 +31,11 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -163,25 +163,25 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "rows_count_value", rowsCountValue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "is_custom_sql", iscustomSQL ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "is_usevars", isUseVars ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "custom_sql", customSQL ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_rows_result", isAddRowsResult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "clear_result_rows", isClearResultList ) );
+      XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "rows_count_value", rowsCountValue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", iscustomSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", isUseVars ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", isAddRowsResult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_on_timeout", successOnTimeout ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_result_rows", isClearResultList ) );
     return retval.toString();
   }
 
@@ -242,28 +242,28 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      super.loadXml( entrynode );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
       successCondition =
-        getSucessConditionByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "success_condition" ), "" ) );
-      rowsCountValue = Const.NVL( XMLHandler.getTagValue( entrynode, "rows_count_value" ), "0" );
-      iscustomSQL = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "is_custom_sql" ) );
-      isUseVars = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSQL = XMLHandler.getTagValue( entrynode, "custom_sql" );
-      isAddRowsResult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_rows_result" ) );
-      maximumTimeout = XMLHandler.getTagValue( entrynode, "maximum_timeout" );
-      checkCycleTime = XMLHandler.getTagValue( entrynode, "check_cycle_time" );
-      successOnTimeout = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "success_on_timeout" ) );
-      isClearResultList = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "clear_result_rows" ) );
+        getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
+      rowsCountValue = Const.NVL( XmlHandler.getTagValue( entrynode, "rows_count_value" ), "0" );
+      iscustomSQL = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
+      isUseVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
+      customSQL = XmlHandler.getTagValue( entrynode, "custom_sql" );
+      isAddRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
+      maximumTimeout = XmlHandler.getTagValue( entrynode, "maximum_timeout" );
+      checkCycleTime = XmlHandler.getTagValue( entrynode, "check_cycle_time" );
+      successOnTimeout = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "success_on_timeout" ) );
+      isClearResultList = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_result_rows" ) );
 
     } catch ( HopException e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "ActionWaitForSQL.UnableLoadXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "ActionWaitForSQL.UnableLoadXML" ), e );
     }
   }
 

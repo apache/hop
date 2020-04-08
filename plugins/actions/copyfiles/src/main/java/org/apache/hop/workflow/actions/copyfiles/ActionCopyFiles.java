@@ -36,11 +36,11 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -151,19 +151,19 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "copy_empty_folders", copy_empty_folders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "overwrite_files", overwrite_files ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "include_subfolders", include_subfolders ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remove_source_files", remove_source_files ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_result_filesname", add_result_filesname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "destination_is_a_file", destination_is_a_file ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "copy_empty_folders", copy_empty_folders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "overwrite_files", overwrite_files ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", include_subfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remove_source_files", remove_source_files ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", add_result_filesname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination_is_a_file", destination_is_a_file ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "create_destination_folder", create_destination_folder ) );
+      XmlHandler.addTagValue( "create_destination_folder", create_destination_folder ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
 
@@ -175,7 +175,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         retval.append( "        <field>" ).append( Const.CR );
         saveSource( retval, source_filefolder[ i ] );
         saveDestination( retval, destination_filefolder[ i ] );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "wildcard", wildcard[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
@@ -185,62 +185,62 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      copy_empty_folders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copy_empty_folders" ) );
-      arg_from_previous = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      overwrite_files = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "overwrite_files" ) );
-      include_subfolders = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "include_subfolders" ) );
-      remove_source_files = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove_source_files" ) );
-      add_result_filesname = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_result_filesname" ) );
-      destination_is_a_file = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "destination_is_a_file" ) );
+      super.loadXml( entrynode );
+      copy_empty_folders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copy_empty_folders" ) );
+      arg_from_previous = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      overwrite_files = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "overwrite_files" ) );
+      include_subfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      remove_source_files = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove_source_files" ) );
+      add_result_filesname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
+      destination_is_a_file = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "destination_is_a_file" ) );
       create_destination_folder =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "create_destination_folder" ) );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_destination_folder" ) );
 
-      Node fields = XMLHandler.getSubNode( entrynode, "fields" );
+      Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
       // How many field arguments?
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
       allocate( nrFields );
 
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
         source_filefolder[ i ] = loadSource( fnode );
         destination_filefolder[ i ] = loadDestination( fnode );
-        wildcard[ i ] = XMLHandler.getTagValue( fnode, "wildcard" );
+        wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
       }
-    } catch ( HopXMLException xe ) {
+    } catch ( HopXmlException xe ) {
 
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "JobCopyFiles.Error.Exception.UnableLoadXML" ), xe );
     }
   }
 
   protected String loadSource( Node fnode ) {
-    String source_filefolder = XMLHandler.getTagValue( fnode, SOURCE_FILE_FOLDER );
-    String ncName = XMLHandler.getTagValue( fnode, SOURCE_CONFIGURATION_NAME );
+    String source_filefolder = XmlHandler.getTagValue( fnode, SOURCE_FILE_FOLDER );
+    String ncName = XmlHandler.getTagValue( fnode, SOURCE_CONFIGURATION_NAME );
     return loadURL( source_filefolder, ncName, getMetaStore(), configurationMappings );
   }
 
   protected String loadDestination( Node fnode ) {
-    String destination_filefolder = XMLHandler.getTagValue( fnode, DESTINATION_FILE_FOLDER );
-    String ncName = XMLHandler.getTagValue( fnode, DESTINATION_CONFIGURATION_NAME );
+    String destination_filefolder = XmlHandler.getTagValue( fnode, DESTINATION_FILE_FOLDER );
+    String ncName = XmlHandler.getTagValue( fnode, DESTINATION_CONFIGURATION_NAME );
     return loadURL( destination_filefolder, ncName, getMetaStore(), configurationMappings );
   }
 
   protected void saveSource( StringBuilder retval, String source ) {
     String namedCluster = configurationMappings.get( source );
-    retval.append( "          " ).append( XMLHandler.addTagValue( SOURCE_FILE_FOLDER, source ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( SOURCE_CONFIGURATION_NAME, namedCluster ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( SOURCE_FILE_FOLDER, source ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( SOURCE_CONFIGURATION_NAME, namedCluster ) );
   }
 
   protected void saveDestination( StringBuilder retval, String destination ) {
     String namedCluster = configurationMappings.get( destination );
-    retval.append( "          " ).append( XMLHandler.addTagValue( DESTINATION_FILE_FOLDER, destination ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( DESTINATION_CONFIGURATION_NAME, namedCluster ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( DESTINATION_FILE_FOLDER, destination ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( DESTINATION_CONFIGURATION_NAME, namedCluster ) );
   }
 
   String[] preprocessfilefilder( String[] folders ) {

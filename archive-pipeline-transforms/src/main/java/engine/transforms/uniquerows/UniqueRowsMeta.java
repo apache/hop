@@ -25,12 +25,12 @@ package org.apache.hop.pipeline.transforms.uniquerows;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -155,7 +155,7 @@ public class UniqueRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -172,27 +172,27 @@ public class UniqueRowsMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      countRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "count_rows" ) );
-      countField = XMLHandler.getTagValue( transformNode, "count_field" );
-      rejectDuplicateRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "reject_duplicate_row" ) );
-      errorDescription = XMLHandler.getTagValue( transformNode, "error_description" );
+      countRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "count_rows" ) );
+      countField = XmlHandler.getTagValue( transformNode, "count_field" );
+      rejectDuplicateRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "reject_duplicate_row" ) );
+      errorDescription = XmlHandler.getTagValue( transformNode, "error_description" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        compareFields[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        caseInsensitive[ i ] = !"N".equalsIgnoreCase( XMLHandler.getTagValue( fnode, "case_insensitive" ) );
+        compareFields[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        caseInsensitive[ i ] = !"N".equalsIgnoreCase( XmlHandler.getTagValue( fnode, "case_insensitive" ) );
       }
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "UniqueRowsMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -233,19 +233,19 @@ public class UniqueRowsMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " + XMLHandler.addTagValue( "count_rows", countRows ) );
-    retval.append( "      " + XMLHandler.addTagValue( "count_field", countField ) );
-    retval.append( "      " + XMLHandler.addTagValue( "reject_duplicate_row", rejectDuplicateRow ) );
-    retval.append( "      " + XMLHandler.addTagValue( "error_description", errorDescription ) );
+    retval.append( "      " + XmlHandler.addTagValue( "count_rows", countRows ) );
+    retval.append( "      " + XmlHandler.addTagValue( "count_field", countField ) );
+    retval.append( "      " + XmlHandler.addTagValue( "reject_duplicate_row", rejectDuplicateRow ) );
+    retval.append( "      " + XmlHandler.addTagValue( "error_description", errorDescription ) );
 
     retval.append( "    <fields>" );
     for ( int i = 0; i < compareFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " + XMLHandler.addTagValue( "name", compareFields[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "case_insensitive", caseInsensitive[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", compareFields[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "case_insensitive", caseInsensitive[ i ] ) );
       retval.append( "        </field>" );
     }
     retval.append( "      </fields>" );

@@ -145,7 +145,7 @@ public class FirebirdDatabaseMetaTest {
 
     odbcMeta.setUsername( "FOO" );
     assertEquals( "SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES "
-      + "WHERE RDB$OWNER_NAME = 'FOO' ", odbcMeta.getSQLListOfProcedures() );
+      + "WHERE RDB$OWNER_NAME = 'FOO' ", odbcMeta.getSqlListOfProcedures() );
   }
 
   @Test

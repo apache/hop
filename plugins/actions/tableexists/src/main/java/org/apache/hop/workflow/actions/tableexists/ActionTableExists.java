@@ -29,9 +29,9 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -84,30 +84,30 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
     } catch ( HopException e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "TableExists.Meta.UnableLoadXml" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "TableExists.Meta.UnableLoadXml" ), e );
     }
   }
 

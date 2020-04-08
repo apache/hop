@@ -47,7 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class SwingDirectGC implements IGC {
+public class SwingDirectGc implements IGc {
 
   private static SwingUniversalImage imageLocked;
 
@@ -147,7 +147,7 @@ public class SwingDirectGC implements IGC {
 
   private boolean drawingPixelatedImages;
 
-  public SwingDirectGC( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
+  public SwingDirectGc( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
     this.image = new BufferedImage( area.x, area.y, BufferedImage.TYPE_INT_ARGB );
     this.gc = image.createGraphics();
     this.observer = observer;
@@ -161,7 +161,7 @@ public class SwingDirectGC implements IGC {
     init();
   }
 
-  public SwingDirectGC( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
+  public SwingDirectGc( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
     this.image = null;
     this.gc = gc;
     this.observer = null;

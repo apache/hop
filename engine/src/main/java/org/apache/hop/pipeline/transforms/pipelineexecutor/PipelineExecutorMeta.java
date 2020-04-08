@@ -29,13 +29,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -226,119 +226,119 @@ public class PipelineExecutorMeta
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "group_size", groupSize ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "group_field", groupField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "group_time", groupTime ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "group_size", groupSize ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "group_field", groupField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "group_time", groupTime ) );
 
     // Add the mapping parameters too
     //
-    retval.append( "      " ).append( parameters.getXML() ).append( Const.CR );
+    retval.append( "      " ).append( parameters.getXml() ).append( Const.CR );
 
     // The output side...
     //
-    retval.append( "    " ).append( XMLHandler.addTagValue( F_EXECUTION_RESULT_TARGET_TRANSFORM,
+    retval.append( "    " ).append( XmlHandler.addTagValue( F_EXECUTION_RESULT_TARGET_TRANSFORM,
       executionResultTargetTransformMeta == null ? null : executionResultTargetTransformMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_time_field", executionTimeField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_result_field", executionResultField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_errors_field", executionNrErrorsField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_read_field", executionLinesReadField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_written_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_time_field", executionTimeField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_result_field", executionResultField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_errors_field", executionNrErrorsField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_read_field", executionLinesReadField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_written_field",
       executionLinesWrittenField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_input_field", executionLinesInputField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_output_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_input_field", executionLinesInputField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_output_field",
       executionLinesOutputField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_rejected_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_rejected_field",
       executionLinesRejectedField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_updated_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_updated_field",
       executionLinesUpdatedField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_lines_deleted_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_lines_deleted_field",
       executionLinesDeletedField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_files_retrieved_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_files_retrieved_field",
       executionFilesRetrievedField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_exit_status_field", executionExitStatusField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_log_text_field", executionLogTextField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execution_log_channelid_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_exit_status_field", executionExitStatusField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_log_text_field", executionLogTextField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execution_log_channelid_field",
       executionLogChannelIdField ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "result_rows_target_transform", outputRowsSourceTransformMeta == null
+    retval.append( "    " ).append( XmlHandler.addTagValue( "result_rows_target_transform", outputRowsSourceTransformMeta == null
       ? null : outputRowsSourceTransformMeta.getName() ) );
     for ( int i = 0; i < outputRowsField.length; i++ ) {
-      retval.append( "      " ).append( XMLHandler.openTag( "result_rows_field" ) );
-      retval.append( XMLHandler.addTagValue( "name", outputRowsField[ i ], false ) );
+      retval.append( "      " ).append( XmlHandler.openTag( "result_rows_field" ) );
+      retval.append( XmlHandler.addTagValue( "name", outputRowsField[ i ], false ) );
       retval
-        .append( XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( outputRowsType[ i ] ), false ) );
-      retval.append( XMLHandler.addTagValue( "length", outputRowsLength[ i ], false ) );
-      retval.append( XMLHandler.addTagValue( "precision", outputRowsPrecision[ i ], false ) );
-      retval.append( XMLHandler.closeTag( "result_rows_field" ) ).append( Const.CR );
+        .append( XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( outputRowsType[ i ] ), false ) );
+      retval.append( XmlHandler.addTagValue( "length", outputRowsLength[ i ], false ) );
+      retval.append( XmlHandler.addTagValue( "precision", outputRowsPrecision[ i ], false ) );
+      retval.append( XmlHandler.closeTag( "result_rows_field" ) ).append( Const.CR );
     }
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( F_RESULT_FILE_TARGET_TRANSFORM, resultFilesTargetTransformMeta == null
+    retval.append( "    " ).append( XmlHandler.addTagValue( F_RESULT_FILE_TARGET_TRANSFORM, resultFilesTargetTransformMeta == null
       ? null : resultFilesTargetTransformMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "result_files_file_name_field",
+    retval.append( "    " ).append( XmlHandler.addTagValue( "result_files_file_name_field",
       resultFilesFileNameField ) );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( F_EXECUTOR_OUTPUT_TRANSFORM, executorsOutputTransformMeta == null
+    retval.append( "    " ).append( XmlHandler.addTagValue( F_EXECUTOR_OUTPUT_TRANSFORM, executorsOutputTransformMeta == null
       ? null : executorsOutputTransformMeta.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XMLHandler.getTagValue( transformNode, "filename" );
+      fileName = XmlHandler.getTagValue( transformNode, "filename" );
 
-      groupSize = XMLHandler.getTagValue( transformNode, "group_size" );
-      groupField = XMLHandler.getTagValue( transformNode, "group_field" );
-      groupTime = XMLHandler.getTagValue( transformNode, "group_time" );
+      groupSize = XmlHandler.getTagValue( transformNode, "group_size" );
+      groupField = XmlHandler.getTagValue( transformNode, "group_field" );
+      groupTime = XmlHandler.getTagValue( transformNode, "group_time" );
 
       // Load the mapping parameters too..
       //
-      Node mappingParametersNode = XMLHandler.getSubNode( transformNode, PipelineExecutorParameters.XML_TAG );
+      Node mappingParametersNode = XmlHandler.getSubNode( transformNode, PipelineExecutorParameters.XML_TAG );
       parameters = new PipelineExecutorParameters( mappingParametersNode );
 
       // The output side...
       //
-      executionResultTargetTransform = XMLHandler.getTagValue( transformNode, F_EXECUTION_RESULT_TARGET_TRANSFORM );
-      executionTimeField = XMLHandler.getTagValue( transformNode, "execution_time_field" );
-      executionResultField = XMLHandler.getTagValue( transformNode, "execution_result_field" );
-      executionNrErrorsField = XMLHandler.getTagValue( transformNode, "execution_errors_field" );
-      executionLinesReadField = XMLHandler.getTagValue( transformNode, "execution_lines_read_field" );
-      executionLinesWrittenField = XMLHandler.getTagValue( transformNode, "execution_lines_written_field" );
-      executionLinesInputField = XMLHandler.getTagValue( transformNode, "execution_lines_input_field" );
-      executionLinesOutputField = XMLHandler.getTagValue( transformNode, "execution_lines_output_field" );
-      executionLinesRejectedField = XMLHandler.getTagValue( transformNode, "execution_lines_rejected_field" );
-      executionLinesUpdatedField = XMLHandler.getTagValue( transformNode, "execution_lines_updated_field" );
-      executionLinesDeletedField = XMLHandler.getTagValue( transformNode, "execution_lines_deleted_field" );
-      executionFilesRetrievedField = XMLHandler.getTagValue( transformNode, "execution_files_retrieved_field" );
-      executionExitStatusField = XMLHandler.getTagValue( transformNode, "execution_exit_status_field" );
-      executionLogTextField = XMLHandler.getTagValue( transformNode, "execution_log_text_field" );
-      executionLogChannelIdField = XMLHandler.getTagValue( transformNode, "execution_log_channelid_field" );
+      executionResultTargetTransform = XmlHandler.getTagValue( transformNode, F_EXECUTION_RESULT_TARGET_TRANSFORM );
+      executionTimeField = XmlHandler.getTagValue( transformNode, "execution_time_field" );
+      executionResultField = XmlHandler.getTagValue( transformNode, "execution_result_field" );
+      executionNrErrorsField = XmlHandler.getTagValue( transformNode, "execution_errors_field" );
+      executionLinesReadField = XmlHandler.getTagValue( transformNode, "execution_lines_read_field" );
+      executionLinesWrittenField = XmlHandler.getTagValue( transformNode, "execution_lines_written_field" );
+      executionLinesInputField = XmlHandler.getTagValue( transformNode, "execution_lines_input_field" );
+      executionLinesOutputField = XmlHandler.getTagValue( transformNode, "execution_lines_output_field" );
+      executionLinesRejectedField = XmlHandler.getTagValue( transformNode, "execution_lines_rejected_field" );
+      executionLinesUpdatedField = XmlHandler.getTagValue( transformNode, "execution_lines_updated_field" );
+      executionLinesDeletedField = XmlHandler.getTagValue( transformNode, "execution_lines_deleted_field" );
+      executionFilesRetrievedField = XmlHandler.getTagValue( transformNode, "execution_files_retrieved_field" );
+      executionExitStatusField = XmlHandler.getTagValue( transformNode, "execution_exit_status_field" );
+      executionLogTextField = XmlHandler.getTagValue( transformNode, "execution_log_text_field" );
+      executionLogChannelIdField = XmlHandler.getTagValue( transformNode, "execution_log_channelid_field" );
 
-      outputRowsSourceTransform = XMLHandler.getTagValue( transformNode, "result_rows_target_transform" );
+      outputRowsSourceTransform = XmlHandler.getTagValue( transformNode, "result_rows_target_transform" );
 
-      int nrFields = XMLHandler.countNodes( transformNode, "result_rows_field" );
+      int nrFields = XmlHandler.countNodes( transformNode, "result_rows_field" );
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
 
-        Node fieldNode = XMLHandler.getSubNodeByNr( transformNode, "result_rows_field", i );
+        Node fieldNode = XmlHandler.getSubNodeByNr( transformNode, "result_rows_field", i );
 
-        outputRowsField[ i ] = XMLHandler.getTagValue( fieldNode, "name" );
-        outputRowsType[ i ] = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fieldNode, "type" ) );
-        outputRowsLength[ i ] = Const.toInt( XMLHandler.getTagValue( fieldNode, "length" ), -1 );
-        outputRowsPrecision[ i ] = Const.toInt( XMLHandler.getTagValue( fieldNode, "precision" ), -1 );
+        outputRowsField[ i ] = XmlHandler.getTagValue( fieldNode, "name" );
+        outputRowsType[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fieldNode, "type" ) );
+        outputRowsLength[ i ] = Const.toInt( XmlHandler.getTagValue( fieldNode, "length" ), -1 );
+        outputRowsPrecision[ i ] = Const.toInt( XmlHandler.getTagValue( fieldNode, "precision" ), -1 );
       }
 
-      resultFilesTargetTransform = XMLHandler.getTagValue( transformNode, F_RESULT_FILE_TARGET_TRANSFORM );
-      resultFilesFileNameField = XMLHandler.getTagValue( transformNode, "result_files_file_name_field" );
-      executorsOutputTransform = XMLHandler.getTagValue( transformNode, F_EXECUTOR_OUTPUT_TRANSFORM );
+      resultFilesTargetTransform = XmlHandler.getTagValue( transformNode, F_RESULT_FILE_TARGET_TRANSFORM );
+      resultFilesFileNameField = XmlHandler.getTagValue( transformNode, "result_files_file_name_field" );
+      executorsOutputTransform = XmlHandler.getTagValue( transformNode, F_EXECUTOR_OUTPUT_TRANSFORM );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG, "PipelineExecutorMeta.Exception.ErrorLoadingPipelineExecutorDetailsFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "PipelineExecutorMeta.Exception.ErrorLoadingPipelineExecutorDetailsFromXML" ), e );
     }
   }
 

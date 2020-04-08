@@ -29,9 +29,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
@@ -45,7 +45,7 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.workflow.Workflow;
@@ -210,123 +210,123 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "exec_per_row", execPerRow ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "clear_rows", clearResultRows ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "clear_files", clearResultFiles ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "set_logfile", setLogfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logfile", logfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logext", logext ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_date", addDate ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_time", addTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "exec_per_row", execPerRow ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_rows", clearResultRows ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "clear_files", clearResultFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "set_logfile", setLogfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logfile", logfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logext", logext ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", addDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", addTime ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "loglevel", logFileLevel != null ? logFileLevel.getCode() : null ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "create_parent_folder", createParentFolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "logging_remote_work", loggingRemoteWork ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "run_configuration", runConfiguration ) );
+      XmlHandler.addTagValue( "loglevel", logFileLevel != null ? logFileLevel.getCode() : null ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "logging_remote_work", loggingRemoteWork ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
         // This is a very very bad way of making an XML file, don't use it (or
         // copy it). Sven Boden
-        retval.append( "      " ).append( XMLHandler.addTagValue( "argument" + i, arguments[ i ] ) );
+        retval.append( "      " ).append( XmlHandler.addTagValue( "argument" + i, arguments[ i ] ) );
       }
     }
 
     if ( parameters != null ) {
-      retval.append( "      " ).append( XMLHandler.openTag( "parameters" ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.openTag( "parameters" ) ).append( Const.CR );
 
-      retval.append( "        " ).append( XMLHandler.addTagValue( "pass_all_parameters", passingAllParameters ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "pass_all_parameters", passingAllParameters ) );
 
       for ( int i = 0; i < parameters.length; i++ ) {
         // This is a better way of making the XML file than the arguments.
-        retval.append( "        " ).append( XMLHandler.openTag( "parameter" ) ).append( Const.CR );
+        retval.append( "        " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
 
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", parameters[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "stream_name", parameterFieldNames[ i ] ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "value", parameterValues[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "name", parameters[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "stream_name", parameterFieldNames[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "value", parameterValues[ i ] ) );
 
-        retval.append( "        " ).append( XMLHandler.closeTag( "parameter" ) ).append( Const.CR );
+        retval.append( "        " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
       }
-      retval.append( "      " ).append( XMLHandler.closeTag( "parameters" ) ).append( Const.CR );
+      retval.append( "      " ).append( XmlHandler.closeTag( "parameters" ) ).append( Const.CR );
     }
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
 
-      paramsFromPrevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "params_from_previous" ) );
-      execPerRow = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "exec_per_row" ) );
-      clearResultRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "clear_rows" ) );
-      clearResultFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "clear_files" ) );
-      setLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "set_logfile" ) );
-      addDate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_date" ) );
-      addTime = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "add_time" ) );
-      logfile = XMLHandler.getTagValue( entrynode, "logfile" );
-      logext = XMLHandler.getTagValue( entrynode, "logext" );
-      logFileLevel = LogLevel.getLogLevelForCode( XMLHandler.getTagValue( entrynode, "loglevel" ) );
-      createParentFolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "create_parent_folder" ) );
-      loggingRemoteWork = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "logging_remote_work" ) );
-      runConfiguration = XMLHandler.getTagValue( entrynode, "run_configuration" );
+      paramsFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "params_from_previous" ) );
+      execPerRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "exec_per_row" ) );
+      clearResultRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_rows" ) );
+      clearResultFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_files" ) );
+      setLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_logfile" ) );
+      addDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
+      addTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
+      logfile = XmlHandler.getTagValue( entrynode, "logfile" );
+      logext = XmlHandler.getTagValue( entrynode, "logext" );
+      logFileLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
+      createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_parent_folder" ) );
+      loggingRemoteWork = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "logging_remote_work" ) );
+      runConfiguration = XmlHandler.getTagValue( entrynode, "run_configuration" );
 
-      remoteSlaveServerName = XMLHandler.getTagValue( entrynode, "slave_server_name" );
+      remoteSlaveServerName = XmlHandler.getTagValue( entrynode, "slave_server_name" );
 
-      setAppendLogfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "set_append_logfile" ) );
-      String wait = XMLHandler.getTagValue( entrynode, "wait_until_finished" );
+      setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
+      String wait = XmlHandler.getTagValue( entrynode, "wait_until_finished" );
       if ( Utils.isEmpty( wait ) ) {
         waitingToFinish = true;
       } else {
         waitingToFinish = "Y".equalsIgnoreCase( wait );
       }
 
-      followingAbortRemotely = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "follow_abort_remote" ) );
+      followingAbortRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "follow_abort_remote" ) );
 
       // How many arguments?
       int argnr = 0;
-      while ( XMLHandler.getTagValue( entrynode, "argument" + argnr ) != null ) {
+      while ( XmlHandler.getTagValue( entrynode, "argument" + argnr ) != null ) {
         argnr++;
       }
       allocateArgs( argnr );
 
       // Read them all...
       for ( int a = 0; a < argnr; a++ ) {
-        arguments[ a ] = XMLHandler.getTagValue( entrynode, "argument" + a );
+        arguments[ a ] = XmlHandler.getTagValue( entrynode, "argument" + a );
       }
 
-      Node parametersNode = XMLHandler.getSubNode( entrynode, "parameters" );
+      Node parametersNode = XmlHandler.getSubNode( entrynode, "parameters" );
 
-      String passAll = XMLHandler.getTagValue( parametersNode, "pass_all_parameters" );
+      String passAll = XmlHandler.getTagValue( parametersNode, "pass_all_parameters" );
       passingAllParameters = Utils.isEmpty( passAll ) || "Y".equalsIgnoreCase( passAll );
 
-      int nrParameters = XMLHandler.countNodes( parametersNode, "parameter" );
+      int nrParameters = XmlHandler.countNodes( parametersNode, "parameter" );
       allocateParams( nrParameters );
 
       for ( int i = 0; i < nrParameters; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( parametersNode, "parameter", i );
+        Node knode = XmlHandler.getSubNodeByNr( parametersNode, "parameter", i );
 
-        parameters[ i ] = XMLHandler.getTagValue( knode, "name" );
-        parameterFieldNames[ i ] = XMLHandler.getTagValue( knode, "stream_name" );
-        parameterValues[ i ] = XMLHandler.getTagValue( knode, "value" );
+        parameters[ i ] = XmlHandler.getTagValue( knode, "name" );
+        parameterFieldNames[ i ] = XmlHandler.getTagValue( knode, "stream_name" );
+        parameterValues[ i ] = XmlHandler.getTagValue( knode, "value" );
       }
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'pipeline' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'pipeline' from XML node", e );
     }
   }
 
@@ -889,11 +889,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
   }
 
   @Override
-  public List<SQLStatement> getSQLStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
     this.copyVariablesFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metaStore, this );
 
-    return pipelineMeta.getSQLStatements();
+    return pipelineMeta.getSqlStatements();
   }
 
   @Override

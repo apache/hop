@@ -25,10 +25,10 @@ package org.apache.hop.pipeline.transforms.setvariable;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -165,7 +165,7 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
     return variableTypeDesc;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -190,27 +190,27 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "field_name" );
-        variableName[ i ] = XMLHandler.getTagValue( fnode, "variable_name" );
-        variableType[ i ] = getVariableType( XMLHandler.getTagValue( fnode, "variable_type" ) );
-        defaultValue[ i ] = XMLHandler.getTagValue( fnode, "default_value" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "field_name" );
+        variableName[ i ] = XmlHandler.getTagValue( fnode, "variable_name" );
+        variableType[ i ] = getVariableType( XmlHandler.getTagValue( fnode, "variable_type" ) );
+        defaultValue[ i ] = XmlHandler.getTagValue( fnode, "default_value" );
       }
 
       // Default to "N" for backward compatibility
       //
-      usingFormatting = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_formatting" ) );
+      usingFormatting = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_formatting" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "SetVariableMeta.RuntimeError.UnableToReadXML.SETVARIABLE0004" ), e );
     }
   }
@@ -230,23 +230,23 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
     usingFormatting = true;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 150 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field_name", fieldName[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "variable_name", variableName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field_name", fieldName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "variable_name", variableName[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default_value", defaultValue[ i ] ) );
+        XmlHandler.addTagValue( "variable_type", getVariableTypeCode( variableType[ i ] ) ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "default_value", defaultValue[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "use_formatting", usingFormatting ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "use_formatting", usingFormatting ) );
 
     return retval.toString();
   }

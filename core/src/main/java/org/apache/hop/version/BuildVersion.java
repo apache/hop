@@ -24,7 +24,7 @@ package org.apache.hop.version;
 
 import org.apache.hop.core.exception.HopVersionException;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -102,7 +102,7 @@ public class BuildVersion {
       } catch ( Throwable e2 ) {
         version = "Unknown";
         revision = "0";
-        buildDate = XMLHandler.date2string( new Date() );
+        buildDate = XmlHandler.date2string( new Date() );
         buildUser = System.getProperty( "user.name" );
       }
     }

@@ -24,11 +24,11 @@ package org.apache.hop.www;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -117,9 +117,9 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
     return true;
   }
 
-  protected Node getConfigNodeFromZIP( Object archiveUrl, Object fileName, String xml_tag ) throws HopXMLException {
+  protected Node getConfigNodeFromZIP( Object archiveUrl, Object fileName, String xml_tag ) throws HopXmlException {
     String configUrl = MessageFormat.format( ZIP_CONT, archiveUrl, fileName );
-    Document configDoc = XMLHandler.loadXMLFile( configUrl );
-    return XMLHandler.getSubNode( configDoc, xml_tag );
+    Document configDoc = XmlHandler.loadXMLFile( configUrl );
+    return XmlHandler.getSubNode( configDoc, xml_tag );
   }
 }

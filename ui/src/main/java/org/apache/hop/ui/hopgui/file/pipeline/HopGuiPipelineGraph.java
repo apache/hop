@@ -41,7 +41,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
-import org.apache.hop.core.gui.IGC;
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
@@ -68,7 +68,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.PipelineDataLineage;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
@@ -97,7 +97,6 @@ import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PrintSpool;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -136,7 +135,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelinePainterFly
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
-import org.apache.hop.ui.hopgui.shared.SWTGC;
+import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.hopgui.shared.SwtScrollBar;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -172,7 +171,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -1629,7 +1627,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private Image getImageFor( IStream stream ) {
     Display disp = hopDisplay();
-    SwtUniversalImage swtImage = SWTGC.getNativeImage( BasePainter.getStreamIconImage( stream.getStreamIcon() ) );
+    SwtUniversalImage swtImage = SwtGc.getNativeImage( BasePainter.getStreamIconImage( stream.getStreamIcon() ) );
     return swtImage.getAsBitmapForSize( disp, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
   }
 
@@ -2873,7 +2871,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public Image getPipelineImage( Device device, int x, int y, float magnificationFactor ) {
 
-    IGC gc = new SWTGC( device, new Point( x, y ), iconsize );
+    IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
@@ -3285,7 +3283,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String xml = pipelineMeta.getXml();
       OutputStream out = HopVFS.getOutputStream( pipelineMeta.getFilename(), false );
       try {
-        out.write( XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
+        out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         pipelineMeta.clearChanged();
         redraw();
@@ -3302,29 +3300,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void saveAs( String filename ) throws HopException {
     pipelineMeta.setFilename( filename );
     save();
-  }
-
-  @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
-    id = "HopGuiPipelineGraph-ToolBar-10060-Print",
-    label = "Print",
-    toolTip = "Print this pipeline",
-    image = "ui/images/print.svg",
-    separator = true,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
-  )
-  @Override
-  public void print() {
-    PrintSpool ps = new PrintSpool();
-    Printer printer = ps.getPrinter( hopShell() );
-
-    // Create an image of the screen
-    Point max = pipelineMeta.getMaximum();
-    Image img = getPipelineImage( printer, max.x, max.y, 1.0f );
-    ps.printImage( hopShell(), img );
-
-    img.dispose();
-    ps.dispose();
   }
 
   public void close() {
@@ -3415,8 +3390,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /**
    * TODO: re-introduce
-   * public void getSQL() {
-   * hopUi.getSQL();
+   * public void getSql() {
+   * hopUi.getSql();
    * }
    */
 

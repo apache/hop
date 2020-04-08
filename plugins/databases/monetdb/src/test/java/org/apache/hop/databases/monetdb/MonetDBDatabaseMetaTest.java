@@ -81,14 +81,14 @@ public class MonetDBDatabaseMetaTest {
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
     assertEquals( "DELETE FROM FOO",
       nativeMeta.getTruncateTableStatement( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO;", nativeMeta.getSQLQueryFields( "FOO" ) ); // Pretty sure the semicolon shouldn't be there - likely bug.
-    assertEquals( "SELECT name FROM sys.sequences", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT * FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT get_value_for( 'sys', 'FOO' )", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT next_value_for( 'sys', 'FOO' )", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT * FROM FOO;", nativeMeta.getSqlQueryFields( "FOO" ) ); // Pretty sure the semicolon shouldn't be there - likely bug.
+    assertEquals( "SELECT name FROM sys.sequences", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT * FROM sys.sequences WHERE name = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT get_value_for( 'sys', 'FOO' )", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT next_value_for( 'sys', 'FOO' )", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
 
 
   }

@@ -145,7 +145,7 @@ public class FieldSplitterMetaTest {
     // set properties after allocate (simulate metadata injection PDI-15679)
     meta.setFieldName( new String[] { "c1", "c2" } );
 
-    meta.getXML();
+    meta.getXml();
   }
 
   @Test
@@ -167,14 +167,14 @@ public class FieldSplitterMetaTest {
     fieldSplitter.setFieldType( new int[] { 1, 1, 0, 3 } );
 
     try {
-      String badXml = fieldSplitter.getXML();
+      String badXml = fieldSplitter.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     fieldSplitter.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = fieldSplitter.getXML();
+    String ktrXml = fieldSplitter.getXml();
 
     int targetSz = fieldSplitter.getFieldName().length;
     Assert.assertEquals( targetSz, fieldSplitter.getFieldID().length );

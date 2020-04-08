@@ -224,7 +224,7 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    */
   //
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + " WHERE 1=2";
   }
 

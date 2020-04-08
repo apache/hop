@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -71,14 +71,14 @@ public class HopVariablesList {
       if ( inputStream == null ) {
         throw new HopPluginException( "Unable to find standard kettle variables definition file: " + Const.HOP_VARIABLES_FILE );
       }
-      Document doc = XMLHandler.loadXMLFile( inputStream, null, false, false );
-      Node varsNode = XMLHandler.getSubNode( doc, "hop-variables" );
-      int nrVars = XMLHandler.countNodes( varsNode, "hop-variable" );
+      Document doc = XmlHandler.loadXMLFile( inputStream, null, false, false );
+      Node varsNode = XmlHandler.getSubNode( doc, "hop-variables" );
+      int nrVars = XmlHandler.countNodes( varsNode, "hop-variable" );
       for ( int i = 0; i < nrVars; i++ ) {
-        Node varNode = XMLHandler.getSubNodeByNr( varsNode, "hop-variable", i );
-        String description = XMLHandler.getTagValue( varNode, "description" );
-        String variable = XMLHandler.getTagValue( varNode, "variable" );
-        String defaultValue = XMLHandler.getTagValue( varNode, "default-value" );
+        Node varNode = XmlHandler.getSubNodeByNr( varsNode, "hop-variable", i );
+        String description = XmlHandler.getTagValue( varNode, "description" );
+        String variable = XmlHandler.getTagValue( varNode, "variable" );
+        String defaultValue = XmlHandler.getTagValue( varNode, "default-value" );
 
         variablesList.getDescriptionMap().put( variable, description );
         variablesList.getDefaultValueMap().put( variable, defaultValue );

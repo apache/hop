@@ -68,9 +68,9 @@ public class BaseDatabaseMetaTest {
     assertTrue( nativeMeta.supportsAutoInc() );
     assertEquals( "", nativeMeta.getLimitClause( 5 ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
-    assertEquals( "", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
-    assertEquals( "", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "", nativeMeta.getSQLSequenceExists( "FOO" ) );
+    assertEquals( "", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
+    assertEquals( "", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "", nativeMeta.getSqlSequenceExists( "FOO" ) );
     assertTrue( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.needsPlaceHolder() );
     assertTrue( nativeMeta.supportsSchemas() );
@@ -98,11 +98,11 @@ public class BaseDatabaseMetaTest {
     assertFalse( nativeMeta.useSchemaNameForTableList() );
     assertTrue( nativeMeta.supportsViews() );
     assertFalse( nativeMeta.supportsSynonyms() );
-    assertNull( nativeMeta.getSQLListOfProcedures() );
-    assertNull( nativeMeta.getSQLListOfSequences() );
+    assertNull( nativeMeta.getSqlListOfProcedures() );
+    assertNull( nativeMeta.getSqlListOfSequences() );
     assertTrue( nativeMeta.supportsFloatRoundingOnUpdate() );
-    assertNull( nativeMeta.getSQLLockTables( new String[] { "FOO" } ) );
-    assertNull( nativeMeta.getSQLUnlockTables( new String[] { "FOO" } ) );
+    assertNull( nativeMeta.getSqlLockTables( new String[] { "FOO" } ) );
+    assertNull( nativeMeta.getSqlUnlockTables( new String[] { "FOO" } ) );
     assertTrue( nativeMeta.supportsTimeStampToDateConversion() );
     assertTrue( nativeMeta.supportsBatchUpdates() );
     assertFalse( nativeMeta.supportsBooleanDataType() );
@@ -135,7 +135,7 @@ public class BaseDatabaseMetaTest {
     assertFalse( nativeMeta.supportsResultSetMetadataRetrievalOnly() );
     assertFalse( nativeMeta.isSystemTable( "FOO" ) );
     assertTrue( nativeMeta.supportsNewLinesInSQL() );
-    assertNull( nativeMeta.getSQLListOfSchemas() );
+    assertNull( nativeMeta.getSqlListOfSchemas() );
     assertEquals( 0, nativeMeta.getMaxColumnsInIndex() );
     assertTrue( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertTrue( nativeMeta.isExplorable() );
@@ -152,8 +152,8 @@ public class BaseDatabaseMetaTest {
     assertEquals( "", nativeMeta.getIndexTablespaceDDL( v, dm ) );
     assertFalse( nativeMeta.useSafePoints() );
     assertTrue( nativeMeta.supportsErrorHandling() );
-    assertEquals( "'DATA'", nativeMeta.getSQLValue( new ValueMetaString( "FOO" ), "DATA", null ) );
-    assertEquals( "'15'", nativeMeta.getSQLValue( new ValueMetaString( "FOO" ), "15", null ) );
+    assertEquals( "'DATA'", nativeMeta.getSqlValue( new ValueMetaString( "FOO" ), "DATA", null ) );
+    assertEquals( "'15'", nativeMeta.getSqlValue( new ValueMetaString( "FOO" ), "15", null ) );
     assertEquals( "_", nativeMeta.getFieldnameProtector() );
     assertEquals( "_1ABC_123", nativeMeta.getSafeFieldname( "1ABC 123" ) );
     BaseDatabaseMeta tmpSC = new ConcreteBaseDatabaseMeta() {
@@ -172,7 +172,7 @@ public class BaseDatabaseMetaTest {
   @SuppressWarnings( "deprecation" )
   @Test
   public void testDeprecatedItems() throws Exception {
-    assertEquals( "'2016-08-11'", nativeMeta.getSQLValue( new ValueMetaDate( "FOO" ), new Date( 116, 7, 11 ), "YYYY-MM-dd" ) );
+    assertEquals( "'2016-08-11'", nativeMeta.getSqlValue( new ValueMetaDate( "FOO" ), new Date( 116, 7, 11 ), "YYYY-MM-dd" ) );
     assertEquals( "\"FOO\".\"BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination( "FOO", "BAR" ) );
     assertEquals( "\"null\".\"BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination( null, "BAR" ) ); // not sure this is right ...
     assertEquals( "FOO\".\"BAR\"", nativeMeta.getBackwardsCompatibleSchemaTableCombination( "FOO\"", "BAR" ) );
@@ -191,11 +191,11 @@ public class BaseDatabaseMetaTest {
     String expected = "ALTER TABLE FOO DROP BAR" + lineSep;
     assertEquals( expected, odbcMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", false ) );
     assertEquals( "TRUNCATE TABLE FOO", odbcMeta.getTruncateTableStatement( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO", odbcMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( "SELECT 1 FROM FOO", odbcMeta.getSQLTableExists( "FOO" ) );
-    assertEquals( "SELECT FOO FROM BAR", odbcMeta.getSQLColumnExists( "FOO", "BAR" ) );
+    assertEquals( "SELECT * FROM FOO", odbcMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( "SELECT 1 FROM FOO", odbcMeta.getSqlTableExists( "FOO" ) );
+    assertEquals( "SELECT FOO FROM BAR", odbcMeta.getSqlColumnExists( "FOO", "BAR" ) );
     assertEquals( "insert into \"FOO\".\"BAR\"(KEYFIELD, VERSIONFIELD) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "\"FOO\".\"BAR\"", "KEYFIELD", "VERSIONFIELD" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "\"FOO\".\"BAR\"", "KEYFIELD", "VERSIONFIELD" ) );
     assertEquals( "select count(*) FROM FOO", nativeMeta.getSelectCountStatement( "FOO" ) );
     assertEquals( "COL9", nativeMeta.generateColumnAlias( 9, "FOO" ) );
     assertEquals( "[SELECT 1, INSERT INTO FOO VALUES(BAR), DELETE FROM BAR]", nativeMeta.parseStatements( "SELECT 1;INSERT INTO FOO VALUES(BAR);DELETE FROM BAR" ).toString() );

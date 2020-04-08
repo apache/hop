@@ -285,14 +285,14 @@ public class DimensionLookupMetaTest implements IInitializerInterface<ITransform
     dimensionLookup.setFieldUpdate( new int[] { 11, 12 } );
 
     try {
-      String badXml = dimensionLookup.getXML();
+      String badXml = dimensionLookup.getXml();
       Assert.fail( "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB" );
     } catch ( Exception expected ) {
       // Do Nothing
     }
     dimensionLookup.afterInjectionSynchronization();
     //run without a exception
-    String ktrXml = dimensionLookup.getXML();
+    String ktrXml = dimensionLookup.getXml();
 
     Assert.assertEquals( dimensionLookup.getKeyStream().length, dimensionLookup.getKeyLookup().length );
     Assert.assertEquals( dimensionLookup.getFieldStream().length, dimensionLookup.getFieldLookup().length );

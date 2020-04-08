@@ -27,10 +27,10 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -90,37 +90,37 @@ public class ActionSyslog extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 128 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "port", port ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "facility", facility ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "priority", priority ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "message", message ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "datePattern", datePattern ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addTimestamp", addTimestamp ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addHostname", addHostname ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "port", port ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "facility", facility ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "priority", priority ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "message", message ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "datePattern", datePattern ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addTimestamp", addTimestamp ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addHostname", addHostname ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      port = XMLHandler.getTagValue( entrynode, "port" );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      facility = XMLHandler.getTagValue( entrynode, "facility" );
-      priority = XMLHandler.getTagValue( entrynode, "priority" );
-      message = XMLHandler.getTagValue( entrynode, "message" );
-      datePattern = XMLHandler.getTagValue( entrynode, "datePattern" );
-      addTimestamp = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addTimestamp" ) );
-      addHostname = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addHostname" ) );
+      super.loadXml( entrynode );
+      port = XmlHandler.getTagValue( entrynode, "port" );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      facility = XmlHandler.getTagValue( entrynode, "facility" );
+      priority = XmlHandler.getTagValue( entrynode, "priority" );
+      message = XmlHandler.getTagValue( entrynode, "message" );
+      datePattern = XmlHandler.getTagValue( entrynode, "datePattern" );
+      addTimestamp = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addTimestamp" ) );
+      addHostname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addHostname" ) );
 
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'Syslog' from XML node", xe );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'Syslog' from XML node", xe );
     }
   }
 

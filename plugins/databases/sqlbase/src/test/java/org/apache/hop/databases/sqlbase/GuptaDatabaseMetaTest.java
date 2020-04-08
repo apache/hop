@@ -74,7 +74,7 @@ public class GuptaDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO DROP BAR" + lineSep + ";" + lineSep + "ALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "insert into FOO(FOOKEY, FOOVERSION) values (0, 1)",
-      nativeMeta.getSQLInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
+      nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "FOO", "FOOKEY", "FOOVERSION" ) );
   }
 
   @Test

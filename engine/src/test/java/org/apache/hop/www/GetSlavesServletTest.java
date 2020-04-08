@@ -83,11 +83,11 @@ public class GetSlavesServletTest {
     verify( activeSlaveServer ).getStatus();
     verify( activeServerDetection, never() ).setActive( false );
     verify( activeServerDetection, never() ).setLastInactiveDate( anyObject() );
-    verify( activeServerDetection ).getXML();
+    verify( activeServerDetection ).getXml();
 
     verify( inactiveSlaveServer ).getStatus();
     verify( inactiveServerDetection ).setActive( false );
     verify( inactiveServerDetection ).setLastInactiveDate( anyObject() );
-    verify( inactiveServerDetection ).getXML();
+    verify( inactiveServerDetection ).getXml();
   }
 }

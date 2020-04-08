@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -122,7 +122,7 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -166,50 +166,50 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
       String dtype;
       int nrkeys, nrvalues;
 
-      String lookupFromTransformName = XMLHandler.getTagValue( transformNode, "from" );
+      String lookupFromTransformName = XmlHandler.getTagValue( transformNode, "from" );
       StreamInterface infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
       infoStream.setSubject( lookupFromTransformName );
 
-      setInputSorted( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "input_sorted" ) ) );
-      setMemoryPreservationActive( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "preserve_memory" ) ) );
-      setUsingSortedList( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "sorted_list" ) ) );
-      setUsingIntegerPair( "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "integer_pair" ) ) );
+      setInputSorted( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "input_sorted" ) ) );
+      setMemoryPreservationActive( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "preserve_memory" ) ) );
+      setUsingSortedList( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "sorted_list" ) ) );
+      setUsingIntegerPair( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "integer_pair" ) ) );
 
-      Node lookup = XMLHandler.getSubNode( transformNode, "lookup" );
-      nrkeys = XMLHandler.countNodes( lookup, "key" );
-      nrvalues = XMLHandler.countNodes( lookup, "value" );
+      Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
+      nrkeys = XmlHandler.countNodes( lookup, "key" );
+      nrvalues = XmlHandler.countNodes( lookup, "value" );
 
       allocate( nrkeys, nrvalues );
 
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( lookup, "key", i );
+        Node knode = XmlHandler.getSubNodeByNr( lookup, "key", i );
         // CHECKSTYLE:Indentation:OFF
-        getKeystream()[ i ] = XMLHandler.getTagValue( knode, "name" );
-        getKeylookup()[ i ] = XMLHandler.getTagValue( knode, "field" );
+        getKeystream()[ i ] = XmlHandler.getTagValue( knode, "name" );
+        getKeylookup()[ i ] = XmlHandler.getTagValue( knode, "field" );
         // CHECKSTYLE:Indentation:ON
       }
 
       for ( int i = 0; i < nrvalues; i++ ) {
-        Node vnode = XMLHandler.getSubNodeByNr( lookup, "value", i );
+        Node vnode = XmlHandler.getSubNodeByNr( lookup, "value", i );
         // CHECKSTYLE:Indentation:OFF
-        getValue()[ i ] = XMLHandler.getTagValue( vnode, "name" );
-        getValueName()[ i ] = XMLHandler.getTagValue( vnode, "rename" );
+        getValue()[ i ] = XmlHandler.getTagValue( vnode, "name" );
+        getValueName()[ i ] = XmlHandler.getTagValue( vnode, "rename" );
         if ( getValueName()[ i ] == null ) {
           getValueName()[ i ] = getValue()[ i ]; // default: same name to return!
         }
 
-        getValueDefault()[ i ] = XMLHandler.getTagValue( vnode, "default" );
-        dtype = XMLHandler.getTagValue( vnode, "type" );
+        getValueDefault()[ i ] = XmlHandler.getTagValue( vnode, "default" );
+        dtype = XmlHandler.getTagValue( vnode, "type" );
         getValueDefaultType()[ i ] = ValueMetaFactory.getIdForValueMeta( dtype );
         // CHECKSTYLE:Indentation:ON
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "StreamLookupMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -261,31 +261,31 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     StreamInterface infoStream = getTransformIOMeta().getInfoStreams().get( 0 );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "from", infoStream.getTransformName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "input_sorted", isInputSorted() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "preserve_memory", isMemoryPreservationActive() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sorted_list", isUsingSortedList() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "integer_pair", isUsingIntegerPair() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "from", infoStream.getTransformName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "input_sorted", isInputSorted() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "preserve_memory", isMemoryPreservationActive() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sorted_list", isUsingSortedList() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "integer_pair", isUsingIntegerPair() ) );
 
     retval.append( "    <lookup>" ).append( Const.CR );
     for ( int i = 0; i < getKeystream().length; i++ ) {
       retval.append( "      <key>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getKeystream()[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "field", getKeylookup()[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", getKeystream()[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "field", getKeylookup()[ i ] ) );
       retval.append( "      </key>" ).append( Const.CR );
     }
 
     for ( int i = 0; i < getValue().length; i++ ) {
       retval.append( "      <value>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", getValue()[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "rename", getValueName()[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "default", getValueDefault()[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", getValue()[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "rename", getValueName()[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "default", getValueDefault()[ i ] ) );
       retval.append( "        " ).append(
-        XMLHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( getValueDefaultType()[ i ] ) ) );
+        XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( getValueDefaultType()[ i ] ) ) );
       retval.append( "      </value>" ).append( Const.CR );
     }
     retval.append( "    </lookup>" ).append( Const.CR );

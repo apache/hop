@@ -24,7 +24,7 @@ package org.apache.hop.workflow;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -45,13 +45,13 @@ public class WorkflowConfiguration {
     this.workflowExecutionConfiguration = workflowExecutionConfiguration;
   }
 
-  public String getXML() throws IOException {
+  public String getXml() throws IOException {
     StringBuilder xml = new StringBuilder( 100 );
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
     xml.append( workflowMeta.getXml() );
-    xml.append( workflowExecutionConfiguration.getXML() );
+    xml.append( workflowExecutionConfiguration.getXml() );
 
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
@@ -59,15 +59,15 @@ public class WorkflowConfiguration {
   }
 
   public WorkflowConfiguration( Node configNode ) throws HopException {
-    Node workflowNode = XMLHandler.getSubNode( configNode, WorkflowMeta.XML_TAG );
-    Node trecNode = XMLHandler.getSubNode( configNode, WorkflowExecutionConfiguration.XML_TAG );
+    Node workflowNode = XmlHandler.getSubNode( configNode, WorkflowMeta.XML_TAG );
+    Node trecNode = XmlHandler.getSubNode( configNode, WorkflowExecutionConfiguration.XML_TAG );
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration( trecNode );
     workflowMeta = new WorkflowMeta( workflowNode );
   }
 
   public static final WorkflowConfiguration fromXML( String xml ) throws HopException {
-    Document document = XMLHandler.loadXMLString( xml );
-    Node configNode = XMLHandler.getSubNode( document, XML_TAG );
+    Document document = XmlHandler.loadXMLString( xml );
+    Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new WorkflowConfiguration( configNode );
   }
 

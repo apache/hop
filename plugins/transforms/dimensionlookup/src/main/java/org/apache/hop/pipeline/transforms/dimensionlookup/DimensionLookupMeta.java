@@ -40,7 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -601,7 +601,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -853,147 +853,147 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     actualizeWithInjectedValues();
     StringBuilder retval = new StringBuilder( 512 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta
       .getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "commit", commitSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "update", update ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "update", update ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < keyStream.length; i++ ) {
       retval.append( "        <key>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", keyStream[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "lookup", keyLookup[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "name", keyStream[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "lookup", keyLookup[ i ] ) );
       retval.append( "        </key>" ).append( Const.CR );
     }
 
     retval.append( "        <date>" ).append( Const.CR );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "name", dateField ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "from", dateFrom ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "to", dateTo ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "name", dateField ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "from", dateFrom ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "to", dateTo ) );
     retval.append( "        </date>" ).append( Const.CR );
 
     if ( fieldStream != null ) {
       for ( int i = 0; i < fieldStream.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "name", Const.NVL( fieldStream[ i ], "" ) ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "lookup", Const.NVL( fieldLookup[ i ], "" ) ) );
-        retval.append( "          " ).append( XMLHandler.addTagValue( "update", getUpdateTypeCode( update,
+        retval.append( "          " ).append( XmlHandler.addTagValue( "name", Const.NVL( fieldStream[ i ], "" ) ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "lookup", Const.NVL( fieldLookup[ i ], "" ) ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "update", getUpdateTypeCode( update,
           fieldUpdate[ i ] ) ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
     }
 
     retval.append( "        <return>" ).append( Const.CR );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "name", keyField ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "rename", keyRename ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "creation_method", techKeyCreation ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "use_autoinc", autoIncrement ) );
-    retval.append( "          " ).append( XMLHandler.addTagValue( "version", versionField ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "name", keyField ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "rename", keyRename ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "creation_method", techKeyCreation ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "use_autoinc", autoIncrement ) );
+    retval.append( "          " ).append( XmlHandler.addTagValue( "version", versionField ) );
     retval.append( "        </return>" ).append( Const.CR );
 
     retval.append( "      </fields>" ).append( Const.CR );
 
     // If sequence is empty: use auto-increment field!
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sequence", sequenceName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "min_year", minYear ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "max_year", maxYear ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sequence", sequenceName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "min_year", minYear ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "max_year", maxYear ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "preload_cache", preloadingCache ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "preload_cache", preloadingCache ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "use_start_date_alternative",
+    retval.append( "      " ).append( XmlHandler.addTagValue( "use_start_date_alternative",
       usingStartDateAlternative ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "start_date_alternative", getStartDateAlternativeCode(
+    retval.append( "      " ).append( XmlHandler.addTagValue( "start_date_alternative", getStartDateAlternativeCode(
       startDateAlternative ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "start_date_field_name", startDateFieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "useBatch", useBatchUpdate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "start_date_field_name", startDateFieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "useBatch", useBatchUpdate ) );
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
       String upd;
       int nrkeys, nrFields;
       String commit;
       this.databases = databases;
-      schemaName = XMLHandler.getTagValue( transformNode, "schema" );
-      tableName = XMLHandler.getTagValue( transformNode, "table" );
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      schemaName = XmlHandler.getTagValue( transformNode, "schema" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      commit = XMLHandler.getTagValue( transformNode, "commit" );
+      commit = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( commit, 0 );
 
-      upd = XMLHandler.getTagValue( transformNode, "update" );
+      upd = XmlHandler.getTagValue( transformNode, "update" );
       if ( upd.equalsIgnoreCase( "Y" ) ) {
         update = true;
       } else {
         update = false;
       }
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
 
-      nrkeys = XMLHandler.countNodes( fields, "key" );
-      nrFields = XMLHandler.countNodes( fields, "field" );
+      nrkeys = XmlHandler.countNodes( fields, "key" );
+      nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrkeys, nrFields );
 
       // Read keys to dimension
       for ( int i = 0; i < nrkeys; i++ ) {
-        Node knode = XMLHandler.getSubNodeByNr( fields, "key", i );
+        Node knode = XmlHandler.getSubNodeByNr( fields, "key", i );
 
-        keyStream[ i ] = XMLHandler.getTagValue( knode, "name" );
-        keyLookup[ i ] = XMLHandler.getTagValue( knode, "lookup" );
+        keyStream[ i ] = XmlHandler.getTagValue( knode, "name" );
+        keyLookup[ i ] = XmlHandler.getTagValue( knode, "lookup" );
       }
 
       // Only one date is supported
       // No datefield: use system date...
-      Node dnode = XMLHandler.getSubNode( fields, "date" );
-      dateField = XMLHandler.getTagValue( dnode, "name" );
-      dateFrom = XMLHandler.getTagValue( dnode, "from" );
-      dateTo = XMLHandler.getTagValue( dnode, "to" );
+      Node dnode = XmlHandler.getSubNode( fields, "date" );
+      dateField = XmlHandler.getTagValue( dnode, "name" );
+      dateFrom = XmlHandler.getTagValue( dnode, "from" );
+      dateTo = XmlHandler.getTagValue( dnode, "to" );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldStream[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        fieldLookup[ i ] = XMLHandler.getTagValue( fnode, "lookup" );
-        upd = XMLHandler.getTagValue( fnode, "update" );
+        fieldStream[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        fieldLookup[ i ] = XmlHandler.getTagValue( fnode, "lookup" );
+        upd = XmlHandler.getTagValue( fnode, "update" );
         fieldUpdate[ i ] = getUpdateType( update, upd );
       }
 
       if ( update ) {
         // If this is empty: use auto-increment field!
-        sequenceName = XMLHandler.getTagValue( transformNode, "sequence" );
+        sequenceName = XmlHandler.getTagValue( transformNode, "sequence" );
       }
 
-      maxYear = Const.toInt( XMLHandler.getTagValue( transformNode, "max_year" ), Const.MAX_YEAR );
-      minYear = Const.toInt( XMLHandler.getTagValue( transformNode, "min_year" ), Const.MIN_YEAR );
+      maxYear = Const.toInt( XmlHandler.getTagValue( transformNode, "max_year" ), Const.MAX_YEAR );
+      minYear = Const.toInt( XmlHandler.getTagValue( transformNode, "min_year" ), Const.MIN_YEAR );
 
-      keyField = XMLHandler.getTagValue( fields, "return", "name" );
-      keyRename = XMLHandler.getTagValue( fields, "return", "rename" );
-      autoIncrement = !"N".equalsIgnoreCase( XMLHandler.getTagValue( fields, "return", "use_autoinc" ) );
-      versionField = XMLHandler.getTagValue( fields, "return", "version" );
+      keyField = XmlHandler.getTagValue( fields, "return", "name" );
+      keyRename = XmlHandler.getTagValue( fields, "return", "rename" );
+      autoIncrement = !"N".equalsIgnoreCase( XmlHandler.getTagValue( fields, "return", "use_autoinc" ) );
+      versionField = XmlHandler.getTagValue( fields, "return", "version" );
 
-      setTechKeyCreation( XMLHandler.getTagValue( fields, "return", "creation_method" ) );
+      setTechKeyCreation( XmlHandler.getTagValue( fields, "return", "creation_method" ) );
 
-      cacheSize = Const.toInt( XMLHandler.getTagValue( transformNode, "cache_size" ), -1 );
-      preloadingCache = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "preload_cache" ) );
-      useBatchUpdate = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "useBatch" ) );
+      cacheSize = Const.toInt( XmlHandler.getTagValue( transformNode, "cache_size" ), -1 );
+      preloadingCache = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "preload_cache" ) );
+      useBatchUpdate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useBatch" ) );
 
       usingStartDateAlternative =
-        "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "use_start_date_alternative" ) );
-      startDateAlternative = getStartDateAlternative( XMLHandler.getTagValue( transformNode, "start_date_alternative" ) );
-      startDateFieldName = XMLHandler.getTagValue( transformNode, "start_date_field_name" );
+        "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_start_date_alternative" ) );
+      startDateAlternative = getStartDateAlternative( XmlHandler.getTagValue( transformNode, "start_date_alternative" ) );
+      startDateFieldName = XmlHandler.getTagValue( transformNode, "start_date_field_name" );
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString( PKG,
+      throw new HopXmlException( BaseMessages.getString( PKG,
         "DimensionLookupMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -1454,9 +1454,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public SQLStatement getSQLStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IMetaStore metaStore ) {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( update ) { // Only bother in case of update, not lookup!
       logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.Update" ) );
@@ -1605,9 +1605,9 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
               }
 
               if ( sql.length() == 0 ) {
-                retval.setSQL( null );
+                retval.setSql( null );
               } else {
-                retval.setSQL( pipelineMeta.environmentSubstitute( sql ) );
+                retval.setSql( pipelineMeta.environmentSubstitute( sql ) );
               }
             } catch ( HopDatabaseException dbe ) {
               retval.setError( BaseMessages.getString( PKG, "DimensionLookupMeta.ReturnValue.ErrorOccurred" ) + dbe

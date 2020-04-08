@@ -50,7 +50,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 
-public class SwingGC implements IGC {
+public class SwingGc implements IGc {
 
   private static SwingUniversalImage imageLocked;
 
@@ -152,7 +152,7 @@ public class SwingGC implements IGC {
 
   private AffineTransform originalTransform;
 
-  private SwingGC( BufferedImage image, Graphics2D gc, ImageObserver observer,
+  private SwingGc( BufferedImage image, Graphics2D gc, ImageObserver observer,
                    Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
     this.image = image;
     this.gc = gc;
@@ -171,12 +171,12 @@ public class SwingGC implements IGC {
     init();
   }
 
-  public SwingGC( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
+  public SwingGc( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
     this( new BufferedImage( area.x, area.y, BufferedImage.TYPE_INT_ARGB ), null, observer,
       area, iconsize, xOffset, yOffset );
   }
 
-  public SwingGC( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
+  public SwingGc( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
     this( null, gc, null,
       new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconsize, xOffset, yOffset );
   }

@@ -31,13 +31,13 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -232,7 +232,7 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
     this.updateField = updateField;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -248,32 +248,32 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
     arguments = new String[ nrargs ];
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      String con = XMLHandler.getTagValue( transformNode, "connection" );
+      String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
-      String eachRow = XMLHandler.getTagValue( transformNode, "execute_each_row" );
+      String eachRow = XmlHandler.getTagValue( transformNode, "execute_each_row" );
       executedEachInputRow = "Y".equalsIgnoreCase( eachRow );
-      singleStatement = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "single_statement" ) );
-      replaceVariables = "Y".equals( XMLHandler.getTagValue( transformNode, "replace_variables" ) );
-      quoteString = "Y".equals( XMLHandler.getTagValue( transformNode, "quoteString" ) );
-      setParams = "Y".equals( XMLHandler.getTagValue( transformNode, "set_params" ) );
-      sql = XMLHandler.getTagValue( transformNode, "sql" );
+      singleStatement = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "single_statement" ) );
+      replaceVariables = "Y".equals( XmlHandler.getTagValue( transformNode, "replace_variables" ) );
+      quoteString = "Y".equals( XmlHandler.getTagValue( transformNode, "quoteString" ) );
+      setParams = "Y".equals( XmlHandler.getTagValue( transformNode, "set_params" ) );
+      sql = XmlHandler.getTagValue( transformNode, "sql" );
 
-      insertField = XMLHandler.getTagValue( transformNode, "insert_field" );
-      updateField = XMLHandler.getTagValue( transformNode, "update_field" );
-      deleteField = XMLHandler.getTagValue( transformNode, "delete_field" );
-      readField = XMLHandler.getTagValue( transformNode, "read_field" );
+      insertField = XmlHandler.getTagValue( transformNode, "insert_field" );
+      updateField = XmlHandler.getTagValue( transformNode, "update_field" );
+      deleteField = XmlHandler.getTagValue( transformNode, "delete_field" );
+      readField = XmlHandler.getTagValue( transformNode, "read_field" );
 
-      Node argsnode = XMLHandler.getSubNode( transformNode, "arguments" );
-      int nrArguments = XMLHandler.countNodes( argsnode, "argument" );
+      Node argsnode = XmlHandler.getSubNode( transformNode, "arguments" );
+      int nrArguments = XmlHandler.countNodes( argsnode, "argument" );
       allocate( nrArguments );
       for ( int i = 0; i < nrArguments; i++ ) {
-        Node argnode = XMLHandler.getSubNodeByNr( argsnode, "argument", i );
-        arguments[ i ] = XMLHandler.getTagValue( argnode, "name" );
+        Node argnode = XmlHandler.getSubNodeByNr( argsnode, "argument", i );
+        arguments[ i ] = XmlHandler.getTagValue( argnode, "name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "ExecSQLMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -292,27 +292,27 @@ public class ExecSQLMeta extends BaseTransformMeta implements ITransform {
     r.mergeRowMeta( add.getRowMeta() );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval
       .append( "    " ).append(
-      XMLHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "execute_each_row", executedEachInputRow ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "single_statement", singleStatement ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "replace_variables", replaceVariables ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "quoteString", quoteString ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "sql", sql ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "set_params", setParams ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "insert_field", insertField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "update_field", updateField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "delete_field", deleteField ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "read_field", readField ) );
+      XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "execute_each_row", executedEachInputRow ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "single_statement", singleStatement ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "replace_variables", replaceVariables ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "quoteString", quoteString ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sql", sql ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "set_params", setParams ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "insert_field", insertField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "update_field", updateField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "delete_field", deleteField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "read_field", readField ) );
 
     retval.append( "    <arguments>" ).append( Const.CR );
     for ( int i = 0; i < arguments.length; i++ ) {
       retval
-        .append( "       <argument>" ).append( XMLHandler.addTagValue( "name", arguments[ i ], false ) ).append(
+        .append( "       <argument>" ).append( XmlHandler.addTagValue( "name", arguments[ i ], false ) ).append(
         "</argument>" ).append( Const.CR );
     }
     retval.append( "    </arguments>" ).append( Const.CR );

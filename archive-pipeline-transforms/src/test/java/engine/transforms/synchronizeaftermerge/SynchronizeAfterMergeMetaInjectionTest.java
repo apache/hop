@@ -160,7 +160,7 @@ public class SynchronizeAfterMergeMetaInjectionTest extends BaseMetadataInjectio
   }
 
   @Test
-  public void getXML() throws HopException {
+  public void getXml() throws HopException {
     skipProperties( "CONNECTION_NAME", "TABLE_NAME", "STREAM_FIELD2", "PERFORM_LOOKUP", "COMPARATOR",
       "OPERATION_ORDER_FIELD", "ORDER_DELETE", "SHEMA_NAME", "TABLE_NAME_IN_FIELD", "ORDER_UPDATE", "ORDER_INSERT",
       "USE_BATCH_UPDATE", "STREAM_FIELD", "TABLE_FIELD", "COMMIT_SIZE", "TABLE_NAME_FIELD" );
@@ -184,7 +184,7 @@ public class SynchronizeAfterMergeMetaInjectionTest extends BaseMetadataInjectio
       }
     } );
 
-    meta.getXML();
+    meta.getXml();
 
     String[] actualKeyLookup = meta.getKeyLookup();
     assertNotNull( actualKeyLookup );

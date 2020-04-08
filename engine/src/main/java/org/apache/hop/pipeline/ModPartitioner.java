@@ -24,11 +24,11 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 public class ModPartitioner extends BasePartitioner {
@@ -104,14 +104,14 @@ public class ModPartitioner extends BasePartitioner {
     return description;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder( 150 );
-    xml.append( "           " ).append( XMLHandler.addTagValue( "field_name", fieldName ) );
+    xml.append( "           " ).append( XmlHandler.addTagValue( "field_name", fieldName ) );
     return xml.toString();
   }
 
-  public void loadXML( Node partitioningMethodNode ) throws HopXMLException {
-    fieldName = XMLHandler.getTagValue( partitioningMethodNode, "field_name" );
+  public void loadXml( Node partitioningMethodNode ) throws HopXmlException {
+    fieldName = XmlHandler.getTagValue( partitioningMethodNode, "field_name" );
   }
 
   public String getFieldName() {

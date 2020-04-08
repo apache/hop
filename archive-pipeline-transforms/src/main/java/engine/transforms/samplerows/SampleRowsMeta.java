@@ -25,13 +25,13 @@ package org.apache.hop.pipeline.transforms.samplerows;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -61,7 +61,7 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -81,12 +81,12 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      linesrange = XMLHandler.getTagValue( transformNode, "linesrange" );
-      linenumfield = XMLHandler.getTagValue( transformNode, "linenumfield" );
+      linesrange = XmlHandler.getTagValue( transformNode, "linesrange" );
+      linenumfield = XmlHandler.getTagValue( transformNode, "linenumfield" );
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "SampleRowsMeta.Exception.UnableToReadTransformMeta" ), e );
     }
   }
@@ -112,10 +112,10 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransform {
     linenumfield = null;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XMLHandler.addTagValue( "linesrange", linesrange ) );
-    retval.append( "    " + XMLHandler.addTagValue( "linenumfield", linenumfield ) );
+    retval.append( "    " + XmlHandler.addTagValue( "linesrange", linesrange ) );
+    retval.append( "    " + XmlHandler.addTagValue( "linenumfield", linenumfield ) );
 
     return retval.toString();
   }

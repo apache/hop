@@ -25,11 +25,11 @@ package org.apache.hop.pipeline.transforms.writetolog;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -108,7 +108,7 @@ public class WriteToLogMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -195,45 +195,45 @@ public class WriteToLogMeta extends BaseTransformMeta implements ITransform {
     logmessage = s;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      loglevel = XMLHandler.getTagValue( transformNode, "loglevel" );
-      displayHeader = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "displayHeader" ) );
+      loglevel = XmlHandler.getTagValue( transformNode, "loglevel" );
+      displayHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "displayHeader" ) );
 
-      limitRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "limitRows" ) );
-      String limitRowsNumberString = XMLHandler.getTagValue( transformNode, "limitRowsNumber" );
+      limitRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "limitRows" ) );
+      String limitRowsNumberString = XmlHandler.getTagValue( transformNode, "limitRowsNumber" );
       limitRowsNumber = Const.toInt( limitRowsNumberString, 5 );
 
-      logmessage = XMLHandler.getTagValue( transformNode, "logmessage" );
+      logmessage = XmlHandler.getTagValue( transformNode, "logmessage" );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "      " + XMLHandler.addTagValue( "loglevel", loglevel ) );
-    retval.append( "      " + XMLHandler.addTagValue( "displayHeader", displayHeader ) );
-    retval.append( "      " + XMLHandler.addTagValue( "limitRows", limitRows ) );
-    retval.append( "      " + XMLHandler.addTagValue( "limitRowsNumber", limitRowsNumber ) );
+    retval.append( "      " + XmlHandler.addTagValue( "loglevel", loglevel ) );
+    retval.append( "      " + XmlHandler.addTagValue( "displayHeader", displayHeader ) );
+    retval.append( "      " + XmlHandler.addTagValue( "limitRows", limitRows ) );
+    retval.append( "      " + XmlHandler.addTagValue( "limitRowsNumber", limitRowsNumber ) );
 
-    retval.append( "      " + XMLHandler.addTagValue( "logmessage", logmessage ) );
+    retval.append( "      " + XmlHandler.addTagValue( "logmessage", logmessage ) );
 
     retval.append( "    <fields>" + Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "        </field>" + Const.CR );
     }
     retval.append( "      </fields>" + Const.CR );

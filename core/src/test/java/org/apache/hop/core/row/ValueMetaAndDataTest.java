@@ -166,7 +166,7 @@ public class ValueMetaAndDataTest {
 
 
     // TODO: test fail because ValueMetaAndData now use ValueMetaFactory class and ValueMetaPlugin are not initialized   
-    // valueMetaAndData.loadXML( node );
+    // valueMetaAndData.loadXml( node );
     // Assert.assertEquals( valueMetaAndData.getValueData(), new SimpleDateFormat( ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN ).parse( testData ) );
   }
 }

@@ -181,6 +181,6 @@ public class DatabaseLookupMetaTest implements IInitializerInterface<ITransformM
     assertTrue( Arrays.equals( meta.getReturnValueDefault(), aClone.getReturnValueDefault() ) );
     assertTrue( Arrays.equals( meta.getReturnValueDefaultType(), aClone.getReturnValueDefaultType() ) );
     assertEquals( meta.getOrderByClause(), aClone.getOrderByClause() );
-    assertEquals( meta.getXML(), aClone.getXML() );
+    assertEquals( meta.getXml(), aClone.getXml() );
   }
 }

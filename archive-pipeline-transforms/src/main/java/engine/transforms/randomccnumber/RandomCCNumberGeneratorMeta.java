@@ -26,14 +26,14 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -156,7 +156,7 @@ public class RandomCCNumberGeneratorMeta extends BaseTransformMeta implements IT
     this.fieldCCLength = ccLength;
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -179,26 +179,26 @@ public class RandomCCNumberGeneratorMeta extends BaseTransformMeta implements IT
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldCCType[ i ] = XMLHandler.getTagValue( fnode, "cctype" );
-        fieldCCLength[ i ] = XMLHandler.getTagValue( fnode, "cclen" );
-        fieldCCSize[ i ] = XMLHandler.getTagValue( fnode, "ccsize" );
+        fieldCCType[ i ] = XmlHandler.getTagValue( fnode, "cctype" );
+        fieldCCLength[ i ] = XmlHandler.getTagValue( fnode, "cclen" );
+        fieldCCSize[ i ] = XmlHandler.getTagValue( fnode, "ccsize" );
       }
 
-      cardNumberFieldName = XMLHandler.getTagValue( transformNode, "cardNumberFieldName" );
-      cardLengthFieldName = XMLHandler.getTagValue( transformNode, "cardLengthFieldName" );
-      cardTypeFieldName = XMLHandler.getTagValue( transformNode, "cardTypeFieldName" );
+      cardNumberFieldName = XmlHandler.getTagValue( transformNode, "cardNumberFieldName" );
+      cardLengthFieldName = XmlHandler.getTagValue( transformNode, "cardLengthFieldName" );
+      cardTypeFieldName = XmlHandler.getTagValue( transformNode, "cardTypeFieldName" );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read transform information from XML", e );
+      throw new HopXmlException( "Unable to read transform information from XML", e );
     }
   }
 
@@ -239,23 +239,23 @@ public class RandomCCNumberGeneratorMeta extends BaseTransformMeta implements IT
 
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
     retval.append( "    <fields>" ).append( Const.CR );
 
     for ( int i = 0; i < fieldCCType.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cctype", fieldCCType[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "cclen", fieldCCLength[ i ] ) );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "ccsize", fieldCCSize[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "cctype", fieldCCType[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "cclen", fieldCCLength[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "ccsize", fieldCCSize[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" + Const.CR );
 
-    retval.append( "    " + XMLHandler.addTagValue( "cardNumberFieldName", cardNumberFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "cardLengthFieldName", cardLengthFieldName ) );
-    retval.append( "    " + XMLHandler.addTagValue( "cardTypeFieldName", cardTypeFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "cardNumberFieldName", cardNumberFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "cardLengthFieldName", cardLengthFieldName ) );
+    retval.append( "    " + XmlHandler.addTagValue( "cardTypeFieldName", cardTypeFieldName ) );
     return retval.toString();
   }
 

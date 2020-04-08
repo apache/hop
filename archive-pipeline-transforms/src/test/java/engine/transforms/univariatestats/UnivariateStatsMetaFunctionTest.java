@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.univariatestats;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.test.util.GetterSetterTester;
 import org.apache.test.util.ObjectTester;
 import org.apache.test.util.ObjectTesterBuilder;
@@ -68,12 +68,12 @@ public class UnivariateStatsMetaFunctionTest {
   }
 
   @Test
-  public void testNodeConstructor() throws IOException, HopXMLException {
+  public void testNodeConstructor() throws IOException, HopXmlException {
     String functionXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml") );
     UnivariateStatsMetaFunction function =
-      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     assertEquals( "a", function.getSourceFieldName() );
     assertTrue( function.getCalcN() );
     assertTrue( function.getCalcMean() );
@@ -87,7 +87,7 @@ public class UnivariateStatsMetaFunctionTest {
     functionXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml") );
-    function = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+    function = new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     assertTrue( Utils.isEmpty( function.getSourceFieldName() ) );
     assertFalse( function.getCalcN() );
     assertFalse( function.getCalcMean() );
@@ -100,22 +100,22 @@ public class UnivariateStatsMetaFunctionTest {
   }
 
   @Test
-  public void testEquals() throws IOException, HopXMLException {
+  public void testEquals() throws IOException, HopXmlException {
     String functionXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/trueValuesUnivariateStatsMetaFunctionNode.xml") );
     UnivariateStatsMetaFunction function =
-      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     UnivariateStatsMetaFunction function2 =
-      new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+      new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     assertEquals( function, function2 );
 
     functionXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/falseValuesUnivariateStatsMetaFunctionNode.xml") );
-    function = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+    function = new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     assertFalse( function.equals( function2 ) );
-    function2 = new UnivariateStatsMetaFunction( XMLHandler.loadXMLString( functionXml ).getFirstChild() );
+    function2 = new UnivariateStatsMetaFunction( XmlHandler.loadXMLString( functionXml ).getFirstChild() );
     assertEquals( function, function2 );
   }
 

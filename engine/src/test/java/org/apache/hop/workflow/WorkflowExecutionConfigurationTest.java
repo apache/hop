@@ -23,7 +23,7 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -86,27 +86,27 @@ public class WorkflowExecutionConfigurationTest {
     jec.setPassedBatchId( passedBatchId0 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = jec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
+      String xml = jec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );
     }
     jec.setPassedBatchId( passedBatchId1 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = jec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
+      String xml = jec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );
     }
     jec.setPassedBatchId( passedBatchId2 );
     //CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
-      String xml = jec.getXML();
-      Document doc = XMLHandler.loadXMLString( xml );
-      Node node = XMLHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
+      String xml = jec.getXml();
+      Document doc = XmlHandler.loadXMLString( xml );
+      Node node = XmlHandler.getSubNode( doc, WorkflowExecutionConfiguration.XML_TAG );
       WorkflowExecutionConfiguration jecCopy = new WorkflowExecutionConfiguration( node );
       assertEquals( "xml-copy", jec.getPassedBatchId(), jecCopy.getPassedBatchId() );
     }

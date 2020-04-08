@@ -28,13 +28,13 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
@@ -89,44 +89,44 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     mappingParameters = new MappingParameters();
   }
 
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XMLHandler.getTagValue( transformNode, "filename" );
+      fileName = XmlHandler.getTagValue( transformNode, "filename" );
 
-      Node mappingsNode = XMLHandler.getSubNode( transformNode, "mappings" );
+      Node mappingsNode = XmlHandler.getSubNode( transformNode, "mappings" );
       inputMappings.clear();
       outputMappings.clear();
 
       if ( mappingsNode != null ) {
         // Read all the input mapping definitions...
         //
-        Node inputNode = XMLHandler.getSubNode( mappingsNode, "input" );
-        int nrInputMappings = XMLHandler.countNodes( inputNode, MappingIODefinition.XML_TAG );
+        Node inputNode = XmlHandler.getSubNode( mappingsNode, "input" );
+        int nrInputMappings = XmlHandler.countNodes( inputNode, MappingIODefinition.XML_TAG );
         for ( int i = 0; i < nrInputMappings; i++ ) {
-          Node mappingNode = XMLHandler.getSubNodeByNr( inputNode, MappingIODefinition.XML_TAG, i );
+          Node mappingNode = XmlHandler.getSubNodeByNr( inputNode, MappingIODefinition.XML_TAG, i );
           MappingIODefinition inputMappingDefinition = new MappingIODefinition( mappingNode );
           inputMappings.add( inputMappingDefinition );
         }
-        Node outputNode = XMLHandler.getSubNode( mappingsNode, "output" );
-        int nrOutputMappings = XMLHandler.countNodes( outputNode, MappingIODefinition.XML_TAG );
+        Node outputNode = XmlHandler.getSubNode( mappingsNode, "output" );
+        int nrOutputMappings = XmlHandler.countNodes( outputNode, MappingIODefinition.XML_TAG );
         for ( int i = 0; i < nrOutputMappings; i++ ) {
-          Node mappingNode = XMLHandler.getSubNodeByNr( outputNode, MappingIODefinition.XML_TAG, i );
+          Node mappingNode = XmlHandler.getSubNodeByNr( outputNode, MappingIODefinition.XML_TAG, i );
           MappingIODefinition outputMappingDefinition = new MappingIODefinition( mappingNode );
           outputMappings.add( outputMappingDefinition );
         }
 
         // Load the mapping parameters too..
         //
-        Node mappingParametersNode = XMLHandler.getSubNode( mappingsNode, MappingParameters.XML_TAG );
+        Node mappingParametersNode = XmlHandler.getSubNode( mappingsNode, MappingParameters.XML_TAG );
         mappingParameters = new MappingParameters( mappingParametersNode );
       } else {
         // backward compatibility...
         //
-        Node inputNode = XMLHandler.getSubNode( transformNode, "input" );
-        Node outputNode = XMLHandler.getSubNode( transformNode, "output" );
+        Node inputNode = XmlHandler.getSubNode( transformNode, "input" );
+        Node outputNode = XmlHandler.getSubNode( transformNode, "output" );
 
-        int nrInput = XMLHandler.countNodes( inputNode, "connector" );
-        int nrOutput = XMLHandler.countNodes( outputNode, "connector" );
+        int nrInput = XmlHandler.countNodes( inputNode, "connector" );
+        int nrOutput = XmlHandler.countNodes( outputNode, "connector" );
 
         // null means: auto-detect
         //
@@ -134,9 +134,9 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
         inputMappingDefinition.setMainDataPath( true );
 
         for ( int i = 0; i < nrInput; i++ ) {
-          Node inputConnector = XMLHandler.getSubNodeByNr( inputNode, "connector", i );
-          String inputField = XMLHandler.getTagValue( inputConnector, "field" );
-          String inputMapping = XMLHandler.getTagValue( inputConnector, "mapping" );
+          Node inputConnector = XmlHandler.getSubNodeByNr( inputNode, "connector", i );
+          String inputField = XmlHandler.getTagValue( inputConnector, "field" );
+          String inputMapping = XmlHandler.getTagValue( inputConnector, "mapping" );
           inputMappingDefinition.getValueRenames().add( new MappingValueRename( inputField, inputMapping ) );
         }
 
@@ -146,9 +146,9 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
         outputMappingDefinition.setMainDataPath( true );
 
         for ( int i = 0; i < nrOutput; i++ ) {
-          Node outputConnector = XMLHandler.getSubNodeByNr( outputNode, "connector", i );
-          String outputField = XMLHandler.getTagValue( outputConnector, "field" );
-          String outputMapping = XMLHandler.getTagValue( outputConnector, "mapping" );
+          Node outputConnector = XmlHandler.getSubNodeByNr( outputNode, "connector", i );
+          String outputField = XmlHandler.getTagValue( outputConnector, "field" );
+          String outputMapping = XmlHandler.getTagValue( outputConnector, "mapping" );
           outputMappingDefinition.getValueRenames().add( new MappingValueRename( outputMapping, outputField ) );
         }
 
@@ -165,15 +165,15 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
 
       }
 
-      String multiInput = XMLHandler.getTagValue( transformNode, "allow_multiple_input" );
+      String multiInput = XmlHandler.getTagValue( transformNode, "allow_multiple_input" );
       allowingMultipleInputs =
         Utils.isEmpty( multiInput ) ? inputMappings.size() > 1 : "Y".equalsIgnoreCase( multiInput );
-      String multiOutput = XMLHandler.getTagValue( transformNode, "allow_multiple_output" );
+      String multiOutput = XmlHandler.getTagValue( transformNode, "allow_multiple_output" );
       allowingMultipleOutputs =
         Utils.isEmpty( multiOutput ) ? outputMappings.size() > 1 : "Y".equalsIgnoreCase( multiOutput );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "MappingMeta.Exception.ErrorLoadingPipelineTransformFromXML" ), e );
     }
   }
@@ -183,33 +183,33 @@ public class MappingMeta extends TransformWithMappingMeta<Mapping,MappingData> i
     return retval;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
 
-    retval.append( "    " ).append( XMLHandler.openTag( "mappings" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.openTag( "mappings" ) ).append( Const.CR );
 
-    retval.append( "      " ).append( XMLHandler.openTag( "input" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.openTag( "input" ) ).append( Const.CR );
     for ( int i = 0; i < inputMappings.size(); i++ ) {
-      retval.append( inputMappings.get( i ).getXML() );
+      retval.append( inputMappings.get( i ).getXml() );
     }
-    retval.append( "      " ).append( XMLHandler.closeTag( "input" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.closeTag( "input" ) ).append( Const.CR );
 
-    retval.append( "      " ).append( XMLHandler.openTag( "output" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.openTag( "output" ) ).append( Const.CR );
     for ( int i = 0; i < outputMappings.size(); i++ ) {
-      retval.append( outputMappings.get( i ).getXML() );
+      retval.append( outputMappings.get( i ).getXml() );
     }
-    retval.append( "      " ).append( XMLHandler.closeTag( "output" ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.closeTag( "output" ) ).append( Const.CR );
 
     // Add the mapping parameters too
     //
-    retval.append( "      " ).append( mappingParameters.getXML() ).append( Const.CR );
+    retval.append( "      " ).append( mappingParameters.getXml() ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.closeTag( "mappings" ) ).append( Const.CR );
+    retval.append( "    " ).append( XmlHandler.closeTag( "mappings" ) ).append( Const.CR );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "allow_multiple_input", allowingMultipleInputs ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "allow_multiple_output", allowingMultipleOutputs ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "allow_multiple_input", allowingMultipleInputs ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "allow_multiple_output", allowingMultipleOutputs ) );
 
     return retval.toString();
   }

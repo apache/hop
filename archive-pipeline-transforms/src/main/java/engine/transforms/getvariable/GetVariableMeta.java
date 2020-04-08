@@ -27,7 +27,7 @@ import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -75,7 +75,7 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -99,28 +99,28 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldDefinitions[ i ].setFieldName( XMLHandler.getTagValue( fnode, "name" ) );
-        fieldDefinitions[ i ].setVariableString( XMLHandler.getTagValue( fnode, "variable" ) );
+        fieldDefinitions[ i ].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
+        fieldDefinitions[ i ].setVariableString( XmlHandler.getTagValue( fnode, "variable" ) );
         fieldDefinitions[ i ].setFieldType(
-          ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( fnode, "type" ) ) );
-        fieldDefinitions[ i ].setFieldFormat( XMLHandler.getTagValue( fnode, "format" ) );
-        fieldDefinitions[ i ].setCurrency( XMLHandler.getTagValue( fnode, "currency" ) );
-        fieldDefinitions[ i ].setDecimal( XMLHandler.getTagValue( fnode, "decimal" ) );
-        fieldDefinitions[ i ].setGroup( XMLHandler.getTagValue( fnode, "group" ) );
-        fieldDefinitions[ i ].setFieldLength( Const.toInt( XMLHandler.getTagValue( fnode, "length" ), -1 ) );
-        fieldDefinitions[ i ].setFieldPrecision( Const.toInt( XMLHandler.getTagValue( fnode, "precision" ), -1 ) );
+          ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) ) );
+        fieldDefinitions[ i ].setFieldFormat( XmlHandler.getTagValue( fnode, "format" ) );
+        fieldDefinitions[ i ].setCurrency( XmlHandler.getTagValue( fnode, "currency" ) );
+        fieldDefinitions[ i ].setDecimal( XmlHandler.getTagValue( fnode, "decimal" ) );
+        fieldDefinitions[ i ].setGroup( XmlHandler.getTagValue( fnode, "group" ) );
+        fieldDefinitions[ i ].setFieldLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+        fieldDefinitions[ i ].setFieldPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
         fieldDefinitions[ i ].setTrimType(
-          ValueMetaString.getTrimTypeByCode( XMLHandler.getTagValue( fnode, "trim_type" ) ) );
+          ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
 
         // Backward compatibility
         //
@@ -129,7 +129,7 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransform {
         }
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read transform information from XML", e );
+      throw new HopXmlException( "Unable to read transform information from XML", e );
     }
   }
 
@@ -193,7 +193,7 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <fields>" ).append( Const.CR );
@@ -201,19 +201,19 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransform {
       String fieldName = fieldDefinitions[ i ].getFieldName();
       if ( fieldName != null && fieldName.length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "variable",
+        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "variable",
           fieldDefinitions[ i ].getVariableString() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "type",
+        retval.append( "        " ).append( XmlHandler.addTagValue( "type",
           ValueMetaFactory.getValueMetaName( fieldDefinitions[ i ].getFieldType() ) ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "format", fieldDefinitions[ i ].getFieldFormat() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "currency", fieldDefinitions[ i ].getCurrency() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "decimal", fieldDefinitions[ i ].getDecimal() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "group", fieldDefinitions[ i ].getGroup() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "length", fieldDefinitions[ i ].getFieldLength() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "precision", fieldDefinitions[ i ]
+        retval.append( "        " ).append( XmlHandler.addTagValue( "format", fieldDefinitions[ i ].getFieldFormat() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "currency", fieldDefinitions[ i ].getCurrency() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", fieldDefinitions[ i ].getDecimal() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "group", fieldDefinitions[ i ].getGroup() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldDefinitions[ i ].getFieldLength() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldDefinitions[ i ]
           .getFieldPrecision() ) );
-        retval.append( "        " ).append( XMLHandler.addTagValue( "trim_type",
+        retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type",
           ValueMetaString.getTrimTypeCode( fieldDefinitions[ i ].getTrimType() ) ) );
 
         retval.append( "      </field>" ).append( Const.CR );

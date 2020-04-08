@@ -29,12 +29,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -70,7 +70,7 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
     super(); // allocate BaseTransformMeta
   }
 
-  @Override public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -129,14 +129,14 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      filename = XMLHandler.getTagValue( transformNode, "file", "name" );
-      rowLimit = XMLHandler.getTagValue( transformNode, "limit" );
-      addfilenameresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "addfilenameresult" ) );
+      filename = XmlHandler.getTagValue( transformNode, "file", "name" );
+      rowLimit = XmlHandler.getTagValue( transformNode, "limit" );
+      addfilenameresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addfilenameresult" ) );
 
     } catch ( Exception e ) {
-      throw new HopXMLException(
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "CubeInputMeta.Exception.UnableToLoadTransformMeta" ), e );
     }
   }
@@ -182,14 +182,14 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
     }
   }
 
-  @Override public String getXML() {
+  @Override public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( "    <file>" ).append( Const.CR );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "name", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "name", filename ) );
     retval.append( "    </file>" ).append( Const.CR );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "limit", rowLimit ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "addfilenameresult", addfilenameresult ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "limit", rowLimit ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "addfilenameresult", addfilenameresult ) );
 
     return retval.toString();
   }

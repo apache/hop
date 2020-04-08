@@ -26,7 +26,7 @@ import org.apache.hop.cluster.HttpUtil;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -65,15 +65,15 @@ public class SlaveServerWorkflowStatusTest {
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
     SlaveServerWorkflowStatus js = new SlaveServerWorkflowStatus( workflowName, id, status );
-    String resultXML = js.getXML();
-    Node newJobStatus = XMLHandler.getSubNode( XMLHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
+    String resultXML = js.getXml();
+    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerWorkflowStatus.fromXML( resultXML ).getXML() );
+      SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XMLHandler.countNodes( newJobStatus, "log_date" ) );
+      XmlHandler.countNodes( newJobStatus, "log_date" ) );
     assertTrue( "The \"log_date\" node should have a null value",
-      Utils.isEmpty( XMLHandler.getTagValue( newJobStatus, "log_date" ) ) );
+      Utils.isEmpty( XmlHandler.getTagValue( newJobStatus, "log_date" ) ) );
   }
 
   @Test
@@ -84,15 +84,15 @@ public class SlaveServerWorkflowStatusTest {
     Date logDate = new Date();
     SlaveServerWorkflowStatus js = new SlaveServerWorkflowStatus( workflowName, id, status );
     js.setLogDate( logDate );
-    String resultXML = js.getXML();
-    Node newJobStatus = XMLHandler.getSubNode( XMLHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
+    String resultXML = js.getXml();
+    Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXMLString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerWorkflowStatus.fromXML( resultXML ).getXML() );
+      SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
-      XMLHandler.countNodes( newJobStatus, "log_date" ) );
-    assertEquals( "The \"log_date\" node should match the original value", XMLHandler.date2string( logDate ),
-      XMLHandler.getTagValue( newJobStatus, "log_date" ) );
+      XmlHandler.countNodes( newJobStatus, "log_date" ) );
+    assertEquals( "The \"log_date\" node should match the original value", XmlHandler.date2string( logDate ),
+      XmlHandler.getTagValue( newJobStatus, "log_date" ) );
   }
 
   @Test

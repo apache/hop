@@ -27,11 +27,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
@@ -222,28 +222,28 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fieldname", fieldname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "variablename", variablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "mask", mask ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "comparevalue", comparevalue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "minvalue", minvalue ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "maxvalue", maxvalue ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "variablename", variablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "mask", mask ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "successcondition", getSuccessConditionCode( successcondition ) ) );
+      XmlHandler.addTagValue( "successcondition", getSuccessConditionCode( successcondition ) ) );
     retval
       .append( "      " ).append(
-      XMLHandler.addTagValue(
+      XmlHandler.addTagValue(
         "successnumbercondition", getSuccessNumberConditionCode( successnumbercondition ) ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue(
+      XmlHandler.addTagValue(
         "successbooleancondition", getSuccessBooleanConditionCode( successbooleancondition ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
     return retval.toString();
   }
 
@@ -347,30 +347,30 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
+      super.loadXml( entrynode );
 
-      valuetype = getValueTypeByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "valuetype" ), "" ) );
-      fieldname = XMLHandler.getTagValue( entrynode, "fieldname" );
-      fieldtype = getFieldTypeByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "fieldtype" ), "" ) );
-      variablename = XMLHandler.getTagValue( entrynode, "variablename" );
-      mask = XMLHandler.getTagValue( entrynode, "mask" );
-      comparevalue = XMLHandler.getTagValue( entrynode, "comparevalue" );
-      minvalue = XMLHandler.getTagValue( entrynode, "minvalue" );
-      maxvalue = XMLHandler.getTagValue( entrynode, "maxvalue" );
+      valuetype = getValueTypeByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "valuetype" ), "" ) );
+      fieldname = XmlHandler.getTagValue( entrynode, "fieldname" );
+      fieldtype = getFieldTypeByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "fieldtype" ), "" ) );
+      variablename = XmlHandler.getTagValue( entrynode, "variablename" );
+      mask = XmlHandler.getTagValue( entrynode, "mask" );
+      comparevalue = XmlHandler.getTagValue( entrynode, "comparevalue" );
+      minvalue = XmlHandler.getTagValue( entrynode, "minvalue" );
+      maxvalue = XmlHandler.getTagValue( entrynode, "maxvalue" );
       successcondition =
-        getSuccessConditionByCode( Const.NVL( XMLHandler.getTagValue( entrynode, "successcondition" ), "" ) );
+        getSuccessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "successcondition" ), "" ) );
       successnumbercondition =
         getSuccessNumberConditionByCode( Const.NVL(
-          XMLHandler.getTagValue( entrynode, "successnumbercondition" ), "" ) );
+          XmlHandler.getTagValue( entrynode, "successnumbercondition" ), "" ) );
       successbooleancondition =
-        getSuccessBooleanConditionByCode( Const.NVL( XMLHandler.getTagValue(
+        getSuccessBooleanConditionByCode( Const.NVL( XmlHandler.getTagValue(
           entrynode, "successbooleancondition" ), "" ) );
-      successwhenvarset = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "successwhenvarset" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException(
+      successwhenvarset = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "successwhenvarset" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException(
         BaseMessages.getString( PKG, "ActionSimple.Error.Exception.UnableLoadXML" ), xe );
     }
   }

@@ -27,10 +27,10 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -153,16 +153,16 @@ public class BlockingTransformMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
   private void readData( Node transformNode ) {
-    passAllRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "pass_all_rows" ) );
-    directory = XMLHandler.getTagValue( transformNode, "directory" );
-    prefix = XMLHandler.getTagValue( transformNode, "prefix" );
-    cacheSize = Const.toInt( XMLHandler.getTagValue( transformNode, "cache_size" ), CACHE_SIZE );
-    compressFiles = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "compress" ) );
+    passAllRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "pass_all_rows" ) );
+    directory = XmlHandler.getTagValue( transformNode, "directory" );
+    prefix = XmlHandler.getTagValue( transformNode, "prefix" );
+    cacheSize = Const.toInt( XmlHandler.getTagValue( transformNode, "cache_size" ), CACHE_SIZE );
+    compressFiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "compress" ) );
   }
 
   public void setDefault() {
@@ -173,14 +173,14 @@ public class BlockingTransformMeta extends BaseTransformMeta implements ITransfo
     compressFiles = true;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "pass_all_rows", passAllRows ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "cache_size", cacheSize ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compress", compressFiles ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "pass_all_rows", passAllRows ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "directory", directory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "prefix", prefix ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compress", compressFiles ) );
 
     return retval.toString();
   }

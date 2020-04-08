@@ -30,7 +30,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
@@ -60,7 +60,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
   public static final String SEND_RESULT = "sendResult";
 
   private static final byte[] XML_HEADER =
-    XMLHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
+    XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Charset.forName( Const.XML_ENCODING ) );
 
   @VisibleForTesting
   HopServerStatusCache cache = HopServerStatusCache.getInstance();
@@ -375,7 +375,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align: left;\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Encode.forHtml( id ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatus() ) + "</td>" );
-          String dateStr = XMLHandler.date2string( pipeline.getLogDate() );
+          String dateStr = XmlHandler.date2string( pipeline.getLogDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
           out.print( "</table>" );

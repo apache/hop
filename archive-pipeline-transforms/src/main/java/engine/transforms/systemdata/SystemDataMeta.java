@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -102,7 +102,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -125,23 +125,23 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int count = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int count = XmlHandler.countNodes( fields, "field" );
       String type;
 
       allocate( count );
 
       for ( int i = 0; i < count; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
-        type = XMLHandler.getTagValue( fnode, "type" );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
+        type = XmlHandler.getTagValue( fnode, "type" );
         fieldType[ i ] = SystemDataTypes.getTypeFromString( type );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to read transform information from XML", e );
+      throw new HopXmlException( "Unable to read transform information from XML", e );
     }
   }
 
@@ -268,15 +268,15 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "    <fields>" + Const.CR );
 
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" + Const.CR );
-      retval.append( "        " + XMLHandler.addTagValue( "name", fieldName[ i ] ) );
-      retval.append( "        " + XMLHandler.addTagValue( "type",
+      retval.append( "        " + XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " + XmlHandler.addTagValue( "type",
         fieldType[ i ] != null ? fieldType[ i ].getCode() : "" ) );
       retval.append( "        </field>" + Const.CR );
     }

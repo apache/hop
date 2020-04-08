@@ -22,7 +22,7 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.junit.Test;
 
 import java.util.UUID;
@@ -64,11 +64,11 @@ public class WebResultTest {
   }
 
   @Test
-  public void testSerialization() throws HopXMLException {
+  public void testSerialization() throws HopXmlException {
     WebResult original = new WebResult( UUID.randomUUID().toString(), UUID.randomUUID().toString(),
       UUID.randomUUID().toString() );
 
-    String xml = original.getXML();
+    String xml = original.getXml();
     WebResult copy = WebResult.fromXMLString( xml );
 
     assertNotNull( copy );

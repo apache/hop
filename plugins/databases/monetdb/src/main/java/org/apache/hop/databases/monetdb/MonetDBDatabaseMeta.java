@@ -300,7 +300,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The SQL to launch.
    */
   @Override
-  public String getSQLQueryFields( String tableName ) {
+  public String getSqlQueryFields( String tableName ) {
     return "SELECT * FROM " + tableName + ";";
   }
 
@@ -320,23 +320,23 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSQLListOfSequences() {
+  public String getSqlListOfSequences() {
     return "SELECT name FROM sys.sequences";
   }
 
   @Override
-  public String getSQLSequenceExists( String sequenceName ) {
+  public String getSqlSequenceExists( String sequenceName ) {
     return String.format( "SELECT * FROM sys.sequences WHERE name = '%s'", sequenceName );
   }
 
   @Override
-  public String getSQLCurrentSequenceValue( String sequenceName ) {
+  public String getSqlCurrentSequenceValue( String sequenceName ) {
     String realSequenceName = sequenceName.replace( getStartQuote(), "" ).replace( getEndQuote(), "" );
     return String.format( "SELECT get_value_for( 'sys', '%s' )", realSequenceName );
   }
 
   @Override
-  public String getSQLNextSequenceValue( String sequenceName ) {
+  public String getSqlNextSequenceValue( String sequenceName ) {
     String realSequenceName = sequenceName.replace( getStartQuote(), "" ).replace( getEndQuote(), "" );
     return String.format( "SELECT next_value_for( 'sys', '%s' )", realSequenceName );
   }

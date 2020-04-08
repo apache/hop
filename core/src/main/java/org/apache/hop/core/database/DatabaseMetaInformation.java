@@ -291,7 +291,7 @@ public class DatabaseMetaInformation {
           if ( schemaList.isEmpty() ) {
             // Support schemas for MS SQL server due to PDI-1531
             //
-            String sql = databaseMeta.getSQLListOfSchemas();
+            String sql = databaseMeta.getSqlListOfSchemas();
             if ( !Utils.isEmpty( sql ) ) {
               Statement schemaStatement = db.getConnection().createStatement();
               ResultSet schemaResultSet = schemaStatement.executeQuery( sql );

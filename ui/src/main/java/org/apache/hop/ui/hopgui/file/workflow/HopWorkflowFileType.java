@@ -5,7 +5,7 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -115,8 +115,8 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   @Override public boolean isHandledBy( String filename, boolean checkContent ) throws HopException {
     try {
       if ( checkContent ) {
-        Document document = XMLHandler.loadXMLFile( filename );
-        Node workflowNode = XMLHandler.getSubNode( document, WorkflowMeta.XML_TAG );
+        Document document = XmlHandler.loadXMLFile( filename );
+        Node workflowNode = XmlHandler.getSubNode( document, WorkflowMeta.XML_TAG );
         return workflowNode != null;
       } else {
         return super.isHandledBy( filename, checkContent );

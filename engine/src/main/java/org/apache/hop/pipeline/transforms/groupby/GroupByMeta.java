@@ -26,7 +26,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -310,7 +310,7 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -344,54 +344,54 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      passAllRows = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "all_rows" ) );
-      aggregateIgnored = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "ignore_aggregate" ) );
-      aggregateIgnoredField = XMLHandler.getTagValue( transformNode, "field_ignore" );
+      passAllRows = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "all_rows" ) );
+      aggregateIgnored = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ignore_aggregate" ) );
+      aggregateIgnoredField = XmlHandler.getTagValue( transformNode, "field_ignore" );
 
-      directory = XMLHandler.getTagValue( transformNode, "directory" );
-      prefix = XMLHandler.getTagValue( transformNode, "prefix" );
+      directory = XmlHandler.getTagValue( transformNode, "directory" );
+      prefix = XmlHandler.getTagValue( transformNode, "prefix" );
 
-      addingLineNrInGroup = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "add_linenr" ) );
-      lineNrInGroupField = XMLHandler.getTagValue( transformNode, "linenr_fieldname" );
+      addingLineNrInGroup = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "add_linenr" ) );
+      lineNrInGroupField = XmlHandler.getTagValue( transformNode, "linenr_fieldname" );
 
-      Node groupn = XMLHandler.getSubNode( transformNode, "group" );
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
+      Node groupn = XmlHandler.getSubNode( transformNode, "group" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
 
-      int sizegroup = XMLHandler.countNodes( groupn, "field" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      int sizegroup = XmlHandler.countNodes( groupn, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( sizegroup, nrFields );
 
       for ( int i = 0; i < sizegroup; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( groupn, "field", i );
-        groupField[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( groupn, "field", i );
+        groupField[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
 
       boolean hasNumberOfValues = false;
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        aggregateField[ i ] = XMLHandler.getTagValue( fnode, "aggregate" );
-        subjectField[ i ] = XMLHandler.getTagValue( fnode, "subject" );
-        aggregateType[ i ] = getType( XMLHandler.getTagValue( fnode, "type" ) );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        aggregateField[ i ] = XmlHandler.getTagValue( fnode, "aggregate" );
+        subjectField[ i ] = XmlHandler.getTagValue( fnode, "subject" );
+        aggregateType[ i ] = getType( XmlHandler.getTagValue( fnode, "type" ) );
 
         if ( aggregateType[ i ] == TYPE_GROUP_COUNT_ALL
           || aggregateType[ i ] == TYPE_GROUP_COUNT_DISTINCT || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
           hasNumberOfValues = true;
         }
 
-        valueField[ i ] = XMLHandler.getTagValue( fnode, "valuefield" );
+        valueField[ i ] = XmlHandler.getTagValue( fnode, "valuefield" );
       }
 
-      String giveBackRow = XMLHandler.getTagValue( transformNode, "give_back_row" );
+      String giveBackRow = XmlHandler.getTagValue( transformNode, "give_back_row" );
       if ( Utils.isEmpty( giveBackRow ) ) {
         alwaysGivingBackOneRow = hasNumberOfValues;
       } else {
         alwaysGivingBackOneRow = "Y".equalsIgnoreCase( giveBackRow );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( BaseMessages.getString(
+      throw new HopXmlException( BaseMessages.getString(
         PKG, "GroupByMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
     }
   }
@@ -563,22 +563,22 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 500 );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "all_rows", passAllRows ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ignore_aggregate", aggregateIgnored ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "field_ignore", aggregateIgnoredField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "directory", directory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "prefix", prefix ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "add_linenr", addingLineNrInGroup ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "linenr_fieldname", lineNrInGroupField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "give_back_row", alwaysGivingBackOneRow ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "all_rows", passAllRows ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ignore_aggregate", aggregateIgnored ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "field_ignore", aggregateIgnoredField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "directory", directory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "prefix", prefix ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_linenr", addingLineNrInGroup ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "linenr_fieldname", lineNrInGroupField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "give_back_row", alwaysGivingBackOneRow ) );
 
     retval.append( "      <group>" ).append( Const.CR );
     for ( int i = 0; i < groupField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "name", groupField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "name", groupField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </group>" ).append( Const.CR );
@@ -586,10 +586,10 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
     retval.append( "      <fields>" ).append( Const.CR );
     for ( int i = 0; i < subjectField.length; i++ ) {
       retval.append( "        <field>" ).append( Const.CR );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "subject", subjectField[ i ] ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
-      retval.append( "          " ).append( XMLHandler.addTagValue( "valuefield", valueField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "aggregate", aggregateField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "subject", subjectField[ i ] ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "type", getTypeDesc( aggregateType[ i ] ) ) );
+      retval.append( "          " ).append( XmlHandler.addTagValue( "valuefield", valueField[ i ] ) );
       retval.append( "        </field>" ).append( Const.CR );
     }
     retval.append( "      </fields>" ).append( Const.CR );

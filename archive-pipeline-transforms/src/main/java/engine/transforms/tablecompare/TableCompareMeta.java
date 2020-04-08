@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
@@ -342,7 +342,7 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -414,71 +414,71 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransform {
     inputRowMeta.addValueMeta( nrErrorsRight );
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     this.metaStore = metaStore;
     try {
       referenceConnection =
-        DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( transformNode, "reference_connection" ) );
-      referenceSchemaField = XMLHandler.getTagValue( transformNode, "reference_schema_field" );
-      referenceTableField = XMLHandler.getTagValue( transformNode, "reference_table_field" );
+        DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "reference_connection" ) );
+      referenceSchemaField = XmlHandler.getTagValue( transformNode, "reference_schema_field" );
+      referenceTableField = XmlHandler.getTagValue( transformNode, "reference_table_field" );
 
       compareConnection =
-        DatabaseMeta.loadDatabase( metaStore, XMLHandler.getTagValue( transformNode, "compare_connection" ) );
-      compareSchemaField = XMLHandler.getTagValue( transformNode, "compare_schema_field" );
-      compareTableField = XMLHandler.getTagValue( transformNode, "compare_table_field" );
+        DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "compare_connection" ) );
+      compareSchemaField = XmlHandler.getTagValue( transformNode, "compare_schema_field" );
+      compareTableField = XmlHandler.getTagValue( transformNode, "compare_table_field" );
 
-      keyFieldsField = XMLHandler.getTagValue( transformNode, "key_fields_field" );
-      excludeFieldsField = XMLHandler.getTagValue( transformNode, "exclude_fields_field" );
-      nrErrorsField = XMLHandler.getTagValue( transformNode, "nr_errors_field" );
+      keyFieldsField = XmlHandler.getTagValue( transformNode, "key_fields_field" );
+      excludeFieldsField = XmlHandler.getTagValue( transformNode, "exclude_fields_field" );
+      nrErrorsField = XmlHandler.getTagValue( transformNode, "nr_errors_field" );
 
-      nrRecordsReferenceField = XMLHandler.getTagValue( transformNode, "nr_records_reference_field" );
-      nrRecordsCompareField = XMLHandler.getTagValue( transformNode, "nr_records_compare_field" );
-      nrErrorsLeftJoinField = XMLHandler.getTagValue( transformNode, "nr_errors_left_join_field" );
-      nrErrorsInnerJoinField = XMLHandler.getTagValue( transformNode, "nr_errors_inner_join_field" );
-      nrErrorsRightJoinField = XMLHandler.getTagValue( transformNode, "nr_errors_right_join_field" );
+      nrRecordsReferenceField = XmlHandler.getTagValue( transformNode, "nr_records_reference_field" );
+      nrRecordsCompareField = XmlHandler.getTagValue( transformNode, "nr_records_compare_field" );
+      nrErrorsLeftJoinField = XmlHandler.getTagValue( transformNode, "nr_errors_left_join_field" );
+      nrErrorsInnerJoinField = XmlHandler.getTagValue( transformNode, "nr_errors_inner_join_field" );
+      nrErrorsRightJoinField = XmlHandler.getTagValue( transformNode, "nr_errors_right_join_field" );
 
-      keyDescriptionField = XMLHandler.getTagValue( transformNode, "key_description_field" );
-      valueReferenceField = XMLHandler.getTagValue( transformNode, "value_reference_field" );
-      valueCompareField = XMLHandler.getTagValue( transformNode, "value_compare_field" );
+      keyDescriptionField = XmlHandler.getTagValue( transformNode, "key_description_field" );
+      valueReferenceField = XmlHandler.getTagValue( transformNode, "value_reference_field" );
+      valueCompareField = XmlHandler.getTagValue( transformNode, "value_compare_field" );
 
     } catch ( Exception e ) {
-      throw new HopXMLException( "It was not possibke to load the Trim metadata from XML", e );
+      throw new HopXmlException( "It was not possibke to load the Trim metadata from XML", e );
     }
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "reference_connection", referenceConnection == null ? null : referenceConnection
+      XmlHandler.addTagValue( "reference_connection", referenceConnection == null ? null : referenceConnection
         .getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "reference_schema_field", referenceSchemaField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "reference_table_field", referenceTableField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "reference_schema_field", referenceSchemaField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "reference_table_field", referenceTableField ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "compare_connection", compareConnection == null ? null : compareConnection
+      XmlHandler.addTagValue( "compare_connection", compareConnection == null ? null : compareConnection
         .getName() ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compare_schema_field", compareSchemaField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compare_table_field", compareTableField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compare_schema_field", compareSchemaField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compare_table_field", compareTableField ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "key_fields_field", keyFieldsField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "exclude_fields_field", excludeFieldsField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_errors_field", nrErrorsField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "key_fields_field", keyFieldsField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "exclude_fields_field", excludeFieldsField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_field", nrErrorsField ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "nr_records_reference_field", nrRecordsReferenceField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "nr_records_compare_field", nrRecordsCompareField ) );
+      XmlHandler.addTagValue( "nr_records_reference_field", nrRecordsReferenceField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_records_compare_field", nrRecordsCompareField ) );
     retval
-      .append( "      " ).append( XMLHandler.addTagValue( "nr_errors_left_join_field", nrErrorsLeftJoinField ) );
+      .append( "      " ).append( XmlHandler.addTagValue( "nr_errors_left_join_field", nrErrorsLeftJoinField ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "nr_errors_inner_join_field", nrErrorsInnerJoinField ) );
+      XmlHandler.addTagValue( "nr_errors_inner_join_field", nrErrorsInnerJoinField ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "nr_errors_right_join_field", nrErrorsRightJoinField ) );
+      XmlHandler.addTagValue( "nr_errors_right_join_field", nrErrorsRightJoinField ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "key_description_field", keyDescriptionField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "value_reference_field", valueReferenceField ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "value_compare_field", valueCompareField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "key_description_field", keyDescriptionField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "value_reference_field", valueReferenceField ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "value_compare_field", valueCompareField ) );
 
     return retval.toString();
   }

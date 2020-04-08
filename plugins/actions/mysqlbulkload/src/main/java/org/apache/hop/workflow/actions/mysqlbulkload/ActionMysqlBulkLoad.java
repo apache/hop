@@ -34,11 +34,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -118,58 +118,58 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "tablename", tablename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "separator", separator ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "enclosed", enclosed ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "escaped", escaped ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "linestarted", linestarted ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "lineterminated", lineterminated ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "separator", separator ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "enclosed", enclosed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "escaped", escaped ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "linestarted", linestarted ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "lineterminated", lineterminated ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "replacedata", replacedata ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "ignorelines", ignorelines ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "listattribut", listattribut ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "replacedata", replacedata ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ignorelines", ignorelines ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "listattribut", listattribut ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "localinfile", localinfile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "localinfile", localinfile ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "prorityvalue", prorityvalue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "prorityvalue", prorityvalue ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
 
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
+      XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      schemaname = XMLHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XMLHandler.getTagValue( entrynode, "tablename" );
-      filename = XMLHandler.getTagValue( entrynode, "filename" );
-      separator = XMLHandler.getTagValue( entrynode, "separator" );
-      enclosed = XMLHandler.getTagValue( entrynode, "enclosed" );
-      escaped = XMLHandler.getTagValue( entrynode, "escaped" );
+      super.loadXml( entrynode );
+      schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
+      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      filename = XmlHandler.getTagValue( entrynode, "filename" );
+      separator = XmlHandler.getTagValue( entrynode, "separator" );
+      enclosed = XmlHandler.getTagValue( entrynode, "enclosed" );
+      escaped = XmlHandler.getTagValue( entrynode, "escaped" );
 
-      linestarted = XMLHandler.getTagValue( entrynode, "linestarted" );
-      lineterminated = XMLHandler.getTagValue( entrynode, "lineterminated" );
-      replacedata = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "replacedata" ) );
-      ignorelines = XMLHandler.getTagValue( entrynode, "ignorelines" );
-      listattribut = XMLHandler.getTagValue( entrynode, "listattribut" );
-      localinfile = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "localinfile" ) );
-      prorityvalue = Const.toInt( XMLHandler.getTagValue( entrynode, "prorityvalue" ), -1 );
-      String dbname = XMLHandler.getTagValue( entrynode, "connection" );
-      addfiletoresult = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "addfiletoresult" ) );
+      linestarted = XmlHandler.getTagValue( entrynode, "linestarted" );
+      lineterminated = XmlHandler.getTagValue( entrynode, "lineterminated" );
+      replacedata = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "replacedata" ) );
+      ignorelines = XmlHandler.getTagValue( entrynode, "ignorelines" );
+      listattribut = XmlHandler.getTagValue( entrynode, "listattribut" );
+      localinfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "localinfile" ) );
+      prorityvalue = Const.toInt( XmlHandler.getTagValue( entrynode, "prorityvalue" ), -1 );
+      String dbname = XmlHandler.getTagValue( entrynode, "connection" );
+      addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
       connection = DatabaseMeta.loadDatabase( metaStore, dbname );
     } catch ( HopException e ) {
-      throw new HopXMLException( "Unable to load action of type 'Mysql bulk load' from XML node", e );
+      throw new HopXmlException( "Unable to load action of type 'Mysql bulk load' from XML node", e );
     }
   }
 

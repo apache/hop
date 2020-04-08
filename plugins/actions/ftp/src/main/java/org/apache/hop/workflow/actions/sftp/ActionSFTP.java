@@ -30,11 +30,11 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -123,54 +123,54 @@ public class ActionSFTP extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
 
-    retval.append( super.getXML() );
+    retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "servername", serverName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "serverport", serverPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "username", userName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "servername", serverName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "serverport", serverPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "sftpdirectory", sftpDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "targetdirectory", targetDirectory ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "remove", remove ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "isaddresult", isaddresult ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "createtargetfolder", createtargetfolder ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "copyprevious", copyprevious ) );
+      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( getPassword() ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "sftpdirectory", sftpDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "targetdirectory", targetDirectory ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "remove", remove ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "createtargetfolder", createtargetfolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "keyfilename", keyfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "usekeyfilename", usekeyfilename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyfilename ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "compression", compression ) );
+      XmlHandler.addTagValue( "keyfilepass", Encr.encryptPasswordIfNotUsingVariables( keyfilepass ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "compression", compression ) );
 
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyType", proxyType ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyHost", proxyHost ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyPort", proxyPort ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "proxyUsername", proxyUsername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyType", proxyType ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyHost", proxyHost ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyPort", proxyPort ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "proxyUsername", proxyUsername ) );
     retval.append( "      " ).append(
-      XMLHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
+      XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      serverName = XMLHandler.getTagValue( entrynode, "servername" );
-      serverPort = XMLHandler.getTagValue( entrynode, "serverport" );
-      userName = XMLHandler.getTagValue( entrynode, "username" );
-      password = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "password" ) );
-      sftpDirectory = XMLHandler.getTagValue( entrynode, "sftpdirectory" );
-      targetDirectory = XMLHandler.getTagValue( entrynode, "targetdirectory" );
-      wildcard = XMLHandler.getTagValue( entrynode, "wildcard" );
-      remove = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "remove" ) );
+      super.loadXml( entrynode );
+      serverName = XmlHandler.getTagValue( entrynode, "servername" );
+      serverPort = XmlHandler.getTagValue( entrynode, "serverport" );
+      userName = XmlHandler.getTagValue( entrynode, "username" );
+      password = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "password" ) );
+      sftpDirectory = XmlHandler.getTagValue( entrynode, "sftpdirectory" );
+      targetDirectory = XmlHandler.getTagValue( entrynode, "targetdirectory" );
+      wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
+      remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
 
-      String addresult = XMLHandler.getTagValue( entrynode, "isaddresult" );
+      String addresult = XmlHandler.getTagValue( entrynode, "isaddresult" );
 
       if ( Utils.isEmpty( addresult ) ) {
         isaddresult = true;
@@ -178,22 +178,22 @@ public class ActionSFTP extends ActionBase implements Cloneable, IAction {
         isaddresult = "Y".equalsIgnoreCase( addresult );
       }
 
-      createtargetfolder = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "createtargetfolder" ) );
-      copyprevious = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "copyprevious" ) );
+      createtargetfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createtargetfolder" ) );
+      copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
 
-      usekeyfilename = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "usekeyfilename" ) );
-      keyfilename = XMLHandler.getTagValue( entrynode, "keyfilename" );
-      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "keyfilepass" ) );
-      compression = XMLHandler.getTagValue( entrynode, "compression" );
+      usekeyfilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "usekeyfilename" ) );
+      keyfilename = XmlHandler.getTagValue( entrynode, "keyfilename" );
+      keyfilepass = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "keyfilepass" ) );
+      compression = XmlHandler.getTagValue( entrynode, "compression" );
 
-      proxyType = XMLHandler.getTagValue( entrynode, "proxyType" );
-      proxyHost = XMLHandler.getTagValue( entrynode, "proxyHost" );
-      proxyPort = XMLHandler.getTagValue( entrynode, "proxyPort" );
-      proxyUsername = XMLHandler.getTagValue( entrynode, "proxyUsername" );
+      proxyType = XmlHandler.getTagValue( entrynode, "proxyType" );
+      proxyHost = XmlHandler.getTagValue( entrynode, "proxyHost" );
+      proxyPort = XmlHandler.getTagValue( entrynode, "proxyPort" );
+      proxyUsername = XmlHandler.getTagValue( entrynode, "proxyUsername" );
       proxyPassword =
-        Encr.decryptPasswordOptionallyEncrypted( XMLHandler.getTagValue( entrynode, "proxyPassword" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'SFTP' from XML node", xe );
+        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxyPassword" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'SFTP' from XML node", xe );
     }
   }
 

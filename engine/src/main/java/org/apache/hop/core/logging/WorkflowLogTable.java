@@ -32,7 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -95,29 +95,29 @@ public class WorkflowLogTable extends BaseLogTable implements Cloneable, ILogTab
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append( "      " ).append( XMLHandler.openTag( XML_TAG ) ).append( Const.CR );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "connection", connectionName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "table", tableName ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "size_limit_lines", logSizeLimit ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "interval", logInterval ) );
-    retval.append( "        " ).append( XMLHandler.addTagValue( "timeout_days", timeoutInDays ) );
+    retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "connection", connectionName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "table", tableName ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "size_limit_lines", logSizeLimit ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "interval", logInterval ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "timeout_days", timeoutInDays ) );
     retval.append( super.getFieldsXML() );
-    retval.append( "      " ).append( XMLHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
     return retval.toString();
   }
 
-  public void loadXML( Node workflowNode, List<TransformMeta> transforms ) {
-    connectionName = XMLHandler.getTagValue( workflowNode, "connection" );
-    schemaName = XMLHandler.getTagValue( workflowNode, "schema" );
-    tableName = XMLHandler.getTagValue( workflowNode, "table" );
-    logSizeLimit = XMLHandler.getTagValue( workflowNode, "size_limit_lines" );
-    logInterval = XMLHandler.getTagValue( workflowNode, "interval" );
-    timeoutInDays = XMLHandler.getTagValue( workflowNode, "timeout_days" );
+  public void loadXml( Node workflowNode, List<TransformMeta> transforms ) {
+    connectionName = XmlHandler.getTagValue( workflowNode, "connection" );
+    schemaName = XmlHandler.getTagValue( workflowNode, "schema" );
+    tableName = XmlHandler.getTagValue( workflowNode, "table" );
+    logSizeLimit = XmlHandler.getTagValue( workflowNode, "size_limit_lines" );
+    logInterval = XmlHandler.getTagValue( workflowNode, "interval" );
+    timeoutInDays = XmlHandler.getTagValue( workflowNode, "timeout_days" );
 
     super.loadFieldsXML( workflowNode );
   }

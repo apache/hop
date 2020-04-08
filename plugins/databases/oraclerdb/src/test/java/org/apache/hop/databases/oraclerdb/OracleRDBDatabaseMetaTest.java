@@ -80,18 +80,18 @@ public class OracleRDBDatabaseMetaTest {
         "WHERE", "WITH" };
     assertArrayEquals( reservedWords, nativeMeta.getReservedWords() );
     assertEquals( 9999999, nativeMeta.getMaxVARCHARLength() );
-    assertEquals( "SELECT SEQUENCE_NAME FROM USER_SEQUENCES", nativeMeta.getSQLListOfSequences() );
-    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSQLSequenceExists( "FOO" ) );
-    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSQLSequenceExists( "foo" ) );
-    assertEquals( "SELECT FOO.currval FROM DUAL", nativeMeta.getSQLCurrentSequenceValue( "FOO" ) );
-    assertEquals( "SELECT FOO.nextval FROM dual", nativeMeta.getSQLNextSequenceValue( "FOO" ) );
+    assertEquals( "SELECT SEQUENCE_NAME FROM USER_SEQUENCES", nativeMeta.getSqlListOfSequences() );
+    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );
+    assertEquals( "SELECT * FROM USER_SEQUENCES WHERE SEQUENCE_NAME = 'FOO'", nativeMeta.getSqlSequenceExists( "foo" ) );
+    assertEquals( "SELECT FOO.currval FROM DUAL", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
+    assertEquals( "SELECT FOO.nextval FROM dual", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     ;
-    assertEquals( reusedFieldsQuery, nativeMeta.getSQLQueryFields( "FOO" ) );
-    assertEquals( reusedFieldsQuery, nativeMeta.getSQLTableExists( "FOO" ) );
+    assertEquals( reusedFieldsQuery, nativeMeta.getSqlQueryFields( "FOO" ) );
+    assertEquals( reusedFieldsQuery, nativeMeta.getSqlTableExists( "FOO" ) );
     String reusedColumnsQuery = "SELECT FOO FROM BAR WHERE 1=0";
-    assertEquals( reusedColumnsQuery, nativeMeta.getSQLQueryColumnFields( "FOO", "BAR" ) );
-    assertEquals( reusedColumnsQuery, nativeMeta.getSQLColumnExists( "FOO", "BAR" ) );
+    assertEquals( reusedColumnsQuery, nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );
+    assertEquals( reusedColumnsQuery, nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );
 
   }
 

@@ -27,10 +27,10 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -79,24 +79,24 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     return je;
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 50 );
 
-    retval.append( super.getXML() );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "foldername", foldername ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "fail_of_folder_exists", failOfFolderExists ) );
+    retval.append( super.getXml() );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fail_of_folder_exists", failOfFolderExists ) );
 
     return retval.toString();
   }
 
-  public void loadXML( Node entrynode,
-                       IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node entrynode,
+                       IMetaStore metaStore ) throws HopXmlException {
     try {
-      super.loadXML( entrynode );
-      foldername = XMLHandler.getTagValue( entrynode, "foldername" );
-      failOfFolderExists = "Y".equalsIgnoreCase( XMLHandler.getTagValue( entrynode, "fail_of_folder_exists" ) );
-    } catch ( HopXMLException xe ) {
-      throw new HopXMLException( "Unable to load action of type 'create folder' from XML node", xe );
+      super.loadXml( entrynode );
+      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
+      failOfFolderExists = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "fail_of_folder_exists" ) );
+    } catch ( HopXmlException xe ) {
+      throw new HopXmlException( "Unable to load action of type 'create folder' from XML node", xe );
     }
   }
 

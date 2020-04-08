@@ -23,12 +23,12 @@
 package org.apache.hop.pipeline.transforms.validator;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -124,105 +124,105 @@ public class Validation implements Cloneable {
     return validation.getName().equalsIgnoreCase( name );
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) );
 
-    xml.append( XMLHandler.addTagValue( "name", fieldName ) );
-    xml.append( XMLHandler.addTagValue( "validation_name", name ) );
-    xml.append( XMLHandler.addTagValue( "max_length", maximumLength ) );
-    xml.append( XMLHandler.addTagValue( "min_length", minimumLength ) );
+    xml.append( XmlHandler.addTagValue( "name", fieldName ) );
+    xml.append( XmlHandler.addTagValue( "validation_name", name ) );
+    xml.append( XmlHandler.addTagValue( "max_length", maximumLength ) );
+    xml.append( XmlHandler.addTagValue( "min_length", minimumLength ) );
 
-    xml.append( XMLHandler.addTagValue( "null_allowed", nullAllowed ) );
-    xml.append( XMLHandler.addTagValue( "only_null_allowed", onlyNullAllowed ) );
-    xml.append( XMLHandler.addTagValue( "only_numeric_allowed", onlyNumericAllowed ) );
+    xml.append( XmlHandler.addTagValue( "null_allowed", nullAllowed ) );
+    xml.append( XmlHandler.addTagValue( "only_null_allowed", onlyNullAllowed ) );
+    xml.append( XmlHandler.addTagValue( "only_numeric_allowed", onlyNumericAllowed ) );
 
-    xml.append( XMLHandler.addTagValue( "data_type", ValueMetaFactory.getValueMetaName( dataType ) ) );
-    xml.append( XMLHandler.addTagValue( "data_type_verified", dataTypeVerified ) );
-    xml.append( XMLHandler.addTagValue( "conversion_mask", conversionMask ) );
-    xml.append( XMLHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
-    xml.append( XMLHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
+    xml.append( XmlHandler.addTagValue( "data_type", ValueMetaFactory.getValueMetaName( dataType ) ) );
+    xml.append( XmlHandler.addTagValue( "data_type_verified", dataTypeVerified ) );
+    xml.append( XmlHandler.addTagValue( "conversion_mask", conversionMask ) );
+    xml.append( XmlHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
+    xml.append( XmlHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
 
-    xml.append( XMLHandler.addTagValue( "max_value", maximumValue ) );
-    xml.append( XMLHandler.addTagValue( "min_value", minimumValue ) );
+    xml.append( XmlHandler.addTagValue( "max_value", maximumValue ) );
+    xml.append( XmlHandler.addTagValue( "min_value", minimumValue ) );
 
-    xml.append( XMLHandler.addTagValue( "start_string", startString ) );
-    xml.append( XMLHandler.addTagValue( "end_string", endString ) );
-    xml.append( XMLHandler.addTagValue( "start_string_not_allowed", startStringNotAllowed ) );
-    xml.append( XMLHandler.addTagValue( "end_string_not_allowed", endStringNotAllowed ) );
+    xml.append( XmlHandler.addTagValue( "start_string", startString ) );
+    xml.append( XmlHandler.addTagValue( "end_string", endString ) );
+    xml.append( XmlHandler.addTagValue( "start_string_not_allowed", startStringNotAllowed ) );
+    xml.append( XmlHandler.addTagValue( "end_string_not_allowed", endStringNotAllowed ) );
 
-    xml.append( XMLHandler.addTagValue( "regular_expression", regularExpression ) );
-    xml.append( XMLHandler.addTagValue( "regular_expression_not_allowed", regularExpressionNotAllowed ) );
+    xml.append( XmlHandler.addTagValue( "regular_expression", regularExpression ) );
+    xml.append( XmlHandler.addTagValue( "regular_expression_not_allowed", regularExpressionNotAllowed ) );
 
-    xml.append( XMLHandler.addTagValue( "error_code", errorCode ) );
-    xml.append( XMLHandler.addTagValue( "error_description", errorDescription ) );
+    xml.append( XmlHandler.addTagValue( "error_code", errorCode ) );
+    xml.append( XmlHandler.addTagValue( "error_description", errorDescription ) );
 
-    xml.append( XMLHandler.addTagValue( "is_sourcing_values", sourcingValues ) );
-    xml.append( XMLHandler.addTagValue( "sourcing_transform", sourcingTransform == null ? sourcingTransformName : sourcingTransform
+    xml.append( XmlHandler.addTagValue( "is_sourcing_values", sourcingValues ) );
+    xml.append( XmlHandler.addTagValue( "sourcing_transform", sourcingTransform == null ? sourcingTransformName : sourcingTransform
       .getName() ) );
-    xml.append( XMLHandler.addTagValue( "sourcing_field", sourcingField ) );
+    xml.append( XmlHandler.addTagValue( "sourcing_field", sourcingField ) );
 
-    xml.append( XMLHandler.openTag( XML_TAG_ALLOWED ) );
+    xml.append( XmlHandler.openTag( XML_TAG_ALLOWED ) );
     if ( allowedValues != null ) {
 
       for ( String allowedValue : allowedValues ) {
-        xml.append( XMLHandler.addTagValue( "value", allowedValue ) );
+        xml.append( XmlHandler.addTagValue( "value", allowedValue ) );
       }
     }
-    xml.append( XMLHandler.closeTag( XML_TAG_ALLOWED ) );
+    xml.append( XmlHandler.closeTag( XML_TAG_ALLOWED ) );
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
-  public Validation( Node calcnode ) throws HopXMLException {
+  public Validation( Node calcnode ) throws HopXmlException {
     this();
 
-    fieldName = XMLHandler.getTagValue( calcnode, "name" );
-    name = XMLHandler.getTagValue( calcnode, "validation_name" );
+    fieldName = XmlHandler.getTagValue( calcnode, "name" );
+    name = XmlHandler.getTagValue( calcnode, "validation_name" );
     if ( Utils.isEmpty( name ) ) {
       name = fieldName; // remain backward compatible
     }
 
-    maximumLength = XMLHandler.getTagValue( calcnode, "max_length" );
-    minimumLength = XMLHandler.getTagValue( calcnode, "min_length" );
+    maximumLength = XmlHandler.getTagValue( calcnode, "max_length" );
+    minimumLength = XmlHandler.getTagValue( calcnode, "min_length" );
 
-    nullAllowed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "null_allowed" ) );
-    onlyNullAllowed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "only_null_allowed" ) );
-    onlyNumericAllowed = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "only_numeric_allowed" ) );
+    nullAllowed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "null_allowed" ) );
+    onlyNullAllowed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "only_null_allowed" ) );
+    onlyNumericAllowed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "only_numeric_allowed" ) );
 
-    dataType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( calcnode, "data_type" ) );
-    dataTypeVerified = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "data_type_verified" ) );
-    conversionMask = XMLHandler.getTagValue( calcnode, "conversion_mask" );
-    decimalSymbol = XMLHandler.getTagValue( calcnode, "decimal_symbol" );
-    groupingSymbol = XMLHandler.getTagValue( calcnode, "grouping_symbol" );
+    dataType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( calcnode, "data_type" ) );
+    dataTypeVerified = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "data_type_verified" ) );
+    conversionMask = XmlHandler.getTagValue( calcnode, "conversion_mask" );
+    decimalSymbol = XmlHandler.getTagValue( calcnode, "decimal_symbol" );
+    groupingSymbol = XmlHandler.getTagValue( calcnode, "grouping_symbol" );
 
-    minimumValue = XMLHandler.getTagValue( calcnode, "min_value" );
-    maximumValue = XMLHandler.getTagValue( calcnode, "max_value" );
+    minimumValue = XmlHandler.getTagValue( calcnode, "min_value" );
+    maximumValue = XmlHandler.getTagValue( calcnode, "max_value" );
 
-    startString = XMLHandler.getTagValue( calcnode, "start_string" );
-    endString = XMLHandler.getTagValue( calcnode, "end_string" );
-    startStringNotAllowed = XMLHandler.getTagValue( calcnode, "start_string_not_allowed" );
-    endStringNotAllowed = XMLHandler.getTagValue( calcnode, "end_string_not_allowed" );
+    startString = XmlHandler.getTagValue( calcnode, "start_string" );
+    endString = XmlHandler.getTagValue( calcnode, "end_string" );
+    startStringNotAllowed = XmlHandler.getTagValue( calcnode, "start_string_not_allowed" );
+    endStringNotAllowed = XmlHandler.getTagValue( calcnode, "end_string_not_allowed" );
 
-    regularExpression = XMLHandler.getTagValue( calcnode, "regular_expression" );
-    regularExpressionNotAllowed = XMLHandler.getTagValue( calcnode, "regular_expression_not_allowed" );
+    regularExpression = XmlHandler.getTagValue( calcnode, "regular_expression" );
+    regularExpressionNotAllowed = XmlHandler.getTagValue( calcnode, "regular_expression_not_allowed" );
 
-    errorCode = XMLHandler.getTagValue( calcnode, "error_code" );
-    errorDescription = XMLHandler.getTagValue( calcnode, "error_description" );
+    errorCode = XmlHandler.getTagValue( calcnode, "error_code" );
+    errorDescription = XmlHandler.getTagValue( calcnode, "error_description" );
 
-    sourcingValues = "Y".equalsIgnoreCase( XMLHandler.getTagValue( calcnode, "is_sourcing_values" ) );
-    sourcingTransformName = XMLHandler.getTagValue( calcnode, "sourcing_transform" );
-    sourcingField = XMLHandler.getTagValue( calcnode, "sourcing_field" );
+    sourcingValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( calcnode, "is_sourcing_values" ) );
+    sourcingTransformName = XmlHandler.getTagValue( calcnode, "sourcing_transform" );
+    sourcingField = XmlHandler.getTagValue( calcnode, "sourcing_field" );
 
-    Node allowedValuesNode = XMLHandler.getSubNode( calcnode, XML_TAG_ALLOWED );
-    int nrValues = XMLHandler.countNodes( allowedValuesNode, "value" );
+    Node allowedValuesNode = XmlHandler.getSubNode( calcnode, XML_TAG_ALLOWED );
+    int nrValues = XmlHandler.countNodes( allowedValuesNode, "value" );
     allowedValues = new String[ nrValues ];
     for ( int i = 0; i < nrValues; i++ ) {
-      Node allowedNode = XMLHandler.getSubNodeByNr( allowedValuesNode, "value", i );
-      allowedValues[ i ] = XMLHandler.getNodeValue( allowedNode );
+      Node allowedNode = XmlHandler.getSubNodeByNr( allowedValuesNode, "value", i );
+      allowedValues[ i ] = XmlHandler.getNodeValue( allowedNode );
     }
   }
 

@@ -226,7 +226,7 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
       return false;
     }
     if ( first ) {
-      if ( Utils.isEmpty( meta.getSQLFieldName() ) ) {
+      if ( Utils.isEmpty( meta.getSqlFieldName() ) ) {
         throw new HopException( BaseMessages.getString( PKG, "DynamicSQLRow.Exception.SQLFieldNameEmpty" ) );
       }
 
@@ -236,11 +236,11 @@ public class DynamicSQLRow extends BaseTransform implements ITransform {
 
       // cache the position of the field
       if ( data.indexOfSQLField < 0 ) {
-        data.indexOfSQLField = getInputRowMeta().indexOfValue( meta.getSQLFieldName() );
+        data.indexOfSQLField = getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
         if ( data.indexOfSQLField < 0 ) {
           // The field is unreachable !
           throw new HopException( BaseMessages.getString( PKG, "DynamicSQLRow.Exception.FieldNotFound", meta
-            .getSQLFieldName() ) );
+            .getSqlFieldName() ) );
         }
       }
     }

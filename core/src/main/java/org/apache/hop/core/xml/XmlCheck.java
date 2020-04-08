@@ -30,7 +30,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
 
-public class XMLCheck {
+public class XmlCheck {
 
   public static class XMLTreeHandler extends DefaultHandler {
 
@@ -62,7 +62,7 @@ public class XMLCheck {
   public static boolean isXMLWellFormed( InputStream is ) throws HopException {
     boolean retval = false;
     try {
-      SAXParserFactory factory = XMLParserFactoryProducer.createSecureSAXParserFactory();
+      SAXParserFactory factory = XmlParserFactoryProducer.createSecureSAXParserFactory();
       XMLTreeHandler handler = new XMLTreeHandler();
 
       // Parse the input.

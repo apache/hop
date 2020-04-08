@@ -639,7 +639,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     };
     lsbSQLTable = new Listener() {
       public void handleEvent( Event e ) {
-        getSQL();
+        getSql();
       }
     };
 
@@ -676,7 +676,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     return jobEntry;
   }
 
-  private void getSQL() {
+  private void getSql() {
     DatabaseMeta inf = workflowMeta.findDatabase( wConnection.getText() );
     if ( inf != null ) {
       DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, workflowMeta.getDatabases() );

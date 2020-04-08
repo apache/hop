@@ -53,7 +53,7 @@ public class SlaveServerPipelineStatusLoadSaveTester extends LoadSaveBase<SlaveS
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
-    String xml = metaToSave.getXML();
+    String xml = metaToSave.getXml();
     SlaveServerPipelineStatus metaLoaded = SlaveServerPipelineStatus.fromXML( xml );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }

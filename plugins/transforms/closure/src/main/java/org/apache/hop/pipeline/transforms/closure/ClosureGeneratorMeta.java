@@ -26,13 +26,13 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -68,7 +68,7 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode, metaStore );
   }
 
@@ -78,14 +78,14 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      parentIdFieldName = XMLHandler.getTagValue( transformNode, "parent_id_field" );
-      childIdFieldName = XMLHandler.getTagValue( transformNode, "child_id_field" );
-      distanceFieldName = XMLHandler.getTagValue( transformNode, "distance_field" );
-      rootIdZero = "Y".equalsIgnoreCase( XMLHandler.getTagValue( transformNode, "is_root_zero" ) );
+      parentIdFieldName = XmlHandler.getTagValue( transformNode, "parent_id_field" );
+      childIdFieldName = XmlHandler.getTagValue( transformNode, "child_id_field" );
+      distanceFieldName = XmlHandler.getTagValue( transformNode, "distance_field" );
+      rootIdZero = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "is_root_zero" ) );
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -124,13 +124,13 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "parent_id_field", parentIdFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "child_id_field", childIdFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "distance_field", distanceFieldName ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "is_root_zero", rootIdZero ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "parent_id_field", parentIdFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "child_id_field", childIdFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "distance_field", distanceFieldName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "is_root_zero", rootIdZero ) );
 
     return retval.toString();
   }

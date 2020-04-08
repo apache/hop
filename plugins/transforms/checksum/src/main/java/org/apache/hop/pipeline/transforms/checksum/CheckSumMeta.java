@@ -27,7 +27,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXMLException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -204,7 +204,7 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   }
 
   @Override
-  public void loadXML( Node transformNode, IMetaStore metaStore ) throws HopXMLException {
+  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -237,23 +237,23 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
     this.fieldName = fieldName;
   }
 
-  private void readData( Node transformNode ) throws HopXMLException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      checksumtype = XMLHandler.getTagValue( transformNode, "checksumtype" );
-      resultfieldName = XMLHandler.getTagValue( transformNode, "resultfieldName" );
-      resultType = getResultTypeByCode( Const.NVL( XMLHandler.getTagValue( transformNode, "resultType" ), "" ) );
+      checksumtype = XmlHandler.getTagValue( transformNode, "checksumtype" );
+      resultfieldName = XmlHandler.getTagValue( transformNode, "resultfieldName" );
+      resultType = getResultTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "resultType" ), "" ) );
 
-      Node fields = XMLHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XMLHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrFields );
 
       for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( fields, "field", i );
-        fieldName[ i ] = XMLHandler.getTagValue( fnode, "name" );
+        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+        fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
       }
     } catch ( Exception e ) {
-      throw new HopXMLException( "Unable to load transform info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -265,16 +265,16 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuilder retval = new StringBuilder( 200 );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "checksumtype", checksumtype ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "resultfieldName", resultfieldName ) );
-    retval.append( "      " ).append( XMLHandler.addTagValue( "resultType", getResultTypeCode( resultType ) ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "checksumtype", checksumtype ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfieldName", resultfieldName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "resultType", getResultTypeCode( resultType ) ) );
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XMLHandler.addTagValue( "name", fieldName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
       retval.append( "      </field>" ).append( Const.CR );
     }
     retval.append( "    </fields>" ).append( Const.CR );

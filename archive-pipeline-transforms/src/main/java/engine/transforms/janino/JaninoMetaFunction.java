@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.janino;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
 import java.util.Objects;
@@ -61,7 +61,7 @@ public class JaninoMetaFunction implements Cloneable {
   public boolean equals( Object obj ) {
     if ( obj != null && ( obj.getClass().equals( this.getClass() ) ) ) {
       JaninoMetaFunction mf = (JaninoMetaFunction) obj;
-      return ( getXML().equals( mf.getXML() ) );
+      return ( getXml().equals( mf.getXml() ) );
     }
 
     return false;
@@ -81,30 +81,30 @@ public class JaninoMetaFunction implements Cloneable {
     }
   }
 
-  public String getXML() {
+  public String getXml() {
     StringBuilder xml = new StringBuilder();
 
-    xml.append( XMLHandler.openTag( XML_TAG ) );
+    xml.append( XmlHandler.openTag( XML_TAG ) );
 
-    xml.append( XMLHandler.addTagValue( "field_name", fieldName ) );
-    xml.append( XMLHandler.addTagValue( "formula_string", formula ) );
-    xml.append( XMLHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) ) );
-    xml.append( XMLHandler.addTagValue( "value_length", valueLength ) );
-    xml.append( XMLHandler.addTagValue( "value_precision", valuePrecision ) );
-    xml.append( XMLHandler.addTagValue( "replace_field", replaceField ) );
+    xml.append( XmlHandler.addTagValue( "field_name", fieldName ) );
+    xml.append( XmlHandler.addTagValue( "formula_string", formula ) );
+    xml.append( XmlHandler.addTagValue( "value_type", ValueMetaFactory.getValueMetaName( valueType ) ) );
+    xml.append( XmlHandler.addTagValue( "value_length", valueLength ) );
+    xml.append( XmlHandler.addTagValue( "value_precision", valuePrecision ) );
+    xml.append( XmlHandler.addTagValue( "replace_field", replaceField ) );
 
-    xml.append( XMLHandler.closeTag( XML_TAG ) );
+    xml.append( XmlHandler.closeTag( XML_TAG ) );
 
     return xml.toString();
   }
 
   public JaninoMetaFunction( Node calcnode ) {
-    fieldName = XMLHandler.getTagValue( calcnode, "field_name" );
-    formula = XMLHandler.getTagValue( calcnode, "formula_string" );
-    valueType = ValueMetaFactory.getIdForValueMeta( XMLHandler.getTagValue( calcnode, "value_type" ) );
-    valueLength = Const.toInt( XMLHandler.getTagValue( calcnode, "value_length" ), -1 );
-    valuePrecision = Const.toInt( XMLHandler.getTagValue( calcnode, "value_precision" ), -1 );
-    replaceField = XMLHandler.getTagValue( calcnode, "replace_field" );
+    fieldName = XmlHandler.getTagValue( calcnode, "field_name" );
+    formula = XmlHandler.getTagValue( calcnode, "formula_string" );
+    valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( calcnode, "value_type" ) );
+    valueLength = Const.toInt( XmlHandler.getTagValue( calcnode, "value_length" ), -1 );
+    valuePrecision = Const.toInt( XmlHandler.getTagValue( calcnode, "value_precision" ), -1 );
+    replaceField = XmlHandler.getTagValue( calcnode, "replace_field" );
   }
 
   /**

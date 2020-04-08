@@ -25,7 +25,7 @@ package org.apache.hop.www;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.ExecutorUtil;
-import org.apache.hop.core.xml.XMLHandler;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 
 import javax.servlet.http.HttpServletRequest;
@@ -79,8 +79,8 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
     PrintStream out = new PrintStream( response.getOutputStream() );
     final HopServer hopServer = HopServerSingleton.getHopServer();
     if ( useXML ) {
-      out.print( XMLHandler.getXMLHeader( Const.XML_ENCODING ) );
-      out.print( XMLHandler.addTagValue( REQUEST_ACCEPTED, hopServer != null ) );
+      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.addTagValue( REQUEST_ACCEPTED, hopServer != null ) );
       out.flush();
     } else {
       out.println( "<HTML>" );
