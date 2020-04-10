@@ -101,6 +101,7 @@
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
+        <module>sort</module>
         <module>sql</module>
         <module>streamlookup</module>
         <module>tableoutput</module>
