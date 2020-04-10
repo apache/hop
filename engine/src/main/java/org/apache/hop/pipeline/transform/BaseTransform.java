@@ -2755,8 +2755,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     if (!markStopped.get()) {
       markStopped.set( true );
 
-      System.out.println( "####> markStop() on Transform : " + getTransformName() + " copy " + getCopy() );
-
       Calendar cal = Calendar.getInstance();
       stopTime = cal.getTime();
 
@@ -2765,19 +2763,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       synchronized ( transformListeners ) {
         for ( ITransformListener transformListener : transformListeners ) {
-          if ("/tmp/all.txt".equals(getTransformName())) {
-            System.out.println( "------------> MARKING STOP on Transform : " + getTransformName() + " copy " + getCopy() + ". Listener = " + transformListener.toString() );
-          }
           transformListener.transformFinished( pipeline, transformMeta, this );
-          // System.out.println( "<------------ MARKED STOP on Transform : " + getTransformName() + " copy " + getCopy() + ". Listener = " + transformListener.toString() );
         }
       }
 
       // We're finally completely done with this transform.
       //
       setRunning( false );
-
-      System.out.println( "<#### markStop() on Transform : " + getTransformName() + " copy " + getCopy() );
     }
   }
 

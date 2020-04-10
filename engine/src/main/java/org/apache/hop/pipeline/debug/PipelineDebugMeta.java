@@ -52,6 +52,7 @@ public class PipelineDebugMeta {
 
   private PipelineMeta pipelineMeta;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
+  private boolean dataShown = false;
 
   public PipelineDebugMeta( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
@@ -90,6 +91,7 @@ public class PipelineDebugMeta {
 
     // for every transform in the map, add a row listener...
     //
+    dataShown=false;
     for ( final TransformMeta transformMeta : transformDebugMetaMap.keySet() ) {
       final TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
 
@@ -126,6 +128,7 @@ public class PipelineDebugMeta {
 
                          // Also call the pause / break-point listeners on the transform debugger...
                          //
+                         dataShown = true;
                          transformDebugMeta.fireBreakPointListeners( PipelineDebugMeta.this );
                        }
                      } else if ( transformDebugMeta.isPausingOnBreakPoint() && transformDebugMeta.getCondition() != null ) {
@@ -186,6 +189,9 @@ public class PipelineDebugMeta {
     //
     try {
       pipeline.addExecutionFinishedListener( p -> {
+        if (dataShown) {
+          return;
+        }
         for (TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
           TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get( transformMeta );
           if (transformDebugMeta!=null) {
