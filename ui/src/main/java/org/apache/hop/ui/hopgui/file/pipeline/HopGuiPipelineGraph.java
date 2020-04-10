@@ -3677,17 +3677,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           final Thread parentThread = Thread.currentThread();
 
-          getDisplay().asyncExec( new Runnable() {
-            @Override
-            public void run() {
-              addAllTabs();
-              preparePipeline( parentThread );
-            }
+          getDisplay().asyncExec( () -> {
+            addAllTabs();
+            preparePipeline( parentThread );
           } );
 
           log.logMinimal( BaseMessages.getString( PKG, "PipelineLog.Log.StartedExecutionOfPipeline" ) );
 
           updateGui();
+
+          // Update the GUI at the end of the pipeline
+          //
+          pipeline.addExecutionFinishedListener( p -> updateGui() );
         }
       } else {
         modalMessageDialog( BaseMessages.getString( PKG, "PipelineLog.Dialog.DoNoStartPipelineTwice.Title" ),
@@ -3891,10 +3892,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       halted = false;
       halting = false;
 
-      updateGui();
-
       pipelineMeta.setInternalHopVariables(); // set the original vars back as they may be changed by a mapping
     }
+    updateGui();
   }
 
   public synchronized void pauseResume() {
@@ -3912,28 +3912,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private synchronized void preparePipeline( final Thread parentThread ) {
-    Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        try {
-          pipeline.prepareExecution();
+    Runnable runnable = () -> {
+      try {
+        pipeline.prepareExecution();
 
-          // Capture data?
-          //
-          pipelinePreviewDelegate.capturePreviewData( pipeline, pipelineMeta.getTransforms() );
+        // Capture data?
+        //
+        pipelinePreviewDelegate.capturePreviewData( pipeline, pipelineMeta.getTransforms() );
 
-          initialized = true;
-        } catch ( HopException e ) {
-          log.logError( pipeline.getSubject().getName() + ": preparing pipeline execution failed", e );
-          checkErrorVisuals();
-        }
-        halted = pipeline.hasHaltedComponents();
-        if ( pipeline.isReadyToStart() ) {
-          checkStartThreads(); // After init, launch the threads.
-        } else {
-          initialized = false;
-          checkErrorVisuals();
-        }
+        initialized = true;
+      } catch ( HopException e ) {
+        log.logError( pipeline.getSubject().getName() + ": preparing pipeline execution failed", e );
+        checkErrorVisuals();
+      }
+      halted = pipeline.hasHaltedComponents();
+      if ( pipeline.isReadyToStart() ) {
+        checkStartThreads(); // After init, launch the threads.
+      } else {
+        initialized = false;
+        checkErrorVisuals();
       }
     };
     Thread thread = new Thread( runnable );
