@@ -1,0 +1,16 @@
+= Get table names
+
+== Description
+
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+
+|===
+
+== Metadata Injection Support
+
+All fields of this step support metadata injection. You can use this step with ETL Metadata Injection to pass metadata to your transformation at runtime.
