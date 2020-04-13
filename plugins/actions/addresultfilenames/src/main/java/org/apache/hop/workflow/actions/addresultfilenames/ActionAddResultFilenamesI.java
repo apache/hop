@@ -36,7 +36,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -228,7 +228,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
     String realwildcard = environmentSubstitute( wildcard );
 
     try {
-      filefolder = HopVFS.getFileObject( realFilefoldername, this );
+      filefolder = HopVfs.getFileObject( realFilefoldername, this );
       if ( filefolder.exists() ) {
         // the file or folder exists
 
@@ -240,7 +240,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
           }
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filefolder.toString(), this ), parentWorkflow
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filefolder.toString(), this ), parentWorkflow
               .getJobname(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         } else {
@@ -254,7 +254,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
             }
             ResultFile resultFile =
               new ResultFile(
-                ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( list[ i ].toString(), this ), parentWorkflow
+                ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( list[ i ].toString(), this ), parentWorkflow
                 .getJobname(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }

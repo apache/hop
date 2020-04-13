@@ -23,7 +23,7 @@
 package org.apache.hop.core.vfs.configuration;
 
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
  */
 public class HopFileSystemConfigBuilderFactory {
 
-  private static Class<?> PKG = HopVFS.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = HopVfs.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This factory returns a FileSystemConfigBuilder. Custom FileSystemConfigBuilders can be created by implementing the

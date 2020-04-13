@@ -36,7 +36,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -79,7 +79,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
 
   private Class<T> managedClass;
   private Composite parentComposite;
-  private PropsUI props;
+  private PropsUi props;
   private Label wLabel;
   private ComboVar wCombo;
 
@@ -90,7 +90,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     this.metaStore = metaStore;
     this.managedClass = managedClass;
     this.parentComposite = parentComposite;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
 
     this.manager = new MetaStoreManager<>( variables, metaStore, managedClass );
 
@@ -397,21 +397,21 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
    *
    * @return value of props
    */
-  public PropsUI getProps() {
+  public PropsUi getProps() {
     return props;
   }
 
   /**
    * @param props The props to set
    */
-  public void setProps( PropsUI props ) {
+  public void setProps( PropsUi props ) {
     this.props = props;
   }
 
   public static void main( String[] args ) throws Exception {
     HopClientEnvironment.init();
     Display display = new Display();
-    PropsUI.init( display );
+    PropsUi.init( display );
     HopEnvironment.init();
     IMetaStore metaStore = buildTestMetaStore();
 
@@ -442,7 +442,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
 
     Button wOk = new Button( shell, SWT.PUSH );
     wOk.setText( "Owkeej" );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk }, PropsUI.getInstance().getMargin(), wConnection );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk }, PropsUi.getInstance().getMargin(), wConnection );
 
     BaseTransformDialog.setSize( shell );
 

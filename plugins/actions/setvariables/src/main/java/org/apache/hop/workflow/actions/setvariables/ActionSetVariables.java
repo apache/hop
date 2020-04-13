@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -191,7 +191,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
       String realFilename = environmentSubstitute( filename );
       if ( !Utils.isEmpty( realFilename ) ) {
-        try ( InputStream is = HopVFS.getInputStream( realFilename );
+        try ( InputStream is = HopVfs.getInputStream( realFilename );
               // for UTF8 properties files
               InputStreamReader isr = new InputStreamReader( is, "UTF-8" );
               BufferedReader reader = new BufferedReader( isr );

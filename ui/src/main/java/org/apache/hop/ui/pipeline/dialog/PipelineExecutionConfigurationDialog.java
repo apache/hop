@@ -35,7 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -97,7 +97,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
   public boolean open() {
     String shellTitle = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.Shell.Title" );
-    mainLayout( shellTitle, GUIResource.getInstance().getImagePipelineGraph() );
+    mainLayout( shellTitle, GuiResource.getInstance().getImagePipelineGraph() );
 
     String alwaysShowOptionLabel = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.AlwaysOption.Value" );
     String alwaysShowOptionTooltip = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.alwaysShowOption" );

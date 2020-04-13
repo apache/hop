@@ -24,7 +24,7 @@ package org.apache.hop.workflow.actions.dostounix;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -181,9 +181,9 @@ public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
       IOUtils.write( content.getBytes(), os );
     }
 
-    entry.convert( HopVFS.getFileObject( tmpFilePath ), toUnix );
+    entry.convert( HopVfs.getFileObject( tmpFilePath ), toUnix );
 
-    String converted = HopVFS.getTextFileContent( tmpFilePath, "UTF-8" );
+    String converted = HopVfs.getTextFileContent( tmpFilePath, "UTF-8" );
     assertEquals( expected, converted );
   }
 }

@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -221,7 +221,7 @@ public class ActionICheckFilesLocked extends ActionBase implements Cloneable, IA
     String realwilcard = environmentSubstitute( wildcard );
 
     try {
-      filefolder = HopVFS.getFileObject( realFilefoldername );
+      filefolder = HopVfs.getFileObject( realFilefoldername );
       FileObject[] files = new FileObject[] { filefolder };
       if ( filefolder.exists() ) {
         // the file or folder exists
@@ -269,7 +269,7 @@ public class ActionICheckFilesLocked extends ActionBase implements Cloneable, IA
 
     for ( int i = 0; i < files.length && !oneFileLocked; i++ ) {
       FileObject file = files[ i ];
-      String filename = HopVFS.getFilename( file );
+      String filename = HopVfs.getFilename( file );
       LockFile locked = new LockFile( filename );
       if ( locked.isLocked() ) {
         oneFileLocked = true;

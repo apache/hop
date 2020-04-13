@@ -27,7 +27,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class ResultFileTest {
   @Test
   public void testGetRow() throws HopFileException, FileSystemException {
     File tempDir = new File( new TemporaryFolder().toString() );
-    FileObject tempFile = HopVFS.createTempFile( "prefix", "suffix", tempDir.toString() );
+    FileObject tempFile = HopVfs.createTempFile( "prefix", "suffix", tempDir.toString() );
     Date timeBeforeFile = Calendar.getInstance().getTime();
     ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, tempFile, "myOriginParent", "myOrigin" );
     Date timeAfterFile = Calendar.getInstance().getTime();

@@ -28,7 +28,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.BufferedWriter;
@@ -125,7 +125,7 @@ public class GPG {
     // We have a filename, we need to check
     FileObject file = null;
     try {
-      file = HopVFS.getFileObject( getGpgExeFile() );
+      file = HopVfs.getFileObject( getGpgExeFile() );
 
       if ( !file.exists() ) {
         throw new HopException( BaseMessages.getString( PKG, "GPG.GPGFilenameNotFound" ) );
@@ -137,7 +137,7 @@ public class GPG {
 
       // Ok we have a real file
       // Get the local filename
-      this.gpgexe = HopVFS.getFilename( file );
+      this.gpgexe = HopVfs.getFilename( file );
 
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "GPG.ErrorCheckingGPGFile", getGpgExeFile() ), e );
@@ -247,7 +247,7 @@ public class GPG {
    */
   public void decryptFile( FileObject cryptedFilename, String passPhrase, FileObject decryptedFilename ) throws HopException {
 
-    decryptFile( HopVFS.getFilename( cryptedFilename ), passPhrase, HopVFS.getFilename( decryptedFilename ) );
+    decryptFile( HopVfs.getFilename( cryptedFilename ), passPhrase, HopVfs.getFilename( decryptedFilename ) );
   }
 
   /**
@@ -280,7 +280,7 @@ public class GPG {
    * @throws HopException
    */
   public void encryptFile( FileObject filename, String userID, FileObject cryptedFilename, boolean asciiMode ) throws HopException {
-    encryptFile( HopVFS.getFilename( filename ), userID, HopVFS.getFilename( cryptedFilename ), asciiMode );
+    encryptFile( HopVfs.getFilename( filename ), userID, HopVfs.getFilename( cryptedFilename ), asciiMode );
   }
 
   /**
@@ -313,7 +313,7 @@ public class GPG {
    * @throws HopException
    */
   public void signAndEncryptFile( FileObject file, String userID, FileObject cryptedFile, boolean asciiMode ) throws HopException {
-    signAndEncryptFile( HopVFS.getFilename( file ), userID, HopVFS.getFilename( cryptedFile ), asciiMode );
+    signAndEncryptFile( HopVfs.getFilename( file ), userID, HopVfs.getFilename( cryptedFile ), asciiMode );
   }
 
   /**
@@ -371,7 +371,7 @@ public class GPG {
    */
   public void signFile( FileObject file, String userID, FileObject signedFile, boolean asciiMode ) throws HopException {
     try {
-      signFile( HopVFS.getFilename( file ), userID, HopVFS.getFilename( signedFile ), asciiMode );
+      signFile( HopVfs.getFilename( file ), userID, HopVfs.getFilename( signedFile ), asciiMode );
 
     } catch ( Exception e ) {
       throw new HopException( e );
@@ -385,7 +385,7 @@ public class GPG {
    * @throws HopException
    */
   public void verifySignature( FileObject filename ) throws HopException {
-    verifySignature( HopVFS.getFilename( filename ) );
+    verifySignature( HopVfs.getFilename( filename ) );
   }
 
   /**
@@ -419,7 +419,7 @@ public class GPG {
    * @throws HopException
    */
   public void verifyDetachedSignature( FileObject signatureFile, FileObject originalFile ) throws HopException {
-    verifyDetachedSignature( HopVFS.getFilename( signatureFile ), HopVFS.getFilename( originalFile ) );
+    verifyDetachedSignature( HopVfs.getFilename( signatureFile ), HopVfs.getFilename( originalFile ) );
   }
 
   /**

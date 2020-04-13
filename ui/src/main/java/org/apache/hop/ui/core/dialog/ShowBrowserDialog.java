@@ -24,9 +24,9 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -62,7 +62,7 @@ public class ShowBrowserDialog extends Dialog {
   private FormData fdBrowser;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   // private int prefWidth = -1;
   // private int prefHeight = -1;
@@ -71,7 +71,7 @@ public class ShowBrowserDialog extends Dialog {
 
   public ShowBrowserDialog( Shell parent, String dialogTitle, String content ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.dialogTitle = dialogTitle;
     this.content = content;
     // prefWidth = -1;
@@ -83,7 +83,7 @@ public class ShowBrowserDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.RESIZE | SWT.MAX | SWT.MIN );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();

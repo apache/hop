@@ -30,14 +30,12 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -221,7 +219,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
   }
 
   private void closeOutputFile() throws HopException {
-    try ( BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVFS.getOutputStream( data.file, false ) ) ) {
+    try ( BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVfs.getOutputStream( data.file, false ) ) ) {
       // may have to write a footer here
       if ( meta.isFooterEnabled() ) {
         writeHeader();
@@ -555,8 +553,8 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
    * @throws HopException
    */
   public static void copyFile( FileObject in, FileObject out ) throws HopException {
-    try ( BufferedInputStream fis = new BufferedInputStream( HopVFS.getInputStream( in ) );
-          BufferedOutputStream fos = new BufferedOutputStream( HopVFS.getOutputStream( out, false ) ) ) {
+    try ( BufferedInputStream fis = new BufferedInputStream( HopVfs.getInputStream( in ) );
+          BufferedOutputStream fos = new BufferedOutputStream( HopVfs.getOutputStream( out, false ) ) ) {
       byte[] buf = new byte[ 1024 * 1024 ]; // copy in chunks of 1 MB
       int i = 0;
       while ( ( i = fis.read( buf ) ) != -1 ) {
@@ -583,7 +581,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       // build new filename
       String buildFilename = buildFilename( data.splitnr );
 
-      data.file = HopVFS.getFileObject( buildFilename, getPipelineMeta() );
+      data.file = HopVfs.getFileObject( buildFilename, getPipelineMeta() );
 
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "ExcelWriterTransform.Log.OpeningFile", buildFilename ) );
@@ -614,16 +612,16 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         if ( meta.isTemplateEnabled() ) {
           // handle template case (must have same format)
           // ensure extensions match
-          String templateExt = HopVFS.getFileObject( data.realTemplateFileName ).getName().getExtension();
+          String templateExt = HopVfs.getFileObject( data.realTemplateFileName ).getName().getExtension();
           if ( !meta.getExtension().equalsIgnoreCase( templateExt ) ) {
             throw new HopException( "Template Format Mismatch: Template has extension: "
               + templateExt + ", but output file has extension: " + meta.getExtension()
               + ". Template and output file must share the same format!" );
           }
 
-          if ( HopVFS.getFileObject( data.realTemplateFileName ).exists() ) {
+          if ( HopVfs.getFileObject( data.realTemplateFileName ).exists() ) {
             // if the template exists just copy the template in place
-            copyFile( HopVFS.getFileObject( data.realTemplateFileName, getPipelineMeta() ), data.file );
+            copyFile( HopVfs.getFileObject( data.realTemplateFileName, getPipelineMeta() ), data.file );
           } else {
             // template is missing, log it and get out
             if ( log.isBasic() ) {
@@ -635,7 +633,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
         } else {
           // handle fresh file case, just create a fresh workbook
           Workbook wb = meta.getExtension().equalsIgnoreCase( "xlsx" ) ? new XSSFWorkbook() : new HSSFWorkbook();
-          BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVFS.getOutputStream( data.file, false ) );
+          BufferedOutputStreamWithCloseDetection out = new BufferedOutputStreamWithCloseDetection( HopVfs.getOutputStream( data.file, false ) );
           wb.createSheet( data.realSheetname );
           wb.write( out );
           out.close();
@@ -646,7 +644,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
 
       // file is guaranteed to be in place now
       if ( meta.getExtension().equalsIgnoreCase( "xlsx" ) ) {
-        XSSFWorkbook xssfWorkbook = new XSSFWorkbook( HopVFS.getInputStream( data.file ) );
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook( HopVfs.getInputStream( data.file ) );
         if ( meta.isStreamingData() && !meta.isTemplateEnabled() ) {
           data.wb = new SXSSFWorkbook( xssfWorkbook, 100 );
         } else {
@@ -655,7 +653,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
           data.wb = xssfWorkbook;
         }
       } else {
-        data.wb = new HSSFWorkbook( HopVFS.getInputStream( data.file ) );
+        data.wb = new HSSFWorkbook( HopVfs.getInputStream( data.file ) );
       }
 
       int existingActiveSheetIndex = data.wb.getActiveSheetIndex();

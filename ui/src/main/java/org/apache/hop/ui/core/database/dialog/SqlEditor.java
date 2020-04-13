@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DBCache;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -39,15 +39,15 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -83,7 +83,7 @@ public class SqlEditor {
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Editor", LoggingObjectType.HOPUI, null );
 
-  private PropsUI props;
+  private PropsUi props;
 
   private Label wlScript;
   private StyledTextComp wScript;
@@ -98,7 +98,7 @@ public class SqlEditor {
   private String input;
   private DatabaseMeta connection;
   private Shell shell;
-  private DBCache dbcache;
+  private DbCache dbcache;
 
   private ILogChannel log;
   private int style = SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
@@ -108,14 +108,14 @@ public class SqlEditor {
 
   private List<SqlScriptStatement> statements;
 
-  private SQLValuesHighlight highlight;
+  private SqlValuesHighlight highlight;
 
-  public SqlEditor( Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
+  public SqlEditor( Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
     this( null, parent, style, ci, dbc, sql );
   }
 
-  public SqlEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DBCache dbc, String sql ) {
-    props = PropsUI.getInstance();
+  public SqlEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
+    props = PropsUi.getInstance();
     log = new LogChannel( ci );
     input = sql;
     connection = ci;
@@ -128,7 +128,7 @@ public class SqlEditor {
   public void open() {
     shell = new Shell( parentShell, style );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageConnection() );
+    shell.setImage( GuiResource.getInstance().getImageConnection() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -200,7 +200,7 @@ public class SqlEditor {
     } );
 
     // SQL Higlighting
-    highlight = new SQLValuesHighlight();
+    highlight = new SqlValuesHighlight();
     highlight.addKeyWords( connection.getReservedWords() );
     wScript.addLineStyleListener( highlight );
 
@@ -288,7 +288,7 @@ public class SqlEditor {
 
     switch ( answer ) {
       case SWT.NO:
-        DBCache.getInstance().clear( connection.getName() );
+        DbCache.getInstance().clear( connection.getName() );
 
         mb = new MessageBox( shell, SWT.ICON_INFORMATION | SWT.OK );
         mb.setMessage( BaseMessages.getString( PKG, "SQLEditor.ConnectionCacheCleared.Message", connection
@@ -298,7 +298,7 @@ public class SqlEditor {
 
         break;
       case SWT.YES:
-        DBCache.getInstance().clear( null );
+        DbCache.getInstance().clear( null );
 
         mb = new MessageBox( shell, SWT.ICON_INFORMATION | SWT.OK );
         mb.setMessage( BaseMessages.getString( PKG, "SQLEditor.WholeCacheCleared.Message" ) );

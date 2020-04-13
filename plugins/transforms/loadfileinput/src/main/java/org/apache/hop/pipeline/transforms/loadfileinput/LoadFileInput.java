@@ -33,15 +33,13 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -131,7 +129,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
         try {
           // Source is a file.
-          data.file = HopVFS.getFileObject( Fieldvalue );
+          data.file = HopVfs.getFileObject( Fieldvalue );
         } catch ( Exception e ) {
           throw new HopException( e );
         }
@@ -169,13 +167,13 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "LoadFileInput.Log.OpeningFile", data.file.toString() ) );
         }
-        data.filename = HopVFS.getFilename( data.file );
+        data.filename = HopVfs.getFilename( data.file );
         // Add additional fields?
         if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
           data.shortFilename = data.file.getName().getBaseName();
         }
         if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-          data.path = HopVFS.getFilename( data.file.getParent() );
+          data.path = HopVfs.getFilename( data.file.getParent() );
         }
         if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
           data.hidden = data.file.isHidden();
@@ -267,7 +265,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
     byte[] retval = null;
     try {
-      inputStream = HopVFS.getInputStream( vfsFilename );
+      inputStream = HopVfs.getInputStream( vfsFilename );
       retval = IOUtils.toByteArray( new BufferedInputStream( inputStream ) );
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString(

@@ -28,7 +28,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
@@ -192,8 +192,8 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     OutputStream outputStream = null;
 
     try {
-      FileObject tempFile = HopVFS.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
-      outputStream = HopVFS.getOutputStream( tempFile, false );
+      FileObject tempFile = HopVfs.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
+      outputStream = HopVfs.getOutputStream( tempFile, false );
 
       // Pass the input directly to a temporary file
       //
@@ -224,7 +224,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
         if ( isJob ) {
           // Open the workflow from inside the ZIP archive
           //
-          HopVFS.getFileObject( fileUrl );
+          HopVfs.getFileObject( fileUrl );
 
           WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
 

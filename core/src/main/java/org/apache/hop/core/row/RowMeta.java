@@ -24,7 +24,7 @@ package org.apache.hop.core.row;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -730,7 +730,7 @@ public class RowMeta implements IRowMeta {
     } catch ( SocketTimeoutException e ) {
       throw e;
     } catch ( EOFException e ) {
-      throw new HopEOFException(
+      throw new HopEofException(
         "End of file while reading the number of metadata values in the row metadata", e );
     } catch ( IOException e ) {
       throw new HopFileException( "Unable to read nr of metadata values: " + e.toString(), e );
@@ -743,7 +743,7 @@ public class RowMeta implements IRowMeta {
         valueMeta.readMetaData( inputStream );
         addValueMeta( valueMeta );
       } catch ( EOFException e ) {
-        throw new HopEOFException( e );
+        throw new HopEofException( e );
       } catch ( Exception e ) {
         throw new HopFileException( toString() + " : Unable to read row metadata from input stream", e );
       }
@@ -763,7 +763,7 @@ public class RowMeta implements IRowMeta {
         try {
           inputStream.readBoolean();
         } catch ( EOFException e ) {
-          throw new HopEOFException( e );
+          throw new HopEofException( e );
         } catch ( SocketTimeoutException e ) {
           throw e;
         } catch ( IOException e ) {

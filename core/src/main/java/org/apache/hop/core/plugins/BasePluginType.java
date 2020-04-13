@@ -35,7 +35,7 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessageUtil;
@@ -422,7 +422,7 @@ public abstract class BasePluginType implements IPluginType {
 
     List<FileObject> list = new ArrayList<>();
     try {
-      FileObject folderObject = HopVFS.getFileObject( folder );
+      FileObject folderObject = HopVfs.getFileObject( folder );
       FileObject[] files = folderObject.findFiles( new FileSelector() {
 
         @Override

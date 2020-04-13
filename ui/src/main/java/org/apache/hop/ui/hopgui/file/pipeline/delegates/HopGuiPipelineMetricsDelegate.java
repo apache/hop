@@ -31,8 +31,8 @@ import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
@@ -112,7 +112,7 @@ public class HopGuiPipelineMetricsDelegate {
     // Add a pipelineMetricsTab : displays the metrics information in a graphical way...
     //
     pipelineMetricsTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelineMetricsTab.setImage( GUIResource.getInstance().getImageGantt() );
+    pipelineMetricsTab.setImage( GuiResource.getInstance().getImageGantt() );
     pipelineMetricsTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.MetricsTab.Name" ) );
 
     sMetricsComposite = new ScrolledComposite( pipelineGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
@@ -121,7 +121,7 @@ public class HopGuiPipelineMetricsDelegate {
     // Create a composite, slam everything on there like it was in the history tab.
     //
     metricsComposite = new Composite( sMetricsComposite, SWT.NONE );
-    metricsComposite.setBackground( GUIResource.getInstance().getColorBackground() );
+    metricsComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     metricsComposite.setLayout( new FormLayout() );
 
     hopUi.getProps().setLook( metricsComposite );
@@ -201,10 +201,10 @@ public class HopGuiPipelineMetricsDelegate {
             return;
           }
 
-          event.gc.setForeground( GUIResource.getInstance().getColorWhite() );
-          event.gc.setBackground( GUIResource.getInstance().getColorWhite() );
+          event.gc.setForeground( GuiResource.getInstance().getColorWhite() );
+          event.gc.setBackground( GuiResource.getInstance().getColorWhite() );
           event.gc.fillRectangle( new Rectangle( 0, 0, bounds.width, bounds.height ) );
-          event.gc.setForeground( GUIResource.getInstance().getColorBlack() );
+          event.gc.setForeground( GuiResource.getInstance().getColorBlack() );
           String metricsMessage =
             BaseMessages.getString( PKG, "PipelineMetricsDelegate.PipelineIsNotRunning.Message" );
           org.eclipse.swt.graphics.Point extent = event.gc.textExtent( metricsMessage );
@@ -341,7 +341,7 @@ public class HopGuiPipelineMetricsDelegate {
     bounds.height = Math.max( durations.size() * height, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
+    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUi.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, height );
     drawAreas = painter.paint( durations );
     image = (Image) gc.getImage();

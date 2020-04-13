@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.widget.warning;
 
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.jface.fieldassist.ControlDecoration;
@@ -77,7 +77,7 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
     wText = new TextVar( variables, this, flags );
 
     warningControlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT );
-    Image warningImage = GUIResource.getInstance().getImageWarning();
+    Image warningImage = GuiResource.getInstance().getImageWarning();
     warningControlDecoration.setImage( warningImage );
     warningControlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.FieldIsInUse" ) );
     warningControlDecoration.hide();

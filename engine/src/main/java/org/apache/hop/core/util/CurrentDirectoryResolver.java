@@ -28,7 +28,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -62,7 +62,7 @@ public class CurrentDirectoryResolver {
 
     if ( filename != null ) {
       try {
-        FileObject fileObject = HopVFS.getFileObject( filename, tmpSpace );
+        FileObject fileObject = HopVfs.getFileObject( filename, tmpSpace );
 
         if ( !fileObject.exists() ) {
           // don't set variables if the file doesn't exist

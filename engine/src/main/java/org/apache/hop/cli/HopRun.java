@@ -39,7 +39,7 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -241,12 +241,12 @@ public class HopRun implements Runnable {
     realFilename = variables.environmentSubstitute( filename );
 
     try {
-      FileObject fileObject = HopVFS.getFileObject( realFilename );
+      FileObject fileObject = HopVfs.getFileObject( realFilename );
       if ( !fileObject.exists() ) {
         // Try to prepend with ${ENVIRONMENT_HOME}
         //
         String alternativeFilename = variables.environmentSubstitute( "${ENVIRONMENT_HOME}/" + filename );
-        fileObject = HopVFS.getFileObject( alternativeFilename );
+        fileObject = HopVfs.getFileObject( alternativeFilename );
         if ( fileObject.exists() ) {
           realFilename = alternativeFilename;
           log.logMinimal( "Relative path filename specified: " + realFilename );

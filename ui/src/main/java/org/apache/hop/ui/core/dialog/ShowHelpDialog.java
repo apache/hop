@@ -23,8 +23,8 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -100,11 +100,11 @@ public class ShowHelpDialog extends Dialog {
 
   private Shell shell;
   private Display display;
-  private PropsUI props;
+  private PropsUi props;
 
   public ShowHelpDialog( Shell parent, String dialogTitle, String url, String header ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.dialogTitle = BaseMessages.getString( PKG, "HopGui.Documentation.Hop.Title" );
     this.url = url;
     try {
@@ -126,7 +126,7 @@ public class ShowHelpDialog extends Dialog {
     display = parent.getDisplay();
 
     shell = createShell( parent );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();
@@ -254,16 +254,16 @@ public class ShowHelpDialog extends Dialog {
   }
 
   private void setImages() {
-    imageBackEnabled = GUIResource.getInstance().getImageBackEnabled();
-    imageBackDisabled = GUIResource.getInstance().getImageBackDisabled();
-    imageForwardEnabled = GUIResource.getInstance().getImageForwardEnabled();
-    imageForwardDisabled = GUIResource.getInstance().getImageForwardDisabled();
-    imageRefreshEnabled = GUIResource.getInstance().getImageRefreshEnabled();
-    imageRefreshDisabled = GUIResource.getInstance().getImageRefreshDisabled();
-    imageHomeEnabled = GUIResource.getInstance().getImageHomeEnabled();
-    imageHomeDisabled = GUIResource.getInstance().getImageHomeDisabled();
-    imagePrintEnabled = GUIResource.getInstance().getImagePrintEnabled();
-    imagePrintDisabled = GUIResource.getInstance().getImagePrintDisabled();
+    imageBackEnabled = GuiResource.getInstance().getImageBackEnabled();
+    imageBackDisabled = GuiResource.getInstance().getImageBackDisabled();
+    imageForwardEnabled = GuiResource.getInstance().getImageForwardEnabled();
+    imageForwardDisabled = GuiResource.getInstance().getImageForwardDisabled();
+    imageRefreshEnabled = GuiResource.getInstance().getImageRefreshEnabled();
+    imageRefreshDisabled = GuiResource.getInstance().getImageRefreshDisabled();
+    imageHomeEnabled = GuiResource.getInstance().getImageHomeEnabled();
+    imageHomeDisabled = GuiResource.getInstance().getImageHomeDisabled();
+    imagePrintEnabled = GuiResource.getInstance().getImagePrintEnabled();
+    imagePrintDisabled = GuiResource.getInstance().getImagePrintDisabled();
     cursorEnabled = new Cursor( display, SWT.CURSOR_HAND );
     cursorDisabled = new Cursor( display, SWT.CURSOR_ARROW );
   }

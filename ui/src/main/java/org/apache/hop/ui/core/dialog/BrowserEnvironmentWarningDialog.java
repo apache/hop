@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -56,7 +56,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
 
   private static Class<?> PKG = BrowserEnvironmentWarningDialog.class; // for i18n purposes, needed by Translator!!
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
   private Label warningIcon;
   private Text description;
   private Link link;
@@ -168,7 +168,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
       return;
     }
 
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     Display display = this.getParent().getDisplay();
     shell = new Shell( this.getParent(), SWT.TITLE | SWT.APPLICATION_MODAL );
     props.setLook( shell );

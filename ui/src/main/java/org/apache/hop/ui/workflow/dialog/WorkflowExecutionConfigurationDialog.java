@@ -36,7 +36,7 @@ import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -135,7 +135,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   public boolean open() {
 
     String shellTitle = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.Shell.Title" );
-    mainLayout( shellTitle, GUIResource.getInstance().getImageJobGraph() );
+    mainLayout( shellTitle, GuiResource.getInstance().getImageJobGraph() );
 
     addRunConfigurationSectionLayout();
 

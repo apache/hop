@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -208,7 +208,7 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
 
           try {
             String realfilename = environmentSubstitute( sqlfilename );
-            SQLfile = HopVFS.getFileObject( realfilename, this );
+            SQLfile = HopVfs.getFileObject( realfilename, this );
             if ( !SQLfile.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSQL.SQLFileNotExist", realfilename ) );
               throw new HopDatabaseException( BaseMessages.getString(
@@ -218,7 +218,7 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
               logDetailed( BaseMessages.getString( PKG, "JobSQL.SQLFileExists", realfilename ) );
             }
 
-            InputStream IS = HopVFS.getInputStream( SQLfile );
+            InputStream IS = HopVfs.getInputStream( SQLfile );
             try {
               InputStreamReader BIS = new InputStreamReader( new BufferedInputStream( IS, 500 ) );
               StringBuilder lineSB = new StringBuilder( 256 );

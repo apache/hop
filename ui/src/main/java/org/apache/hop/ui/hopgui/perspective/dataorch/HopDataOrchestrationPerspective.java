@@ -29,11 +29,11 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -126,12 +126,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override public void show() {
     composite.setVisible( true );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarDataOrchestration() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarDataOrchestration() );
   }
 
   @Override public void hide() {
     composite.setVisible( false );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarDataOrchestrationInactive() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarDataOrchestrationInactive() );
   }
 
   @Override public boolean isActive() {
@@ -142,10 +142,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     this.hopGui = hopGui;
     this.parent = parent;
 
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     composite = new Composite( parent, SWT.NONE );
-    //composite.setBackground( GUIResource.getInstance().getColorBackground() );
+    //composite.setBackground( GuiResource.getInstance().getColorBackground() );
     FormLayout layout = new FormLayout();
     //layout.marginLeft = props.getMargin();
     //layout.marginTop = props.getMargin();
@@ -164,7 +164,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     //
     tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER );
     //tabFolder.setSimple( false );
-    //tabFolder.setBackground( GUIResource.getInstance().getColorBackground() );
+    //tabFolder.setBackground( GuiResource.getInstance().getColorBackground() );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
     fdLabel.right = new FormAttachment( 100, 0 );
@@ -303,7 +303,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public IHopFileTypeHandler addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GUIResource.getInstance().getImageToolbarPipeline() );
+    tabItem.setImage( GuiResource.getInstance().getImageToolbarPipeline() );
     HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
     tabItem.setControl( pipelineGraph );
 
@@ -349,7 +349,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public IHopFileTypeHandler addWorkflow( Composite parent, HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
-    tabItem.setImage( GUIResource.getInstance().getImageToolbarWorkflow() );
+    tabItem.setImage( GuiResource.getInstance().getImageToolbarWorkflow() );
     HopGuiWorkflowGraph jobGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
     tabItem.setControl( jobGraph );
 

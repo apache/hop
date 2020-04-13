@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -59,12 +59,12 @@ public class NewSubPipelineDialog extends Dialog {
   private Listener lsOk;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
   boolean doNotShow = false;
 
   public NewSubPipelineDialog( Shell parent, int style ) {
     super( parent, style );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
   }
 
   public boolean open() {
@@ -80,7 +80,7 @@ public class NewSubPipelineDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "NewSubPipelineDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     wiInfo = new Label( shell, SWT.NONE );
     wiInfo.setImage( display.getSystemImage( SWT.ICON_INFORMATION ) );

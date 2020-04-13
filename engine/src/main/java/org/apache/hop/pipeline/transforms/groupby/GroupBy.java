@@ -41,14 +41,12 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.DataInputStream;
@@ -805,7 +803,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
 
   // Method is defined as public in order to be accessible by unit tests
   public String retrieveVfsPath( String pathToTmp ) throws HopFileException {
-    FileObject vfsFile = HopVFS.getFileObject( pathToTmp );
+    FileObject vfsFile = HopVfs.getFileObject( pathToTmp );
     String path = vfsFile.getName().getPath();
     return path;
   }

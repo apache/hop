@@ -25,7 +25,7 @@ package org.apache.hop.core.row;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -949,10 +949,10 @@ public interface IValueMeta extends Cloneable {
    * @param inputStream the input stream to read from
    * @return a new data object
    * @throws HopFileException       in case a I/O error occurs
-   * @throws HopEOFException        When we have read all the data there is to read
+   * @throws HopEofException        When we have read all the data there is to read
    * @throws SocketTimeoutException In case there is a timeout (when set on a socket) during reading
    */
-  Object readData( DataInputStream inputStream ) throws HopFileException, HopEOFException,
+  Object readData( DataInputStream inputStream ) throws HopFileException, HopEofException,
     SocketTimeoutException;
 
   /**
@@ -961,9 +961,9 @@ public interface IValueMeta extends Cloneable {
    *
    * @param inputStream the input stream to read from
    * @throws HopFileException In case there was a IO problem
-   * @throws HopEOFException  If we reached the end of the stream
+   * @throws HopEofException  If we reached the end of the stream
    */
-  void readMetaData( DataInputStream inputStream ) throws HopFileException, HopEOFException;
+  void readMetaData( DataInputStream inputStream ) throws HopFileException, HopEofException;
 
   /**
    * Compare 2 values of the same data type

@@ -29,8 +29,8 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -79,7 +79,7 @@ public class HopPropertiesFileDialog extends Dialog {
   private Listener lsOk, lsCancel;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   private Map<String, String> kettleProperties;
 
@@ -93,7 +93,7 @@ public class HopPropertiesFileDialog extends Dialog {
    */
   public HopPropertiesFileDialog( Shell parent, int style ) {
     super( parent, style );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     kettleProperties = null;
   }
 
@@ -102,7 +102,7 @@ public class HopPropertiesFileDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();
@@ -240,7 +240,7 @@ public class HopPropertiesFileDialog extends Dialog {
         String description = Const.NVL( variablesList.getDescriptionMap().get( key ), "" );
 
         TableItem item = new TableItem( wFields.table, SWT.NONE );
-        item.setBackground( 3, GUIResource.getInstance().getColorLightGray() );
+        item.setBackground( 3, GuiResource.getInstance().getColorLightGray() );
 
         int pos = 1;
         item.setText( pos++, key );

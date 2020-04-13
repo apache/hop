@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -345,7 +345,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                   // Add filename to output files
                   ResultFile resultFile =
                     new ResultFile(
-                      ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( realFilename, this ), parentWorkflow
+                      ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename, this ), parentWorkflow
                       .getJobname(), toString() );
                   result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                 }

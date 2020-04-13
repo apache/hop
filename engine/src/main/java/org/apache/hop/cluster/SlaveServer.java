@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -572,7 +572,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    */
   public String sendExport( String filename, String type, String load ) throws Exception {
     // Request content will be retrieved directly from the input stream
-    try ( InputStream is = HopVFS.getInputStream( HopVFS.getFileObject( filename ) ) ) {
+    try ( InputStream is = HopVfs.getInputStream( HopVfs.getFileObject( filename ) ) ) {
       // Execute request
       HttpPost method = buildSendExportMethod( type, load, is );
       try {

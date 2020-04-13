@@ -59,16 +59,16 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
@@ -203,7 +203,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public Workflow workflow;
 
-  protected PropsUI props;
+  protected PropsUi props;
 
   protected int iconsize;
 
@@ -317,7 +317,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     this.hopUi = hopUi;
     this.workflowMeta = workflowMeta;
 
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.areaOwners = new ArrayList<>();
     this.delayTimers = new HashMap<>();
 
@@ -376,7 +376,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     toolTip.setRespectMonitorBounds( true );
     toolTip.setRespectDisplayBounds( true );
     toolTip.setPopupDelay( 350 );
-    toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUI.TOOLTIP_OFFSET, ConstUI.TOOLTIP_OFFSET ) );
+    toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
     helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
@@ -436,7 +436,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     ddTarget.setTransfer( ttypes );
     ddTarget.addDropListener( new DropTargetListener() {
       public void dragEnter( DropTargetEvent event ) {
-        drop_candidate = PropsUI.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
+        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
         redraw();
       }
 
@@ -449,7 +449,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
       public void dragOver( DropTargetEvent event ) {
-        drop_candidate = PropsUI.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
+        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
         redraw();
       }
 
@@ -472,7 +472,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
               ActionCopy jge = hopUi.newJobEntry( workflowMeta, entry, false );
               if ( jge != null ) {
-                PropsUI.setLocation( jge, p.x, p.y );
+                PropsUi.setLocation( jge, p.x, p.y );
                 jge.setDrawn();
                 redraw();
 
@@ -529,7 +529,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   }
                   jge_changed = true;
                 }
-                PropsUI.setLocation( newjge, p.x, p.y );
+                PropsUi.setLocation( newjge, p.x, p.y );
                 newjge.setDrawn();
                 if ( jge_changed ) {
                   hopUi.undoDelegate.addUndoChange(
@@ -564,7 +564,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     canvas.addKeyListener( this );
 
-    setBackground( GUIResource.getInstance().getColorBackground() );
+    setBackground( GuiResource.getInstance().getColorBackground() );
 
     updateGui();
   }
@@ -888,7 +888,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                     0,
                     BaseMessages.getString( PKG, "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain" ),
                     hopUi.getProps().getAutoSplit() );
-                MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+                MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
                 id = md.open();
                 hopUi.getProps().setAutoSplit( md.getToggleState() );
               }
@@ -1141,7 +1141,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( selectedEntries != null ) {
         for ( int i = 0; i < selectedEntries.size(); i++ ) {
           ActionCopy actionCopy = selectedEntries.get( i );
-          PropsUI.setLocation( actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy );
+          PropsUi.setLocation( actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y + dy );
           stopEntryMouseOverDelayTimer( actionCopy );
         }
       }
@@ -1149,7 +1149,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( selectedNotes != null ) {
         for ( int i = 0; i < selectedNotes.size(); i++ ) {
           NotePadMeta ni = selectedNotes.get( i );
-          PropsUI.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
+          PropsUi.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
         }
       }
 
@@ -1211,7 +1211,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         if ( selectedEntries != null ) {
           for ( int i = 0; i < selectedEntries.size(); i++ ) {
             ActionCopy actionCopy = selectedEntries.get( i );
-            PropsUI.setLocation( actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y
+            PropsUi.setLocation( actionCopy, actionCopy.getLocation().x + dx, actionCopy.getLocation().y
               + dy );
           }
         }
@@ -1219,7 +1219,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         if ( selectedNotes != null ) {
           for ( int i = 0; i < selectedNotes.size(); i++ ) {
             NotePadMeta ni = selectedNotes.get( i );
-            PropsUI.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
+            PropsUi.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
           }
         }
 
@@ -1547,7 +1547,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
     // ALT-HOME : snap to grid
     if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
-      snapToGrid( ConstUI.GRID_SIZE );
+      snapToGrid( ConstUi.GRID_SIZE );
     }
     // CTRL-W or CTRL-F4 : close tab
     if ( ( e.keyCode == 'w' && ( e.stateMask & SWT.MOD1 ) != 0 )
@@ -1829,7 +1829,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             0,
             BaseMessages.getString( PKG, "JobGraph.ParallelActionsWarning.Option2" ),
             "N".equalsIgnoreCase( hopUi.getProps().getCustomParameter( STRING_PARALLEL_WARNING_PARAMETER, "Y" ) ) );
-        MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+        MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         md.open();
         hopUi.getProps().setCustomParameter( STRING_PARALLEL_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
         hopUi.getProps().saveProps();
@@ -1952,7 +1952,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     NotePadDialog dd = new NotePadDialog( workflowMeta, hopShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
-      NotePadMeta npi = new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+      NotePadMeta npi = new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE, n
         .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
         .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
         .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue() );
@@ -2205,18 +2205,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         case JOB_HOP_ICON:
           hi = (WorkflowHopMeta) areaOwner.getOwner();
           if ( hi.isUnconditional() ) {
-            tipImage = GUIResource.getInstance().getImageUnconditionalHop();
+            tipImage = GuiResource.getInstance().getImageUnconditionalHop();
             tip.append( BaseMessages.getString( PKG, "JobGraph.Hop.Tooltip.Unconditional", hi
               .getFromEntry().getName(), Const.CR ) );
           } else {
             if ( hi.getEvaluation() ) {
               tip.append( BaseMessages.getString( PKG, "JobGraph.Hop.Tooltip.EvaluatingTrue", hi
                 .getFromEntry().getName(), Const.CR ) );
-              tipImage = GUIResource.getInstance().getImageTrue();
+              tipImage = GuiResource.getInstance().getImageTrue();
             } else {
               tip.append( BaseMessages.getString( PKG, "JobGraph.Hop.Tooltip.EvaluatingFalse", hi
                 .getFromEntry().getName(), Const.CR ) );
-              tipImage = GUIResource.getInstance().getImageFalse();
+              tipImage = GuiResource.getInstance().getImageFalse();
             }
           }
           break;
@@ -2225,37 +2225,37 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hi = (WorkflowHopMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString(
             PKG, "JobGraph.Hop.Tooltip.Parallel", hi.getFromEntry().getName(), Const.CR ) );
-          tipImage = GUIResource.getInstance().getImageParallelHop();
+          tipImage = GuiResource.getInstance().getImageParallelHop();
           break;
 
         case CUSTOM:
           String message = (String) areaOwner.getOwner();
           tip.append( message );
           tipImage = null;
-          GUIResource.getInstance().getImagePipelineGraph();
+          GuiResource.getInstance().getImagePipelineGraph();
           break;
 
         case JOB_ENTRY_MINI_ICON_INPUT:
           tip.append( BaseMessages.getString( PKG, "JobGraph.EntryInputConnector.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageHopInput();
+          tipImage = GuiResource.getInstance().getImageHopInput();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
         case JOB_ENTRY_MINI_ICON_OUTPUT:
           tip.append( BaseMessages.getString( PKG, "JobGraph.EntryOutputConnector.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageHopOutput();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
         case JOB_ENTRY_MINI_ICON_EDIT:
           tip.append( BaseMessages.getString( PKG, "JobGraph.EditTransform.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageEdit();
+          tipImage = GuiResource.getInstance().getImageEdit();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
         case JOB_ENTRY_MINI_ICON_CONTEXT:
           tip.append( BaseMessages.getString( PKG, "JobGraph.ShowMenu.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageContextMenu();
+          tipImage = GuiResource.getInstance().getImageContextMenu();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
@@ -2266,10 +2266,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           Result result = actionResult.getResult();
           tip.append( "'" ).append( actionCopy.getName() ).append( "' " );
           if ( result.getResult() ) {
-            tipImage = GUIResource.getInstance().getImageTrue();
+            tipImage = GuiResource.getInstance().getImageTrue();
             tip.append( "finished successfully." );
           } else {
-            tipImage = GUIResource.getInstance().getImageFalse();
+            tipImage = GuiResource.getInstance().getImageFalse();
             tip.append( "failed." );
           }
           tip.append( Const.CR ).append( "------------------------" ).append( Const.CR ).append( Const.CR );
@@ -2324,7 +2324,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         case JOB_ENTRY_RESULT_CHECKPOINT:
           tip.append( "The workflow started here since this is the furthest checkpoint "
             + "that was reached last time the pipeline was executed." );
-          tipImage = GUIResource.getInstance().getImageCheckpoint();
+          tipImage = GuiResource.getInstance().getImageCheckpoint();
           break;
         case JOB_ENTRY_ICON:
           ActionCopy jec = (ActionCopy) areaOwner.getOwner();
@@ -2343,7 +2343,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               tip.append( BaseMessages.getString( PKG, "JobGraph.DeprecatedEntry.Tooltip.Message3",
                 jec.getSuggestion() ) );
             }
-            tipImage = GUIResource.getInstance().getImageDeprecated();
+            tipImage = GuiResource.getInstance().getImageDeprecated();
           }
           break;
         default:
@@ -2363,12 +2363,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         ? BaseMessages.getString( PKG, "JobGraph.Dialog.HopInfo.Enable" ) : BaseMessages.getString(
         PKG, "JobGraph.Dialog.HopInfo.Disable" ) ) );
       if ( hi.isUnconditional() ) {
-        tipImage = GUIResource.getInstance().getImageUnconditionalHop();
+        tipImage = GuiResource.getInstance().getImageUnconditionalHop();
       } else {
         if ( hi.getEvaluation() ) {
-          tipImage = GUIResource.getInstance().getImageTrue();
+          tipImage = GuiResource.getInstance().getImageTrue();
         } else {
-          tipImage = GUIResource.getInstance().getImageFalse();
+          tipImage = GuiResource.getInstance().getImageFalse();
         }
       }
     }
@@ -2380,7 +2380,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         if ( tipImage != null ) {
           toolTip.setImage( tipImage );
         } else {
-          toolTip.setImage( GUIResource.getInstance().getImageHopUi() );
+          toolTip.setImage( GuiResource.getInstance().getImageHopUi() );
         }
         toolTip.setText( tip.toString() );
         toolTip.hide();
@@ -2431,11 +2431,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Image img = getJobImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( workflowMeta.nrActions() == 0 ) {
-      e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
-      e.gc.setBackground( GUIResource.getInstance().getColorBackground() );
-      e.gc.setFont( GUIResource.getInstance().getFontMedium() );
+      e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
+      e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
+      e.gc.setFont( GuiResource.getInstance().getFontMedium() );
 
-      Image welcomeImage = GUIResource.getInstance().getImageWorkflowCanvas();
+      Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
       int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
       int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
@@ -2449,17 +2449,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
 
     int gridSize =
-      PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
+      PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
     WorkflowPainter workflowPainter =
       new WorkflowPainter( gc, workflowMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hop_candidate,
-        drop_candidate, selectionRegion, areaOwners, PropsUI.getInstance().getIconSize(),
-        PropsUI.getInstance().getLineWidth(), gridSize, PropsUI.getInstance().getNoteFont().getName(),
-        PropsUI.getInstance().getNoteFont().getHeight(), PropsUI.getInstance().getZoomFactor() );
+        drop_candidate, selectionRegion, areaOwners, PropsUi.getInstance().getIconSize(),
+        PropsUi.getInstance().getLineWidth(), gridSize, PropsUi.getInstance().getNoteFont().getName(),
+        PropsUi.getInstance().getNoteFont().getHeight(), PropsUi.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor
     //
-    float correctedMagnification = (float) ( magnificationFactor * PropsUI.getInstance().getZoomFactor() );
+    float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
     workflowPainter.setMagnification( correctedMagnification );
     workflowPainter.setEntryLogMap( entryLogMap );
@@ -2555,8 +2555,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       hopUi.undoDelegate.addUndoChange( workflowMeta, new NotePadMeta[] { before }, new NotePadMeta[] { ni }, new int[] { workflowMeta
         .indexOfNote( ni ) } );
-      ni.width = ConstUI.NOTE_MIN_SIZE;
-      ni.height = ConstUI.NOTE_MIN_SIZE;
+      ni.width = ConstUi.NOTE_MIN_SIZE;
+      ni.height = ConstUi.NOTE_MIN_SIZE;
 
       updateGui();
     }
@@ -2671,7 +2671,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
   public void snapToGrid() {
-    snapToGrid( ConstUI.GRID_SIZE );
+    snapToGrid( ConstUi.GRID_SIZE );
   }
 
   protected void snapToGrid( int size ) {
@@ -2763,7 +2763,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     gc.setLineStyle( SWT.LINE_DASHDOT );
     gc.setLineWidth( 1 );
-    gc.setForeground( GUIResource.getInstance().getColorDarkGray() );
+    gc.setForeground( GuiResource.getInstance().getColorDarkGray() );
     // PDI-2619: SWT on Windows doesn't cater for negative rect.width/height so handle here.
     Point s = new Point( rect.x + offset.x, rect.y + offset.y );
     if ( rect.width < 0 ) {
@@ -2966,7 +2966,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         throw new HopException( "Please give the workflow a filename" );
       }
       String xml = workflowMeta.getXml();
-      OutputStream out = HopVFS.getOutputStream( workflowMeta.getFilename(), false );
+      OutputStream out = HopVfs.getOutputStream( workflowMeta.getFilename(), false );
       try {
         out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
@@ -3014,7 +3014,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Put a close and max button to the upper right corner...
     //
     closeButton = new Label( extraViewComposite, SWT.NONE );
-    closeButton.setImage( GUIResource.getInstance().getImageClosePanel() );
+    closeButton.setImage( GuiResource.getInstance().getImageClosePanel() );
     closeButton
       .setToolTipText( BaseMessages.getString( PKG, "JobGraph.ExecutionResultsPanel.CloseButton.Tooltip" ) );
     FormData fdClose = new FormData();
@@ -3028,7 +3028,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } );
 
     minMaxButton = new Label( extraViewComposite, SWT.NONE );
-    minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
+    minMaxButton.setImage( GuiResource.getInstance().getImageMaximizePanel() );
     minMaxButton
       .setToolTipText( BaseMessages.getString( PKG, "JobGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     FormData fdMinMax = new FormData();
@@ -3044,8 +3044,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Add a label at the top: Results
     //
     Label wResultsLabel = new Label( extraViewComposite, SWT.LEFT );
-    wResultsLabel.setFont( GUIResource.getInstance().getFontMediumBold() );
-    wResultsLabel.setBackground( GUIResource.getInstance().getColorWhite() );
+    wResultsLabel.setFont( GuiResource.getInstance().getFontMediumBold() );
+    wResultsLabel.setBackground( GuiResource.getInstance().getColorWhite() );
     wResultsLabel.setText( BaseMessages.getString( PKG, "JobLog.ResultsPanel.NameLabel" ) );
     FormData fdResultsLabel = new FormData();
     fdResultsLabel.left = new FormAttachment( 0, 0 );
@@ -3097,7 +3097,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
-    item.setImage( GUIResource.getInstance().getImageShowResults() );
+    item.setImage( GuiResource.getInstance().getImageShowResults() );
   }
 
   private void minMaxExtraView() {
@@ -3108,14 +3108,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Minimize
       //
       sashForm.setMaximizedControl( null );
-      minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
+      minMaxButton.setImage( GuiResource.getInstance().getImageMaximizePanel() );
       minMaxButton.setToolTipText( BaseMessages
         .getString( PKG, "JobGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     } else {
       // Maximize
       //
       sashForm.setMaximizedControl( extraViewComposite );
-      minMaxButton.setImage( GUIResource.getInstance().getImageMinimizePanel() );
+      minMaxButton.setImage( GuiResource.getInstance().getImageMinimizePanel() );
       minMaxButton.setToolTipText( BaseMessages
         .getString( PKG, "JobGraph.ExecutionResultsPanel.MinButton.Tooltip" ) );
     }
@@ -3162,7 +3162,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     ToolItem toolItem = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     toolItem.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
-    toolItem.setImage( GUIResource.getInstance().getImageHideResults() );
+    toolItem.setImage( GuiResource.getInstance().getImageHideResults() );
   }
 
    /* TODO: re-introduce
@@ -3217,7 +3217,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       tabName = workflowMeta.getName();
     } else {
       try {
-        FileObject fileObject = HopVFS.getFileObject( workflowMeta.getFilename() );
+        FileObject fileObject = HopVfs.getFileObject( workflowMeta.getFilename() );
         FileName fileName = fileObject.getName();
         tabName = fileName.getBaseName();
       } catch ( Exception e ) {
@@ -3563,14 +3563,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    *
    * @return value of props
    */
-  public PropsUI getProps() {
+  public PropsUi getProps() {
     return props;
   }
 
   /**
    * @param props The props to set
    */
-  public void setProps( PropsUI props ) {
+  public void setProps( PropsUi props ) {
     this.props = props;
   }
 

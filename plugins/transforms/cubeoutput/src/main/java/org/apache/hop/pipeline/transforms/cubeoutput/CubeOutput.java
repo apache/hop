@@ -25,14 +25,12 @@ package org.apache.hop.pipeline.transforms.cubeoutput;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.DataOutputStream;
@@ -175,13 +173,13 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> im
         // Add this to the result file names...
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename, getPipelineMeta() ), getPipelineMeta()
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename, getPipelineMeta() ), getPipelineMeta()
             .getName(), getTransformName() );
         resultFile.setComment( "This file was created with a cube file output transform" );
         addResultFile( resultFile );
       }
 
-      data.fos = HopVFS.getOutputStream( filename, getPipelineMeta(), false );
+      data.fos = HopVfs.getOutputStream( filename, getPipelineMeta(), false );
       data.zip = new GZIPOutputStream( data.fos );
       data.dos = new DataOutputStream( data.zip );
     } catch ( Exception e ) {

@@ -38,9 +38,9 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -126,7 +126,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private FormData fdOptionsComp;
   private TableView wOptions;
 
-  private final PropsUI props;
+  private final PropsUi props;
   private int middle;
   private int margin;
 
@@ -145,7 +145,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     this.metaStore = metaStore;
     this.databaseMeta = databaseMeta;
     this.workingMeta = new DatabaseMeta( databaseMeta );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     metaMap = populateMetaMap();
     metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
     returnValue = null;
@@ -178,7 +178,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     //
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageConnection() );
+    shell.setImage( GuiResource.getInstance().getImageConnection() );
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
@@ -868,7 +868,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     HopClientEnvironment.init();
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    PropsUI.init( display );
+    PropsUi.init( display );
     HopEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );
     DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, null, databaseMeta );

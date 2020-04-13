@@ -30,7 +30,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -56,14 +56,14 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
   private ClassLoader classLoader;
 
   private Class<T> managedClass;
-  private PropsUI props;
+  private PropsUi props;
 
   public MetaStoreManager( IVariables variables, IMetaStore metaStore, Class<T> managedClass ) {
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metaStore = metaStore;
     this.managedClass = managedClass;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
   public void openMetaStoreExplorer() {
@@ -353,14 +353,14 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
    *
    * @return value of props
    */
-  public PropsUI getProps() {
+  public PropsUi getProps() {
     return props;
   }
 
   /**
    * @param props The props to set
    */
-  public void setProps( PropsUI props ) {
+  public void setProps( PropsUi props ) {
     this.props = props;
   }
 

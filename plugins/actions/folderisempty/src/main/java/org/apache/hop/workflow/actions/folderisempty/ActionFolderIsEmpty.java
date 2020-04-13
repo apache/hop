@@ -33,7 +33,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -179,7 +179,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
-        folderObject = HopVFS.getFileObject( realFoldername, this );
+        folderObject = HopVfs.getFileObject( realFoldername, this );
         if ( folderObject.exists() ) {
           // Check if it's a folder
           if ( folderObject.getType() == FileType.FOLDER ) {

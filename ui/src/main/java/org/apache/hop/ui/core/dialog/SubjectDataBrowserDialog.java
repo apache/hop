@@ -30,8 +30,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -79,7 +79,7 @@ public class SubjectDataBrowserDialog {
   private Map<String, List<Object[]>> dataMap;
   private Map<String, IRowMeta> metaMap;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private String dialogTitle, subjectMessage;
 
@@ -99,7 +99,7 @@ public class SubjectDataBrowserDialog {
     this.dialogTitle = dialogTitle;
     this.subjectMessage = subjectMessage;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     subjects = metaMap.keySet().toArray( new String[ metaMap.size() ] );
     Arrays.sort( subjects );
@@ -115,7 +115,7 @@ public class SubjectDataBrowserDialog {
   public void open() {
     shell = new Shell( parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -289,11 +289,11 @@ public class SubjectDataBrowserDialog {
 
       if ( show != null ) {
         item.setText( c + 1, show );
-        item.setForeground( c + 1, GUIResource.getInstance().getColorBlack() );
+        item.setForeground( c + 1, GuiResource.getInstance().getColorBlack() );
       } else {
         // Set null value
         item.setText( c + 1, "<null>" );
-        item.setForeground( c + 1, GUIResource.getInstance().getColorBlue() );
+        item.setForeground( c + 1, GuiResource.getInstance().getColorBlue() );
       }
     }
 

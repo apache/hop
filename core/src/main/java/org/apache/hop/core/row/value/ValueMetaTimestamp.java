@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
@@ -608,7 +608,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public Object readData( DataInputStream inputStream ) throws HopFileException, HopEOFException,
+  public Object readData( DataInputStream inputStream ) throws HopFileException, HopEofException,
     SocketTimeoutException {
     try {
       // Is the value NULL?
@@ -635,7 +635,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           throw new HopFileException( toString() + " : Unknown storage type " + getStorageType() );
       }
     } catch ( EOFException e ) {
-      throw new HopEOFException( e );
+      throw new HopEofException( e );
     } catch ( SocketTimeoutException e ) {
       throw e;
     } catch ( IOException e ) {

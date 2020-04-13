@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.ActionResult;
@@ -929,7 +929,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                   zipOutputStream.putNextEntry( zipEntry );
 
                   // Now put the content of this file into this archive...
-                  BufferedInputStream inputStream = new BufferedInputStream( HopVFS.getInputStream( file ) );
+                  BufferedInputStream inputStream = new BufferedInputStream( HopVfs.getInputStream( file ) );
                   try {
                     int c;
                     while ( ( c = inputStream.read() ) >= 0 ) {
@@ -990,7 +990,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           } else {
             try {
               boolean found = false;
-              imageFile = HopVFS.getFileObject( realImageFile, this );
+              imageFile = HopVfs.getFileObject( realImageFile, this );
               if ( imageFile.exists() && imageFile.getType() == FileType.FILE ) {
                 found = true;
               } else {

@@ -30,7 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -68,7 +68,7 @@ public class EnterStringsDialog extends Dialog {
 
   private Shell shell;
   private RowMetaAndData strings;
-  private PropsUI props;
+  private PropsUi props;
 
   private boolean readOnly;
   private String message;
@@ -85,7 +85,7 @@ public class EnterStringsDialog extends Dialog {
   public EnterStringsDialog( Shell parent, int style, RowMetaAndData strings ) {
     super( parent, style );
     this.strings = strings;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     readOnly = false;
 
     title = BaseMessages.getString( PKG, "EnterStringsDialog.Title" );

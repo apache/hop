@@ -30,11 +30,11 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -995,7 +995,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlPOP3Message.left = new FormAttachment( 0, margin );
     fdlPOP3Message.top = new FormAttachment( wActionType, 3 * margin );
     wlPOP3Message.setLayoutData( fdlPOP3Message );
-    wlPOP3Message.setForeground( GUIResource.getInstance().getColorOrange() );
+    wlPOP3Message.setForeground( GuiResource.getInstance().getColorOrange() );
 
     // ////////////////////////
     // START OF POP3 Settings GROUP///
@@ -1521,7 +1521,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     } );
 
     open = new Button( wReceivedDate, SWT.PUSH );
-    open.setImage( GUIResource.getInstance().getImageCalendar() );
+    open.setImage( GuiResource.getInstance().getImageCalendar() );
     open.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OpenCalendar" ) );
     FormData fdlButton = new FormData();
     fdlButton.top = new FormAttachment( wConditionOnReceivedDate, margin );
@@ -1531,7 +1531,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialog = new Shell( shell, SWT.DIALOG_TRIM );
         dialog.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
-        dialog.setImage( GUIResource.getInstance().getImageHopUi() );
+        dialog.setImage( GuiResource.getInstance().getImageHopUi() );
         dialog.setLayout( new GridLayout( 3, false ) );
 
         final DateTime calendar = new DateTime( dialog, SWT.CALENDAR );
@@ -1583,7 +1583,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wReadFrom.setLayoutData( fdReadFrom );
 
     opento = new Button( wReceivedDate, SWT.PUSH );
-    opento.setImage( GUIResource.getInstance().getImageCalendar() );
+    opento.setImage( GuiResource.getInstance().getImageCalendar() );
     opento.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OpenCalendar" ) );
     FormData fdlButtonto = new FormData();
     fdlButtonto.top = new FormAttachment( wReadFrom, 2 * margin );
@@ -1593,7 +1593,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         final Shell dialogto = new Shell( shell, SWT.DIALOG_TRIM );
         dialogto.setText( BaseMessages.getString( PKG, "JobGetPOP.SelectDate" ) );
-        dialogto.setImage( GUIResource.getInstance().getImageHopUi() );
+        dialogto.setImage( GuiResource.getInstance().getImageHopUi() );
         dialogto.setLayout( new GridLayout( 3, false ) );
 
         final DateTime calendarto = new DateTime( dialogto, SWT.CALENDAR | SWT.BORDER );

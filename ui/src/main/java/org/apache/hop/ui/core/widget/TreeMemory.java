@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Tree;
@@ -104,7 +104,7 @@ public class TreeMemory {
   }
 
   public void storeExpanded( String treeName, TreeItem treeItem, boolean expanded ) {
-    String[] path = ConstUI.getTreeStrings( treeItem );
+    String[] path = ConstUi.getTreeStrings( treeItem );
     storeExpanded( treeName, path, expanded );
   }
 
@@ -147,14 +147,14 @@ public class TreeMemory {
     TreeListener treeListener = new TreeListener() {
       public void treeExpanded( TreeEvent e ) {
         TreeItem treeItem = (TreeItem) e.item;
-        String[] path = ConstUI.getTreeStrings( treeItem );
+        String[] path = ConstUi.getTreeStrings( treeItem );
         TreeMemory treeMemory = TreeMemory.getInstance();
         treeMemory.storeExpanded( treeName, path, true );
       }
 
       public void treeCollapsed( TreeEvent e ) {
         TreeItem treeItem = (TreeItem) e.item;
-        String[] path = ConstUI.getTreeStrings( treeItem );
+        String[] path = ConstUi.getTreeStrings( treeItem );
         TreeMemory treeMemory = TreeMemory.getInstance();
         treeMemory.storeExpanded( treeName, path, false );
       }
@@ -179,7 +179,7 @@ public class TreeMemory {
   private static void setExpandedFromMemory( Tree tree, String treeName, TreeItem treeItem ) {
     TreeMemory treeMemory = TreeMemory.getInstance();
 
-    String[] path = ConstUI.getTreeStrings( treeItem );
+    String[] path = ConstUi.getTreeStrings( treeItem );
     boolean expanded = treeMemory.isExpanded( treeName, path );
     treeItem.setExpanded( expanded );
 

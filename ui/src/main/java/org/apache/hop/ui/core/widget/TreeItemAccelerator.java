@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class TreeItemAccelerator {
   public static final void addDoubleClick( final TreeItem treeItem, final IDoubleClick doubleClick ) {
-    final String[] path1 = ConstUI.getTreeStrings( treeItem );
+    final String[] path1 = ConstUi.getTreeStrings( treeItem );
     final Tree tree = treeItem.getParent();
 
     if ( doubleClick != null ) {
@@ -45,7 +45,7 @@ public class TreeItemAccelerator {
         public void widgetDefaultSelected( SelectionEvent selectionEvent ) {
           TreeItem[] items = tree.getSelection();
           for ( int i = 0; i < items.length; i++ ) {
-            String[] path2 = ConstUI.getTreeStrings( items[ i ] );
+            String[] path2 = ConstUi.getTreeStrings( items[ i ] );
             if ( equalPaths( path1, path2 ) ) {
               doubleClick.action( treeItem );
             }

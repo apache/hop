@@ -26,8 +26,8 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -73,7 +73,7 @@ public class ErrorDialog extends Dialog {
 
   private Shell shell;
   private SelectionAdapter lsDef;
-  private PropsUI props;
+  private PropsUi props;
 
   private boolean cancelled;
   private Function<String, String> exMsgFunction = Function.identity();
@@ -117,16 +117,16 @@ public class ErrorDialog extends Dialog {
       exception.printStackTrace();
       return;
     }
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
 
     Display display = parent.getDisplay();
-    final Font largeFont = GUIResource.getInstance().getFontBold();
-    final Color gray = GUIResource.getInstance().getColorDemoGray();
+    final Font largeFont = GuiResource.getInstance().getFontBold();
+    final Color gray = GuiResource.getInstance().getColorDemoGray();
 
     shell =
       new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageShowErrorLines() );
+    shell.setImage( GuiResource.getInstance().getImageShowErrorLines() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

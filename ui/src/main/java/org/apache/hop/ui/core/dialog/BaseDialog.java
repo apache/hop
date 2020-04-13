@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
@@ -53,14 +53,14 @@ public abstract class BaseDialog extends Dialog {
   public static final int MEDIUM_SMALL_FIELD = 150;
   public static final int SMALL_FIELD = 50;
   public static final int SHELL_WIDTH_OFFSET = 16;
-  public static final int VAR_ICON_WIDTH = GUIResource.getInstance().getImageVariable().getBounds().width;
-  public static final int VAR_ICON_HEIGHT = GUIResource.getInstance().getImageVariable().getBounds().height;
+  public static final int VAR_ICON_WIDTH = GuiResource.getInstance().getImageVariable().getBounds().width;
+  public static final int VAR_ICON_HEIGHT = GuiResource.getInstance().getImageVariable().getBounds().height;
 
   protected Map<String, Listener> buttons = new HashMap();
 
   protected Shell shell;
 
-  protected PropsUI props;
+  protected PropsUi props;
   protected int width = -1;
   protected String title;
 
@@ -72,7 +72,7 @@ public abstract class BaseDialog extends Dialog {
 
   public BaseDialog( final Shell shell, final String title, final int width ) {
     super( shell, SWT.NONE );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.title = title;
     this.width = width;
   }
@@ -87,7 +87,7 @@ public abstract class BaseDialog extends Dialog {
     final Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
     props.setLook( shell );
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

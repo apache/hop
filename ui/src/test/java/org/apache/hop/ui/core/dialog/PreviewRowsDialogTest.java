@@ -27,7 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -52,7 +52,7 @@ public class PreviewRowsDialogTest {
 
     Field propsField = Props.class.getDeclaredField( "props" );
     propsField.setAccessible( true );
-    propsField.set( PropsUI.class, Mockito.mock( PropsUI.class ) );
+    propsField.set( PropsUi.class, Mockito.mock( PropsUi.class ) );
 
     PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( Mockito.mock( Shell.class ), Mockito.mock( IVariables.class ), SWT.None, "test",
       iRowMeta, Collections.emptyList() );

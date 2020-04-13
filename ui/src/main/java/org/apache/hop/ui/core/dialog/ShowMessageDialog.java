@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -70,7 +70,7 @@ public class ShowMessageDialog extends Dialog {
   private String title, message;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   private int flags;
   private final Map<Integer, String> buttonTextByFlag;
@@ -147,7 +147,7 @@ public class ShowMessageDialog extends Dialog {
     this.message = message;
     this.scroll = scroll;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
   }
 
   public int open() {
@@ -156,7 +156,7 @@ public class ShowMessageDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     formLayout = new FormLayout();
     shell.setLayout( formLayout );

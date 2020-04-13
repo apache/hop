@@ -36,7 +36,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.*;
@@ -325,7 +325,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wSql.addModifyListener( lsMod );
 
     // Text Higlighting
-    wSql.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SqlValuesHighlight() );
 
     wlPosition = new Label( shell, SWT.NONE );
     // wlPosition.setText(BaseMessages.getString(PKG, "DynamicSqlRowDialog.Position.Label"));

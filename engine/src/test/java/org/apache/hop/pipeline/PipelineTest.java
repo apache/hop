@@ -33,7 +33,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
@@ -190,7 +190,7 @@ public class PipelineTest {
     when( mockPipelineMeta.listVariables() ).thenReturn( new String[] {} );
     when( mockPipelineMeta.listParameters() ).thenReturn( new String[] { testParam } );
     when( mockPipelineMeta.getParameterValue( testParam ) ).thenReturn( testParamValue );
-    FileObject ktr = HopVFS.createTempFile( "parameters", ".hpl", "ram://" );
+    FileObject ktr = HopVfs.createTempFile( "parameters", ".hpl", "ram://" );
     try ( OutputStream outputStream = ktr.getContent().getOutputStream( true ) ) {
       InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
       IOUtils.copy( inputStream, outputStream );

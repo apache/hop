@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
@@ -102,7 +102,7 @@ public class HopGuiPipelineLogDelegate {
     // Add a pipelineLogTab : display the logging...
     //
     pipelineLogTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelineLogTab.setImage( GUIResource.getInstance().getImageShowLog() );
+    pipelineLogTab.setImage( GuiResource.getInstance().getImageShowLog() );
     pipelineLogTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.LogTab.Name" ) );
 
     pipelineLogComposite = new Composite( pipelineGraph.extraViewTabFolder, SWT.NO_BACKGROUND | SWT.NO_FOCUS );
@@ -303,10 +303,10 @@ public class HopGuiPipelineLogDelegate {
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ICON_LOG_PAUSE_RESUME );
     if ( logBrowser.isPaused() ) {
       logBrowser.setPaused( false );
-      item.setImage( GUIResource.getInstance().getImageContinueLog() );
+      item.setImage( GuiResource.getInstance().getImageContinueLog() );
     } else {
       logBrowser.setPaused( true );
-      item.setImage( GUIResource.getInstance().getImagePauseLog() );
+      item.setImage( GuiResource.getInstance().getImagePauseLog() );
     }
   }
 

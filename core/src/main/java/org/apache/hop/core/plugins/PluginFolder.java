@@ -31,7 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -113,7 +113,7 @@ public class PluginFolder implements IPluginFolder {
     try {
       // Find all the jar files in this folder...
       //
-      FileObject folderObject = HopVFS.getFileObject( this.getFolder() );
+      FileObject folderObject = HopVfs.getFileObject( this.getFolder() );
 
       return folderObject.findFiles( new FileSelector() {
         @Override

@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -56,11 +56,11 @@ public class PoiWorkbook implements IKWorkbook {
     this.encoding = encoding;
     this.log = HopLogStore.getLogChannelFactory().create( this );
     try {
-      FileObject fileObject = HopVFS.getFileObject( filename );
+      FileObject fileObject = HopVfs.getFileObject( filename );
       if ( fileObject instanceof LocalFile ) {
         // This supposedly shaves off a little bit of memory usage by allowing POI to randomly access data in the file
         //
-        String localFilename = HopVFS.getFilename( fileObject );
+        String localFilename = HopVfs.getFilename( fileObject );
         File excelFile = new File( localFilename );
         try {
           npoifs = new NPOIFSFileSystem( excelFile );
@@ -74,7 +74,7 @@ public class PoiWorkbook implements IKWorkbook {
           }
         }
       } else {
-        internalIS = HopVFS.getInputStream( filename );
+        internalIS = HopVfs.getInputStream( filename );
         workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create( internalIS );
       }
     } catch ( Exception e ) {

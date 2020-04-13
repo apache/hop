@@ -28,7 +28,7 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.BufferedReader;
@@ -168,7 +168,7 @@ public class MessagesSourceCrawler {
   public void crawl() throws Exception {
 
     for ( final String sourceDirectory : sourceDirectories ) {
-      FileObject folder = HopVFS.getFileObject( sourceDirectory );
+      FileObject folder = HopVfs.getFileObject( sourceDirectory );
       FileObject[] javaFiles = folder.findFiles( new FileSelector() {
         @Override
         public boolean traverseDescendents( FileSelectInfo info ) {
@@ -216,7 +216,7 @@ public class MessagesSourceCrawler {
       System.out.println();
     }
 
-    BufferedReader reader = new BufferedReader( new InputStreamReader( HopVFS.getInputStream( javaFile ) ) );
+    BufferedReader reader = new BufferedReader( new InputStreamReader( HopVfs.getInputStream( javaFile ) ) );
 
     String messagesPackage = null;
     int row = 0;

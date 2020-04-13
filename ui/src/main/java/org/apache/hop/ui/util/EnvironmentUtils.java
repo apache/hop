@@ -23,7 +23,7 @@ package org.apache.hop.ui.util;
 
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -137,7 +137,7 @@ public class EnvironmentUtils {
    * @return the value of the requiredProperty.
    */
   protected int getSupportedVersion( String property ) {
-    return PropsUI.getInstance().getSupportedVersion( property );
+    return PropsUi.getInstance().getSupportedVersion( property );
   }
 
   /**
@@ -146,7 +146,7 @@ public class EnvironmentUtils {
    * @return 'true' if disabled 'false' otherwise.
    */
   public boolean isBrowserEnvironmentCheckDisabled() {
-    return PropsUI.getInstance().isBrowserEnvironmentCheckDisabled();
+    return PropsUi.getInstance().isBrowserEnvironmentCheckDisabled();
   }
 
   /**

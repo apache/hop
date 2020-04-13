@@ -38,7 +38,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -410,29 +410,29 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         realScript = environmentSubstitute( script );
       } else {
         String realFilename = environmentSubstitute( getFilename() );
-        fileObject = HopVFS.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename, this );
       }
 
       if ( Const.getOS().equals( "Windows 95" ) ) {
         base = new String[] { "command.com", "/C" };
         if ( insertScript ) {
           tempFile =
-            HopVFS.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
+            HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
       } else if ( Const.getOS().startsWith( "Windows" ) ) {
         base = new String[] { "cmd.exe", "/C" };
         if ( insertScript ) {
           tempFile =
-            HopVFS.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
+            HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
       } else {
         if ( insertScript ) {
-          tempFile = HopVFS.createTempFile( "hop", "shell", System.getProperty( "java.io.tmpdir" ), this );
+          tempFile = HopVfs.createTempFile( "hop", "shell", System.getProperty( "java.io.tmpdir" ), this );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
-        base = new String[] { HopVFS.getFilename( fileObject ) };
+        base = new String[] { HopVfs.getFilename( fileObject ) };
       }
 
       // Construct the arguments...
@@ -450,7 +450,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           StringBuilder cmdline = new StringBuilder( 300 );
 
           cmdline.append( '"' );
-          cmdline.append( Const.optionallyQuoteStringByOS( HopVFS.getFilename( fileObject ) ) );
+          cmdline.append( Const.optionallyQuoteStringByOS( HopVfs.getFilename( fileObject ) ) );
           // Add the arguments from previous results...
           for ( int i = 0; i < cmdRows.size(); i++ ) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
@@ -488,7 +488,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           StringBuilder cmdline = new StringBuilder( 300 );
 
           cmdline.append( '"' );
-          cmdline.append( Const.optionallyQuoteStringByOS( HopVFS.getFilename( fileObject ) ) );
+          cmdline.append( Const.optionallyQuoteStringByOS( HopVfs.getFilename( fileObject ) ) );
 
           for ( int i = 0; i < args.length; i++ ) {
             cmdline.append( ' ' );
@@ -529,7 +529,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
       if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
         String vfsFilename = environmentSubstitute( getWorkDirectory() );
-        File file = new File( HopVFS.getFilename( HopVFS.getFileObject( vfsFilename, this ) ) );
+        File file = new File( HopVfs.getFilename( HopVfs.getFileObject( vfsFilename, this ) ) );
         procBuilder.directory( file );
       }
       Process proc = procBuilder.start();
@@ -618,7 +618,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         outputStream.write( fileContent.getBytes() );
         outputStream.close();
         if ( !isWindows ) {
-          String tempFilename = HopVFS.getFilename( tempFile );
+          String tempFilename = HopVfs.getFilename( tempFile );
           // Now we have to make this file executable...
           // On Unix-like systems this is done using the command "/bin/chmod +x filename"
           //

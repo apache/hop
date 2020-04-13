@@ -22,11 +22,11 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.hop.core.gui.IGUIPosition;
+import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Font;
@@ -99,7 +99,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
   protected float calculateCorrectedMagnification() {
-    return (float) ( magnification * PropsUI.getInstance().getZoomFactor() );
+    return (float) ( magnification * PropsUi.getInstance().getZoomFactor() );
   }
 
   protected Point magnifyPoint( Point p ) {
@@ -137,12 +137,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return area;
   }
 
-  protected <T extends IGUIPosition> void doRightClickSelection( T clicked, List<T> selection ) {
+  protected <T extends IGuiPosition> void doRightClickSelection( T clicked, List<T> selection ) {
     if ( selection.contains( clicked ) ) {
       return;
     }
     if ( !selection.isEmpty() ) {
-      for ( IGUIPosition selected : selection ) {
+      for ( IGuiPosition selected : selection ) {
         selected.setSelected( false );
       }
       selection.clear();
@@ -162,7 +162,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     if ( hasChanged() != changedState ) {
       changedState = hasChanged();
       if ( hasChanged() ) {
-        parentTabItem.setFont( GUIResource.getInstance().getFontBold() );
+        parentTabItem.setFont( GuiResource.getInstance().getFontBold() );
       } else {
         parentTabItem.setFont( defaultFont );
       }

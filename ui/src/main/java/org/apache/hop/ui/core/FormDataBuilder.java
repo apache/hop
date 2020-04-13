@@ -116,7 +116,7 @@ public class FormDataBuilder implements Cloneable {
   }
 
   public FormDataBuilder top( Control control ) {
-    return top( control, ConstUI.SMALL_MARGIN );
+    return top( control, ConstUi.SMALL_MARGIN );
   }
 
   public FormDataBuilder fullWidth() {

@@ -29,7 +29,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -164,7 +164,7 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
         try {
           String realFilefoldername = environmentSubstitute( arguments[ i ] );
-          file = HopVFS.getFileObject( realFilefoldername, this );
+          file = HopVfs.getFileObject( realFilefoldername, this );
 
           if ( file.exists() && file.isReadable() ) { // TODO: is it needed to check file for readability?
             if ( log.isDetailed() ) {

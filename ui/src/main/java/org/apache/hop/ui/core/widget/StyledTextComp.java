@@ -25,8 +25,8 @@ package org.apache.hop.ui.core.widget;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
@@ -133,10 +133,10 @@ public class StyledTextComp extends Composite {
 
     if ( this.varsSensitive ) {
       styledText.addKeyListener( new ControlSpaceKeyAdapter( this.variables, styledText ) );
-      image = GUIResource.getInstance().getImageVariable();
+      image = GuiResource.getInstance().getImageVariable();
       if ( variableIconOnTop ) {
         final Label wicon = new Label( this, SWT.RIGHT );
-        PropsUI.getInstance().setLook( wicon );
+        PropsUi.getInstance().setLook( wicon );
         wicon.setToolTipText( BaseMessages.getString( PKG, "StyledTextComp.tooltip.InsertVariable" ) );
         wicon.setImage( image );
         wicon.setLayoutData( new FormDataBuilder().top().right( 100, 0 ).result() );
@@ -147,7 +147,7 @@ public class StyledTextComp extends Composite {
         controlDecoration.setImage( image );
         controlDecoration
           .setDescriptionText( BaseMessages.getString( PKG, "StyledTextComp.tooltip.InsertVariable" ) );
-        PropsUI.getInstance().setLook( controlDecoration.getControl() );
+        PropsUi.getInstance().setLook( controlDecoration.getControl() );
       }
     }
 

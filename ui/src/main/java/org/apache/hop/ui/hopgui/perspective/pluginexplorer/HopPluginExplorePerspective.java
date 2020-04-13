@@ -36,16 +36,14 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -122,7 +120,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	public void show() {
 		composite.setVisible(true);
 		if (pluginImage==null) {
-			pluginImage = GUIResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin.svg", ConstUI.SMALL_ICON_SIZE );
+			pluginImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin.svg", ConstUi.SMALL_ICON_SIZE );
 		}
 		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginImage );
 	}
@@ -131,7 +129,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	public void hide() {
 		composite.setVisible(false);
 		if (pluginDisabledImage==null) {
-			pluginDisabledImage = GUIResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin_inactive.svg", ConstUI.SMALL_ICON_SIZE );
+			pluginDisabledImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin_inactive.svg", ConstUi.SMALL_ICON_SIZE );
 		}
 		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginDisabledImage );
 	}
@@ -158,7 +156,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
 		this.loadPlugin();
 
-		PropsUI props = PropsUI.getInstance();
+		PropsUi props = PropsUi.getInstance();
 
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FormLayout());
@@ -279,7 +277,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
 					if (value != null) {
 						item.setText(column + 1, value);
-						item.setForeground(column + 1, GUIResource.getInstance().getColorBlack());
+						item.setForeground(column + 1, GuiResource.getInstance().getColorBlack());
 					} 
 				} catch (HopValueException e) {
 					// Ignore

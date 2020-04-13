@@ -31,8 +31,8 @@ import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
@@ -112,7 +112,7 @@ public class HopGuiWorkflowMetricsDelegate {
     // Add a pipelineMetricsTab : displays the metrics information in a graphical way...
     //
     jobMetricsTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
-    jobMetricsTab.setImage( GUIResource.getInstance().getImageGantt() );
+    jobMetricsTab.setImage( GuiResource.getInstance().getImageGantt() );
     jobMetricsTab.setText( BaseMessages.getString( PKG, "HopGui.JobGraph.MetricsTab.Name" ) );
 
     sMetricsComposite = new ScrolledComposite( jobGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
@@ -121,7 +121,7 @@ public class HopGuiWorkflowMetricsDelegate {
     // Create a composite, slam everything on there like it was in the history tab.
     //
     metricsComposite = new Composite( sMetricsComposite, SWT.NONE );
-    metricsComposite.setBackground( GUIResource.getInstance().getColorBackground() );
+    metricsComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     metricsComposite.setLayout( new FormLayout() );
 
     hopUi.getProps().setLook( metricsComposite );
@@ -202,10 +202,10 @@ public class HopGuiWorkflowMetricsDelegate {
             return;
           }
 
-          event.gc.setForeground( GUIResource.getInstance().getColorWhite() );
-          event.gc.setBackground( GUIResource.getInstance().getColorWhite() );
+          event.gc.setForeground( GuiResource.getInstance().getColorWhite() );
+          event.gc.setBackground( GuiResource.getInstance().getColorWhite() );
           event.gc.fillRectangle( new Rectangle( 0, 0, bounds.width, bounds.height ) );
-          event.gc.setForeground( GUIResource.getInstance().getColorBlack() );
+          event.gc.setForeground( GuiResource.getInstance().getColorBlack() );
           String metricsMessage = BaseMessages.getString( PKG, "JobMetricsDelegate.JobIsNotRunning.Message" );
           org.eclipse.swt.graphics.Point extent = event.gc.textExtent( metricsMessage );
           event.gc.drawText( metricsMessage, ( bounds.width - extent.x ) / 2, ( bounds.height - extent.y ) / 2 );
@@ -346,7 +346,7 @@ public class HopGuiWorkflowMetricsDelegate {
     bounds.height = Math.max( durations.size() * barHeight, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
+    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUi.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, barHeight );
     // checking according to method's contract
     drawAreas = painter.paint( durations );

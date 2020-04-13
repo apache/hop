@@ -29,8 +29,8 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -106,7 +106,7 @@ public class GuiCompositeWidgets {
       return lastControl;
     }
 
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
     boolean isToolbar = parent instanceof ToolBar;
     Label label = null;
     Control control = null;
@@ -169,10 +169,10 @@ public class GuiCompositeWidgets {
         case TOOLBAR_BUTTON:
           ToolItem item = new ToolItem( (ToolBar) parent, SWT.NONE );
           if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
-            item.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+            item.setImage( GuiResource.getInstance().getImage( guiElements.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
           }
           if ( StringUtils.isNotEmpty( guiElements.getDisabledImage() ) ) {
-            item.setDisabledImage( GUIResource.getInstance().getImage( guiElements.getDisabledImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+            item.setDisabledImage( GuiResource.getInstance().getImage( guiElements.getDisabledImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
           }
           if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
             item.setToolTipText( guiElements.getToolTip() );

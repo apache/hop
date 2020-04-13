@@ -36,8 +36,8 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -132,7 +132,7 @@ public class HopGuiPipelineGridDelegate {
     }
 
     pipelineGridTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelineGridTab.setImage( GUIResource.getInstance().getImageShowGrid() );
+    pipelineGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
     pipelineGridTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.GridTab.Name" ) );
 
     pipelineGridComposite = new Composite( pipelineGraph.extraViewTabFolder, SWT.NONE );
@@ -262,9 +262,9 @@ public class HopGuiPipelineGridDelegate {
     ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_INACTIVE );
     if ( toolItem != null ) {
       if ( hideInactiveTransforms ) {
-        toolItem.setImage( GUIResource.getInstance().getImageHideInactive() );
+        toolItem.setImage( GuiResource.getInstance().getImageHideInactive() );
       } else {
-        toolItem.setImage( GUIResource.getInstance().getImageShowInactive() );
+        toolItem.setImage( GuiResource.getInstance().getImageShowInactive() );
       }
     }
     refreshView();
@@ -285,9 +285,9 @@ public class HopGuiPipelineGridDelegate {
     ToolItem toolItem = toolbarWidget.findToolItem( TOOLBAR_ICON_SHOW_HIDE_SELECTED );
     if ( toolItem != null ) {
       if ( showSelectedTransforms ) {
-        toolItem.setImage( GUIResource.getInstance().getImageShowSelected() );
+        toolItem.setImage( GuiResource.getInstance().getImageShowSelected() );
       } else {
-        toolItem.setImage( GUIResource.getInstance().getImageShowAll() );
+        toolItem.setImage( GuiResource.getInstance().getImageShowAll() );
       }
     }
     refreshView();
@@ -367,7 +367,7 @@ public class HopGuiPipelineGridDelegate {
       // Remove the old stuff on the composite...
       //
       pipelineGridView.dispose();
-      pipelineGridView = new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUI.getInstance() );
+      pipelineGridView = new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUi.getInstance() );
       pipelineGridView.setSortable( false ); // TODO: re-implement
       FormData fdView = new FormData();
       fdView.left = new FormAttachment( 0, 0 );
@@ -412,9 +412,9 @@ public class HopGuiPipelineGridDelegate {
 
     // Error lines should appear in red:
     if ( baseTransform.getErrors() > 0 ) {
-      row.setBackground( GUIResource.getInstance().getColorRed() );
+      row.setBackground( GuiResource.getInstance().getColorRed() );
     } else {
-      row.setBackground( GUIResource.getInstance().getColorWhite() );
+      row.setBackground( GuiResource.getInstance().getColorWhite() );
     }
   }
 

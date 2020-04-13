@@ -26,7 +26,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.checkfilelocked.LockFile;
 import org.apache.hop.pipeline.Pipeline;
@@ -99,7 +99,7 @@ public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> im
         if ( meta.addResultFilenames() ) {
           // Add this to the result file names...
           ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename ), getPipelineMeta()
+            new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename ), getPipelineMeta()
               .getName(), getTransformName() );
           resultFile.setComment( BaseMessages.getString( PKG, "FileLocked.Log.FileAddedResult" ) );
           addResultFile( resultFile );

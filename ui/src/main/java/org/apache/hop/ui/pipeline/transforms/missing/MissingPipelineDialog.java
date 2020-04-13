@@ -28,8 +28,8 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.missing.Missing;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,7 +53,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
   private Shell shellParent;
   private List<Missing> missingPipeline;
   private int mode;
-  private PropsUI props;
+  private PropsUi props;
   private String transformResult;
 
   public static final int MISSING_PIPELINE_TRANSFORMS = 1;
@@ -96,7 +96,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
   }
 
   public String open() {
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     Display display = shellParent.getDisplay();
     int margin = props.getMargin();
 
@@ -105,7 +105,7 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
         | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

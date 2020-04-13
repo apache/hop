@@ -33,7 +33,7 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
-import org.apache.hop.core.DBCache;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
@@ -74,7 +74,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
@@ -234,7 +234,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * The database cache.
    */
-  protected DBCache dbCache;
+  protected DbCache dbCache;
 
   /**
    * The time (in nanoseconds) to wait when the input buffer is empty.
@@ -638,7 +638,7 @@ public class PipelineMeta extends AbstractMeta
     super.clear();
 
     // LOAD THE DATABASE CACHE!
-    dbCache = DBCache.getInstance();
+    dbCache = DbCache.getInstance();
 
     // Thread priority:
     // - set to false in version 2.5.0
@@ -2206,7 +2206,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc = null;
     try {
-      final FileObject pipelineFile = HopVFS.getFileObject( fname, parentVariableSpace );
+      final FileObject pipelineFile = HopVfs.getFileObject( fname, parentVariableSpace );
       if ( !pipelineFile.exists() ) {
         throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
       }
@@ -3930,7 +3930,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @return the database cache object.
    */
-  public DBCache getDbCache() {
+  public DbCache getDbCache() {
     return dbCache;
   }
 
@@ -3939,7 +3939,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param dbCache the database cache object to set
    */
-  public void setDbCache( DBCache dbCache ) {
+  public void setDbCache( DbCache dbCache ) {
     this.dbCache = dbCache;
   }
 
@@ -4244,7 +4244,7 @@ public class PipelineMeta extends AbstractMeta
 
   /**
    * Check a transform to see if there are no multiple transforms to read from. If so, check to see if the receiving rows are all
-   * the same in layout. We only want to ONLY use the DBCache for this to prevent GUI stalls.
+   * the same in layout. We only want to ONLY use the DbCache for this to prevent GUI stalls.
    *
    * @param transformMeta the transform to check
    * @param monitor       the monitor
@@ -4322,7 +4322,7 @@ public class PipelineMeta extends AbstractMeta
     //
     if ( !Utils.isEmpty( filename ) ) {
       try {
-        FileObject fileObject = HopVFS.getFileObject( filename, var );
+        FileObject fileObject = HopVfs.getFileObject( filename, var );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
@@ -4461,7 +4461,7 @@ public class PipelineMeta extends AbstractMeta
       String fullname;
       String extension = "ktr";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();

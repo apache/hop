@@ -33,8 +33,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -88,7 +88,7 @@ public class PreviewRowsDialog {
 
   private List<Object[]> buffer;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private String title, message;
 
@@ -142,7 +142,7 @@ public class PreviewRowsDialog {
     this.style = ( style != SWT.None ) ? style : this.style;
     this.dialogClosedListeners = new ArrayList<IDialogClosedListener>();
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     bounds = null;
     hscroll = -1;
     vscroll = -1;
@@ -160,7 +160,7 @@ public class PreviewRowsDialog {
   public void open() {
     shell = new Shell( parentShell, style );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -409,11 +409,11 @@ public class PreviewRowsDialog {
 
       if ( show != null ) {
         item.setText( c + 1, show );
-        item.setForeground( c + 1, GUIResource.getInstance().getColorBlack() );
+        item.setForeground( c + 1, GuiResource.getInstance().getColorBlack() );
       } else {
         // Set null value
         item.setText( c + 1, "<null>" );
-        item.setForeground( c + 1, GUIResource.getInstance().getColorBlue() );
+        item.setForeground( c + 1, GuiResource.getInstance().getColorBlue() );
       }
     }
 

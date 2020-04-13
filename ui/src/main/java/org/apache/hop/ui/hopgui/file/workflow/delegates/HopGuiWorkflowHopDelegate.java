@@ -27,7 +27,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -39,12 +39,12 @@ public class HopGuiWorkflowHopDelegate {
 
   private HopGui hopUi;
   private HopGuiWorkflowGraph jobGraph;
-  private PropsUI props;
+  private PropsUi props;
 
   public HopGuiWorkflowHopDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
     this.hopUi = hopGui;
     this.jobGraph = jobGraph;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
   public void newHop( WorkflowMeta workflowMeta, ActionCopy fr, ActionCopy to ) {

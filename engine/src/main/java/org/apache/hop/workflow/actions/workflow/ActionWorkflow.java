@@ -45,7 +45,7 @@ import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.IDelegationListener;
@@ -375,7 +375,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       try {
         logChannelFileWriter =
           new LogChannelFileWriter(
-            this.getLogChannelId(), HopVFS.getFileObject( realLogFilename ), setAppendLogfile );
+            this.getLogChannelId(), HopVfs.getFileObject( realLogFilename ), setAppendLogfile );
         logChannelFileWriter.startLogging();
       } catch ( HopException e ) {
         logError( "Unable to open file appender for file [" + getLogFilename() + "] : " + e.toString() );
@@ -787,7 +787,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
               FileObject logfile = logChannelFileWriter.getLogFile();
               OutputStream logFileOutputStream = null;
               try {
-                logFileOutputStream = HopVFS.getOutputStream( logfile, setAppendLogfile );
+                logFileOutputStream = HopVfs.getOutputStream( logfile, setAppendLogfile );
                 logFileOutputStream.write( logFromCarte.getBytes() );
                 logFileOutputStream.flush();
               } catch ( Exception e ) {
@@ -893,7 +893,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     boolean resultat = true;
     try {
       // Get parent folder
-      parentfolder = HopVFS.getFileObject( filename, this ).getParent();
+      parentfolder = HopVfs.getFileObject( filename, this ).getParent();
       if ( !parentfolder.exists() ) {
         if ( createParentFolder ) {
           if ( log.isDebug() ) {

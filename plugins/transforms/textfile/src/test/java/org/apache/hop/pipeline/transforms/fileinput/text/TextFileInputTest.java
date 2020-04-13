@@ -36,13 +36,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineTestingUtil;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
@@ -354,7 +352,7 @@ public class TextFileInputTest {
                                               String... outputFields ) throws Exception {
     TextFileInputData data = new TextFileInputData();
     data.files = new FileInputList();
-    data.files.addFile( HopVFS.getFileObject( file ) );
+    data.files.addFile( HopVfs.getFileObject( file ) );
 
     data.separator = separator;
 
@@ -384,7 +382,7 @@ public class TextFileInputTest {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     bos.write( content.toString().getBytes() );
 
-    try ( OutputStream os = HopVFS.getFileObject( virtualFile ).getContent().getOutputStream() ) {
+    try ( OutputStream os = HopVfs.getFileObject( virtualFile ).getContent().getOutputStream() ) {
       IOUtils.copy( new ByteArrayInputStream( bos.toByteArray() ), os );
     }
 

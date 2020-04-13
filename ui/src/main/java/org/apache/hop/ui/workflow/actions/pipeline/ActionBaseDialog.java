@@ -31,7 +31,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.ExecutorUtil;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -561,7 +561,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
       String filename = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
       FileObject file = null;
       try {
-        file = HopVFS.getFileObject( filename );
+        file = HopVfs.getFileObject( filename );
         // Set file extension ..
         wLogext.setText( file.getName().getExtension() );
         // Set filename without extension ...

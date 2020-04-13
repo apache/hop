@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.excelinput.ods;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
@@ -47,7 +47,7 @@ public class OdfWorkbook implements IKWorkbook {
     this.encoding = encoding;
 
     try {
-      document = OdfSpreadsheetDocument.loadDocument( HopVFS.getInputStream( filename ) );
+      document = OdfSpreadsheetDocument.loadDocument( HopVfs.getInputStream( filename ) );
     } catch ( Exception e ) {
       throw new HopException( e );
     }

@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 17-may-2006
  */
 public class LabelTextVar extends Composite {
-  private static final PropsUI props = PropsUI.getInstance();
+  private static final PropsUi props = PropsUi.getInstance();
 
   private Label wLabel;
   private TextVar wText;

@@ -27,7 +27,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -316,16 +316,16 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
             if ( curFile.trim().length() > 0 ) {
               detachedFilename =
-                HopVFS.getInstance().getFileSystemManager().resolveFile(
+                HopVfs.getInstance().getFileSystemManager().resolveFile(
                   workflowMeta.environmentSubstitute( wDetachedFilename.getText() ) );
             } else {
               detachedFilename =
-                HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+                HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
             }
 
           } catch ( FileSystemException ex ) {
             detachedFilename =
-              HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+              HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
           FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
@@ -333,7 +333,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
           fileDialog.setFilterNames( FILETYPES );
           fileDialog.setFilterExtensions( EXTENSIONS );
           if ( detachedFilename != null ) {
-            fileDialog.setFileName( HopVFS.getFilename( detachedFilename ) );
+            fileDialog.setFileName( HopVfs.getFilename( detachedFilename ) );
           }
           String filename = fileDialog.open();
           if ( filename != null ) {
@@ -362,14 +362,14 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
             if ( curFile.trim().length() > 0 ) {
               fileName =
-                HopVFS.getInstance().getFileSystemManager().resolveFile(
+                HopVfs.getInstance().getFileSystemManager().resolveFile(
                   workflowMeta.environmentSubstitute( wFilename.getText() ) );
             } else {
-              fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
             }
 
           } catch ( FileSystemException ex ) {
-            fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+            fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
           FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
@@ -377,7 +377,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
           fileDialog.setFilterNames( FILETYPES );
           fileDialog.setFilterExtensions( EXTENSIONS );
           if ( fileName != null ) {
-            fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+            fileDialog.setFileName( HopVfs.getFilename( fileName ) );
           }
           String filename = fileDialog.open();
           if ( filename != null ) {
@@ -405,14 +405,14 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
             if ( curFile.trim().length() > 0 ) {
               fileName =
-                HopVFS.getInstance().getFileSystemManager().resolveFile(
+                HopVfs.getInstance().getFileSystemManager().resolveFile(
                   workflowMeta.environmentSubstitute( wGPGLocation.getText() ) );
             } else {
-              fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
             }
 
           } catch ( FileSystemException ex ) {
-            fileName = HopVFS.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
+            fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
           FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
@@ -420,7 +420,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
           fileDialog.setFilterNames( FILETYPES );
           fileDialog.setFilterExtensions( EXTENSIONS );
           if ( fileName != null ) {
-            fileDialog.setFileName( HopVFS.getFilename( fileName ) );
+            fileDialog.setFileName( HopVfs.getFilename( fileName ) );
           }
           String filename = fileDialog.open();
           if ( filename != null ) {

@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -646,7 +646,7 @@ public class CsvInputMeta
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
 
         // If the file doesn't exist, forget about this effort too!
         //
@@ -687,7 +687,7 @@ public class CsvInputMeta
   public FileObject getHeaderFileObject( final PipelineMeta pipelineMeta ) {
     final String filename = pipelineMeta.environmentSubstitute( getFilename() );
     try {
-      return HopVFS.getFileObject( filename );
+      return HopVfs.getFileObject( filename );
     } catch ( final HopFileException e ) {
       return null;
     }

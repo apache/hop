@@ -41,7 +41,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -136,7 +136,7 @@ public class SftpClient {
           this.passphrase = passPhrase;
           passphrasebytes = GetPrivateKeyPassPhrase().getBytes();
         }
-        jsch.addIdentity( getUserName(), FileUtil.getContent( HopVFS.getFileObject( prvkey ) ), // byte[] privateKey
+        jsch.addIdentity( getUserName(), FileUtil.getContent( HopVfs.getFileObject( prvkey ) ), // byte[] privateKey
           null, // byte[] publicKey
           passphrasebytes ); // byte[] passPhrase
       }
@@ -215,7 +215,7 @@ public class SftpClient {
   public void get( FileObject localFile, String remoteFile ) throws HopWorkflowException {
     OutputStream localStream = null;
     try {
-      localStream = HopVFS.getOutputStream( localFile, false );
+      localStream = HopVfs.getOutputStream( localFile, false );
       c.get( remoteFile, localStream );
     } catch ( SftpException e ) {
       throw new HopWorkflowException( e );
@@ -260,7 +260,7 @@ public class SftpClient {
     int mode = ChannelSftp.OVERWRITE;
     InputStream inputStream = null;
     try {
-      inputStream = HopVFS.getInputStream( fileObject );
+      inputStream = HopVfs.getInputStream( fileObject );
       c.put( inputStream, remoteFile, null, mode );
     } catch ( Exception e ) {
       throw new HopWorkflowException( e );

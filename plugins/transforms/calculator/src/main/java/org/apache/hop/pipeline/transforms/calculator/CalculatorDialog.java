@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -479,7 +479,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
 
   protected Image getImage() {
     return SwtSvgImageUtil
-      .getImage( shell.getDisplay(), getClass().getClassLoader(), "CLC.svg", ConstUI.LARGE_ICON_SIZE,
-        ConstUI.LARGE_ICON_SIZE );
+      .getImage( shell.getDisplay(), getClass().getClassLoader(), "CLC.svg", ConstUi.LARGE_ICON_SIZE,
+        ConstUi.LARGE_ICON_SIZE );
   }
 }

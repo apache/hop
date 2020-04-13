@@ -26,14 +26,12 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.BufferedReader;
@@ -136,7 +134,7 @@ public class ChangeFileEncoding extends BaseTransform<ChangeFileEncodingMeta, Ch
           meta.getTargetFilenameField() ) );
       }
 
-      data.sourceFile = HopVFS.getFileObject( sourceFilename );
+      data.sourceFile = HopVfs.getFileObject( sourceFilename );
 
       // Check if source file exists
       if ( !data.sourceFile.exists() ) {
@@ -232,7 +230,7 @@ public class ChangeFileEncoding extends BaseTransform<ChangeFileEncodingMeta, Ch
       if ( meta.addTargetResultFilenames() ) {
         // Add this to the result file names...
         ResultFile resultFile =
-          new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( targetFilename ),
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( targetFilename ),
             getPipelineMeta().getName(), getTransformName() );
         resultFile.setComment( BaseMessages.getString( PKG, "ChangeFileEncoding.Log.FileAddedResult" ) );
         addResultFile( resultFile );

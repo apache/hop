@@ -23,7 +23,7 @@
 package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.IGUIOption;
+import org.apache.hop.core.gui.GuiOption;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.Map;
  * User: nbaker Date: 3/14/11
  */
 @PluginMainClassType( IPluginRegistryExtension.class )
-@PluginExtraClassTypes( classTypes = { IGUIOption.class } )
+@PluginExtraClassTypes( classTypes = { GuiOption.class } )
 @PluginAnnotationType( RegistryPlugin.class )
 public class PluginRegistryPluginType extends BasePluginType implements IPluginType {
 

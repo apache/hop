@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,11 +37,11 @@ import org.eclipse.swt.widgets.Group;
 public class RadioTab extends Composite {
   Group radioGroup;
   Composite contentArea;
-  private PropsUI props;
+  private PropsUi props;
   private final FormData fdMaximize;
   private final FormLayout noMarginLayout;
 
-  public RadioTab( Composite composite, int i, String title, PropsUI props ) {
+  public RadioTab( Composite composite, int i, String title, PropsUi props ) {
     super( composite, i );
     this.props = props;
     props.setLook( this );

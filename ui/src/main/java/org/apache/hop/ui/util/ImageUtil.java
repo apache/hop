@@ -35,7 +35,7 @@ package org.apache.hop.ui.util;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -55,7 +55,7 @@ public class ImageUtil {
 
   static {
     try {
-      base = HopVFS.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
+      base = HopVfs.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
     } catch ( FileSystemException e ) {
       e.printStackTrace();
       base = null;
@@ -89,8 +89,8 @@ public class ImageUtil {
       }
     }
     try {
-      FileObject imageFileObject = HopVFS.getInstance().getFileSystemManager().resolveFile( base, location );
-      return HopVFS.getInputStream( imageFileObject );
+      FileObject imageFileObject = HopVfs.getInstance().getFileSystemManager().resolveFile( base, location );
+      return HopVfs.getInputStream( imageFileObject );
     } catch ( FileSystemException e ) {
       throw new RuntimeException( "Unable to load image with name [" + location + "]", e );
     }
@@ -136,7 +136,7 @@ public class ImageUtil {
   public static Image getImage( Display display, String location ) {
     // TODO: find other instances of getImage (plugin, transforms) and transition them to new model through an laf manager
     try {
-      InputStream is = HopVFS.getInputStream( location );
+      InputStream is = HopVfs.getInputStream( location );
       Image im = new Image( display, is );
       is.close();
       return im;

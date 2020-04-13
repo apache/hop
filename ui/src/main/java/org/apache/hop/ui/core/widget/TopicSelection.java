@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,7 +41,7 @@ import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 
 public class TopicSelection extends Composite {
 
-  private final PropsUI props;
+  private final PropsUi props;
   private final PipelineMeta pipelineMeta;
   private final BaseTransformMeta transformMeta;
   private final ModifyListener lsMod;
@@ -221,7 +221,7 @@ public class TopicSelection extends Composite {
   public static final class Builder {
     private Composite composite;
     private int style;
-    private PropsUI props;
+    private PropsUi props;
     private PipelineMeta pipelineMeta;
     private BaseTransformMeta transformMeta;
     private ModifyListener lsMod;
@@ -242,7 +242,7 @@ public class TopicSelection extends Composite {
       return this;
     }
 
-    public Builder setProps( PropsUI props ) {
+    public Builder setProps( PropsUi props ) {
       this.props = props;
       return this;
     }

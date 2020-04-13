@@ -36,8 +36,8 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -88,7 +88,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
   private Composite wPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
 
-  private final PropsUI props;
+  private final PropsUi props;
   private int middle;
   private int margin;
 
@@ -107,7 +107,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     this.metaStore = metaStore;
     this.runConfiguration = runConfiguration;
     this.workingConfiguration = new PipelineRunConfiguration( runConfiguration );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     metaMap = populateMetaMap();
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
       metaMap.put( workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), workingConfiguration.getEngineRunConfiguration() );
@@ -143,7 +143,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     //
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageToolbarRun() );
+    shell.setImage( GuiResource.getInstance().getImageToolbarRun() );
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
@@ -396,7 +396,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
 
     HopClientEnvironment.init();
-    PropsUI.init( display );
+    PropsUi.init( display );
     HopEnvironment.init();
     HopGuiEnvironment.init();
     // LocalPipelineRunConfiguration localConfig = new LocalPipelineRunConfiguration( "Local", "Local pipeline engine", "5000" );

@@ -28,7 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -329,8 +329,8 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
   }
 
   private Image getImage() {
-    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "Abort.svg", ConstUI.LARGE_ICON_SIZE,
-      ConstUI.LARGE_ICON_SIZE );
+    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "Abort.svg", ConstUi.LARGE_ICON_SIZE,
+      ConstUi.LARGE_ICON_SIZE );
   }
 
   /**

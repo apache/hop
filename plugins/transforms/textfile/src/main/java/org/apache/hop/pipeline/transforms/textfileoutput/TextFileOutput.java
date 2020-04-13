@@ -29,7 +29,7 @@ import org.apache.hop.core.WriterOutputStream;
 import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
-import org.apache.hop.core.compress.zip.ZIPCompressionProvider;
+import org.apache.hop.core.compress.zip.ZipCompressionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -39,15 +39,13 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -158,7 +156,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           }
 
           ICompressionProvider compressionProvider = getCompressionProvider();
-          boolean isZipFile = compressionProvider instanceof ZIPCompressionProvider;
+          boolean isZipFile = compressionProvider instanceof ZipCompressionProvider;
           boolean createParentDirIfNotExists = meta.isCreateParentFolder();
           boolean appendToExistingFile = meta.isFileAppended();
 
@@ -207,7 +205,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           data.getFileStreamsCollection().add( filename, fileStreams );
 
           if ( log.isDetailed() ) {
-            logDetailed( "Opened new file with name [" + HopVFS.getFriendlyURI( filename ) + "]" );
+            logDetailed( "Opened new file with name [" + HopVfs.getFriendlyURI( filename ) + "]" );
           }
         } else if ( fileStreams.getBufferedOutputStream() == null ) { // File was previously opened and now needs to be reopened.
           int maxOpenFiles = getMaxOpenFiles();
@@ -825,7 +823,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           initOutput();
         } catch ( Exception e ) {
           logError( "Couldn't open file "
-            + HopVFS.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
+            + HopVfs.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
             + "." + getParentVariableSpace().environmentSubstitute( meta.getExtension() ), e );
           setErrors( 1L );
           stopAll();
@@ -981,22 +979,22 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
       if ( parentfolder.exists() ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderExist",
-            HopVFS.getFriendlyURI( parentfolder ) ) );
+            HopVfs.getFriendlyURI( parentfolder ) ) );
         }
       } else {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderNotExist",
-            HopVFS.getFriendlyURI( parentfolder ) ) );
+            HopVfs.getFriendlyURI( parentfolder ) ) );
         }
         if ( meta.isCreateParentFolder() ) {
           parentfolder.createFolder();
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderCreated",
-              HopVFS.getFriendlyURI( parentfolder ) ) );
+              HopVfs.getFriendlyURI( parentfolder ) ) );
           }
         } else {
           throw new HopException( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderNotExistCreateIt",
-            HopVFS.getFriendlyURI( parentfolder ), HopVFS.getFriendlyURI( filename ) ) );
+            HopVfs.getFriendlyURI( parentfolder ), HopVfs.getFriendlyURI( filename ) ) );
         }
       }
     } finally {
@@ -1011,15 +1009,15 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   protected FileObject getFileObject( String vfsFilename ) throws HopFileException {
-    return HopVFS.getFileObject( vfsFilename );
+    return HopVfs.getFileObject( vfsFilename );
   }
 
   protected FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
-    return HopVFS.getFileObject( vfsFilename, variables );
+    return HopVfs.getFileObject( vfsFilename, variables );
   }
 
   protected OutputStream getOutputStream( String vfsFilename, IVariables variables, boolean append ) throws HopFileException {
-    return HopVFS.getOutputStream( vfsFilename, variables, append );
+    return HopVfs.getOutputStream( vfsFilename, variables, append );
   }
 
 }

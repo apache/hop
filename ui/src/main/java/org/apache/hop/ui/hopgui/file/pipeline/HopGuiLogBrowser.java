@@ -35,8 +35,8 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.text.Format;
 import org.apache.hop.ui.core.widget.text.TextFormatter;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -87,9 +87,9 @@ public class HopGuiLogBrowser {
     final HopLogLayout logLayout = new HopLogLayout( true );
 
     final StyleRange normalLogLineStyle = new StyleRange();
-    normalLogLineStyle.foreground = GUIResource.getInstance().getColorBlue();
+    normalLogLineStyle.foreground = GuiResource.getInstance().getColorBlue();
     final StyleRange errorLogLineStyle = new StyleRange();
-    errorLogLineStyle.foreground = GUIResource.getInstance().getColorRed();
+    errorLogLineStyle.foreground = GuiResource.getInstance().getColorRed();
 
     // Refresh the log every second or so
     //
@@ -152,13 +152,13 @@ public class HopGuiLogBrowser {
 
                       if ( event.getLevel() == LogLevel.ERROR ) {
                         StyleRange styleRange = new StyleRange();
-                        styleRange.foreground = GUIResource.getInstance().getColorRed();
+                        styleRange.foreground = GuiResource.getInstance().getColorRed();
                         styleRange.start = start;
                         styleRange.length = length;
                         text.setStyleRange( styleRange );
                       } else {
                         StyleRange styleRange = new StyleRange();
-                        styleRange.foreground = GUIResource.getInstance().getColorBlue();
+                        styleRange.foreground = GuiResource.getInstance().getColorBlue();
                         styleRange.start = start;
                         styleRange.length = Math.min( 20, length );
                         text.setStyleRange( styleRange );
@@ -225,7 +225,7 @@ public class HopGuiLogBrowser {
       public void widgetSelected( SelectionEvent event ) {
         String selection = text.getSelectionText();
         if ( !Utils.isEmpty( selection ) ) {
-          GUIResource.getInstance().toClipboard( selection );
+          GuiResource.getInstance().toClipboard( selection );
         }
       }
     } );
@@ -234,7 +234,7 @@ public class HopGuiLogBrowser {
     text.addMouseListener( new MouseAdapter() {
       public void mouseDown( MouseEvent event ) {
         if ( event.button == 3 ) {
-          ConstUI.displayMenu( menu, text );
+          ConstUi.displayMenu( menu, text );
         }
       }
     } );

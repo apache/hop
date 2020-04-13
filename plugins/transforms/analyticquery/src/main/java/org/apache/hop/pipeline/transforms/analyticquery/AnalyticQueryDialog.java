@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -417,7 +417,7 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements ITransfo
           new String[] { BaseMessages.getString( PKG, "AnalyticQueryDialog.GroupByWarningDialog.Option1" ) },
           0, BaseMessages.getString( PKG, "AnalyticQueryDialog.GroupByWarningDialog.Option2" ),
           "N".equalsIgnoreCase( props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
       props.saveProps();

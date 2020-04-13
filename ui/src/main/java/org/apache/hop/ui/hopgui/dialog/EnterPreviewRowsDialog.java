@@ -26,9 +26,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -70,7 +70,7 @@ public class EnterPreviewRowsDialog extends Dialog {
   private java.util.List<String> transformNames;
   private java.util.List<IRowMeta> rowMetas;
   private java.util.List<java.util.List<Object[]>> rowDatas;
-  private PropsUI props;
+  private PropsUi props;
 
   public EnterPreviewRowsDialog( Shell parent, int style, java.util.List<String> transformNames,
                                  java.util.List<IRowMeta> rowMetas, java.util.List<java.util.List<Object[]>> rowBuffers ) {
@@ -78,7 +78,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     this.transformNames = transformNames;
     this.rowDatas = rowBuffers;
     this.rowMetas = rowMetas;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
   }
 
   public Object open() {
@@ -95,7 +95,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "EnterPreviewRowsDialog.Dialog.PreviewTransform.Title" ) ); // Select the
     // preview transform:
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();

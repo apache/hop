@@ -23,8 +23,8 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.gui.IGUIPosition;
-import org.apache.hop.core.gui.IGUISize;
+import org.apache.hop.core.gui.IGuiPosition;
+import org.apache.hop.core.gui.IGuiSize;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * @author Matt
  * @since 28-11-2003
  */
-public class NotePadMeta implements Cloneable, IXml, IGUIPosition, IGUISize {
+public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
   public static final String XML_TAG = "notepad";
 
   public static final int COLOR_RGB_BLACK_RED = 0;

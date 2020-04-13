@@ -25,10 +25,10 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -75,7 +75,7 @@ public class EnterNumberDialog extends Dialog {
   private String shellText;
   private String lineText;
   private String checkboxLabel;
-  private PropsUI props;
+  private PropsUi props;
 
   private int width;
 
@@ -83,7 +83,7 @@ public class EnterNumberDialog extends Dialog {
    * @deprecated Use the CT without the <i>Props</i> parameter (at 2nd position)
    */
   @Deprecated
-  public EnterNumberDialog( Shell parent, PropsUI props, int samples, String shellText, String lineText ) {
+  public EnterNumberDialog( Shell parent, PropsUi props, int samples, String shellText, String lineText ) {
     super( parent, SWT.NONE );
     this.props = props;
     this.samples = samples;
@@ -103,7 +103,7 @@ public class EnterNumberDialog extends Dialog {
 
   public EnterNumberDialog( Shell parent, int samples, String shellText, String lineText, final String checkboxLabel ) {
     super( parent, SWT.NONE );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.samples = samples;
     this.shellText = shellText;
     this.lineText = lineText;
@@ -116,7 +116,7 @@ public class EnterNumberDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = BaseDialog.MARGIN_SIZE;
@@ -151,7 +151,7 @@ public class EnterNumberDialog extends Dialog {
       fdCheckbox = new FormData();
       fdCheckbox.left = new FormAttachment( 0, 0 );
       fdCheckbox.top = new FormAttachment( wNumber, BaseDialog.ELEMENT_SPACING );
-      fdCheckbox.width = ConstUI.CHECKBOX_WIDTH;
+      fdCheckbox.width = ConstUi.CHECKBOX_WIDTH;
       wCheckbox.setLayoutData( fdCheckbox );
 
       wlCheckbox = new Label( shell, SWT.LEFT );

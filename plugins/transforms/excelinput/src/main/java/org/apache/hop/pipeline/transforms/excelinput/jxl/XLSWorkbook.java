@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.InputStream;
 
@@ -48,7 +48,7 @@ public class XLSWorkbook implements IKWorkbook {
       ws.setEncoding( encoding );
     }
     try {
-      workbook = Workbook.getWorkbook( HopVFS.getInputStream( filename ), ws );
+      workbook = Workbook.getWorkbook( HopVfs.getInputStream( filename ), ws );
     } catch ( Exception e ) {
       throw new HopException( e );
     }

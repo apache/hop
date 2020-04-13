@@ -67,7 +67,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
@@ -407,7 +407,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
         fireJobFinishListeners();
 
         // release unused vfs connections
-        HopVFS.freeUnusedResources();
+        HopVfs.freeUnusedResources();
 
       } catch ( HopException e ) {
         result.setNrErrors( 1 );
@@ -1389,7 +1389,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     boolean hasFilename = workflowMeta != null && !Utils.isEmpty( workflowMeta.getFilename() );
     if ( hasFilename ) { // we have a finename that's defined.
       try {
-        FileObject fileObject = HopVFS.getFileObject( workflowMeta.getFilename(), this );
+        FileObject fileObject = HopVfs.getFileObject( workflowMeta.getFilename(), this );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
@@ -1612,7 +1612,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
         // First export the workflow... slaveServer.getVariable("MASTER_HOST")
         //
         FileObject tempFile =
-          HopVFS.createTempFile( "jobExport", ".zip", System.getProperty( "java.io.tmpdir" ), workflowMeta );
+          HopVfs.createTempFile( "jobExport", ".zip", System.getProperty( "java.io.tmpdir" ), workflowMeta );
 
         TopLevelResource topLevelResource =
           ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,

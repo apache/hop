@@ -27,12 +27,12 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.SocketUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -199,7 +199,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wName.setLayoutData( fdName );
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, PropsUI.WIDGET_STYLE_TAB );
+    props.setLook( wTabFolder, PropsUi.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///

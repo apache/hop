@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -206,7 +206,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
+      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
 
       // If the file doesn't exist, forget about this effort too!
       //

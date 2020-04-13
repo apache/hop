@@ -31,7 +31,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.eclipse.swt.SWT;
@@ -88,7 +88,7 @@ public class ActionDialog extends Dialog {
   /**
    * A reference to the properties user interface
    */
-  protected PropsUI props;
+  protected PropsUi props;
 
   /**
    * A reference to the parent shell
@@ -109,7 +109,7 @@ public class ActionDialog extends Dialog {
    */
   public ActionDialog( Shell parent, IAction jobEntry, WorkflowMeta workflowMeta ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     this.jobEntryInt = jobEntry;
     this.workflowMeta = workflowMeta;

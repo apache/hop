@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import org.apache.hop.core.util.UUIDUtil;
+import org.apache.hop.core.util.UuidUtil;
 import org.eclipse.swt.custom.CTabItem;
 
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class TabFileItem {
   private CTabItem tabItem;
 
   public TabFileItem() {
-    uuid = UUIDUtil.getUUIDAsString();
+    uuid = UuidUtil.getUUIDAsString();
   }
 
   public TabFileItem( String filename, CTabItem tabItem ) {

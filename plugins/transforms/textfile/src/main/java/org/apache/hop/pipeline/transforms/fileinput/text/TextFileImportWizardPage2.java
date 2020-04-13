@@ -29,7 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -117,13 +117,13 @@ public class TextFileImportWizardPage2 extends WizardPage {
   private Button wPrev, wNext;
   private FormData fdPrev, fdNext;
 
-  private PropsUI props;
+  private PropsUi props;
   private java.util.List<String> rows;
   private Vector<ITextFileInputField> fields;
 
   private Shell shell;
 
-  public TextFileImportWizardPage2( String arg, PropsUI props, java.util.List<String> rows,
+  public TextFileImportWizardPage2( String arg, PropsUi props, java.util.List<String> rows,
                                     Vector<ITextFileInputField> fields ) {
     super( arg );
     this.props = props;

@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -511,7 +511,7 @@ public class XmlHandler {
    */
   public static Document loadXmlFile( String filename ) throws HopXmlException {
     try {
-      return loadXmlFile( HopVFS.getFileObject( filename ) );
+      return loadXmlFile( HopVfs.getFileObject( filename ) );
     } catch ( Exception e ) {
       throw new HopXmlException( e );
     }
@@ -539,7 +539,7 @@ public class XmlHandler {
   public static Document loadXmlFile( FileObject fileObject, String systemID, boolean ignoreEntities,
                                       boolean namespaceAware ) throws HopXmlException {
     try {
-      return loadXmlFile( HopVFS.getInputStream( fileObject ), systemID, ignoreEntities, namespaceAware );
+      return loadXmlFile( HopVfs.getInputStream( fileObject ), systemID, ignoreEntities, namespaceAware );
     } catch ( IOException e ) {
       throw new HopXmlException( "Unable to read file [" + fileObject.toString() + "]", e );
     }

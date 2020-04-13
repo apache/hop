@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -104,7 +104,7 @@ public class EnterPrintDialog extends Dialog {
   private Listener lsOk, lsCancel;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   public int nrcols, nrrows, scale;
   public Point page;
@@ -114,7 +114,7 @@ public class EnterPrintDialog extends Dialog {
   public EnterPrintDialog( Shell parent, int nrcols, int nrrows, int scale, double factorX, double factorY,
                            Rectangle m, double marginLeft, double marginRigth, double marginTop, double marginBottom, Image image ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.nrcols = nrcols;
     this.nrrows = nrrows;
     this.scale = scale;

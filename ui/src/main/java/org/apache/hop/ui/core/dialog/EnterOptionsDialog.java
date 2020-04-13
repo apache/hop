@@ -24,15 +24,15 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.IGUIOption;
+import org.apache.hop.core.gui.GuiOption;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -141,7 +141,7 @@ public class EnterOptionsDialog extends Dialog {
 
   private Shell shell;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private int middle;
 
@@ -161,14 +161,14 @@ public class EnterOptionsDialog extends Dialog {
    * @deprecated Use CT without <i>props</i> parameter instead
    */
   @Deprecated
-  public EnterOptionsDialog( Shell parent, PropsUI props ) {
+  public EnterOptionsDialog( Shell parent, PropsUi props ) {
     super( parent, SWT.NONE );
     this.props = props;
   }
 
   public EnterOptionsDialog( Shell parent ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
   }
 
   public Props open() {
@@ -179,7 +179,7 @@ public class EnterOptionsDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -307,8 +307,8 @@ public class EnterOptionsDialog extends Dialog {
     wdFFont.setLayoutData( fddFFont );
     wdFFont.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
-        fixedFontData = new FontData( PropsUI.getInstance().getFixedFont().getName(),
-          PropsUI.getInstance().getFixedFont().getHeight(), PropsUI.getInstance().getFixedFont().getStyle() );
+        fixedFontData = new FontData( PropsUi.getInstance().getFixedFont().getName(),
+          PropsUi.getInstance().getFixedFont().getHeight(), PropsUi.getInstance().getFixedFont().getStyle() );
         fixedFont.dispose();
         fixedFont = new Font( display, fixedFontData );
         wFFont.redraw();
@@ -518,7 +518,7 @@ public class EnterOptionsDialog extends Dialog {
         background.dispose();
 
         backgroundRGB =
-          new RGB( ConstUI.COLOR_BACKGROUND_RED, ConstUI.COLOR_BACKGROUND_GREEN, ConstUI.COLOR_BACKGROUND_BLUE );
+          new RGB( ConstUi.COLOR_BACKGROUND_RED, ConstUi.COLOR_BACKGROUND_GREEN, ConstUi.COLOR_BACKGROUND_BLUE );
         background = new Color( display, backgroundRGB );
         wBGColor.setBackground( background );
         wBGColor.redraw();
@@ -585,7 +585,7 @@ public class EnterOptionsDialog extends Dialog {
       public void widgetSelected( SelectionEvent arg0 ) {
         graphColor.dispose();
 
-        graphColorRGB = new RGB( ConstUI.COLOR_GRAPH_RED, ConstUI.COLOR_GRAPH_GREEN, ConstUI.COLOR_GRAPH_BLUE );
+        graphColorRGB = new RGB( ConstUi.COLOR_GRAPH_RED, ConstUi.COLOR_GRAPH_GREEN, ConstUi.COLOR_GRAPH_BLUE );
         graphColor = new Color( display, graphColorRGB );
         wGrColor.setBackground( graphColor );
         wGrColor.redraw();
@@ -648,7 +648,7 @@ public class EnterOptionsDialog extends Dialog {
       public void widgetSelected( SelectionEvent arg0 ) {
         tabColor.dispose();
 
-        tabColorRGB = new RGB( ConstUI.COLOR_TAB_RED, ConstUI.COLOR_TAB_GREEN, ConstUI.COLOR_TAB_BLUE );
+        tabColorRGB = new RGB( ConstUi.COLOR_TAB_RED, ConstUi.COLOR_TAB_GREEN, ConstUi.COLOR_TAB_BLUE );
         tabColor = new Color( display, tabColorRGB );
         wTabColor.setBackground( tabColor );
         wTabColor.redraw();
@@ -1162,7 +1162,7 @@ public class EnterOptionsDialog extends Dialog {
     Label refLabel = new Label( wGeneralComp, SWT.RIGHT );
     refLabel = tooltipLbl;
     Button lastbtn = closeAllFilesBtn;
-    for ( final IGUIOption<Object> e : PropsUI.getInstance().getRegisteredEditableComponents() ) {
+    for ( final GuiOption<Object> e : PropsUi.getInstance().getRegisteredEditableComponents() ) {
       if ( e.getLabelText() == null ) {
         continue;
       }
@@ -1221,10 +1221,10 @@ public class EnterOptionsDialog extends Dialog {
    */
   private FormData layoutResetOptionButton( Button button ) {
     FormData fd = new FormData();
-    Image editButton = GUIResource.getInstance().getResetOptionButton();
+    Image editButton = GuiResource.getInstance().getResetOptionButton();
     if ( editButton != null ) {
       button.setImage( editButton );
-      button.setBackground( GUIResource.getInstance().getColorWhite() );
+      button.setBackground( GuiResource.getInstance().getColorWhite() );
       fd.width = editButton.getBounds().width + 20;
       fd.height = editButton.getBounds().height;
     } else {
@@ -1242,10 +1242,10 @@ public class EnterOptionsDialog extends Dialog {
    */
   private FormData layoutEditOptionButton( Button button ) {
     FormData fd = new FormData();
-    Image editButton = GUIResource.getInstance().getEditOptionButton();
+    Image editButton = GuiResource.getInstance().getEditOptionButton();
     if ( editButton != null ) {
       button.setImage( editButton );
-      button.setBackground( GUIResource.getInstance().getColorWhite() );
+      button.setBackground( GuiResource.getInstance().getColorWhite() );
       fd.width = editButton.getBounds().width + 20;
       fd.height = editButton.getBounds().height;
     } else {
@@ -1275,7 +1275,7 @@ public class EnterOptionsDialog extends Dialog {
     // Magnify to compensate for the same reduction elsewhere.
     //
     graphFontData = props.getGraphFont();
-    graphFontData.height*=PropsUI.getNativeZoomFactor();
+    graphFontData.height*= PropsUi.getNativeZoomFactor();
     graphFont = new Font( display, graphFontData );
 
     noteFontData = props.getNoteFont();

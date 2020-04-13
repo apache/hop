@@ -25,8 +25,8 @@ package org.apache.hop.ui.core.widget;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
@@ -53,7 +53,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
 
   private static Class<?> PKG = ControlSpaceKeyAdapter.class; // for i18n purposes, needed by Translator!!
 
-  private static final PropsUI props = PropsUI.getInstance();
+  private static final PropsUi props = PropsUi.getInstance();
 
   private IGetCaretPosition getCaretPositionInterface;
 
@@ -124,7 +124,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       // Drop down a list of variables...
       //
       Rectangle bounds = control.getBounds();
-      Point location = GUIResource.calculateControlPosition( control );
+      Point location = GuiResource.calculateControlPosition( control );
 
       final Shell shell = new Shell( control.getShell(), SWT.NONE );
       shell.setSize( bounds.width > 300 ? bounds.width : 300, 200 );
@@ -134,7 +134,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       props.setLook( list );
       list.setItems( getVariableNames( variables ) );
       final DefaultToolTip toolTip = new DefaultToolTip( list, ToolTip.RECREATE, true );
-      toolTip.setImage( GUIResource.getInstance().getImageVariable() );
+      toolTip.setImage( GuiResource.getInstance().getImageVariable() );
       toolTip.setHideOnMouseDown( true );
       toolTip.setRespectMonitorBounds( true );
       toolTip.setRespectDisplayBounds( true );

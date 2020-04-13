@@ -27,9 +27,9 @@ import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -82,7 +82,7 @@ public class CheckResultDialog extends Dialog {
   private Listener lsClose, lsView, lsEdit, lsNoOK;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   private Color red, green, yellow;
 
@@ -95,7 +95,7 @@ public class CheckResultDialog extends Dialog {
   public CheckResultDialog( PipelineMeta pipelineMeta, Shell parent, int style, List<ICheckResult> rem ) {
     super( parent, style );
     remarks = rem;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     transformName = null;
     this.pipelineMeta = pipelineMeta;
   }
@@ -110,7 +110,7 @@ public class CheckResultDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

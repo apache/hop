@@ -32,8 +32,8 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -78,7 +78,7 @@ public class SQLStatementsDialog extends Dialog {
   private Listener lsClose, lsView, lsEdit, lsExec;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
 
   private Color red;
 
@@ -89,7 +89,7 @@ public class SQLStatementsDialog extends Dialog {
   public SQLStatementsDialog( Shell parent, IVariables variables, int style, List<SqlStatement> stats ) {
     super( parent, style );
     this.stats = stats;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.variables = variables;
 
     this.transformName = null;
@@ -103,7 +103,7 @@ public class SQLStatementsDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageConnection() );
+    shell.setImage( GuiResource.getInstance().getImageConnection() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

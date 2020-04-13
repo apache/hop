@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -285,7 +285,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
                     TableItem it = wFields.table.getItem( i );
                     if ( !Utils.isEmpty( it.getText( 1 ) ) ) {
                       if ( !inputFields.containsKey( it.getText( 1 ) ) ) {
-                        it.setBackground( GUIResource.getInstance().getColorRed() );
+                        it.setBackground( GuiResource.getInstance().getColorRed() );
                       }
                     }
                   }
@@ -410,7 +410,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
           0,
           BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.InputNeedSort.Option2" ), "N".equalsIgnoreCase(
           props.getCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
       props.saveProps();

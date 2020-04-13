@@ -29,7 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.gui.IGUIPosition;
+import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -54,7 +54,7 @@ import java.util.Map;
  * @since 01-10-2003
  */
 
-public class ActionCopy implements Cloneable, IXml, IGUIPosition, IChanged,
+public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
   IAttributes, IBaseMeta {
   public static final String XML_TAG = "entry";
 

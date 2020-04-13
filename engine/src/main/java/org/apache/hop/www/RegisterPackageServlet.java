@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
@@ -67,8 +67,8 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   @Override
   WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException {
-    FileObject tempFile = HopVFS.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
-    OutputStream out = HopVFS.getOutputStream( tempFile, false );
+    FileObject tempFile = HopVfs.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
+    OutputStream out = HopVfs.getOutputStream( tempFile, false );
     IOUtils.copy( request.getInputStream(), out );
     out.flush();
     IOUtils.closeQuietly( out );

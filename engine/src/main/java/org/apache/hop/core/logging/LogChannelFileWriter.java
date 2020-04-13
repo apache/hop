@@ -24,7 +24,7 @@ package org.apache.hop.core.logging;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -69,7 +69,7 @@ public class LogChannelFileWriter {
     finished = new AtomicBoolean( false );
 
     try {
-      logFileOutputStream = HopVFS.getOutputStream( logFile, appending );
+      logFileOutputStream = HopVfs.getOutputStream( logFile, appending );
     } catch ( IOException e ) {
       throw new HopException( "There was an error while trying to open file '" + logFile + "' for writing", e );
     }

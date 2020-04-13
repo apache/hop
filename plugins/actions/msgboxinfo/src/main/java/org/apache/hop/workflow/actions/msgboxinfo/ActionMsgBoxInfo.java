@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.gui.GUIFactory;
+import org.apache.hop.core.gui.GuiFactory;
 import org.apache.hop.core.gui.IThreadDialogs;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -105,7 +105,7 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
       // Try to display MSGBOX
       boolean response = true;
 
-      IThreadDialogs dialogs = GUIFactory.getThreadDialogs();
+      IThreadDialogs dialogs = GuiFactory.getThreadDialogs();
       if ( dialogs != null ) {
         response =
           dialogs.threadMessageBox( getRealBodyMessage() + Const.CR, getRealTitleMessage(), true, Const.INFO );

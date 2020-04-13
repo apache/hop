@@ -29,7 +29,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.util.DelegatingFileSystemOptionsBuilder;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.IOException;
 
@@ -117,7 +117,7 @@ public class HopGenericFileSystemConfigBuilder extends FileSystemConfigBuilder i
     String scheme = extractScheme( fullParameterName );
     try {
       DelegatingFileSystemOptionsBuilder delegateFSOptionsBuilder =
-        new DelegatingFileSystemOptionsBuilder( HopVFS.getInstance().getFileSystemManager() );
+        new DelegatingFileSystemOptionsBuilder( HopVfs.getInstance().getFileSystemManager() );
       if ( scheme != null ) {
         delegateFSOptionsBuilder.setConfigString( opts, scheme, name, value );
       } else {

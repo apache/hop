@@ -27,8 +27,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
-import org.apache.hop.core.DBCache;
-import org.apache.hop.core.DBCacheEntry;
+import org.apache.hop.core.DbCache;
+import org.apache.hop.core.DbCacheEntry;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -73,7 +73,7 @@ import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.BufferedInputStream;
@@ -1484,7 +1484,7 @@ public class Database implements IVariables, ILoggingObject {
       // See if a cache needs to be cleared...
       if ( upperSql.startsWith( "ALTER TABLE" )
         || upperSql.startsWith( "DROP TABLE" ) || upperSql.startsWith( "CREATE TABLE" ) ) {
-        DBCache.getInstance().clear( databaseMeta.getName() );
+        DbCache.getInstance().clear( databaseMeta.getName() );
       }
     } catch ( SQLException ex ) {
       throw new HopDatabaseException( "Couldn't execute SQL: " + sql + Const.CR, ex );
@@ -2224,15 +2224,15 @@ public class Database implements IVariables, ILoggingObject {
       }
 
       IRowMeta fields = null;
-      DBCache dbcache = DBCache.getInstance();
-      DBCacheEntry entry = null;
+      DbCache dbcache = DbCache.getInstance();
+      DbCacheEntry entry = null;
 
       if ( dbcache != null ) {
         // Cache key must not match the other implementation where
         // valuemeta is properly casted. We're not caching values here,
         // just metadata.
         entry =
-          new DBCacheEntry(
+          new DbCacheEntry(
             databaseMeta.getName(),
             "LIGHTWEIGHT_SALT"
               .concat( schemaName == null ? "nullSchema" : schemaName )
@@ -2293,14 +2293,14 @@ public class Database implements IVariables, ILoggingObject {
   public IRowMeta getQueryFields( String sql, boolean param, IRowMeta inform, Object[] data )
     throws HopDatabaseException {
     IRowMeta fields;
-    DBCache dbcache = DBCache.getInstance();
+    DbCache dbcache = DbCache.getInstance();
 
-    DBCacheEntry entry = null;
+    DbCacheEntry entry = null;
 
     // Check the cache first!
     //
     if ( dbcache != null ) {
-      entry = new DBCacheEntry( databaseMeta.getName(), sql );
+      entry = new DbCacheEntry( databaseMeta.getName(), sql );
       fields = dbcache.get( entry );
       if ( fields != null ) {
         return fields;
@@ -4947,12 +4947,12 @@ public class Database implements IVariables, ILoggingObject {
       if ( Utils.isEmpty( filename ) ) {
         throw new HopException( "Filename is missing!" );
       }
-      sqlFile = HopVFS.getFileObject( filename );
+      sqlFile = HopVfs.getFileObject( filename );
       if ( !sqlFile.exists() ) {
         throw new HopException( "We can not find file [" + filename + "]!" );
       }
 
-      is = HopVFS.getInputStream( sqlFile );
+      is = HopVfs.getInputStream( sqlFile );
       bis = new InputStreamReader( new BufferedInputStream( is, 500 ) );
       StringBuilder lineStringBuilder = new StringBuilder( 256 );
       lineStringBuilder.setLength( 0 );

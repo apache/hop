@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.WidgetUtils;
 import org.eclipse.swt.SWT;
@@ -42,7 +42,7 @@ public class CheckBox extends Composite {
     button.setLayoutData( new FormDataBuilder().left().result() );
 
     label = new Label( this, SWT.LEFT );
-    label.setLayoutData( new FormDataBuilder().left( button, ConstUI.SMALL_MARGIN ).result() );
+    label.setLayoutData( new FormDataBuilder().left( button, ConstUi.SMALL_MARGIN ).result() );
   }
 
   public void setText( String text ) {

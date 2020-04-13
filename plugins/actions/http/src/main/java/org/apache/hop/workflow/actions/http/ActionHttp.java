@@ -33,7 +33,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -435,7 +435,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         }
 
         // Create the output File...
-        outputFile = HopVFS.getOutputStream( realTargetFile, this, fileAppended );
+        outputFile = HopVfs.getOutputStream( realTargetFile, this, fileAppended );
 
         // Get a stream for the specified URL
         server = new URL( urlToUse );
@@ -513,7 +513,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           // Add to the result files...
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( realTargetFile, this ), parentWorkflow
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realTargetFile, this ), parentWorkflow
               .getJobname(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         }

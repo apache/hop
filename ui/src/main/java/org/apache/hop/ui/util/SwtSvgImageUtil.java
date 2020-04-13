@@ -33,9 +33,9 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.svg.SvgSupport;
-import org.apache.hop.core.vfs.HopVFS;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -59,11 +59,11 @@ public class SwtSvgImageUtil {
 
   private static FileObject base;
 
-  private static double zoomFactor = PropsUI.getInstance().getZoomFactor();
+  private static double zoomFactor = PropsUi.getInstance().getZoomFactor();
 
   static {
     try {
-      base = HopVFS.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
+      base = HopVfs.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
     } catch ( FileSystemException e ) {
       e.printStackTrace();
       base = null;
@@ -78,13 +78,13 @@ public class SwtSvgImageUtil {
    * @return the missing image
    */
   public static SwtUniversalImage getMissingImage( Display display ) {
-    Image img = new Image( display, ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
+    Image img = new Image( display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
     GC gc = new GC( img );
     gc.setForeground( new Color( display, 0, 0, 0 ) );
-    gc.drawRectangle( 4, 4, ConstUI.ICON_SIZE - 8, ConstUI.ICON_SIZE - 8 );
+    gc.drawRectangle( 4, 4, ConstUi.ICON_SIZE - 8, ConstUi.ICON_SIZE - 8 );
     gc.setForeground( new Color( display, 255, 0, 0 ) );
-    gc.drawLine( 4, 4, ConstUI.ICON_SIZE - 4, ConstUI.ICON_SIZE - 4 );
-    gc.drawLine( ConstUI.ICON_SIZE - 4, 4, 4, ConstUI.ICON_SIZE - 4 );
+    gc.drawLine( 4, 4, ConstUi.ICON_SIZE - 4, ConstUi.ICON_SIZE - 4 );
+    gc.drawLine( ConstUi.ICON_SIZE - 4, 4, 4, ConstUi.ICON_SIZE - 4 );
     gc.dispose();
     return new SwtUniversalImageBitmap( img, zoomFactor );
   }
@@ -257,8 +257,8 @@ public class SwtSvgImageUtil {
    */
   private static SwtUniversalImage loadFromBasedVFS( Display display, String location ) {
     try {
-      FileObject imageFileObject = HopVFS.getInstance().getFileSystemManager().resolveFile( base, location );
-      InputStream s = HopVFS.getInputStream( imageFileObject );
+      FileObject imageFileObject = HopVfs.getInstance().getFileSystemManager().resolveFile( base, location );
+      InputStream s = HopVfs.getInputStream( imageFileObject );
       if ( s == null ) {
         return null;
       }
@@ -277,7 +277,7 @@ public class SwtSvgImageUtil {
    */
   private static SwtUniversalImage loadFromSimpleVFS( Display display, String location ) {
     try {
-      InputStream s = HopVFS.getInputStream( location );
+      InputStream s = HopVfs.getInputStream( location );
       if ( s == null ) {
         return null;
       }

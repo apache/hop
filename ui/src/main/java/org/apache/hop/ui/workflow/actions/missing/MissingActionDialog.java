@@ -24,13 +24,13 @@ package org.apache.hop.ui.workflow.actions.missing;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -52,7 +52,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
   private Shell shellParent;
   private List<MissingAction> missingActions;
   private int mode;
-  private PropsUI props;
+  private PropsUi props;
   private IAction action;
 
   public static final int MISSING_ACTIONS = 1;
@@ -95,7 +95,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
   public IAction open() {
 
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     Display display = shellParent.getDisplay();
     int margin = props.getMargin();
 
@@ -104,7 +104,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
         | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

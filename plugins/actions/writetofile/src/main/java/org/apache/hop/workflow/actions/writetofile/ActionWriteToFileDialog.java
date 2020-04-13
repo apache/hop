@@ -26,12 +26,12 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -346,7 +346,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wlContent.setLayoutData( fdlContent );
 
     wContent = new Text( wContentGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
-    props.setLook( wContent, PropsUI.WIDGET_STYLE_FIXED );
+    props.setLook( wContent, PropsUi.WIDGET_STYLE_FIXED );
     wContent.addModifyListener( lsMod );
     fdContent = new FormData();
     fdContent.left = new FormAttachment( middle, 0 );

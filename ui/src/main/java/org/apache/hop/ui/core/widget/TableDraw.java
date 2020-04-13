@@ -23,8 +23,8 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -86,7 +86,7 @@ public class TableDraw extends Canvas {
   private WizardPage wPage;
   private String prevfieldname;
 
-  public TableDraw( Composite parent, PropsUI props, WizardPage wPage, Vector<ITextFileInputField> fields ) {
+  public TableDraw( Composite parent, PropsUi props, WizardPage wPage, Vector<ITextFileInputField> fields ) {
     super( parent, SWT.NO_BACKGROUND | SWT.H_SCROLL | SWT.V_SCROLL );
     this.wPage = wPage;
     this.fields = fields;
@@ -103,14 +103,14 @@ public class TableDraw extends Canvas {
     prev_toy = -1;
 
     display = parent.getDisplay();
-    bg = GUIResource.getInstance().getColorBackground();
-    // font = GUIResource.getInstance().getFontGrid();
+    bg = GuiResource.getInstance().getColorBackground();
+    // font = GuiResource.getInstance().getFontGrid();
     fontheight = props.getGridFont().getHeight();
 
-    black = GUIResource.getInstance().getColorBlack();
-    red = GUIResource.getInstance().getColorRed();
-    blue = GUIResource.getInstance().getColorBlue();
-    lgray = GUIResource.getInstance().getColorLightGray();
+    black = GuiResource.getInstance().getColorBlack();
+    red = GuiResource.getInstance().getColorRed();
+    blue = GuiResource.getInstance().getColorBlue();
+    lgray = GuiResource.getInstance().getColorLightGray();
 
     hori = getHorizontalBar();
     vert = getVerticalBar();

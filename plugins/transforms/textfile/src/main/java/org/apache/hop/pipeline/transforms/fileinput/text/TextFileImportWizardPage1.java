@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.TableDraw;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -45,11 +45,11 @@ public class TextFileImportWizardPage1 extends WizardPage { // implements Listen
   private TableDraw wTable;
   private FormData fdTable;
 
-  private PropsUI props;
+  private PropsUi props;
   private List<String> rows;
   private Vector<ITextFileInputField> fields;
 
-  public TextFileImportWizardPage1( String arg, PropsUI props, List<String> rows,
+  public TextFileImportWizardPage1( String arg, PropsUi props, List<String> rows,
                                     Vector<ITextFileInputField> fields ) {
     super( arg );
     this.props = props;

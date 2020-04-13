@@ -25,16 +25,14 @@ package org.apache.hop.ui.cluster;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -101,7 +99,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
 
   private ModifyListener lsMod;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private int middle;
   private int margin;
@@ -115,7 +113,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     this.slaveServer = (SlaveServer) slaveServer.clone();
     this.slaveServer.shareVariablesWith( slaveServer );
     this.originalServer = slaveServer;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     result = null;
   }
 
@@ -123,7 +121,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageSlave() );
+    shell.setImage( GuiResource.getInstance().getImageSlave() );
 
     lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {

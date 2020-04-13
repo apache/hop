@@ -32,7 +32,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -459,7 +459,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
   private boolean CreateDestinationFolder( String foldername ) {
     FileObject folder = null;
     try {
-      folder = HopVFS.getFileObject( foldername, this );
+      folder = HopVfs.getFileObject( foldername, this );
 
       if ( !folder.exists() ) {
         logError( BaseMessages.getString( PKG, "ActionCopyMoveResultFilenames.Log.FolderNotExists", foldername ) );
@@ -523,7 +523,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
         String shortfilename = getDestinationFilename( sourcefile.getName().getBaseName() );
         // build full destination filename
         String destinationFilename = destinationFolder + Const.FILE_SEPARATOR + shortfilename;
-        FileObject destinationfile = HopVFS.getFileObject( destinationFilename, this );
+        FileObject destinationfile = HopVfs.getFileObject( destinationFilename, this );
         boolean filexists = destinationfile.exists();
         if ( filexists ) {
           if ( log.isDetailed() ) {
@@ -558,7 +558,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
           if ( isAddDestinationFilename() ) {
             // Add destination filename to Resultfilenames ...
             ResultFile resultFile =
-              new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject(
+              new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(
                 destinationfile.toString(), this ), parentWorkflow.getJobname(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             if ( log.isDetailed() ) {

@@ -29,5 +29,5 @@ package org.apache.hop.laf;
  * @author dhushon
  */
 public interface IHandler {
-  // public <E extends IHandler>LAFDelegate<E> getLAFDelegate();
+  // public <E extends IHandler>LafDelegate<E> getLAFDelegate();
 }

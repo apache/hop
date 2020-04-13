@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -70,7 +70,7 @@ import java.util.StringTokenizer;
 public class EnterListDialog extends Dialog {
   private static Class<?> PKG = EnterListDialog.class; // for i18n purposes, needed by Translator!!
 
-  private PropsUI props;
+  private PropsUi props;
 
   private String[] input;
   private String[] retval;
@@ -89,7 +89,7 @@ public class EnterListDialog extends Dialog {
 
   public EnterListDialog( Shell parent, int style, String[] input ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
 
     this.input = input;
     this.retval = null;
@@ -103,7 +103,7 @@ public class EnterListDialog extends Dialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
     shell.setText( BaseMessages.getString( PKG, "EnterListDialog.Title" ) );
 
     shell.setLayout( new FormLayout() );

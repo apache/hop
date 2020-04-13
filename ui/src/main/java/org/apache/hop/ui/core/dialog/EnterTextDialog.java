@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IDescription;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -68,7 +68,7 @@ public class EnterTextDialog extends Dialog {
 
   private Shell parent, shell;
   private SelectionAdapter lsDef;
-  private PropsUI props;
+  private PropsUi props;
   private String text;
   private boolean fixed;
   private boolean readonly, modal, singleLine;
@@ -99,7 +99,7 @@ public class EnterTextDialog extends Dialog {
   public EnterTextDialog( Shell parent, String title, String message, String text ) {
     super( parent, SWT.NONE );
     this.parent = parent;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.title = title;
     this.message = message;
     this.text = text;
@@ -127,7 +127,7 @@ public class EnterTextDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

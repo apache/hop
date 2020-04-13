@@ -25,8 +25,8 @@ package org.apache.hop.ui.hopgui.file.delegates;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -40,12 +40,12 @@ public class HopGuiNotePadDelegate {
 
   private HopGui hopUi;
   private IHopFileTypeHandler handler;
-  private PropsUI props;
+  private PropsUi props;
 
   public HopGuiNotePadDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
     this.hopUi = hopGui;
     this.handler = handler;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
   public void deleteNotes( AbstractMeta meta, List<NotePadMeta> notes ) {
@@ -80,7 +80,7 @@ public class HopGuiNotePadDelegate {
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
-        new NotePadMeta( n.getNote(), x, y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+        new NotePadMeta( n.getNote(), x, y, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE, n
           .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
           .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue() );

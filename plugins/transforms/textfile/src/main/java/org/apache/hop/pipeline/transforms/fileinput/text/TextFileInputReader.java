@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
@@ -76,7 +76,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
       log.logDetailed( "This is a compressed file being handled by the " + provider.getName() + " provider" );
     }
 
-    in = provider.createInputStream( HopVFS.getInputStream( file ) );
+    in = provider.createInputStream( HopVfs.getInputStream( file ) );
 
     in.nextEntry();
 

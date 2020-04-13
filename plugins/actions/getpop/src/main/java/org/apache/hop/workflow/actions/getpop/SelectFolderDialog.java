@@ -24,8 +24,8 @@ package org.apache.hop.workflow.actions.getpop;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -55,7 +55,7 @@ import javax.mail.MessagingException;
 public class SelectFolderDialog extends Dialog {
   private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
 
-  private PropsUI props;
+  private PropsUi props;
   private Shell shell;
 
   private Tree wTree;
@@ -65,11 +65,11 @@ public class SelectFolderDialog extends Dialog {
   private Button wCancel;
   private String selection;
   private Folder folder;
-  private GUIResource guiresource = GUIResource.getInstance();
+  private GuiResource guiresource = GuiResource.getInstance();
 
   public SelectFolderDialog( Shell parent, int style, Folder folder ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.folder = folder;
     this.selection = null;
   }

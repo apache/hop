@@ -25,8 +25,8 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.ImageUtil;
 import org.eclipse.swt.SWT;
@@ -95,7 +95,7 @@ public class TransformPerformanceSnapShotDialog extends Dialog {
   private Map<String, List<PerformanceSnapShot>> transformPerformanceSnapShots;
   private Display display;
   private String[] transforms;
-  private PropsUI props;
+  private PropsUi props;
   private org.eclipse.swt.widgets.List transformsList;
   private Canvas canvas;
   private Image image;
@@ -108,7 +108,7 @@ public class TransformPerformanceSnapShotDialog extends Dialog {
     super( parent );
     this.parent = parent;
     this.display = parent.getDisplay();
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.timeDifference = timeDifference;
     this.title = title;
     this.transformPerformanceSnapShots = transformPerformanceSnapShots;
@@ -123,7 +123,7 @@ public class TransformPerformanceSnapShotDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
     shell.setText( BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

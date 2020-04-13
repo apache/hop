@@ -49,11 +49,11 @@ import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.IFieldDisabledListener;
@@ -171,7 +171,7 @@ public class PipelineDialog extends Dialog {
   private SelectionAdapter lsDef;
 
   private ModifyListener lsMod;
-  private PropsUI props;
+  private PropsUi props;
 
   private int middle;
 
@@ -216,7 +216,7 @@ public class PipelineDialog extends Dialog {
 
   public PipelineDialog( Shell parent, int style, PipelineMeta pipelineMeta ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.pipelineMeta = pipelineMeta;
 
     directoryChangeAllowed = true;
@@ -237,7 +237,7 @@ public class PipelineDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
 
     lsMod = e -> changed = true;
     lsModSel = new SelectionAdapter() {
@@ -431,7 +431,7 @@ public class PipelineDialog extends Dialog {
     fdPipelineFilename.right = new FormAttachment( 100, 0 );
     wPipelineFilename.setLayoutData( fdPipelineFilename );
     wPipelineFilename.setEditable( false );
-    wPipelineFilename.setBackground( GUIResource.getInstance().getColorLightGray() );
+    wPipelineFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
 
     // Pipeline description:
     Label wlPipelineDescription = new Label( wPipelineComp, SWT.RIGHT );
@@ -1007,7 +1007,7 @@ public class PipelineDialog extends Dialog {
       // Exceptions!!!
       //
       if ( disabledListener.isFieldDisabled( i ) ) {
-        item.setBackground( 2, GUIResource.getInstance().getColorLightGray() );
+        item.setBackground( 2, GuiResource.getInstance().getColorLightGray() );
       }
     }
 

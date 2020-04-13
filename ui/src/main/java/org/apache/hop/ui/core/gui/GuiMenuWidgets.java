@@ -29,8 +29,8 @@ import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
@@ -77,7 +77,7 @@ public class GuiMenuWidgets {
       return;
     }
 
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     MenuItem menuItem;
 
@@ -92,7 +92,7 @@ public class GuiMenuWidgets {
       menuItem = new MenuItem( parentMenu, SWT.PUSH );
       menuItem.setText( guiElements.getLabel() );
       if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
-        menuItem.setImage( GUIResource.getInstance().getImage( guiElements.getImage(), ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE ) );
+        menuItem.setImage( GuiResource.getInstance().getImage( guiElements.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
       }
 
       setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );

@@ -28,8 +28,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -84,7 +84,7 @@ public class TransformFieldsDialog extends Dialog {
 
   private Shell shell;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private String transformName;
 
@@ -103,7 +103,7 @@ public class TransformFieldsDialog extends Dialog {
     this.transformName = transformName;
     this.input = input;
     this.variables = variables;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     shellText = BaseMessages.getString( PKG, "TransformFieldsDialog.Title" );
     originText = BaseMessages.getString( PKG, "TransformFieldsDialog.Name.Label" );
@@ -122,7 +122,7 @@ public class TransformFieldsDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
     shell.setText( shellText );
 
     int margin = props.getMargin();

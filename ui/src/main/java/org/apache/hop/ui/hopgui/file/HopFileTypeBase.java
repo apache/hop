@@ -25,7 +25,7 @@ package org.apache.hop.ui.hopgui.file;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 
 import java.util.Properties;
@@ -54,7 +54,7 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
       if ( checkContent ) {
         throw new HopException( "Generic file content validation is not possible at this time for file '" + filename + "'" );
       } else {
-        FileObject fileObject = HopVFS.getFileObject( filename );
+        FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
         String fileExtension = fileName.getExtension();
 

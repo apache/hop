@@ -35,7 +35,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -433,7 +433,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     // CR = CR
     // LF = LF
     try {
-      String localfilename = HopVFS.getFilename( file );
+      String localfilename = HopVfs.getFilename( file );
       File source = new File( localfilename );
       if ( isDetailed() ) {
         if ( toUnix ) {
@@ -498,7 +498,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     String realWildcard = environmentSubstitute( wildcard );
 
     try {
-      sourcefilefolder = HopVFS.getFileObject( realSourceFilefoldername );
+      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
 
       if ( sourcefilefolder.exists() ) {
         if ( isDetailed() ) {

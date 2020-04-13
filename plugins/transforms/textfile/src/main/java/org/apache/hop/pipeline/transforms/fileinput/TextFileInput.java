@@ -46,7 +46,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -884,7 +884,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           }
           String fileValue = prevInfoFields.getString( fileRow, idx );
           try {
-            FileObject fileObject = HopVFS.getFileObject( fileValue, getPipelineMeta() );
+            FileObject fileObject = HopVfs.getFileObject( fileValue, getPipelineMeta() );
             data.getFiles().addFile( fileObject );
             if ( meta.isPassingThruFields() ) {
               data.passThruFields.put( fileObject, fileRow );
@@ -1356,7 +1356,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       // Is this the last file?
       data.isLastFile = ( data.filenr == data.getFiles().nrOfFiles() - 1 );
       data.file = data.getFiles().getFile( data.filenr );
-      data.filename = HopVFS.getFilename( data.file );
+      data.filename = HopVfs.getFilename( data.file );
 
       // Move file pointer ahead!
       data.filenr++;
@@ -1366,7 +1366,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         data.shortFilename = data.file.getName().getBaseName();
       }
       if ( data.addPath ) {
-        data.path = HopVFS.getFilename( data.file.getParent() );
+        data.path = HopVfs.getFilename( data.file.getParent() );
       }
       if ( data.addIsHidden ) {
         data.hidden = data.file.isHidden();
@@ -1406,7 +1406,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       ICompressionProvider provider =
         CompressionProviderFactory.getInstance().getCompressionProviderByName( meta.getFileCompression() );
 
-      data.in = provider.createInputStream( HopVFS.getInputStream( data.file ) );
+      data.in = provider.createInputStream( HopVfs.getInputStream( data.file ) );
       data.dataErrorLineHandler.handleFile( data.file );
       data.in.nextEntry();
 

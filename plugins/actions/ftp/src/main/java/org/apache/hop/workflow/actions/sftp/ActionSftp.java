@@ -33,7 +33,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -490,7 +490,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
           result.setNrErrors( 1 );
           return result;
         }
-        if ( !HopVFS.fileExists( realKeyFilename ) ) {
+        if ( !HopVfs.fileExists( realKeyFilename ) ) {
           // Error.. can not reach keyfile
           logError( BaseMessages.getString( PKG, "JobSFTP.Error.KeyFileNotFound", realKeyFilename ) );
           result.setNrErrors( 1 );
@@ -500,7 +500,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       }
 
       if ( !Utils.isEmpty( realTargetDirectory ) ) {
-        TargetFolder = HopVFS.getFileObject( realTargetDirectory, this );
+        TargetFolder = HopVfs.getFileObject( realTargetDirectory, this );
         boolean TargetFolderExists = TargetFolder.exists();
         if ( TargetFolderExists ) {
           if ( log.isDetailed() ) {
@@ -610,7 +610,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
             logDebug( BaseMessages.getString( PKG, "JobSFTP.Log.GettingFiles", filelist[ i ], realTargetDirectory ) );
           }
 
-          FileObject targetFile = HopVFS.getFileObject(
+          FileObject targetFile = HopVfs.getFileObject(
             realTargetDirectory + Const.FILE_SEPARATOR + filelist[ i ], this );
           sftpclient.get( targetFile, filelist[ i ] );
           filesRetrieved++;

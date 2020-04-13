@@ -27,8 +27,8 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -92,7 +92,7 @@ public class EnterSelectionDialog extends Dialog {
   private int shellWidth;
   private String shellText;
   private String lineText;
-  private PropsUI props;
+  private PropsUi props;
   private String constant;
   private IVariables variables;
   private String currentValue;
@@ -126,7 +126,7 @@ public class EnterSelectionDialog extends Dialog {
     this.shellText = shellText;
     this.lineText = message;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     selection = null;
     viewOnly = false;
     modal = true;
@@ -186,7 +186,7 @@ public class EnterSelectionDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( shellText );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     int margin = props.getMargin();
 
@@ -202,11 +202,11 @@ public class EnterSelectionDialog extends Dialog {
       wfilter.setWidth( 120 );
 
       wbRegex = new ToolItem( treeTb, SWT.CHECK );
-      wbRegex.setImage( GUIResource.getInstance().getImageRegexSmall() );
+      wbRegex.setImage( GuiResource.getInstance().getImageRegexSmall() );
       wbRegex.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.useRegEx.Tooltip" ) );
 
       goSearch = new ToolItem( treeTb, SWT.PUSH );
-      goSearch.setImage( GUIResource.getInstance().getImageSearchSmall() );
+      goSearch.setImage( GuiResource.getInstance().getImageSearchSmall() );
       goSearch.setToolTipText( BaseMessages.getString( PKG, "EnterSelectionDialog.refresh.Label" ) );
 
       goSearch.addSelectionListener( new SelectionAdapter() {
@@ -406,7 +406,7 @@ public class EnterSelectionDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( shellText );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     wlSelection = new Label( shell, SWT.NONE );
     wlSelection.setText( lineText );
@@ -446,7 +446,7 @@ public class EnterSelectionDialog extends Dialog {
     separator.setLayoutData( fd_separator );
 
     Button btnHelp = new Button( shell, SWT.PUSH );
-    btnHelp.setImage( GUIResource.getInstance().getImageHelpWeb() );
+    btnHelp.setImage( GuiResource.getInstance().getImageHelpWeb() );
     FormData fd_btnHelp = new FormData();
     fd_btnHelp.top = new FormAttachment( separator, 12 );
     fd_btnHelp.left = new FormAttachment( 0, 10 );

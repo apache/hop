@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -281,7 +281,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     FileObject filefolder = null;
 
     try {
-      filefolder = HopVFS.getFileObject( foldername, this );
+      filefolder = HopVfs.getFileObject( foldername, this );
 
       if ( filefolder.exists() ) {
         // the file or folder exists

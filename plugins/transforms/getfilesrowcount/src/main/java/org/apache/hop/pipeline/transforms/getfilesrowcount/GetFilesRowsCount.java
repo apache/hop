@@ -29,14 +29,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -128,7 +126,7 @@ public class GetFilesRowsCount
     try {
 
       if ( data.file.getType() == FileType.FILE ) {
-        data.fr = HopVFS.getInputStream( data.file );
+        data.fr = HopVfs.getInputStream( data.file );
         // Avoid method calls - see here:
         // http://java.sun.com/developer/technicalArticles/Programming/PerfTuning/
         byte[] buf = new byte[ 8192 ]; // BufferedaInputStream default buffer size
@@ -251,7 +249,7 @@ public class GetFilesRowsCount
             .setOutputFilenameField(), filename ) );
         }
 
-        data.file = HopVFS.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
 
         // Init Row number
         if ( meta.isFileField() ) {

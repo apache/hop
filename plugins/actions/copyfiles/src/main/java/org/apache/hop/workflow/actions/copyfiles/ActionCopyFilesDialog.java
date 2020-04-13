@@ -28,14 +28,14 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -305,7 +305,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     tb.setLayoutData( fdTb );
 
     deleteToolItem = new ToolItem( tb, SWT.PUSH );
-    deleteToolItem.setImage( GUIResource.getInstance().getImageDelete() );
+    deleteToolItem.setImage( GuiResource.getInstance().getImageDelete() );
     deleteToolItem.setToolTipText( BaseMessages.getString( PKG, "JobCopyFiles.FilenameDelete.Tooltip" ) );
     deleteToolItem.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -478,14 +478,14 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
             if ( fileName != null && !fileName.equals( "" ) ) {
               try {
-                initialFile = HopVFS.getFileObject( fileName );
+                initialFile = HopVfs.getFileObject( fileName );
               } catch ( HopException ex ) {
-                initialFile = HopVFS.getFileObject( "" );
+                initialFile = HopVfs.getFileObject( "" );
               }
-              defaultInitialFile = HopVFS.getFileObject( "file:///c:/" );
+              defaultInitialFile = HopVfs.getFileObject( "file:///c:/" );
               rootFile = initialFile.getFileSystem().getRoot();
             } else {
-              defaultInitialFile = null; // HopVFS.getFileObject( HopUi.getInstance().getLastFileOpened() ); TODO get last file per type from history mananger
+              defaultInitialFile = null; // HopVfs.getFileObject( HopUi.getInstance().getLastFileOpened() ); TODO get last file per type from history mananger
             }
           }
 
@@ -499,7 +499,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
           fileDialog.setFilterNames( new String[] { "file" } );
           fileDialog.setFilterExtensions( new String[] { "*.*" } );
           if ( initialFile != null ) {
-            fileDialog.setFileName( HopVFS.getFilename( initialFile ) );
+            fileDialog.setFileName( HopVfs.getFilename( initialFile ) );
           }
           String filename = fileDialog.open();
           if ( filename != null ) {
@@ -660,7 +660,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   }
 
   protected Image getImage() {
-    return GUIResource.getInstance().getImage( "ui/images/CPY.svg", ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
+    return GuiResource.getInstance().getImage( "ui/images/CPY.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
   }
 
   public boolean showFileButtons() {

@@ -57,11 +57,10 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -186,7 +185,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private Display display;
   private List<String> commandLineArguments;
   private IVariables variables;
-  private PropsUI props;
+  private PropsUi props;
   private ILogChannel log;
 
   private Menu mainMenu;
@@ -225,7 +224,7 @@ public class HopGui implements IActionContextHandlersProvider {
     this.display = display;
     commandLineArguments = new ArrayList<>();
     variables = Variables.getADefaultVariableSpace();
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     loggingObject = new LoggingObject( APP_NAME );
     log = new LogChannel( APP_NAME, loggingObject );
@@ -276,11 +275,11 @@ public class HopGui implements IActionContextHandlersProvider {
 
       // Load images and so on...
       //
-      PropsUI.init( display );
+      PropsUi.init( display );
 
       // Initialize the logging backend
       //
-      HopLogStore.init( PropsUI.getInstance().getMaxNrLinesInLog(), PropsUI.getInstance().getMaxLogLineTimeoutMinutes() );
+      HopLogStore.init( PropsUi.getInstance().getMaxNrLinesInLog(), PropsUi.getInstance().getMaxLogLineTimeoutMinutes() );
       Locale.setDefault( LanguageChoice.getInstance().getDefaultLocale() );
 
       hopGui = new HopGui( display );
@@ -306,7 +305,7 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   protected void open() {
     shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     shell.setText( BaseMessages.getString( PKG, "HopGui.Application.Name" ) );
     addMainMenu();
@@ -665,7 +664,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainHopGuiComposite.setLayoutData( formData );
 
     perspectivesToolbar = new ToolBar( mainHopGuiComposite, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL );
-    props.setLook( perspectivesToolbar, PropsUI.WIDGET_STYLE_TOOLBAR );
+    props.setLook( perspectivesToolbar, PropsUi.WIDGET_STYLE_TOOLBAR );
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment( 0, 0 );
     fdToolBar.top = new FormAttachment( 0, 0 );
@@ -896,14 +895,14 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of props
    */
-  public PropsUI getProps() {
+  public PropsUi getProps() {
     return props;
   }
 
   /**
    * @param props The props to set
    */
-  public void setProps( PropsUI props ) {
+  public void setProps( PropsUi props ) {
     this.props = props;
   }
 

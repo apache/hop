@@ -36,7 +36,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -684,7 +684,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     final boolean include_subfolders = YES.equalsIgnoreCase( includeSubfolders );
 
     try {
-      sourcefilefolder = HopVFS.getFileObject( realSourceFilefoldername, this );
+      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername, this );
 
       if ( sourcefilefolder.exists() ) {
         // File exists

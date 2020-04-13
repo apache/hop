@@ -35,7 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterValueDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -143,7 +143,7 @@ public class ConditionEditor extends Composite {
     this.active_condition = co;
     this.fields = inputFields;
 
-    imageAdd = GUIResource.getInstance().getImage( "ui/images/Add.svg" );
+    imageAdd = GuiResource.getInstance().getImage( "ui/images/Add.svg" );
 
     modListeners = new ArrayList<ModifyListener>();
 
@@ -179,15 +179,15 @@ public class ConditionEditor extends Composite {
     shell = composite.getShell();
     display = shell.getDisplay();
 
-    bg = GUIResource.getInstance().getColorBackground();
-    fixed = GUIResource.getInstance().getFontFixed();
+    bg = GuiResource.getInstance().getColorBackground();
+    fixed = GuiResource.getInstance().getFontFixed();
 
-    white = GUIResource.getInstance().getColorWhite();
-    black = GUIResource.getInstance().getColorBlack();
-    red = GUIResource.getInstance().getColorRed();
-    green = GUIResource.getInstance().getColorGreen();
-    blue = GUIResource.getInstance().getColorBlue();
-    gray = GUIResource.getInstance().getColorDarkGray();
+    white = GuiResource.getInstance().getColorWhite();
+    black = GuiResource.getInstance().getColorBlack();
+    red = GuiResource.getInstance().getColorRed();
+    green = GuiResource.getInstance().getColorGreen();
+    blue = GuiResource.getInstance().getColorBlue();
+    gray = GuiResource.getInstance().getColorDarkGray();
 
     widget.addPaintListener( new PaintListener() {
       @Override
@@ -594,7 +594,7 @@ public class ConditionEditor extends Composite {
             Condition c = active_condition.getCondition( cond_nr );
             try {
               String xml = c.getXml();
-              GUIResource.getInstance().toClipboard( xml );
+              GuiResource.getInstance().toClipboard( xml );
               widget.redraw();
             } catch ( Exception ex ) {
               new ErrorDialog( shell, "Error", "Error encoding to XML", ex );
@@ -607,7 +607,7 @@ public class ConditionEditor extends Composite {
         miPasteBef.addSelectionListener( new SelectionAdapter() {
           @Override
           public void widgetSelected( SelectionEvent e ) {
-            String xml = GUIResource.getInstance().fromClipboard();
+            String xml = GuiResource.getInstance().fromClipboard();
             try {
               Document d = XmlHandler.loadXmlString( xml );
               Node condNode = XmlHandler.getSubNode( d, "condition" );
@@ -634,7 +634,7 @@ public class ConditionEditor extends Composite {
         miPasteAft.addSelectionListener( new SelectionAdapter() {
           @Override
           public void widgetSelected( SelectionEvent e ) {
-            String xml = GUIResource.getInstance().fromClipboard();
+            String xml = GuiResource.getInstance().fromClipboard();
             try {
               Document d = XmlHandler.loadXmlString( xml );
               Node condNode = XmlHandler.getSubNode( d, "condition" );

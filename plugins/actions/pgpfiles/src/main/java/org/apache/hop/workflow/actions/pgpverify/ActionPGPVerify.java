@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -162,7 +162,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         logError( BaseMessages.getString( PKG, "JobPGPVerify.FilenameMissing" ) );
         return result;
       }
-      file = HopVFS.getFileObject( realFilename );
+      file = HopVfs.getFileObject( realFilename );
 
       GPG gpg = new GPG( environmentSubstitute( getGPGLocation() ), log );
 
@@ -173,7 +173,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
           logError( BaseMessages.getString( PKG, "JobPGPVerify.DetachedSignatureMissing" ) );
           return result;
         }
-        detachedSignature = HopVFS.getFileObject( signature );
+        detachedSignature = HopVfs.getFileObject( signature );
 
         gpg.verifyDetachedSignature( detachedSignature, file );
       } else {
@@ -245,7 +245,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( gpglocation ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpglocation ), variables );
 
         // If the file doesn't exist, forget about this effort too!
         //

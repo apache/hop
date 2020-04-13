@@ -27,8 +27,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -75,7 +75,7 @@ public class PipelineHopDialog extends Dialog {
   private PipelineHopMeta input;
   private Shell shell;
   private PipelineMeta pipelineMeta;
-  private PropsUI props;
+  private PropsUi props;
 
   private ModifyListener lsMod;
 
@@ -83,7 +83,7 @@ public class PipelineHopDialog extends Dialog {
 
   public PipelineHopDialog( Shell parent, int style, PipelineHopMeta pipelineHopMeta, PipelineMeta tr ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     input = pipelineHopMeta;
     pipelineMeta = tr;
   }
@@ -94,7 +94,7 @@ public class PipelineHopDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHop() );
+    shell.setImage( GuiResource.getInstance().getImageHop() );
 
     lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {

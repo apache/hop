@@ -39,7 +39,7 @@ import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -1888,7 +1888,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     for ( FileObject fileObject : fileList.getFiles() ) {
       try {
         IKWorkbook workbook =
-          WorkbookFactory.getWorkbook( info.getSpreadSheetType(), HopVFS.getFilename( fileObject ), info
+          WorkbookFactory.getWorkbook( info.getSpreadSheetType(), HopVfs.getFilename( fileObject ), info
             .getEncoding() );
 
         int nrSheets = workbook.getNumberOfSheets();
@@ -1905,7 +1905,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       } catch ( Exception e ) {
         new ErrorDialog(
           shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages.getString(
-          PKG, "ExcelInputDialog.ErrorReadingFile.DialogMessage", HopVFS.getFilename( fileObject ) ), e );
+          PKG, "ExcelInputDialog.ErrorReadingFile.DialogMessage", HopVfs.getFilename( fileObject ) ), e );
       }
     }
 
@@ -1950,13 +1950,13 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     for ( FileObject file : fileList.getFiles() ) {
       try {
         IKWorkbook workbook =
-          WorkbookFactory.getWorkbook( info.getSpreadSheetType(), HopVFS.getFilename( file ), info
+          WorkbookFactory.getWorkbook( info.getSpreadSheetType(), HopVfs.getFilename( file ), info
             .getEncoding() );
         processingWorkbook( fields, info, workbook );
         workbook.close();
       } catch ( Exception e ) {
         new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages
-          .getString( PKG, "ExcelInputDialog.ErrorReadingFile2.DialogMessage", HopVFS.getFilename( file ), e
+          .getString( PKG, "ExcelInputDialog.ErrorReadingFile2.DialogMessage", HopVfs.getFilename( file ), e
             .toString() ), e );
       }
     }

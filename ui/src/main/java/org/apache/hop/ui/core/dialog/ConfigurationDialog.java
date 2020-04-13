@@ -30,8 +30,8 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -71,7 +71,7 @@ public abstract class ConfigurationDialog extends Dialog {
   protected TableView wVariables;
   protected boolean retval;
   protected Shell shell;
-  protected PropsUI props;
+  protected PropsUi props;
   protected Label wlLogLevel;
   protected Group gDetails;
   protected CCombo wLogLevel;
@@ -116,7 +116,7 @@ public abstract class ConfigurationDialog extends Dialog {
       params.put( name, "" );
     }
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     margin = props.getMargin();
   }
 
@@ -350,7 +350,7 @@ public abstract class ConfigurationDialog extends Dialog {
     } );
 
     Button btnHelp = new Button( shell, SWT.NONE );
-    btnHelp.setImage( GUIResource.getInstance().getImageHelpWeb() );
+    btnHelp.setImage( GuiResource.getInstance().getImageHelpWeb() );
     btnHelp.setText( BaseMessages.getString( "System.Button.Help" ) );
     btnHelp.setToolTipText( BaseMessages.getString( "System.Tooltip.Help" ) );
     FormData fd_btnHelp = new FormData();

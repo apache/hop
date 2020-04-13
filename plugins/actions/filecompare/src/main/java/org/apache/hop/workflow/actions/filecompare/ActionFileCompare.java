@@ -32,7 +32,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -139,11 +139,11 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     DataInputStream in2 = null;
     try {
       in1 =
-        new DataInputStream( new BufferedInputStream( HopVFS.getInputStream(
-          HopVFS.getFilename( file1 ), this ) ) );
+        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
+          HopVfs.getFilename( file1 ), this ) ) );
       in2 =
-        new DataInputStream( new BufferedInputStream( HopVFS.getInputStream(
-          HopVFS.getFilename( file2 ), this ) ) );
+        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
+          HopVfs.getFilename( file2 ), this ) ) );
 
       char ch1, ch2;
       while ( in1.available() != 0 && in2.available() != 0 ) {
@@ -190,8 +190,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     try {
       if ( filename1 != null && filename2 != null ) {
 
-        file1 = HopVFS.getFileObject( realFilename1, this );
-        file2 = HopVFS.getFileObject( realFilename2, this );
+        file1 = HopVfs.getFileObject( realFilename1, this );
+        file2 = HopVfs.getFileObject( realFilename2, this );
 
         if ( file1.exists() && file2.exists() ) {
           if ( equalFileContents( file1, file2 ) ) {

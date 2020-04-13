@@ -31,7 +31,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import javax.mail.Flags;
@@ -698,7 +698,7 @@ public class MailConnection {
   public void saveMessageContentToFile( String filename, String foldername ) throws HopException {
     OutputStream os = null;
     try {
-      os = HopVFS.getOutputStream( foldername + ( foldername.endsWith( "/" ) ? "" : "/" ) + filename, false );
+      os = HopVfs.getOutputStream( foldername + ( foldername.endsWith( "/" ) ? "" : "/" ) + filename, false );
       getMessage().writeTo( os );
       updateSavedMessagesCounter();
     } catch ( Exception e ) {
@@ -808,7 +808,7 @@ public class MailConnection {
       build.setLength( baseSz ); // bring string back to size
       build.append( i > 0 ? Integer.toString( i ) : "" ).append( ext );
       rtn = build.toString();
-    } while ( HopVFS.fileExists( rtn ) );
+    } while ( HopVfs.fileExists( rtn ) );
 
     return rtn;
   }
@@ -828,7 +828,7 @@ public class MailConnection {
       } else {
         targetFileName = findValidTarget( foldername, filename );
       }
-      fos = HopVFS.getOutputStream( targetFileName, false );
+      fos = HopVfs.getOutputStream( targetFileName, false );
       bos = new BufferedOutputStream( fos );
       bis = new BufferedInputStream( input );
       IOUtils.copy( bis, bos );

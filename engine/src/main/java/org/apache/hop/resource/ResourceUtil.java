@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -96,11 +96,11 @@ public class ResourceUtil {
 
         // Create the ZIP file...
         //
-        FileObject fileObject = HopVFS.getFileObject( zipFilename, variables );
+        FileObject fileObject = HopVfs.getFileObject( zipFilename, variables );
 
         // Store the XML in the definitions in a ZIP file...
         //
-        out = new ZipOutputStream( HopVFS.getOutputStream( fileObject, false ) );
+        out = new ZipOutputStream( HopVfs.getOutputStream( fileObject, false ) );
 
         for ( String filename : definitions.keySet() ) {
           ResourceDefinition resourceDefinition = definitions.get( filename );

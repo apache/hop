@@ -32,7 +32,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -172,7 +172,7 @@ public class FileInputList {
       }
 
       try {
-        FileObject directoryFileObject = HopVFS.getFileObject( onefile, variables );
+        FileObject directoryFileObject = HopVfs.getFileObject( onefile, variables );
         boolean processFolder = true;
         if ( onerequired ) {
           if ( !directoryFileObject.exists() ) {
@@ -261,7 +261,7 @@ public class FileInputList {
             }
             // We don't sort here, keep the order of the files in the archive.
           } else {
-            FileObject fileObject = HopVFS.getFileObject( onefile, variables );
+            FileObject fileObject = HopVfs.getFileObject( onefile, variables );
             if ( fileObject.exists() ) {
               if ( fileObject.isReadable() ) {
                 fileInputList.addFile( fileObject );
@@ -308,7 +308,7 @@ public class FileInputList {
       try {
         // Find all folder names in this directory
         //
-        directoryFileObject = HopVFS.getFileObject( onefile, variables );
+        directoryFileObject = HopVfs.getFileObject( onefile, variables );
         if ( directoryFileObject != null && directoryFileObject.getType() == FileType.FOLDER ) { // it's a directory
           FileObject[] fileObjects = directoryFileObject.findFiles( new AllFileSelector() {
             @Override
@@ -379,7 +379,7 @@ public class FileInputList {
   public String[] getFileStrings() {
     String[] fileStrings = new String[ files.size() ];
     for ( int i = 0; i < fileStrings.length; i++ ) {
-      fileStrings[ i ] = HopVFS.getFilename( files.get( i ) );
+      fileStrings[ i ] = HopVfs.getFilename( files.get( i ) );
     }
     return fileStrings;
   }
@@ -413,9 +413,9 @@ public class FileInputList {
   }
 
   public void sortFiles() {
-    Collections.sort( files, HopVFS.getComparator() );
-    Collections.sort( nonAccessibleFiles, HopVFS.getComparator() );
-    Collections.sort( nonExistantFiles, HopVFS.getComparator() );
+    Collections.sort( files, HopVfs.getComparator() );
+    Collections.sort( nonAccessibleFiles, HopVfs.getComparator() );
+    Collections.sort( nonExistantFiles, HopVfs.getComparator() );
   }
 
   /*

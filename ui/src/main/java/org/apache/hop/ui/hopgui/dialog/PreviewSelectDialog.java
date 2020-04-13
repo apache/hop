@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -66,13 +66,13 @@ public class PreviewSelectDialog extends Dialog {
   public String[] previewTransforms;
   public int[] previewSizes;
 
-  private PropsUI props;
+  private PropsUi props;
 
   public PreviewSelectDialog( Shell parent, int style, PipelineMeta pipelineMeta ) {
     super( parent, style );
 
     this.pipelineMeta = pipelineMeta;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
 
     previewTransforms = null;
     previewSizes = null;
@@ -84,7 +84,7 @@ public class PreviewSelectDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -94,7 +94,7 @@ public class PreviewSelectDialog extends Dialog {
     shell.setText( BaseMessages.getString( PKG, "PreviewSelectDialog.Dialog.PreviewSelection.Title" ) ); // Preview
     // selection
     // screen
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     int margin = props.getMargin();
 

@@ -31,14 +31,14 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -102,7 +102,7 @@ public class Translator {
   private Display display;
   private Shell shell;
   private ILogChannel log;
-  private PropsUI props;
+  private PropsUi props;
 
   /**
    * The crawler that can find and contain all the keys in the source code
@@ -173,7 +173,7 @@ public class Translator {
   public Translator( Display display ) {
     this.display = display;
     this.log = new LogChannel( APP_NAME );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.filesToAvoid = new ArrayList<>();
     this.scanPhrases = new ArrayList<>(  );
   }
@@ -293,7 +293,7 @@ public class Translator {
     localeList = new ArrayList<>();
     sourceDirectories = new ArrayList<>();
 
-    FileObject file = HopVFS.getFileObject( configFile );
+    FileObject file = HopVfs.getFileObject( configFile );
     if ( file.exists() ) {
 
       try {
@@ -337,7 +337,7 @@ public class Translator {
     shell = new Shell( display );
     shell.setLayout( new FillLayout() );
     shell.setText( APP_NAME );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     try {
       readFiles();
@@ -737,7 +737,7 @@ public class Translator {
     //
     Label wlValue = new Label( composite, SWT.RIGHT );
     wlValue.setText( BaseMessages.getString( PKG, "i18nDialog.Translation" ) );
-    wlValue.setFont(GUIResource.getInstance().getFontBold());
+    wlValue.setFont( GuiResource.getInstance().getFontBold());
     props.setLook( wlValue );
     FormData fdlValue = new FormData();
     fdlValue.left = new FormAttachment( left, props.getMargin() );
@@ -747,7 +747,7 @@ public class Translator {
 
     wValue = new Text( composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wValue );
-    wValue.setFont(GUIResource.getInstance().getFontBold());
+    wValue.setFont( GuiResource.getInstance().getFontBold());
     FormData fdValue = new FormData();
     fdValue.left = new FormAttachment( middle, props.getMargin() );
     fdValue.right = new FormAttachment( 100, 0 );
@@ -1036,7 +1036,7 @@ public class Translator {
       wValue.setText( Const.NVL( value, "" ) );
       wSource.setText( Const.NVL( keyOccurrence.getSourceLine(), "" ) );
 
-      String javaFilename = stripRootFolder(HopVFS.getFilename( keyOccurrence.getFileObject() ));
+      String javaFilename = stripRootFolder( HopVfs.getFilename( keyOccurrence.getFileObject() ));
       wSourceFile.setText( Const.NVL(javaFilename, "") );
 
       String bundleFilename = "";
@@ -1256,7 +1256,7 @@ public class Translator {
 
     Display display = new Display();
     ILogChannel log = new LogChannel( APP_NAME );
-    PropsUI.init( display );
+    PropsUi.init( display );
 
     Translator translator = new Translator( display );
     translator.loadConfiguration( configFile, sourceFolder );

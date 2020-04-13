@@ -38,14 +38,12 @@ import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
@@ -382,7 +380,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
           }
           String fileValue = rowSet.getRowMeta().getString( fileRow, idx );
           try {
-            data.files.addFile( HopVFS.getFileObject( fileValue, getPipelineMeta() ) );
+            data.files.addFile( HopVfs.getFileObject( fileValue, getPipelineMeta() ) );
           } catch ( HopFileException e ) {
             throw new HopException( BaseMessages.getString(
               PKG, "ExcelInput.Exception.CanNotCreateFileObject", fileValue ), e );
@@ -498,13 +496,13 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
       if ( data.workbook == null ) {
         // Open a new openFile..
         data.file = data.files.getFile( data.filenr );
-        data.filename = HopVFS.getFilename( data.file );
+        data.filename = HopVfs.getFilename( data.file );
         // Add additional fields?
         if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
           data.shortFilename = data.file.getName().getBaseName();
         }
         if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-          data.path = HopVFS.getFilename( data.file.getParent() );
+          data.path = HopVfs.getFilename( data.file.getParent() );
         }
         if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
           data.hidden = data.file.isHidden();
@@ -771,7 +769,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
         data.maxfilelength = -1;
 
         for ( FileObject file : data.files.getFiles() ) {
-          String name = HopVFS.getFilename( file );
+          String name = HopVfs.getFilename( file );
           if ( name.length() > data.maxfilelength ) {
             data.maxfilelength = name.length();
           }

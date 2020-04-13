@@ -23,9 +23,9 @@
 package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormLayout;
@@ -41,7 +41,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class AuthComposite extends Composite {
 
-  private final PropsUI props;
+  private final PropsUi props;
   private final ModifyListener lsMod;
   private final PipelineMeta pipelineMeta;
 
@@ -57,7 +57,7 @@ public class AuthComposite extends Composite {
   private TextVar wPassword;
 
 
-  public AuthComposite( Composite composite, int style, PropsUI props, ModifyListener lsMod, PipelineMeta pipelineMeta,
+  public AuthComposite( Composite composite, int style, PropsUi props, ModifyListener lsMod, PipelineMeta pipelineMeta,
                         String credentialGroupName, String usernameLabel, String passwordLabel ) {
     super( composite, style );
     checkNotNull( props );
@@ -105,7 +105,7 @@ public class AuthComposite extends Composite {
     wlPassword = new Label( wAuthGroup, SWT.LEFT );
     props.setLook( wlPassword );
     wlPassword.setText( passwordLabel );
-    wlPassword.setLayoutData( new FormDataBuilder().left().top( wUsername, ConstUI.MEDUIM_MARGIN ).result() );
+    wlPassword.setLayoutData( new FormDataBuilder().left().top( wUsername, ConstUi.MEDUIM_MARGIN ).result() );
 
     wPassword = new PasswordTextVar( pipelineMeta, wAuthGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );

@@ -25,8 +25,8 @@ package org.apache.hop.ui.hopgui.perspective.search;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiToolbarElement;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -98,13 +98,13 @@ public class HopSearchPlugin implements IHopPerspective {
   @Override
   public void show() {
     composite.setVisible( true );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarSearch() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarSearch() );
   }
 
   @Override
   public void hide() {
     composite.setVisible( false );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GUIResource.getInstance().getImageToolbarSearchInactive() );
+    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarSearchInactive() );
   }
 
   @Override
@@ -116,10 +116,10 @@ public class HopSearchPlugin implements IHopPerspective {
     this.hopGui = hopGui;
     this.parent = parent;
 
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     composite = new Composite( parent, SWT.NONE );
-    composite.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
+    composite.setBackground( GuiResource.getInstance().getColorBlueCustomGrid() );
     FormLayout layout = new FormLayout();
     layout.marginLeft = props.getMargin();
     layout.marginTop = props.getMargin();
@@ -137,7 +137,7 @@ public class HopSearchPlugin implements IHopPerspective {
     // Add a simple label to test
     //
     Label label = new Label( composite, SWT.LEFT );
-    label.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
+    label.setBackground( GuiResource.getInstance().getColorBlueCustomGrid() );
     label.setText( "The Search perspective" );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );

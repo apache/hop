@@ -32,7 +32,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -148,7 +148,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
       String realFilename = getRealFilename();
 
       try {
-        fileObject = HopVFS.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename, this );
 
         long iMaximumTimeout = Const.toInt( getRealMaximumTimeout(), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
         long iCycleTime = Const.toInt( getRealCheckCycleTime(), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
@@ -183,7 +183,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
         boolean continueLoop = true;
         while ( continueLoop && !parentWorkflow.isStopped() ) {
-          fileObject = HopVFS.getFileObject( realFilename, this );
+          fileObject = HopVfs.getFileObject( realFilename, this );
 
           if ( fileObject.exists() ) {
             // file exists, we're happy to exit

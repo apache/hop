@@ -30,13 +30,12 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -125,11 +124,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
     try {
       FileObject fileObject =
-        HopVFS.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
+        HopVfs.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ),
           getPipelineMeta() );
 
       data.files.add( fileObject ); // Remember the files!
-      OutputStream outputStream = HopVFS.getOutputStream( fileObject, false );
+      OutputStream outputStream = HopVfs.getOutputStream( fileObject, false );
       if ( data.compressFiles ) {
         gzos = new GZIPOutputStream( new BufferedOutputStream( outputStream ) );
         dos = new DataOutputStream( gzos );
@@ -238,11 +237,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
       try {
         for ( int f = 0; f < data.files.size() && !isStopped(); f++ ) {
           FileObject fileObject = data.files.get( f );
-          String filename = HopVFS.getFilename( fileObject );
+          String filename = HopVfs.getFilename( fileObject );
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "SortRows.Detailed.OpeningTempFile", filename ) );
           }
-          InputStream fi = HopVFS.getInputStream( fileObject );
+          InputStream fi = HopVfs.getInputStream( fileObject );
           DataInputStream di;
           data.fis.add( fi );
           if ( data.compressFiles ) {

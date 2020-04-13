@@ -25,7 +25,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ShowHelpDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,7 +65,7 @@ public class HelpUtils {
 
   private static Button newButton( final Composite parent ) {
     Button button = new Button( parent, SWT.PUSH );
-    button.setImage( GUIResource.getInstance().getImageHelpWeb() );
+    button.setImage( GuiResource.getInstance().getImageHelpWeb() );
     button.setText( BaseMessages.getString( PKG, "System.Button.Help" ) );
     button.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.Help" ) );
     FormData fdButton = new FormData();

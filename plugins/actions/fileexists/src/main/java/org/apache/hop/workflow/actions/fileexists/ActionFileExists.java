@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -124,7 +124,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
 
       String realFilename = getRealFilename();
       try {
-        FileObject file = HopVFS.getFileObject( realFilename, this );
+        FileObject file = HopVfs.getFileObject( realFilename, this );
         if ( file.exists() && file.isReadable() ) {
           logDetailed( BaseMessages.getString( PKG, "ActionFileExists.File_Exists", realFilename ) );
           result.setResult( true );
@@ -188,7 +188,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( filename ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
 
         // If the file doesn't exist, forget about this effort too!
         //

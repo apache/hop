@@ -30,7 +30,7 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
@@ -130,7 +130,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       String realFilename = getRealFilename();
       FileObject fileObject = null;
       try {
-        fileObject = HopVFS.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename, this );
 
         if ( fileObject.exists() ) {
           if ( isFailIfFileExists() ) {
@@ -180,7 +180,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private void addFilenameToResult( String targetFilename, Result result, Workflow parentWorkflow ) throws HopException {
     FileObject targetFile = null;
     try {
-      targetFile = HopVFS.getFileObject( targetFilename, this );
+      targetFile = HopVfs.getFileObject( targetFilename, this );
 
       // Add to the result files...
       ResultFile resultFile =

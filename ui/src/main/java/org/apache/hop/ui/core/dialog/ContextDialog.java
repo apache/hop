@@ -33,8 +33,8 @@ import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -80,7 +80,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   private Shell shell;
   private List<GuiAction> actions;
 
-  private PropsUI props;
+  private PropsUi props;
   private GuiAction selectedAction;
   private Map<String, Image> imageMap;
   private Set<String> filteredActions;
@@ -108,7 +108,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     this.location = location;
     this.actions = actions;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     imageMap = new HashMap<>();
     filteredActions = new HashSet<>();
     selectionMap = new HashMap<>();
@@ -131,7 +131,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
   public GuiAction open() {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
     shell.setText( message );
-    shell.setImage( GUIResource.getInstance().getImageHop() );
+    shell.setImage( GuiResource.getInstance().getImageHop() );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();
@@ -310,13 +310,13 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
     // Fill everything with white...
     //
-    gc.setForeground( GUIResource.getInstance().getColorBackground() );
-    gc.setBackground( GUIResource.getInstance().getColorBackground() );
+    gc.setForeground( GuiResource.getInstance().getColorBackground() );
+    gc.setBackground( GuiResource.getInstance().getColorBackground() );
     gc.fillRectangle( 0, 0, e.width, e.height );
 
     // For text and lines...
     //
-    gc.setForeground( GUIResource.getInstance().getColorBlack() );
+    gc.setForeground( GuiResource.getInstance().getColorBlack() );
     gc.setLineWidth( 4 );
 
     // Draw all actions
@@ -365,10 +365,10 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
 
       boolean selected = selectedAction != null && action.equals( selectedAction );
       if ( selected ) {
-        gc.setBackground( GUIResource.getInstance().getColorLightBlue() );
+        gc.setBackground( GuiResource.getInstance().getColorLightBlue() );
         gc.fillRectangle( selectionBox );
       } else {
-        gc.setBackground( GUIResource.getInstance().getColorBackground() );
+        gc.setBackground( GuiResource.getInstance().getColorBackground() );
       }
 
       gc.drawImage( image, x + ( maxNameWidth - iconSize ) / 2, y );
@@ -614,7 +614,7 @@ public class ContextDialog implements PaintListener, ModifyListener, FocusListen
     // shell.open();
 
     HopClientEnvironment.init();
-    PropsUI.init( display );
+    PropsUi.init( display );
     HopEnvironment.init();
 
     List<GuiAction> actions = new ArrayList<>();

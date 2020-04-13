@@ -44,7 +44,7 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transforms.tableinput.SQLValuesHighlight;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -614,7 +614,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wSql.addModifyListener( lsMod );
 
     // Text Higlighting
-    wSql.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SqlValuesHighlight() );
 
     fdCustomGroup = new FormData();
     fdCustomGroup.left = new FormAttachment( 0, margin );

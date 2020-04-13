@@ -28,8 +28,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
@@ -81,7 +81,7 @@ public class TransformErrorMetaDialog extends Dialog {
 
   private ModifyListener lsMod;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private int middle;
   private int margin;
@@ -98,7 +98,7 @@ public class TransformErrorMetaDialog extends Dialog {
     this.originalTransformErrorMeta = transformErrorMeta;
     this.targetTransforms = targetTransforms;
     this.pipelineMeta = pipelineMeta;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     ok = false;
   }
 
@@ -121,7 +121,7 @@ public class TransformErrorMetaDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setText( BaseMessages.getString( PKG, "BaseTransformDialog.ErrorHandling.Title.Label" ) );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
     shell.setLayout( formLayout );
 
     // First, add the buttons...

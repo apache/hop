@@ -27,14 +27,12 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -103,7 +101,7 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> im
       // get filename
       String filename = data.previousRowMeta.getString( r, data.indexOfFileename );
       if ( !Utils.isEmpty( filename ) ) {
-        data.file = HopVFS.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
 
         // Check if file
         fileexists = data.file.exists();

@@ -67,7 +67,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
@@ -563,7 +563,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     this.metaStore = metaStore;
     try {
       // OK, try to load using the VFS stuff...
-      Document doc = XmlHandler.loadXmlFile( HopVFS.getFileObject( fname, this ) );
+      Document doc = XmlHandler.loadXmlFile( HopVfs.getFileObject( fname, this ) );
       if ( doc != null ) {
         // The jobnode
         Node jobnode = XmlHandler.getSubNode( doc, XML_TAG );
@@ -1945,7 +1945,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     if ( filename != null ) {
       // we have a filename that's defined.
       try {
-        FileObject fileObject = HopVFS.getFileObject( filename, var );
+        FileObject fileObject = HopVfs.getFileObject( filename, var );
         FileName fileName = fileObject.getName();
 
         // The filename of the workflow
@@ -2051,7 +2051,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       String fullname;
       String extension = "hwf";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
         originalPath = fileObject.getParent().getName().getPath();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getName().getPath();

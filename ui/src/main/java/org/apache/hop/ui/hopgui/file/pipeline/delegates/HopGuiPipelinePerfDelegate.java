@@ -25,8 +25,8 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -139,13 +139,13 @@ public class HopGuiPipelinePerfDelegate {
     // Add a pipelineLogTab : display the logging...
     //
     pipelinePerfTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelinePerfTab.setImage( GUIResource.getInstance().getImageShowPerf() );
+    pipelinePerfTab.setImage( GuiResource.getInstance().getImageShowPerf() );
     pipelinePerfTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.PerfTab.Name" ) );
 
     // Create a composite, slam everything on there like it was in the history tab.
     //
     perfComposite = new Composite( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    perfComposite.setBackground( GUIResource.getInstance().getColorBackground() );
+    perfComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     perfComposite.setLayout( new FormLayout() );
 
     hopUi.getProps().setLook( perfComposite );
@@ -171,7 +171,7 @@ public class HopGuiPipelinePerfDelegate {
   }
 
   public void setupContent() {
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     // there is a potential infinite loop below if this method
     // is called when the pipeline-graph is not running, so we check
@@ -362,7 +362,7 @@ public class HopGuiPipelinePerfDelegate {
     Label label = new Label( perfComposite, SWT.CENTER );
     label.setText( BaseMessages.getString( PKG, "PipelineLog.Dialog.PerformanceMonitoringNotEnabled.Message" ) );
     label.setBackground( perfComposite.getBackground() );
-    label.setFont( GUIResource.getInstance().getFontMedium() );
+    label.setFont( GuiResource.getInstance().getFontMedium() );
 
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 5, 0 );
@@ -373,7 +373,7 @@ public class HopGuiPipelinePerfDelegate {
     Button button = new Button( perfComposite, SWT.CENTER );
     button.setText( BaseMessages.getString( PKG, "PipelineLog.Dialog.PerformanceMonitoring.Button" ) );
     button.setBackground( perfComposite.getBackground() );
-    button.setFont( GUIResource.getInstance().getFontMedium() );
+    button.setFont( GuiResource.getInstance().getFontMedium() );
 
     button.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent event ) {
@@ -539,7 +539,7 @@ public class HopGuiPipelinePerfDelegate {
     chart.setBackgroundPaint( Color.white );
     TextTitle title = new TextTitle( chartTitle );
     // title.setExpandToFitSpace(true);
-    // org.eclipse.swt.graphics.Color pentahoColor = GUIResource.getInstance().getColorPentaho();
+    // org.eclipse.swt.graphics.Color pentahoColor = GuiResource.getInstance().getColorPentaho();
     // java.awt.Color color = new java.awt.Color(pentahoColor.getRed(), pentahoColor.getGreen(),pentahoColor.getBlue());
     // title.setBackgroundPaint(color);
     title.setFont( new Font( "SansSerif", Font.BOLD, 12 ) );

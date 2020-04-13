@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
@@ -350,16 +350,16 @@ public class ValueMetaBase implements IValueMeta {
    *
    * @param inputStream
    * @throws HopFileException
-   * @throws HopEOFException
+   * @throws HopEofException
    * @deprecated in favor of a combination of {@link ValueMetaFactory}.createValueMeta() and the loadMetaData() method.
    */
   @Deprecated
-  public ValueMetaBase( DataInputStream inputStream ) throws HopFileException, HopEOFException {
+  public ValueMetaBase( DataInputStream inputStream ) throws HopFileException, HopEofException {
     this();
     try {
       type = inputStream.readInt();
     } catch ( EOFException e ) {
-      throw new HopEOFException( e );
+      throw new HopEofException( e );
     } catch ( IOException e ) {
       throw new HopFileException( toString() + " : Unable to read value metadata from input stream", e );
     }
@@ -2722,7 +2722,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public Object readData( DataInputStream inputStream ) throws HopFileException, HopEOFException,
+  public Object readData( DataInputStream inputStream ) throws HopFileException, HopEofException,
     SocketTimeoutException {
     try {
       // Is the value NULL?
@@ -2765,7 +2765,7 @@ public class ValueMetaBase implements IValueMeta {
           throw new HopFileException( toString() + " : Unknown storage type " + getStorageType() );
       }
     } catch ( EOFException e ) {
-      throw new HopEOFException( e );
+      throw new HopEofException( e );
     } catch ( SocketTimeoutException e ) {
       throw e;
     } catch ( IOException e ) {
@@ -3018,10 +3018,10 @@ public class ValueMetaBase implements IValueMeta {
    *
    * @param inputStream the input stream to read from
    * @throws HopFileException In case there was a IO problem
-   * @throws HopEOFException  If we reached the end of the stream
+   * @throws HopEofException  If we reached the end of the stream
    */
   @Override
-  public void readMetaData( DataInputStream inputStream ) throws HopFileException, HopEOFException {
+  public void readMetaData( DataInputStream inputStream ) throws HopFileException, HopEofException {
 
     // Loading the type is not handled here, this should be read from the stream previously!
     //
@@ -3145,7 +3145,7 @@ public class ValueMetaBase implements IValueMeta {
       // is string to number parsing lenient?
       lenientStringToNumber = inputStream.readBoolean();
     } catch ( EOFException e ) {
-      throw new HopEOFException( e );
+      throw new HopEofException( e );
     } catch ( IOException e ) {
       throw new HopFileException( toString() + " : Unable to read value metadata from input stream", e );
     }

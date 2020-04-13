@@ -57,12 +57,12 @@ public abstract class WidgetUtils {
    * creates a ComboVar populated with fields from the previous transform.
    *
    * @param parentComposite - the composite in which the widget will be placed
-   * @param props           - PropsUI props for L&F
+   * @param props           - PropsUi props for L&F
    * @param transformMeta        - transformMeta of the current transform
    * @param formData        - FormData to use for placement
    */
   public static ComboVar createFieldDropDown(
-    Composite parentComposite, PropsUI props, BaseTransformMeta transformMeta, FormData formData ) {
+    Composite parentComposite, PropsUi props, BaseTransformMeta transformMeta, FormData formData ) {
     PipelineMeta pipelineMeta = transformMeta.getParentTransformMeta().getParentPipelineMeta();
     ComboVar fieldDropDownCombo = new ComboVar( pipelineMeta, parentComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( fieldDropDownCombo );
@@ -116,7 +116,7 @@ public abstract class WidgetUtils {
         title = StringUtils.rightPad( title, 8 );
       }
       Composite tab = new Composite( tabFolder, SWT.NONE );
-      WidgetUtils.setFormLayout( tab, ConstUI.MEDUIM_MARGIN );
+      WidgetUtils.setFormLayout( tab, ConstUi.MEDUIM_MARGIN );
 
       CTabItem tabItem = new CTabItem( tabFolder, SWT.NONE );
       tabItem.setText( title );
@@ -128,10 +128,10 @@ public abstract class WidgetUtils {
   }
 
   public static FormData firstColumn( Control top ) {
-    return new FormDataBuilder().top( top, ConstUI.MEDUIM_MARGIN ).percentWidth( 47 ).result();
+    return new FormDataBuilder().top( top, ConstUi.MEDUIM_MARGIN ).percentWidth( 47 ).result();
   }
 
   public static FormData secondColumn( Control top ) {
-    return new FormDataBuilder().top( top, ConstUI.MEDUIM_MARGIN ).right().left( 53, 0 ).result();
+    return new FormDataBuilder().top( top, ConstUi.MEDUIM_MARGIN ).right().left( 53, 0 ).result();
   }
 }

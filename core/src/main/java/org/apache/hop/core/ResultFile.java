@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
@@ -277,7 +277,7 @@ public class ResultFile implements Cloneable {
   public ResultFile( Node node ) throws HopFileException {
     try {
       type = getType( XmlHandler.getTagValue( node, "type" ) );
-      file = HopVFS.getFileObject( XmlHandler.getTagValue( node, "file" ) );
+      file = HopVfs.getFileObject( XmlHandler.getTagValue( node, "file" ) );
       originParent = XmlHandler.getTagValue( node, "parentorigin" );
       origin = XmlHandler.getTagValue( node, "origin" );
       comment = XmlHandler.getTagValue( node, "comment" );

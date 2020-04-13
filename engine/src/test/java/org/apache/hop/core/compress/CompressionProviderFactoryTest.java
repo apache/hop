@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.compress;
 
-import org.apache.hop.core.compress.gzip.GZIPCompressionProvider;
+import org.apache.hop.core.compress.gzip.GzipCompressionProvider;
 import org.apache.hop.core.compress.hadoopsnappy.HadoopSnappyCompressionProvider;
 import org.apache.hop.core.compress.snappy.SnappyCompressionProvider;
-import org.apache.hop.core.compress.zip.ZIPCompressionProvider;
+import org.apache.hop.core.compress.zip.ZipCompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
@@ -82,13 +82,13 @@ public class CompressionProviderFactoryTest {
 
     provider = factory.createCompressionProviderInstance( "Zip" );
     assertNotNull( provider );
-    assertTrue( provider.getClass().isAssignableFrom( ZIPCompressionProvider.class ) );
+    assertTrue( provider.getClass().isAssignableFrom( ZipCompressionProvider.class ) );
     assertEquals( "Zip", provider.getName() );
     assertEquals( "ZIP compression", provider.getDescription() );
 
     provider = factory.createCompressionProviderInstance( "GZip" );
     assertNotNull( provider );
-    assertTrue( provider.getClass().isAssignableFrom( GZIPCompressionProvider.class ) );
+    assertTrue( provider.getClass().isAssignableFrom( GzipCompressionProvider.class ) );
     assertEquals( "GZip", provider.getName() );
     assertEquals( "GZIP compression", provider.getDescription() );
 

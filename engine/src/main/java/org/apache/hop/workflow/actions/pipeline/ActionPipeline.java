@@ -44,7 +44,7 @@ import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.IDelegationListener;
@@ -391,7 +391,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       try {
         logChannelFileWriter =
           new LogChannelFileWriter(
-            this.getLogChannelId(), HopVFS.getFileObject( realLogFilename, this ), setAppendLogfile );
+            this.getLogChannelId(), HopVfs.getFileObject( realLogFilename, this ), setAppendLogfile );
         logChannelFileWriter.startLogging();
       } catch ( HopException e ) {
         logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnableOpenAppender", realLogFilename, e.toString() ) );
@@ -785,7 +785,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
             if ( setLogfile ) {
               ResultFile resultFile =
                 new ResultFile(
-                  ResultFile.FILE_TYPE_LOG, HopVFS.getFileObject( realLogFilename, this ), parentWorkflow
+                  ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename, this ), parentWorkflow
                   .getJobname(), toString()
                 );
               result.getResultFiles().put( resultFile.getFile().toString(), resultFile );

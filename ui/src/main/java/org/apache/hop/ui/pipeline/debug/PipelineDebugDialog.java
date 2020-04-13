@@ -31,9 +31,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ConditionEditor;
@@ -78,7 +78,7 @@ public class PipelineDebugDialog extends Dialog {
   private Display display;
   private Shell parent;
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
   private int retval;
 
   private Button wOk, wCancel, wLaunch;
@@ -103,7 +103,7 @@ public class PipelineDebugDialog extends Dialog {
     super( parent );
     this.parent = parent;
     this.pipelineDebugMeta = pipelineDebugMeta;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     // Keep our own map of transform debugging information...
     //
@@ -121,7 +121,7 @@ public class PipelineDebugDialog extends Dialog {
     shell =
       new Shell( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -262,7 +262,7 @@ public class PipelineDebugDialog extends Dialog {
   }
 
   private void refreshTransformList() {
-    GUIResource resource = GUIResource.getInstance();
+    GuiResource resource = GuiResource.getInstance();
 
     // Add the list of transforms...
     //
@@ -273,8 +273,8 @@ public class PipelineDebugDialog extends Dialog {
       TransformMeta transformMeta = pipelineDebugMeta.getPipelineMeta().getTransform( i );
       TableItem item = new TableItem( wTransforms.table, SWT.NONE );
       Image image =
-        resource.getImagesTransforms().get( transformMeta.getTransformPluginId() ).getAsBitmapForSize( display, ConstUI.ICON_SIZE,
-          ConstUI.ICON_SIZE );
+        resource.getImagesTransforms().get( transformMeta.getTransformPluginId() ).getAsBitmapForSize( display, ConstUi.ICON_SIZE,
+          ConstUi.ICON_SIZE );
       item.setImage( 0, image );
       item.setText( 0, "" );
       item.setText( 1, transformMeta.getName() );

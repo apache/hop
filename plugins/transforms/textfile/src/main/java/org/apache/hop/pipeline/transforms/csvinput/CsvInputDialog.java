@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.core.file.TextFileInputField;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -864,7 +864,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     try {
       String filename = pipelineMeta.environmentSubstitute( meta.getFilename() );
 
-      FileObject fileObject = HopVFS.getFileObject( filename );
+      FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {
         // We can only use NIO on local files at the moment, so that's what we
         // limit ourselves to.
@@ -895,7 +895,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     try {
       final String filename = pipelineMeta.environmentSubstitute( meta.getFilename() );
 
-      final FileObject fileObject = HopVFS.getFileObject( filename );
+      final FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {
         // We can only use NIO on local files at the moment, so that's what we
         // limit ourselves to.
@@ -903,7 +903,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         throw new HopException( BaseMessages.getString( PKG, "CsvInput.Log.OnlyLocalFilesAreSupported" ) );
       }
 
-      inputStream = HopVFS.getInputStream( fileObject );
+      inputStream = HopVfs.getInputStream( fileObject );
     } catch ( final Exception e ) {
       logError( BaseMessages.getString( PKG, "CsvInputDialog.ErrorGettingFileDesc.DialogMessage" ), e );
     }
@@ -1016,7 +1016,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
             // If we have enough rows we can stop
             //
-            if ( rowsData.size() > PropsUI.getInstance().getDefaultPreviewSize() ) {
+            if ( rowsData.size() > PropsUi.getInstance().getDefaultPreviewSize() ) {
               pipeline.stopAll();
             }
           }
@@ -1099,7 +1099,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         throw new HopException( BaseMessages.getString( "FileInputDialog.Log.OnlyLocalFilesAreSupported" ) );
       }
 
-      inputStream = HopVFS.getInputStream( fileObject );
+      inputStream = HopVfs.getInputStream( fileObject );
     } catch ( final Exception e ) {
       logError( BaseMessages.getString( "FileInputDialog.ErrorGettingFileDesc.DialogMessage" ), e );
     }

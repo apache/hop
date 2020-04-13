@@ -29,7 +29,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -120,7 +120,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
-        folderObject = HopVFS.getFileObject( realFoldername, this );
+        folderObject = HopVfs.getFileObject( realFoldername, this );
 
         if ( folderObject.exists() ) {
           boolean isFolder = false;

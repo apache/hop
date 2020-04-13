@@ -38,7 +38,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.CharsetToolkit;
 import org.apache.hop.core.util.HopJaroWinklerDistance;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlCheck;
 
 import java.io.ByteArrayInputStream;
@@ -389,9 +389,9 @@ public class ValueDataUtil {
     FileObject file = null;
     InputStream in = null;
     try {
-      file = HopVFS.getFileObject( dataA.toString() );
+      file = HopVfs.getFileObject( dataA.toString() );
       throwsErrorOnFileNotFound( file );
-      in = HopVFS.getInputStream( file );
+      in = HopVfs.getInputStream( file );
       int bytes = in.available();
       byte[] buffer = new byte[ bytes ];
       in.read( buffer );
@@ -451,12 +451,12 @@ public class ValueDataUtil {
     FileObject file = null;
     CheckedInputStream cis = null;
     try {
-      file = HopVFS.getFileObject( dataA.toString() );
+      file = HopVfs.getFileObject( dataA.toString() );
       throwsErrorOnFileNotFound( file );
       cis = null;
 
       // Computer CRC32 checksum
-      cis = new CheckedInputStream( HopVFS.getInputStream( file ), new CRC32() );
+      cis = new CheckedInputStream( HopVfs.getInputStream( file ), new CRC32() );
       byte[] buf = new byte[ 128 ];
       int readSize = 0;
       do {
@@ -511,12 +511,12 @@ public class ValueDataUtil {
     FileObject file = null;
     CheckedInputStream cis = null;
     try {
-      file = HopVFS.getFileObject( dataA.toString() );
+      file = HopVfs.getFileObject( dataA.toString() );
       throwsErrorOnFileNotFound( file );
       cis = null;
 
       // Computer Adler-32 checksum
-      cis = new CheckedInputStream( HopVFS.getInputStream( file ), new Adler32() );
+      cis = new CheckedInputStream( HopVfs.getInputStream( file ), new Adler32() );
 
       byte[] buf = new byte[ 128 ];
       int readSize = 0;
@@ -671,9 +671,9 @@ public class ValueDataUtil {
     InputStream is = null;
 
     try {
-      file = HopVFS.getFileObject( dataA.toString() );
+      file = HopVfs.getFileObject( dataA.toString() );
       throwsErrorOnFileNotFound( file );
-      is = HopVFS.getInputStream( file );
+      is = HopVfs.getInputStream( file );
       int fileSize = (int) file.getContent().getSize();
       content = Const.createByteArray( fileSize );
       is.read( content, 0, fileSize );
@@ -1926,7 +1926,7 @@ public class ValueDataUtil {
     String filename = dataA.toString();
     FileObject file = null;
     try {
-      file = HopVFS.getFileObject( filename );
+      file = HopVfs.getFileObject( filename );
       throwsErrorOnFileNotFound( file );
       return XmlCheck.isXMLFileWellFormed( file );
     } catch ( HopFileNotFoundException e ) {
@@ -1999,7 +1999,7 @@ public class ValueDataUtil {
     String encoding = null;
     FileObject file = null;
     try {
-      file = HopVFS.getFileObject( metaA.getString( dataA ) );
+      file = HopVfs.getFileObject( metaA.getString( dataA ) );
       throwsErrorOnFileNotFound( file );
       encoding = CharsetToolkit.guessEncodingName( file );
     } catch ( HopFileNotFoundException e ) {

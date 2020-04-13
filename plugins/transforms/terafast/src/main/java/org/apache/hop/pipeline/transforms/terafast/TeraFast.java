@@ -35,14 +35,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.AbstractTransform;
 import org.apache.hop.core.util.ConfigurableStreamLogger;
 import org.apache.hop.core.util.GenericTransformData;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.*;
@@ -93,8 +90,8 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     final StringBuilder builder = new StringBuilder();
     try {
       final FileObject fileObject =
-        HopVFS.getFileObject( environmentSubstitute( this.meta.getFastloadPath().getValue() ) );
-      final String fastloadExec = HopVFS.getFilename( fileObject );
+        HopVfs.getFileObject( environmentSubstitute( this.meta.getFastloadPath().getValue() ) );
+      final String fastloadExec = HopVfs.getFilename( fileObject );
       builder.append( fastloadExec );
     } catch ( Exception e ) {
       throw new HopException( "Error retrieving fastload application string", e );
@@ -103,9 +100,9 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     if ( StringUtils.isNotBlank( this.meta.getLogFile().getValue() ) ) {
       try {
         FileObject fileObject =
-          HopVFS.getFileObject( environmentSubstitute( this.meta.getLogFile().getValue() ) );
+          HopVfs.getFileObject( environmentSubstitute( this.meta.getLogFile().getValue() ) );
         builder.append( " -e " );
-        builder.append( "\"" + HopVFS.getFilename( fileObject ) + "\"" );
+        builder.append( "\"" + HopVfs.getFilename( fileObject ) + "\"" );
       } catch ( Exception e ) {
         throw new HopException( "Error retrieving logfile string", e );
       }
@@ -415,7 +412,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws IOException ...
    */
   private String resolveFileName( final String fileName ) throws HopException {
-    final FileObject fileObject = HopVFS.getFileObject( environmentSubstitute( fileName ) );
-    return HopVFS.getFilename( fileObject );
+    final FileObject fileObject = HopVfs.getFileObject( environmentSubstitute( fileName ) );
+    return HopVfs.getFilename( fileObject );
   }
 }

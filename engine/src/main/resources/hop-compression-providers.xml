@@ -11,7 +11,7 @@
   <compression-provider id="Zip">
     <description>Zip</description>
     <tooltip>ZIP compression</tooltip>
-    <classname>org.apache.hop.core.compress.zip.ZIPCompressionProvider</classname>
+    <classname>org.apache.hop.core.compress.zip.ZipCompressionProvider</classname>
     <documentation_url/>
     <cases_url/>
     <forum_url/>
@@ -19,7 +19,7 @@
   <compression-provider id="GZIP">
     <description>GZip</description>
     <tooltip>GZIP compression</tooltip>
-    <classname>org.apache.hop.core.compress.gzip.GZIPCompressionProvider</classname>
+    <classname>org.apache.hop.core.compress.gzip.GzipCompressionProvider</classname>
     <documentation_url/>
     <cases_url/>
     <forum_url/>

@@ -25,7 +25,7 @@ package org.apache.hop.core.util;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class FileUtil {
     boolean resultat = true;
     try {
       // Get parent folder
-      parentfolder = HopVFS.getFileObject( filename, vs ).getParent();
+      parentfolder = HopVfs.getFileObject( filename, vs ).getParent();
       if ( !parentfolder.exists() ) {
         if ( createParentFolder ) {
           if ( log.isDebug() ) {

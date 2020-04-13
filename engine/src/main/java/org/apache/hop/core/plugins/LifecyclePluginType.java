@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.annotations.LifecyclePlugin;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.gui.IGUIOption;
+import org.apache.hop.core.gui.GuiOption;
 import org.apache.hop.core.lifecycle.ILifecycleListener;
 
 import java.lang.annotation.Annotation;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @author matt
  */
 @PluginMainClassType( ILifecycleListener.class )
-@PluginExtraClassTypes( classTypes = { IGUIOption.class } )
+@PluginExtraClassTypes( classTypes = { GuiOption.class } )
 @PluginAnnotationType( LifecyclePlugin.class )
 public class LifecyclePluginType extends BasePluginType implements IPluginType {
 
@@ -104,7 +104,7 @@ public class LifecyclePluginType extends BasePluginType implements IPluginType {
    */
   public void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
     // LifecyclePlugin plugin = (LifecyclePlugin) annotation;
-    classMap.put( IGUIOption.class, clazz.getName() );
+    classMap.put( GuiOption.class, clazz.getName() );
     classMap.put( ILifecycleListener.class, clazz.getName() );
   }
 

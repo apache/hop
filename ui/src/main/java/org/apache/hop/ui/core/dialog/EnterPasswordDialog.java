@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -66,7 +66,7 @@ public class EnterPasswordDialog extends Dialog {
 
   private Shell shell;
   private SelectionAdapter lsDef;
-  private PropsUI props;
+  private PropsUi props;
 
   private String description;
   private boolean readonly, modal;
@@ -75,7 +75,7 @@ public class EnterPasswordDialog extends Dialog {
    * @deprecated Use CT without the <i>props</i> parameter (at 2nd position)
    */
   @Deprecated
-  public EnterPasswordDialog( Shell parent, PropsUI props, String title, String message, String description ) {
+  public EnterPasswordDialog( Shell parent, PropsUi props, String title, String message, String description ) {
     super( parent, SWT.NONE );
     this.props = props;
     this.title = title;
@@ -86,7 +86,7 @@ public class EnterPasswordDialog extends Dialog {
 
   public EnterPasswordDialog( Shell parent, String title, String message, String description ) {
     super( parent, SWT.NONE );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.title = title;
     this.message = message;
     this.description = description;
@@ -109,7 +109,7 @@ public class EnterPasswordDialog extends Dialog {
       new Shell( parent, SWT.DIALOG_TRIM
         | SWT.RESIZE | SWT.MAX | SWT.MIN | ( modal ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

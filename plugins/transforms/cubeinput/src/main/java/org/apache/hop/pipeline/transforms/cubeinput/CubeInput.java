@@ -24,19 +24,17 @@ package org.apache.hop.pipeline.transforms.cubeinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -70,7 +68,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> imple
         setOutputDone();
         return false;
       }
-    } catch ( HopEOFException eof ) {
+    } catch ( HopEofException eof ) {
       setOutputDone();
       return false;
     } catch ( SocketTimeoutException e ) {
@@ -96,13 +94,13 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> imple
         if ( meta.isAddResultFile() ) {
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename, getPipelineMeta() ),
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename, getPipelineMeta() ),
               getPipelineMeta().getName(), toString() );
           resultFile.setComment( "File was read by a Cube Input transform" );
           addResultFile( resultFile );
         }
 
-        data.fis = HopVFS.getInputStream( filename, this );
+        data.fis = HopVfs.getInputStream( filename, this );
         data.zip = new GZIPInputStream( data.fis );
         data.dis = new DataInputStream( data.zip );
 

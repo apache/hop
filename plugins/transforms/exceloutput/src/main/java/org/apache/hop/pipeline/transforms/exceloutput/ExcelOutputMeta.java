@@ -37,7 +37,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -1258,7 +1258,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ), variables );
         fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 

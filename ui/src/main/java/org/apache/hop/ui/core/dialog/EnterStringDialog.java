@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -86,7 +86,7 @@ public class EnterStringDialog extends Dialog {
 
   private String lineText;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private boolean mandatory;
 
@@ -116,7 +116,7 @@ public class EnterStringDialog extends Dialog {
   public EnterStringDialog( Shell parent, String string, String shellText, String lineText,
                             boolean allowVariables, PipelineMeta pipelineMeta ) {
     super( parent, SWT.NONE );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.string = string;
     this.shellText = shellText;
     this.lineText = lineText;
@@ -137,7 +137,7 @@ public class EnterStringDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
     shell.setText( shellText );
 
     int margin = props.getMargin();

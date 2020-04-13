@@ -47,7 +47,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
@@ -196,7 +196,7 @@ public class HopServer {
         throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.illegalStop" ) );
       }
       usingConfigFile = true;
-      FileObject file = HopVFS.getFileObject( arguments[ 0 ] );
+      FileObject file = HopVfs.getFileObject( arguments[ 0 ] );
       Document document = XmlHandler.loadXmlFile( file );
       setHopEnvironment(); // Must stand up server now to allow decryption of password
       Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );

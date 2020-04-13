@@ -24,14 +24,12 @@ package org.apache.hop.pipeline.transforms.filestoresult;
 
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -81,7 +79,7 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
 
     try {
       ResultFile resultFile =
-        new ResultFile( meta.getFileType(), HopVFS.getFileObject( filename, getPipelineMeta() ), getPipeline()
+        new ResultFile( meta.getFileType(), HopVfs.getFileObject( filename, getPipelineMeta() ), getPipeline()
           .getName(), getTransformName() );
 
       // Add all rows to rows buffer...

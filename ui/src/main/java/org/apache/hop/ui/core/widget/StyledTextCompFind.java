@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -68,7 +68,7 @@ public class StyledTextCompFind extends org.eclipse.swt.widgets.Dialog {
 
     Shell parent = getParent();
     sShell = new Shell( parent, SWT.DIALOG_TRIM | SWT.NO_REDRAW_RESIZE | SWT.APPLICATION_MODAL );
-    sShell.setImage( GUIResource.getInstance().getImageHopUi() );
+    sShell.setImage( GuiResource.getInstance().getImageHopUi() );
     sShell.setText( strHeader );
     sShell.setSize( new Point( 360, 126 ) );
     FormLayout formLayout = new FormLayout();

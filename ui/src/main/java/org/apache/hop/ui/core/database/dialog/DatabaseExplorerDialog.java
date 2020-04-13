@@ -23,7 +23,7 @@
 package org.apache.hop.ui.core.database.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DBCache;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.database.Catalog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -38,15 +38,15 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineProfileFactory;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -90,9 +90,9 @@ import java.util.List;
  */
 public class DatabaseExplorerDialog extends Dialog {
   private ILogChannel log;
-  private PropsUI props;
+  private PropsUi props;
   private DatabaseMeta dbMeta;
-  private DBCache dbcache;
+  private DbCache dbcache;
 
   private static final Class<?> PKG = DatabaseExplorerDialog.class;
 
@@ -150,9 +150,9 @@ public class DatabaseExplorerDialog extends Dialog {
     selectedSchema = null;
     selectedTable = null;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     log = new LogChannel( "DBExplorer" );
-    dbcache = DBCache.getInstance();
+    dbcache = DbCache.getInstance();
   }
 
   public void setSelectedTable( String selectedTable ) {
@@ -168,7 +168,7 @@ public class DatabaseExplorerDialog extends Dialog {
       shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     }
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageConnection() );
+    shell.setImage( GuiResource.getInstance().getImageConnection() );
 
     shell.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Title", dbMeta.toString() ) );
 
@@ -289,9 +289,9 @@ public class DatabaseExplorerDialog extends Dialog {
 
     ToolBar treeTb = new ToolBar( shell, SWT.HORIZONTAL | SWT.FLAT );
     expandAll = new ToolItem( treeTb, SWT.PUSH );
-    expandAll.setImage( GUIResource.getInstance().getImageExpandAll() );
+    expandAll.setImage( GuiResource.getInstance().getImageExpandAll() );
     collapseAll = new ToolItem( treeTb, SWT.PUSH );
-    collapseAll.setImage( GUIResource.getInstance().getImageCollapseAll() );
+    collapseAll.setImage( GuiResource.getInstance().getImageCollapseAll() );
     fdexpandAll = new FormData();
     fdexpandAll.right = new FormAttachment( 100, 0 );
     fdexpandAll.top = new FormAttachment( 0, 0 );
@@ -479,26 +479,26 @@ public class DatabaseExplorerDialog extends Dialog {
 
       // New entry in the tree
       tiTree = new TreeItem( wTree, SWT.NONE );
-      tiTree.setImage( GUIResource.getInstance().getImageFolderConnections() );
+      tiTree.setImage( GuiResource.getInstance().getImageFolderConnections() );
       tiTree.setText( dbMeta == null ? "" : dbMeta.getName() );
 
       // Show the catalogs...
       Catalog[] catalogs = dmi.getCatalogs();
       if ( catalogs != null ) {
         TreeItem tiCat = new TreeItem( tiTree, SWT.NONE );
-        tiCat.setImage( GUIResource.getInstance().getImageBol() );
+        tiCat.setImage( GuiResource.getInstance().getImageBol() );
         tiCat.setText( STRING_CATALOG );
 
         for ( int i = 0; i < catalogs.length; i++ ) {
           TreeItem newCat = new TreeItem( tiCat, SWT.NONE );
-          newCat.setImage( GUIResource.getInstance().getImageConnection() );
+          newCat.setImage( GuiResource.getInstance().getImageConnection() );
           newCat.setText( catalogs[ i ].getCatalogName() );
 
           for ( int j = 0; j < catalogs[ i ].getItems().length; j++ ) {
             String tableName = catalogs[ i ].getItems()[ j ];
 
             TreeItem ti = new TreeItem( newCat, SWT.NONE );
-            ti.setImage( GUIResource.getInstance().getImageTable() );
+            ti.setImage( GuiResource.getInstance().getImageTable() );
             ti.setText( tableName );
           }
         }
@@ -508,19 +508,19 @@ public class DatabaseExplorerDialog extends Dialog {
       Schema[] schemas = dmi.getSchemas();
       if ( schemas != null ) {
         TreeItem tiSch = new TreeItem( tiTree, SWT.NONE );
-        tiSch.setImage( GUIResource.getInstance().getImageBol() );
+        tiSch.setImage( GuiResource.getInstance().getImageBol() );
         tiSch.setText( STRING_SCHEMAS );
 
         for ( int i = 0; i < schemas.length; i++ ) {
           TreeItem newSch = new TreeItem( tiSch, SWT.NONE );
-          newSch.setImage( GUIResource.getInstance().getImageSchema() );
+          newSch.setImage( GuiResource.getInstance().getImageSchema() );
           newSch.setText( schemas[ i ].getSchemaName() );
 
           for ( int j = 0; j < schemas[ i ].getItems().length; j++ ) {
             String tableName = schemas[ i ].getItems()[ j ];
 
             TreeItem ti = new TreeItem( newSch, SWT.NONE );
-            ti.setImage( GUIResource.getInstance().getImageTable() );
+            ti.setImage( GuiResource.getInstance().getImageTable() );
             ti.setText( tableName );
           }
         }
@@ -531,13 +531,13 @@ public class DatabaseExplorerDialog extends Dialog {
       String tabnames[] = dmi.getTables();
       if ( tabnames != null ) {
         tiTab = new TreeItem( tiTree, SWT.NONE );
-        tiTab.setImage( GUIResource.getInstance().getImageBol() );
+        tiTab.setImage( GuiResource.getInstance().getImageBol() );
         tiTab.setText( STRING_TABLES );
         tiTab.setExpanded( true );
 
         for ( int i = 0; i < tabnames.length; i++ ) {
           TreeItem newTab = new TreeItem( tiTab, SWT.NONE );
-          newTab.setImage( GUIResource.getInstance().getImageTable() );
+          newTab.setImage( GuiResource.getInstance().getImageTable() );
           newTab.setText( tabnames[ i ] );
         }
       }
@@ -547,11 +547,11 @@ public class DatabaseExplorerDialog extends Dialog {
       String views[] = dmi.getViews();
       if ( views != null ) {
         tiView = new TreeItem( tiTree, SWT.NONE );
-        tiView.setImage( GUIResource.getInstance().getImageBol() );
+        tiView.setImage( GuiResource.getInstance().getImageBol() );
         tiView.setText( STRING_VIEWS );
         for ( int i = 0; i < views.length; i++ ) {
           TreeItem newView = new TreeItem( tiView, SWT.NONE );
-          newView.setImage( GUIResource.getInstance().getImageView() );
+          newView.setImage( GuiResource.getInstance().getImageView() );
           newView.setText( views[ i ] );
         }
       }
@@ -562,11 +562,11 @@ public class DatabaseExplorerDialog extends Dialog {
       String[] syn = dmi.getSynonyms();
       if ( syn != null ) {
         tiSyn = new TreeItem( tiTree, SWT.NONE );
-        tiSyn.setImage( GUIResource.getInstance().getImageBol() );
+        tiSyn.setImage( GuiResource.getInstance().getImageBol() );
         tiSyn.setText( STRING_SYNONYMS );
         for ( int i = 0; i < syn.length; i++ ) {
           TreeItem newSyn = new TreeItem( tiSyn, SWT.NONE );
-          newSyn.setImage( GUIResource.getInstance().getImageSynonym() );
+          newSyn.setImage( GuiResource.getInstance().getImageSynonym() );
           newSyn.setText( syn[ i ] );
         }
       }
@@ -575,16 +575,16 @@ public class DatabaseExplorerDialog extends Dialog {
       if ( !Const.isEmpty( selectedTable ) ) {
         TreeItem ti = null;
         if ( ti == null && tiTab != null ) {
-          ti = ConstUI.findTreeItem( tiTab, selectedSchema, selectedTable );
+          ti = ConstUi.findTreeItem( tiTab, selectedSchema, selectedTable );
         }
         if ( ti == null && tiView != null ) {
-          ti = ConstUI.findTreeItem( tiView, selectedSchema, selectedTable );
+          ti = ConstUi.findTreeItem( tiView, selectedSchema, selectedTable );
         }
         if ( ti == null && tiTree != null ) {
-          ti = ConstUI.findTreeItem( tiTree, selectedSchema, selectedTable );
+          ti = ConstUi.findTreeItem( tiTree, selectedSchema, selectedTable );
         }
         if ( ti == null && tiSyn != null ) {
-          ti = ConstUI.findTreeItem( tiSyn, selectedSchema, selectedTable );
+          ti = ConstUi.findTreeItem( tiSyn, selectedSchema, selectedTable );
         }
 
         if ( ti != null ) {
@@ -891,7 +891,7 @@ public class DatabaseExplorerDialog extends Dialog {
     if ( ti.length == 1 ) {
       // Get the parent.
       String table = ti[ 0 ].getText();
-      String[] path = ConstUI.getTreeStrings( ti[ 0 ] );
+      String[] path = ConstUi.getTreeStrings( ti[ 0 ] );
       if ( path.length == 3 ) {
         if ( STRING_TABLES.equalsIgnoreCase( path[ 1 ] ) ||
           STRING_VIEWS.equalsIgnoreCase( path[ 1 ] ) ||

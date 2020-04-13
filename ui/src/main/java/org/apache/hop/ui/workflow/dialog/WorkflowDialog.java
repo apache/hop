@@ -23,7 +23,7 @@
 package org.apache.hop.ui.workflow.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DBCache;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -42,14 +42,14 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.IFieldDisabledListener;
@@ -105,7 +105,7 @@ public class WorkflowDialog extends Dialog {
 
   private CTabItem wJobTab, wParamTab, wLogTab, wSettingsTab;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private Label wlJobname;
 
@@ -210,7 +210,7 @@ public class WorkflowDialog extends Dialog {
   public WorkflowDialog( Shell parent, int style, WorkflowMeta workflowMeta ) {
     super( parent, style );
     this.workflowMeta = workflowMeta;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
 
     directoryChangeAllowed = true;
 
@@ -227,7 +227,7 @@ public class WorkflowDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageJobGraph() );
+    shell.setImage( GuiResource.getInstance().getImageJobGraph() );
 
     lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
@@ -418,7 +418,7 @@ public class WorkflowDialog extends Dialog {
     fdJobFilename.right = new FormAttachment( 100, 0 );
     wJobFilename.setLayoutData( fdJobFilename );
     wJobFilename.setEditable( false );
-    wJobFilename.setBackground( GUIResource.getInstance().getColorLightGray() );
+    wJobFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
 
     // Workflow description:
     Label wlJobdescription = new Label( wJobComp, SWT.RIGHT );
@@ -1424,7 +1424,7 @@ public class WorkflowDialog extends Dialog {
 
             if ( ddl.length() > 0 ) {
               SqlEditor sqledit =
-                new SqlEditor( workflowMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), DBCache.getInstance(), ddl
+                new SqlEditor( workflowMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), DbCache.getInstance(), ddl
                   .toString() );
               sqledit.open();
             } else {
@@ -1498,8 +1498,8 @@ public class WorkflowDialog extends Dialog {
   public static Image getImage( Shell shell, IPlugin plugin ) {
     String id = plugin.getIds()[ 0 ];
     if ( id != null ) {
-      return GUIResource.getInstance().getImagesActions().get( id ).getAsBitmapForSize(
-        shell.getDisplay(), ConstUI.ICON_SIZE, ConstUI.ICON_SIZE );
+      return GuiResource.getInstance().getImagesActions().get( id ).getAsBitmapForSize(
+        shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
     }
     return null;
   }

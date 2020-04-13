@@ -24,7 +24,7 @@ package org.apache.hop.workflow.actions.ftpsget;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.actions.ftpsget.ftp4che.SecureDataFtpConnection;
 import org.ftp4che.FTPConnection;
 import org.ftp4che.commands.Command;
@@ -70,7 +70,7 @@ public class FtpsConnectionTest {
 
   @Test
   public void testEnforceProtPOnPut() throws Exception {
-    FileObject file = HopVFS.createTempFile( "FTPSConnectionTest_testEnforceProtPOnPut", HopVFS.Suffix.TMP );
+    FileObject file = HopVfs.createTempFile( "FTPSConnectionTest_testEnforceProtPOnPut", HopVfs.Suffix.TMP );
     file.createFile();
     try {
       FtpsTestConnection connection = spy(

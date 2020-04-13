@@ -28,7 +28,7 @@ import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
@@ -220,7 +220,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
           FileUtil.createParentFolder( AddPipelineServlet.class, realLogFilename, pipelineExecutionConfiguration
             .isCreateParentFolder(), pipeline.getLogChannel(), pipeline );
           logChannelFileWriter =
-            new LogChannelFileWriter( servletLoggingObject.getLogChannelId(), HopVFS
+            new LogChannelFileWriter( servletLoggingObject.getLogChannelId(), HopVfs
               .getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
           logChannelFileWriter.startLogging();
 

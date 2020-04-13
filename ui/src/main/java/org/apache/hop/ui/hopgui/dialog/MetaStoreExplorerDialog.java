@@ -32,10 +32,10 @@ import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
@@ -81,7 +81,7 @@ public class MetaStoreExplorerDialog {
 
   private Tree tree;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private Button closeButton;
 
@@ -104,7 +104,7 @@ public class MetaStoreExplorerDialog {
     } else {
       metaStoreList.add( metaStore );
     }
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
   }
 
   public void open() {
@@ -112,7 +112,7 @@ public class MetaStoreExplorerDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -166,8 +166,8 @@ public class MetaStoreExplorerDialog {
         }
         TreeItem treeItem = tree.getSelection()[ 0 ];
         if ( treeItem != null ) {
-          String[] labels = ConstUI.getTreeStrings( treeItem );
-          int depth = ConstUI.getTreeLevel( treeItem );
+          String[] labels = ConstUi.getTreeStrings( treeItem );
+          int depth = ConstUi.getTreeLevel( treeItem );
           if ( depth == 3 ) {
             final String metaStoreName = labels[ 0 ];
             final String namespace = labels[ 1 ];

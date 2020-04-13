@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -209,7 +209,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     Control lastControl = wTransformName;
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, PropsUI.WIDGET_STYLE_TAB );
+    props.setLook( wTabFolder, PropsUi.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///

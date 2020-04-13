@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -1206,7 +1206,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
             .getString( PKG, "JobGetMailsFromPOP.Error.AttachmentFolderEmpty" ) );
       }
     }
-    FileObject folder = HopVFS.getFileObject( folderName, this );
+    FileObject folder = HopVfs.getFileObject( folderName, this );
     if ( folder.exists() ) {
       if ( folder.getType() != FileType.FOLDER ) {
         switch ( folderType ) {
@@ -1243,7 +1243,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    String returnValue = HopVFS.getFilename( folder );
+    String returnValue = HopVfs.getFilename( folder );
     try {
       folder.close();
     } catch ( IOException ignore ) {

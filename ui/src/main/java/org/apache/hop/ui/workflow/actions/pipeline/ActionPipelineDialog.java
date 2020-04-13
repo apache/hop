@@ -28,7 +28,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -38,7 +38,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -224,7 +224,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected Image getImage() {
-    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "PPL.svg", ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
+    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "PPL.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
   }
 
   protected String[] getParameters() {
@@ -269,20 +269,20 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     String prevName = workflowMeta.environmentSubstitute( wPath.getText() );
     String parentFolder = null;
     try {
-      parentFolder = HopVFS.getFilename( HopVFS.getFileObject( workflowMeta.environmentSubstitute( workflowMeta.getFilename() ) ).getParent() );
+      parentFolder = HopVfs.getFilename( HopVfs.getFileObject( workflowMeta.environmentSubstitute( workflowMeta.getFilename() ) ).getParent() );
     } catch ( Exception e ) {
       // not that important
     }
     if ( !Utils.isEmpty( prevName ) ) {
       try {
-        if ( HopVFS.fileExists( prevName ) ) {
-          dialog.setFilterPath( HopVFS.getFilename( HopVFS.getFileObject( prevName ).getParent() ) );
+        if ( HopVfs.fileExists( prevName ) ) {
+          dialog.setFilterPath( HopVfs.getFilename( HopVfs.getFileObject( prevName ).getParent() ) );
         } else {
 
           if ( !prevName.endsWith( ".hpl" ) ) {
             prevName = getEntryName( Const.trim( wPath.getText() ) + ".hpl" );
           }
-          if ( HopVFS.fileExists( prevName ) ) {
+          if ( HopVfs.fileExists( prevName ) ) {
             wPath.setText( prevName );
             return;
           } else {

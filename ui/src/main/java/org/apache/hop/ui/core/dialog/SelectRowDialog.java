@@ -29,8 +29,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -68,7 +68,7 @@ public class SelectRowDialog extends Dialog {
 
   private Shell shell;
   private List<RowMetaAndData> buffer;
-  private PropsUI props;
+  private PropsUi props;
   private String title;
 
   private RowMetaAndData selection;
@@ -85,7 +85,7 @@ public class SelectRowDialog extends Dialog {
     super( parent, style );
     this.buffer = buffer;
     this.variables = variables;
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
 
     selection = null;
   }
@@ -110,7 +110,7 @@ public class SelectRowDialog extends Dialog {
     }
 
     shell.setLayout( formLayout );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
     shell.setText( title );
 
     int margin = props.getMargin();

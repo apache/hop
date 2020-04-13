@@ -28,7 +28,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,7 +78,7 @@ public class TestUtils {
       variables.initializeVariablesFrom( null );
     }
     try {
-      FileObject file = HopVFS.getFileObject( "ram://" + path, variables );
+      FileObject file = HopVfs.getFileObject( "ram://" + path, variables );
       file.createFile();
       return file.getName().getURI();
     } catch ( FileSystemException | HopFileException e ) {
@@ -96,7 +96,7 @@ public class TestUtils {
       variables.initializeVariablesFrom( null );
     }
     try {
-      return HopVFS.getFileObject( vfsPath, variables );
+      return HopVfs.getFileObject( vfsPath, variables );
     } catch ( HopFileException e ) {
       throw new RuntimeException( e );
     }

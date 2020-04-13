@@ -31,9 +31,9 @@ import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelineHopDialog;
@@ -59,12 +59,12 @@ public class HopGuiPipelineHopDelegate {
 
   private HopGui hopUi;
   private HopGuiPipelineGraph pipelineGraph;
-  private PropsUI props;
+  private PropsUi props;
 
   public HopGuiPipelineHopDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
     this.hopUi = hopGui;
     this.pipelineGraph = pipelineGraph;
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
   public void newHop( PipelineMeta pipelineMeta, TransformMeta fr, TransformMeta to ) {
@@ -167,7 +167,7 @@ public class HopGuiPipelineHopDelegate {
             PKG, "HopGui.Dialog.CopyOrDistribute.Message", fr.getName(), Integer.toString( nrNextTransforms ) ),
             MessageDialog.WARNING, getRowDistributionLabels(), 0, BaseMessages.getString(
             PKG, "HopGui.Message.Warning.NotShowWarning" ), !props.showCopyOrDistributeWarning() );
-        MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+        MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
         props.saveProps();

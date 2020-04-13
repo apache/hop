@@ -38,7 +38,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -188,7 +188,7 @@ public class CsvInput
       // We'll use the same algorithm...
       //
       for ( String filename : data.filenames ) {
-        long size = HopVFS.getFileObject( filename, getPipelineMeta() ).getContent().getSize();
+        long size = HopVfs.getFileObject( filename, getPipelineMeta() ).getContent().getSize();
         data.fileSizes.add( size );
         data.totalFileSize += size;
       }
@@ -321,7 +321,7 @@ public class CsvInput
       // Open the next one...
       //
       data.fieldsMapping = createFieldMapping( data.filenames[ data.filenr ], meta );
-      FileObject fileObject = HopVFS.getFileObject( data.filenames[ data.filenr ], getPipelineMeta() );
+      FileObject fileObject = HopVfs.getFileObject( data.filenames[ data.filenr ], getPipelineMeta() );
       if ( !( fileObject instanceof LocalFile ) ) {
         // We can only use NIO on local files at the moment, so that's what we limit ourselves to.
         //
@@ -332,7 +332,7 @@ public class CsvInput
         data.binaryFilename = data.filenames[ data.filenr ].getBytes();
       }
 
-      String vfsFilename = HopVFS.getFilename( fileObject );
+      String vfsFilename = HopVfs.getFilename( fileObject );
 
       int bomSize = getBOMSize( vfsFilename );
 
@@ -445,9 +445,9 @@ public class CsvInput
     String enclosure = environmentSubstitute( csvInputMeta.getEnclosure() );
     String realEncoding = environmentSubstitute( csvInputMeta.getEncoding() );
 
-    try ( FileObject fileObject = HopVFS.getFileObject( fileName, getPipelineMeta() );
+    try ( FileObject fileObject = HopVfs.getFileObject( fileName, getPipelineMeta() );
           BOMInputStream inputStream =
-            new BOMInputStream( HopVFS.getInputStream( fileObject ), ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
+            new BOMInputStream( HopVfs.getInputStream( fileObject ), ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
               ByteOrderMark.UTF_16BE ) ) {
       InputStreamReader reader = null;
       if ( Utils.isEmpty( realEncoding ) ) {

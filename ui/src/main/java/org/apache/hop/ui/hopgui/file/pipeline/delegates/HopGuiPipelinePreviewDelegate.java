@@ -31,15 +31,14 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -132,12 +131,12 @@ public class HopGuiPipelinePreviewDelegate {
     }
 
     pipelinePreviewTab = new CTabItem( pipelineGraph.extraViewTabFolder, SWT.NONE );
-    pipelinePreviewTab.setImage( GUIResource.getInstance().getImagePreview() );
+    pipelinePreviewTab.setImage( GuiResource.getInstance().getImagePreview() );
     pipelinePreviewTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.PreviewTab.Name" ) );
 
     pipelinePreviewComposite = new Composite( pipelineGraph.extraViewTabFolder, SWT.NONE );
     pipelinePreviewComposite.setLayout( new FormLayout() );
-    PropsUI.getInstance().setLook( pipelinePreviewComposite, Props.WIDGET_STYLE_TOOLBAR );
+    PropsUi.getInstance().setLook( pipelinePreviewComposite, Props.WIDGET_STYLE_TOOLBAR );
 
     addToolBar();
 
@@ -266,7 +265,7 @@ public class HopGuiPipelinePreviewDelegate {
     }
 
     tableView =
-      new TableView( pipelineMeta, previewComposite, SWT.NONE, columnInfo, rowsData.size(), null, PropsUI.getInstance() );
+      new TableView( pipelineMeta, previewComposite, SWT.NONE, columnInfo, rowsData.size(), null, PropsUi.getInstance() );
 
     // Put data on it...
     //
@@ -295,7 +294,7 @@ public class HopGuiPipelinePreviewDelegate {
         }
         if ( string == null ) {
           item.setText( colNr + 1, "<null>" );
-          item.setForeground( colNr + 1, GUIResource.getInstance().getColorBlue() );
+          item.setForeground( colNr + 1, GuiResource.getInstance().getColorBlue() );
         } else {
           item.setText( colNr + 1, string );
         }
@@ -340,7 +339,7 @@ public class HopGuiPipelinePreviewDelegate {
 
     try {
       for ( final TransformMeta transformMeta : transformMetas ) {
-        pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUI.getInstance().getDefaultPreviewSize(),
+        pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUi.getInstance().getDefaultPreviewSize(),
           (pipeline, rowBuffer)-> previewDataMap.put( transformMeta.getName(), rowBuffer)
         );
       }

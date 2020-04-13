@@ -56,13 +56,13 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.ui.core.ConstUI;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.jface.dialogs.Dialog;
@@ -453,8 +453,8 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
       PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransformMetaInterface() );
     final String id = plugin.getIds()[ 0 ];
     if ( id != null ) {
-      return GUIResource.getInstance().getImagesTransforms().get( id ).getAsBitmapForSize( shell.getDisplay(),
-        ConstUI.LARGE_ICON_SIZE, ConstUI.LARGE_ICON_SIZE );
+      return GuiResource.getInstance().getImagesTransforms().get( id ).getAsBitmapForSize( shell.getDisplay(),
+        ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
     }
     return null;
   }

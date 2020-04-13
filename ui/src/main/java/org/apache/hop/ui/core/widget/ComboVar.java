@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -55,7 +55,7 @@ public class ComboVar extends Composite {
 
   private String toolTipText;
 
-  // private static final PropsUI props = PropsUI.getInstance();
+  // private static final PropsUi props = PropsUi.getInstance();
 
   private ControlDecoration controlDecoration;
 
@@ -106,7 +106,7 @@ public class ComboVar extends Composite {
     // add a text field on it...
     wCombo = new CCombo( this, flags );
 
-    Image image = GUIResource.getInstance().getImageVariable();
+    Image image = GuiResource.getInstance().getImageVariable();
     controlDecoration = new ControlDecoration( wCombo, SWT.CENTER | SWT.RIGHT, this );
     controlDecoration.setImage( image );
     controlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );

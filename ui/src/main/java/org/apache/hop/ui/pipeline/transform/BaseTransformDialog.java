@@ -46,12 +46,12 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -174,7 +174,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * The UI properties.
    */
-  protected PropsUI props;
+  protected PropsUi props;
 
   /**
    * The MetaStore to use
@@ -238,7 +238,7 @@ public class BaseTransformDialog extends Dialog {
     this.transformMeta = pipelineMeta.findTransform( transformName );
     this.baseTransformMeta = (ITransformMeta) baseTransformMeta;
     this.backupChanged = baseTransformMeta.hasChanged();
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
   /**
@@ -258,7 +258,7 @@ public class BaseTransformDialog extends Dialog {
     this.transformMeta = pipelineMeta.findTransform( transformName );
     this.baseTransformMeta = baseTransformMeta;
     this.backupChanged = baseTransformMeta.hasChanged();
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
   }
 
 
@@ -650,7 +650,7 @@ public class BaseTransformDialog extends Dialog {
   }
 
   public static void setSize( Shell shell, int prefWidth, int prefHeight ) {
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     WindowProperty winprop = props.getScreen( shell.getText() );
     if ( winprop != null ) {
@@ -685,7 +685,7 @@ public class BaseTransformDialog extends Dialog {
    * @param packIt    true to pack the dialog components, false otherwise
    */
   public static void setSize( Shell shell, int minWidth, int minHeight, boolean packIt ) {
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     WindowProperty winprop = props.getScreen( shell.getText() );
     if ( winprop != null ) {
@@ -960,7 +960,7 @@ public class BaseTransformDialog extends Dialog {
         BaseMessages.getString( PKG, "BaseTransformDialog.Add" ),
         BaseMessages.getString( PKG, "BaseTransformDialog.ClearAndAdd" ),
         BaseMessages.getString( PKG, "BaseTransformDialog.Cancel" ), }, 0 );
-    MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+    MessageDialog.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
     return messageDialog;
   }
 
@@ -1198,8 +1198,8 @@ public class BaseTransformDialog extends Dialog {
       createHelpButton( shell, transformMeta, plugin );
       String id = plugin.getIds()[ 0 ];
       if ( id != null ) {
-        shell.setImage( GUIResource.getInstance().getImagesTransforms().get( id ).getAsBitmapForSize(
-          shell.getDisplay(), ConstUI.ICON_SIZE, ConstUI.ICON_SIZE ) );
+        shell.setImage( GuiResource.getInstance().getImagesTransforms().get( id ).getAsBitmapForSize(
+          shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE ) );
       }
     }
   }

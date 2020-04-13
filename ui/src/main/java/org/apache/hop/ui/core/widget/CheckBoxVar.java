@@ -25,8 +25,8 @@ package org.apache.hop.ui.core.widget;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Composite;
 public class CheckBoxVar extends Composite {
   private static Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
 
-  private static final PropsUI props = PropsUI.getInstance();
+  private static final PropsUi props = PropsUi.getInstance();
 
   private ControlDecoration controlDecoration;
 
@@ -79,14 +79,14 @@ public class CheckBoxVar extends Composite {
     wBox = new Button( this, flags );
     props.setLook( wBox );
     wText = new TextVar( variables, this, flags | SWT.NO_BACKGROUND );
-    wText.getTextWidget().setForeground( GUIResource.getInstance().getColorRed() ); // Put it in a red color to make it
+    wText.getTextWidget().setForeground( GuiResource.getInstance().getColorRed() ); // Put it in a red color to make it
     // shine...
     wText.getTextWidget().setBackground( composite.getBackground() ); // make it blend in with the rest...
 
     setVariableOnCheckBox( variable );
 
     controlDecoration = new ControlDecoration( wBox, SWT.CENTER | SWT.LEFT );
-    Image image = GUIResource.getInstance().getImageVariable();
+    Image image = GuiResource.getInstance().getImageVariable();
     controlDecoration.setImage( image );
     controlDecoration.setDescriptionText( BaseMessages.getString( PKG, "CheckBoxVar.tooltip.InsertVariable" ) );
     controlDecoration.addSelectionListener( new SelectionAdapter() {

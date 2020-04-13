@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.ftpsget.ftp4che.SecureDataFtpConnection;
 import org.ftp4che.FTPConnection;
@@ -419,7 +419,7 @@ public class FtpsConnection implements FTPListener {
    */
   public void downloadFile( FTPFile file, String localFilename ) throws HopException {
     try {
-      FileObject localFile = HopVFS.getFileObject( localFilename, nameSpace );
+      FileObject localFile = HopVfs.getFileObject( localFilename, nameSpace );
       writeToFile( connection.downloadStream( file ), localFile.getContent().getOutputStream(), localFilename );
     } catch ( Exception e ) {
       throw new HopException( e );
@@ -448,7 +448,7 @@ public class FtpsConnection implements FTPListener {
     FileObject file = null;
 
     try {
-      file = HopVFS.getFileObject( localFileName, nameSpace );
+      file = HopVfs.getFileObject( localFileName, nameSpace );
       this.connection.uploadStream( file.getContent().getInputStream(), new FTPFile( new File( shortFileName ) ) );
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "JobFTPS.Error.UuploadingFile", localFileName ), e );

@@ -31,7 +31,7 @@ import org.apache.hop.core.SwingUniversalImageBitmap;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.svg.SvgSupport;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class SwingSvgImageUtil {
 
   static {
     try {
-      base = HopVFS.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
+      base = HopVfs.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
     } catch ( FileSystemException e ) {
       e.printStackTrace();
       base = null;
@@ -184,8 +184,8 @@ public class SwingSvgImageUtil {
    */
   private static SwingUniversalImage loadFromBasedVFS( String location ) {
     try {
-      FileObject imageFileObject = HopVFS.getInstance().getFileSystemManager().resolveFile( base, location );
-      InputStream s = HopVFS.getInputStream( imageFileObject );
+      FileObject imageFileObject = HopVfs.getInstance().getFileSystemManager().resolveFile( base, location );
+      InputStream s = HopVfs.getInputStream( imageFileObject );
       if ( s == null ) {
         return null;
       }
@@ -204,7 +204,7 @@ public class SwingSvgImageUtil {
    */
   private static SwingUniversalImage loadFromSimpleVFS( String location ) {
     try {
-      InputStream s = HopVFS.getInputStream( location );
+      InputStream s = HopVfs.getInputStream( location );
       if ( s == null ) {
         return null;
       }

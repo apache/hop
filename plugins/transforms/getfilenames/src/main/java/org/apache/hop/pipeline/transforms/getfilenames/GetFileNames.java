@@ -32,14 +32,12 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.IOException;
@@ -193,14 +191,14 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
         }
 
         // filename
-        extraData[ outputIndex++ ] = HopVFS.getFilename( data.file );
+        extraData[ outputIndex++ ] = HopVfs.getFilename( data.file );
 
         // short_filename
         extraData[ outputIndex++ ] = data.file.getName().getBaseName();
 
         try {
           // Path
-          extraData[ outputIndex++ ] = HopVFS.getFilename( data.file.getParent() );
+          extraData[ outputIndex++ ] = HopVfs.getFilename( data.file.getParent() );
 
           // type
           extraData[ outputIndex++ ] = data.file.getType().toString();

@@ -24,8 +24,8 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
@@ -71,7 +71,7 @@ public class TextVarButton extends TextVar {
     this.insertTextInterface = insertTextInterface;
     this.variables = variables;
 
-    PropsUI.getInstance().setLook( this );
+    PropsUi.getInstance().setLook( this );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
@@ -81,7 +81,7 @@ public class TextVarButton extends TextVar {
     this.setLayout( formLayout );
 
     Button button = new Button( this, SWT.PUSH );
-    PropsUI.getInstance().setLook( button );
+    PropsUi.getInstance().setLook( button );
     button.setText( "..." );
     FormData fdButton = new FormData();
     fdButton.top = new FormAttachment( 0, 0 );
@@ -95,10 +95,10 @@ public class TextVarButton extends TextVar {
 
     wText = new Text( this, flags );
     controlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT, this );
-    Image image = GUIResource.getInstance().getImageVariable();
+    Image image = GuiResource.getInstance().getImageVariable();
     controlDecoration.setImage( image );
     controlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
-    PropsUI.getInstance().setLook( controlDecoration.getControl() );
+    PropsUi.getInstance().setLook( controlDecoration.getControl() );
 
     modifyListenerTooltipText = getModifyListenerTooltipText( wText );
     wText.addModifyListener( modifyListenerTooltipText );

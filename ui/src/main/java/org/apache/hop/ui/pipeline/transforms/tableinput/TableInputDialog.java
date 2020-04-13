@@ -369,7 +369,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Text Higlighting
-    wSql.addLineStyleListener( new SQLValuesHighlight() );
+    wSql.addLineStyleListener( new SqlValuesHighlight() );
 
     // Add listeners
     lsCancel = new Listener() {

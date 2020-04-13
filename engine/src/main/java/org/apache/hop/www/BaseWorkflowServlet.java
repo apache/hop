@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
@@ -121,7 +121,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
           .isCreateParentFolder(), pipeline.getLogChannel(), pipeline );
         final LogChannelFileWriter logChannelFileWriter =
           new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
-            HopVFS.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
+            HopVfs.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
         pipeline.addExecutionFinishedListener((IExecutionFinishedListener<PipelineMeta>) pipelineEngine -> {

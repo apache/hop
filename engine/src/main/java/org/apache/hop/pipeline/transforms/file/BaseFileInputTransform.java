@@ -34,13 +34,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.CompositeFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
@@ -113,7 +111,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
 
       // Is this the last file?
       data.file = data.files.getFile( data.currentFileIndex );
-      data.filename = HopVFS.getFilename( data.file );
+      data.filename = HopVfs.getFilename( data.file );
 
       fillFileAdditionalFields( data, data.file );
       if ( meta.inputFiles.passingThruFields ) {
@@ -283,7 +281,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
       }
       String fileValue = prevInfoFields.getString( fileRow, idx );
       try {
-        FileObject fileObject = HopVFS.getFileObject( fileValue, getPipelineMeta() );
+        FileObject fileObject = HopVfs.getFileObject( fileValue, getPipelineMeta() );
         data.files.addFile( fileObject );
         if ( meta.inputFiles.passingThruFields ) {
           StringBuilder sb = new StringBuilder();
@@ -400,7 +398,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
    */
   protected void fillFileAdditionalFields( Data data, FileObject file ) throws FileSystemException {
     data.shortFilename = file.getName().getBaseName();
-    data.path = HopVFS.getFilename( file.getParent() );
+    data.path = HopVfs.getFilename( file.getParent() );
     data.hidden = file.isHidden();
     data.extension = file.getName().getExtension();
     data.uriName = file.getName().getURI();

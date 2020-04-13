@@ -25,9 +25,9 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -174,7 +174,7 @@ public class EnterMappingDialog extends Dialog {
 
   private String[] targetList;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private java.util.List<SourceToTargetMapping> mappings;
 
@@ -200,7 +200,7 @@ public class EnterMappingDialog extends Dialog {
   public EnterMappingDialog( Shell parent, String[] source, String[] target,
                              java.util.List<SourceToTargetMapping> mappings ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.sourceList = source;
     this.targetList = target;
 
@@ -215,7 +215,7 @@ public class EnterMappingDialog extends Dialog {
       new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
 
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -223,7 +223,7 @@ public class EnterMappingDialog extends Dialog {
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImagePipelineGraph() );
+    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
 
     int margin = props.getMargin();
     int buttonSpace = 90;

@@ -38,10 +38,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -139,7 +139,7 @@ public class TableView extends Composite {
   private TableEditor editor;
   private TableColumn[] tablecolumn;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private Control text;
   private Composite combo;
@@ -219,22 +219,22 @@ public class TableView extends Composite {
   };
 
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
-                    ModifyListener lsm, PropsUI pr ) {
+                    ModifyListener lsm, PropsUi pr ) {
     this( variables, parent, style, columnInfo, nrRows, false, lsm, pr );
   }
 
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
-                    boolean readOnly, ModifyListener lsm, PropsUI pr ) {
+                    boolean readOnly, ModifyListener lsm, PropsUi pr ) {
     this( variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, true );
   }
 
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
-                    boolean readOnly, ModifyListener lsm, PropsUI pr, final boolean addIndexColumn ) {
+                    boolean readOnly, ModifyListener lsm, PropsUi pr, final boolean addIndexColumn ) {
     this( variables, parent, style, columnInfo, nrRows, readOnly, lsm, pr, addIndexColumn, null );
   }
 
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
-                    boolean readOnly, ModifyListener lsm, PropsUI pr, final boolean addIndexColumn, Listener lsnr ) {
+                    boolean readOnly, ModifyListener lsm, PropsUi pr, final boolean addIndexColumn, Listener lsnr ) {
     super( parent, SWT.NO_BACKGROUND | SWT.NO_FOCUS | SWT.NO_MERGE_PAINTS | SWT.NO_RADIO_GROUP );
     this.parent = parent;
     this.columns = columnInfo;
@@ -1413,7 +1413,7 @@ public class TableView extends Composite {
 
         for ( int j = 0; j < table.getColumnCount(); j++ ) {
           String data = item.getText( j );
-          if ( GUIResource.getInstance().getColorBlue().equals( item.getForeground( j ) ) ) {
+          if ( GuiResource.getInstance().getColorBlue().equals( item.getForeground( j ) ) ) {
             data = null;
           }
           IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta( j + 2 );
@@ -1468,9 +1468,9 @@ public class TableView extends Composite {
           String string = conversionRowMeta.getString( r, j );
           if ( showingBlueNullValues && string == null ) {
             string = "<null>";
-            item.setForeground( j - 2, GUIResource.getInstance().getColorBlue() );
+            item.setForeground( j - 2, GuiResource.getInstance().getColorBlue() );
           } else {
-            item.setForeground( j - 2, GUIResource.getInstance().getColorBlack() );
+            item.setForeground( j - 2, GuiResource.getInstance().getColorBlack() );
           }
           if ( string != null ) {
             item.setText( j - 2, string );
@@ -2451,7 +2451,7 @@ public class TableView extends Composite {
     if ( buttonText != null ) {
       button.setText( buttonText );
     }
-    button.setImage( GUIResource.getInstance().getImage( "ui/images/edittext.svg" ) );
+    button.setImage( GuiResource.getInstance().getImage( "ui/images/edittext.svg" ) );
 
     SelectionListener selAdpt = colinfo.getSelectionAdapter();
     if ( selAdpt != null ) {

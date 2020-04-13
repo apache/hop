@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -78,7 +78,7 @@ public class NotePadDialog extends Dialog {
 
   private Shell shell;
   private String title;
-  private PropsUI props;
+  private PropsUi props;
 
   private CTabFolder wNoteFolder;
   private FormData fdNoteFolder;
@@ -130,7 +130,7 @@ public class NotePadDialog extends Dialog {
   private Label wlBorderColor;
   private FormData fdlBorderColor;
 
-  private static GUIResource guiresource = GUIResource.getInstance();
+  private static GuiResource guiresource = GuiResource.getInstance();
 
   public static RGB COLOR_RGB_BLACK = guiresource.getColorBlack().getRGB();
   public static RGB COLOR_RGB_YELLOW = guiresource.getColorYellow().getRGB();
@@ -150,7 +150,7 @@ public class NotePadDialog extends Dialog {
    */
   public NotePadDialog( IVariables variables, Shell parent, String title, NotePadMeta nMeta ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.title = title;
     if ( nMeta != null ) {
       notePadMeta = nMeta;
@@ -181,7 +181,7 @@ public class NotePadDialog extends Dialog {
     int middle = 30;
 
     wNoteFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wNoteFolder, PropsUI.WIDGET_STYLE_TAB );
+    props.setLook( wNoteFolder, PropsUi.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF NOTE CONTENT TAB///
@@ -209,7 +209,7 @@ public class NotePadDialog extends Dialog {
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
 
     wDesc.setText( "" );
-    // props.setLook(wDesc, PropsUI.WIDGET_STYLE_FIXED);
+    // props.setLook(wDesc, PropsUi.WIDGET_STYLE_FIXED);
     // props.setLook(wDesc);
     fdDesc = new FormData();
     fdDesc.left = new FormAttachment( 0, 0 );

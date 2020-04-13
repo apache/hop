@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
@@ -137,7 +137,7 @@ public class HopGuiPipelineRunDelegate {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
-          transformDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
+          transformDebugMeta.setRowCount( PropsUi.getInstance().getDefaultPreviewSize() );
           transformDebugMeta.setPausingOnBreakPoint( true );
           transformDebugMeta.setReadingFirstRows( false );
           pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );
@@ -161,7 +161,7 @@ public class HopGuiPipelineRunDelegate {
         pipelineDebugMeta.getTransformDebugMetaMap().clear();
         for ( TransformMeta transformMeta : pipelineMeta.getSelectedTransforms() ) {
           TransformDebugMeta transformDebugMeta = new TransformDebugMeta( transformMeta );
-          transformDebugMeta.setRowCount( PropsUI.getInstance().getDefaultPreviewSize() );
+          transformDebugMeta.setRowCount( PropsUi.getInstance().getDefaultPreviewSize() );
           transformDebugMeta.setPausingOnBreakPoint( false );
           transformDebugMeta.setReadingFirstRows( true );
           pipelineDebugMeta.getTransformDebugMetaMap().put( transformMeta, transformDebugMeta );

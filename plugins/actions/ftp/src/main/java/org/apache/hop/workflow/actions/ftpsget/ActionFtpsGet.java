@@ -34,7 +34,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -817,7 +817,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     if ( isaddresult ) {
       FileObject targetFile = null;
       try {
-        targetFile = HopVFS.getFileObject( filename, this );
+        targetFile = HopVfs.getFileObject( filename, this );
 
         // Add to the result files...
         ResultFile resultFile =

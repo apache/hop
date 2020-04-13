@@ -29,13 +29,13 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -62,7 +62,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
   public void toClipboard( String clipText ) {
     try {
-      GUIResource.getInstance().toClipboard( clipText );
+      GuiResource.getInstance().toClipboard( clipText );
     } catch ( Throwable e ) {
       new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title" ),
         BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message" ), e );
@@ -71,7 +71,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
   public String fromClipboard() {
     try {
-      return GUIResource.getInstance().fromClipboard();
+      return GuiResource.getInstance().fromClipboard();
     } catch ( Throwable e ) {
       new ErrorDialog(
         hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title" ),

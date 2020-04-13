@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -485,7 +485,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !isFoldernameDynamic ) {
         for ( int i = 0; i < folderName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( folderName[ i ] ), variables );
+          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( folderName[ i ] ), variables );
           folderName[ i ] = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }

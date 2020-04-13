@@ -25,8 +25,8 @@ package org.apache.hop.ui.core.widget.tree;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.ToolItem;
  */
 public class TreeToolbar extends Composite {
 
-  private PropsUI props = PropsUI.getInstance();
+  private PropsUi props = PropsUi.getInstance();
   private Text selectionFilter;
   private ToolItem expandAll;
   private ToolItem collapseAll;
@@ -62,7 +62,7 @@ public class TreeToolbar extends Composite {
     this.setLayout( formLayout );
 
     Label sep3 = new Label( this, SWT.SEPARATOR | SWT.HORIZONTAL );
-    sep3.setBackground( GUIResource.getInstance().getColorWhite() );
+    sep3.setBackground( GuiResource.getInstance().getColorWhite() );
     FormData fdSep3 = new FormData();
     fdSep3.left = new FormAttachment( 0, 0 );
     fdSep3.right = new FormAttachment( 100, 0 );
@@ -75,9 +75,9 @@ public class TreeToolbar extends Composite {
     This contains a map with all the unnamed pipeline (just a filename)
    */
     expandAll = new ToolItem( treeTb, SWT.PUSH );
-    expandAll.setImage( GUIResource.getInstance().getImageExpandAll() );
+    expandAll.setImage( GuiResource.getInstance().getImageExpandAll() );
     collapseAll = new ToolItem( treeTb, SWT.PUSH );
-    collapseAll.setImage( GUIResource.getInstance().getImageCollapseAll() );
+    collapseAll.setImage( GuiResource.getInstance().getImageCollapseAll() );
 
     FormData fdTreeToolbar = new FormData();
     if ( Const.isLinux() ) {
@@ -92,8 +92,8 @@ public class TreeToolbar extends Composite {
     props.setLook( selectionFilterTb, Props.WIDGET_STYLE_TOOLBAR );
 
     ToolItem clearSelectionFilter = new ToolItem( selectionFilterTb, SWT.PUSH );
-    clearSelectionFilter.setImage( GUIResource.getInstance().getImageClearText() );
-    clearSelectionFilter.setDisabledImage( GUIResource.getInstance().getImageClearTextDisabled() );
+    clearSelectionFilter.setImage( GuiResource.getInstance().getImageClearText() );
+    clearSelectionFilter.setDisabledImage( GuiResource.getInstance().getImageClearTextDisabled() );
 
     FormData fdSelectionFilterToolbar = new FormData();
     if ( Const.isLinux() ) {
@@ -106,9 +106,9 @@ public class TreeToolbar extends Composite {
 
     selectionFilter = new Text( this, SWT.SINGLE | SWT.BORDER | SWT.LEFT | SWT.SEARCH );
     FormData fdSelectionFilter = new FormData();
-    int offset = -( GUIResource.getInstance().getImageClearTextDisabled().getBounds().height + 6 );
+    int offset = -( GuiResource.getInstance().getImageClearTextDisabled().getBounds().height + 6 );
     if ( Const.isLinux() ) {
-      offset = -( GUIResource.getInstance().getImageClearTextDisabled().getBounds().height + 13 );
+      offset = -( GuiResource.getInstance().getImageClearTextDisabled().getBounds().height + 13 );
     }
 
     fdSelectionFilter.top = new FormAttachment( selectionFilterTb, offset );
@@ -130,7 +130,7 @@ public class TreeToolbar extends Composite {
     } );
 
     Label sep4 = new Label( this, SWT.SEPARATOR | SWT.HORIZONTAL );
-    sep4.setBackground( GUIResource.getInstance().getColorWhite() );
+    sep4.setBackground( GuiResource.getInstance().getColorWhite() );
     FormData fdSep4 = new FormData();
     fdSep4.left = new FormAttachment( 0, 0 );
     fdSep4.right = new FormAttachment( 100, 0 );

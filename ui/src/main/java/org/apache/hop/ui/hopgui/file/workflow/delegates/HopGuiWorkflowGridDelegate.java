@@ -27,9 +27,9 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.ActionResult;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
@@ -95,7 +95,7 @@ public class HopGuiWorkflowGridDelegate {
     }
 
     jobGridTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
-    jobGridTab.setImage( GUIResource.getInstance().getImageShowGrid() );
+    jobGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
     jobGridTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.GridTab.Name" ) );
 
     addControls();
@@ -220,7 +220,7 @@ public class HopGuiWorkflowGridDelegate {
       if ( workflowTracker != null ) {
         TreeItem treeItem = new TreeItem( parentItem, SWT.NONE );
         if ( nrRow % 2 != 0 ) {
-          treeItem.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
+          treeItem.setBackground( GuiResource.getInstance().getColorBlueCustomGrid() );
         }
         nrRow++;
         if ( workflowTracker.nrWorkflowTrackers() > 0 ) {
@@ -253,9 +253,9 @@ public class HopGuiWorkflowGridDelegate {
                 PKG, "JobLog.Tree.Failure" ) );
               treeItem.setText( 5, Long.toString( res.getEntryNr() ) );
               if ( res.getResult() ) {
-                treeItem.setForeground( GUIResource.getInstance().getColorSuccessGreen() );
+                treeItem.setForeground( GuiResource.getInstance().getColorSuccessGreen() );
               } else {
-                treeItem.setForeground( GUIResource.getInstance().getColorRed() );
+                treeItem.setForeground( GuiResource.getInstance().getColorRed() );
               }
             }
             String reason = result.getReason();

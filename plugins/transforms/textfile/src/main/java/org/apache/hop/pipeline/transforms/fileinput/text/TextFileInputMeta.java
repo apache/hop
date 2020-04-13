@@ -44,7 +44,7 @@ import org.apache.hop.core.row.value.*;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -1142,7 +1142,7 @@ public class TextFileInputMeta
    * For testing
    */
   FileObject getFileObject( String vfsFileName, IVariables variables ) throws HopFileException {
-    return HopVFS.getFileObject( variables.environmentSubstitute( vfsFileName ), variables );
+    return HopVfs.getFileObject( variables.environmentSubstitute( vfsFileName ), variables );
   }
 
   @Override

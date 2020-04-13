@@ -83,7 +83,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.IDelegationListener;
@@ -1415,7 +1415,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
 
       // release unused vfs connections
-      HopVFS.freeUnusedResources();
+      HopVfs.freeUnusedResources();
     };
     // This should always be done first so that the other listeners achieve a clean state to start from (setFinished and
     // so on)
@@ -3352,7 +3352,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
         // First export the workflow...
         //
-        FileObject tempFile = HopVFS.createTempFile( "pipelineExport", HopVFS.Suffix.ZIP, pipelineMeta );
+        FileObject tempFile = HopVfs.createTempFile( "pipelineExport", HopVfs.Suffix.ZIP, pipelineMeta );
 
         // The executionConfiguration should not include external references here because all the resources should be
         // retrieved from the exported zip file
@@ -3444,7 +3444,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     boolean hasFilename = pipelineMeta != null && !Utils.isEmpty( pipelineMeta.getFilename() );
     if ( hasFilename ) { // we have a finename that's defined.
       try {
-        FileObject fileObject = HopVFS.getFileObject( pipelineMeta.getFilename(), var );
+        FileObject fileObject = HopVfs.getFileObject( pipelineMeta.getFilename(), var );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline

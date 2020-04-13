@@ -27,8 +27,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ConditionEditor;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 public class EnterConditionDialog extends Dialog {
   private static Class<?> PKG = EnterConditionDialog.class; // for i18n purposes, needed by Translator!!
 
-  private PropsUI props;
+  private PropsUi props;
 
   private Shell shell;
   private ConditionEditor wCond;
@@ -65,7 +65,7 @@ public class EnterConditionDialog extends Dialog {
 
   public EnterConditionDialog( Shell parent, int style, IRowMeta fields, Condition condition ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.fields = fields;
     this.condition = condition;
   }
@@ -75,7 +75,7 @@ public class EnterConditionDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
     shell.setText( BaseMessages.getString( PKG, "EnterConditionDialog.Title" ) );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

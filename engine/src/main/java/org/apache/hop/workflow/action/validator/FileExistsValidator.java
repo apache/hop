@@ -27,7 +27,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.IOException;
 import java.util.List;
@@ -60,7 +60,7 @@ public class FileExistsValidator extends AbstractFileValidator {
     String realFileName = variables.environmentSubstitute( filename );
     FileObject fileObject = null;
     try {
-      fileObject = HopVFS.getFileObject( realFileName, variables );
+      fileObject = HopVfs.getFileObject( realFileName, variables );
       if ( fileObject == null || ( fileObject != null && !fileObject.exists() && failIfDoesNotExist ) ) {
         ActionValidatorUtils.addFailureRemark(
           source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(

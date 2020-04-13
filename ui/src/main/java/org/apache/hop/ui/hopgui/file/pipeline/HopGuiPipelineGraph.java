@@ -67,7 +67,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.PipelineDataLineage;
@@ -95,15 +95,15 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
@@ -462,7 +462,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // a view with an extra tab containing log, etc.
     //
     mainComposite = new Composite( this, SWT.NONE );
-    mainComposite.setBackground( GUIResource.getInstance().getColorOrange() );
+    mainComposite.setBackground( GuiResource.getInstance().getColorOrange() );
     mainComposite.setLayout( new FormLayout() );
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment( 0, 0 );
@@ -500,7 +500,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     toolTip.setRespectDisplayBounds( true );
     toolTip.setPopupDelay( 350 );
     toolTip.setHideDelay( TOOLTIP_HIDE_DELAY_SHORT );
-    toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUI.TOOLTIP_OFFSET, ConstUI.TOOLTIP_OFFSET ) );
+    toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
     helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
@@ -543,7 +543,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     setVisible( true );
     newProps();
 
-    canvas.setBackground( GUIResource.getInstance().getColorBlueCustomGrid() );
+    canvas.setBackground( GuiResource.getInstance().getColorBlueCustomGrid() );
 
     canvas.addPaintListener( new PaintListener() {
       @Override
@@ -576,7 +576,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       public void dragEnter( DropTargetEvent event ) {
         clearSettings();
 
-        drop_candidate = PropsUI.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
+        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
 
         redraw();
       }
@@ -593,7 +593,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       @Override
       public void dragOver( DropTargetEvent event ) {
-        drop_candidate = PropsUI.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
+        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
 
         redraw();
       }
@@ -688,7 +688,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
 
           transformMeta.setSelected( true );
-          PropsUI.setLocation( transformMeta, p.x, p.y );
+          PropsUi.setLocation( transformMeta, p.x, p.y );
 
           if ( newTransform ) {
             hopUi.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
@@ -717,7 +717,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     } );
 
-    setBackground( GUIResource.getInstance().getColorBackground() );
+    setBackground( GuiResource.getInstance().getColorBackground() );
 
     // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's where the focus should be
     //
@@ -1209,7 +1209,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           MessageDialog.QUESTION, new String[] { BaseMessages.getString( PKG, "System.Button.Yes" ),
           BaseMessages.getString( PKG, "System.Button.No" ) }, 0, BaseMessages.getString( PKG,
           "PipelineGraph.Dialog.Option.SplitHop.DoNotAskAgain" ), hopUi.getProps().getAutoSplit() );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       id = md.open();
       hopUi.getProps().setAutoSplit( md.getToggleState() );
     }
@@ -1397,14 +1397,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if ( selectedTransforms != null ) {
         for ( int i = 0; i < selectedTransforms.size(); i++ ) {
           TransformMeta transformMeta = selectedTransforms.get( i );
-          PropsUI.setLocation( transformMeta, transformMeta.getLocation().x + dx, transformMeta.getLocation().y + dy );
+          PropsUi.setLocation( transformMeta, transformMeta.getLocation().x + dx, transformMeta.getLocation().y + dy );
         }
       }
       // Adjust location of selected hops...
       if ( selectedNotes != null ) {
         for ( int i = 0; i < selectedNotes.size(); i++ ) {
           NotePadMeta ni = selectedNotes.get( i );
-          PropsUI.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
+          PropsUi.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
         }
       }
 
@@ -1474,14 +1474,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         if ( selectedTransforms != null ) {
           for ( int i = 0; i < selectedTransforms.size(); i++ ) {
             TransformMeta transformMeta = selectedTransforms.get( i );
-            PropsUI.setLocation( transformMeta, transformMeta.getLocation().x + dx, transformMeta.getLocation().y + dy );
+            PropsUi.setLocation( transformMeta, transformMeta.getLocation().x + dx, transformMeta.getLocation().y + dy );
           }
         }
         // Adjust location of selected hops...
         if ( selectedNotes != null ) {
           for ( int i = 0; i < selectedNotes.size(); i++ ) {
             NotePadMeta ni = selectedNotes.get( i );
-            PropsUI.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
+            PropsUi.setLocation( ni, ni.getLocation().x + dx, ni.getLocation().y + dy );
           }
         }
 
@@ -1623,7 +1623,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private Image getImageFor( IStream stream ) {
     Display disp = hopDisplay();
     SwtUniversalImage swtImage = SwtGc.getNativeImage( BasePainter.getStreamIconImage( stream.getStreamIcon() ) );
-    return swtImage.getAsBitmapForSize( disp, ConstUI.SMALL_ICON_SIZE, ConstUI.SMALL_ICON_SIZE );
+    return swtImage.getAsBitmapForSize( disp, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   protected void addHop( IStream stream ) {
@@ -1880,7 +1880,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     // ALT-HOME : snap to grid
     if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
-      snapToGrid( ConstUI.GRID_SIZE );
+      snapToGrid( ConstUi.GRID_SIZE );
     }
 
     if ( e.character == 'E' && ( e.stateMask & SWT.CTRL ) != 0 ) {
@@ -2437,7 +2437,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
-        new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUI.NOTE_MIN_SIZE, ConstUI.NOTE_MIN_SIZE, n
+        new NotePadMeta( n.getNote(), context.getClick().x, context.getClick().y, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE, n
           .getFontName(), n.getFontSize(), n.isFontBold(), n.isFontItalic(), n.getFontColorRed(), n
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
           .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue()
@@ -2462,7 +2462,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void newTransform( String description ) {
     TransformMeta transformMeta = pipelineTransformDelegate.newTransform( pipelineMeta, null, description, description, false, true, new Point( currentMouseX, currentMouseY ) );
-    PropsUI.setLocation( transformMeta, currentMouseX, currentMouseY );
+    PropsUi.setLocation( transformMeta, currentMouseX, currentMouseY );
     updateGui();
   }
 
@@ -2537,31 +2537,31 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case TRANSFORM_ERROR_ICON:
           String log = (String) areaOwner.getParent();
           tip.append( log );
-          tipImage = GUIResource.getInstance().getImageTransformError();
+          tipImage = GuiResource.getInstance().getImageTransformError();
           break;
         case TRANSFORM_ERROR_RED_ICON:
           String redLog = (String) areaOwner.getParent();
           tip.append( redLog );
-          tipImage = GUIResource.getInstance().getImageRedTransformError();
+          tipImage = GuiResource.getInstance().getImageRedTransformError();
           break;
         case HOP_COPY_ICON:
           transform = (TransformMeta) areaOwner.getParent();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.Hop.Tooltip.HopTypeCopy", transform.getName(), Const.CR ) );
-          tipImage = GUIResource.getInstance().getImageCopyHop();
+          tipImage = GuiResource.getInstance().getImageCopyHop();
           break;
         case ROW_DISTRIBUTION_ICON:
           transform = (TransformMeta) areaOwner.getParent();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.Hop.Tooltip.RowDistribution", transform.getName(), transform
             .getRowDistribution() == null ? "" : transform.getRowDistribution().getDescription() ) );
           tip.append( Const.CR );
-          tipImage = GUIResource.getInstance().getImageBalance();
+          tipImage = GuiResource.getInstance().getImageBalance();
           break;
         case HOP_INFO_ICON:
           TransformMeta from = (TransformMeta) areaOwner.getParent();
           TransformMeta to = (TransformMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.Hop.Tooltip.HopTypeInfo", to.getName(), from.getName(),
             Const.CR ) );
-          tipImage = GUIResource.getInstance().getImageInfoHop();
+          tipImage = GuiResource.getInstance().getImageInfoHop();
           break;
         case HOP_ERROR_ICON:
           from = (TransformMeta) areaOwner.getParent();
@@ -2569,24 +2569,24 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           areaOwner.getOwner();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.Hop.Tooltip.HopTypeError", from.getName(), to.getName(),
             Const.CR ) );
-          tipImage = GUIResource.getInstance().getImageErrorHop();
+          tipImage = GuiResource.getInstance().getImageErrorHop();
           break;
         case HOP_INFO_TRANSFORM_COPIES_ERROR:
           from = (TransformMeta) areaOwner.getParent();
           to = (TransformMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.Hop.Tooltip.InfoTransformCopies", from.getName(), to
             .getName(), Const.CR ) );
-          tipImage = GUIResource.getInstance().getImageTransformError();
+          tipImage = GuiResource.getInstance().getImageTransformError();
           break;
         case TRANSFORM_INPUT_HOP_ICON:
           // TransformMeta subjectTransform = (TransformMeta) (areaOwner.getParent());
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformInputConnector.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageHopInput();
+          tipImage = GuiResource.getInstance().getImageHopInput();
           break;
         case TRANSFORM_OUTPUT_HOP_ICON:
           // subjectTransform = (TransformMeta) (areaOwner.getParent());
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformOutputConnector.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageHopOutput();
           break;
         case TRANSFORM_INFO_HOP_ICON:
           // subjectTransform = (TransformMeta) (areaOwner.getParent());
@@ -2594,12 +2594,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           ITransformIOMeta ioMeta = (ITransformIOMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformMetaConnector.Tooltip" ) + Const.CR
             + ioMeta.toString() );
-          tipImage = GUIResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageHopOutput();
           break;
         case TRANSFORM_TARGET_HOP_ICON:
           IStream stream = (IStream) areaOwner.getOwner();
           tip.append( stream.getDescription() );
-          tipImage = GUIResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageHopOutput();
           break;
         case TRANSFORM_ERROR_HOP_ICON:
           TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
@@ -2608,11 +2608,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else {
             tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformDoesNotSupportsErrorHandling.Tooltip" ) );
           }
-          tipImage = GUIResource.getInstance().getImageHopOutput();
+          tipImage = GuiResource.getInstance().getImageHopOutput();
           break;
         case TRANSFORM_EDIT_ICON:
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.EditTransform.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageEdit();
+          tipImage = GuiResource.getInstance().getImageEdit();
           break;
         case TRANSFORM_INJECT_ICON:
           Object injection = areaOwner.getOwner();
@@ -2621,11 +2621,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           } else {
             tip.append( BaseMessages.getString( PKG, "PipelineGraph.TransformInjectionNotSupported.Tooltip" ) );
           }
-          tipImage = GUIResource.getInstance().getImageInject();
+          tipImage = GuiResource.getInstance().getImageInject();
           break;
         case TRANSFORM_MENU_ICON:
           tip.append( BaseMessages.getString( PKG, "PipelineGraph.ShowMenu.Tooltip" ) );
-          tipImage = GUIResource.getInstance().getImageContextMenu();
+          tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
         case TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
@@ -2645,7 +2645,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               tip.append( BaseMessages.getString( PKG, "PipelineGraph.DeprecatedTransform.Tooltip.Message3",
                 iconTransformMeta.getSuggestion() ) );
             }
-            tipImage = GUIResource.getInstance().getImageDeprecated();
+            tipImage = GuiResource.getInstance().getImageDeprecated();
             toolTip.setHideDelay( TOOLTIP_HIDE_DELAY_LONG );
           }
           break;
@@ -2688,9 +2688,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             .getString( PKG, "PipelineGraph.Dialog.HopInfo.Disable" ) );
         toolTip.setText( newTip );
         if ( hi.isEnabled() ) {
-          toolTip.setImage( GUIResource.getInstance().getImageHop() );
+          toolTip.setImage( GuiResource.getInstance().getImageHop() );
         } else {
-          toolTip.setImage( GUIResource.getInstance().getImageDisabledHop() );
+          toolTip.setImage( GuiResource.getInstance().getImageDisabledHop() );
         }
         toolTip.show( new org.eclipse.swt.graphics.Point( screenX, screenY ) );
       } else {
@@ -2702,7 +2702,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if ( tipImage != null ) {
         tooltipImage = tipImage;
       } else {
-        tooltipImage = GUIResource.getInstance().getImageHopUi();
+        tooltipImage = GuiResource.getInstance().getImageHopUi();
       }
       showTooltip( newTip, tooltipImage, screenX, screenY );
     }
@@ -2853,10 +2853,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Image img = getPipelineImage( disp, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( pipelineMeta.nrTransforms() == 0 ) {
-      e.gc.setForeground( GUIResource.getInstance().getColorCrystalText() );
-      e.gc.setFont( GUIResource.getInstance().getFontMedium() );
+      e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
+      e.gc.setFont( GuiResource.getInstance().getFontMedium() );
 
-      Image welcomeImage = GUIResource.getInstance().getImagePipelineCanvas();
+      Image welcomeImage = GuiResource.getInstance().getImagePipelineCanvas();
       int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
       int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
@@ -2869,17 +2869,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
 
     int gridSize =
-      PropsUI.getInstance().isShowCanvasGridEnabled() ? PropsUI.getInstance().getCanvasGridSize() : 1;
+      PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
       candidate, drop_candidate, selectionRegion, areaOwners,
-      PropsUI.getInstance().getIconSize(), PropsUI.getInstance().getLineWidth(), gridSize,
-      PropsUI.getInstance().getNoteFont().getName(), PropsUI.getInstance()
-      .getNoteFont().getHeight(), pipeline, PropsUI.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUI.getInstance().getZoomFactor() );
+      PropsUi.getInstance().getIconSize(), PropsUi.getInstance().getLineWidth(), gridSize,
+      PropsUi.getInstance().getNoteFont().getName(), PropsUi.getInstance()
+      .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor() );
 
     // correct the magnifacation with the overall zoom factor
     //
-    float correctedMagnification = (float) ( magnificationFactor * PropsUI.getInstance().getZoomFactor() );
+    float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
     pipelinePainter.setMagnification( correctedMagnification );
     pipelinePainter.setTransformLogMap( transformLogMap );
@@ -2937,8 +2937,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       ni.setBorderColorRed( n.getBorderColorRed() );
       ni.setBorderColorGreen( n.getBorderColorGreen() );
       ni.setBorderColorBlue( n.getBorderColorBlue() );
-      ni.width = ConstUI.NOTE_MIN_SIZE;
-      ni.height = ConstUI.NOTE_MIN_SIZE;
+      ni.width = ConstUi.NOTE_MIN_SIZE;
+      ni.height = ConstUi.NOTE_MIN_SIZE;
 
       NotePadMeta after = (NotePadMeta) ni.clone();
       hopUi.undoDelegate.addUndoChange( pipelineMeta, new NotePadMeta[] { before }, new NotePadMeta[] { after }, new int[] { pipelineMeta.indexOfNote( ni ) } );
@@ -3032,7 +3032,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
   )
   public void snapToGrid() {
-    snapToGrid( ConstUI.GRID_SIZE );
+    snapToGrid( ConstUi.GRID_SIZE );
   }
 
   private void snapToGrid( int size ) {
@@ -3321,7 +3321,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         throw new HopException( "Please give the pipeline a filename" );
       }
       String xml = pipelineMeta.getXml();
-      OutputStream out = HopVFS.getOutputStream( pipelineMeta.getFilename(), false );
+      OutputStream out = HopVfs.getOutputStream( pipelineMeta.getFilename(), false );
       try {
         out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
@@ -3479,7 +3479,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
     item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.ShowExecutionResults" ) );
-    item.setImage( GUIResource.getInstance().getImageShowResults() );
+    item.setImage( GuiResource.getInstance().getImageShowResults() );
   }
 
   private void minMaxExtraView() {
@@ -3490,13 +3490,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Minimize
       //
       sashForm.setMaximizedControl( null );
-      minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
+      minMaxButton.setImage( GuiResource.getInstance().getImageMaximizePanel() );
       minMaxButton.setToolTipText( BaseMessages.getString( PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     } else {
       // Maximize
       //
       sashForm.setMaximizedControl( extraViewComposite );
-      minMaxButton.setImage( GUIResource.getInstance().getImageMinimizePanel() );
+      minMaxButton.setImage( GuiResource.getInstance().getImageMinimizePanel() );
       minMaxButton.setToolTipText( BaseMessages.getString( PKG, "PipelineGraph.ExecutionResultsPanel.MinButton.Tooltip" ) );
     }
   }
@@ -3523,7 +3523,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * Add an extra view to the main composite SashForm
    */
   public void addExtraView() {
-    PropsUI props = PropsUI.getInstance();
+    PropsUi props = PropsUi.getInstance();
 
     extraViewComposite = new Composite( sashForm, SWT.NONE );
     FormLayout extraCompositeFormLayout = new FormLayout();
@@ -3534,7 +3534,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Put a close and max button to the upper right corner...
     //
     closeButton = new Label( extraViewComposite, SWT.NONE );
-    closeButton.setImage( GUIResource.getInstance().getImageClosePanel() );
+    closeButton.setImage( GuiResource.getInstance().getImageClosePanel() );
     closeButton.setToolTipText( BaseMessages.getString( PKG, "PipelineGraph.ExecutionResultsPanel.CloseButton.Tooltip" ) );
     FormData fdClose = new FormData();
     fdClose.right = new FormAttachment( 100, 0 );
@@ -3548,7 +3548,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } );
 
     minMaxButton = new Label( extraViewComposite, SWT.NONE );
-    minMaxButton.setImage( GUIResource.getInstance().getImageMaximizePanel() );
+    minMaxButton.setImage( GuiResource.getInstance().getImageMaximizePanel() );
     minMaxButton.setToolTipText( BaseMessages.getString( PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip" ) );
     FormData fdMinMax = new FormData();
     fdMinMax.right = new FormAttachment( closeButton, -props.getMargin() );
@@ -3564,8 +3564,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Add a label at the top: Results
     //
     Label wResultsLabel = new Label( extraViewComposite, SWT.LEFT );
-    wResultsLabel.setFont( GUIResource.getInstance().getFontLarge() );
-    wResultsLabel.setBackground( GUIResource.getInstance().getColorWhite() );
+    wResultsLabel.setFont( GuiResource.getInstance().getFontLarge() );
+    wResultsLabel.setBackground( GuiResource.getInstance().getColorWhite() );
     wResultsLabel.setText( BaseMessages.getString( PKG, "PipelineLog.ResultsPanel.NameLabel" ) );
     FormData fdResultsLabel = new FormData();
     fdResultsLabel.left = new FormAttachment( 0, 0 );
@@ -3733,7 +3733,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     ToolItem item = toolBarWidgets.findToolItem( TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS );
-    item.setImage( GUIResource.getInstance().getImageHideResults() );
+    item.setImage( GuiResource.getInstance().getImageHideResults() );
     item.setToolTipText( BaseMessages.getString( PKG, "HopGui.Tooltip.HideExecutionResults" ) );
   }
 
@@ -3999,7 +3999,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     };
 
-    redrawTimer.schedule( timtask, 0L, ConstUI.INTERVAL_MS_PIPELINE_CANVAS_REFRESH );
+    redrawTimer.schedule( timtask, 0L, ConstUi.INTERVAL_MS_PIPELINE_CANVAS_REFRESH );
 
   }
 
@@ -4216,7 +4216,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       tabName = pipelineMeta.getName();
     } else {
       try {
-        FileObject fileObject = HopVFS.getFileObject( pipelineMeta.getFilename() );
+        FileObject fileObject = HopVfs.getFileObject( pipelineMeta.getFilename() );
         FileName fileName = fileObject.getName();
         tabName = fileName.getBaseName();
       } catch ( Exception e ) {
@@ -4238,7 +4238,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             MessageDialog.QUESTION, new String[] { BaseMessages.getString( PKG, "System.Button.Yes" ),
             BaseMessages.getString( PKG, "System.Button.No" ) }, 0, BaseMessages.getString( PKG,
             "PipelineLog.Dialog.Option.AutoSavePipeline" ), hopUi.getProps().getAutoSave() );
-        MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+        MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         int answer = md.open();
         if ( ( answer & 0xFF ) == 0 ) {
           save();

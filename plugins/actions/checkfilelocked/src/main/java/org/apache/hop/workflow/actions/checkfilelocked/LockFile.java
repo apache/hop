@@ -24,7 +24,7 @@ package org.apache.hop.workflow.actions.checkfilelocked;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 public class LockFile {
 
@@ -54,9 +54,9 @@ public class LockFile {
 
     try {
 
-      file = HopVFS.getFileObject( filename );
+      file = HopVfs.getFileObject( filename );
       if ( file.exists() ) {
-        dummyfile = HopVFS.getFileObject( filename );
+        dummyfile = HopVfs.getFileObject( filename );
         // move file to itself!
         file.moveTo( dummyfile );
       }

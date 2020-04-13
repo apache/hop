@@ -35,7 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
@@ -143,7 +143,7 @@ public class TextFileInputTest {
 
     TextFileInputData data = new TextFileInputData();
     data.setFiles( new FileInputList() );
-    data.getFiles().addFile( HopVFS.getFileObject( virtualFile ) );
+    data.getFiles().addFile( HopVfs.getFileObject( virtualFile ) );
 
     data.outputRowMeta = new RowMeta();
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
@@ -182,7 +182,7 @@ public class TextFileInputTest {
 
     TextFileInputData data = new TextFileInputData();
     data.setFiles( new FileInputList() );
-    data.getFiles().addFile( HopVFS.getFileObject( virtualFile ) );
+    data.getFiles().addFile( HopVfs.getFileObject( virtualFile ) );
 
     data.outputRowMeta = new RowMeta();
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
@@ -221,7 +221,7 @@ public class TextFileInputTest {
 
     TextFileInputData data = new TextFileInputData();
     data.setFiles( new FileInputList() );
-    data.getFiles().addFile( HopVFS.getFileObject( virtualFile ) );
+    data.getFiles().addFile( HopVfs.getFileObject( virtualFile ) );
 
     data.outputRowMeta = new RowMeta();
     data.outputRowMeta.addValueMeta( new ValueMetaString( "col1" ) );
@@ -252,7 +252,7 @@ public class TextFileInputTest {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     bos.write( content.toString().getBytes() );
 
-    OutputStream os = HopVFS.getFileObject( virtualFile ).getContent().getOutputStream();
+    OutputStream os = HopVfs.getFileObject( virtualFile ).getContent().getOutputStream();
     try {
       IOUtils.copy( new ByteArrayInputStream( bos.toByteArray() ), os );
     } finally {

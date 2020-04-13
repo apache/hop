@@ -24,9 +24,9 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Text;
 public class EnterSearchDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
-  private static final PropsUI props = PropsUI.getInstance();
+  private static final PropsUi props = PropsUi.getInstance();
   private Shell parentShell;
   private Shell shell;
 
@@ -83,7 +83,7 @@ public class EnterSearchDialog {
   public boolean open() {
     shell = new Shell( parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageLogoSmall() );
+    shell.setImage( GuiResource.getInstance().getImageLogoSmall() );
     shell.setText( BaseMessages.getString( PKG, "EnterSearchDialog.Shell.Title" ) );
 
     FormLayout formLayout = new FormLayout();

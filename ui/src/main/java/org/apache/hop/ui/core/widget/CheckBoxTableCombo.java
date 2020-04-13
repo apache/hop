@@ -24,7 +24,7 @@ package org.apache.hop.ui.core.widget;
 
 import com.google.common.collect.Lists;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,7 +50,7 @@ import static java.util.Collections.sort;
 
 public class CheckBoxTableCombo {
 
-  private final PropsUI props;
+  private final PropsUi props;
   private final ModifyListener lsMod;
   private final PipelineMeta pipelineMeta;
   private final Composite parentComposite;
@@ -64,7 +64,7 @@ public class CheckBoxTableCombo {
   private Button wCheckBox;
   private boolean isEnabled;
 
-  public CheckBoxTableCombo( Composite parentComposite, PropsUI props, ModifyListener lsMod, PipelineMeta pipelineMeta,
+  public CheckBoxTableCombo( Composite parentComposite, PropsUi props, ModifyListener lsMod, PipelineMeta pipelineMeta,
                              Map<String, String> dataMap, String buttonName, String tableName,
                              String columnOneName, String columnTwoName, boolean isEnabled ) {
     checkNotNull( props );

@@ -32,7 +32,7 @@ import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginLoaderException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.gui.IGUIPosition;
+import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -64,7 +64,7 @@ import java.util.Map;
  * @since 27-mei-2003
  */
 public class TransformMeta implements
-  Cloneable, Comparable<TransformMeta>, IGUIPosition,
+  Cloneable, Comparable<TransformMeta>, IGuiPosition,
   ICheckResultSource, IResourceExport, IResourceHolder,
   IAttributes, IBaseMeta {
   private static Class<?> PKG = TransformMeta.class; // for i18n purposes, needed by Translator!!

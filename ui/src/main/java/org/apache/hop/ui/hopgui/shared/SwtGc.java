@@ -25,11 +25,11 @@ package org.apache.hop.ui.hopgui.shared;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUI;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -74,8 +74,8 @@ public class SwtGc implements IGc {
 
   private int iconsize;
 
-  //TODO should be changed to PropsUI usage
-  private int small_icon_size = ConstUI.SMALL_ICON_SIZE;
+  //TODO should be changed to PropsUi usage
+  private int small_icon_size = ConstUi.SMALL_ICON_SIZE;
 
   private Map<String, SwtUniversalImage> images;
 
@@ -92,30 +92,30 @@ public class SwtGc implements IGc {
   public SwtGc( Device device, Point area, int iconsize ) {
     this.image = new Image( device, area.x, area.y );
     this.gc = new GC( image );
-    this.images = GUIResource.getInstance().getImagesTransforms();
+    this.images = GuiResource.getInstance().getImagesTransforms();
     this.iconsize = iconsize;
     this.area = area;
 
     this.colors = new ArrayList<Color>();
     this.fonts = new ArrayList<Font>();
 
-    this.background = GUIResource.getInstance().getColorGraph();
-    this.black = GUIResource.getInstance().getColorBlack();
-    this.white = GUIResource.getInstance().getColorWhite();
-    this.red = GUIResource.getInstance().getColorRed();
-    this.yellow = GUIResource.getInstance().getColorYellow();
-    this.orange = GUIResource.getInstance().getColorOrange();
-    this.green = GUIResource.getInstance().getColorGreen();
-    this.blue = GUIResource.getInstance().getColorBlue();
-    this.magenta = GUIResource.getInstance().getColorMagenta();
-    this.gray = GUIResource.getInstance().getColorGray();
-    this.lightGray = GUIResource.getInstance().getColorLightGray();
-    this.darkGray = GUIResource.getInstance().getColorDarkGray();
-    this.lightBlue = GUIResource.getInstance().getColorLightBlue();
-    this.crystal = GUIResource.getInstance().getColorCrystalText();
-    this.hopDefault = GUIResource.getInstance().getColorHopDefault();
-    this.hopOK = GUIResource.getInstance().getColorHopOK();
-    this.deprecated = GUIResource.getInstance().getColorDeprecated();
+    this.background = GuiResource.getInstance().getColorGraph();
+    this.black = GuiResource.getInstance().getColorBlack();
+    this.white = GuiResource.getInstance().getColorWhite();
+    this.red = GuiResource.getInstance().getColorRed();
+    this.yellow = GuiResource.getInstance().getColorYellow();
+    this.orange = GuiResource.getInstance().getColorOrange();
+    this.green = GuiResource.getInstance().getColorGreen();
+    this.blue = GuiResource.getInstance().getColorBlue();
+    this.magenta = GuiResource.getInstance().getColorMagenta();
+    this.gray = GuiResource.getInstance().getColorGray();
+    this.lightGray = GuiResource.getInstance().getColorLightGray();
+    this.darkGray = GuiResource.getInstance().getColorDarkGray();
+    this.lightBlue = GuiResource.getInstance().getColorLightBlue();
+    this.crystal = GuiResource.getInstance().getColorCrystalText();
+    this.hopDefault = GuiResource.getInstance().getColorHopDefault();
+    this.hopOK = GuiResource.getInstance().getColorHopOK();
+    this.deprecated = GuiResource.getInstance().getColorDeprecated();
   }
 
   public void dispose() {
@@ -136,7 +136,7 @@ public class SwtGc implements IGc {
   }
 
   public void drawImage( String location, ClassLoader classLoader, int x, int y ) {
-    Image img = SwtSvgImageUtil.getImage( PropsUI.getDisplay(), classLoader, location,
+    Image img = SwtSvgImageUtil.getImage( PropsUi.getDisplay(), classLoader, location,
       Math.round( small_icon_size * currentMagnification ),
       Math.round( small_icon_size * currentMagnification ) );
     if ( img != null ) {
@@ -187,57 +187,57 @@ public class SwtGc implements IGc {
   public static final SwtUniversalImage getNativeImage( EImage image ) {
     switch ( image ) {
       case LOCK:
-        return GUIResource.getInstance().getSwtImageLocked();
+        return GuiResource.getInstance().getSwtImageLocked();
       case TRANSFORM_ERROR:
-        return GUIResource.getInstance().getSwtImageTransformError();
+        return GuiResource.getInstance().getSwtImageTransformError();
       case TRANSFORM_ERROR_RED:
-        return GUIResource.getInstance().getSwtImageRedTransformError();
+        return GuiResource.getInstance().getSwtImageRedTransformError();
       case EDIT:
-        return GUIResource.getInstance().getSwtImageEdit();
+        return GuiResource.getInstance().getSwtImageEdit();
       case CONTEXT_MENU:
-        return GUIResource.getInstance().getSwtImageContextMenu();
+        return GuiResource.getInstance().getSwtImageContextMenu();
       case TRUE:
-        return GUIResource.getInstance().getSwtImageTrue();
+        return GuiResource.getInstance().getSwtImageTrue();
       case FALSE:
-        return GUIResource.getInstance().getSwtImageFalse();
+        return GuiResource.getInstance().getSwtImageFalse();
       case ERROR:
-        return GUIResource.getInstance().getSwtImageErrorHop();
+        return GuiResource.getInstance().getSwtImageErrorHop();
       case INFO:
-        return GUIResource.getInstance().getSwtImageInfoHop();
+        return GuiResource.getInstance().getSwtImageInfoHop();
       case TARGET:
-        return GUIResource.getInstance().getSwtImageHopTarget();
+        return GuiResource.getInstance().getSwtImageHopTarget();
       case INPUT:
-        return GUIResource.getInstance().getSwtImageHopInput();
+        return GuiResource.getInstance().getSwtImageHopInput();
       case OUTPUT:
-        return GUIResource.getInstance().getSwtImageHopOutput();
+        return GuiResource.getInstance().getSwtImageHopOutput();
       case ARROW:
-        return GUIResource.getInstance().getSwtImageArrow();
+        return GuiResource.getInstance().getSwtImageArrow();
       case COPY_ROWS:
-        return GUIResource.getInstance().getSwtImageCopyHop();
+        return GuiResource.getInstance().getSwtImageCopyHop();
       case LOAD_BALANCE:
-        return GUIResource.getInstance().getSwtImageBalance();
+        return GuiResource.getInstance().getSwtImageBalance();
       case CHECKPOINT:
-        return GUIResource.getInstance().getSwtImageCheckpoint();
+        return GuiResource.getInstance().getSwtImageCheckpoint();
       case DB:
-        return GUIResource.getInstance().getSwtImageConnection();
+        return GuiResource.getInstance().getSwtImageConnection();
       case PARALLEL:
-        return GUIResource.getInstance().getSwtImageParallelHop();
+        return GuiResource.getInstance().getSwtImageParallelHop();
       case UNCONDITIONAL:
-        return GUIResource.getInstance().getSwtImageUnconditionalHop();
+        return GuiResource.getInstance().getSwtImageUnconditionalHop();
       case BUSY:
-        return GUIResource.getInstance().getSwtImageBusy();
+        return GuiResource.getInstance().getSwtImageBusy();
       case INJECT:
-        return GUIResource.getInstance().getSwtImageInject();
+        return GuiResource.getInstance().getSwtImageInject();
       case ARROW_DEFAULT:
-        return GUIResource.getInstance().getDefaultArrow();
+        return GuiResource.getInstance().getDefaultArrow();
       case ARROW_OK:
-        return GUIResource.getInstance().getOkArrow();
+        return GuiResource.getInstance().getOkArrow();
       case ARROW_ERROR:
-        return GUIResource.getInstance().getErrorArrow();
+        return GuiResource.getInstance().getErrorArrow();
       case ARROW_DISABLED:
-        return GUIResource.getInstance().getDisabledArrow();
+        return GuiResource.getInstance().getDisabledArrow();
       case ARROW_CANDIDATE:
-        return GUIResource.getInstance().getCandidateArrow();
+        return GuiResource.getInstance().getCandidateArrow();
       default:
         break;
     }
@@ -350,13 +350,13 @@ public class SwtGc implements IGc {
   public void setFont( EFont font ) {
     switch ( font ) {
       case GRAPH:
-        gc.setFont( GUIResource.getInstance().getFontGraph() );
+        gc.setFont( GuiResource.getInstance().getFontGraph() );
         break;
       case NOTE:
-        gc.setFont( GUIResource.getInstance().getFontNote() );
+        gc.setFont( GuiResource.getInstance().getFontNote() );
         break;
       case SMALL:
-        gc.setFont( GUIResource.getInstance().getFontSmall() );
+        gc.setFont( GuiResource.getInstance().getFontSmall() );
         break;
       default:
         break;
@@ -414,9 +414,9 @@ public class SwtGc implements IGc {
     String transformtype = transformMeta.getTransformPluginId();
     Image im = null;
     if ( transformMeta.isMissing() ) {
-      im = GUIResource.getInstance().getImageMissing();
+      im = GuiResource.getInstance().getImageMissing();
     } else if ( transformMeta.isDeprecated() ) {
-      im = GUIResource.getInstance().getImageDeprecated();
+      im = GuiResource.getInstance().getImageDeprecated();
     } else {
       im =
         images.get( transformtype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
@@ -440,19 +440,19 @@ public class SwtGc implements IGc {
 
     if ( actionCopy.isSpecial() ) {
       if ( actionCopy.isStart() ) {
-        swtImage = GUIResource.getInstance().getSwtImageStart();
+        swtImage = GuiResource.getInstance().getSwtImageStart();
       }
       if ( actionCopy.isDummy() ) {
-        swtImage = GUIResource.getInstance().getSwtImageDummy();
+        swtImage = GuiResource.getInstance().getSwtImageDummy();
       }
     } else {
       String configId = actionCopy.getEntry().getPluginId();
       if ( configId != null ) {
-        swtImage = GUIResource.getInstance().getImagesActions().get( configId );
+        swtImage = GuiResource.getInstance().getImagesActions().get( configId );
       }
     }
     if ( actionCopy.isMissing() ) {
-      swtImage = GUIResource.getInstance().getSwtImageMissing();
+      swtImage = GuiResource.getInstance().getSwtImageMissing();
     }
     if ( swtImage == null ) {
       return;
@@ -493,7 +493,7 @@ public class SwtGc implements IGc {
   }
 
   private Color getColor( int r, int g, int b ) {
-    Color color = new Color( PropsUI.getDisplay(), new RGB( r, g, b ) );
+    Color color = new Color( PropsUi.getDisplay(), new RGB( r, g, b ) );
     int index = colors.indexOf( color );
     if ( index < 0 ) {
       colors.add( color );
@@ -513,7 +513,7 @@ public class SwtGc implements IGc {
       swt = swt | SWT.ITALIC;
     }
 
-    Font font = new Font( PropsUI.getDisplay(), fontName, fontSize, swt );
+    Font font = new Font( PropsUi.getDisplay(), fontName, fontSize, swt );
     int index = fonts.indexOf( font );
     if ( index < 0 ) {
       fonts.add( font );

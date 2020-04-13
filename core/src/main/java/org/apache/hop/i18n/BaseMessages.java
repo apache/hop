@@ -22,17 +22,17 @@
 
 package org.apache.hop.i18n;
 
-import org.apache.hop.laf.ILAFChangeListener;
-import org.apache.hop.laf.LAFFactory;
+import org.apache.hop.laf.ILafChangeListener;
+import org.apache.hop.laf.LafFactory;
 
 /**
  * BaseMessage is called by all Message classes to enable the delegation of message delivery, by key to be delegated to
- * the appropriately authoritative supplier as registered in the LAFFactory enabling both i18n as well as pluggable look
+ * the appropriately authoritative supplier as registered in the LafFactory enabling both i18n as well as pluggable look
  * and feel (LAF)
  *
  * @author dhushon
  */
-public class BaseMessages implements ILAFChangeListener<IMessageHandler> {
+public class BaseMessages implements ILafChangeListener<IMessageHandler> {
   static BaseMessages instance = null;
   protected IMessageHandler handler = null;
   Class<IMessageHandler> clazz = IMessageHandler.class;
@@ -46,8 +46,8 @@ public class BaseMessages implements ILAFChangeListener<IMessageHandler> {
   }
 
   private void init() {
-    // counting on LAFFactory to return a class conforming to @see IMessageHandler
-    handler = LAFFactory.getHandler( clazz );
+    // counting on LafFactory to return a class conforming to @see IMessageHandler
+    handler = LafFactory.getHandler( clazz );
   }
 
   public static BaseMessages getInstance() {

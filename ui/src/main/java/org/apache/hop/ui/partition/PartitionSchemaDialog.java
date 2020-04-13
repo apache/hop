@@ -29,9 +29,9 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -91,7 +91,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
 
   private ModifyListener lsMod;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private int middle;
   private int margin;
@@ -108,7 +108,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
     this.originalSchema = partitionSchema;
     this.variables = variables;
 
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     result = null;
   }
 
@@ -116,7 +116,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
     Shell parent = getParent();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {

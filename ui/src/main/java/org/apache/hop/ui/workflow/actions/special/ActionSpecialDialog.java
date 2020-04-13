@@ -24,12 +24,12 @@ package org.apache.hop.ui.workflow.actions.special;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -115,7 +115,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, jobEntry );
-    shell.setImage( GUIResource.getInstance().getImageStart() );
+    shell.setImage( GuiResource.getInstance().getImageStart() );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {

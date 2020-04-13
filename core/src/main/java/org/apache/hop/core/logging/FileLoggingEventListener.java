@@ -25,7 +25,7 @@ package org.apache.hop.core.logging;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -71,10 +71,10 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
     this.layout = new HopLogLayout( true );
     this.exception = null;
 
-    file = HopVFS.getFileObject( filename );
+    file = HopVfs.getFileObject( filename );
     outputStream = null;
     try {
-      outputStream = HopVFS.getOutputStream( file, append );
+      outputStream = HopVfs.getOutputStream( file, append );
     } catch ( Exception e ) {
       throw new HopException(
         "Unable to create a logging event listener to write to file '" + filename + "'", e );

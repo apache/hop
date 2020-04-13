@@ -37,7 +37,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -302,7 +302,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
         // As such, we're going to verify that it's a local file...
         // We're also going to convert VFS FileObject to File
         //
-        fileObject = HopVFS.getFileObject( vfsFilename, this );
+        fileObject = HopVfs.getFileObject( vfsFilename, this );
         if ( !( fileObject instanceof LocalFile ) ) {
           // MSSQL BUKL INSERT can only use local files, so that's what we limit ourselves to.
           //
@@ -312,7 +312,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
         // Convert it to a regular platform specific file name
         //
-        String realFilename = HopVFS.getFilename( fileObject );
+        String realFilename = HopVfs.getFilename( fileObject );
 
         // Here we go... back to the regular scheduled program...
         //
@@ -494,7 +494,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                     // Add filename to output files
                     ResultFile resultFile =
                       new ResultFile(
-                        ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( realFilename, this ), parentWorkflow
+                        ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename, this ), parentWorkflow
                         .getJobname(), toString() );
                     result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                   }

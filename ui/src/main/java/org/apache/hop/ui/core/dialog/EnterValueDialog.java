@@ -30,8 +30,8 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -110,7 +110,7 @@ public class EnterValueDialog extends Dialog {
 
   private SelectionAdapter lsDef;
 
-  private PropsUI props;
+  private PropsUi props;
 
   private ValueMetaAndData valueMetaAndData;
 
@@ -122,7 +122,7 @@ public class EnterValueDialog extends Dialog {
 
   public EnterValueDialog( Shell parent, int style, IValueMeta value, Object data ) {
     super( parent, style );
-    this.props = PropsUI.getInstance();
+    this.props = PropsUi.getInstance();
     this.valueMeta = value;
     this.valueData = data;
   }
@@ -135,7 +135,7 @@ public class EnterValueDialog extends Dialog {
       new Shell( parent, SWT.DIALOG_TRIM
         | SWT.RESIZE | ( modalDialog ? SWT.APPLICATION_MODAL | SWT.SHEET : SWT.NONE ) );
     props.setLook( shell );
-    shell.setImage( GUIResource.getInstance().getImageHopUi() );
+    shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

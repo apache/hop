@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.row;
 
-import org.apache.hop.core.exception.HopEOFException;
+import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -127,7 +127,7 @@ public class RowTest {
   }
 
   private void makeTestExtractDataWithTimestampConversion( IRowMeta rowMeta, String str, Date date,
-                                                           Timestamp constTimestamp ) throws HopEOFException, HopFileException, IOException {
+                                                           Timestamp constTimestamp ) throws HopEofException, HopFileException, IOException {
     Object[] rowData = new Object[] { str, date };
     byte[] result = RowMeta.extractData( rowMeta, rowData );
     DataInputStream stream = new DataInputStream( new ByteArrayInputStream( result ) );

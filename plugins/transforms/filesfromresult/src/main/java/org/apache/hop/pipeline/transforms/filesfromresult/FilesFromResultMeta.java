@@ -32,7 +32,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -85,7 +85,7 @@ public class FilesFromResultMeta extends BaseTransformMeta implements ITransform
     try {
       ResultFile resultFile =
         new ResultFile(
-          ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( "foo.bar", variables ), "parentOrigin", "origin" );
+          ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( "foo.bar", variables ), "parentOrigin", "origin" );
       RowMetaAndData add = resultFile.getRow();
 
       // Set the origin on the fields...

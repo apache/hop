@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -93,7 +93,7 @@ public class CheckBoxToolTip extends ToolTip {
     Label titleLabel = new Label( composite, SWT.LEFT );
     titleLabel.setText( title );
     titleLabel.setBackground( display.getSystemColor( SWT.COLOR_INFO_BACKGROUND ) );
-    titleLabel.setFont( GUIResource.getInstance().getFontBold() );
+    titleLabel.setFont( GuiResource.getInstance().getFontBold() );
     FormData fdTitleLabel = new FormData();
     fdTitleLabel.left = new FormAttachment( imageLabel, 20 );
     fdTitleLabel.top = new FormAttachment( 0, 0 );

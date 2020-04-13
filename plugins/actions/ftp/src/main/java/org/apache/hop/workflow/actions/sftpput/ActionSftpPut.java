@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -550,7 +550,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           // Get file names
           String file_previous = resultRow.getString( 0, null );
           if ( !Utils.isEmpty( file_previous ) ) {
-            FileObject file = HopVFS.getFileObject( file_previous, this );
+            FileObject file = HopVfs.getFileObject( file_previous, this );
             if ( !file.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilefromPreviousNotFound", file_previous ) );
             } else {
@@ -630,7 +630,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         } else {
           FileObject folder = null;
           try {
-            folder = HopVFS.getFileObject( realDestinationFolder, this );
+            folder = HopVfs.getFileObject( realDestinationFolder, this );
             // Let's check if folder exists...
             if ( !folder.exists() ) {
               // Do we need to create it?
@@ -643,7 +643,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                 return result;
               }
             }
-            realDestinationFolder = HopVFS.getFilename( folder );
+            realDestinationFolder = HopVfs.getFilename( folder );
           } catch ( Exception e ) {
             throw new HopException( e );
           } finally {
@@ -666,7 +666,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           result.setNrErrors( 1 );
           return result;
         }
-        if ( !HopVFS.fileExists( realKeyFilename ) ) {
+        if ( !HopVfs.fileExists( realKeyFilename ) ) {
           // Error.. can not reach keyfile
           logError( BaseMessages.getString( PKG, "JobSFTP.Error.KeyFileNotFound" ) );
           result.setNrErrors( 1 );
@@ -731,7 +731,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         // Get all the files in the local directory...
         myFileList = new ArrayList<FileObject>();
 
-        FileObject localFiles = HopVFS.getFileObject( realLocalDirectory, this );
+        FileObject localFiles = HopVfs.getFileObject( realLocalDirectory, this );
         FileObject[] children = localFiles.getChildren();
         if ( children != null ) {
           for ( int i = 0; i < children.length; i++ ) {
@@ -809,7 +809,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                 FileObject destination = null;
                 try {
                   destination =
-                    HopVFS.getFileObject( realDestinationFolder
+                    HopVfs.getFileObject( realDestinationFolder
                       + Const.FILE_SEPARATOR + myFile.getName().getBaseName(), this );
                   myFile.moveTo( destination );
                   if ( log.isDetailed() ) {

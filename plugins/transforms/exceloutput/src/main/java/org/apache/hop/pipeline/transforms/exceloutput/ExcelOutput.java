@@ -47,15 +47,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 
 import java.awt.*;
 import java.io.File;
@@ -471,13 +469,13 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
     try {
       // Static filename
       data.realFilename = buildFilename();
-      data.file = HopVFS.getFileObject( data.realFilename, getPipelineMeta() );
+      data.file = HopVfs.getFileObject( data.realFilename, getPipelineMeta() );
       if ( meta.isCreateParentFolder() ) {
         if ( !createParentFolder( data.file ) ) {
           return retval;
         }
       }
-      data.realFilename = HopVFS.getFilename( data.file );
+      data.realFilename = HopVfs.getFilename( data.file );
       addFilenameToResult();
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "ExcelOutput.Log.OpeningFile", data.realFilename ) );
@@ -490,7 +488,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
       }
 
       // Create the workbook
-      File targetFile = new File( HopVFS.getFilename( data.file ) );
+      File targetFile = new File( HopVfs.getFilename( data.file ) );
       if ( !meta.isTemplateEnabled() ) {
         if ( meta.isAppend() && targetFile.exists() ) {
           Workbook targetFileWorkbook = Workbook.getWorkbook( targetFile );
@@ -500,7 +498,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
           meta.setHeaderEnabled( false );
         } else {
           // Create a new Workbook
-          data.outputStream = HopVFS.getOutputStream( data.file, false );
+          data.outputStream = HopVfs.getOutputStream( data.file, false );
           data.workbook = Workbook.createWorkbook( data.outputStream, data.ws );
         }
 
@@ -514,9 +512,9 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
         }
       } else {
         String templateFilename = environmentSubstitute( meta.getTemplateFileName() );
-        try ( FileObject templateFile = HopVFS.getFileObject( templateFilename, getPipelineMeta() ) ) {
+        try ( FileObject templateFile = HopVfs.getFileObject( templateFilename, getPipelineMeta() ) ) {
           // create the openFile from the template
-          Workbook templateWorkbook = Workbook.getWorkbook( HopVFS.getInputStream( templateFile ), data.ws );
+          Workbook templateWorkbook = Workbook.getWorkbook( HopVfs.getInputStream( templateFile ), data.ws );
 
           if ( meta.isAppend() && targetFile.exists() && isTemplateContained( templateWorkbook, targetFile ) ) {
             Workbook targetFileWorkbook = Workbook.getWorkbook( targetFile );
@@ -525,7 +523,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
             // Do not rewrite header
             meta.setHeaderEnabled( false );
           } else {
-            data.outputStream = HopVFS.getOutputStream( data.file, false );
+            data.outputStream = HopVfs.getOutputStream( data.file, false );
             data.workbook = Workbook.createWorkbook( data.outputStream, templateWorkbook );
           }
 
@@ -790,18 +788,18 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
     // Do we need to put a image on the header
     if ( !Utils.isEmpty( data.realHeaderImage ) ) {
       InputStream imageStream = null;
-      try ( FileObject imageFile = HopVFS.getFileObject( data.realHeaderImage ) ) {
+      try ( FileObject imageFile = HopVfs.getFileObject( data.realHeaderImage ) ) {
         if ( !imageFile.exists() ) {
           throw new HopException( BaseMessages.getString( PKG, "ExcelInputLog.ImageFileNotExists", data.realHeaderImage ) );
         }
-        data.realHeaderImage = HopVFS.getFilename( imageFile );
+        data.realHeaderImage = HopVfs.getFilename( imageFile );
         // Put an image
         Dimension m = ExcelFontMap.getImageDimension( data.realHeaderImage );
         data.headerImageWidth = m.getWidth() * 0.016;
         data.headerImageHeight = m.getHeight() * 0.0625;
 
         byte[] imageData = new byte[ (int) imageFile.getContent().getSize() ];
-        imageStream = HopVFS.getInputStream( imageFile );
+        imageStream = HopVfs.getInputStream( imageFile );
         imageStream.read( imageData );
 
         data.headerImage = new WritableImage( 0, 0, data.headerImageWidth, data.headerImageHeight, imageData );

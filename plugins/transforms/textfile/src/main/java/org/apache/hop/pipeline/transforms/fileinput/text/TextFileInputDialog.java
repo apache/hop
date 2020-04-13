@@ -39,7 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.ui.core.dialog.*;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -2752,7 +2752,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     if ( textFileList.nrOfFiles() > 0 ) {
       FileObject file = textFileList.getFile( 0 );
       try {
-        fi = HopVFS.getInputStream( file );
+        fi = HopVfs.getInputStream( file );
 
         ICompressionProvider provider =
           CompressionProviderFactory.getInstance().createCompressionProviderInstance( meta.content.fileCompression );
@@ -2873,7 +2873,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       wizard.addPage( page2 );
 
       WizardDialog wd = new WizardDialog( shell, wizard );
-      WizardDialog.setDefaultImage( GUIResource.getInstance().getImageWizard() );
+      WizardDialog.setDefaultImage( GuiResource.getInstance().getImageWizard() );
       wd.setMinimumPageSize( 700, 375 );
       wd.updateSize();
       wd.open();
@@ -3221,7 +3221,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     CompressionInputStream inputStream = null;
     try {
       FileObject fileObject = meta.getHeaderFileObject( getPipelineMeta() );
-      fileInputStream = HopVFS.getInputStream( fileObject );
+      fileInputStream = HopVfs.getInputStream( fileObject );
       ICompressionProvider provider = CompressionProviderFactory.getInstance().createCompressionProviderInstance(
         ( (TextFileInputMeta) meta ).content.fileCompression );
       inputStream = provider.createInputStream( fileInputStream );

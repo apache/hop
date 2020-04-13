@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 
@@ -91,7 +91,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     } else {
       name = processingFilename + sourceAdding + "." + dateString + "." + extension;
     }
-    return HopVFS.getFileObject( destinationDirectory + "/" + name );
+    return HopVfs.getFileObject( destinationDirectory + "/" + name );
   }
 
   public static FileObject getReplayFilename( String destinationDirectory, String processingFilename, Date date,
@@ -120,9 +120,9 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
       baseTransform.addResultFile( resultFile );
       try {
         if ( encoding == null ) {
-          outputStreamWriter = new OutputStreamWriter( HopVFS.getOutputStream( file, false ) );
+          outputStreamWriter = new OutputStreamWriter( HopVfs.getOutputStream( file, false ) );
         } else {
-          outputStreamWriter = new OutputStreamWriter( HopVFS.getOutputStream( file, false ), encoding );
+          outputStreamWriter = new OutputStreamWriter( HopVfs.getOutputStream( file, false ), encoding );
         }
       } catch ( Exception e ) {
         throw new HopException( BaseMessages.getString(

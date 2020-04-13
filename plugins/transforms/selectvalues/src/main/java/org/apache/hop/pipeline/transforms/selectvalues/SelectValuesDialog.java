@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -889,7 +889,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     }
     // show a confirm dialog if some misconfiguration was found
     if ( missingFields.length() > 0 ) {
-      MessageDialog.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialog.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       boolean goOn =
         MessageDialog.openConfirm( shell,
           BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFoundTitle" ),
