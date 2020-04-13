@@ -106,19 +106,6 @@ public class GreenplumValueMetaBaseTest {
     listener = new StoreLoggingEventListener();
   }
 
-
-  @Test
-  public void testMetdataPreviewSqlRealToHopNumber() throws SQLException, HopDatabaseException {
-    doReturn( Types.REAL ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isNumber() );
-    assertEquals( 2, valueMeta.getPrecision() );
-    assertEquals( 3, valueMeta.getLength() );
-  }
-
   @Ignore
   @Test
   public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingGreenplum() throws SQLException, HopDatabaseException {
@@ -133,42 +120,12 @@ public class GreenplumValueMetaBaseTest {
     assertEquals( -1, valueMeta.getLength() );
   }
 
-  @Test
-  public void testMetdataPreviewUnsupportedSqlTimestamp() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIMESTAMP ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
-    doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( false ).when( dbMeta ).supportsTimestampDataType();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( !valueMeta.isDate() );
-  }
 
-  @Test
-  public void testMetdataPreviewSqlTimeToHopDate() throws SQLException, HopDatabaseException {
-    doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isDate() );
-  }
-
-
-  @Test
-  public void testMetdataPreviewSqlBooleanToHopBoolean() throws SQLException, HopDatabaseException {
-    doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBoolean() );
-  }
-
-  @Test
-  public void testMetdataPreviewSqlBitToHopBoolean() throws SQLException, HopDatabaseException {
-    doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isBoolean() );
-  }
 
   @Test
   public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
@@ -176,7 +133,7 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
     assertTrue( valueMeta.isBinary() );
@@ -185,7 +142,7 @@ public class GreenplumValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( GreenplumDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
