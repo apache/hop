@@ -1,0 +1,13 @@
+[[database-plugins-mssqlnqtive]]
+= MS SqlServer (Native)
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15[Documentation Link]
+|JDBC Url | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+|===

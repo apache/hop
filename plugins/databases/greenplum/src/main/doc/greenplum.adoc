@@ -1,0 +1,13 @@
+[[database-plugins-greenplum]]
+= Greenplum
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 5.1.4
+|Hop Dependencies | Postgresql Plugin
+|Documentation | https://gpdb.docs.pivotal.io/590/datadirect/datadirect_jdbc.html[Documentation Link]
+|JDB Url | jdbc:pivotal:greenplum://host:port;DatabaseName=<name>
+|===

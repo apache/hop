@@ -1,0 +1,13 @@
+[[database-plugins-interbase]]
+= interbase
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included in Database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | http://docwiki.embarcadero.com/InterBase/2020/en/Programming_with_JDBC[Documentation Link]
+|JDBC Url | jdbc:interbase://hostname:3050/path/to/database.ib
+|===

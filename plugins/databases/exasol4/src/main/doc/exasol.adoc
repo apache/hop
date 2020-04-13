@@ -1,0 +1,13 @@
+[[database-plugins-exasol]]
+= Exasol
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 6.2.1
+|Hop Dependencies | None
+|Documentation | https://docs.exasol.com/connect_exasol/drivers/jdbc.htm[Documentation Link]
+|JDBC Url | jdbc:exa:<server>:<port8563>
+|===

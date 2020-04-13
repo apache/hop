@@ -1,0 +1,11 @@
+[[database-plugins-remedy-ar-system]]
+= Remedy AR System
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | ODBC Only
+|Version Included | None
+|Hop Dependencies | None
+|===

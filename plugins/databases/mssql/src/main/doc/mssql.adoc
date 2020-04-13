@@ -1,0 +1,15 @@
+[[database-plugins-mssql]]
+= MS SqlServer
+
+This database type uses, the JTDS driver. When creating new database connections it is recommended to use the native connection type.
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://sourceforge.net/projects/jtds/files/jtds/[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | http://jtds.sourceforge.net/faq.html[Documentation Link]
+|JDBC Url | jdbc:jtds:sqlserver://<server>[:<port>][/<database>][;<property>=<value>[;...]]
+|===
