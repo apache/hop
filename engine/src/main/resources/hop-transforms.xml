@@ -16,20 +16,6 @@
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.TableInput</tooltip>
     <iconfile>ui/images/TIP.svg</iconfile>
   </transform>
-  <transform id="SocketReader">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SocketReader</description>
-    <classname>org.apache.hop.pipeline.transforms.socketreader.SocketReaderMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SocketReader</tooltip>
-    <iconfile>ui/images/SKR.svg</iconfile>
-  </transform>
-  <transform id="SocketWriter">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SocketWriter</description>
-    <classname>org.apache.hop.pipeline.transforms.socketwriter.SocketWriterMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Inline</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SocketWriter</tooltip>
-    <iconfile>ui/images/SKW.svg</iconfile>
-  </transform>
   <transform id="Injector">
     <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.Injector</description>
     <classname>org.apache.hop.pipeline.transforms.injector.InjectorMeta</classname>
@@ -72,11 +58,11 @@
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SingleThreader</tooltip>
     <iconfile>ui/images/MAP.svg</iconfile>
   </transform>
-  <transform id="JobExecutor">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.JobExecutor</description>
+  <transform id="WorkflowExecutor">
+    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.WorkflowExecutor</description>
     <classname>org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta</classname>
     <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.JobExecutor</tooltip>
+    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.WorkflowExecutor</tooltip>
     <iconfile>ui/images/JOBEx.svg</iconfile>
   </transform>
   <transform id="PipelineExecutor">
