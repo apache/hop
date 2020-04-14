@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.20-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-gettablenames</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.20-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Get Table Names</name>
