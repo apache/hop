@@ -1,4 +1,7 @@
 [[database-plugins-infobright]]
+:documentationPath: /plugins/database/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/infobright/src/main/doc/infobright.adoc
 = Infobright DB
 
 [width="90%", cols="2*", options="header"]

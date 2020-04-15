@@ -1,2 +1,2 @@
 @Library('shared-library') _
-javaPipelineV2()
+javaPipelineV3()
