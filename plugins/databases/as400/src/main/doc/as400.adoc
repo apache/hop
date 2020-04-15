@@ -1,4 +1,5 @@
 [[database-plugins-as400]]
+:documentationPath: /plugins/database/
 = AS400
 
 [width="90%", cols="2*", options="header"]
