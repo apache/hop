@@ -32,9 +32,10 @@ import org.junit.Test;
 public class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Ignore
   @Test
   public void testDefaultOptions() throws Exception {
+
+    meta.content.fileFormat = "unix";
 
     initByFile( "default.csv" );
 
@@ -46,26 +47,29 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
   }
 
-  @Ignore
   @Test
   public void testSeparator() throws Exception {
 
     meta.content.separator = ",";
+    meta.content.fileFormat = "unix";
+
     initByFile( "separator.csv" );
 
     setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
       new BaseFileField( "f2", -1, -1 ) );
+    meta.getInputFields()[2].setDecimalSymbol( "." );
 
     process();
 
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
   }
 
-  @Ignore
   @Test
   public void testEscape() throws Exception {
 
     meta.content.escapeCharacter = "\\";
+    meta.content.fileFormat = "unix";
+
     initByFile( "escape.csv" );
 
     setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
@@ -76,11 +80,12 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third;third", "3", "3.3" } } );
   }
 
-  @Ignore
   @Test
   public void testHeader() throws Exception {
 
     meta.content.header = false;
+    meta.content.fileFormat = "unix";
+
     initByFile( "default.csv" );
 
     setFields( new BaseFileField( "f1", -1, -1 ), new BaseFileField( "f2", -1, -1 ),
@@ -139,11 +144,12 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "first", "1", "1.1" }, { "second", "2", "2.2" }, { "third", "3", "3.3" } } );
   }
 
-  @Ignore
   @Test
   public void testFixedWidth() throws Exception {
 
     meta.content.fileType = "Fixed";
+    meta.content.fileFormat = "unix";
+
     initByFile( "fixed.csv" );
 
     setFields( new BaseFileField( "f1", 0, 7 ), new BaseFileField( "f2", 8, 7 ), new BaseFileField( "f3",
@@ -175,7 +181,6 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     check( new Object[][] { { "1.000", "個 ", "T", "1.0" }, { "2.000", "M  ", "Z", "1.0" } } );
   }
 
-  @Ignore
   @Test
   public void testFixedWidthCharacters() throws Exception {
     meta.content.header = false;
@@ -183,6 +188,8 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
     meta.content.fileFormat = "DOS";
     meta.content.encoding = "ISO-8859-1";
     meta.content.length = "Characters";
+    meta.content.fileFormat = "unix";
+
     initByFile( "test-fixed-length-characters.txt" );
 
     setFields(
@@ -212,9 +219,10 @@ public class TextFileInputContentParsingTest extends BaseTextParsingTest {
       { "NinthLine => FourthLine" }, { "" } } );
   }
 
-  @Ignore
   @Test
   public void testFilterVariables() throws Exception {
+
+    meta.content.fileFormat = "unix";
 
     initByFile( "default.csv" );
 
