@@ -42,7 +42,3 @@ After a successful build, the Hop UI can be started.
 On Windows, run `hop-ui.bat`, on Mac and Linux, run `hop-ui.sh` 
 
 Help us to improve Hop by logging issues in the [Hop JIRA](https://project-hop.atlassian.net)
-
-
-Random change
-
