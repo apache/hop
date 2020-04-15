@@ -1,4 +1,7 @@
 [[database-plugins-remedy-ar-system]]
+:documentationPath: /plugins/database/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/remedy-ar-system/src/main/doc/remedy-ar-system.adoc
 = Remedy AR System
 
 [width="90%", cols="2*", options="header"]

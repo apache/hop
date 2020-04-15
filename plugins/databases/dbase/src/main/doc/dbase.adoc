@@ -1,4 +1,7 @@
 [[database-plugins-dbase]]
+:documentationPath: /plugins/database/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/dbase/src/main/doc/dbase.adoc
 = dbase
 
 [width="90%", cols="2*", options="header"]
