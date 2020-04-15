@@ -160,10 +160,10 @@ public class TransformMeta implements
   }
 
   public String getXml() throws HopException {
-    return getXML( true );
+    return getXml( true );
   }
 
-  public String getXML( boolean includeInterface ) throws HopException {
+  public String getXml( boolean includeInterface ) throws HopException {
     StringBuilder retval = new StringBuilder( 200 );
 
     retval.append( "  " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
