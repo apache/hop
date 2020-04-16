@@ -62,8 +62,8 @@ import java.util.List;
   id = "ExecSql",
   image = "ui/images/SQL.svg",
   i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
-  name = "BaseTransform.TypeLongDesc.ExecSqlRow",
-  description = "BaseTransform.TypeTooltipDesc.ExecuteSQL",
+  name = "ExecSql.Name",
+  description = "ExecSql.Description",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
 )
 @InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
