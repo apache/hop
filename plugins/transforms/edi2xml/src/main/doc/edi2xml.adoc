@@ -1,3 +1,6 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/edi2xml/src/main/doc/edi2xml.adoc
 = Edi to XML
 
 == Description

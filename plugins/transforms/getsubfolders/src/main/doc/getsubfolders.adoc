@@ -1,0 +1,3 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getsubfolders/src/main/doc/getsubfolders.adoc
