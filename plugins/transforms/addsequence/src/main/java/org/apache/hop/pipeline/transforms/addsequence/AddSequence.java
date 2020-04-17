@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.addsequence;
 
 import org.apache.hop.core.Counter;
+import org.apache.hop.core.Counters;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -31,13 +32,13 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
+import java.util.Map;
 
 /**
  * Adds a sequential number to a stream of rows.
@@ -152,13 +153,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         db.shareVariablesWith( this );
         data.setDb( db );
         try {
-          if ( getPipelineMeta().isUsingUniqueConnections() ) {
-            synchronized ( getPipeline() ) {
-              data.getDb().connect( getPipeline().getTransactionId(), getPartitionId() );
-            }
-          } else {
-            data.getDb().connect( getPartitionId() );
-          }
+          data.getDb().connect( getPartitionId() );
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "AddSequence.Log.ConnectedDB" ) );
           }
@@ -203,35 +198,34 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         } else {
           data.setLookup( "@@sequence:" + meta.getValuename() );
         }
-
-        if ( getPipeline().getCounters() != null ) {
-          // check if counter exists
-          synchronized ( getPipeline().getCounters() ) {
-            data.counter = getPipeline().getCounters().get( data.getLookup() );
-            if ( data.counter == null ) {
-              // create a new one
-              data.counter = new Counter( data.start, data.increment, data.maximum );
-              getPipeline().getCounters().put( data.getLookup(), data.counter );
-            } else {
-              // Check whether counter characteristics are the same as a previously
-              // defined counter with the same name.
-              if ( ( data.counter.getStart() != data.start )
-                || ( data.counter.getIncrement() != data.increment )
-                || ( data.counter.getMaximum() != data.maximum ) ) {
-                logError( BaseMessages.getString(
-                  PKG, "AddSequence.Log.CountersWithDifferentCharacteristics", data.getLookup() ) );
-                return false;
-              }
+        // check if counter exists
+        Map<String, Counter> counterMap = Counters.getInstance().getCounterMap();
+        synchronized ( counterMap ) {
+          data.counter = counterMap.get( data.getLookup() );
+          if ( data.counter == null ) {
+            // create a new one
+            data.counter = new Counter( data.start, data.increment, data.maximum );
+            counterMap.put( data.getLookup(), data.counter );
+          } else {
+            // Check whether counter characteristics are the same as a previously
+            // defined counter with the same name.
+            if ( ( data.counter.getStart() != data.start )
+              || ( data.counter.getIncrement() != data.increment )
+              || ( data.counter.getMaximum() != data.maximum ) ) {
+              logError( BaseMessages.getString(
+                PKG, "AddSequence.Log.CountersWithDifferentCharacteristics", data.getLookup() ) );
+              return false;
             }
           }
-          return true;
-        } else {
-          logError( BaseMessages.getString( PKG, "AddSequence.Log.PipelineCountersHashtableNotAllocated" ) );
         }
+        return true;
       } else {
-        logError( BaseMessages.getString( PKG, "AddSequence.Log.NeedToSelectSequence" ) );
+        logError( BaseMessages.getString( PKG, "AddSequence.Log.PipelineCountersHashtableNotAllocated" ) );
       }
+    } else {
+      logError( BaseMessages.getString( PKG, "AddSequence.Log.NeedToSelectSequence" ) );
     }
+
     return false;
   }
 
@@ -240,7 +234,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
 
     if ( meta.isCounterUsed() ) {
       if ( data.getLookup() != null ) {
-        getPipeline().getCounters().remove( data.getLookup() );
+        Counters.getInstance().getCounterMap().remove( data.getLookup() );
       }
       data.counter = null;
     }

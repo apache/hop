@@ -1607,11 +1607,11 @@ public class TextFileInput extends BaseTransform implements ITransform {
     List<FileErrorHandler> dataErrorLineHandlers = new ArrayList<FileErrorHandler>( 2 );
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       dataErrorLineHandlers
-        .add( new FileErrorHandlerContentLineNumber( getPipeline().getCurrentDate(), environmentSubstitute( meta
+        .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), environmentSubstitute( meta
           .getLineNumberFilesDestinationDirectory() ), meta.getLineNumberFilesExtension(), meta.getEncoding(), this ) );
     }
     if ( meta.getErrorFilesDestinationDirectory() != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getCurrentDate(), environmentSubstitute(
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), environmentSubstitute(
         meta.getErrorFilesDestinationDirectory() ), meta.getErrorLineFilesExtension(), meta.getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );

@@ -96,16 +96,12 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITrans
         } else {
           logError( message );
         }
-        if ( meta.isSafeStop() ) {
 
-          getPipeline().safeStop();
-        } else {
-          if ( meta.isAbortWithError() ) {
-            setErrors( 1 );
-          }
-
-          stopAll();
+        if ( meta.isAbortWithError() ) {
+          setErrors( 1 );
         }
+        stopAll();
+
       } else {
         // seen a row but not yet reached the threshold
         if ( meta.isAlwaysLogRows() ) {

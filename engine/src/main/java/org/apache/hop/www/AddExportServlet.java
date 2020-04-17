@@ -241,13 +241,6 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
           Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
 
-          // Do we need to expand the workflow when it's running?
-          // Note: the plugin (Workflow and Pipeline) actions need to call the delegation listeners in the parent workflow.
-          //
-          if ( workflowExecutionConfiguration.isExpandingRemoteJob() ) {
-            workflow.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getWorkflowMap() ) );
-          }
-
           // store it all in the map...
           //
           getWorkflowMap().addWorkflow(

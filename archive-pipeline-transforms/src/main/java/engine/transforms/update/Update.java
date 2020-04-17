@@ -489,13 +489,7 @@ public class Update extends BaseTransform implements ITransform {
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionID() );
-          }
-        } else {
-          data.db.connect( getPartitionID() );
-        }
+        data.db.connect( getPartitionID() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "Update.Log.ConnectedToDB" ) );

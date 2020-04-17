@@ -38,17 +38,15 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.IDelegationListener;
-import org.apache.hop.workflow.Workflow;
-import org.apache.hop.workflow.WorkflowExecutionConfiguration;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutor;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
 
 import java.util.ArrayList;
 
@@ -211,22 +209,13 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     // keep track for drill down in HopGui...
     //
-    getPipeline().getActiveSubjobs().put( getTransformName(), data.executorWorkflow );
+    getPipeline().addActiveSubWorkflow( getTransformName(), data.executorWorkflow );
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, data.executorWorkflow );
 
     data.executorWorkflow.beginProcessing();
 
     Result result = new Result();
-
-    // Inform the parent pipeline we delegated work here...
-    //
-    for ( IDelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
-      // TODO: copy some settings in the workflow execution configuration, not strictly needed
-      // but the execution configuration information is useful in case of a workflow re-start on HopServer
-      //
-      delegationListener.jobDelegationStarted( data.executorWorkflow, new WorkflowExecutionConfiguration() );
-    }
 
     // Now go execute this workflow
     //

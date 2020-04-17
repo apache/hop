@@ -92,7 +92,7 @@ public class PDI_2875_Test {
   @Test
   @Ignore // TODO try to fix this
   public void testVariableSubstitution() throws Exception {
-    doReturn( new Date() ).when( smh.pipeline ).getCurrentDate();
+    doReturn( new Date() ).when( smh.pipeline ).getExecutionStartDate();
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.setDefault();
     meta.allocate( 0,0,0 );

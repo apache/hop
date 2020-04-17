@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
@@ -1025,7 +1026,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

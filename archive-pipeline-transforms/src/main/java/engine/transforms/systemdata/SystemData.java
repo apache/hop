@@ -68,7 +68,7 @@ public class SystemData extends BaseTransform implements ITransform {
 
       switch ( meta.getFieldType()[ i ] ) {
         case TYPE_SYSTEM_INFO_SYSTEM_START:
-          row[ index ] = getPipeline().getCurrentDate();
+          row[ index ] = getPipeline().getExecutionStartDate();
           break;
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
           row[ index ] = new Date();

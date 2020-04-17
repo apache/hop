@@ -238,12 +238,12 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
   private void initErrorHandling() {
     List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<IFileErrorHandler>( 2 );
     if ( meta.errorHandling.lineNumberFilesDestinationDirectory != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getPipeline().getCurrentDate(),
+      dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(),
         environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
         meta.errorHandling.lineNumberFilesExtension, meta.getEncoding(), this ) );
     }
     if ( meta.errorHandling.errorFilesDestinationDirectory != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getCurrentDate(), environmentSubstitute(
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionEndDate(), environmentSubstitute(
         meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta
         .getEncoding(), this ) );
     }

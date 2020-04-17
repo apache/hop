@@ -117,11 +117,15 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   private void initServletStreamWriter() throws HopException {
     data.writer = null;
     try {
-      Writer writer = getPipeline().getServletPrintWriter();
-      if ( Utils.isEmpty( meta.getEncoding() ) ) {
-        data.writer = new WriterOutputStream( writer );
-      } else {
-        data.writer = new WriterOutputStream( writer, meta.getEncoding() );
+      if (getPipeline() instanceof Pipeline) {
+
+
+        Writer writer = ((Pipeline)getPipeline()).getServletPrintWriter();
+        if ( Utils.isEmpty( meta.getEncoding() ) ) {
+          data.writer = new WriterOutputStream( writer );
+        } else {
+          data.writer = new WriterOutputStream( writer, meta.getEncoding() );
+        }
       }
     } catch ( Exception e ) {
       throw new HopException( "Error opening new file : " + e.toString() );

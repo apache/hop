@@ -151,7 +151,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
       Database db = new Database( this, connection );
       db.shareVariablesWith( this );
       try {
-        db.connect( parentWorkflow.getTransactionId(), null );
+        db.connect();
         String realTablename = environmentSubstitute( tablename );
         String realSchemaname = environmentSubstitute( schemaname );
 

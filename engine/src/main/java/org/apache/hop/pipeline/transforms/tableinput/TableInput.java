@@ -332,13 +332,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
       data.db.setQueryLimit( Const.toInt( environmentSubstitute( meta.getRowLimit() ), 0 ) );
 
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( meta.getDatabaseMeta().isRequiringTransactionsOnQueries() ) {
           data.db.setCommit( 100 ); // needed for PGSQL it seems...

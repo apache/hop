@@ -170,11 +170,6 @@ public class Result implements Cloneable {
   private String logText;
 
   /**
-   * safe stop.
-   */
-  private boolean safeStop;
-
-  /**
    * Elapsed time of the ETL execution in milliseconds
    */
   private long elapsedTimeMillis;
@@ -885,24 +880,6 @@ public class Result implements Cloneable {
    */
   public void setLogText( String logText ) {
     this.logText = logText;
-  }
-
-  /**
-   * Sets flag for safe stopping a pipeline
-   *
-   * @return the safe stop flag
-   */
-  public boolean isSafeStop() {
-    return safeStop;
-  }
-
-  /**
-   * Returns the flag for safe stopping a pipeline
-   *
-   * @param safeStop the safe stop flag
-   */
-  public void setSafeStop( boolean safeStop ) {
-    this.safeStop = safeStop;
   }
 
   /**

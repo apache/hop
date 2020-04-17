@@ -219,7 +219,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         String status = pipeline.getStatus();
 
         SlaveServerPipelineStatus sstatus = new SlaveServerPipelineStatus( entry.getName(), entry.getId(), status );
-        sstatus.setLogDate( pipeline.getLogDate() );
+        sstatus.setLogDate( pipeline.getExecutionStartDate() );
         sstatus.setPaused( pipeline.isPaused() );
         serverStatus.getPipelineStatusList().add( sstatus );
       }
@@ -228,7 +228,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         Workflow workflow = getWorkflowMap().getWorkflow( entry );
         String status = workflow.getStatus();
         SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( entry.getName(), entry.getId(), status );
-        jobStatus.setLogDate( workflow.getLogDate() );
+        jobStatus.setLogDate( workflow.getExecutionStartDate() );
         serverStatus.getJobStatusList().add( jobStatus );
       }
 
@@ -340,8 +340,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
             Pipeline t1 = getPipelineMap().getPipeline( o1 );
             Pipeline t2 = getPipelineMap().getPipeline( o2 );
-            Date d1 = t1.getLogDate();
-            Date d2 = t2.getLogDate();
+            Date d1 = t1.getExecutionStartDate();
+            Date d2 = t2.getExecutionStartDate();
             // if both pipelines have last log date, desc sort by log date
             if ( d1 != null && d2 != null ) {
               int logDateCompare = d2.compareTo( d1 );
@@ -382,12 +382,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"cellTableCellStatus_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XmlHandler.date2string( pipeline.getLogDate() );
+          String dateStr = XmlHandler.date2string( pipeline.getExecutionStartDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">"
-            + ( pipeline.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
+            + ( pipeline.getExecutionStartDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
@@ -439,8 +439,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
             Workflow t1 = getWorkflowMap().getWorkflow( o1 );
             Workflow t2 = getWorkflowMap().getWorkflow( o2 );
-            Date d1 = t1.getLogDate();
-            Date d2 = t2.getLogDate();
+            Date d1 = t1.getExecutionStartDate();
+            Date d2 = t2.getExecutionStartDate();
             // if both workflows have last log date, desc sort by log date
             if ( d1 != null && d2 != null ) {
               int logDateCompare = d2.compareTo( d1 );
@@ -479,12 +479,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"j-cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
-          String dateStr = XmlHandler.date2string( workflow.getLogDate() );
+          String dateStr = XmlHandler.date2string( workflow.getExecutionStartDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
             + "id=\"j-cellTableCell_" + i + "\" class=\"cellTableCell " + tdClass + "\">"
-            + ( workflow.getLogDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
+            + ( workflow.getExecutionStartDate() == null ? "-" : dateStr.substring( 0, dateStr.indexOf( ' ' ) ) ) + "</td>" );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "

@@ -493,7 +493,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.batchMode =
           meta.useBatchUpdate()
             && data.commitSize > 0 && !meta.isReturningGeneratedKeys()
-            && !getPipelineMeta().isUsingUniqueConnections() && !data.useSafePoints;
+            && !data.useSafePoints;
 
         // Per PDI-6211 : give a warning that batch mode operation in combination with transform error handling can lead to
         // incorrectly processed rows.
@@ -519,13 +519,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.db = new Database( this, meta.getDatabaseMeta() );
         data.db.shareVariablesWith( this );
 
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( log.isBasic() ) {
           logBasic( "Connected to database [" + meta.getDatabaseMeta() + "] (commit=" + data.commitSize + ")" );

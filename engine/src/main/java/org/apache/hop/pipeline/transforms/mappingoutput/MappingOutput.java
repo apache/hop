@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
 import java.util.List;
 
@@ -45,17 +44,12 @@ public class MappingOutput
   implements ITransform<MappingOutputMeta, MappingOutputData> {
   private static Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private MappingOutputMeta meta;
-  private MappingOutputData data;
-
   public MappingOutput( TransformMeta transformMeta, MappingOutputMeta meta, MappingOutputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    this.meta = meta;
-    this.data = data;
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) {
@@ -69,8 +63,6 @@ public class MappingOutput
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.setOutputValueRenames( data.outputValueRenames );
-      meta.setInputValueRenames( data.inputValueRenames );
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
 
       //
@@ -110,41 +102,6 @@ public class MappingOutput
     }
 
     return true;
-  }
-
-  public void setConnectorTransforms( ITransform[] targetTransforms, List<MappingValueRename> inputValueRenames,
-                                      List<MappingValueRename> outputValueRenames ) {
-    for ( int i = 0; i < targetTransforms.length; i++ ) {
-
-      // OK, before we leave, make sure there is a rowset that covers the path to this target transform.
-      // We need to create a new IRowSet and add it to the Input RowSets of the target transform
-      //
-      BlockingRowSet rowSet = new BlockingRowSet( getPipeline().getRowSetSize() );
-
-      // This is always a single copy, but for source and target...
-      //
-      rowSet.setThreadNameFromToCopy( getTransformName(), 0, targetTransforms[ i ].getTransformName(), 0 );
-
-      // Make sure to connect it to both sides...
-      //
-      addRowSetToOutputRowSets( rowSet );
-
-      // Add the row set to the target transform as input.
-      // This will appropriately drain the buffer as data comes in.
-      // However, as an exception, we can't attach it to another mapping transform.
-      // We need to attach it to the appropriate mapping input transform.
-      // The main problem is that we can't do it here since we don't know that the other transform has initialized properly
-      // yet.
-      // This method is called during init() and we can't tell for sure it's done already.
-      // As such, we'll simply grab the remaining row sets at the Mapping#processRow() level and assign them to a
-      // Mapping Input transform.
-      //
-      targetTransforms[ i ].addRowSetToInputRowSets( rowSet );
-    }
-
-    data.inputValueRenames = inputValueRenames;
-    data.outputValueRenames = outputValueRenames;
-    data.targetTransforms = targetTransforms;
   }
 
 }

@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.annotations.PluginDialog;
@@ -867,7 +868,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

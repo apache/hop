@@ -613,13 +613,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
   private void connectDatabase( Database database ) throws HopDatabaseException {
     database.shareVariablesWith( this );
-    if ( getPipelineMeta().isUsingUniqueConnections() ) {
-      synchronized ( getPipeline() ) {
-        database.connect( getPipeline().getTransactionId(), getPartitionId() );
-      }
-    } else {
-      database.connect( getPartitionId() );
-    }
+    database.connect( getPartitionId() );
 
     database.setCommit( 100 ); // we never get a commit, but it just turns off auto-commit.
 

@@ -128,7 +128,6 @@ public class HopGuiWorkflowRunDelegate {
       //
       workflowMeta.setClearingLog( executionConfiguration.isClearingLog() );
       workflowMeta.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
-      workflowMeta.setExpandingRemoteWorkflow( executionConfiguration.isExpandingRemoteJob() );
 
       ILogChannel log = jobGraph.getWorkflowMeta().getLogChannel();
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowMetaExecutionStart.id, workflowMeta );

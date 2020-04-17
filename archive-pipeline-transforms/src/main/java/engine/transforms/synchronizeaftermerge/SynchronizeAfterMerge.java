@@ -890,13 +890,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
         data.db.shareVariablesWith( this );
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionID() );
-          }
-        } else {
-          data.db.connect( getPartitionID() );
-        }
+        data.db.connect( getPartitionID() );
         data.db.setCommit( data.commitSize );
 
         return true;

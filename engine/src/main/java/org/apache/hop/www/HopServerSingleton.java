@@ -157,11 +157,11 @@ public class HopServerSingleton {
 
                 // See if the pipeline is finished or stopped.
                 //
-                if ( pipeline != null && ( pipeline.isFinished() || pipeline.isStopped() ) && pipeline.getLogDate() != null ) {
+                if ( pipeline != null && ( pipeline.isFinished() || pipeline.isStopped() ) && pipeline.getExecutionStartDate() != null ) {
                   // check the last log time
                   //
                   int diffInMinutes =
-                    (int) Math.floor( ( System.currentTimeMillis() - pipeline.getLogDate().getTime() ) / 60000 );
+                    (int) Math.floor( ( System.currentTimeMillis() - pipeline.getExecutionStartDate().getTime() ) / 60000 );
                   if ( diffInMinutes >= objectTimeout ) {
                     // Let's remove this from the pipeline map...
                     //
@@ -175,7 +175,7 @@ public class HopServerSingleton {
                     // pipelineMap.deallocateServerSocketPorts(entry);
 
                     log.logMinimal( "Cleaned up pipeline "
-                      + entry.getName() + " with id " + entry.getId() + " from " + pipeline.getLogDate()
+                      + entry.getName() + " with id " + entry.getId() + " from " + pipeline.getExecutionStartDate()
                       + ", diff=" + diffInMinutes );
                   }
                 }
@@ -188,11 +188,11 @@ public class HopServerSingleton {
 
                 // See if the workflow is finished or stopped.
                 //
-                if ( workflow != null && ( workflow.isFinished() || workflow.isStopped() ) && workflow.getLogDate() != null ) {
+                if ( workflow != null && ( workflow.isFinished() || workflow.isStopped() ) && workflow.getExecutionStartDate() != null ) {
                   // check the last log time
                   //
                   int diffInMinutes =
-                    (int) Math.floor( ( System.currentTimeMillis() - workflow.getLogDate().getTime() ) / 60000 );
+                    (int) Math.floor( ( System.currentTimeMillis() - workflow.getExecutionStartDate().getTime() ) / 60000 );
                   if ( diffInMinutes >= objectTimeout ) {
                     // Let's remove this from the workflow map...
                     //
@@ -202,7 +202,7 @@ public class HopServerSingleton {
                     workflowMap.removeJob( entry );
 
                     log.logMinimal( "Cleaned up workflow "
-                      + entry.getName() + " with id " + entry.getId() + " from " + workflow.getLogDate() );
+                      + entry.getName() + " with id " + entry.getId() + " from " + workflow.getExecutionStartDate() );
                   }
                 }
               }

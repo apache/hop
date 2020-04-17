@@ -24,11 +24,8 @@ package org.apache.hop.pipeline.transforms.mappingoutput;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
-
-import java.util.List;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * @author Matt
@@ -40,8 +37,6 @@ public class MappingOutputData extends BaseTransformData implements ITransformDa
   public String[] outputField;
   public String[] outputMapping;
   public IRowMeta outputRowMeta;
-  public List<MappingValueRename> inputValueRenames;
-  public List<MappingValueRename> outputValueRenames;
 
   public MappingOutputData() {
     super();

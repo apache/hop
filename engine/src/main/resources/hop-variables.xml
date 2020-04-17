@@ -1,12 +1,6 @@
 <hop-variables>
 
   <hop-variable>
-    <description>Do not show the developer version warning dialog at Spoon startup?</description>
-    <variable>HOP_HIDE_DEVELOPMENT_VERSION_WARNING</variable>
-    <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to "Y", an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string.</description>
     <variable>HOP_LENIENT_STRING_TO_NUMBER_CONVERSION</variable>
     <default-value>N</default-value>
@@ -22,116 +16,6 @@
     <description>The log size limit for all pipelines and workflows that don't have the "log size limit" property set in their respective properties.</description>
     <variable>HOP_LOG_SIZE_LIMIT</variable>
     <default-value>0</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline log database connection default for all pipelines.</description>
-    <variable>HOP_TRANS_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline logging schema default for all pipelines</description>
-    <variable>HOP_TRANS_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline logging table default for all pipelines</description>
-    <variable>HOP_TRANS_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow log database connection default for all workflows</description>
-    <variable>HOP_JOB_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow logging schema default for all workflows</description>
-    <variable>HOP_JOB_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow logging table default for all workflows</description>
-    <variable>HOP_JOB_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline performance log schema default for all pipelines</description>
-    <variable>HOP_TRANS_PERFORMANCE_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline performance log database connection default for all pipelines</description>
-    <variable>HOP_TRANS_PERFORMANCE_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The pipeline performance log table default for all pipelines</description>
-    <variable>HOP_TRANS_PERFORMANCE_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow entry log database default for all workflows</description>
-    <variable>HOP_JOBENTRY_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow entry log schema default for all workflows</description>
-    <variable>HOP_JOBENTRY_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The workflow entry log table default for all workflows</description>
-    <variable>HOP_JOBENTRY_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The transforms log database default for all pipelines</description>
-    <variable>HOP_TRANSFORM_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The transforms log schema default for all pipelines</description>
-    <variable>HOP_TRANSFORM_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The transforms log table default for all pipelines</description>
-    <variable>HOP_TRANSFORM_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The log channel log database default for all pipelines and workflows</description>
-    <variable>HOP_CHANNEL_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The log channel log schema default for all pipelines and workflows</description>
-    <variable>HOP_CHANNEL_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The log channel log table default for all pipelines and workflows</description>
-    <variable>HOP_CHANNEL_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The metrics log database default for all pipelines and workflows</description>
-    <variable>HOP_METRICS_LOG_DB</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The metrics log schema default for all pipelines and workflows</description>
-    <variable>HOP_METRICS_LOG_SCHEMA</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The metrics log table default for all pipelines and workflows</description>
-    <variable>HOP_METRICS_LOG_TABLE</variable>
-  </hop-variable>
-
-  <hop-variable>
-    <description>The location of the shared object file (xml) for pipelines and workflows</description>
-    <variable>HOP_SHARED_OBJECTS</variable>
   </hop-variable>
 
   <hop-variable>
@@ -232,13 +116,13 @@
 
   <hop-variable>
     <description>This environment variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).</description>
-    <variable>HOP_CARTE_OBJECT_TIMEOUT_MINUTES</variable>
+    <variable>HOP_SERVER_OBJECT_TIMEOUT_MINUTES</variable>
     <default-value>1440</default-value>
   </hop-variable>
 
   <hop-variable>
     <description>Set this variable to an integer that will be returned as the Pan JVM exit code.</description>
-    <variable>HOP_TRANS_PAN_JVM_EXIT_CODE</variable>
+    <variable>HOP_PIPELINE_PAN_JVM_EXIT_CODE</variable>
     <default-value></default-value>
   </hop-variable>
 
@@ -246,12 +130,6 @@
     <description>Set this variable to Y to disable standard Hop logging to the console. (stdout)</description>
     <variable>HOP_DISABLE_CONSOLE_LOGGING</variable>
     <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <variable>PENTAHO_METASTORE_FOLDER</variable>
-    <description>You can specify an alternative location for the Pentaho client Metastore. This location defaults to $HOME/.pentaho/metastore when this variable is not set or empty.</description>
-    <default-value></default-value>
   </hop-variable>
 
   <hop-variable>
@@ -264,12 +142,6 @@
     <description>Set this variable to Y to redirect stdout to Hop logging.</description>
     <variable>HOP_REDIRECT_STDOUT</variable>
     <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Set this variable to point to the Simple JNDI folder containing a jdbc.properties file (default is simple-jndi).</description>
-    <variable>HOP_JNDI_ROOT</variable>
-    <default-value></default-value>
   </hop-variable>
 
   <hop-variable>
@@ -364,17 +236,17 @@
 
   <hop-variable>
     <description>A variable to configure jetty option: acceptors for Carte</description>
-    <variable>HOP_CARTE_JETTY_ACCEPTORS</variable>
+    <variable>HOP_SERVER_JETTY_ACCEPTORS</variable>
   </hop-variable>
 
   <hop-variable>
     <description>A variable to configure jetty option: acceptQueueSize for Carte</description>
-    <variable>HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE</variable>
+    <variable>HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE</variable>
   </hop-variable>
 
   <hop-variable>
     <description>A variable to configure jetty option: lowResourcesMaxIdleTime for Carte</description>
-    <variable>HOP_CARTE_JETTY_RES_MAX_IDLE_TIME</variable>
+    <variable>HOP_SERVER_JETTY_RES_MAX_IDLE_TIME</variable>
   </hop-variable>
 
   <hop-variable>

@@ -199,7 +199,7 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
       db.shareVariablesWith( this );
       try {
         String theSQL = null;
-        db.connect( parentWorkflow.getTransactionId(), null );
+        db.connect();
 
         if ( sqlfromfile ) {
           if ( sqlfilename == null ) {
