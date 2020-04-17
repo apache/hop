@@ -243,9 +243,8 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
         meta.errorHandling.lineNumberFilesExtension, meta.getEncoding(), this ) );
     }
     if ( meta.errorHandling.errorFilesDestinationDirectory != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionEndDate(), environmentSubstitute(
-        meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta
-        .getEncoding(), this ) );
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), environmentSubstitute(
+        meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta.getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );
   }
