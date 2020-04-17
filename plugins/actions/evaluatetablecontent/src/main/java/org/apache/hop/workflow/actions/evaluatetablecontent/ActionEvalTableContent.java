@@ -264,7 +264,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
       Database db = new Database( this, connection );
       db.shareVariablesWith( this );
       try {
-        db.connect( parentWorkflow.getTransactionId(), null );
+        db.connect();
 
         if ( useCustomSQL ) {
           String realCustomSQL = customSQL;

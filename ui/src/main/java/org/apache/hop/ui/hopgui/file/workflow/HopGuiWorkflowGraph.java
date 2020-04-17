@@ -2945,7 +2945,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     WorkflowDialog jd = new WorkflowDialog( hopUi.getShell(), SWT.NONE, workflowMeta );
-    jd.setDirectoryChangeAllowed( allowDirectoryChange );
     if ( jd.open() != null ) {
       // If we added properties, add them to the variables too, so that they appear in the CTRL-SPACE variable completion.
       //

@@ -33,7 +33,6 @@ import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
@@ -41,7 +40,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
-import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -54,17 +52,10 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.logging.MetricsLogTable;
-import org.apache.hop.core.logging.PerformanceLogTable;
-import org.apache.hop.core.logging.PipelineLogTable;
-import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
@@ -89,7 +80,6 @@ import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transforms.mapping.MappingMeta;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta;
@@ -149,11 +139,6 @@ public class PipelineMeta extends AbstractMeta
   protected List<PipelineHopMeta> hops;
 
   /**
-   * The list of dependencies associated with the pipeline.
-   */
-  protected List<PipelineDependency> dependencies;
-
-  /**
    * The list of partition schemas associated with the pipeline.
    */
   private List<PartitionSchema> partitionSchemas;
@@ -169,54 +154,9 @@ public class PipelineMeta extends AbstractMeta
   protected int pipelineStatus;
 
   /**
-   * The pipeline logging table associated with the pipeline.
-   */
-  protected PipelineLogTable pipelineLogTable;
-
-  /**
-   * The performance logging table associated with the pipeline.
-   */
-  protected PerformanceLogTable performanceLogTable;
-
-  /**
-   * The transform logging table associated with the pipeline.
-   */
-  protected TransformLogTable transformLogTable;
-
-  /**
-   * The metricslogging table associated with the pipeline.
-   */
-  protected MetricsLogTable metricsLogTable;
-
-  /**
    * The size of the current rowset.
    */
-  protected int sizeRowset;
-
-  /**
-   * The meta-data for the database connection associated with "max date" auditing information.
-   */
-  protected DatabaseMeta maxDateConnection;
-
-  /**
-   * The table name associated with "max date" auditing information.
-   */
-  protected String maxDateTable;
-
-  /**
-   * The field associated with "max date" auditing information.
-   */
-  protected String maxDateField;
-
-  /**
-   * The amount by which to increase the "max date" value.
-   */
-  protected double maxDateOffset;
-
-  /**
-   * The maximum date difference used for "max date" auditing and limiting workflow sizes.
-   */
-  protected double maxDateDifference;
+  protected int sizeRowSet;
 
   /**
    * A table of named counters.
@@ -232,11 +172,6 @@ public class PipelineMeta extends AbstractMeta
   protected boolean changedTransforms, changedHops;
 
   /**
-   * The database cache.
-   */
-  protected DbCache dbCache;
-
-  /**
    * The time (in nanoseconds) to wait when the input buffer is empty.
    */
   protected int sleepTimeEmpty;
@@ -250,11 +185,6 @@ public class PipelineMeta extends AbstractMeta
    * The previous result.
    */
   protected Result previousResult;
-
-  /**
-   * Whether the pipeline is using unique connections.
-   */
-  protected boolean usingUniqueConnections;
 
   /**
    * Flag to indicate thread management usage. Set to default to false from version 2.5.0 on. Before that it was enabled
@@ -551,7 +481,6 @@ public class PipelineMeta extends AbstractMeta
         pipelineMeta.transforms = new ArrayList<>();
         pipelineMeta.hops = new ArrayList<>();
         pipelineMeta.notes = new ArrayList<>();
-        pipelineMeta.dependencies = new ArrayList<>();
         pipelineMeta.partitionSchemas = new ArrayList<>();
         pipelineMeta.namedParams = new NamedParamsDefault();
         pipelineMeta.transformChangeListeners = new ArrayList<>();
@@ -581,9 +510,6 @@ public class PipelineMeta extends AbstractMeta
       for ( NotePadMeta note : notes ) {
         pipelineMeta.addNote( (NotePadMeta) note.clone() );
       }
-      for ( PipelineDependency dep : dependencies ) {
-        pipelineMeta.addDependency( (PipelineDependency) dep.clone() );
-      }
       for ( PartitionSchema schema : partitionSchemas ) {
         pipelineMeta.getPartitionSchemas().add( (PartitionSchema) schema.clone() );
       }
@@ -607,7 +533,6 @@ public class PipelineMeta extends AbstractMeta
   public void clear() {
     transforms = new ArrayList<>();
     hops = new ArrayList<>();
-    dependencies = new ArrayList<>();
     partitionSchemas = new ArrayList<>();
     namedParams = new NamedParamsDefault();
     transformChangeListeners = new ArrayList<>();
@@ -615,30 +540,15 @@ public class PipelineMeta extends AbstractMeta
     pipelineStatus = -1;
     pipelineVersion = null;
 
-    pipelineLogTable = PipelineLogTable.getDefault( this, metaStore, transforms );
-    performanceLogTable = PerformanceLogTable.getDefault( this, metaStore );
-    transformLogTable = TransformLogTable.getDefault( this, metaStore );
-    metricsLogTable = MetricsLogTable.getDefault( this, metaStore );
-
-    sizeRowset = Const.ROWS_IN_ROWSET;
+    sizeRowSet = Const.ROWS_IN_ROWSET;
     sleepTimeEmpty = Const.TIMEOUT_GET_MILLIS;
     sleepTimeFull = Const.TIMEOUT_PUT_MILLIS;
-
-    maxDateConnection = null;
-    maxDateTable = null;
-    maxDateField = null;
-    maxDateOffset = 0.0;
-
-    maxDateDifference = 0.0;
 
     undo = new ArrayList<>();
     max_undo = Const.MAX_UNDO;
     undo_position = -1;
 
     super.clear();
-
-    // LOAD THE DATABASE CACHE!
-    dbCache = DbCache.getInstance();
 
     // Thread priority:
     // - set to false in version 2.5.0
@@ -712,15 +622,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Add a new dependency to the pipeline.
-   *
-   * @param td The pipeline dependency to be added.
-   */
-  public void addDependency( PipelineDependency td ) {
-    dependencies.add( td );
-  }
-
-  /**
    * Add a new transform to the pipeline at the specified index. This method sets the transform's parent pipeline to
    * the this pipeline, and marks that the pipelines' transforms have changed.
    *
@@ -753,16 +654,6 @@ public class PipelineMeta extends AbstractMeta
     }
     changedHops = true;
     clearCaches();
-  }
-
-  /**
-   * Add a new dependency to the pipeline on a certain location (i.e. the specified index).
-   *
-   * @param p  The index into the dependencies list.
-   * @param td The pipeline dependency to be added.
-   */
-  public void addDependency( int p, PipelineDependency td ) {
-    dependencies.add( p, td );
   }
 
   /**
@@ -801,16 +692,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public PipelineHopMeta getPipelineHop( int i ) {
     return hops.get( i );
-  }
-
-  /**
-   * Retrieves a dependency on a certain location (i.e. the specified index).
-   *
-   * @param i The index into the dependencies list.
-   * @return The dependency object.
-   */
-  public PipelineDependency getDependency( int i ) {
-    return dependencies.get( i );
   }
 
   /**
@@ -869,25 +750,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Removes a dependency from the pipeline on a certain location (i.e. the specified index).
-   *
-   * @param i The location
-   */
-  public void removeDependency( int i ) {
-    if ( i < 0 || i >= dependencies.size() ) {
-      return;
-    }
-    dependencies.remove( i );
-  }
-
-  /**
-   * Clears all the dependencies from the pipeline.
-   */
-  public void removeAllDependencies() {
-    dependencies.clear();
-  }
-
-  /**
    * Gets the number of transforms in the pipeline.
    *
    * @return The number of transforms in the pipeline.
@@ -903,15 +765,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public int nrPipelineHops() {
     return hops.size();
-  }
-
-  /**
-   * Gets the number of dependencies in the pipeline.
-   *
-   * @return The number of dependencies in the pipeline.
-   */
-  public int nrDependencies() {
-    return dependencies.size();
   }
 
   /**
@@ -1948,9 +1801,6 @@ public class PipelineMeta extends AbstractMeta
   private void setMetaStoreOnMappingTransforms() {
 
     for ( TransformMeta transform : transforms ) {
-      if ( transform.getTransformMetaInterface() instanceof MappingMeta ) {
-        ( (MappingMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
-      }
       if ( transform.getTransformMetaInterface() instanceof SingleThreaderMeta ) {
         ( (SingleThreaderMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
@@ -2013,7 +1863,7 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml() throws HopException {
-    return getXML( true, true, true, true, true, true );
+    return getXML( true, true, true, true );
   }
 
   /**
@@ -2022,15 +1872,13 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param includeTransforms      whether to include transform data
    * @param includeNamedParameters whether to include named parameters data
-   * @param includeLog             whether to include log data
-   * @param includeDependencies    whether to include dependencies data
    * @param includeNotePads        whether to include notepads data
    * @param includeAttributeGroups whether to include attributes map data
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
    */
   public String getXML( boolean includeTransforms,
-                        boolean includeNamedParameters, boolean includeLog, boolean includeDependencies,
+                        boolean includeNamedParameters,
                         boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
 
     Props props = null;
@@ -2069,35 +1917,10 @@ public class PipelineMeta extends AbstractMeta
       retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     }
 
-    if ( includeLog ) {
-      retval.append( "    " ).append( XmlHandler.openTag( "log" ) ).append( Const.CR );
-
-      // Add the metadata for the various logging tables
-      //
-      retval.append( pipelineLogTable.getXml() );
-      retval.append( performanceLogTable.getXml() );
-      retval.append( channelLogTable.getXml() );
-      retval.append( transformLogTable.getXml() );
-      retval.append( metricsLogTable.getXml() );
-
-      retval.append( "    " ).append( XmlHandler.closeTag( "log" ) ).append( Const.CR );
-    }
-
-    retval.append( "    " ).append( XmlHandler.openTag( "maxdate" ) ).append( Const.CR );
-    retval.append( "      " )
-      .append( XmlHandler.addTagValue( "connection", maxDateConnection == null ? "" : maxDateConnection.getName() ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "table", maxDateTable ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "field", maxDateField ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "offset", maxDateOffset ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "maxdiff", maxDateDifference ) );
-    retval.append( "    " ).append( XmlHandler.closeTag( "maxdate" ) ).append( Const.CR );
-
-    retval.append( "    " ).append( XmlHandler.addTagValue( "size_rowset", sizeRowset ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "size_rowset", sizeRowSet ) );
 
     retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_empty", sleepTimeEmpty ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_full", sleepTimeFull ) );
-
-    retval.append( "    " ).append( XmlHandler.addTagValue( "unique_connections", usingUniqueConnections ) );
 
     retval.append( "    " ).append( XmlHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
 
@@ -2109,15 +1932,6 @@ public class PipelineMeta extends AbstractMeta
       .append( XmlHandler.addTagValue( "transform_performance_capturing_delay", transformPerformanceCapturingDelay ) );
     retval.append( "    " )
       .append( XmlHandler.addTagValue( "transform_performance_capturing_size_limit", transformPerformanceCapturingSizeLimit ) );
-
-    if ( includeDependencies ) {
-      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
-      for ( int i = 0; i < nrDependencies(); i++ ) {
-        PipelineDependency td = getDependency( i );
-        retval.append( td.getXml() );
-      }
-      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_DEPENDENCIES ) ).append( Const.CR );
-    }
 
     retval.append( "    " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
@@ -2442,90 +2256,6 @@ public class PipelineMeta extends AbstractMeta
         String pipelineTypeCode = XmlHandler.getTagValue( infonode, "pipeline_type" );
         pipelineType = PipelineType.getPipelineTypeByCode( pipelineTypeCode );
 
-        // Read logging table information
-        //
-        Node logNode = XmlHandler.getSubNode( infonode, "log" );
-        if ( logNode != null ) {
-
-          // Backward compatibility...
-          //
-          Node pipelineLogNode = XmlHandler.getSubNode( logNode, PipelineLogTable.XML_TAG );
-          if ( pipelineLogNode == null ) {
-            // Load the XML
-            //
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_READ )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "read" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_WRITTEN )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "write" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_INPUT )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "input" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_OUTPUT )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "output" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_UPDATED )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "update" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED )
-              .setSubject( findTransform( XmlHandler.getTagValue( infonode, "log", "rejected" ) ) );
-
-            pipelineLogTable.setConnectionName( XmlHandler.getTagValue( infonode, "log", "connection" ) );
-            pipelineLogTable.setSchemaName( XmlHandler.getTagValue( infonode, "log", "schema" ) );
-            pipelineLogTable.setTableName( XmlHandler.getTagValue( infonode, "log", "table" ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.ID_BATCH )
-              .setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "log", "use_batchid" ) ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.LOG_FIELD )
-              .setEnabled( "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "log", "USE_LOGFIELD" ) ) );
-            pipelineLogTable.setLogSizeLimit( XmlHandler.getTagValue( infonode, "log", "size_limit_lines" ) );
-            pipelineLogTable.setLogInterval( XmlHandler.getTagValue( infonode, "log", "interval" ) );
-            pipelineLogTable.findField( PipelineLogTable.ID.CHANNEL_ID ).setEnabled( false );
-            pipelineLogTable.findField( PipelineLogTable.ID.LINES_REJECTED ).setEnabled( false );
-            performanceLogTable.setConnectionName( pipelineLogTable.getConnectionName() );
-            performanceLogTable.setTableName( XmlHandler.getTagValue( infonode, "log", "transform_performance_table" ) );
-          } else {
-            pipelineLogTable.loadXml( pipelineLogNode, transforms );
-          }
-          Node perfLogNode = XmlHandler.getSubNode( logNode, PerformanceLogTable.XML_TAG );
-          if ( perfLogNode != null ) {
-            performanceLogTable.loadXml( perfLogNode, transforms );
-          }
-          Node channelLogNode = XmlHandler.getSubNode( logNode, ChannelLogTable.XML_TAG );
-          if ( channelLogNode != null ) {
-            channelLogTable.loadXml( channelLogNode, transforms );
-          }
-          Node transformLogNode = XmlHandler.getSubNode( logNode, TransformLogTable.XML_TAG );
-          if ( transformLogNode != null ) {
-            transformLogTable.loadXml( transformLogNode, transforms );
-          }
-          Node metricsLogNode = XmlHandler.getSubNode( logNode, MetricsLogTable.XML_TAG );
-          if ( metricsLogNode != null ) {
-            metricsLogTable.loadXml( metricsLogNode, transforms );
-          }
-        }
-
-        // Maxdate range options...
-        String maxdatcon = XmlHandler.getTagValue( infonode, "maxdate", "connection" );
-        maxDateConnection = findDatabase( maxdatcon );
-        maxDateTable = XmlHandler.getTagValue( infonode, "maxdate", "table" );
-        maxDateField = XmlHandler.getTagValue( infonode, "maxdate", "field" );
-        String offset = XmlHandler.getTagValue( infonode, "maxdate", "offset" );
-        maxDateOffset = Const.toDouble( offset, 0.0 );
-        String mdiff = XmlHandler.getTagValue( infonode, "maxdate", "maxdiff" );
-        maxDateDifference = Const.toDouble( mdiff, 0.0 );
-
-        // Check the dependencies as far as dates are concerned...
-        // We calculate BEFORE we run the MAX of these dates
-        // If the date is larger then enddate, startdate is set to MIN_DATE
-        //
-        Node depsNode = XmlHandler.getSubNode( infonode, XML_TAG_DEPENDENCIES );
-        int nrDeps = XmlHandler.countNodes( depsNode, PipelineDependency.XML_TAG );
-
-        for ( int i = 0; i < nrDeps; i++ ) {
-          Node depNode = XmlHandler.getSubNodeByNr( depsNode, PipelineDependency.XML_TAG, i );
-
-          PipelineDependency pipelineDependency = new PipelineDependency( depNode, getDatabases() );
-          if ( pipelineDependency.getDatabase() != null && pipelineDependency.getFieldname() != null ) {
-            addDependency( pipelineDependency );
-          }
-        }
-
         // Read the named parameters.
         Node paramsNode = XmlHandler.getSubNode( infonode, XML_TAG_PARAMETERS );
         int nrParams = XmlHandler.countNodes( paramsNode, "parameter" );
@@ -2552,11 +2282,10 @@ public class PipelineMeta extends AbstractMeta
         }
 
         String srowset = XmlHandler.getTagValue( infonode, "size_rowset" );
-        sizeRowset = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
+        sizeRowSet = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
         sleepTimeEmpty =
           Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
         sleepTimeFull = Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
-        usingUniqueConnections = "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "unique_connections" ) );
 
         usingThreadPriorityManagment = !"N".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
@@ -3452,55 +3181,6 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    // Also check the sql for the logtable...
-    //
-    if ( monitor != null ) {
-      monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForPipelineTask.Title2" ) );
-    }
-    if ( pipelineLogTable.getDatabaseMeta() != null && ( !Utils.isEmpty( pipelineLogTable.getTableName() ) || !Utils
-      .isEmpty( performanceLogTable.getTableName() ) ) ) {
-      try {
-        for ( ILogTable logTable : new ILogTable[] { pipelineLogTable, performanceLogTable,
-          channelLogTable, transformLogTable, } ) {
-          if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
-
-            Database db = null;
-            try {
-              db = new Database( this, pipelineLogTable.getDatabaseMeta() );
-              db.shareVariablesWith( this );
-              db.connect();
-
-              IRowMeta fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
-              String
-                schemaTable =
-                logTable.getDatabaseMeta()
-                  .getQuotedSchemaTableCombination( logTable.getSchemaName(), logTable.getTableName() );
-              String sql = db.getDDL( schemaTable, fields );
-              if ( !Utils.isEmpty( sql ) ) {
-                SqlStatement stat = new SqlStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), sql );
-                stats.add( stat );
-              }
-            } catch ( Exception e ) {
-              throw new HopDatabaseException(
-                "Unable to connect to logging database [" + logTable.getDatabaseMeta() + "]", e );
-            } finally {
-              if ( db != null ) {
-                db.disconnect();
-              }
-            }
-          }
-        }
-      } catch ( HopDatabaseException dbe ) {
-        SqlStatement stat = new SqlStatement( "<this pipeline>", pipelineLogTable.getDatabaseMeta(), null );
-        stat.setError(
-          BaseMessages.getString( PKG, "PipelineMeta.SQLStatement.ErrorDesc.ErrorObtainingPipelineLogTableInfo" )
-            + dbe.getMessage() );
-        stats.add( stat );
-      }
-    }
-    if ( monitor != null ) {
-      monitor.worked( 1 );
-    }
     if ( monitor != null ) {
       monitor.done();
     }
@@ -3698,73 +3378,6 @@ public class PipelineMeta extends AbstractMeta
         }
       }
 
-      // Also, check the logging table of the pipeline...
-      if ( monitor == null || !monitor.isCanceled() ) {
-        if ( monitor != null ) {
-          monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.CheckingTheLoggingTableTask.Title" ) );
-        }
-        if ( pipelineLogTable.getDatabaseMeta() != null ) {
-          Database logdb = new Database( this, pipelineLogTable.getDatabaseMeta() );
-          logdb.shareVariablesWith( this );
-          try {
-            logdb.connect();
-            CheckResult
-              cr =
-              new CheckResult( ICheckResult.TYPE_RESULT_OK,
-                BaseMessages.getString( PKG, "PipelineMeta.CheckResult.TypeResultOK.ConnectingWorks.Description" ),
-                null );
-            remarks.add( cr );
-
-            if ( pipelineLogTable.getTableName() != null ) {
-              if ( logdb.checkTableExists( pipelineLogTable.getSchemaName(), pipelineLogTable.getTableName() ) ) {
-                cr =
-                  new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages
-                    .getString( PKG, "PipelineMeta.CheckResult.TypeResultOK.LoggingTableExists.Description",
-                      pipelineLogTable.getTableName() ), null );
-                remarks.add( cr );
-
-                IRowMeta fields = pipelineLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
-                String sql = logdb.getDDL( pipelineLogTable.getTableName(), fields );
-                if ( sql == null || sql.length() == 0 ) {
-                  cr =
-                    new CheckResult( ICheckResult.TYPE_RESULT_OK,
-                      BaseMessages.getString( PKG, "PipelineMeta.CheckResult.TypeResultOK.CorrectLayout.Description" ),
-                      null );
-                  remarks.add( cr );
-                } else {
-                  cr =
-                    new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                      "PipelineMeta.CheckResult.TypeResultError.LoggingTableNeedsAdjustments.Description" ) + Const.CR
-                      + sql, null );
-                  remarks.add( cr );
-                }
-
-              } else {
-                cr =
-                  new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages
-                    .getString( PKG, "PipelineMeta.CheckResult.TypeResultError.LoggingTableDoesNotExist.Description" ),
-                    null );
-                remarks.add( cr );
-              }
-            } else {
-              cr =
-                new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages
-                  .getString( PKG, "PipelineMeta.CheckResult.TypeResultError.LogTableNotSpecified.Description" ),
-                  null );
-              remarks.add( cr );
-            }
-          } catch ( HopDatabaseException dbe ) {
-            // Ignore errors
-          } finally {
-            logdb.disconnect();
-          }
-        }
-        if ( monitor != null ) {
-          monitor.worked( 1 );
-        }
-
-      }
-
       if ( monitor != null ) {
         monitor.subTask( BaseMessages
           .getString( PKG, "PipelineMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title" ) );
@@ -3795,153 +3408,8 @@ public class PipelineMeta extends AbstractMeta
       log.logError( Const.getStackTracker( e ) );
       throw new RuntimeException( e );
     }
-
   }
 
-  /**
-   * Gets a list of dependencies for the pipeline
-   *
-   * @return a list of the dependencies for the pipeline
-   */
-  public List<PipelineDependency> getDependencies() {
-    return dependencies;
-  }
-
-  /**
-   * Sets the dependencies for the pipeline.
-   *
-   * @param dependencies The dependency list to set.
-   */
-  public void setDependencies( List<PipelineDependency> dependencies ) {
-    this.dependencies = dependencies;
-  }
-
-  /**
-   * Gets the database connection associated with "max date" processing. The connection, along with a specified table
-   * and field, allows for the filtering of the number of rows to process in a pipeline by time, such as only
-   * processing the rows/records since the last time the pipeline ran correctly. This can be used for auditing and
-   * throttling data during warehousing operations.
-   *
-   * @return Returns the meta-data associated with the most recent database connection.
-   */
-  public DatabaseMeta getMaxDateConnection() {
-    return maxDateConnection;
-  }
-
-  /**
-   * Sets the database connection associated with "max date" processing.
-   *
-   * @param maxDateConnection the database meta-data to set
-   * @see #getMaxDateConnection()
-   */
-  public void setMaxDateConnection( DatabaseMeta maxDateConnection ) {
-    this.maxDateConnection = maxDateConnection;
-  }
-
-  /**
-   * Gets the maximum date difference between start and end dates for row/record processing. This can be used for
-   * auditing and throttling data during warehousing operations.
-   *
-   * @return the maximum date difference
-   */
-  public double getMaxDateDifference() {
-    return maxDateDifference;
-  }
-
-  /**
-   * Sets the maximum date difference between start and end dates for row/record processing.
-   *
-   * @param maxDateDifference The date difference to set.
-   * @see #getMaxDateDifference()
-   */
-  public void setMaxDateDifference( double maxDateDifference ) {
-    this.maxDateDifference = maxDateDifference;
-  }
-
-  /**
-   * Gets the date field associated with "max date" processing. This allows for the filtering of the number of rows to
-   * process in a pipeline by time, such as only processing the rows/records since the last time the
-   * pipeline ran correctly. This can be used for auditing and throttling data during warehousing operations.
-   *
-   * @return a string representing the date for the most recent database connection.
-   * @see #getMaxDateConnection()
-   */
-  public String getMaxDateField() {
-    return maxDateField;
-  }
-
-  /**
-   * Sets the date field associated with "max date" processing.
-   *
-   * @param maxDateField The date field to set.
-   * @see #getMaxDateField()
-   */
-  public void setMaxDateField( String maxDateField ) {
-    this.maxDateField = maxDateField;
-  }
-
-  /**
-   * Gets the amount by which to increase the "max date" difference. This is used in "max date" processing, and can be
-   * used to provide more fine-grained control of the date range. For example, if the end date specifies a minute for
-   * which the data is not complete, you can "roll-back" the end date by one minute by
-   *
-   * @return Returns the maxDateOffset.
-   * @see #setMaxDateOffset(double)
-   */
-  public double getMaxDateOffset() {
-    return maxDateOffset;
-  }
-
-  /**
-   * Sets the amount by which to increase the end date in "max date" processing. This can be used to provide more
-   * fine-grained control of the date range. For example, if the end date specifies a minute for which the data is not
-   * complete, you can "roll-back" the end date by one minute by setting the offset to -60.
-   *
-   * @param maxDateOffset The maxDateOffset to set.
-   */
-  public void setMaxDateOffset( double maxDateOffset ) {
-    this.maxDateOffset = maxDateOffset;
-  }
-
-  /**
-   * Gets the database table providing a date to be used in "max date" processing. This allows for the filtering of the
-   * number of rows to process in a pipeline by time, such as only processing the rows/records since the last time
-   * the pipeline ran correctly.
-   *
-   * @return Returns the maxDateTable.
-   * @see #getMaxDateConnection()
-   */
-  public String getMaxDateTable() {
-    return maxDateTable;
-  }
-
-  /**
-   * Sets the table name associated with "max date" processing.
-   *
-   * @param maxDateTable The maxDateTable to set.
-   * @see #getMaxDateTable()
-   */
-  public void setMaxDateTable( String maxDateTable ) {
-    this.maxDateTable = maxDateTable;
-  }
-
-  /**
-   * Gets the database cache object.
-   *
-   * @return the database cache object.
-   */
-  public DbCache getDbCache() {
-    return dbCache;
-  }
-
-  /**
-   * Sets the database cache object.
-   *
-   * @param dbCache the database cache object to set
-   */
-  public void setDbCache( DbCache dbCache ) {
-    this.dbCache = dbCache;
-  }
 
   /**
    * Gets the version of the pipeline.
@@ -4171,25 +3639,6 @@ public class PipelineMeta extends AbstractMeta
    */
   public List<PartitionSchema> getPartitionSchemas() {
     return partitionSchemas;
-  }
-
-
-  /**
-   * Checks if the pipeline is using unique database connections.
-   *
-   * @return true if the pipeline is using unique database connections, false otherwise
-   */
-  public boolean isUsingUniqueConnections() {
-    return usingUniqueConnections;
-  }
-
-  /**
-   * Sets whether the pipeline is using unique database connections.
-   *
-   * @param usingUniqueConnections true if the pipeline is using unique database connections, false otherwise
-   */
-  public void setUsingUniqueConnections( boolean usingUniqueConnections ) {
-    this.usingUniqueConnections = usingUniqueConnections;
   }
 
   /**
@@ -4643,75 +4092,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the log table for the pipeline.
-   *
-   * @return the log table for the pipeline
-   */
-  public PipelineLogTable getPipelineLogTable() {
-    return pipelineLogTable;
-  }
-
-  /**
-   * Sets the log table for the pipeline.
-   *
-   * @param pipelineLogTable the log table to set
-   */
-  public void setPipelineLogTable( PipelineLogTable pipelineLogTable ) {
-    this.pipelineLogTable = pipelineLogTable;
-  }
-
-  /**
-   * Gets the performance log table for the pipeline.
-   *
-   * @return the performance log table for the pipeline
-   */
-  public PerformanceLogTable getPerformanceLogTable() {
-    return performanceLogTable;
-  }
-
-  /**
-   * Sets the performance log table for the pipeline.
-   *
-   * @param performanceLogTable the performance log table to set
-   */
-  public void setPerformanceLogTable( PerformanceLogTable performanceLogTable ) {
-    this.performanceLogTable = performanceLogTable;
-  }
-
-  /**
-   * Gets the transform log table for the pipeline.
-   *
-   * @return the transform log table for the pipeline
-   */
-  public TransformLogTable getTransformLogTable() {
-    return transformLogTable;
-  }
-
-  /**
-   * Sets the transform log table for the pipeline.
-   *
-   * @param transformLogTable the transform log table to set
-   */
-  public void setTransformLogTable( TransformLogTable transformLogTable ) {
-    this.transformLogTable = transformLogTable;
-  }
-
-  /**
-   * Gets a list of the log tables (pipeline, transform, performance, channel) for the pipeline.
-   *
-   * @return a list of LogTableInterfaces for the pipeline
-   */
-  public List<ILogTable> getLogTables() {
-    List<ILogTable> logTables = new ArrayList<>();
-    logTables.add( pipelineLogTable );
-    logTables.add( transformLogTable );
-    logTables.add( performanceLogTable );
-    logTables.add( channelLogTable );
-    logTables.add( metricsLogTable );
-    return logTables;
-  }
-
-  /**
    * Gets the pipeline type.
    *
    * @return the pipelineType
@@ -4752,20 +4132,6 @@ public class PipelineMeta extends AbstractMeta
         }
       }
     }
-  }
-
-  /**
-   * @return the metricsLogTable
-   */
-  public MetricsLogTable getMetricsLogTable() {
-    return metricsLogTable;
-  }
-
-  /**
-   * @param metricsLogTable the metricsLogTable to set
-   */
-  public void setMetricsLogTable( MetricsLogTable metricsLogTable ) {
-    this.metricsLogTable = metricsLogTable;
   }
 
   @Override
@@ -4858,50 +4224,6 @@ public class PipelineMeta extends AbstractMeta
     return missingPipeline != null && !missingPipeline.isEmpty();
   }
 
-  /**
-   * @return
-   */
-  public int getCacheVersion() throws HopException {
-    HashCodeBuilder hashCodeBuilder = new HashCodeBuilder( 17, 31 )
-      // info
-      .append( this.getName() )
-      .append( this.getPipelineType() )
-      .append( this.getSleepTimeEmpty() )
-      .append( this.getSleepTimeFull() )
-      .append( this.isUsingUniqueConnections() )
-      .append( this.isUsingThreadPriorityManagment() )
-      .append( this.isCapturingTransformPerformanceSnapShots() )
-      .append( this.getTransformPerformanceCapturingDelay() )
-      .append( this.getTransformPerformanceCapturingSizeLimit() )
-
-      .append( this.getMaxDateConnection() )
-      .append( this.getMaxDateTable() )
-      .append( this.getMaxDateField() )
-      .append( this.getMaxDateOffset() )
-      .append( this.getMaxDateDifference() )
-
-      .append( this.getDependencies() )
-      .append( this.getPartitionSchemas() )
-
-      .append( this.nrPipelineHops() )
-
-      // transforms
-      .append( this.getTransforms().size() )
-      .append( this.getTransformNames() )
-
-      // hops
-      .append( this.hops );
-
-    List<TransformMeta> transforms = this.getTransforms();
-
-    for ( TransformMeta transform : transforms ) {
-      hashCodeBuilder
-        .append( transform.getName() )
-        .append( transform.getTransformMetaInterface().getXml() )
-        .append( transform.isDoingErrorHandling() );
-    }
-    return hashCodeBuilder.toHashCode();
-  }
 
   private static String getTransformMetaCacheKey( TransformMeta transformMeta, boolean info ) {
     return String.format( "%1$b-%2$s-%3$s", info, transformMeta.getTransformPluginId(), transformMeta.toString() );

@@ -29,7 +29,6 @@ import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.lifecycle.HopLifecycleSupport;
-import org.apache.hop.core.logging.LogTablePluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
@@ -87,7 +86,6 @@ public class HopEnvironment {
       PartitionerPluginType.getInstance(),
       ActionPluginType.getInstance(),
       ActionDialogFragmentType.getInstance(),
-      LogTablePluginType.getInstance(),
       LifecyclePluginType.getInstance(),
       HopLifecyclePluginType.getInstance(),
       HopServerPluginType.getInstance(),

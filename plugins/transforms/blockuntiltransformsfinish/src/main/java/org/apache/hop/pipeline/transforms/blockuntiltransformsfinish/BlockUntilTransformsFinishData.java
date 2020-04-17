@@ -22,10 +22,14 @@
 
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -38,11 +42,12 @@ public class BlockUntilTransformsFinishData extends BaseTransformData implements
    *
    */
   boolean continueLoop;
-  public ConcurrentHashMap<Integer, ITransform> transformInterfaces;
+  public Map<Integer, IEngineComponent> componentMap;
 
   public BlockUntilTransformsFinishData() {
     super();
     continueLoop = true;
+    componentMap = Collections.synchronizedMap( new HashMap<>(  ) );
   }
 
 }

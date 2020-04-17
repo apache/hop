@@ -22,10 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.mappinginput;
 
-import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -34,9 +31,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
-
-import java.util.List;
 
 /**
  * Do nothing. Pass all input data to the next transforms.
@@ -110,25 +104,6 @@ public class MappingInput
       //
       data.outputRowMeta = getInputRowMeta().clone();
 
-      // Now change the field names according to the mapping specification...
-      // That means that all fields go through unchanged, unless specified.
-      //
-      for ( MappingValueRename valueRename : data.valueRenames ) {
-        IValueMeta valueMeta = data.outputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
-        if ( valueMeta == null ) {
-          throw new HopTransformException( BaseMessages.getString( PKG, "MappingInput.Exception.UnableToFindMappedValue",
-            valueRename.getSourceValueName() ) );
-        }
-        valueMeta.setName( valueRename.getTargetValueName() );
-
-        valueMeta = getInputRowMeta().searchValueMeta( valueRename.getSourceValueName() );
-        if ( valueMeta == null ) {
-          throw new HopTransformException( BaseMessages.getString( PKG, "MappingInput.Exception.UnableToFindMappedValue",
-            valueRename.getSourceValueName() ) );
-        }
-        valueMeta.setName( valueRename.getTargetValueName() );
-      }
-
       // This is typical side effect of ESR-4178
       data.outputRowMeta.setValueMetaList( data.outputRowMeta.getValueMetaList() );
       this.getInputRowMeta().setValueMetaList( this.getInputRowMeta().getValueMetaList() );
@@ -171,52 +146,8 @@ public class MappingInput
   }
 
   public boolean init() {
-    return super.init( );
+    return super.init();
   }
 
-  public void setConnectorTransforms( ITransform[] sourceTransforms, List<MappingValueRename> valueRenames,
-                                      String mappingTransformName ) {
 
-    if ( sourceTransforms == null ) {
-      throw new IllegalArgumentException( BaseMessages
-        .getString( PKG, "MappingInput.Exception.IllegalArgumentSourceTransform" ) );
-    }
-
-    if ( valueRenames == null ) {
-      throw new IllegalArgumentException( BaseMessages
-        .getString( PKG, "MappingInput.Exception.IllegalArgumentValueRename" ) );
-    }
-
-    if ( sourceTransforms.length != 0 ) {
-      if ( mappingTransformName == null ) {
-        throw new IllegalArgumentException( BaseMessages
-          .getString( PKG, "MappingInput.Exception.IllegalArgumentTransformName" ) );
-      }
-    }
-
-    for ( ITransform sourceTransform : sourceTransforms ) {
-
-      // We don't want to add the mapping-to-mapping rowset
-      //
-      if ( !sourceTransform.isMapping() ) {
-        // OK, before we leave, make sure there is a rowset that covers the path to this target transform.
-        // We need to create a new IRowSet and add it to the Input RowSets of the target transform
-        //
-        BlockingRowSet rowSet = new BlockingRowSet( getPipeline().getRowSetSize() );
-
-        // This is always a single copy, both for source and target...
-        //
-        rowSet.setThreadNameFromToCopy( sourceTransform.getTransformName(), 0, mappingTransformName, 0 );
-
-        // Make sure to connect it to both sides...
-        //
-        sourceTransform.addRowSetToOutputRowSets( rowSet );
-        sourceTransform.identifyErrorOutput();
-        addRowSetToInputRowSets( rowSet );
-      }
-    }
-    data.valueRenames = valueRenames;
-
-    data.sourceTransforms = sourceTransforms;
-  }
 }

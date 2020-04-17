@@ -80,19 +80,6 @@ public class AbortTest {
   }
 
   @Test
-  public void testSafeStop() throws HopException {
-    Abort abort =
-      new Abort(
-        transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
-        transformMockHelper.pipeline );
-    when( transformMockHelper.iTransformMeta.isSafeStop() ).thenReturn( true );
-    abort.processRow();
-    abort.addRowSetToInputRowSets( transformMockHelper.getMockInputRowSet( new Object[] {} ) );
-    abort.processRow();
-    verify( transformMockHelper.pipeline ).safeStop();
-  }
-
-  @Test
   public void testAbortWithError() throws HopException {
     Abort abort =
       new Abort(

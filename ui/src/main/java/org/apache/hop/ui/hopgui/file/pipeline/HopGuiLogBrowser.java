@@ -24,10 +24,10 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogLayout;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.ILogParentProvided;

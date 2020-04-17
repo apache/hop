@@ -49,14 +49,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Button wExpandRemote;
   private CCombo wStartCopy;
 
   public WorkflowExecutionConfigurationDialog( Shell parent, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
@@ -84,23 +82,12 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wLogLevel.setLayoutData( fdLogLevel );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
 
-    wExpandRemote = new Button( gDetails, SWT.CHECK );
-    wExpandRemote.setText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.ExpandRemote.Label" ) );
-    wExpandRemote
-      .setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.ExpandRemote.Tooltip" ) );
-    props.setLook( wExpandRemote );
-    FormData fd_expandCheckButton = new FormData();
-    fd_expandCheckButton.top = new FormAttachment( wLogLevel, 10 );
-    fd_expandCheckButton.left = new FormAttachment( 0, 10 );
-    wExpandRemote.setLayoutData( fd_expandCheckButton );
-    addRunConfigurationListenerForExpandRemoteOption();
-
     wClearLog = new Button( gDetails, SWT.CHECK );
     wClearLog.setText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.ClearLog.Label" ) );
     wClearLog.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.ClearLog.Tooltip" ) );
     props.setLook( wClearLog );
     FormData fdClearLog = new FormData();
-    fdClearLog.top = new FormAttachment( wExpandRemote, 10 );
+    fdClearLog.top = new FormAttachment( wLogLevel, 10 );
     fdClearLog.left = new FormAttachment( 0, 10 );
     wClearLog.setLayoutData( fdClearLog );
 
@@ -135,7 +122,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   public boolean open() {
 
     String shellTitle = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.Shell.Title" );
-    mainLayout( shellTitle, GuiResource.getInstance().getImageJobGraph() );
+    mainLayout( shellTitle, GuiResource.getInstance().getImageWorkflowGraph() );
 
     addRunConfigurationSectionLayout();
 
@@ -199,7 +186,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
   public void getData() {
     wClearLog.setSelection( configuration.isClearingLog() );
-    wExpandRemote.setSelection( getConfiguration().isExpandingRemoteJob() );
     wLogLevel.select( DefaultLogLevel.getLogLevel().getLevel() );
 
     List<String> runConfigurations = new ArrayList<>();
@@ -221,8 +207,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
     }
 
-    wExpandRemote.setEnabled( getConfiguration().isExecutingRemotely() );
-
     String startCopy = "";
     if ( !Utils.isEmpty( getConfiguration().getStartCopyName() ) ) {
       ActionCopy copy =
@@ -239,7 +223,6 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
   public void getInfo() {
     try {
-      getConfiguration().setExpandingRemoteJob( wExpandRemote.getSelection() );
       getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
 
       // various settings
@@ -275,21 +258,4 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     return (WorkflowExecutionConfiguration) configuration;
   }
 
-  public void addRunConfigurationListenerForExpandRemoteOption() {
-    wRunConfiguration.addModifyListener( modifyEvent -> {
-      List<Object> items = Arrays.asList( wRunConfiguration.getText(), true );
-      try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint
-          .RunConfigurationIsRemote.id, items );
-      } catch ( HopException ignored ) {
-        // Ignore errors - keep old behavior - expand remote workflow always enabled
-      }
-      Boolean isRemote = (Boolean) items.get( 1 );
-      getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
-      getConfiguration().setExecutingRemotely( isRemote );
-      getConfiguration().setExecutingLocally( !isRemote );
-      wExpandRemote.setEnabled( isRemote );
-      wExpandRemote.setSelection( wExpandRemote.isEnabled() && wExpandRemote.getSelection() );
-    } );
-  }
 }

@@ -695,12 +695,12 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
 
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       errorHandlers.add( new FileErrorHandlerContentLineNumber(
-        getPipeline().getCurrentDate(), environmentSubstitute( meta.getLineNumberFilesDestinationDirectory() ),
+        getPipeline().getExecutionStartDate(), environmentSubstitute( meta.getLineNumberFilesDestinationDirectory() ),
         meta.getLineNumberFilesExtension(), "Latin1", this ) );
     }
     if ( meta.getErrorFilesDestinationDirectory() != null ) {
       errorHandlers.add( new FileErrorHandlerMissingFiles(
-        getPipeline().getCurrentDate(), environmentSubstitute( meta.getErrorFilesDestinationDirectory() ), meta
+        getPipeline().getExecutionStartDate(), environmentSubstitute( meta.getErrorFilesDestinationDirectory() ), meta
         .getErrorFilesExtension(), "Latin1", this ) );
     }
     data.errorHandler = new CompositeFileErrorHandler( errorHandlers );

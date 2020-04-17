@@ -88,18 +88,4 @@ public class PDI_2875_Test {
 
     return meta;
   }
-
-  @Test
-  @Ignore // TODO try to fix this
-  public void testVariableSubstitution() throws Exception {
-    doReturn( new Date() ).when( smh.pipeline ).getCurrentDate();
-    TextFileInputMeta meta = new TextFileInputMeta();
-    meta.setDefault();
-    meta.allocate( 0,0,0 );
-    TextFileInputData data = new TextFileInputData();
-    TextFileInput transform = spy( TransformMockUtil.getTransform( TextFileInput.class, meta, data, TextFileInputMeta.class, TextFileInputData.class, "test" ) );
-    transform.setVariable( VAR_NAME, "value" );
-    transform.init();
-    verify( transform, times( 2 ) ).environmentSubstitute( EXPRESSION );
-  }
 }

@@ -293,13 +293,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         data.db.setCommit( 100 ); // we never get a commit, but it just turns off auto-commit.
 

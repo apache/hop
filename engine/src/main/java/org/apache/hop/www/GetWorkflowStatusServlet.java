@@ -263,7 +263,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( workflowName, id, workflow.getStatus() );
             jobStatus.setFirstLoggingLineNr( startLineNr );
             jobStatus.setLastLoggingLineNr( lastLineNr );
-            jobStatus.setLogDate( workflow.getLogDate() );
+            jobStatus.setLogDate( workflow.getExecutionStartDate() );
 
             // The log can be quite large at times, we are going to putIfAbsent a base64 encoding around a compressed
             // stream
@@ -348,7 +348,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + workflow.getStatus() + "</td>" );
-          String dateStr = XmlHandler.date2string( workflow.getLogDate() );
+          String dateStr = XmlHandler.date2string( workflow.getExecutionStartDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
           out.print( "</table>" );

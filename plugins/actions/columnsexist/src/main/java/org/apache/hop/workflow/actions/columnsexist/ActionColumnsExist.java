@@ -211,7 +211,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
         String realSchemaname = environmentSubstitute( schemaname );
         String realTablename = environmentSubstitute( tablename );
 
-        db.connect( parentWorkflow.getTransactionId(), null );
+        db.connect();
 
         if ( db.checkTableExists( realSchemaname, realTablename ) ) {
           if ( log.isDetailed() ) {

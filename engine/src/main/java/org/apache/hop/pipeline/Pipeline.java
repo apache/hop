@@ -23,7 +23,6 @@
 
 package org.apache.hop.pipeline;
 
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -34,44 +33,31 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Counter;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabaseTransaction;
-import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopPipelineException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LoggingHierarchy;
-import org.apache.hop.core.logging.LoggingMetric;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.core.logging.MetricsLogTable;
-import org.apache.hop.core.logging.MetricsRegistry;
-import org.apache.hop.core.logging.PerformanceLogTable;
-import org.apache.hop.core.logging.PipelineLogTable;
-import org.apache.hop.core.logging.TransformLogTable;
-import org.apache.hop.core.metrics.MetricsDuration;
-import org.apache.hop.core.metrics.IMetricsSnapshot;
-import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
@@ -84,23 +70,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.IDelegationListener;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformListener;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineMetric;
 import org.apache.hop.pipeline.engine.EngineMetrics;
@@ -110,14 +82,26 @@ import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformFinishedListener;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.ITransformStartedListener;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.RunThread;
-import org.apache.hop.pipeline.transform.TransformAdapter;
 import org.apache.hop.pipeline.transform.TransformInitThread;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
+import org.apache.hop.resource.ResourceUtil;
+import org.apache.hop.resource.TopLevelResource;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterPipelineServlet;
@@ -136,10 +120,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -225,7 +207,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * The pipeline that is executing this pipeline in case of mappings.
    */
-  private Pipeline parentPipeline;
+  private IPipelineEngine<PipelineMeta> parentPipeline;
 
   /**
    * The parent logging object interface (this could be a pipeline or a workflow).
@@ -248,14 +230,14 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private boolean preview;
 
   /**
-   * The date objects for logging information about the pipeline such as start and end time, etc.
+   * Keeps track of when this pipeline started preparation
    */
-  private Date startDate, endDate, currentDate, logDate, depDate;
+  private Date executionStartDate;
 
   /**
-   * The workflow start and end date.
+   * Keeps track of when this pipeline ended preparation
    */
-  private Date jobStartDate, jobEndDate;
+  private Date executionEndDate;
 
   /**
    * The batch id.
@@ -282,11 +264,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * A list of all the transforms.
    */
   private List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms;
-
-  /**
-   * The class number.
-   */
-  public int class_nr;
 
   /**
    * Constant indicating a dispatch type of 1-to-1.
@@ -447,11 +424,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private List<IPipelineStoppedListener> pipelineStoppedListeners;
 
   /**
-   * In case this pipeline starts to delegate work to a local pipeline or workflow
-   */
-  private List<IDelegationListener> delegationListeners;
-
-  /**
    * The number of finished transforms.
    */
   private int nrOfFinishedTransforms;
@@ -494,12 +466,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * The active sub-pipelines.
    */
-  private Map<String, Pipeline> activeSubPipelines;
+  private Map<String, IPipelineEngine> activeSubPipelines;
 
   /**
    * The active subjobs
    */
-  private Map<String, Workflow> activeSubjobs;
+  private Map<String, Workflow> activeSubWorkflows;
 
   /**
    * The transform performance snapshot size limit.
@@ -537,11 +509,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   protected String[] arguments;
 
-  /**
-   * A table of named counters.
-   */
-  protected Hashtable<String, Counter> counters;
-
   private HttpServletResponse servletResponse;
 
   private HttpServletRequest servletRequest;
@@ -570,10 +537,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     executionBecameActiveListeners = Collections.synchronizedList( new ArrayList<>() );
     executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     pipelineStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
-    delegationListeners = new ArrayList<>();
-
-    // Get a valid transactionId in case we run database transactional.
-    transactionId = calculateTransactionId();
 
     errors = new AtomicInteger( 0 );
 
@@ -581,11 +544,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     lastWrittenTransformPerformanceSequenceNr = 0;
 
     activeSubPipelines = new ConcurrentHashMap<>();
-    activeSubjobs = new HashMap<>();
+    activeSubWorkflows = new HashMap<>();
 
     resultRows = new ArrayList<>();
     resultFiles = new ArrayList<>();
-    counters = new Hashtable<>();
 
     extensionDataMap = new HashMap<>();
 
@@ -606,7 +568,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * channel interface (workflow or pipeline) for logging lineage purposes.
    *
    * @param pipelineMeta the pipeline meta-data to use.
-   * @param parent    the parent workflow that is executing this pipeline
+   * @param parent       the parent workflow that is executing this pipeline
    */
   public Pipeline( PipelineMeta pipelineMeta, ILoggingObject parent ) {
     this();
@@ -619,9 +581,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     initializeVariablesFrom( pipelineMeta );
     copyParametersFrom( pipelineMeta );
     pipelineMeta.activateParameters();
-
-    // Get a valid transactionId in case we run database transactional.
-    transactionId = calculateTransactionId();
   }
 
   @Override public PipelineMeta getSubject() {
@@ -734,9 +693,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       this.activateParameters();
 
       this.setDefaultLogCommitSize();
-
-      // Get a valid transactionId in case we run database transactional.
-      transactionId = calculateTransactionId();
     } catch ( HopException e ) {
       throw new HopException( BaseMessages.getString( PKG, "Pipeline.Exception.UnableToOpenPipeline", name ), e );
     }
@@ -761,7 +717,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void prepareExecution() throws HopException {
     setPreparing( true );
-    startDate = null;
+    executionStartDate = new Date();
     setRunning( false );
 
     log.snap( Metrics.METRIC_PIPELINE_EXECUTION_START );
@@ -1278,63 +1234,65 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
       // also attach a Transform Listener to detect when we're done...
       //
-      ITransformListener transformListener = new ITransformListener() {
-        @Override
-        public void transformActive( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
-          nrOfActiveTransforms++;
-          if ( nrOfActiveTransforms == 1 ) {
-            // Pipeline goes from in-active to active...
-            // PDI-5229 sync added
-            synchronized ( executionStartedListeners ) {
-              for ( IExecutionBecameActiveListener<PipelineMeta> listener : executionBecameActiveListeners ) {
-                listener.becameActive( Pipeline.this );
-              }
-            }
-          }
-        }
-
-        @Override
-        public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
-          synchronized ( Pipeline.this ) {
-            nrOfFinishedTransforms++;
-
-            if ( nrOfFinishedTransforms >= transforms.size() ) {
-              // Set the finished flag
-              //
-              setFinished( true );
-
-              // Grab the performance statistics one last time (if enabled)
-              //
-              addTransformPerformanceSnapShot();
-
-              try {
-                fireExecutionFinishedListeners();
-              } catch ( Exception e ) {
-                transform.setErrors( transform.getErrors() + 1L );
-                log.logError( getName() + " : " + BaseMessages.getString( PKG,
-                  "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
-              }
-            }
-
-            // If a transform fails with an error, we want to kill/stop the others
-            // too...
-            //
-            if ( transform.getErrors() > 0 ) {
-
-              log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineDetectedErrors" ) );
-              log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsKillingTheOtherTransforms" ) );
-
-              killAllNoWait();
+      ITransformStartedListener startedListener = ( pipeline, transformMeta, transform ) -> {
+        nrOfActiveTransforms++;
+        if ( nrOfActiveTransforms == 1 ) {
+          // Pipeline goes from in-active to active...
+          // PDI-5229 sync added
+          synchronized ( executionStartedListeners ) {
+            for ( IExecutionBecameActiveListener<PipelineMeta> listener : executionBecameActiveListeners ) {
+              listener.becameActive( Pipeline.this );
             }
           }
         }
       };
+      ITransformFinishedListener finishedListener = ( pipeline, transformMeta, transform ) -> {
+        synchronized ( Pipeline.this ) {
+          nrOfFinishedTransforms++;
+
+          if ( nrOfFinishedTransforms >= transforms.size() ) {
+            // Set the finished flag
+            //
+            setFinished( true );
+
+            // Grab the performance statistics one last time (if enabled)
+            //
+            addTransformPerformanceSnapShot();
+
+            try {
+              fireExecutionFinishedListeners();
+            } catch ( Exception e ) {
+              transform.setErrors( transform.getErrors() + 1L );
+              log.logError( getName() + " : " + BaseMessages.getString( PKG,
+                "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
+            }
+
+            // We're really done now.
+            //
+            executionEndDate = new Date();
+          }
+
+          // If a transform fails with an error, we want to kill/stop the others
+          // too...
+          //
+          if ( transform.getErrors() > 0 ) {
+
+            log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineDetectedErrors" ) );
+            log.logMinimal( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsKillingTheOtherTransforms" ) );
+
+            killAllNoWait();
+          }
+        }
+      };
+
       // Make sure this is called first!
       //
       if ( sid.transform instanceof BaseTransform ) {
-        ( (BaseTransform) sid.transform ).getTransformListeners().add( 0, transformListener );
+        ( (BaseTransform) sid.transform ).getTransformStartedListeners().add( 0, startedListener );
+        ( (BaseTransform) sid.transform ).getTransformFinishedListeners().add( 0, finishedListener );
       } else {
-        sid.transform.addTransformListener( transformListener );
+        sid.transform.addTransformStartedListener( startedListener );
+        sid.transform.addTransformFinishedListener( finishedListener );
       }
     }
 
@@ -1394,26 +1352,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
       log.snap( Metrics.METRIC_PIPELINE_EXECUTION_STOP );
 
-      // If the user ran with metrics gathering enabled and a metrics logging table is configured, add another
-      // listener...
-      //
-      MetricsLogTable metricsLogTable = pipelineMeta.getMetricsLogTable();
-      if ( metricsLogTable.isDefined() ) {
-        try {
-          writeMetricsInformation();
-        } catch ( Exception e ) {
-          log.logError( "Error writing metrics information", e );
-          errors.incrementAndGet();
-        }
-      }
-
-      // Close the unique connections when running database transactionally.
-      // This will commit or roll back the transaction based on the result of this pipeline.
-      //
-      if ( pipelineMeta.isUsingUniqueConnections() ) {
-        pipeline.closeUniqueDatabaseConnections( getResult() );
-      }
-
       // release unused vfs connections
       HopVfs.freeUnusedResources();
     };
@@ -1437,17 +1375,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
           ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformBeforeStart.id, combi );
           // Call an extension point at the end of the transform
           //
-          combi.transform.addTransformListener( new TransformAdapter() {
-
-            @Override
-            public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
-              try {
-                ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformFinished.id, combi );
-              } catch ( HopException e ) {
-                throw new RuntimeException( "Unexpected error in calling extension point upon transform finish", e );
-              }
+          combi.transform.addTransformFinishedListener( ( pipeline, transformMeta, transform ) -> {
+            try {
+              ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformFinished.id, combi );
+            } catch ( HopException e ) {
+              throw new RuntimeException( "Unexpected error in calling extension point upon transform finish", e );
             }
-
           } );
 
           thread.start();
@@ -1894,217 +1827,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void calculateBatchIdAndDateRange() throws HopPipelineException {
 
-    PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
-
-    currentDate = new Date();
-    logDate = new Date();
-    startDate = Const.MIN_DATE;
-    endDate = currentDate;
-
-    DatabaseMeta logConnection = pipelineLogTable.getDatabaseMeta();
-    String logTable = environmentSubstitute( pipelineLogTable.getActualTableName() );
-    String logSchema = environmentSubstitute( pipelineLogTable.getActualSchemaName() );
-
-    try {
-      if ( logConnection != null ) {
-
-        String logSchemaAndTable = logConnection.getQuotedSchemaTableCombination( logSchema, logTable );
-        if ( Utils.isEmpty( logTable ) ) {
-          // It doesn't make sense to start database logging without a table
-          // to log to.
-          throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.NoLogTableDefined" ) );
-        }
-        if ( Utils.isEmpty( pipelineMeta.getName() ) && logTable != null ) {
-          throw new HopException( BaseMessages.getString( PKG, "Pipeline.Exception.NoPipelineNameAvailableForLogging" ) );
-        }
-        pipelineLogTableDatabaseConnection = new Database( this, logConnection );
-        pipelineLogTableDatabaseConnection.shareVariablesWith( this );
-        if ( log.isDetailed() ) {
-          log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.OpeningLogConnection", "" + logConnection ) );
-        }
-        pipelineLogTableDatabaseConnection.connect();
-        pipelineLogTableDatabaseConnection.setCommit( logCommitSize );
-
-        // See if we have to add a batch id...
-        // Do this first, before anything else to lock the complete table exclusively
-        //
-        if ( pipelineLogTable.isBatchIdUsed() ) {
-          Long id_batch =
-            logConnection.getNextBatchId( pipelineLogTableDatabaseConnection, logSchema, logTable, pipelineLogTable
-              .getKeyField().getFieldName() );
-          setBatchId( id_batch.longValue() );
-        }
-
-        //
-        // Get the date range from the logging table: from the last end_date to now. (currentDate)
-        //
-        Object[] lastr =
-          pipelineLogTableDatabaseConnection.getLastLogDate( logSchemaAndTable, pipelineMeta.getName(), false,
-            LogStatus.END );
-        if ( lastr != null && lastr.length > 0 ) {
-          startDate = (Date) lastr[ 0 ];
-          if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.StartDateFound" ) + startDate );
-          }
-        }
-
-        //
-        // OK, we have a date-range.
-        // However, perhaps we need to look at a table before we make a final judgment?
-        //
-        if ( pipelineMeta.getMaxDateConnection() != null && pipelineMeta.getMaxDateTable() != null && pipelineMeta
-          .getMaxDateTable().length() > 0 && pipelineMeta.getMaxDateField() != null && pipelineMeta.getMaxDateField()
-          .length() > 0 ) {
-          if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.LookingForMaxdateConnection", "" + pipelineMeta
-              .getMaxDateConnection() ) );
-          }
-          DatabaseMeta maxcon = pipelineMeta.getMaxDateConnection();
-          if ( maxcon != null ) {
-            Database maxdb = new Database( this, maxcon );
-            maxdb.shareVariablesWith( this );
-            try {
-              if ( log.isDetailed() ) {
-                log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.OpeningMaximumDateConnection" ) );
-              }
-              maxdb.connect();
-              maxdb.setCommit( logCommitSize );
-
-              //
-              // Determine the endDate by looking at a field in a table...
-              //
-              String sql = "SELECT MAX(" + pipelineMeta.getMaxDateField() + ") FROM " + pipelineMeta.getMaxDateTable();
-              RowMetaAndData r1 = maxdb.getOneRow( sql );
-              if ( r1 != null ) {
-                // OK, we have a value, what's the offset?
-                Date maxvalue = r1.getRowMeta().getDate( r1.getData(), 0 );
-                if ( maxvalue != null ) {
-                  if ( log.isDetailed() ) {
-                    log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.LastDateFoundOnTheMaxdateConnection" )
-                      + r1 );
-                  }
-                  endDate.setTime( (long) ( maxvalue.getTime() + ( pipelineMeta.getMaxDateOffset() * 1000 ) ) );
-                }
-              } else {
-                if ( log.isDetailed() ) {
-                  log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.NoLastDateFoundOnTheMaxdateConnection" ) );
-                }
-              }
-            } catch ( HopException e ) {
-              throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorConnectingToDatabase",
-                "" + pipelineMeta.getMaxDateConnection() ), e );
-            } finally {
-              maxdb.disconnect();
-            }
-          } else {
-            throw new HopPipelineException( BaseMessages.getString( PKG,
-              "Pipeline.Exception.MaximumDateConnectionCouldNotBeFound", "" + pipelineMeta.getMaxDateConnection() ) );
-          }
-        }
-
-        // Determine the last date of all dependend tables...
-        // Get the maximum in depdate...
-        if ( pipelineMeta.nrDependencies() > 0 ) {
-          if ( log.isDetailed() ) {
-            log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.CheckingForMaxDependencyDate" ) );
-          }
-          //
-          // Maybe one of the tables where this pipeline is dependent on has changed?
-          // If so we need to change the start-date!
-          //
-          depDate = Const.MIN_DATE;
-          Date maxdepdate = Const.MIN_DATE;
-          if ( lastr != null && lastr.length > 0 ) {
-            Date dep = (Date) lastr[ 1 ]; // #1: last depdate
-            if ( dep != null ) {
-              maxdepdate = dep;
-              depDate = dep;
-            }
-          }
-
-          for ( int i = 0; i < pipelineMeta.nrDependencies(); i++ ) {
-            PipelineDependency td = pipelineMeta.getDependency( i );
-            DatabaseMeta depcon = td.getDatabase();
-            if ( depcon != null ) {
-              Database depdb = new Database( this, depcon );
-              try {
-                depdb.connect();
-                depdb.setCommit( logCommitSize );
-
-                String sql = "SELECT MAX(" + td.getFieldname() + ") FROM " + td.getTablename();
-                RowMetaAndData r1 = depdb.getOneRow( sql );
-                if ( r1 != null ) {
-                  // OK, we have a row, get the result!
-                  Date maxvalue = (Date) r1.getData()[ 0 ];
-                  if ( maxvalue != null ) {
-                    if ( log.isDetailed() ) {
-                      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.FoundDateFromTable", td.getTablename(),
-                        "." + td.getFieldname(), " = " + maxvalue.toString() ) );
-                    }
-                    if ( maxvalue.getTime() > maxdepdate.getTime() ) {
-                      maxdepdate = maxvalue;
-                    }
-                  } else {
-                    throw new HopPipelineException( BaseMessages.getString( PKG,
-                      "Pipeline.Exception.UnableToGetDependencyInfoFromDB", td.getDatabase().getName() + ".", td
-                        .getTablename() + ".", td.getFieldname() ) );
-                  }
-                } else {
-                  throw new HopPipelineException( BaseMessages.getString( PKG,
-                    "Pipeline.Exception.UnableToGetDependencyInfoFromDB", td.getDatabase().getName() + ".", td
-                      .getTablename() + ".", td.getFieldname() ) );
-                }
-              } catch ( HopException e ) {
-                throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorInDatabase", "" + td
-                  .getDatabase() ), e );
-              } finally {
-                depdb.disconnect();
-              }
-            } else {
-              throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ConnectionCouldNotBeFound",
-                "" + td.getDatabase() ) );
-            }
-            if ( log.isDetailed() ) {
-              log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.Maxdepdate" ) + ( XmlHandler.date2string(
-                maxdepdate ) ) );
-            }
-          }
-
-          // OK, so we now have the maximum depdate;
-          // If it is larger, it means we have to read everything back in again.
-          // Maybe something has changed that we need!
-          //
-          if ( maxdepdate.getTime() > depDate.getTime() ) {
-            depDate = maxdepdate;
-            startDate = Const.MIN_DATE;
-          }
-        } else {
-          depDate = currentDate;
-        }
-      }
-
-      // OK, now we have a date-range. See if we need to set a maximum!
-      if ( pipelineMeta.getMaxDateDifference() > 0.0 && // Do we have a difference specified?
-        startDate.getTime() > Const.MIN_DATE.getTime() ) { // Is the startdate > Minimum?
-        // See if the end-date is larger then Start_date + DIFF?
-        Date maxdesired = new Date( startDate.getTime() + ( (long) pipelineMeta.getMaxDateDifference() * 1000 ) );
-
-        // If this is the case: lower the end-date. Pick up the next 'region' next time around.
-        // We do this to limit the workload in a single update session (e.g. for large fact tables)
-        //
-        if ( endDate.compareTo( maxdesired ) > 0 ) {
-          endDate = maxdesired;
-        }
-      }
-
-    } catch ( HopException e ) {
-      throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorCalculatingDateRange",
-        logTable ), e );
-    }
-
-    // Be careful, We DO NOT close the pipeline log table database connection!!!
-    // It's closed later in beginProcessing() to prevent excessive connect/disconnect repetitions.
-
+    // TODO: implement date ranges using the audit manager API
   }
 
   /**
@@ -2113,282 +1836,11 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * @throws HopPipelineException the kettle pipeline exception
    */
   public void beginProcessing() throws HopPipelineException {
-    PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
-    int intervalInSeconds = Const.toInt( environmentSubstitute( pipelineLogTable.getLogInterval() ), -1 );
-
-    try {
-      String logTable = pipelineLogTable.getActualTableName();
-
-      try {
-        if ( pipelineLogTableDatabaseConnection != null && !Utils.isEmpty( logTable ) && !Utils.isEmpty( pipelineMeta.getName() ) ) {
-          pipelineLogTableDatabaseConnection.writeLogRecord( pipelineLogTable, LogStatus.START, this, null );
-
-          // Pass in a commit to release transaction locks and to allow a user to actually see the log record.
-          //
-          if ( !pipelineLogTableDatabaseConnection.isAutoCommit() ) {
-            pipelineLogTableDatabaseConnection.commitLog( true, pipelineLogTable );
-          }
-
-          // If we need to do periodic logging, make sure to install a timer for this...
-          //
-          if ( intervalInSeconds > 0 ) {
-            final Timer timer = new Timer( getName() + " - interval logging timer" );
-            TimerTask timerTask = new TimerTask() {
-              @Override
-              public void run() {
-                try {
-                  endProcessing();
-                } catch ( Exception e ) {
-                  log.logError( BaseMessages.getString( PKG, "Pipeline.Exception.UnableToPerformIntervalLogging" ), e );
-                  // Also stop the show...
-                  //
-                  errors.incrementAndGet();
-                  stopAll();
-                }
-              }
-            };
-            timer.schedule( timerTask, intervalInSeconds * 1000, intervalInSeconds * 1000 );
-
-            addExecutionFinishedListener( pipeline -> timer.cancel() );
-          }
-
-          // Add a listener to make sure that the last record is also written when pipeline finishes...
-          //
-          addExecutionFinishedListener( pipeline -> {
-              try {
-                endProcessing();
-
-                lastWrittenTransformPerformanceSequenceNr =
-                  writeTransformPerformanceLogRecords( lastWrittenTransformPerformanceSequenceNr, LogStatus.END );
-
-              } catch ( HopException e ) {
-                throw new HopException( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
-              }
-            } );
-
-        }
-
-        // If we need to write out the transform logging information, do so at the end of the pipeline too...
-        //
-        TransformLogTable transformLogTable = pipelineMeta.getTransformLogTable();
-        if ( transformLogTable.isDefined() ) {
-          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
-              try {
-                writeTransformLogInformation();
-              } catch ( HopException e ) {
-                throw new HopException( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
-              }
-            } );
-        }
-
-        // If we need to write the log channel hierarchy and lineage information, add a listener for that too...
-        //
-        ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
-        if ( channelLogTable.isDefined() ) {
-          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
-              try {
-                writeLogChannelInformation();
-              } catch ( HopException e ) {
-                throw new HopException( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.UnableToPerformLoggingAtPipelineEnd" ), e );
-              }
-            });
-        }
-
-        // See if we need to write the transform performance records at intervals too...
-        //
-        PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();
-        int perfLogInterval = Const.toInt( environmentSubstitute( performanceLogTable.getLogInterval() ), -1 );
-        if ( performanceLogTable.isDefined() && perfLogInterval > 0 ) {
-          final Timer timer = new Timer( getName() + " - transform performance log interval timer" );
-          TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-              try {
-                lastWrittenTransformPerformanceSequenceNr =
-                  writeTransformPerformanceLogRecords( lastWrittenTransformPerformanceSequenceNr, LogStatus.RUNNING );
-              } catch ( Exception e ) {
-                log.logError( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.UnableToPerformIntervalPerformanceLogging" ), e );
-                // Also stop the show...
-                //
-                errors.incrementAndGet();
-                stopAll();
-              }
-            }
-          };
-          timer.schedule( timerTask, perfLogInterval * 1000, perfLogInterval * 1000 );
-
-          addExecutionFinishedListener( (IExecutionFinishedListener<PipelineMeta>) pipeline -> {
-              timer.cancel();
-            });
-
-        }
-      } catch ( HopException e ) {
-        throw new HopPipelineException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorWritingLogRecordToTable",
-          logTable ), e );
-      } finally {
-        // If we use interval logging, we keep the connection open for performance reasons...
-        //
-        if ( pipelineLogTableDatabaseConnection != null && ( intervalInSeconds <= 0 ) ) {
-          pipelineLogTableDatabaseConnection.disconnect();
-          pipelineLogTableDatabaseConnection = null;
-        }
-      }
-    } catch ( HopException e ) {
-      throw new HopPipelineException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToBeginProcessingPipeline" ), e );
-    }
-  }
-
-  /**
-   * Writes log channel information to a channel logging table (if one has been configured).
-   *
-   * @throws HopException if any errors occur during logging
-   */
-  protected void writeLogChannelInformation() throws HopException {
-    Database db = null;
-    ChannelLogTable channelLogTable = pipelineMeta.getChannelLogTable();
-
-    // PDI-7070: If parent pipeline or workflow has the same channel logging info, don't duplicate log entries
-    Pipeline t = getParentPipeline();
-    if ( t != null ) {
-      if ( channelLogTable.equals( t.getPipelineMeta().getChannelLogTable() ) ) {
-        return;
-      }
-    }
-
-    Workflow j = getParentWorkflow();
-
-    if ( j != null ) {
-      if ( channelLogTable.equals( j.getWorkflowMeta().getChannelLogTable() ) ) {
-        return;
-      }
-    }
-    // end PDI-7070
-
-    try {
-      db = new Database( this, channelLogTable.getDatabaseMeta() );
-      db.shareVariablesWith( this );
-      db.connect();
-      db.setCommit( logCommitSize );
-
-      List<LoggingHierarchy> loggingHierarchyList = getLoggingHierarchy();
-      for ( LoggingHierarchy loggingHierarchy : loggingHierarchyList ) {
-        db.writeLogRecord( channelLogTable, LogStatus.START, loggingHierarchy, null );
-      }
-
-      // Also time-out the log records in here...
-      //
-      db.cleanupLogRecords( channelLogTable );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToWriteLogChannelInformationToLogTable" ), e );
-    } finally {
-      disconnectDb( db );
-    }
-  }
-
-  /**
-   * Writes transform information to a transform logging table (if one has been configured).
-   *
-   * @throws HopException if any errors occur during logging
-   */
-  protected void writeTransformLogInformation() throws HopException {
-    Database db = null;
-    TransformLogTable transformLogTable = getPipelineMeta().getTransformLogTable();
-    try {
-      db = createDataBase( transformLogTable.getDatabaseMeta() );
-      db.shareVariablesWith( this );
-      db.connect();
-      db.setCommit( logCommitSize );
-
-      for ( TransformMetaDataCombi combi : getTransforms() ) {
-        db.writeLogRecord( transformLogTable, LogStatus.START, combi, null );
-      }
-
-      db.cleanupLogRecords( transformLogTable );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToWriteTransformMetaToLogTable" ), e );
-    } finally {
-      disconnectDb( db );
-    }
-
+    // TODO: inform the active audit manager that the pipeline started processing
   }
 
   protected Database createDataBase( DatabaseMeta meta ) {
     return new Database( this, meta );
-  }
-
-  protected synchronized void writeMetricsInformation() throws HopException {
-    Preconditions.checkNotNull( log );
-    List<MetricsDuration> metricsList =
-      MetricsUtil.getDuration( log.getLogChannelId(), Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_START );
-    if ( ( log.isDebug() ) && !metricsList.isEmpty() ) {
-      log.logDebug( metricsList.get( 0 ).toString() );
-    }
-
-    metricsList =
-      MetricsUtil.getDuration( log.getLogChannelId(), Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START );
-    if ( ( log != null ) && ( log.isDebug() ) && !metricsList.isEmpty() ) {
-      log.logDebug( metricsList.get( 0 ).toString() );
-    }
-
-    long total = 0;
-    metricsList =
-      MetricsUtil.getDuration( log.getLogChannelId(), Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START );
-    if ( ( log != null ) && ( log.isDebug() ) && metricsList != null && !metricsList.isEmpty() ) {
-      for ( MetricsDuration duration : metricsList ) {
-        total += duration.getDuration();
-        log.logDebug( "   - " + duration.toString() + "  Total=" + total );
-      }
-    }
-
-    Database db = null;
-    MetricsLogTable metricsLogTable = pipelineMeta.getMetricsLogTable();
-    try {
-      db = new Database( this, metricsLogTable.getDatabaseMeta() );
-      db.shareVariablesWith( this );
-      db.connect();
-      db.setCommit( logCommitSize );
-
-      List<String> logChannelIds = LoggingRegistry.getInstance().getLogChannelChildren( getLogChannelId() );
-      for ( String logChannelId : logChannelIds ) {
-        Queue<IMetricsSnapshot> snapshotList =
-          MetricsRegistry.getInstance().getSnapshotLists().get( logChannelId );
-        if ( snapshotList != null ) {
-          Iterator<IMetricsSnapshot> iterator = snapshotList.iterator();
-          while ( iterator.hasNext() ) {
-            IMetricsSnapshot snapshot = iterator.next();
-            db.writeLogRecord( metricsLogTable, LogStatus.START, new LoggingMetric( batchId, snapshot ), null );
-          }
-        }
-
-        Map<String, IMetricsSnapshot> snapshotMap =
-          MetricsRegistry.getInstance().getSnapshotMaps().get( logChannelId );
-        if ( snapshotMap != null ) {
-          synchronized ( snapshotMap ) {
-            Iterator<IMetricsSnapshot> iterator = snapshotMap.values().iterator();
-            while ( iterator.hasNext() ) {
-              IMetricsSnapshot snapshot = iterator.next();
-              db.writeLogRecord( metricsLogTable, LogStatus.START, new LoggingMetric( batchId, snapshot ), null );
-            }
-          }
-        }
-      }
-
-      // Also time-out the log records in here...
-      //
-      db.cleanupLogRecords( metricsLogTable );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToWriteMetricsInformationToLogTable" ), e );
-    } finally {
-      disconnectDb( db );
-    }
   }
 
   private void disconnectDb( Database db ) throws HopDatabaseException {
@@ -2415,7 +1867,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     Result result = new Result();
     result.setNrErrors( errors.longValue() );
     result.setResult( errors.longValue() == 0 );
-    PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
@@ -2424,28 +1875,14 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       result.setNrErrors( result.getNrErrors() + sid.transform.getErrors() );
       result.getResultFiles().putAll( transform.getResultFiles() );
 
-      if ( transform.isSafeStopped() ) {
-        result.setSafeStop( transform.isSafeStopped() );
-      }
-
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_READ ) ) ) {
-        result.setNrLinesRead( result.getNrLinesRead() + transform.getLinesRead() );
-      }
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_INPUT ) ) ) {
-        result.setNrLinesInput( result.getNrLinesInput() + transform.getLinesInput() );
-      }
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_WRITTEN ) ) ) {
-        result.setNrLinesWritten( result.getNrLinesWritten() + transform.getLinesWritten() );
-      }
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_OUTPUT ) ) ) {
-        result.setNrLinesOutput( result.getNrLinesOutput() + transform.getLinesOutput() );
-      }
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_UPDATED ) ) ) {
-        result.setNrLinesUpdated( result.getNrLinesUpdated() + transform.getLinesUpdated() );
-      }
-      if ( transform.getTransformName().equals( pipelineLogTable.getSubjectString( PipelineLogTable.ID.LINES_REJECTED ) ) ) {
-        result.setNrLinesRejected( result.getNrLinesRejected() + transform.getLinesRejected() );
-      }
+      // For every transform metric, take the maximum amount
+      //
+      result.setNrLinesRead( Math.max( result.getNrLinesRead(), transform.getLinesRead() ) );
+      result.setNrLinesWritten( Math.max( result.getNrLinesWritten(), transform.getLinesWritten() ) );
+      result.setNrLinesInput( Math.max( result.getNrLinesInput(), transform.getLinesInput() ) );
+      result.setNrLinesOutput( Math.max( result.getNrLinesOutput(), transform.getLinesOutput() ) );
+      result.setNrLinesUpdated( Math.max( result.getNrLinesUpdated(), transform.getLinesUpdated() ) );
+      result.setNrLinesRejected( Math.max( result.getNrLinesRejected(), transform.getLinesRejected() ) );
     }
 
     result.setRows( resultRows );
@@ -2459,258 +1896,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     result.setLogChannelId( log.getLogChannelId() );
 
     return result;
-  }
-
-  /**
-   * End processing. Also handle any logging operations associated with the end of a pipeline
-   *
-   * @return true if all end processing is successful, false otherwise
-   * @throws HopException if any errors occur during processing
-   */
-  private synchronized boolean endProcessing() throws HopException {
-    LogStatus status;
-
-    if ( isFinished() ) {
-      if ( isStopped() ) {
-        status = LogStatus.STOP;
-      } else {
-        status = LogStatus.END;
-      }
-    } else if ( isPaused() ) {
-      status = LogStatus.PAUSED;
-    } else {
-      status = LogStatus.RUNNING;
-    }
-
-    PipelineLogTable pipelineLogTable = pipelineMeta.getPipelineLogTable();
-    int intervalInSeconds = Const.toInt( environmentSubstitute( pipelineLogTable.getLogInterval() ), -1 );
-
-    logDate = new Date();
-
-    // OK, we have some logging to do...
-    //
-    DatabaseMeta logcon = pipelineMeta.getPipelineLogTable().getDatabaseMeta();
-    String logTable = pipelineMeta.getPipelineLogTable().getActualTableName();
-    if ( logcon != null ) {
-      Database ldb = null;
-
-      try {
-        // Let's not reconnect/disconnect all the time for performance reasons!
-        //
-        if ( pipelineLogTableDatabaseConnection == null ) {
-          ldb = new Database( this, logcon );
-          ldb.shareVariablesWith( this );
-          ldb.connect();
-          ldb.setCommit( logCommitSize );
-          pipelineLogTableDatabaseConnection = ldb;
-        } else {
-          ldb = pipelineLogTableDatabaseConnection;
-        }
-
-        // Write to the standard pipeline log table...
-        //
-        if ( !Utils.isEmpty( logTable ) ) {
-          ldb.writeLogRecord( pipelineLogTable, status, this, null );
-        }
-
-        // Also time-out the log records in here...
-        //
-        if ( status.equals( LogStatus.END ) || status.equals( LogStatus.STOP ) ) {
-          ldb.cleanupLogRecords( pipelineLogTable );
-        }
-
-        // Commit the operations to prevent locking issues
-        //
-        if ( !ldb.isAutoCommit() ) {
-          ldb.commitLog( true, pipelineMeta.getPipelineLogTable() );
-        }
-      } catch ( HopDatabaseException e ) {
-        // PDI-9790 error write to log db is transaction error
-        log.logError( BaseMessages.getString( PKG, "Database.Error.WriteLogTable", logTable ), e );
-        errors.incrementAndGet();
-        // end PDI-9790
-      } catch ( Exception e ) {
-        throw new HopException( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorWritingLogRecordToTable",
-          pipelineMeta.getPipelineLogTable().getActualTableName() ), e );
-      } finally {
-        if ( intervalInSeconds <= 0 || ( status.equals( LogStatus.END ) || status.equals( LogStatus.STOP ) ) ) {
-          ldb.disconnect();
-          pipelineLogTableDatabaseConnection = null; // disconnected
-        }
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Write transform performance log records.
-   *
-   * @param startSequenceNr the start sequence numberr
-   * @param status          the logging status. If this is End, perform cleanup
-   * @return the new sequence number
-   * @throws HopException if any errors occur during logging
-   */
-  private int writeTransformPerformanceLogRecords( int startSequenceNr, LogStatus status ) throws HopException {
-    int lastSeqNr = 0;
-    Database ldb = null;
-    PerformanceLogTable performanceLogTable = pipelineMeta.getPerformanceLogTable();
-
-    if ( !performanceLogTable.isDefined() || !pipelineMeta.isCapturingTransformPerformanceSnapShots()
-      || transformPerformanceSnapShots == null || transformPerformanceSnapShots.isEmpty() ) {
-      return 0; // nothing to do here!
-    }
-
-    try {
-      ldb = new Database( this, performanceLogTable.getDatabaseMeta() );
-      ldb.shareVariablesWith( this );
-      ldb.connect();
-      ldb.setCommit( logCommitSize );
-
-      // Write to the transform performance log table...
-      //
-      IRowMeta rowMeta = performanceLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
-      ldb.prepareInsert( rowMeta, performanceLogTable.getActualSchemaName(), performanceLogTable.getActualTableName() );
-
-      synchronized ( transformPerformanceSnapShots ) {
-        Iterator<List<PerformanceSnapShot>> iterator = transformPerformanceSnapShots.values().iterator();
-        while ( iterator.hasNext() ) {
-          List<PerformanceSnapShot> snapshots = iterator.next();
-          synchronized ( snapshots ) {
-            Iterator<PerformanceSnapShot> snapshotsIterator = snapshots.iterator();
-            while ( snapshotsIterator.hasNext() ) {
-              PerformanceSnapShot snapshot = snapshotsIterator.next();
-              if ( snapshot.getSeqNr() >= startSequenceNr && snapshot
-                .getSeqNr() <= lastTransformPerformanceSnapshotSeqNrAdded ) {
-
-                RowMetaAndData row = performanceLogTable.getLogRecord( LogStatus.START, snapshot, null );
-
-                ldb.setValuesInsert( row.getRowMeta(), row.getData() );
-                ldb.insertRow( true );
-              }
-              lastSeqNr = snapshot.getSeqNr();
-            }
-          }
-        }
-      }
-
-      ldb.insertFinished( true );
-
-      // Finally, see if the log table needs cleaning up...
-      //
-      if ( status.equals( LogStatus.END ) ) {
-        ldb.cleanupLogRecords( performanceLogTable );
-      }
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.ErrorWritingTransformPerformanceLogRecordToTable" ), e );
-    } finally {
-      if ( ldb != null ) {
-        ldb.disconnect();
-      }
-    }
-
-    return lastSeqNr + 1;
-  }
-
-  /**
-   * Close unique database connections. If there are errors in the Result, perform a rollback
-   *
-   * @param result the result of the pipeline execution
-   */
-  @Override
-  public void closeUniqueDatabaseConnections( Result result ) {
-
-    // Don't close any connections if the parent workflow is using the same transaction
-    //
-    if ( parentWorkflow != null && transactionId != null && parentWorkflow.getTransactionId() != null && transactionId.equals(
-      parentWorkflow.getTransactionId() ) ) {
-      return;
-    }
-
-    // Don't close any connections if the parent pipeline is using the same transaction
-    //
-    if ( parentPipeline != null && parentPipeline.getPipelineMeta().isUsingUniqueConnections() && transactionId != null
-      && parentPipeline.getTransactionId() != null && transactionId.equals( parentPipeline.getTransactionId() ) ) {
-      return;
-    }
-
-    // First we get all the database connections ...
-    //
-    DatabaseConnectionMap map = DatabaseConnectionMap.getInstance();
-    synchronized ( map ) {
-      List<Database> databaseList = new ArrayList<>( map.getMap().values() );
-      for ( Database database : databaseList ) {
-        if ( database.getConnectionGroup().equals( getTransactionId() ) ) {
-          try {
-            // This database connection belongs to this pipeline.
-            // Let's roll it back if there is an error...
-            //
-            if ( result.getNrErrors() > 0 ) {
-              try {
-                database.rollback( true );
-                log.logBasic( BaseMessages.getString( PKG, "Pipeline.Exception.TransactionsRolledBackOnConnection",
-                  database.toString() ) );
-              } catch ( Exception e ) {
-                throw new HopDatabaseException( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.ErrorRollingBackUniqueConnection", database.toString() ), e );
-              }
-            } else {
-              try {
-                database.commit( true );
-                log.logBasic( BaseMessages.getString( PKG, "Pipeline.Exception.TransactionsCommittedOnConnection", database
-                  .toString() ) );
-              } catch ( Exception e ) {
-                throw new HopDatabaseException( BaseMessages.getString( PKG,
-                  "Pipeline.Exception.ErrorCommittingUniqueConnection", database.toString() ), e );
-              }
-            }
-          } catch ( Exception e ) {
-            log.logError( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorHandlingPipelineTransaction",
-              database.toString() ), e );
-            result.setNrErrors( result.getNrErrors() + 1 );
-          } finally {
-            try {
-              // This database connection belongs to this pipeline.
-              database.closeConnectionOnly();
-            } catch ( Exception e ) {
-              log.logError( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorHandlingPipelineTransaction",
-                database.toString() ), e );
-              result.setNrErrors( result.getNrErrors() + 1 );
-            } finally {
-              // Remove the database from the list...
-              //
-              map.removeConnection( database.getConnectionGroup(), database.getPartitionId(), database );
-            }
-          }
-        }
-      }
-
-      // Who else needs to be informed of the rollback or commit?
-      //
-      List<IDatabaseTransaction> transactionListeners = map.getTransactionListeners( getTransactionId() );
-      if ( result.getNrErrors() > 0 ) {
-        for ( IDatabaseTransaction listener : transactionListeners ) {
-          try {
-            listener.rollback();
-          } catch ( Exception e ) {
-            log.logError( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorHandlingTransactionListenerRollback" ),
-              e );
-            result.setNrErrors( result.getNrErrors() + 1 );
-          }
-        }
-      } else {
-        for ( IDatabaseTransaction listener : transactionListeners ) {
-          try {
-            listener.commit();
-          } catch ( Exception e ) {
-            log.logError( BaseMessages.getString( PKG, "Pipeline.Exception.ErrorHandlingTransactionListenerCommit" ), e );
-            result.setNrErrors( result.getNrErrors() + 1 );
-          }
-        }
-      }
-
-    }
   }
 
   /**
@@ -2823,23 +2008,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     return null;
   }
 
-  /**
-   * Gets the start date/time object for the pipeline.
-   *
-   * @return Returns the startDate.
-   */
-  public Date getStartDate() {
-    return startDate;
-  }
-
-  /**
-   * Gets the end date/time object for the pipeline.
-   *
-   * @return Returns the endDate.
-   */
-  public Date getEndDate() {
-    return endDate;
-  }
 
   /**
    * Gets sortingTransformsTopologically
@@ -2873,35 +2041,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void setPipelineMeta( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
-  }
-
-  /**
-   * Gets the current date/time object.
-   *
-   * @return the current date
-   */
-  public Date getCurrentDate() {
-    return currentDate;
-  }
-
-  /**
-   * Gets the dependency date for the pipeline. A pipeline can have a list of dependency fields. If any of
-   * these fields have a maximum date higher than the dependency date of the last run, the date range is set to to (-oo,
-   * now). The use-case is the incremental population of Slowly Changing Dimensions (SCD).
-   *
-   * @return Returns the dependency date
-   */
-  public Date getDepDate() {
-    return depDate;
-  }
-
-  /**
-   * Gets the date the pipeline was logged.
-   *
-   * @return the log date
-   */
-  public Date getLogDate() {
-    return logDate;
   }
 
   /**
@@ -3007,7 +2146,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * Find the ITransform (thread) by looking it up using the name.
    *
    * @param transformName The name of the transform to look for
-   * @param copy     the copy number of the transform to look for
+   * @param copy          the copy number of the transform to look for
    * @return the ITransform or null if nothing was found.
    */
   public ITransform getTransformInterface( String transformName, int copy ) {
@@ -3049,7 +2188,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * but after prepareExecution()
    *
    * @param transformName The transform to produce rows for
-   * @param copynr   The copynr of the transform to produce row for (normally 0 unless you have multiple copies running)
+   * @param copynr        The copynr of the transform to produce row for (normally 0 unless you have multiple copies running)
    * @return the row producer
    * @throws HopException in case the thread/transform to produce rows for could not be found.
    * @see Pipeline#execute()
@@ -3098,8 +2237,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     this.logLevel = parentWorkflow.getLogLevel();
     this.log.setLogLevel( logLevel );
     this.parentWorkflow = parentWorkflow;
-
-    transactionId = calculateTransactionId();
   }
 
   /**
@@ -3142,42 +2279,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
     }
     return false;
-  }
-
-  /**
-   * Gets the workflow start date.
-   *
-   * @return the workflow start date
-   */
-  public Date getJobStartDate() {
-    return jobStartDate;
-  }
-
-  /**
-   * Gets the workflow end date.
-   *
-   * @return the workflow end date
-   */
-  public Date getJobEndDate() {
-    return jobEndDate;
-  }
-
-  /**
-   * Sets the workflow end date.
-   *
-   * @param jobEndDate the jobEndDate to set
-   */
-  public void setJobEndDate( Date jobEndDate ) {
-    this.jobEndDate = jobEndDate;
-  }
-
-  /**
-   * Sets the workflow start date.
-   *
-   * @param jobStartDate the jobStartDate to set
-   */
-  public void setJobStartDate( Date jobStartDate ) {
-    this.jobStartDate = jobStartDate;
   }
 
   /**
@@ -3314,7 +2415,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * Send the pipeline for execution to a HopServer slave server.
    *
-   * @param pipelineMeta              the pipeline meta-data
+   * @param pipelineMeta           the pipeline meta-data
    * @param executionConfiguration the pipeline execution configuration
    * @return The HopServer object ID on the server.
    * @throws HopException if any errors occur during the dispatch to the slave server
@@ -3956,7 +3057,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @return a reference to the parent pipeline's Pipeline object, or null if no parent pipeline exists
    */
-  public Pipeline getParentPipeline() {
+  public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
 
@@ -3965,12 +3066,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @param parentPipeline the parentPipeline to set
    */
-  public void setParentPipeline( Pipeline parentPipeline ) {
+  public void setParentPipeline( IPipelineEngine parentPipeline ) {
     this.logLevel = parentPipeline.getLogLevel();
     this.log.setLogLevel( logLevel );
     this.parentPipeline = parentPipeline;
-
-    transactionId = calculateTransactionId();
   }
 
   /**
@@ -4118,29 +3217,21 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     return hierarchy;
   }
 
-  /**
-   * Use:
-   * {@link #addActiveSubPipeline(String, Pipeline),
-   * {@link #getActiveSubPipeline(String)},
-   * {@link #removeActiveSubPipeline(String)}
-   * <p>
-   * instead
-   */
-  @Deprecated
-  public Map<String, Pipeline> getActiveSubPipelines() {
-    return activeSubPipelines;
-  }
-
-  public void addActiveSubPipeline( final String subPipelineName, Pipeline subPipeline ) {
+  public void addActiveSubPipeline( final String subPipelineName, IPipelineEngine subPipeline ) {
     activeSubPipelines.put( subPipelineName, subPipeline );
   }
 
-  public Pipeline removeActiveSubPipeline( final String subPipelineName ) {
-    return activeSubPipelines.remove( subPipelineName );
+  public IPipelineEngine getActiveSubPipeline( final String subPipelineName ) {
+    return activeSubPipelines.get( subPipelineName );
   }
 
-  public Pipeline getActiveSubPipeline( final String subPipelineName ) {
-    return activeSubPipelines.get( subPipelineName );
+
+  public void addActiveSubWorkflow( final String subWorkflowName, Workflow subWorkflow ) {
+    activeSubWorkflows.put( subWorkflowName, subWorkflow );
+  }
+
+  public Workflow getActiveSubWorkflow( final String subWorkflowName ) {
+    return activeSubWorkflows.get( subWorkflowName );
   }
 
   /**
@@ -4148,8 +3239,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @return a map (by name) of the active sub-workflows
    */
-  public Map<String, Workflow> getActiveSubjobs() {
-    return activeSubjobs;
+  public Map<String, Workflow> getActiveSubWorkflows() {
+    return activeSubWorkflows;
   }
 
   /**
@@ -4290,14 +3381,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     this.previousResult = previousResult;
   }
 
-  public Hashtable<String, Counter> getCounters() {
-    return counters;
-  }
-
-  public void setCounters( Hashtable<String, Counter> counters ) {
-    this.counters = counters;
-  }
-
   /**
    * Clear the error in the pipeline, clear all the rows from all the row sets, to make sure the pipeline
    * can continue with other data. This is intended for use when running single threaded.
@@ -4312,43 +3395,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         rowSet.clear();
       }
       transform.setStopped( false );
-    }
-  }
-
-  /**
-   * Gets the transaction ID for the pipeline.
-   *
-   * @return the transactionId
-   */
-  public String getTransactionId() {
-    return transactionId;
-  }
-
-  /**
-   * Sets the transaction ID for the pipeline.
-   *
-   * @param transactionId the transactionId to set
-   */
-  public void setTransactionId( String transactionId ) {
-    this.transactionId = transactionId;
-  }
-
-  /**
-   * Calculates the transaction ID for the pipeline.
-   *
-   * @return the calculated transaction ID for the pipeline.
-   */
-  public String calculateTransactionId() {
-    if ( getPipelineMeta() != null && getPipelineMeta().isUsingUniqueConnections() ) {
-      if ( parentWorkflow != null && parentWorkflow.getTransactionId() != null ) {
-        return parentWorkflow.getTransactionId();
-      } else if ( parentPipeline != null && parentPipeline.getPipelineMeta().isUsingUniqueConnections() ) {
-        return parentPipeline.getTransactionId();
-      } else {
-        return DatabaseConnectionMap.getInstance().getNextTransactionId();
-      }
-    } else {
-      return Thread.currentThread().getName();
     }
   }
 
@@ -4397,18 +3443,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
   public HttpServletRequest getServletRequest() {
     return servletRequest;
-  }
-
-  public List<IDelegationListener> getDelegationListeners() {
-    return delegationListeners;
-  }
-
-  public void setDelegationListeners( List<IDelegationListener> delegationListeners ) {
-    this.delegationListeners = delegationListeners;
-  }
-
-  public void addDelegationListener( IDelegationListener delegationListener ) {
-    delegationListeners.add( delegationListener );
   }
 
   public synchronized void doTopologySortOfTransforms() {
@@ -4551,6 +3585,38 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     } // finished sorting
   }
 
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  public void setExecutionStartDate( Date executionStartDate ) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  public void setExecutionEndDate( Date executionEndDate ) {
+    this.executionEndDate = executionEndDate;
+  }
+
   @Override
   public Map<String, Object> getExtensionDataMap() {
     return extensionDataMap;
@@ -4571,10 +3637,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     return getEngineMetrics( null, -1 );
   }
 
-  public synchronized EngineMetrics getEngineMetrics(String componentName, int copyNr) {
+  public synchronized EngineMetrics getEngineMetrics( String componentName, int copyNr ) {
     EngineMetrics metrics = new EngineMetrics();
-    metrics.setStartDate( getStartDate() );
-    metrics.setEndDate( getEndDate() );
+    metrics.setStartDate( getExecutionStartDate() );
+    metrics.setEndDate( getExecutionEndDate() );
 
     if ( transforms != null ) {
       synchronized ( transforms ) {
@@ -4623,26 +3689,26 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     // Also pass on the performance snapshot data...
     //
-    if (transformPerformanceSnapShots!=null) {
-      for (String componentString : transformPerformanceSnapShots.keySet()) {
+    if ( transformPerformanceSnapShots != null ) {
+      for ( String componentString : transformPerformanceSnapShots.keySet() ) {
         String snapshotName = componentString;
         int snapshotCopyNr = 0;
         int lastDot = componentString.lastIndexOf( '.' );
-        if (lastDot>0) {
+        if ( lastDot > 0 ) {
           componentString.substring( 0, lastDot );
-          snapshotCopyNr = Const.toInt(componentString.substring( lastDot+1 ), 0);
+          snapshotCopyNr = Const.toInt( componentString.substring( lastDot + 1 ), 0 );
         }
         boolean collect = true;
-        if (componentName!=null) {
-          collect=collect && componentName.equalsIgnoreCase( componentString );
+        if ( componentName != null ) {
+          collect = collect && componentName.equalsIgnoreCase( componentString );
         }
-        if (copyNr>=0) {
-          collect = collect && snapshotCopyNr==copyNr;
+        if ( copyNr >= 0 ) {
+          collect = collect && snapshotCopyNr == copyNr;
         }
 
-        if (collect) {
+        if ( collect ) {
           IEngineComponent component = findComponent( snapshotName, snapshotCopyNr );
-          if (component!=null) {
+          if ( component != null ) {
             List<PerformanceSnapShot> snapShots = transformPerformanceSnapShots.get( componentString );
             metrics.getComponentPerformanceSnapshots().put( component, snapShots );
           }
@@ -4680,7 +3746,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
   @Override public List<IEngineComponent> getComponentCopies( String name ) {
     List<IEngineComponent> list = new ArrayList<>();
-    if (transforms!=null) {
+    if ( transforms != null ) {
       for ( TransformMetaDataCombi transform : transforms ) {
         if ( transform.transformName.equalsIgnoreCase( name ) ) {
           list.add( transform.transform );
@@ -4728,13 +3794,13 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
   public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
     ITransform iTransform = findTransformInterface( componentName, copyNr );
-    if ( iTransform ==null) {
-      throw new HopException( "Unable to find transform '"+componentName+"', copy "+copyNr+" to retrieve output rows from" );
+    if ( iTransform == null ) {
+      throw new HopException( "Unable to find transform '" + componentName + "', copy " + copyNr + " to retrieve output rows from" );
     }
     RowBuffer rowBuffer = new RowBuffer( pipelineMeta.getTransformFields( componentName ) );
     iTransform.addRowListener( new RowAdapter() {
       @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-        if (rowBuffer.getBuffer().size()<nrRows) {
+        if ( rowBuffer.getBuffer().size() < nrRows ) {
           rowBuffer.getBuffer().add( row );
           if ( rowBuffer.getBuffer().size() >= nrRows ) {
             try {
@@ -4748,12 +3814,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     } );
   }
 
-  public void addStartedListener( IExecutionStartedListener<PipelineMeta> listener) throws HopException {
-    executionStartedListeners.add(listener);
+  public void addStartedListener( IExecutionStartedListener<PipelineMeta> listener ) throws HopException {
+    executionStartedListeners.add( listener );
   }
 
-  public void addFinishedListener( IExecutionFinishedListener<PipelineMeta> listener) throws HopException {
-    executionFinishedListeners.add(listener);
+  public void addFinishedListener( IExecutionFinishedListener<PipelineMeta> listener ) throws HopException {
+    executionFinishedListeners.add( listener );
   }
 
   /**

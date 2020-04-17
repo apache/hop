@@ -255,7 +255,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
             Database db = new Database( this, connection );
             db.shareVariablesWith( this );
             try {
-              db.connect( parentWorkflow.getTransactionId(), null );
+              db.connect();
               // Get schemaname
               String realSchemaname = environmentSubstitute( schemaname );
               // Get tablename

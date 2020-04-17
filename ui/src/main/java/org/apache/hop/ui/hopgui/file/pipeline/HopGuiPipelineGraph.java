@@ -3299,7 +3299,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     PipelineDialog tid = new PipelineDialog( hopUi.getShell(), SWT.NONE, pipelineMeta, currentTab );
-    tid.setDirectoryChangeAllowed( allowDirectoryChange );
     if ( tid.open() != null ) {
       hopUi.setParametersAsVariablesInUI( pipelineMeta, pipelineMeta );
       updateGui();

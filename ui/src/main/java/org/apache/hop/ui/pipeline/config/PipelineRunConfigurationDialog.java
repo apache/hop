@@ -71,7 +71,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The dialog for IMetaStore element PipelineRunConfiguration
  * Don't move this class around as it's sync'ed with the PipelineRunConfiguration package to find the dialog.
- *
  */
 public class PipelineRunConfigurationDialog extends Dialog implements IMetaStoreDialog {
   private static Class<?> PKG = PipelineRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!

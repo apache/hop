@@ -238,13 +238,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> im
 
       // Connect to the database
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "ExecSqlRow.Log.ConnectedToDB" ) );

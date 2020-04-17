@@ -23,6 +23,7 @@
 package org.apache.hop.concurrency;
 
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class ActiveSubPipelineConcurrencyTest {
     Object doCall() throws Exception {
       while ( condition.get() ) {
         final String activeSubPipelineName = createPipelineName( random.nextInt( INITIAL_NUMBER_OF_PIPELINE ) );
-        Pipeline subPipeline = pipeline.getActiveSubPipeline( activeSubPipelineName );
+        IPipelineEngine subPipeline = pipeline.getActiveSubPipeline( activeSubPipelineName );
 
         if ( subPipeline == null ) {
           throw new IllegalStateException(

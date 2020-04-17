@@ -31,7 +31,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.TransformLogTable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -199,27 +198,6 @@ public class PipelineTest {
     assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
   }
 
-  @Test
-  public void testRecordsCleanUpMethodIsCalled() throws Exception {
-    Database mockedDataBase = mock( Database.class );
-    Pipeline pipeline = mock( Pipeline.class );
-
-    TransformLogTable transformLogTable =
-      TransformLogTable.getDefault( mock( IVariables.class ), mock( IMetaStore.class ) );
-    transformLogTable.setConnectionName( "connection" );
-
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setTransformLogTable( transformLogTable );
-
-    when( pipeline.getPipelineMeta() ).thenReturn( pipelineMeta );
-    when( pipeline.createDataBase( any( DatabaseMeta.class ) ) ).thenReturn( mockedDataBase );
-    when( pipeline.getTransforms() ).thenReturn( new ArrayList<>() );
-
-    doCallRealMethod().when( pipeline ).writeTransformLogInformation();
-    pipeline.writeTransformLogInformation();
-
-    verify( mockedDataBase ).cleanupLogRecords( transformLogTable );
-  }
 
   @Test
   public void testFirePipelineFinishedListeners() throws Exception {
@@ -248,29 +226,6 @@ public class PipelineTest {
       Thread.sleep( 1 );
     }
     assertEquals( Pipeline.STRING_FINISHED, pipeline.getStatus() );
-  }
-
-  @Test
-  public void testSafeStop() {
-    when( transformMock.isSafeStopped() ).thenReturn( false );
-    when( transformMock.getTransformName() ).thenReturn( "transformName" );
-
-    pipeline.setTransforms( of( combi( transformMock, data, transformMeta ) ) );
-    Result result = pipeline.getResult();
-    assertFalse( result.isSafeStop() );
-
-    when( transformMock.isSafeStopped() ).thenReturn( true );
-    result = pipeline.getResult();
-    assertTrue( result.isSafeStop() );
-  }
-
-  @Test
-  public void safeStopStopsInputTransformsRightAway() throws HopException {
-    pipeline.setTransforms( of( combi( transformMock, data, transformMeta ) ) );
-    when( pipelineMeta.findPreviousTransforms( transformMeta, true ) ).thenReturn( emptyList() );
-    pipeline.pipelineMeta = pipelineMeta;
-    pipeline.safeStop();
-    verifyStopped( transformMock, 1 );
   }
 
   @Test

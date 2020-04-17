@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -1164,10 +1165,10 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     boolean returnKeys = wReturnKeys.getSelection();
 
     // Can't use batch yet when grabbing auto-generated keys or sometimes when we use error handling
-    boolean useBatch = wBatch.getSelection() && !pipelineMeta.isUsingUniqueConnections() && !returnKeys;
+    boolean useBatch = wBatch.getSelection() && !returnKeys;
 
     // Only enable batch option when not returning keys.
-    boolean enableBatch = !returnKeys && !pipelineMeta.isUsingUniqueConnections();
+    boolean enableBatch = !returnKeys;
 
     // Can't ignore errors when using batch inserts.
     boolean useIgnore = !useBatch;
@@ -1470,9 +1471,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
         SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
-            SqlEditor sqledit =
-              new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
-                .getSql() );
+            SqlEditor sqledit = new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql.getSql() );
             sqledit.open();
           } else {
             String message = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogMessage" );

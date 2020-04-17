@@ -36,25 +36,22 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.pipeline.transforms.mapping.MappingIODefinition;
+import org.apache.hop.resource.ResourceDefinition;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
 
 /**
  * This class is supposed to use in transforms where the mapping to sub pipelines takes place
@@ -63,7 +60,7 @@ import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRE
  * @since 02-jan-2017
  */
 public abstract class TransformWithMappingMeta<Main extends ITransform, Data extends ITransformData>
-  extends BaseSerializingMeta<Main,Data> implements ITransformMeta<Main, Data> {
+  extends BaseSerializingMeta<Main, Data> implements ITransformMeta<Main, Data> {
   //default value
   private static Class<?> PKG = TransformWithMappingMeta.class;
 
@@ -301,17 +298,4 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     return ( Arrays.asList( Const.INTERNAL_WORKFLOW_VARIABLES ).contains( variableName ) );
   }
 
-  /**
-   * @return the inputMappings
-   */
-  public List<MappingIODefinition> getInputMappings() {
-    return Collections.emptyList();
-  }
-
-  /**
-   * @return the outputMappings
-   */
-  public List<MappingIODefinition> getOutputMappings() {
-    return Collections.emptyList();
-  }
 }

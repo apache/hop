@@ -31,8 +31,9 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   /**
    * @return the pipeline that is executing this transform
    */
-  Pipeline getPipeline();
+  IPipelineEngine<PipelineMeta> getPipeline();
 
   /**
    * Perform the equivalent of processing one row. Typically this means reading a row from input (getRow()) and passing
@@ -299,11 +300,18 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   void initBeforeStart() throws HopTransformException;
 
   /**
-   * Attach a transform listener to be notified when a transform arrives in a certain state. (finished)
+   * Attach a transform listener to be notified when a transform finishes
    *
    * @param transformListener The listener to add to the transform
    */
-  void addTransformListener( ITransformListener transformListener );
+  void addTransformFinishedListener( ITransformFinishedListener transformListener );
+
+  /**
+   * Attach a transform listener to be notified when a transform starts
+   *
+   * @param transformListener The listener to add to the transform
+   */
+  void addTransformStartedListener( ITransformStartedListener transformListener );
 
   /**
    * @return true if the thread is a special mapping transform

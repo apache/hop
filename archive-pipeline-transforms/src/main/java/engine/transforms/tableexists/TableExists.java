@@ -143,13 +143,7 @@ public class TableExists extends BaseTransform implements ITransform {
       }
 
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionID() );
-          }
-        } else {
-          data.db.connect( getPartitionID() );
-        }
+        data.db.connect( getPartitionID() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TableExists.Log.ConnectedToDB" ) );

@@ -286,24 +286,14 @@ public class SlaveServerPipelineStatus {
       // count as
       // an error
 
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameRead() ) ) {
-        result.increaseLinesRead( transformStatus.getLinesRead() );
-      }
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameInput() ) ) {
-        result.increaseLinesInput( transformStatus.getLinesInput() );
-      }
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameWritten() ) ) {
-        result.increaseLinesWritten( transformStatus.getLinesWritten() );
-      }
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameOutput() ) ) {
-        result.increaseLinesOutput( transformStatus.getLinesOutput() );
-      }
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameUpdated() ) ) {
-        result.increaseLinesUpdated( transformStatus.getLinesUpdated() );
-      }
-      if ( transformStatus.getTransformName().equals( pipelineMeta.getPipelineLogTable().getTransformNameRejected() ) ) {
-        result.increaseLinesRejected( transformStatus.getLinesRejected() );
-      }
+      // For every transform metric, take the maximum amount
+      //
+      result.setNrLinesRead( Math.max( result.getNrLinesRead(), transformStatus.getLinesRead() ) );
+      result.setNrLinesWritten( Math.max( result.getNrLinesWritten(), transformStatus.getLinesWritten() ) );
+      result.setNrLinesInput( Math.max( result.getNrLinesInput(), transformStatus.getLinesInput() ) );
+      result.setNrLinesOutput( Math.max( result.getNrLinesOutput(), transformStatus.getLinesOutput() ) );
+      result.setNrLinesUpdated( Math.max( result.getNrLinesUpdated(), transformStatus.getLinesUpdated() ) );
+      result.setNrLinesRejected( Math.max( result.getNrLinesRejected(), transformStatus.getLinesRejected() ) );
 
       if ( transformStatus.isStopped() ) {
         result.setStopped( true );
@@ -378,7 +368,7 @@ public class SlaveServerPipelineStatus {
   }
 
   /**
-   * @param the logDate
+   * @param logDate
    */
   public void setLogDate( Date logDate ) {
     this.logDate = logDate;

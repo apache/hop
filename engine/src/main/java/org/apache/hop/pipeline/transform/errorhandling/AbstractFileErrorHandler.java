@@ -67,7 +67,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     this.fileExtension = fileExtension;
     this.encoding = encoding;
     this.baseTransform = baseTransform;
-    this.writers = new HashMap<Object, Writer>();
+    this.writers = new HashMap<>();
     initDateFormatter( date );
   }
 

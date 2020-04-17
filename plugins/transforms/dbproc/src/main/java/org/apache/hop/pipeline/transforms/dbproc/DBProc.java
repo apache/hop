@@ -197,13 +197,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
       data.db = new Database( this, meta.getDatabase() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( !meta.isAutoCommit() ) {
           if ( log.isDetailed() ) {

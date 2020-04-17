@@ -27,31 +27,26 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.WorkflowTracker;
-import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.ActionLogTable;
-import org.apache.hop.core.logging.WorkflowLogTable;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.logging.LoggingHierarchy;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -69,17 +64,18 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.resource.ResourceUtil;
+import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.www.RegisterWorkflowServlet;
 import org.apache.hop.www.RegisterPackageServlet;
+import org.apache.hop.www.RegisterWorkflowServlet;
 import org.apache.hop.www.SocketRepository;
 import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.WebResult;
@@ -92,8 +88,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -142,7 +136,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
   /**
    * The parent pipeline
    */
-  protected Pipeline parentPipeline;
+  protected IPipelineEngine parentPipeline;
 
   /**
    * The parent logging interface to reference
@@ -159,7 +153,9 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
    */
   private final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
 
-  private Date startDate, endDate, currentDate, logDate, depDate;
+  private Date executionStartDate;
+
+  private Date executionEndDate;
 
   private long batchId;
 
@@ -207,8 +203,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
   private String executingServer;
 
   private String executingUser;
-
-  private String transactionId;
 
   private Map<String, Object> extensionDataMap;
 
@@ -930,301 +924,13 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
    * @throws HopException
    */
   public boolean beginProcessing() throws HopException {
-    currentDate = new Date();
-    logDate = new Date();
-    startDate = Const.MIN_DATE;
-    endDate = currentDate;
 
     resetErrors();
-
-    final WorkflowLogTable workflowLogTable = workflowMeta.getWorkflowLogTable();
-    int intervalInSeconds = Const.toInt( environmentSubstitute( workflowLogTable.getLogInterval() ), -1 );
-
-    if ( workflowLogTable.isDefined() ) {
-
-      DatabaseMeta logcon = workflowMeta.getWorkflowLogTable().getDatabaseMeta();
-      String schemaName = environmentSubstitute( workflowMeta.getWorkflowLogTable().getActualSchemaName() );
-      String tableName = environmentSubstitute( workflowMeta.getWorkflowLogTable().getActualTableName() );
-      String schemaAndTable =
-        workflowMeta.getWorkflowLogTable().getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
-      Database ldb = new Database( this, logcon );
-      ldb.shareVariablesWith( this );
-      ldb.connect();
-      ldb.setCommit( logCommitSize );
-
-      try {
-        // See if we have to add a batch id...
-        Long id_batch = 1L;
-        if ( workflowMeta.getWorkflowLogTable().isBatchIdUsed() ) {
-          id_batch = logcon.getNextBatchId( ldb, schemaName, tableName, workflowLogTable.getKeyField().getFieldName() );
-          setBatchId( id_batch.longValue() );
-          if ( getPassedBatchId() <= 0 ) {
-            setPassedBatchId( id_batch.longValue() );
-          }
-        }
-
-        Object[] lastr = ldb.getLastLogDate( schemaAndTable, workflowMeta.getName(), true, LogStatus.END );
-        if ( !Utils.isEmpty( lastr ) ) {
-          Date last;
-          try {
-            last = ldb.getReturnRowMeta().getDate( lastr, 0 );
-          } catch ( HopValueException e ) {
-            throw new HopWorkflowException( BaseMessages.getString( PKG, "Job.Log.ConversionError", "" + tableName ), e );
-          }
-          if ( last != null ) {
-            startDate = last;
-          }
-        }
-
-        depDate = currentDate;
-
-        ldb.writeLogRecord( workflowMeta.getWorkflowLogTable(), LogStatus.START, this, null );
-        if ( !ldb.isAutoCommit() ) {
-          ldb.commitLog( true, workflowMeta.getWorkflowLogTable() );
-        }
-        ldb.disconnect();
-
-        // If we need to do periodic logging, make sure to install a timer for
-        // this...
-        //
-        if ( intervalInSeconds > 0 ) {
-          final Timer timer = new Timer( getName() + " - interval logging timer" );
-          TimerTask timerTask = new TimerTask() {
-            @Override public void run() {
-              try {
-                endProcessing();
-              } catch ( Exception e ) {
-                log.logError( BaseMessages.getString( PKG, "Job.Exception.UnableToPerformIntervalLogging" ), e );
-                // Also stop the show...
-                //
-
-                errors.incrementAndGet();
-                stopAll();
-              }
-            }
-          };
-          timer.schedule( timerTask, intervalInSeconds * 1000, intervalInSeconds * 1000 );
-
-          addJobListener( new WorkflowAdapter() {
-            @Override public void jobFinished( Workflow workflow ) {
-              timer.cancel();
-            }
-          } );
-        }
-
-        // Add a listener at the end of the workflow to take of writing the final workflow
-        // log record...
-        //
-        addJobListener( new WorkflowAdapter() {
-          @Override public void jobFinished( Workflow workflow ) throws HopException {
-            try {
-              endProcessing();
-            } catch ( HopWorkflowException e ) {
-              log.logError( BaseMessages.getString( PKG, "Job.Exception.UnableToWriteToLoggingTable", workflowLogTable
-                .toString() ), e );
-              // do not skip exception here
-              // workflow is failed in case log database record is failed!
-              throw new HopException( e );
-            }
-          }
-        } );
-
-      } catch ( HopDatabaseException dbe ) {
-        addErrors( 1 ); // This is even before actual execution
-        throw new HopWorkflowException( BaseMessages.getString( PKG, "Job.Log.UnableToProcessLoggingStart", ""
-          + tableName ), dbe );
-      } finally {
-        ldb.disconnect();
-      }
-    }
-
-    // If we need to write out the action logging information, do so at the end of the workflow:
-    //
-    ActionLogTable actionLogTable = workflowMeta.getActionsLogTable();
-    if ( actionLogTable.isDefined() ) {
-      addJobListener( new WorkflowAdapter() {
-        @Override public void jobFinished( Workflow workflow ) throws HopException {
-          try {
-            writeJobEntryLogInformation();
-          } catch ( HopException e ) {
-            throw new HopException( BaseMessages.getString( PKG,
-              "Job.Exception.UnableToPerformActionLoggingAtJobEnd" ), e );
-          }
-        }
-      } );
-    }
-
-    // If we need to write the log channel hierarchy and lineage information,
-    // add a listener for that too...
-    //
-    ChannelLogTable channelLogTable = workflowMeta.getChannelLogTable();
-    if ( channelLogTable.isDefined() ) {
-      addJobListener( new WorkflowAdapter() {
-
-        @Override public void jobFinished( Workflow workflow ) throws HopException {
-          try {
-            writeLogChannelInformation();
-          } catch ( HopException e ) {
-            throw new HopException( BaseMessages.getString( PKG, "Job.Exception.UnableToPerformLoggingAtPipelineEnd" ),
-              e );
-          }
-        }
-      } );
-    }
 
     WorkflowExecutionExtension extension = new WorkflowExecutionExtension( this, result, null, false );
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobBeginProcessing.id, extension );
 
     return true;
-  }
-
-  //
-  // Handle logging at end
-
-  /**
-   * End processing.
-   *
-   * @return true, if successful
-   * @throws HopWorkflowException the kettle workflow exception
-   */
-  private boolean endProcessing() throws HopWorkflowException {
-    LogStatus status;
-    if ( !isActive() ) {
-      if ( isStopped() ) {
-        status = LogStatus.STOP;
-      } else {
-        status = LogStatus.END;
-      }
-    } else {
-      status = LogStatus.RUNNING;
-    }
-    try {
-      if ( errors.get() == 0 && result != null && !result.getResult() ) {
-        errors.incrementAndGet();
-      }
-
-      logDate = new Date();
-
-      /*
-       * Sums errors, read, written, etc.
-       */
-
-      WorkflowLogTable workflowLogTable = workflowMeta.getWorkflowLogTable();
-      if ( workflowLogTable.isDefined() ) {
-
-        writeLogTableInformation( workflowLogTable, status );
-      }
-
-      return true;
-    } catch ( Exception e ) {
-      throw new HopWorkflowException( e ); // In case something else goes wrong.
-    }
-  }
-
-  /**
-   * Writes information to Workflow Log table. Cleans old records, in case workflow is finished.
-   */
-  protected void writeLogTableInformation( WorkflowLogTable workflowLogTable, LogStatus status ) throws HopWorkflowException,
-    HopDatabaseException {
-    boolean cleanLogRecords = status.equals( LogStatus.END );
-    String tableName = workflowLogTable.getActualTableName();
-    DatabaseMeta logcon = workflowLogTable.getDatabaseMeta();
-
-    Database ldb = createDataBase( logcon );
-    ldb.shareVariablesWith( this );
-    try {
-      ldb.connect();
-      ldb.setCommit( logCommitSize );
-      ldb.writeLogRecord( workflowLogTable, status, this, null );
-
-      if ( cleanLogRecords ) {
-        ldb.cleanupLogRecords( workflowLogTable );
-      }
-
-    } catch ( HopDatabaseException dbe ) {
-      addErrors( 1 );
-      throw new HopWorkflowException( "Unable to end processing by writing log record to table " + tableName, dbe );
-    } finally {
-      if ( !ldb.isAutoCommit() ) {
-        ldb.commitLog( true, workflowLogTable );
-      }
-      ldb.disconnect();
-    }
-  }
-
-  /**
-   * Write log channel information.
-   *
-   * @throws HopException the kettle exception
-   */
-  protected void writeLogChannelInformation() throws HopException {
-    Database db = null;
-    ChannelLogTable channelLogTable = workflowMeta.getChannelLogTable();
-
-    // PDI-7070: If parent workflow has the same channel logging info, don't duplicate log entries
-    Workflow j = getParentWorkflow();
-
-    if ( j != null ) {
-      if ( channelLogTable.equals( j.getWorkflowMeta().getChannelLogTable() ) ) {
-        return;
-      }
-    }
-    // end PDI-7070
-
-    try {
-      db = new Database( this, channelLogTable.getDatabaseMeta() );
-      db.shareVariablesWith( this );
-      db.connect();
-      db.setCommit( logCommitSize );
-
-      List<LoggingHierarchy> loggingHierarchyList = getLoggingHierarchy();
-      for ( LoggingHierarchy loggingHierarchy : loggingHierarchyList ) {
-        db.writeLogRecord( channelLogTable, LogStatus.START, loggingHierarchy, null );
-      }
-
-      // Also time-out the log records in here...
-      //
-      db.cleanupLogRecords( channelLogTable );
-
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "Pipeline.Exception.UnableToWriteLogChannelInformationToLogTable" ), e );
-    } finally {
-      if ( !db.isAutoCommit() ) {
-        db.commit( true );
-      }
-      db.disconnect();
-    }
-  }
-
-  /**
-   * Write action log information.
-   *
-   * @throws HopException the kettle exception
-   */
-  protected void writeJobEntryLogInformation() throws HopException {
-    Database db = null;
-    ActionLogTable actionLogTable = getWorkflowMeta().getActionsLogTable();
-    try {
-      db = createDataBase( actionLogTable.getDatabaseMeta() );
-      db.shareVariablesWith( this );
-      db.connect();
-      db.setCommit( logCommitSize );
-
-      for ( ActionCopy copy : getWorkflowMeta().getJobCopies() ) {
-        db.writeLogRecord( actionLogTable, LogStatus.START, copy, this );
-      }
-
-      db.cleanupLogRecords( actionLogTable );
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "Job.Exception.UnableToActionInformationToLogTable" ),
-        e );
-    } finally {
-      if ( !db.isAutoCommit() ) {
-        db.commitLog( true, actionLogTable );
-      }
-      db.disconnect();
-    }
   }
 
   protected Database createDataBase( DatabaseMeta databaseMeta ) {
@@ -1279,31 +985,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
   public void setFinished( boolean finished ) {
     status.updateAndGet( v -> finished ? v | BitMaskStatus.FINISHED.mask : ( BitMaskStatus.BIT_STATUS_SUM
       ^ BitMaskStatus.FINISHED.mask ) & v );
-  }
-
-  public Date getStartDate() {
-    return startDate;
-  }
-
-  public Date getEndDate() {
-    return endDate;
-  }
-
-  public Date getCurrentDate() {
-    return currentDate;
-  }
-
-  /**
-   * Gets the dep date.
-   *
-   * @return Returns the depDate
-   */
-  public Date getDepDate() {
-    return depDate;
-  }
-
-  public Date getLogDate() {
-    return logDate;
   }
 
   public WorkflowMeta getWorkflowMeta() {
@@ -1578,7 +1259,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
   /**
    * Send to slave server.
    *
-   * @param workflowMeta                the workflow meta
+   * @param workflowMeta           the workflow meta
    * @param executionConfiguration the execution configuration
    * @param metaStore              the metaStore
    * @return the string
@@ -2096,24 +1777,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     }
   }
 
-  /**
-   * Gets the transaction id.
-   *
-   * @return the transactionId
-   */
-  public String getTransactionId() {
-    return transactionId;
-  }
-
-  /**
-   * Sets the transaction id.
-   *
-   * @param transactionId the transactionId to set
-   */
-  public void setTransactionId( String transactionId ) {
-    this.transactionId = transactionId;
-  }
-
   public List<IDelegationListener> getDelegationListeners() {
     return delegationListeners;
   }
@@ -2126,11 +1789,11 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     delegationListeners.add( delegationListener );
   }
 
-  public Pipeline getParentPipeline() {
+  public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
 
-  public void setParentPipeline( Pipeline parentPipeline ) {
+  public void setParentPipeline( IPipelineEngine parentPipeline ) {
     this.parentPipeline = parentPipeline;
   }
 
@@ -2217,5 +1880,37 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     }
 
     return Const.HEARTBEAT_PERIODIC_INTERVAL_IN_SECS;
+  }
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  public void setExecutionStartDate( Date executionStartDate ) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  public void setExecutionEndDate( Date executionEndDate ) {
+    this.executionEndDate = executionEndDate;
   }
 }

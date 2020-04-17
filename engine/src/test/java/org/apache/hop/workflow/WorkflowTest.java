@@ -25,9 +25,6 @@ package org.apache.hop.workflow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.logging.BaseLogTable;
-import org.apache.hop.core.logging.ActionLogTable;
-import org.apache.hop.core.logging.WorkflowLogTable;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
@@ -74,43 +71,6 @@ public class WorkflowTest {
     mockedLogChannel = mock( LogChannel.class );
 
     when( mockedWorkflow.createDataBase( any( DatabaseMeta.class ) ) ).thenReturn( mockedDataBase );
-  }
-
-  @Test
-  public void recordsCleanUpMethodIsCalled_JobEntryLogTable() throws Exception {
-
-    ActionLogTable actionLogTable = ActionLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
-    setAllTableParamsDefault( actionLogTable );
-
-    WorkflowMeta workflowMeta = new WorkflowMeta();
-    workflowMeta.setActionsLogTable( actionLogTable );
-
-    when( mockedWorkflow.getWorkflowMeta() ).thenReturn( workflowMeta );
-    doCallRealMethod().when( mockedWorkflow ).writeJobEntryLogInformation();
-
-    mockedWorkflow.writeJobEntryLogInformation();
-
-    verify( mockedDataBase ).cleanupLogRecords( actionLogTable );
-  }
-
-  @Test
-  public void recordsCleanUpMethodIsCalled_JobLogTable() throws Exception {
-    WorkflowLogTable workflowLogTable = WorkflowLogTable.getDefault( mockedVariableSpace, mockedMetaStore );
-    setAllTableParamsDefault( workflowLogTable );
-
-    doCallRealMethod().when( mockedWorkflow ).writeLogTableInformation( workflowLogTable, LogStatus.END );
-
-    mockedWorkflow.writeLogTableInformation( workflowLogTable, LogStatus.END );
-
-    verify( mockedDataBase ).cleanupLogRecords( workflowLogTable );
-  }
-
-  public void setAllTableParamsDefault( BaseLogTable table ) {
-    table.setSchemaName( STRING_DEFAULT );
-    table.setConnectionName( STRING_DEFAULT );
-    table.setTimeoutInDays( STRING_DEFAULT );
-    table.setTableName( STRING_DEFAULT );
-    table.setFields( new ArrayList<LogTableField>() );
   }
 
   @Test

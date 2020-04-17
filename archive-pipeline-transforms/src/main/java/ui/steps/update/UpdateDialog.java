@@ -605,7 +605,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     // Only enable batch option when not returning keys.
     // If we are on PostgreSQL (and look-a-likes), error handling is not supported. (PDI-366)
     //
-    boolean enableBatch = wBatch.getSelection() && !pipelineMeta.isUsingUniqueConnections();
+    boolean enableBatch = wBatch.getSelection();
     enableBatch =
       enableBatch
         && !( databaseMeta != null && databaseMeta.supportsErrorHandlingOnBatchUpdates() && hasErrorHandling );
@@ -874,7 +874,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =
-            new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+            new SQLEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

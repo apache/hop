@@ -30,18 +30,15 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
+import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInputData;
 
 import java.util.ArrayList;
@@ -55,7 +52,7 @@ import java.util.ArrayList;
 public class SingleThreader extends BaseTransform<SingleThreaderMeta, SingleThreaderData> implements ITransform<SingleThreaderMeta, SingleThreaderData> {
 
   private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
-  
+
   public SingleThreader( TransformMeta transformMeta, SingleThreaderMeta meta, SingleThreaderData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -158,7 +155,7 @@ public class SingleThreader extends BaseTransform<SingleThreaderMeta, SingleThre
     // Pass the parameters down to the sub-pipeline.
     //
     TransformWithMappingMeta.activateParams( data.mappingPipeline, data.mappingPipeline, this, data.mappingPipeline.listParameters(),
-        meta.getParameters(), meta.getParameterValues(), meta.isPassingAllParameters() );
+      meta.getParameters(), meta.getParameterValues(), meta.isPassingAllParameters() );
     data.mappingPipeline.activateParameters();
 
     // Disable thread priority managment as it will slow things down needlessly.
@@ -194,7 +191,6 @@ public class SingleThreader extends BaseTransform<SingleThreaderMeta, SingleThre
       MappingInputData mappingInputData =
         (MappingInputData) data.mappingPipeline.findDataInterface( data.injectTransformMeta.getName() );
       mappingInputData.sourceTransforms = new ITransform[ 0 ];
-      mappingInputData.valueRenames = new ArrayList<MappingValueRename>();
     }
 
     // Add row producer & row listener
@@ -296,7 +292,7 @@ public class SingleThreader extends BaseTransform<SingleThreaderMeta, SingleThre
     return false;
   }
 
-  public void dispose(){
+  public void dispose() {
     // dispose of the single threading execution engine
     //
     try {

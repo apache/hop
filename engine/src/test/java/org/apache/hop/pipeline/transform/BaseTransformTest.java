@@ -190,7 +190,7 @@ public class BaseTransformTest {
       @Override
       public void run() {
         while ( !done.get() ) {
-          baseTransform.addTransformListener( mock( ITransformListener.class ) );
+          baseTransform.addTransformFinishedListener( mock( ITransformFinishedListener.class ) );
           synchronized ( done ) {
             done.notify();
           }
@@ -204,7 +204,7 @@ public class BaseTransformTest {
 
       // Allow a few listeners to be added
       synchronized ( done ) {
-        while ( baseTransform.getTransformListeners().size() < 20 ) {
+        while ( baseTransform.getTransformFinishedListeners().size() < 20 ) {
           done.wait();
         }
       }
@@ -213,7 +213,7 @@ public class BaseTransformTest {
 
       // Allow more listeners to be added
       synchronized ( done ) {
-        while ( baseTransform.getTransformListeners().size() < 100 ) {
+        while ( baseTransform.getTransformFinishedListeners().size() < 100 ) {
           done.wait();
         }
       }

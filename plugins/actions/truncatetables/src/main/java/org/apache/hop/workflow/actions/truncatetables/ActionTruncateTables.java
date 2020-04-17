@@ -224,7 +224,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
       Database db = new Database( this, connection );
       db.shareVariablesWith( this );
       try {
-        db.connect( parentWorkflow.getTransactionId(), null );
+        db.connect();
         if ( argFromPrevious && rows != null ) { // Copy the input row to the (command line) arguments
 
           for ( int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped() && continueProcess; iteration++ ) {
