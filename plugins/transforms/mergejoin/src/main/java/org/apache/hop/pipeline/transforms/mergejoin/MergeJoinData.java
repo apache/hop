@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -45,8 +45,8 @@ public class MergeJoinData extends BaseTransformData implements ITransformData {
   public int[] keyNrs1;
   public int[] keyNrs2;
 
-  public RowSet oneRowSet;
-  public RowSet twoRowSet;
+  public IRowSet oneRowSet;
+  public IRowSet twoRowSet;
 
   /**
    * Default initializer
