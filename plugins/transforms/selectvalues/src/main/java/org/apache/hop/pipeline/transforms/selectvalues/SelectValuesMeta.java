@@ -238,7 +238,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   private void allocateMeta( int nrMeta ) {
     meta = new SelectMetadataChange[ nrMeta ];
     for ( int i = 0; i < nrMeta; i++ ) {
-      meta[ i ] = new SelectMetadataChange( this );
+      meta[ i ] = new SelectMetadataChange();
     }
   }
 
@@ -292,7 +292,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
 
       for ( int i = 0; i < nrmeta; i++ ) {
         Node metaNode = XmlHandler.getSubNodeByNr( fields, SelectMetadataChange.XML_TAG, i );
-        meta[ i ] = new SelectMetadataChange( this );
+        meta[ i ] = new SelectMetadataChange();
         meta[ i ].loadXml( metaNode );
       }
     } catch ( Exception e ) {
@@ -493,27 +493,22 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
     retval.append( "    <fields>" );
     for ( int i = 0; i < selectFields.length; i++ ) {
       retval.append( "      <field>" );
-      retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_NAME" ), selectFields[ i ]
-        .getName() ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", selectFields[ i ].getName() ) );
       if ( selectFields[ i ].getRename() != null ) {
-        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_RENAME" ), selectFields[ i ]
-          .getRename() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "rename", selectFields[ i ].getRename() ) );
       }
       if ( selectFields[ i ].getPrecision() > 0 ) {
-        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_LENGTH" ), selectFields[ i ]
-          .getLength() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "length", selectFields[ i ].getLength() ) );
       }
       if ( selectFields[ i ].getPrecision() > 0 ) {
-        retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "FIELD_PRECISION" ), selectFields[ i ]
-          .getPrecision() ) );
+        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", selectFields[ i ].getPrecision() ) );
       }
       retval.append( "      </field>" );
     }
-    retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "SELECT_UNSPECIFIED" ),
-      selectingAndSortingUnspecifiedFields ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "select_unspecified", selectingAndSortingUnspecifiedFields ) );
     for ( int i = 0; i < deleteName.length; i++ ) {
       retval.append( "      <remove>" );
-      retval.append( "        " ).append( XmlHandler.addTagValue( getXmlCode( "REMOVE_NAME" ), deleteName[ i ] ) );
+      retval.append( "        " ).append( XmlHandler.addTagValue( "name", deleteName[ i ] ) );
       retval.append( "      </remove>" );
     }
     for ( int i = 0; i < meta.length; i++ ) {

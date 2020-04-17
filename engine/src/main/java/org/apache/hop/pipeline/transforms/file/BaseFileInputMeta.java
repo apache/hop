@@ -28,6 +28,7 @@ import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -42,7 +43,7 @@ import java.util.List;
  * @author Alexander Buloichik
  */
 public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField, Main extends ITransform, Data extends ITransformData>
-  extends org.apache.hop.pipeline.transform.BaseTransformMeta implements
+  extends BaseTransformMeta implements
   ITransformMeta<Main, Data> {
   private static Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator!!
 

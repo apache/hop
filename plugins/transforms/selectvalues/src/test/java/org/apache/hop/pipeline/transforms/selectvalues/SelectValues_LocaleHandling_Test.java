@@ -116,8 +116,7 @@ public class SelectValues_LocaleHandling_Test {
     transformMeta.allocate( 1, 0, 1 );
     transformMeta.getSelectFields()[ 0 ] = new SelectField();
     transformMeta.getSelectFields()[ 0 ].setName( "field" );
-    transformMeta.getMeta()[ 0 ] = new SelectMetadataChange(
-      transformMeta, "field", null, IValueMeta.TYPE_STRING, -2, -2,
+    transformMeta.getMeta()[ 0 ] = new SelectMetadataChange( "field", null, IValueMeta.TYPE_STRING, -2, -2,
         IValueMeta.STORAGE_TYPE_NORMAL, "ww", false, locale, null, false, null, null, null );
 
     SelectValuesData transformData = new SelectValuesData();
