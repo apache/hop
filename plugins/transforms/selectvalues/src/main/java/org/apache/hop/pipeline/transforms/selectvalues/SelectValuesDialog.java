@@ -172,6 +172,17 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+    // Buttons go at the bottom.  The tabs in between
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
+
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null ); // null means bottom of dialog
+
     // The folders!
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
@@ -467,34 +478,12 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     // ///////////////////////////////////////////////////////////
     // / END OF TAB FOLDER
     // ///////////////////////////////////////////////////////////
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
-
-    // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -514,28 +503,26 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     //
     // Search the fields in the background
     //
-
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
-            prevFields = row;
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          prevFields = row;
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
     new Thread( runnable ).start();
 
     // Set the shell size, based upon previous time...
+    //
     setSize();
 
     getData();
@@ -553,22 +540,20 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setComboValues() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        try {
-          prevFields = pipelineMeta.getPrevTransformFields( transformName );
-        } catch ( HopException e ) {
-          prevFields = new RowMeta();
-          String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
-          logError( msg );
-        }
-        String[] prevTransformFieldNames = prevFields != null ? prevFields.getFieldNames() : new String[ 0 ];
-        Arrays.sort( prevTransformFieldNames );
-        bPreviousFieldsLoaded = true;
-        for ( int i = 0; i < fieldColumns.size(); i++ ) {
-          ColumnInfo colInfo = fieldColumns.get( i );
-          colInfo.setComboValues( prevTransformFieldNames );
-        }
+    Runnable fieldLoader = () -> {
+      try {
+        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+      } catch ( HopException e ) {
+        prevFields = new RowMeta();
+        String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
+        logError( msg );
+      }
+      String[] prevTransformFieldNames = prevFields != null ? prevFields.getFieldNames() : new String[ 0 ];
+      Arrays.sort( prevTransformFieldNames );
+      bPreviousFieldsLoaded = true;
+      for ( int i = 0; i < fieldColumns.size(); i++ ) {
+        ColumnInfo colInfo = fieldColumns.get( i );
+        colInfo.setComboValues( prevTransformFieldNames );
       }
     };
     shell.getDisplay().asyncExec( fieldLoader );
@@ -725,7 +710,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     }
 
     for ( int i = 0; i < nrmeta; i++ ) {
-      SelectMetadataChange change = new SelectMetadataChange( input );
+      SelectMetadataChange change = new SelectMetadataChange();
       input.getMeta()[ i ] = change;
 
       TableItem item = wMeta.getNonEmpty( i );

@@ -56,7 +56,6 @@ import static org.mockito.Mockito.when;
  * @author Andrey Khayrutdinov
  */
 @RunWith( Parameterized.class )
-@Ignore
 public class WorkflowTrackerConcurrencyTest {
 
   private static final int gettersAmount = 10;
