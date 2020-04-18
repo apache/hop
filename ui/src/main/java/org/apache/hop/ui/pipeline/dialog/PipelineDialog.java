@@ -124,8 +124,6 @@ public class PipelineDialog extends Dialog {
   private Text wModUser;
   private Text wModDate;
 
-  private TableView wFields;
-
   private TableView wParamFields;
 
   private Button wOk, wCancel;
@@ -796,9 +794,6 @@ public class PipelineDialog extends Dialog {
 
     wManageThreads.setSelection( pipelineMeta.isUsingThreadPriorityManagment() );
     wPipelineType.setText( pipelineMeta.getPipelineType().getDescription() );
-
-    wFields.setRowNums();
-    wFields.optWidth( true );
 
     wParamFields.setRowNums();
     wParamFields.optWidth( true );
