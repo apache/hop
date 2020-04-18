@@ -379,13 +379,13 @@ public class LoadFileInputTest {
     // byte array
     Mockito.doReturn( new ValueMetaBinary() ).when( mockedRowMetaInterface ).getValueMeta( anyInt() );
     ( (LoadFileInputMeta) runtimeSMI ).setEncoding( "UTF-8" );
-    transformInputFiles.addFile( getFile( "pentaho_splash.png" ) );
+    transformInputFiles.addFile( getFile( "hop.jpg" ) );
     inputField = new LoadFileInputField();
     inputField.setType( IValueMeta.TYPE_BINARY );
     ( (LoadFileInputMeta) runtimeSMI ).setInputFields( new LoadFileInputField[] { inputField } );
 
     assertNotNull( transformLoadFileInput.getOneRow() );
-    assertArrayEquals( IOUtils.toByteArray( getFile( "pentaho_splash.png" ).getContent().getInputStream() ), transformLoadFileInput.getData().filecontent );
+    assertArrayEquals( IOUtils.toByteArray( getFile( "hop.jpg" ).getContent().getInputStream() ), transformLoadFileInput.getData().filecontent );
   }
 
   @Test

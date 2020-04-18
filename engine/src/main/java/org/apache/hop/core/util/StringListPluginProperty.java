@@ -31,9 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl</a>
- */
 public class StringListPluginProperty extends KeyValue<List<String>> implements IPluginProperty, Iterable<String> {
 
   /**

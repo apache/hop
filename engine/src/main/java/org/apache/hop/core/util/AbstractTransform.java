@@ -29,9 +29,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public abstract class AbstractTransform<Meta extends ITransformMeta, Data extends ITransformData> extends BaseTransform<Meta, Data> {
 
   /**

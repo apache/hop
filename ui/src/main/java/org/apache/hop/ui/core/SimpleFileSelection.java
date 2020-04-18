@@ -31,9 +31,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public class SimpleFileSelection extends SelectionAdapter {
 
   /**

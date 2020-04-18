@@ -245,10 +245,10 @@ public class CheckSumTest {
     assertEquals( "45cbb96ff9625490cd675a7a39fecad6c167c1ed9b8957f53224fcb3e4a1e4a1",
       results.getWritten().get( 0 )[ 1 ] );
 
-    byte[] input = IOUtils.toByteArray( getFile( "/org/apache/hop/pipeline/transforms/loadfileinput/files/pentaho_splash.png" ).getContent().getInputStream() );
+    byte[] input = IOUtils.toByteArray( getFile( "/org/apache/hop/pipeline/transforms/loadfileinput/files/hop.jpg" ).getContent().getInputStream() );
     results = executeHexTest( 4, input, new ValueMetaBinary( "test" ) );
     assertEquals( 1, results.getWritten().size() );
-    assertEquals( "6914d0cb9296d658569570c23924ea4822be73f0ee3bc46d11651fb4041a43e1", results.getWritten().get( 0 )[ 1 ] );
+    assertEquals( "51165cf63a5b08470272cbf75f6bfb439fad977a451866a25b5ebb3767f31872", results.getWritten().get( 0 )[ 1 ] );
   }
 
 

@@ -30,7 +30,6 @@ import java.util.List;
 
 /**
  * @param <T> type of key value.
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
 public class KeyValueFactory<T> {
 

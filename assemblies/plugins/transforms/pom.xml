@@ -66,6 +66,7 @@
         <module>http</module>
         <module>httppost</module>
         <module>loadfileinput</module>
+        <module>mergejoin</module>
         <module>pgbulkloader</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>

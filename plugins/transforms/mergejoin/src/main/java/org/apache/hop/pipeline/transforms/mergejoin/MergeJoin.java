@@ -22,6 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -36,7 +37,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,20 +57,17 @@ import java.util.List;
  * @since 24-nov-2006
  */
 
-public class MergeJoin extends BaseTransform implements ITransform {
+public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> implements ITransform<MergeJoinMeta, MergeJoinData> {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
-  private MergeJoinMeta meta;
-  private MergeJoinData data;
+  private IRowMeta oneMeta, twoMeta;
 
-  public MergeJoin( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public MergeJoin( TransformMeta transformMeta, MergeJoinMeta meta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (MergeJoinMeta) smi;
-    data = (MergeJoinData) sdi;
     int compare;
 
     if ( first ) {
@@ -77,45 +75,45 @@ public class MergeJoin extends BaseTransform implements ITransform {
 
       // Find the RowSet to read from
       //
-      List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
-      data.oneRowSet = findInputRowSet( infoStreams.get( 0 ).getTransformName() );
-      if ( data.oneRowSet == null ) {
+      IRowSet oneRowSet = findInputRowSet( infoStreams.get( 0 ).getTransformName() );
+      if ( oneRowSet == null ) {
         throw new HopException( BaseMessages.getString(
           PKG, "MergeJoin.Exception.UnableToFindSpecifiedTransform", infoStreams.get( 0 ).getTransformName() ) );
       }
 
-      data.twoRowSet = findInputRowSet( infoStreams.get( 1 ).getTransformName() );
-      if ( data.twoRowSet == null ) {
+      IRowSet twoRowSet = findInputRowSet( infoStreams.get( 1 ).getTransformName() );
+      if ( twoRowSet == null ) {
         throw new HopException( BaseMessages.getString(
           PKG, "MergeJoin.Exception.UnableToFindSpecifiedTransform", infoStreams.get( 1 ).getTransformName() ) );
       }
 
-      data.one = getRowFrom( data.oneRowSet );
-      if ( data.one != null ) {
-        data.oneMeta = data.oneRowSet.getRowMeta();
+      Object[] one = getRowFrom( oneRowSet );
+      if ( one != null ) {
+         oneMeta = oneRowSet.getRowMeta();
       } else {
-        data.one = null;
-        data.oneMeta = getPipelineMeta().getTransformFields( infoStreams.get( 0 ).getTransformName() );
+        one = null;
+         oneMeta = getPipelineMeta().getTransformFields( infoStreams.get( 0 ).getTransformName() );
       }
 
-      data.two = getRowFrom( data.twoRowSet );
-      if ( data.two != null ) {
-        data.twoMeta = data.twoRowSet.getRowMeta();
+      Object[] two = getRowFrom( twoRowSet );
+      if ( two != null ) {
+        twoMeta = twoRowSet.getRowMeta();
       } else {
-        data.two = null;
-        data.twoMeta = getPipelineMeta().getTransformFields( infoStreams.get( 1 ).getTransformName() );
+        two = null;
+        twoMeta = getPipelineMeta().getTransformFields( infoStreams.get( 1 ).getTransformName() );
       }
 
       // just for speed: oneMeta+twoMeta
       //
-      data.outputRowMeta = new RowMeta();
-      data.outputRowMeta.mergeRowMeta( data.oneMeta.clone() );
-      data.outputRowMeta.mergeRowMeta( data.twoMeta.clone() );
+      IRowMeta outputRowMeta = new RowMeta();
+      outputRowMeta.mergeRowMeta( oneMeta.clone() );
+      outputRowMeta.mergeRowMeta( twoMeta.clone() );
 
-      if ( data.one != null ) {
+      if ( one != null ) {
         // Find the key indexes:
-        data.keyNrs1 = new int[ meta.getKeyFields1().length ];
+        int[] keyNrs1 = new int[meta.getKeyFields1().length];
         for ( int i = 0; i < data.keyNrs1.length; i++ ) {
           data.keyNrs1[ i ] = data.oneMeta.indexOfValue( meta.getKeyFields1()[ i ] );
           if ( data.keyNrs1[ i ] < 0 ) {
@@ -398,11 +396,9 @@ public class MergeJoin extends BaseTransform implements ITransform {
    * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform, org.apache.hop.pipeline.transform.ITransformData)
    */
   public boolean init() {
-    meta = (MergeJoinMeta) smi;
-    data = (MergeJoinData) sdi;
 
     if ( super.init() ) {
-      List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
       if ( infoStreams.get( 0 ).getTransformMeta() == null || infoStreams.get( 1 ).getTransformMeta() == null ) {
         logError( BaseMessages.getString( PKG, "MergeJoin.Log.BothTrueAndFalseNeeded" ) );
         return false;

@@ -20,9 +20,10 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.mergejoin;
+package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,10 +32,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -62,6 +63,12 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
+@PluginDialog(
+        id = "MergeJoin",
+        image = "ui/images/MJOIN.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -351,7 +358,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    List<StreamInterface> infoStreams = input.getTransformIOMeta().getInfoStreams();
+    List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
 
     wTransform1.setText( Const.NVL( infoStreams.get( 0 ).getTransformName(), "" ) );
     wTransform2.setText( Const.NVL( infoStreams.get( 1 ).getTransformName(), "" ) );
@@ -386,7 +393,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
   }
 
   private void getMeta( MergeJoinMeta meta ) {
-    List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+    List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
     infoStreams.get( 0 ).setTransformMeta( pipelineMeta.findTransform( wTransform1.getText() ) );
     infoStreams.get( 1 ).setTransformMeta( pipelineMeta.findTransform( wTransform2.getText() ) );
@@ -430,7 +437,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
           0,
           BaseMessages.getString( PKG, "MergeJoinDialog.InputNeedSort.Option2" ), "N".equalsIgnoreCase(
           props.getCustomParameter( STRING_SORT_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
       props.saveProps();
@@ -446,7 +453,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     getMeta( joinMeta );
 
     try {
-      List<StreamInterface> infoStreams = joinMeta.getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = joinMeta.getTransformIOMeta().getInfoStreams();
 
       TransformMeta transformMeta = infoStreams.get( 0 ).getTransformMeta();
       if ( transformMeta != null ) {
@@ -467,7 +474,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     getMeta( joinMeta );
 
     try {
-      List<StreamInterface> infoStreams = joinMeta.getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = joinMeta.getTransformIOMeta().getInfoStreams();
 
       TransformMeta transformMeta = infoStreams.get( 1 ).getTransformMeta();
       if ( transformMeta != null ) {

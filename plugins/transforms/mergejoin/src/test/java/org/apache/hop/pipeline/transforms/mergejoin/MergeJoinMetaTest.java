@@ -31,10 +31,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidatorFactory;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -58,9 +58,9 @@ public class MergeJoinMetaTest {
     //SwitchCaseMeta bean-like attributes
     List<String> attributes = Arrays.asList( "joinType", "keyFields1", "keyFields2" );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "joinType", "getJoinType" );
@@ -77,9 +77,9 @@ public class MergeJoinMetaTest {
       getterMap, setterMap,
       attrValidatorMap, typeValidatorMap );
 
-    FieldLoadSaveValidatorFactory validatorFactory = loadSaveTester.getFieldLoadSaveValidatorFactory();
+    IFieldLoadSaveValidatorFactory validatorFactory = loadSaveTester.getFieldLoadSaveValidatorFactory();
 
-    FieldLoadSaveValidator<MergeJoinMeta> targetValidator = new FieldLoadSaveValidator<MergeJoinMeta>() {
+    IFieldLoadSaveValidator<MergeJoinMeta> targetValidator = new IFieldLoadSaveValidator<MergeJoinMeta>() {
 
       @Override
       public MergeJoinMeta getTestObject() {
@@ -182,8 +182,8 @@ public class MergeJoinMetaTest {
 
     assertNotNull( aClone.getTransformIOMeta() );
     assertFalse( meta.getTransformIOMeta() == aClone.getTransformIOMeta() );
-    List<StreamInterface> infoStreams = meta.getTransformIOMeta().getInfoStreams();
-    List<StreamInterface> cloneInfoStreams = aClone.getTransformIOMeta().getInfoStreams();
+    List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+    List<IStream> cloneInfoStreams = aClone.getTransformIOMeta().getInfoStreams();
     assertFalse( infoStreams == cloneInfoStreams );
     int streamSize = infoStreams.size();
     assertTrue( streamSize == cloneInfoStreams.size() );

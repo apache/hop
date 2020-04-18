@@ -44,9 +44,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
-/**
- * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- */
 @Transform(
 		  id = "TeraFast",
 		  i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",

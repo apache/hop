@@ -40,13 +40,6 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
-
-/**
- * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
- */
 public abstract class AbstractTransformMeta extends BaseTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
   private static final String CONNECTION_NAME = "connection";

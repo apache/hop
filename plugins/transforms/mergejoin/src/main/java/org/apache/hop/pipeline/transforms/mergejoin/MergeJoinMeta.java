@@ -23,8 +23,9 @@
 package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -32,34 +33,33 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
-/*
- * @author Biswapesh
- * @since 24-nov-2006
- */
 @InjectionSupported( localizationPrefix = "MergeJoin.Injection." )
-public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "MergeJoin",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.mergejoin",
+        name = "BaseTransform.TypeLongDesc.MergeJoin",
+        description = "BaseTransform.TypeTooltipDesc.MergeJoin",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join"
+)
+public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MergeJoin, MergeJoinData> {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] join_types = { "INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER" };
@@ -124,6 +124,11 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
     return true;
   }
 
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return null;
+  }
+
   public MergeJoinMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -145,10 +150,10 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
     System.arraycopy( keyFields1, 0, retval.keyFields1, 0, nrKeys1 );
     System.arraycopy( keyFields2, 0, retval.keyFields2, 0, nrKeys2 );
 
-    TransformIOMetaInterface transformIOMeta = new TransformIOMeta( true, true, false, false, false, false );
-    List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
+    ITransformIOMeta transformIOMeta = new TransformIOMeta( true, true, false, false, false, false );
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
 
-    for ( StreamInterface infoStream : infoStreams ) {
+    for ( IStream infoStream : infoStreams ) {
       transformIOMeta.addStream( new Stream( infoStream ) );
     }
     retval.setTransformIOMeta( transformIOMeta );
@@ -159,7 +164,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
 
     retval.append( XmlHandler.addTagValue( "join_type", getJoinType() ) );
     retval.append( XmlHandler.addTagValue( "transform1", infoStreams.get( 0 ).getTransformName() ) );
@@ -201,7 +206,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
         keyFields2[ i ] = XmlHandler.getNodeValue( keynode );
       }
 
-      List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
       infoStreams.get( 0 ).setSubject( XmlHandler.getTagValue( transformNode, "transform1" ) );
       infoStreams.get( 1 ).setSubject( XmlHandler.getTagValue( transformNode, "transform2" ) );
       joinType = XmlHandler.getTagValue( transformNode, "join_type" );
@@ -218,27 +223,27 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
 
   @Override
   public void searchInfoAndTargetTransforms( List<TransformMeta> transforms ) {
-    List<StreamInterface> infoStreams = getTransformIOMeta().getInfoStreams();
-    for ( StreamInterface stream : infoStreams ) {
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    for ( IStream stream : infoStreams ) {
       stream.setTransformMeta( TransformMeta.findTransform( transforms, (String) stream.getSubject() ) );
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     /*
      * @todo Need to check for the following: 1) Join type must be one of INNER / LEFT OUTER / RIGHT OUTER / FULL OUTER
      * 2) Number of input streams must be two (for now at least) 3) The field names of input streams must be unique
      */
     CheckResult cr =
-      new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+      new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
         PKG, "MergeJoinMeta.CheckResult.TransformNotVerified" ), transformMeta );
     remarks.add( cr );
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //
@@ -259,20 +264,20 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransform {
     return;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
+  public ITransform getTransform( TransformMeta transformMeta, MergeJoinData data, int cnr, PipelineMeta tr,
                                 Pipeline pipeline ) {
     return new MergeJoin( transformMeta, this, data, cnr, tr, pipeline );
   }
 
-  public ITransformData getTransformData() {
+  public MergeJoinData getTransformData() {
     return new MergeJoinData();
   }
 
   /**
    * Returns the Input/Output metadata for this transform. The generator transform only produces output, does not accept input!
    */
-  public TransformIOMetaInterface getTransformIOMeta() {
-    TransformIOMetaInterface ioMeta = super.getTransformIOMeta( false );
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta( false );
     if ( ioMeta == null ) {
 
       ioMeta = new TransformIOMeta( true, true, false, false, false, false );

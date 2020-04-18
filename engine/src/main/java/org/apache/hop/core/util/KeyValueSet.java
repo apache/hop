@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
 
   /**
