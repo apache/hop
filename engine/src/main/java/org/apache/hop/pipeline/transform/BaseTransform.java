@@ -57,10 +57,8 @@ import org.apache.hop.pipeline.BasePartitioner;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transforms.mapping.Mapping;
-import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
-import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
 import org.apache.hop.www.SocketRepository;
 
 import java.io.Closeable;
@@ -158,7 +156,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private String containerObjectId;
 
-  private Pipeline pipeline;
+  private IPipelineEngine<PipelineMeta> pipeline;
 
   private final Object statusCountersLock = new Object();
 
@@ -348,7 +346,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private boolean usingThreadPriorityManagment;
 
-  private List<ITransformListener> transformListeners;
+  private List<ITransformFinishedListener> transformFinishedListeners;
+  private List<ITransformStartedListener> transformStartedListeners;
 
   /**
    * The socket repository to use when opening server side sockets in clustering mode
@@ -403,18 +402,18 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private IRowHandler rowHandler;
 
-  private AtomicBoolean markStopped = new AtomicBoolean(false);
+  private AtomicBoolean markStopped = new AtomicBoolean( false );
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this class to implement your own
    * transforms.
    *
-   * @param transformMeta          The TransformMeta object to run.
-   * @param data the data object to store temporary data, database connections, caches, result sets,
-   *                          hashtables etc.
-   * @param copyNr            The copynumber for this transform.
-   * @param pipelineMeta         The PipelineMeta of which the transform transformMeta is part of.
-   * @param pipeline             The (running) pipeline to obtain information shared among the transforms.
+   * @param transformMeta The TransformMeta object to run.
+   * @param data          the data object to store temporary data, database connections, caches, result sets,
+   *                      hashtables etc.
+   * @param copyNr        The copynumber for this transform.
+   * @param pipelineMeta  The PipelineMeta of which the transform transformMeta is part of.
+   * @param pipeline      The (running) pipeline to obtain information shared among the transforms.
    */
   public BaseTransform( TransformMeta transformMeta, Meta meta, Data data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     this.transformMeta = transformMeta;
@@ -512,7 +511,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     blockPointer = 0;
 
-    transformListeners = Collections.synchronizedList( new ArrayList<ITransformListener>() );
+    transformFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
+    transformStartedListeners = Collections.synchronizedList( new ArrayList<>() );
 
     dispatch();
 
@@ -564,8 +564,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       boolean envSubFailed = false;
       try {
         maxErrors =
-          ( !Utils.isEmpty( transformErrorMeta.getMaxErrors() ) ? Long.valueOf( pipeline
-            .environmentSubstitute( transformErrorMeta.getMaxErrors() ) ) : -1L );
+          ( !Utils.isEmpty( transformErrorMeta.getMaxErrors() ) ? Long.valueOf( pipeline.environmentSubstitute( transformErrorMeta.getMaxErrors() ) ) : -1L );
       } catch ( NumberFormatException nfe ) {
         log.logError( BaseMessages.getString( PKG, "BaseTransform.Log.NumberFormatException", BaseMessages.getString(
           PKG, "BaseTransform.Property.MaxErrors.Name" ), this.transformName, ( transformErrorMeta.getMaxErrors() != null
@@ -924,7 +923,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @return the dispatcher
    */
-  public Pipeline getDispatcher() {
+  public IPipelineEngine<PipelineMeta> getDispatcher() {
     return pipeline;
   }
 
@@ -1014,7 +1013,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return Returns the pipeline.
    */
   @Override
-  public Pipeline getPipeline() {
+  public IPipelineEngine<PipelineMeta> getPipeline() {
     return pipeline;
   }
 
@@ -1375,8 +1374,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     if ( pipeline.isSafeModeEnabled() ) {
       if ( rowMeta.size() > row.length ) {
         throw new HopTransformException( BaseMessages.getString(
-          PKG, "BaseTransform.Exception.MetadataDoesntMatchDataRowSize", Integer.toString( rowMeta.size() ), Integer
-            .toString( row != null ? row.length : 0 ) ) );
+          PKG, "BaseTransform.Exception.MetadataDoesntMatchDataRowSize", Integer.toString( rowMeta.size() ), Integer.toString( row != null ? row.length : 0 ) ) );
       }
     }
 
@@ -1933,63 +1931,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * - A transform sees that it can't get a new row from input in the transform. - Then it verifies that there is more than one
-   * input row set and that at least one is full and at least one is empty. - Then it finds a transform in the pipeline
-   * (situated before the reader transform) which has at least one full and one empty output row set. - If this situation
-   * presents itself and if it happens twice with the same rows read count (meaning: stalled reading transform) we throw an
-   * exception. For the attached example that exception is:
-   *
-   * @throws HopTransformException
-   */
-  protected void verifyInputDeadLock() throws HopTransformException {
-    IRowSet inputFull = null;
-    IRowSet inputEmpty = null;
-    for ( IRowSet rowSet : getInputRowSets() ) {
-      if ( rowSet.size() == pipeline.getRowSetSize() ) {
-        inputFull = rowSet;
-      } else if ( rowSet.size() == 0 ) {
-        inputEmpty = rowSet;
-      }
-    }
-    if ( inputFull != null && inputEmpty != null ) {
-      // Find a transform where
-      // - the input rowset are full
-      // - one output rowset is full
-      // - one output is empty
-      for ( TransformMetaDataCombi combi : pipeline.getTransforms() ) {
-        int inputSize = 0;
-        List<IRowSet> combiInputRowSets = combi.transform.getInputRowSets();
-        int totalSize = combiInputRowSets.size() * pipeline.getRowSetSize();
-        for ( IRowSet rowSet : combiInputRowSets ) {
-          inputSize += rowSet.size();
-        }
-        // All full probably means a stalled transform.
-        List<IRowSet> combiOutputRowSets = combi.transform.getOutputRowSets();
-        if ( inputSize > 0 && inputSize == totalSize && combiOutputRowSets.size() > 1 ) {
-          IRowSet outputFull = null;
-          IRowSet outputEmpty = null;
-          for ( IRowSet rowSet : combiOutputRowSets ) {
-            if ( rowSet.size() == pipeline.getRowSetSize() ) {
-              outputFull = rowSet;
-            } else if ( rowSet.size() == 0 ) {
-              outputEmpty = rowSet;
-            }
-          }
-          if ( outputFull != null && outputEmpty != null ) {
-            // Verify that this transform is lated before the current one
-            //
-            if ( pipelineMeta.findPrevious( transformMeta, combi.transformMeta ) ) {
-              throw new HopTransformException( "A deadlock was detected between transforms '"
-                + combi.transformName + "' and '" + transformName
-                + "'.  The transforms are both waiting for each other because a series of row set buffers filled up." );
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /**
    * Find input row set.
    *
    * @param sourceTransformName the source transform
@@ -2036,38 +1977,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     } finally {
       inputRowSetsLock.readLock().unlock();
-    }
-
-    // See if the rowset is part of the output of a mapping source transform...
-    //
-    // Lookup transform "From"
-    //
-    TransformMeta mappingTransform = pipelineMeta.findTransform( from );
-
-    // See if it's a mapping
-    //
-    if ( mappingTransform != null && mappingTransform.isMapping() ) {
-
-      // In this case we can cast the transform thread to a Mapping...
-      //
-      List<ITransform> baseTransforms = pipeline.findBaseTransforms( from );
-      if ( baseTransforms.size() == 1 ) {
-        Mapping mapping = (Mapping) baseTransforms.get( 0 );
-
-        // Find the appropriate rowset in the mapping...
-        // The rowset in question has been passed over to a Mapping Input transform inside the Mapping pipeline.
-        //
-        MappingOutput[] outputs = mapping.getMappingPipeline().findMappingOutput();
-        for ( MappingOutput output : outputs ) {
-          for ( IRowSet rs : output.getOutputRowSets() ) {
-            // The destination is what counts here...
-            //
-            if ( rs.getDestinationTransformName().equalsIgnoreCase( to ) ) {
-              return rs;
-            }
-          }
-        }
-      }
     }
 
     return null;
@@ -2122,39 +2031,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     } finally {
       outputRowSetsLock.readLock().unlock();
-    }
-
-    // See if the rowset is part of the input of a mapping target transform...
-    //
-    // Lookup transform "To"
-    //
-    TransformMeta mappingTransform = pipelineMeta.findTransform( to );
-
-    // See if it's a mapping
-    //
-    if ( mappingTransform != null && mappingTransform.isMapping() ) {
-
-      // In this case we can cast the transform thread to a Mapping...
-      //
-      List<ITransform> baseTransforms = pipeline.findBaseTransforms( to );
-      if ( baseTransforms.size() == 1 ) {
-        Mapping mapping = (Mapping) baseTransforms.get( 0 );
-
-        // Find the appropriate rowset in the mapping...
-        // The rowset in question has been passed over to a Mapping Input transform inside the Mapping pipeline.
-        //
-        MappingInput[] inputs = mapping.getMappingPipeline().findMappingInput();
-        for ( MappingInput input : inputs ) {
-          input.getInputRowSets();
-          for ( IRowSet rs : input.getInputRowSets() ) {
-            // The source transform is what counts in this case...
-            //
-            if ( rs.getOriginTransformName().equalsIgnoreCase( from ) ) {
-              return rs;
-            }
-          }
-        }
-      }
     }
 
     // Still nothing found!
@@ -2571,18 +2447,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * Gets the next class nr.
-   *
-   * @return the next class nr
-   */
-  public int getNextClassNr() {
-    int ret = pipeline.class_nr;
-    pipeline.class_nr++;
-
-    return ret;
-  }
-
-  /**
    * Output is done.
    *
    * @return true, if successful
@@ -2752,7 +2616,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // Only mark a transform as stopped once
     //
-    if (!markStopped.get()) {
+    if ( !markStopped.get() ) {
       markStopped.set( true );
 
       Calendar cal = Calendar.getInstance();
@@ -2761,8 +2625,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // Here we are completely done with the pipeline.
       // Call all the attached listeners and notify the outside world that the transform has finished.
       //
-      synchronized ( transformListeners ) {
-        for ( ITransformListener transformListener : transformListeners ) {
+      synchronized ( transformFinishedListeners ) {
+        for ( ITransformFinishedListener transformListener : transformFinishedListeners ) {
           transformListener.transformFinished( pipeline, transformMeta, this );
         }
       }
@@ -2909,14 +2773,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public String toString() {
     StringBuilder string = new StringBuilder( 50 );
 
-    // If the transform runs in a mapping (and as such has a "parent pipeline", we are going to print the name of the
-    // pipeline during logging
-    //
-    //
-    if ( !Utils.isEmpty( getPipeline().getMappingTransformName() ) ) {
-      string.append( '[' ).append( pipeline.toString() ).append( ']' ).append( '.' ); // Name of the mapping pipeline
-    }
-
     if ( !Utils.isEmpty( partitionId ) ) {
       string.append( transformName ).append( '.' ).append( partitionId );
     } else {
@@ -2974,7 +2830,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @throws HopException in case something goes wrong
    */
-  @Override public void stopRunning( ) throws HopException {
+  @Override public void stopRunning() throws HopException {
     // Nothing by default
   }
 
@@ -3224,7 +3080,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       // An init thread is running...
       //
-      if ( pipeline.isInitializing() ) {
+      if ( pipeline.isPreparing() ) {
         if ( isInitialising() ) {
           return TransformExecutionStatus.STATUS_INIT;
         } else {
@@ -3241,15 +3097,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         } else {
           // To be sure (race conditions and all), get the rest in ITransformData object:
           //
-          ITransformData sdi = pipeline.getTransformDataInterface( transformName, copyNr );
-          if ( sdi != null ) {
-            if ( sdi.getStatus() == TransformExecutionStatus.STATUS_DISPOSED ) {
-              return TransformExecutionStatus.STATUS_FINISHED;
-            } else {
-              return sdi.getStatus();
-            }
+          if ( data.getStatus() == TransformExecutionStatus.STATUS_DISPOSED ) {
+            return TransformExecutionStatus.STATUS_FINISHED;
+          } else {
+            return data.getStatus();
           }
-          return TransformExecutionStatus.STATUS_EMPTY;
         }
       }
     }
@@ -3545,26 +3397,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   public void initBeforeStart() throws HopTransformException {
   }
 
-  /**
-   * Returns the transform listeners.
-   *
-   * @return the transformListeners
-   */
-  public List<ITransformListener> getTransformListeners() {
-    return transformListeners;
-  }
 
-  /**
-   * Sets the transform listeners.
-   *
-   * @param transformListeners the transformListeners to set
-   */
-  public void setTransformListeners( List<ITransformListener> transformListeners ) {
-    this.transformListeners = Collections.synchronizedList( transformListeners );
-  }
-
-
-  @Override public boolean processRow( ) throws HopException {
+  @Override public boolean processRow() throws HopException {
     return false;
   }
 
@@ -3603,9 +3437,44 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
   }
 
-  @Override
-  public void addTransformListener( ITransformListener transformListener ) {
-    transformListeners.add( transformListener );
+  public void addTransformFinishedListener( ITransformFinishedListener transformFinishedListener ) {
+    transformFinishedListeners.add( transformFinishedListener );
+  }
+
+  public void addTransformStartedListener( ITransformStartedListener transformStartedListener ) {
+    transformStartedListeners.add( transformStartedListener );
+  }
+
+  /**
+   * Gets transformFinishedListeners
+   *
+   * @return value of transformFinishedListeners
+   */
+  public List<ITransformFinishedListener> getTransformFinishedListeners() {
+    return transformFinishedListeners;
+  }
+
+  /**
+   * @param transformFinishedListeners The transformFinishedListeners to set
+   */
+  public void setTransformFinishedListeners( List<ITransformFinishedListener> transformFinishedListeners ) {
+    this.transformFinishedListeners = transformFinishedListeners;
+  }
+
+  /**
+   * Gets transformStartedListeners
+   *
+   * @return value of transformStartedListeners
+   */
+  public List<ITransformStartedListener> getTransformStartedListeners() {
+    return transformStartedListeners;
+  }
+
+  /**
+   * @param transformStartedListeners The transformStartedListeners to set
+   */
+  public void setTransformStartedListeners( List<ITransformStartedListener> transformStartedListeners ) {
+    this.transformStartedListeners = transformStartedListeners;
   }
 
   @Override

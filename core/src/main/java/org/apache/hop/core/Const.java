@@ -569,135 +569,9 @@ public class Const {
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
 
   /**
-   * The name of the variable that defines the log database connection by default for all pipelines
-   */
-  public static final String HOP_PIPELINE_LOG_DB = "HOP_PIPELINE_LOG_DB";
-
-  /**
-   * The name of the variable that defines the logging schema for all pipelines
-   */
-  public static final String HOP_PIPELINE_LOG_SCHEMA = "HOP_PIPELINE_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the logging table for all pipelines
-   */
-  public static final String HOP_PIPELINE_LOG_TABLE = "HOP_PIPELINE_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the log database connection by default for all workflows
-   */
-  public static final String HOP_WORKFLOW_LOG_DB = "HOP_WORKFLOW_LOG_DB";
-
-  /**
-   * The name of the variable that defines the logging schema for all workflows
-   */
-  public static final String HOP_WORKFLOW_LOG_SCHEMA = "HOP_WORKFLOW_LOG_SCHEMA";
-
-  /**
    * The name of the variable that defines the timer used for detecting slave nodes.
    */
   public static final String HOP_SLAVE_DETECTION_TIMER = "HOP_SLAVE_DETECTION_TIMER";
-
-  /**
-   * The name of the variable that defines the logging table for all workflows
-   */
-  public static final String HOP_WORKFLOW_LOG_TABLE = "HOP_WORKFLOW_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the pipeline performance log schema by default for all pipelines
-   */
-  public static final String HOP_PIPELINE_PERFORMANCE_LOG_DB = "HOP_PIPELINE_PERFORMANCE_LOG_DB";
-
-  /**
-   * The name of the variable that defines the pipeline performance log database connection by default for all
-   * pipelines
-   */
-  public static final String HOP_PIPELINE_PERFORMANCE_LOG_SCHEMA = "HOP_PIPELINE_PERFORMANCE_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the pipeline performance log table by default for all pipelines
-   */
-  public static final String HOP_PIPELINE_PERFORMANCE_LOG_TABLE = "HOP_PIPELINE_PERFORMANCE_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the action log database by default for all workflows
-   */
-  public static final String HOP_ACTION_LOG_DB = "HOP_ACTION_LOG_DB";
-
-  /**
-   * The name of the variable that defines the action log schema by default for all workflows
-   */
-  public static final String HOP_ACTION_LOG_SCHEMA = "HOP_ACTION_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the action log table by default for all workflows
-   */
-  public static final String HOP_ACTION_LOG_TABLE = "HOP_ACTION_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the transforms log database by default for all pipelines
-   */
-  public static final String HOP_TRANSFORM_LOG_DB = "HOP_TRANSFORM_LOG_DB";
-
-  /**
-   * The name of the variable that defines the transforms log schema by default for all pipelines
-   */
-  public static final String HOP_TRANSFORM_LOG_SCHEMA = "HOP_TRANSFORM_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the transforms log table by default for all pipelines
-   */
-  public static final String HOP_TRANSFORM_LOG_TABLE = "HOP_TRANSFORM_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the log channel log database by default for all pipelines and workflows
-   */
-  public static final String HOP_CHANNEL_LOG_DB = "HOP_CHANNEL_LOG_DB";
-
-  /**
-   * The name of the variable that defines the log channel log schema by default for all pipelines and workflows
-   */
-  public static final String HOP_CHANNEL_LOG_SCHEMA = "HOP_CHANNEL_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the log channel log table by default for all pipelines and workflows
-   */
-  public static final String HOP_CHANNEL_LOG_TABLE = "HOP_CHANNEL_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the metrics log database by default for all pipelines and workflows
-   */
-  public static final String HOP_METRICS_LOG_DB = "HOP_METRICS_LOG_DB";
-
-  /**
-   * The name of the variable that defines the metrics log schema by default for all pipelines and workflows
-   */
-  public static final String HOP_METRICS_LOG_SCHEMA = "HOP_METRICS_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the metrics log table by default for all pipelines and workflows
-   */
-  public static final String HOP_METRICS_LOG_TABLE = "HOP_METRICS_LOG_TABLE";
-
-  /**
-   * The name of the variable that defines the checkpoint log database by default for all workflows
-   */
-  public static final String HOP_CHECKPOINT_LOG_DB = "HOP_CHECKPOINT_LOG_DB";
-
-  /**
-   * The name of the variable that defines the checkpoint log schema by default for all workflows
-   */
-  public static final String HOP_CHECKPOINT_LOG_SCHEMA = "HOP_CHECKPOINT_LOG_SCHEMA";
-
-  /**
-   * The name of the variable that defines the checkpoint log table by default for all workflows
-   */
-  public static final String HOP_CHECKPOINT_LOG_TABLE = "HOP_CHECKPOINT_LOG_TABLE";
-
-  /**
-   * Name of the environment variable to set the location of the shared object file (xml) for pipelines and workflows
-   */
-  public static final String HOP_SHARED_OBJECTS = "HOP_SHARED_OBJECTS";
 
   /**
    * System wide flag to drive the evaluation of null in ValueMeta. If this setting is set to "Y", an empty string and
@@ -711,8 +585,7 @@ public class Const {
    * converted into 192 or 192.168 depending on the decimal symbol). The default (N) will be to throw an error if
    * non-numeric symbols are found in the string.
    */
-  public static final String HOP_LENIENT_STRING_TO_NUMBER_CONVERSION =
-    "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
+  public static final String HOP_LENIENT_STRING_TO_NUMBER_CONVERSION = "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION";
 
   /**
    * System wide flag to ignore timezone while writing date/timestamp value to the database. See PDI-10749 for details.
@@ -725,32 +598,24 @@ public class Const {
   public static final String HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES = "HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES";
 
   /**
-   * System wide flag to ignore logging table. See BACKLOG-15706 for details.
-   */
-  public static final String HOP_COMPATIBILITY_IGNORE_TABLE_LOGGING = "HOP_COMPATIBILITY_IGNORE_TABLE_LOGGING";
-
-  /**
    * System wide flag to set or not append and header options dependency on Text file output transform. See PDI-5252 for
    * details.
    */
-  public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER =
-    "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
+  public static final String HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER = "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER";
 
   /**
    * System wide flag to control behavior of the merge rows (diff) transform in case of "identical" comparison. (PDI-736)
    * 'Y' preserves the old behavior and takes the fields from the reference stream
    * 'N' enables the documented behavior and takes the fields from the comparison stream (correct behavior)
    */
-  public static final String HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL =
-    "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
+  public static final String HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL = "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL";
 
   /**
    * System wide flag to control behavior of the Memory Group By transform in case of SUM and AVERAGE aggregation. (PDI-5537)
    * 'Y' preserves the old behavior and always returns a Number type for SUM and Average aggregations
    * 'N' enables the documented behavior of returning the same type as the input fields use (correct behavior).
    */
-  public static final String HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE =
-    "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE";
+  public static final String HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE = "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE";
 
   /**
    * You can use this variable to speed up hostname lookup.

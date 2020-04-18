@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -1789,7 +1790,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         if ( !sql.hasError() ) {
           if ( sql.hasSQL() ) {
             SqlEditor sqledit =
-              new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), pipelineMeta.getDbCache(), sql
+              new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
                 .getSql() );
             sqledit.open();
           } else {

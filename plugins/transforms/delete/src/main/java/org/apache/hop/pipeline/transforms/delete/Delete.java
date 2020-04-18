@@ -216,13 +216,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> implements ITr
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "Delete.Log.ConnectedToDB" ) );

@@ -501,13 +501,7 @@ public class ScriptAddedFunctions {
         Database db = new Database( scm, ci );
         db.setQueryLimit( 0 );
         try {
-          if ( scm.getPipelineMeta().isUsingUniqueConnections() ) {
-            synchronized ( scm.getPipeline() ) {
-              db.connect( scm.getPipeline().getTransactionId(), scm.getPartitionID() );
-            }
-          } else {
-            db.connect( scm.getPartitionID() );
-          }
+          db.connect( scm.getPartitionID() );
 
           ResultSet rs = db.openQuery( strSQL );
           ResultSetMetaData resultSetMetaData = rs.getMetaData();

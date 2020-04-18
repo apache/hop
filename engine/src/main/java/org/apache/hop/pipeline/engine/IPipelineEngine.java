@@ -22,17 +22,22 @@
 
 package org.apache.hop.pipeline.engine;
 
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionBecameActiveListener;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.workflow.Workflow;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +45,7 @@ import java.util.List;
  *
  * @param <T> The subject class to execute
  */
-public interface IPipelineEngine<T> {
+public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   T getSubject();
 
@@ -197,13 +202,6 @@ public interface IPipelineEngine<T> {
   void addExecutionFinishedListener( IExecutionFinishedListener<T> listener ) throws HopException;
 
   /**
-   * Close unique database connections. If there are errors in the Result, perform a rollback
-   *
-   * @param result the result of the execution
-   */
-  void closeUniqueDatabaseConnections( Result result );
-
-  /**
    * Retrieve the logging text of a particular component in the engine
    *
    * @param componentName The name of the component (transform)
@@ -297,5 +295,93 @@ public interface IPipelineEngine<T> {
    * @throws HopException
    */
   void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException;
+
+  /**
+   * Determine the pipeline engine which is executing this pipeline engine.
+   * @return The executing pipeline or null if none is known.
+   */
+  IPipelineEngine<T> getParentPipeline();
+
+  /**
+   * Determine the workflow engine which is executing this pipeline engine.
+   *
+   * @return The executing workflow of null if none is known.
+   */
+  Workflow getParentWorkflow();
+
+  /**
+   * True if the engine is doing extra validations at runtime to detect possible issues with data types and so on.
+   * @return True if safe mode is enabled.
+   */
+  boolean isSafeModeEnabled();
+
+  /**
+   * For engines that support it we allow the retrieval of a rowset from one transform copy to another
+   * @param fromTransformName
+   * @param fromTransformCopy
+   * @param toTransformName
+   * @param toTransformCopy
+   * @return The rowset if one was found.
+   * @throws RuntimeException in case the engine doesn't support this operation.
+   */
+  IRowSet findRowSet( String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy );
+
+  /**
+   * True if feedback need to be given every X rows
+   * @return True if feedback needs to be given
+   */
+  @Deprecated // TODO: move this to the run configuration API
+  boolean isFeedbackShown();
+
+  /**
+   * The feedback size in rows
+   * @return The feedback size in rows
+   */
+  @Deprecated // TODO: move the run configuration API
+  int getFeedbackSize();
+
+  /**
+   * Get the execution result of a previous execution in a workflow
+   * @return the previous execution result
+   */
+  Result getPreviousResult();
+
+  /**
+   * @return The start date of the pipeline execution
+   */
+  Date getExecutionStartDate();
+
+  /**
+   * @return The end date of the pipeline preparation
+   */
+  Date getExecutionEndDate();
+
+  /**
+   * Add an active sub-pipeline to allow drill-down in the GUI
+   * @param transformName
+   * @param executorPipeline
+   */
+  void addActiveSubPipeline( String transformName, IPipelineEngine executorPipeline );
+
+  /**
+   * Get the active sub-pipeline with the given name
+   * @param subPipelineName
+   * @return The active pipeline engine or null if it was not found
+   */
+  IPipelineEngine getActiveSubPipeline( final String subPipelineName );
+
+  /**
+   * Add an active sub-workflow to allow drill-down in the GUI
+   * @param subWorkflowName
+   * @param subWorkflow
+   */
+  void addActiveSubWorkflow( final String subWorkflowName, Workflow subWorkflow );
+
+  /**
+   * Get the active sub-workflow with the given name
+   * @param subWorkflowName
+   * @return The active workflow or null if nothing was found
+   */
+  Workflow getActiveSubWorkflow( final String subWorkflowName );
 
 }

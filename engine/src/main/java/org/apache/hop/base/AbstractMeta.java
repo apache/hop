@@ -40,7 +40,6 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
-import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -110,8 +109,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<ICurrentDirectoryChangedListener, Boolean>() );
 
   protected List<NotePadMeta> notes;
-
-  protected ChannelLogTable channelLogTable;
 
   protected boolean changedNotes;
 
@@ -895,15 +892,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * Gets the channel log table for the workflow.
-   *
-   * @return the channel log table for the workflow.
-   */
-  public ChannelLogTable getChannelLogTable() {
-    return channelLogTable;
-  }
-
-  /**
    * Returns a list of the databases.
    *
    * @return Returns the databases.
@@ -929,15 +917,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
     } catch ( MetaStoreException e ) {
       throw new RuntimeException( "Unable to get database names from the metastore", e );
     }
-  }
-
-  /**
-   * Sets the channel log table for the workflow.
-   *
-   * @param channelLogTable the channelLogTable to set
-   */
-  public void setChannelLogTable( ChannelLogTable channelLogTable ) {
-    this.channelLogTable = channelLogTable;
   }
 
   /*
@@ -1335,13 +1314,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
     setName( null );
     setFilename( null );
     notes = new ArrayList<>();
-    channelLogTable = ChannelLogTable.getDefault( this, metaStore );
     attributesMap = new HashMap<>();
     max_undo = Const.MAX_UNDO;
     clearUndo();
     clearChanged();
     setChanged( false );
-    channelLogTable = ChannelLogTable.getDefault( this, metaStore );
 
     createdUser = "-";
     createdDate = new Date();

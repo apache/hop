@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.mappinginput;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -37,13 +37,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -73,8 +72,6 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
   private boolean selectingAndSortingUnspecifiedFields;
 
   private volatile IRowMeta inputRowMeta;
-
-  private volatile List<MappingValueRename> valueRenames;
 
   public MappingInputMeta() {
     super(); // allocate BaseTransformMeta
@@ -241,22 +238,6 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
       // this gets set only in the parent pipeline...
       // It includes all the renames that needed to be done
       //
-      // First rename any fields...
-      if ( valueRenames != null ) {
-        for ( MappingValueRename valueRename : valueRenames ) {
-          IValueMeta valueMeta = inputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
-          if ( valueMeta == null ) {
-            // ok, let's search once again, now using target name
-            valueMeta = inputRowMeta.searchValueMeta( valueRename.getTargetValueName() );
-            if ( valueMeta == null ) {
-              throw new HopTransformException( BaseMessages.getString(
-                PKG, "MappingInput.Exception.UnableToFindMappedValue", valueRename.getSourceValueName() ) );
-            }
-          } else {
-            valueMeta.setName( valueRename.getTargetValueName() );
-          }
-        }
-      }
 
       if ( selectingAndSortingUnspecifiedFields ) {
         // Select the specified fields from the input, re-order everything and put the other fields at the back,
@@ -384,20 +365,6 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
    */
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
-  }
-
-  /**
-   * @return the valueRenames
-   */
-  public List<MappingValueRename> getValueRenames() {
-    return valueRenames;
-  }
-
-  /**
-   * @param valueRenames the valueRenames to set
-   */
-  public void setValueRenames( List<MappingValueRename> valueRenames ) {
-    this.valueRenames = valueRenames;
   }
 
   /**

@@ -127,13 +127,7 @@ public class MySQLBulkLoader extends BaseTransform implements ITransform {
       data.dbDescription = ( dbPlugin != null ) ? dbPlugin.getDescription() : BaseMessages.getString( PKG, "MySQLBulkLoader.UnknownDB" );
 
       // Connect to the database
-      if ( getPipelineMeta().isUsingUniqueConnections() ) {
-        synchronized ( getPipeline() ) {
-          data.db.connect( getPipeline().getTransactionId(), getPartitionID() );
-        }
-      } else {
-        data.db.connect( getPartitionID() );
-      }
+      data.db.connect( getPartitionID() );
 
       logBasic( BaseMessages.getString( PKG, "MySQLBulkLoader.Message.CONNECTED", data.dbDescription ) );
 

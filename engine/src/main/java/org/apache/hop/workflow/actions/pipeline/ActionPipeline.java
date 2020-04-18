@@ -742,11 +742,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
             rootWorkflow = rootWorkflow.getParentWorkflow();
           }
 
-          // Get the start and end-date from the root workflow...
-          //
-          pipeline.setJobStartDate( rootWorkflow.getStartDate() );
-          pipeline.setJobEndDate( rootWorkflow.getEndDate() );
-
           // Inform the parent workflow we started something here...
           //
           for ( IDelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {

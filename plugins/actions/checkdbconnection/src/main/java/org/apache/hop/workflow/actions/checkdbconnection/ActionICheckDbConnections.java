@@ -231,7 +231,7 @@ public class ActionICheckDbConnections extends ActionBase implements Cloneable, 
         Database db = new Database( this, connections[ i ] );
         db.shareVariablesWith( this );
         try {
-          db.connect( parentWorkflow.getTransactionId(), null );
+          db.connect();
 
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "ActionCheckDbConnections.Connected", connections[ i ]

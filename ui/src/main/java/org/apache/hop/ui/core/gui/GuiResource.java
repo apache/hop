@@ -223,19 +223,17 @@ public class GuiResource {
 
   private SwtUniversalImage imageHopUi;
 
-  private Image imageJob;
-
   private SwtUniversalImage imageVariable;
 
   private SwtUniversalImage imagePipelineGraph;
 
   private SwtUniversalImage imagePartitionSchema;
 
-  private SwtUniversalImage imageJobGraph;
+  private SwtUniversalImage imageWorkflowGraph;
 
   private SwtUniversalImage imagePipelineTree;
 
-  private SwtUniversalImage imageJobTree;
+  private SwtUniversalImage imageWorkflowTree;
 
   private SwtUniversalImage defaultArrow;
   private SwtUniversalImage okArrow;
@@ -469,12 +467,12 @@ public class GuiResource {
     PluginRegistry.getInstance().addPluginListener( ActionPluginType.class, new IPluginTypeListener() {
       @Override public void pluginAdded( Object serviceObject ) {
         // make sure we load up the images for any new actions that have been registered
-        loadJobEntryImages();
+        loadWorkflowActionImages();
       }
 
       @Override public void pluginRemoved( Object serviceObject ) {
         // rebuild the image map, in effect removing the image(s) for actions that have gone away
-        loadJobEntryImages();
+        loadWorkflowActionImages();
       }
 
       @Override public void pluginChanged( Object serviceObject ) {
@@ -544,7 +542,7 @@ public class GuiResource {
     loadFonts();
     loadCommonImages();
     loadTransformImages();
-    loadJobEntryImages();
+    loadWorkflowActionImages();
   }
 
   private void dispose( boolean reload ) {
@@ -620,13 +618,12 @@ public class GuiResource {
       imageDummy.dispose();
       imageMissing.dispose();
       imageHopUi.dispose();
-      imageJob.dispose();
       imageVariable.dispose();
       imagePipelineGraph.dispose();
       imagePartitionSchema.dispose();
-      imageJobGraph.dispose();
+      imageWorkflowGraph.dispose();
       imagePipelineTree.dispose();
-      imageJobTree.dispose();
+      imageWorkflowTree.dispose();
       imageUser.dispose();
       imageProfil.dispose();
       imageFolderConnections.dispose();
@@ -956,9 +953,6 @@ public class GuiResource {
     // "ui/images/hop-logo.svg"
     imageHopUi = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "hop_icon" ) );
 
-    // "ui/images/chefgraph.svg"
-    imageJob = loadAsResource( display, BasePropertyHandler.getProperty( "Job_image" ), ConstUi.ICON_SIZE );
-
     // "ui/images/variable.svg"
     imageVariable = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Variable_image" ) );
 
@@ -1188,10 +1182,10 @@ public class GuiResource {
 
     imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
-    imageJobGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ChefIcon_image" ) );
+    imageWorkflowGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ChefIcon_image" ) );
 
     imagePipelineTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Pipeline_tree_image" ) );
-    imageJobTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Job_tree_image" ) );
+    imageWorkflowTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Workflow_tree_image" ) );
 
     // "ui/images/hop-logo.png"
     imageLogoSmall = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Logo_sml_image" ) );
@@ -1254,12 +1248,12 @@ public class GuiResource {
   /**
    * Load all transform images from files.
    */
-  private void loadJobEntryImages() {
-    imagesActions = new Hashtable<String, SwtUniversalImage>();
-    imagesActionsSmall = new Hashtable<String, Image>();
+  private void loadWorkflowActionImages() {
+    imagesActions = new Hashtable<>();
+    imagesActionsSmall = new Hashtable<>();
 
     // //
-    // // JOB ENTRY IMAGES TO LOAD
+    // // ACTION IMAGES TO LOAD
     // //
     PluginRegistry registry = PluginRegistry.getInstance();
 
@@ -1726,20 +1720,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imageChef.
-   */
-  public Image getImageChef() {
-    return imageJob;
-  }
-
-  /**
-   * @param imageChef The imageChef to set.
-   */
-  public void setImageChef( Image imageChef ) {
-    this.imageJob = imageChef;
-  }
-
-  /**
    * @return the fontLarge
    */
   public Font getFontLarge() {
@@ -1829,12 +1809,12 @@ public class GuiResource {
     return imagePartitionSchema.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
-  public Image getImageJobGraph() {
-    return imageJobGraph.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+  public Image getImageWorkflowGraph() {
+    return imageWorkflowGraph.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
-  public Image getImageJobTree() {
-    return imageJobTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+  public Image getImageWorkflowTree() {
+    return imageWorkflowTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getEditOptionButton() {
@@ -2661,9 +2641,9 @@ public class GuiResource {
   }
 
   /**
-   * Gets imageToolbarJob
+   * Gets imageToolbarWorkflow
    *
-   * @return value of imageToolbarJob
+   * @return value of imageToolbarWorkflow
    */
   public Image getImageToolbarWorkflow() {
     return imageToolbarWorkflow;

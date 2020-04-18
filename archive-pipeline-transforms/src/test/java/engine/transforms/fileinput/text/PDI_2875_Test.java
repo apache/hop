@@ -84,7 +84,7 @@ public class PDI_2875_Test {
 
   @Test
   public void testVariableSubstitution() {
-    doReturn( new Date() ).when( smh.pipeline ).getCurrentDate();
+    doReturn( new Date() ).when( smh.pipeline ).getExecutionStartDate();
     TextFileInput transform = spy( new TextFileInput( smh.transformMeta, smh.iTransformMeta, smh.iTransformData, 0, smh.pipelineMeta, smh.pipeline ) );
     TextFileInputData data = new TextFileInputData();
     transform.setVariable( VAR_NAME, "value" );

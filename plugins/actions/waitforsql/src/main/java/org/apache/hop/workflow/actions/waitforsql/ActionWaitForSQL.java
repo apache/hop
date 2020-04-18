@@ -306,7 +306,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     try {
       dbchecked = new Database( this, connection );
       dbchecked.shareVariablesWith( this );
-      dbchecked.connect( parentWorkflow.getTransactionId(), null );
+      dbchecked.connect( null );
     } finally {
       if ( dbchecked != null ) {
         dbchecked.disconnect();
@@ -464,7 +464,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     Database db = new Database( this, connection );
     db.shareVariablesWith( this );
     try {
-      db.connect( parentWorkflow.getTransactionId(), null );
+      db.connect();
       if ( iscustomSQL ) {
         countStatement = customSQL;
       } else {

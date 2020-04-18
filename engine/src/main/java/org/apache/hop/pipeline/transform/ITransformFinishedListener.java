@@ -20,23 +20,23 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.logging;
+package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
-public interface ILogTablePlugin extends ILogTable {
+/**
+ * This listener informs the audience when a transform finished processing.
+ *
+ * @author matt
+ */
+public interface ITransformFinishedListener {
 
-  enum TableType {
-    JOB, PIPELINE;
-  }
-
-  TableType getType();
-
-  String getLogTablePluginUIClassname();
-
-  void setContext( IVariables variables, IMetaStore metaStore );
-
-  // Otherwise identical to the log table interface.
-
+  /**
+   * This method is called when a transform completes all work and is finished.
+   *
+   * @param pipeline
+   * @param transformMeta
+   * @param transform
+   */
+  void transformFinished( IPipelineEngine pipeline, TransformMeta transformMeta, ITransform transform );
 }

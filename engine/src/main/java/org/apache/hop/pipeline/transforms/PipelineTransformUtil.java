@@ -23,21 +23,35 @@
 package org.apache.hop.pipeline.transforms;
 
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import javax.servlet.http.HttpServletResponse;
 
+// TODO: refactor this with proper services
+@Deprecated
 public class PipelineTransformUtil {
 
-  public static void initServletConfig( Pipeline srcPipeline, Pipeline distPipeline ) {
-    // Also pass servlet information (if any)
-    distPipeline.setServletPrintWriter( srcPipeline.getServletPrintWriter() );
+  public static void initServletConfig( IPipelineEngine srcPipeline, IPipelineEngine distPipeline ) {
 
-    HttpServletResponse response = srcPipeline.getServletResponse();
-    if ( response != null ) {
-      distPipeline.setServletReponse( response );
+    if (!(srcPipeline instanceof Pipeline)) {
+      return;
+    }
+    if (!(distPipeline instanceof Pipeline)) {
+      return;
     }
 
-    distPipeline.setServletRequest( srcPipeline.getServletRequest() );
+    Pipeline sPipeline = (Pipeline) srcPipeline;
+    Pipeline dPipeline = (Pipeline) distPipeline;
+
+    // Also pass servlet information (if any)
+    dPipeline.setServletPrintWriter( sPipeline.getServletPrintWriter() );
+
+    HttpServletResponse response = sPipeline.getServletResponse();
+    if ( response != null ) {
+      dPipeline.setServletReponse( response );
+    }
+
+    dPipeline.setServletRequest( sPipeline.getServletRequest() );
   }
 
 }

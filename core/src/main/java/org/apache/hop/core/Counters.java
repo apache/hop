@@ -22,7 +22,9 @@
 
 package org.apache.hop.core;
 
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class contains the counters for Hop, the pipelines, workflows, ...
@@ -32,10 +34,10 @@ import java.util.Hashtable;
  */
 public class Counters {
   private static Counters counters = null;
-  private Hashtable<String, Counter> counterTable = null;
+  private Map<String, Counter> counterMap = null;
 
   private Counters() {
-    counterTable = new Hashtable<String, Counter>();
+    counterMap = Collections.synchronizedMap(new HashMap<>());
   }
 
   public static final Counters getInstance() {
@@ -47,18 +49,27 @@ public class Counters {
   }
 
   public Counter getCounter( String name ) {
-    return counterTable.get( name );
+    return counterMap.get( name );
   }
 
   public void setCounter( String name, Counter counter ) {
-    counterTable.put( name, counter );
+    counterMap.put( name, counter );
   }
 
   public void clearCounter( String name ) {
-    counterTable.remove( name );
+    counterMap.remove( name );
   }
 
   public void clear() {
-    counterTable.clear();
+    counterMap.clear();
+  }
+
+  /**
+   * Gets counterTable
+   *
+   * @return value of counterTable
+   */
+  public Map<String, Counter> getCounterMap() {
+    return counterMap;
   }
 }

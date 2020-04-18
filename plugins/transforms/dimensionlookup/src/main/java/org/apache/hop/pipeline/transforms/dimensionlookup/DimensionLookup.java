@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Counters;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -43,9 +44,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
@@ -239,7 +238,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
   private Date determineDimensionUpdatedDate( Object[] row ) throws HopException {
     if ( data.datefieldnr < 0 ) {
-      return getPipeline().getCurrentDate(); // start of pipeline...
+      return getPipeline().getExecutionStartDate(); // start of pipeline...
     } else {
       Date rtn = data.inputRowMeta.getDate( row, data.datefieldnr ); // Date field in the input row
       if ( rtn != null ) {
@@ -502,9 +501,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         switch ( getTechKeyCreation() ) {
           case CREATION_METHOD_TABLEMAX:
             // What's the next value for the technical key?
-            technicalKey =
-              data.db.getNextValue( getPipeline().getCounters(), data.realSchemaName, data.realTableName, meta
-                .getKeyField() );
+            technicalKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName, meta
+              .getKeyField() );
             break;
           case CREATION_METHOD_AUTOINC:
             technicalKey = null; // Set to null to flag auto-increment usage
@@ -725,9 +723,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           } else {
             // Use our own sequence here...
             // What's the next value for the technical key?
-            technicalKey =
-              data.db.getNextValue( getPipeline().getCounters(), data.realSchemaName, data.realTableName, meta
-                .getKeyField() );
+            technicalKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
+              meta.getKeyField() );
           }
 
           // update our technicalKey with the return of the insert
@@ -1117,7 +1114,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         insertRow[ insertIndex++ ] = dateFrom;
         break;
       case DimensionLookupMeta.START_DATE_ALTERNATIVE_START_OF_PIPELINE:
-        insertRow[ insertIndex++ ] = getPipeline().getStartDate();
+        insertRow[ insertIndex++ ] = getPipeline().getExecutionStartDate();
         break;
       case DimensionLookupMeta.START_DATE_ALTERNATIVE_NULL:
         insertRow[ insertIndex++ ] = null;
@@ -1200,7 +1197,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           updateRow[ updateIndex++ ] = new Date();
           break;
         case DimensionLookupMeta.START_DATE_ALTERNATIVE_START_OF_PIPELINE:
-          updateRow[ updateIndex++ ] = getPipeline().getCurrentDate();
+          updateRow[ updateIndex++ ] = getPipeline().getExecutionStartDate();
           break;
         case DimensionLookupMeta.START_DATE_ALTERNATIVE_NULL:
           updateRow[ updateIndex++ ] = null;
@@ -1682,7 +1679,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   @Override
-  public boolean init(){
+  public boolean init() {
 
     if ( super.init() ) {
       meta.actualizeWithInjectedValues();
@@ -1703,13 +1700,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "DimensionLookup.Log.ConnectedToDB" ) );
@@ -1725,7 +1716,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   @Override
-  public void dispose(){
+  public void dispose() {
     if ( data.db != null ) {
       try {
         if ( !data.db.isAutoCommit() ) {

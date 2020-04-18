@@ -276,7 +276,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               new SlaveServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatus() );
             pipelineStatus.setFirstLoggingLineNr( startLineNr );
             pipelineStatus.setLastLoggingLineNr( lastLineNr );
-            pipelineStatus.setLogDate( pipeline.getLogDate() );
+            pipelineStatus.setLogDate( pipeline.getExecutionStartDate() );
 
             for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
               ITransform baseTransform = pipeline.getRunThread( i );
@@ -375,7 +375,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align: left;\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Encode.forHtml( id ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatus() ) + "</td>" );
-          String dateStr = XmlHandler.date2string( pipeline.getLogDate() );
+          String dateStr = XmlHandler.date2string( pipeline.getExecutionStartDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
           out.print( "</table>" );

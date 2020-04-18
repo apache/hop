@@ -41,7 +41,6 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Andrey Khayrutdinov
  */
-@Ignore
 public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   private LoadSaveTester<T> tester;

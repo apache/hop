@@ -211,7 +211,7 @@ public class TextFileInputTest {
   }
 
   @Test
-  @Ignore // TODO: see what the issue is here, new VFS2 API?
+  // @Ignore // TODO: see what the issue is here, new VFS2 API?
   public void testErrorHandlerLineNumber() throws Exception {
     final String content = new StringBuilder()
       .append( "123" ).append( '\n' ).append( "333\n" )

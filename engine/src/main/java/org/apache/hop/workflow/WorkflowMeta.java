@@ -45,16 +45,9 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.ActionLogTable;
-import org.apache.hop.core.logging.WorkflowLogTable;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.ILogTable;
-import org.apache.hop.core.logging.ILogTablePlugin;
-import org.apache.hop.core.logging.ILogTablePlugin.TableType;
-import org.apache.hop.core.logging.LogTablePluginType;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.NamedParamsDefault;
@@ -121,12 +114,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   protected boolean changedActions, changedHops;
 
-  protected WorkflowLogTable workflowLogTable;
-
-  protected ActionLogTable actionsLogTable;
-
-  protected List<ILogTable> extraLogTables;
-
   protected String startCopyName;
 
   protected boolean expandingRemoteWorkflow;
@@ -192,24 +179,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public void clear() {
     actionCopies = new ArrayList<>();
     workflowHops = new ArrayList<>();
-
-    workflowLogTable = WorkflowLogTable.getDefault( this, metaStore );
-    actionsLogTable = ActionLogTable.getDefault( this, metaStore );
-    extraLogTables = new ArrayList<ILogTable>();
-
-    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( LogTablePluginType.class );
-    for ( IPlugin plugin : plugins ) {
-      try {
-        ILogTablePlugin logTablePluginInterface = (ILogTablePlugin) PluginRegistry.getInstance()
-          .loadClass( plugin );
-        if ( logTablePluginInterface.getType() == TableType.JOB ) {
-          logTablePluginInterface.setContext( this, metaStore );
-          extraLogTables.add( logTablePluginInterface );
-        }
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error loading log table plugin with ID " + plugin.getIds()[ 0 ], e );
-      }
-    }
 
     arguments = null;
 
@@ -397,24 +366,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Gets the workflow log table.
-   *
-   * @return the workflow log table
-   */
-  public WorkflowLogTable getWorkflowLogTable() {
-    return workflowLogTable;
-  }
-
-  /**
-   * Sets the workflow log table.
-   *
-   * @param workflowLogTable the new workflow log table
-   */
-  public void setWorkflowLogTable( WorkflowLogTable workflowLogTable ) {
-    this.workflowLogTable = workflowLogTable;
-  }
-
-  /**
    * Clears the different changed flags of the workflow.
    */
   @Override
@@ -502,11 +453,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     }
     retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
 
-    // Append the workflow logging information...
-    //
-    for ( ILogTable logTable : getLogTables() ) {
-      retval.append( logTable.getXml() );
-    }
 
     retval.append( "   " ).append( XmlHandler.addTagValue( "pass_batchid", batchIdPassed ) );
 
@@ -679,35 +625,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         String descr = XmlHandler.getTagValue( paramNode, "description" );
 
         addParameterDefinition( paramName, defValue, descr );
-      }
-
-      /*
-       * Get the log database connection & log table
-       */
-      // Backward compatibility...
-      //
-      Node jobLogNode = XmlHandler.getSubNode( jobnode, WorkflowLogTable.XML_TAG );
-      if ( jobLogNode == null ) {
-        // Load the XML
-        //
-        workflowLogTable.setConnectionName( XmlHandler.getTagValue( jobnode, "logconnection" ) );
-        workflowLogTable.setTableName( XmlHandler.getTagValue( jobnode, "logtable" ) );
-        workflowLogTable.setBatchIdUsed( "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "use_batchid" ) ) );
-        workflowLogTable.setLogFieldUsed( "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "use_logfield" ) ) );
-        workflowLogTable.findField( WorkflowLogTable.ID.CHANNEL_ID ).setEnabled( false );
-        workflowLogTable.findField( WorkflowLogTable.ID.LINES_REJECTED ).setEnabled( false );
-      } else {
-        workflowLogTable.loadXml( jobLogNode, null );
-      }
-
-      Node channelLogTableNode = XmlHandler.getSubNode( jobnode, ChannelLogTable.XML_TAG );
-      if ( channelLogTableNode != null ) {
-        channelLogTable.loadXml( channelLogTableNode, null );
-      }
-      actionsLogTable.loadXml( jobnode, null );
-
-      for ( ILogTable extraLogTable : extraLogTables ) {
-        extraLogTable.loadXml( jobnode, null );
       }
 
       batchIdPassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "pass_batchid" ) );
@@ -1670,31 +1587,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       }
     }
 
-    // Also check the sql for the logtable...
-    if ( monitor != null ) {
-      monitor.subTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLStatementsForJobLogTables" ) );
-    }
-    if ( workflowLogTable.getDatabaseMeta() != null && !Utils.isEmpty( workflowLogTable.getTableName() ) ) {
-      Database db = new Database( this, workflowLogTable.getDatabaseMeta() );
-      try {
-        db.connect();
-        IRowMeta fields = workflowLogTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
-        String sql = db.getDDL( workflowLogTable.getTableName(), fields );
-        if ( sql != null && sql.length() > 0 ) {
-          SqlStatement stat = new SqlStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
-            workflowLogTable.getDatabaseMeta(), sql );
-          stats.add( stat );
-        }
-      } catch ( HopDatabaseException dbe ) {
-        SqlStatement stat = new SqlStatement( BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ThisWorkflow" ),
-          workflowLogTable.getDatabaseMeta(), null );
-        stat.setError(
-          BaseMessages.getString( PKG, "WorkflowMeta.SQLFeedback.ErrorObtainingJobLogTableInfo" ) + dbe.getMessage() );
-        stats.add( stat );
-      } finally {
-        db.disconnect();
-      }
-    }
     if ( monitor != null ) {
       monitor.worked( 1 );
     }
@@ -2209,39 +2101,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public LoggingObjectType getObjectType() {
     return LoggingObjectType.JOB_META;
   }
-
-  /**
-   * Gets the action log table.
-   *
-   * @return the jobEntryLogTable
-   */
-  public ActionLogTable getActionsLogTable() {
-    return actionsLogTable;
-  }
-
-  /**
-   * Sets the action log table.
-   *
-   * @param actionsLogTable the jobEntryLogTable to set
-   */
-  public void setActionsLogTable( ActionLogTable actionsLogTable ) {
-    this.actionsLogTable = actionsLogTable;
-  }
-
-  /**
-   * Gets the log tables.
-   *
-   * @return the log tables
-   */
-  public List<ILogTable> getLogTables() {
-    List<ILogTable> logTables = new ArrayList<ILogTable>();
-    logTables.add( workflowLogTable );
-    logTables.add( actionsLogTable );
-    logTables.add( channelLogTable );
-    logTables.addAll( extraLogTables );
-    return logTables;
-  }
-
+  
   /**
    * Returns whether or not the workflow is gathering metrics. For a WorkflowMeta this is always false.
    *
@@ -2266,14 +2126,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   @Override
   public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {
-  }
-
-  public List<ILogTable> getExtraLogTables() {
-    return extraLogTables;
-  }
-
-  public void setExtraLogTables( List<ILogTable> extraLogTables ) {
-    this.extraLogTables = extraLogTables;
   }
 
   public boolean containsJobCopy( ActionCopy actionCopy ) {

@@ -228,13 +228,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       // run pipeline
       executorPipeline.startThreads();
 
-      // Inform the parent pipeline we started something here...
-      for ( IDelegationListener delegationListener : getPipeline().getDelegationListeners() ) {
-        // TODO: copy some settings in the pipeline execution configuration, not strictly needed
-        // but the execution configuration information is useful in case of a pipeline re-start on HopServer
-        delegationListener.pipelineDelegationStarted( executorPipeline, new PipelineExecutionConfiguration() );
-      }
-
       // Wait a while until we're done with the pipeline
       executorPipeline.waitUntilFinished();
 
@@ -243,10 +236,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       log.logError( "An error occurred executing the pipeline: ", e );
       result.setResult( false );
       result.setNrErrors( 1 );
-    }
-
-    if ( result.isSafeStop() ) {
-      getPipeline().safeStop();
     }
 
     collectPipelineResults( result );

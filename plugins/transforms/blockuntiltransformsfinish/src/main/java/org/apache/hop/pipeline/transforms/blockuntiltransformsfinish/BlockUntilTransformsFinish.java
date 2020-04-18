@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -72,7 +73,8 @@ public class BlockUntilTransformsFinish
       // Get target transformnames
       String[] targetTransforms = getPipelineMeta().getNextTransformNames( getTransformMeta() );
 
-      data.transformInterfaces = new ConcurrentHashMap<Integer, ITransform>();
+      data.componentMap.clear();
+
       for ( int i = 0; i < transformnrs; i++ ) {
         // We can not get metrics from current transform
         if ( transformnames[ i ].equals( getTransformName() ) ) {
@@ -87,32 +89,32 @@ public class BlockUntilTransformsFinish
           }
         }
 
-        int CopyNr = Const.toInt( meta.getTransformCopyNr()[ i ], 0 );
-        ITransform transform = getDispatcher().findBaseTransforms( transformnames[ i ] ).get( CopyNr );
-        if ( transform == null ) {
-          throw new HopException( "Erreur finding transform [" + transformnames[ i ] + "] nr copy=" + CopyNr + "!" );
+        int copyNr = Const.toInt( meta.getTransformCopyNr()[ i ], 0 );
+        IEngineComponent component = getDispatcher().findComponent( transformnames[ i ], copyNr );
+        if ( component == null ) {
+          throw new HopException( "Erreur finding transform [" + transformnames[ i ] + "] nr copy=" + copyNr + "!" );
         }
 
-        data.transformInterfaces.put( i, getDispatcher().findBaseTransforms( transformnames[ i ] ).get( CopyNr ) );
+        data.componentMap.put( i, component );
       }
     } // end if first
 
     // Wait until all specified transforms have finished!
     while ( data.continueLoop && !isStopped() ) {
       data.continueLoop = false;
-      Iterator<Entry<Integer, ITransform>> it = data.transformInterfaces.entrySet().iterator();
+      Iterator<Entry<Integer, IEngineComponent>> it = data.componentMap.entrySet().iterator();
       while ( it.hasNext() ) {
-        Entry<Integer, ITransform> e = it.next();
-        ITransform transform = e.getValue();
-        if ( transform.getStatus() != BaseTransformData.TransformExecutionStatus.STATUS_FINISHED ) {
+        Entry<Integer, IEngineComponent> e = it.next();
+        IEngineComponent transform = e.getValue();
+        if ( transform.isRunning() ) {
           // This transform is still running...
           data.continueLoop = true;
         } else {
           // We have done with this transform.
           // remove it from the map
-          data.transformInterfaces.remove( e.getKey() );
+          data.componentMap.remove( e.getKey() );
           if ( log.isDetailed() ) {
-            logDetailed( "Finished running transform [" + transform.getTransformName() + "(" + transform.getCopy() + ")]." );
+            logDetailed( "Finished running transform [" + transform.getName() + "(" + transform.getCopyNr() + ")]." );
           }
         }
       }

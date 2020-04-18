@@ -189,13 +189,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
   }
 
   void connect() throws HopException {
-    if ( getPipelineMeta().isUsingUniqueConnections() ) {
-      synchronized ( getPipeline() ) {
-        data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-      }
-    } else {
       data.db.connect( getPartitionId() );
-    }
   }
 
   void processTruncate() throws Exception {

@@ -73,7 +73,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @created 19-June-2003
  */
-public class BaseTransformMeta implements Cloneable, ITransformAttributes {
+public class BaseTransformMeta implements Cloneable {
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "Transform metadata", LoggingObjectType.TRANSFORM_META, null );
 
@@ -89,26 +89,8 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
   private volatile ITransformIOMeta ioMetaVar;
   ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-  protected String transformAttributesFile;
-
   public BaseTransformMeta() {
-    this( null );
-  }
-
-  /**
-   * Instantiates a new base transform meta.
-   */
-  public BaseTransformMeta( String transformAttributesFile ) {
-    this.transformAttributesFile = transformAttributesFile;
     changed = false;
-
-    if ( StringUtils.isNotEmpty( transformAttributesFile ) ) {
-      try {
-        loadTransformAttributes();
-      } catch ( Exception e ) {
-        throw new RuntimeException( "Unable to create/load base metadata information for class " + getClass().getName(), e );
-      }
-    }
   }
 
   /*
@@ -689,105 +671,6 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
   }
 
   /**
-   * Load transform attributes.
-   *
-   * @throws HopException the kettle exception
-   */
-  protected void loadTransformAttributes() throws HopException {
-    InputStream inputStream = null;
-    try {
-      inputStream = this.getClass().getClassLoader().getResourceAsStream( transformAttributesFile );
-      if ( inputStream == null ) {
-        inputStream = getClass().getResourceAsStream( transformAttributesFile );
-      }
-      if ( inputStream != null ) {
-        Document document = XmlHandler.loadXmlFile( inputStream );
-        Node attrsNode = XmlHandler.getSubNode( document, "attributes" );
-        List<Node> nodes = XmlHandler.getNodes( attrsNode, "attribute" );
-        attributes = new ArrayList<IHopAttribute>();
-        for ( Node node : nodes ) {
-          String key = XmlHandler.getTagAttribute( node, "id" );
-          String xmlCode = XmlHandler.getTagValue( node, "xmlcode" );
-          String description = XmlHandler.getTagValue( node, "description" );
-          String tooltip = XmlHandler.getTagValue( node, "tooltip" );
-          int valueType = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( node, "valuetype" ) );
-          String parentId = XmlHandler.getTagValue( node, "parentid" );
-
-          HopAttribute attribute = new HopAttribute( key, xmlCode, description, tooltip, valueType, findParent( attributes, parentId ) );
-          attributes.add( attribute );
-        }
-      } else {
-        throw new HopException( "Unable to find transform attributes file '" + transformAttributesFile + "' for transform class '" + getClass().getName() + "'" );
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to load file " + transformAttributesFile, e );
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransformAttributes#findParent(java.util.List, java.lang.String)
-   */
-  @Override
-  public IHopAttribute findParent( List<IHopAttribute> attributes, String parentId ) {
-    if ( Utils.isEmpty( parentId ) ) {
-      return null;
-    }
-    for ( IHopAttribute attribute : attributes ) {
-      if ( attribute.getKey().equals( parentId ) ) {
-        return attribute;
-      }
-    }
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransformAttributes#findAttribute(java.lang.String)
-   */
-  @Override
-  public IHopAttribute findAttribute( String key ) {
-    for ( IHopAttribute attribute : attributes ) {
-      if ( attribute.getKey().equals( key ) ) {
-        return attribute;
-      }
-    }
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getXmlCode(java.lang.String)
-   */
-  @Override
-  public String getXmlCode( String attributeKey ) {
-    return findAttribute( attributeKey ).getXmlCode();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getDescription(java.lang.String)
-   */
-  @Override
-  public String getDescription( String attributeKey ) {
-    return findAttribute( attributeKey ).getDescription();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.pipeline.transform.ITransformAttributes#getTooltip(java.lang.String)
-   */
-  @Override
-  public String getTooltip( String attributeKey ) {
-    return findAttribute( attributeKey ).getTooltip();
-  }
-
-  /**
    * @return The supported pipeline types that this transform supports.
    */
   public PipelineType[] getSupportedPipelineTypes() {
@@ -846,19 +729,4 @@ public class BaseTransformMeta implements Cloneable, ITransformAttributes {
     return null;
   }
 
-  /**
-   * Gets transformAttributesFile
-   *
-   * @return value of transformAttributesFile
-   */
-  public String getTransformAttributesFile() {
-    return transformAttributesFile;
-  }
-
-  /**
-   * @param transformAttributesFile The transformAttributesFile to set
-   */
-  public void setTransformAttributesFile( String transformAttributesFile ) {
-    this.transformAttributesFile = transformAttributesFile;
-  }
 }

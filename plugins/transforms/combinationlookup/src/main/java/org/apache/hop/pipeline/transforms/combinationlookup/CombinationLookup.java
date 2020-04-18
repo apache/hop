@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Counters;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -264,9 +265,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         switch ( getTechKeyCreation() ) {
           case CREATION_METHOD_TABLEMAX:
             // Use our own counter: what's the next value for the technical key?
-            val_key =
-              data.db.getNextValue( getPipeline().getCounters(), data.realSchemaName, data.realTableName, meta
-                .getTechnicalKeyField() );
+            val_key = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
+              meta.getTechnicalKeyField() );
             break;
           case CREATION_METHOD_AUTOINC:
             val_key = new Long( 0 ); // value to accept new key...
@@ -685,13 +685,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       data.db = new Database( this, meta.getDatabaseMeta() );
       data.db.shareVariablesWith( this );
       try {
-        if ( getPipelineMeta().isUsingUniqueConnections() ) {
-          synchronized ( getPipeline() ) {
-            data.db.connect( getPipeline().getTransactionId(), getPartitionId() );
-          }
-        } else {
-          data.db.connect( getPartitionId() );
-        }
+        data.db.connect( getPartitionId() );
 
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "CombinationLookup.Log.ConnectedToDB" ) );

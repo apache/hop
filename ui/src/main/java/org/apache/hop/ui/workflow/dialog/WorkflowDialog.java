@@ -27,13 +27,8 @@ import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.logging.ChannelLogTable;
-import org.apache.hop.core.logging.ActionLogTable;
-import org.apache.hop.core.logging.WorkflowLogTable;
 import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.LogTableField;
-import org.apache.hop.core.logging.ILogTable;
-import org.apache.hop.core.logging.ILogTablePlugin;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -77,10 +72,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -103,25 +96,15 @@ public class WorkflowDialog extends Dialog {
 
   private FormData fdTabFolder;
 
-  private CTabItem wJobTab, wParamTab, wLogTab, wSettingsTab;
+  private CTabItem wWorkflowTab, wParamTab, wSettingsTab;
 
   private PropsUi props;
 
-  private Label wlJobname;
+  private Label wlWorkflowName;
 
-  private Text wJobname;
+  private Text wWorkflowName;
 
-  private FormData fdlJobname, fdJobname;
-
-  private Label wlJobFilename;
-
-  private Text wJobFilename;
-
-  private FormData fdlJobFilename, fdJobFilename;
-
-  private MetaSelectionLine<DatabaseMeta> wLogConnection;
-
-  private TextVar wLogSchema;
+  private Text wFilename;
 
   private Label wlBatchPipeline;
 
@@ -129,9 +112,7 @@ public class WorkflowDialog extends Dialog {
 
   private FormData fdlBatchPipeline, fdBatchPipeline;
 
-  protected Button wOk, wSql, wCancel;
-
-  protected Listener lsOk, lsSql, lsCancel, lsHelp;
+  protected Button wOk, wCancel;
 
   private WorkflowMeta workflowMeta;
 
@@ -147,14 +128,14 @@ public class WorkflowDialog extends Dialog {
   private TableView wParamFields;
 
   // Workflow description
-  private Text wJobdescription;
+  private Text wDescription;
 
   // Extended description
-  private Label wlExtendeddescription;
+  private Label wlExtendedDescription;
 
-  private Text wExtendeddescription;
+  private Text wExtendedDescription;
 
-  private FormData fdlExtendeddescription, fdExtendeddescription;
+  private FormData fdlExtendedDescription, fdExtendedDescription;
 
   // Workflow Status
   private Label wlWorkflowStatus;
@@ -164,7 +145,7 @@ public class WorkflowDialog extends Dialog {
   private FormData fdlWorkflowStatus, fdWorkflowStatus;
 
   // Workflow version
-  private Text wJobversion;
+  private Text wVersion;
 
   private int middle;
 
@@ -180,30 +161,8 @@ public class WorkflowDialog extends Dialog {
 
   private Text wModDate;
 
-  private boolean directoryChangeAllowed;
-
-  private TextVar wLogSizeLimit;
-
-  private List wLogTypeList;
-
-  private Composite wLogOptionsComposite;
 
   private int previousLogTableIndex = 0;
-
-  private TableView wOptionFields;
-
-  private TextVar wLogTimeout;
-
-  private Composite wLogComp;
-
-  private TextVar wLogTable;
-
-  private TextVar wLogInterval;
-
-  private java.util.List<ILogTable> logTables;
-  private java.util.List<ILogTableUser> logTableUserInterfaces;
-
-  private DatabaseDialog databaseDialog;
 
   private ArrayList<IWorkflowDialogPlugin> extraTabs;
 
@@ -211,14 +170,6 @@ public class WorkflowDialog extends Dialog {
     super( parent, style );
     this.workflowMeta = workflowMeta;
     this.props = PropsUi.getInstance();
-
-    directoryChangeAllowed = true;
-
-    logTables = new ArrayList<ILogTable>();
-    logTableUserInterfaces = new ArrayList<ILogTableUser>();
-    for ( ILogTable logTable : workflowMeta.getLogTables() ) {
-      logTables.add( (ILogTable) logTable.clone() );
-    }
   }
 
   public WorkflowMeta open() {
@@ -227,7 +178,7 @@ public class WorkflowDialog extends Dialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageJobGraph() );
+    shell.setImage( GuiResource.getInstance().getImageWorkflowGraph() );
 
     lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
@@ -240,7 +191,7 @@ public class WorkflowDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "WorkflowDialog.JobProperties.ShellText" ) );
+    shell.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowProperties.ShellText" ) );
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
@@ -248,25 +199,16 @@ public class WorkflowDialog extends Dialog {
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
-    // Get the UI interfaces for the log table plugins...
-    //
-    for ( ILogTable logTable : logTables ) {
-      logTableUserInterfaces.add( getLogTableUserInterface( logTable, workflowMeta, lsMod ) ); // can be null
-    }
-
-    addJobTab();
+    addWorkflowTab();
     addParamTab();
     addSettingsTab();
-    addLogTab();
 
     // See if there are any other tabs to be added...
-    extraTabs = new ArrayList<IWorkflowDialogPlugin>();
-    java.util.List<IPlugin> jobDialogPlugins =
-      PluginRegistry.getInstance().getPlugins( WorkflowDialogPluginType.class );
+    extraTabs = new ArrayList<>();
+    java.util.List<IPlugin> jobDialogPlugins = PluginRegistry.getInstance().getPlugins( WorkflowDialogPluginType.class );
     for ( IPlugin jobDialogPlugin : jobDialogPlugins ) {
       try {
-        IWorkflowDialogPlugin extraTab =
-          (IWorkflowDialogPlugin) PluginRegistry.getInstance().loadClass( jobDialogPlugin );
+        IWorkflowDialogPlugin extraTab = (IWorkflowDialogPlugin) PluginRegistry.getInstance().loadClass( jobDialogPlugin );
         extraTab.addTab( workflowMeta, parent, wTabFolder );
         extraTabs.add( extraTab );
       } catch ( Exception e ) {
@@ -285,34 +227,12 @@ public class WorkflowDialog extends Dialog {
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSql = new Button( shell, SWT.PUSH );
-    wSql.setText( BaseMessages.getString( PKG, "System.Button.SQL" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
 
-    // BaseTransformDialog.positionBottomButtons(shell, new Button[] { wOk, wSql, wCancel }, margin, wSharedObjectsFile);
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wSql, wCancel }, props.getMargin(), null );
-    // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsSql = new Listener() {
-      public void handleEvent( Event e ) {
-        sql();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wSql.addListener( SWT.Selection, lsSql );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), null );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -320,7 +240,7 @@ public class WorkflowDialog extends Dialog {
       }
     };
 
-    wJobname.addSelectionListener( lsDef );
+    wWorkflowName.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -344,14 +264,6 @@ public class WorkflowDialog extends Dialog {
     return workflowMeta;
   }
 
-  public DatabaseDialog getDatabaseDialog() {
-    if ( databaseDialog != null ) {
-      return databaseDialog;
-    }
-    databaseDialog = new DatabaseDialog( shell );
-    return databaseDialog;
-  }
-
   public String[] listParameterNames() {
     int count = wParamFields.nrNonEmpty();
     java.util.List<String> list = new ArrayList<>();
@@ -367,12 +279,12 @@ public class WorkflowDialog extends Dialog {
     return list.toArray( new String[ list.size() ] );
   }
 
-  private void addJobTab() {
+  private void addWorkflowTab() {
     // ////////////////////////
     // START OF JOB TAB///
     // /
-    wJobTab = new CTabItem( wTabFolder, SWT.NONE );
-    wJobTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.JobTab.Label" ) );
+    wWorkflowTab = new CTabItem( wTabFolder, SWT.NONE );
+    wWorkflowTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowTab.Label" ) );
 
     Composite wJobComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wJobComp );
@@ -383,80 +295,80 @@ public class WorkflowDialog extends Dialog {
     wJobComp.setLayout( transLayout );
 
     // Jobname:
-    wlJobname = new Label( wJobComp, SWT.RIGHT );
-    wlJobname.setText( BaseMessages.getString( PKG, "WorkflowDialog.JobName.Label" ) );
-    props.setLook( wlJobname );
-    fdlJobname = new FormData();
-    fdlJobname.left = new FormAttachment( 0, 0 );
-    fdlJobname.right = new FormAttachment( middle, -margin );
-    fdlJobname.top = new FormAttachment( 0, margin );
-    wlJobname.setLayoutData( fdlJobname );
-    wJobname = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wJobname );
-    wJobname.addModifyListener( lsMod );
-    fdJobname = new FormData();
-    fdJobname.left = new FormAttachment( middle, 0 );
-    fdJobname.top = new FormAttachment( 0, margin );
-    fdJobname.right = new FormAttachment( 100, 0 );
-    wJobname.setLayoutData( fdJobname );
+    wlWorkflowName = new Label( wJobComp, SWT.RIGHT );
+    wlWorkflowName.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowName.Label" ) );
+    props.setLook( wlWorkflowName );
+    FormData fdlWorkflowName = new FormData();
+    fdlWorkflowName.left = new FormAttachment( 0, 0 );
+    fdlWorkflowName.right = new FormAttachment( middle, -margin );
+    fdlWorkflowName.top = new FormAttachment( 0, margin );
+    wlWorkflowName.setLayoutData( fdlWorkflowName );
+    wWorkflowName = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wWorkflowName );
+    wWorkflowName.addModifyListener( lsMod );
+    FormData fdWorkflowName = new FormData();
+    fdWorkflowName.left = new FormAttachment( middle, 0 );
+    fdWorkflowName.top = new FormAttachment( 0, margin );
+    fdWorkflowName.right = new FormAttachment( 100, 0 );
+    wWorkflowName.setLayoutData( fdWorkflowName );
 
     // JobFilename:
-    wlJobFilename = new Label( wJobComp, SWT.RIGHT );
-    wlJobFilename.setText( BaseMessages.getString( PKG, "WorkflowDialog.JobFilename.Label" ) );
-    props.setLook( wlJobFilename );
-    fdlJobFilename = new FormData();
-    fdlJobFilename.left = new FormAttachment( 0, 0 );
-    fdlJobFilename.right = new FormAttachment( middle, -margin );
-    fdlJobFilename.top = new FormAttachment( wJobname, margin );
-    wlJobFilename.setLayoutData( fdlJobFilename );
-    wJobFilename = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wJobFilename );
-    wJobFilename.addModifyListener( lsMod );
-    fdJobFilename = new FormData();
-    fdJobFilename.left = new FormAttachment( middle, 0 );
-    fdJobFilename.top = new FormAttachment( wJobname, margin );
-    fdJobFilename.right = new FormAttachment( 100, 0 );
-    wJobFilename.setLayoutData( fdJobFilename );
-    wJobFilename.setEditable( false );
-    wJobFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
+    Label wlFilename = new Label( wJobComp, SWT.RIGHT );
+    wlFilename.setText( BaseMessages.getString( PKG, "WorkflowDialog.Filename.Label" ) );
+    props.setLook( wlFilename );
+    FormData fdlFilename = new FormData();
+    fdlFilename.left = new FormAttachment( 0, 0 );
+    fdlFilename.right = new FormAttachment( middle, -margin );
+    fdlFilename.top = new FormAttachment( wWorkflowName, margin );
+    wlFilename.setLayoutData( fdlFilename );
+    wFilename = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wFilename );
+    wFilename.addModifyListener( lsMod );
+    FormData fdFilename = new FormData();
+    fdFilename.left = new FormAttachment( middle, 0 );
+    fdFilename.top = new FormAttachment( wWorkflowName, margin );
+    fdFilename.right = new FormAttachment( 100, 0 );
+    wFilename.setLayoutData( fdFilename );
+    wFilename.setEditable( false );
+    wFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
 
     // Workflow description:
-    Label wlJobdescription = new Label( wJobComp, SWT.RIGHT );
-    wlJobdescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Jobdescription.Label" ) );
-    props.setLook( wlJobdescription );
-    FormData fdlJobdescription = new FormData();
-    fdlJobdescription.left = new FormAttachment( 0, 0 );
-    fdlJobdescription.right = new FormAttachment( middle, -margin );
-    fdlJobdescription.top = new FormAttachment( wJobFilename, margin );
-    wlJobdescription.setLayoutData( fdlJobdescription );
-    wJobdescription = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wJobdescription );
-    wJobdescription.addModifyListener( lsMod );
-    FormData fdJobdescription = new FormData();
-    fdJobdescription.left = new FormAttachment( middle, 0 );
-    fdJobdescription.top = new FormAttachment( wJobFilename, margin );
-    fdJobdescription.right = new FormAttachment( 100, 0 );
-    wJobdescription.setLayoutData( fdJobdescription );
+    Label wlDescription = new Label( wJobComp, SWT.RIGHT );
+    wlDescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Description.Label" ) );
+    props.setLook( wlDescription );
+    FormData fdlDescription = new FormData();
+    fdlDescription.left = new FormAttachment( 0, 0 );
+    fdlDescription.right = new FormAttachment( middle, -margin );
+    fdlDescription.top = new FormAttachment( wFilename, margin );
+    wlDescription.setLayoutData( fdlDescription );
+    wDescription = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wDescription );
+    wDescription.addModifyListener( lsMod );
+    FormData fdDescription = new FormData();
+    fdDescription.left = new FormAttachment( middle, 0 );
+    fdDescription.top = new FormAttachment( wFilename, margin );
+    fdDescription.right = new FormAttachment( 100, 0 );
+    wDescription.setLayoutData( fdDescription );
 
     // Pipeline Extended description
-    wlExtendeddescription = new Label( wJobComp, SWT.RIGHT );
-    wlExtendeddescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Extendeddescription.Label" ) );
-    props.setLook( wlExtendeddescription );
-    fdlExtendeddescription = new FormData();
-    fdlExtendeddescription.left = new FormAttachment( 0, 0 );
-    fdlExtendeddescription.top = new FormAttachment( wJobdescription, margin );
-    fdlExtendeddescription.right = new FormAttachment( middle, -margin );
-    wlExtendeddescription.setLayoutData( fdlExtendeddescription );
+    wlExtendedDescription = new Label( wJobComp, SWT.RIGHT );
+    wlExtendedDescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Extendeddescription.Label" ) );
+    props.setLook( wlExtendedDescription );
+    fdlExtendedDescription = new FormData();
+    fdlExtendedDescription.left = new FormAttachment( 0, 0 );
+    fdlExtendedDescription.top = new FormAttachment( wDescription, margin );
+    fdlExtendedDescription.right = new FormAttachment( middle, -margin );
+    wlExtendedDescription.setLayoutData( fdlExtendedDescription );
 
-    wExtendeddescription = new Text( wJobComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
-    props.setLook( wExtendeddescription, Props.WIDGET_STYLE_FIXED );
-    wExtendeddescription.addModifyListener( lsMod );
-    fdExtendeddescription = new FormData();
-    fdExtendeddescription.left = new FormAttachment( middle, 0 );
-    fdExtendeddescription.top = new FormAttachment( wJobdescription, margin );
-    fdExtendeddescription.right = new FormAttachment( 100, 0 );
-    fdExtendeddescription.bottom = new FormAttachment( 50, -margin );
-    wExtendeddescription.setLayoutData( fdExtendeddescription );
+    wExtendedDescription = new Text( wJobComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    props.setLook( wExtendedDescription, Props.WIDGET_STYLE_FIXED );
+    wExtendedDescription.addModifyListener( lsMod );
+    fdExtendedDescription = new FormData();
+    fdExtendedDescription.left = new FormAttachment( middle, 0 );
+    fdExtendedDescription.top = new FormAttachment( wDescription, margin );
+    fdExtendedDescription.right = new FormAttachment( 100, 0 );
+    fdExtendedDescription.bottom = new FormAttachment( 50, -margin );
+    wExtendedDescription.setLayoutData( fdExtendedDescription );
 
     // Pipeline Status
     wlWorkflowStatus = new Label( wJobComp, SWT.RIGHT );
@@ -465,7 +377,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowStatus = new FormData();
     fdlWorkflowStatus.left = new FormAttachment( 0, 0 );
     fdlWorkflowStatus.right = new FormAttachment( middle, 0 );
-    fdlWorkflowStatus.top = new FormAttachment( wExtendeddescription, margin * 2 );
+    fdlWorkflowStatus.top = new FormAttachment( wExtendedDescription, margin * 2 );
     wlWorkflowStatus.setLayoutData( fdlWorkflowStatus );
     wWorkflowStatus = new CCombo( wJobComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wWorkflowStatus.add( BaseMessages.getString( PKG, "WorkflowDialog.Draft_WorkflowStatus.Label" ) );
@@ -476,27 +388,27 @@ public class WorkflowDialog extends Dialog {
     props.setLook( wWorkflowStatus );
     fdWorkflowStatus = new FormData();
     fdWorkflowStatus.left = new FormAttachment( middle, 0 );
-    fdWorkflowStatus.top = new FormAttachment( wExtendeddescription, margin * 2 );
+    fdWorkflowStatus.top = new FormAttachment( wExtendedDescription, margin * 2 );
     fdWorkflowStatus.right = new FormAttachment( 100, 0 );
     wWorkflowStatus.setLayoutData( fdWorkflowStatus );
 
     // Workflow version:
-    Label wlJobversion = new Label( wJobComp, SWT.RIGHT );
-    wlJobversion.setText( BaseMessages.getString( PKG, "WorkflowDialog.Jobversion.Label" ) );
-    props.setLook( wlJobversion );
-    FormData fdlJobversion = new FormData();
-    fdlJobversion.left = new FormAttachment( 0, 0 );
-    fdlJobversion.right = new FormAttachment( middle, -margin );
-    fdlJobversion.top = new FormAttachment( wWorkflowStatus, margin );
-    wlJobversion.setLayoutData( fdlJobversion );
-    wJobversion = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wJobversion );
-    wJobversion.addModifyListener( lsMod );
-    FormData fdJobversion = new FormData();
-    fdJobversion.left = new FormAttachment( middle, 0 );
-    fdJobversion.top = new FormAttachment( wWorkflowStatus, margin );
-    fdJobversion.right = new FormAttachment( 100, 0 );
-    wJobversion.setLayoutData( fdJobversion );
+    Label wlVersion = new Label( wJobComp, SWT.RIGHT );
+    wlVersion.setText( BaseMessages.getString( PKG, "WorkflowDialog.Version.Label" ) );
+    props.setLook( wlVersion );
+    FormData fdlVersion = new FormData();
+    fdlVersion.left = new FormAttachment( 0, 0 );
+    fdlVersion.right = new FormAttachment( middle, -margin );
+    fdlVersion.top = new FormAttachment( wWorkflowStatus, margin );
+    wlVersion.setLayoutData( fdlVersion );
+    wVersion = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wVersion );
+    wVersion.addModifyListener( lsMod );
+    FormData fdVersion = new FormData();
+    fdVersion.left = new FormAttachment( middle, 0 );
+    fdVersion.top = new FormAttachment( wWorkflowStatus, margin );
+    fdVersion.right = new FormAttachment( 100, 0 );
+    wVersion.setLayoutData( fdVersion );
 
 
     // Create User:
@@ -506,7 +418,7 @@ public class WorkflowDialog extends Dialog {
     FormData fdlCreateUser = new FormData();
     fdlCreateUser.left = new FormAttachment( 0, 0 );
     fdlCreateUser.right = new FormAttachment( middle, -margin );
-    fdlCreateUser.top = new FormAttachment( wJobversion, margin );
+    fdlCreateUser.top = new FormAttachment( wVersion, margin );
     wlCreateUser.setLayoutData( fdlCreateUser );
     wCreateUser = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCreateUser );
@@ -514,7 +426,7 @@ public class WorkflowDialog extends Dialog {
     wCreateUser.addModifyListener( lsMod );
     FormData fdCreateUser = new FormData();
     fdCreateUser.left = new FormAttachment( middle, 0 );
-    fdCreateUser.top = new FormAttachment( wJobversion, margin );
+    fdCreateUser.top = new FormAttachment( wVersion, margin );
     fdCreateUser.right = new FormAttachment( 100, 0 );
     wCreateUser.setLayoutData( fdCreateUser );
 
@@ -575,14 +487,14 @@ public class WorkflowDialog extends Dialog {
     fdModDate.right = new FormAttachment( 100, 0 );
     wModDate.setLayoutData( fdModDate );
 
-    FormData fdJobComp = new FormData();
-    fdJobComp.left = new FormAttachment( 0, 0 );
-    fdJobComp.top = new FormAttachment( 0, 0 );
-    fdJobComp.right = new FormAttachment( 100, 0 );
-    fdJobComp.bottom = new FormAttachment( 100, 0 );
+    FormData fdWorkflowComp = new FormData();
+    fdWorkflowComp.left = new FormAttachment( 0, 0 );
+    fdWorkflowComp.top = new FormAttachment( 0, 0 );
+    fdWorkflowComp.right = new FormAttachment( 100, 0 );
+    fdWorkflowComp.bottom = new FormAttachment( 100, 0 );
 
-    wJobComp.setLayoutData( fdJobComp );
-    wJobTab.setControl( wJobComp );
+    wJobComp.setLayoutData( fdWorkflowComp );
+    wWorkflowTab.setControl( wJobComp );
 
     // ///////////////////////////////////////////////////////////
     // / END OF JOB TAB
@@ -655,558 +567,6 @@ public class WorkflowDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
   }
 
-  private void addLogTab() {
-    // ////////////////////////
-    // START OF LOG TAB///
-    // /
-    wLogTab = new CTabItem( wTabFolder, SWT.NONE );
-    wLogTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogTab.Label" ) );
-
-    FormLayout LogLayout = new FormLayout();
-    LogLayout.marginWidth = props.getMargin();
-    LogLayout.marginHeight = props.getMargin();
-
-    wLogComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wLogComp );
-    wLogComp.setLayout( LogLayout );
-
-    // Add a log type List on the left hand side...
-    //
-    wLogTypeList = new List( wLogComp, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER );
-    props.setLook( wLogTypeList );
-
-    for ( ILogTable logTable : logTables ) {
-      wLogTypeList.add( logTable.getLogTableType() );
-    }
-
-    FormData fdLogTypeList = new FormData();
-    fdLogTypeList.left = new FormAttachment( 0, 0 );
-    fdLogTypeList.top = new FormAttachment( 0, 0 );
-    fdLogTypeList.right = new FormAttachment( middle / 2, 0 );
-    fdLogTypeList.bottom = new FormAttachment( 100, 0 );
-    wLogTypeList.setLayoutData( fdLogTypeList );
-
-    wLogTypeList.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        showLogTypeOptions( wLogTypeList.getSelectionIndex() );
-      }
-    } );
-
-    // On the right side we see a dynamic area : a composite...
-    //
-    wLogOptionsComposite = new Composite( wLogComp, SWT.BORDER );
-
-    FormLayout logOptionsLayout = new FormLayout();
-    logOptionsLayout.marginWidth = props.getMargin();
-    logOptionsLayout.marginHeight = props.getMargin();
-    wLogOptionsComposite.setLayout( logOptionsLayout );
-
-    props.setLook( wLogOptionsComposite );
-    FormData fdLogOptionsComposite = new FormData();
-    fdLogOptionsComposite.left = new FormAttachment( wLogTypeList, margin );
-    fdLogOptionsComposite.top = new FormAttachment( 0, 0 );
-    fdLogOptionsComposite.right = new FormAttachment( 100, 0 );
-    fdLogOptionsComposite.bottom = new FormAttachment( 100, 0 );
-    wLogOptionsComposite.setLayoutData( fdLogOptionsComposite );
-
-    FormData fdLogComp = new FormData();
-    fdLogComp.left = new FormAttachment( 0, 0 );
-    fdLogComp.top = new FormAttachment( 0, 0 );
-    fdLogComp.right = new FormAttachment( 100, 0 );
-    fdLogComp.bottom = new FormAttachment( 100, 0 );
-    wLogComp.setLayoutData( fdLogComp );
-
-    wLogComp.layout();
-    wLogTab.setControl( wLogComp );
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF LOG TAB
-    // ///////////////////////////////////////////////////////////
-  }
-
-  private void showLogTypeOptions( int index ) {
-
-    if ( index != previousLogTableIndex ) {
-
-      getLogInfo( previousLogTableIndex );
-
-      // clean the log options composite...
-      //
-      for ( Control control : wLogOptionsComposite.getChildren() ) {
-        control.dispose();
-      }
-
-      previousLogTableIndex = index;
-
-      ILogTable logTable = logTables.get( index );
-      ILogTableUser logTableUserInterface = logTableUserInterfaces.get( index );
-
-      if ( logTableUserInterface != null ) {
-        logTableUserInterface.showLogTableOptions( wLogOptionsComposite, logTable );
-      } else {
-        if ( logTable instanceof WorkflowLogTable ) {
-          showWorkflowLogTableOptions( (WorkflowLogTable) logTable );
-        } else if ( logTable instanceof ChannelLogTable ) {
-          showChannelLogTableOptions( (ChannelLogTable) logTable );
-        }
-        if ( logTable instanceof ActionLogTable ) {
-          showActionLogTableOptions( (ActionLogTable) logTable );
-        }
-      }
-
-      wLogOptionsComposite.layout( true, true );
-      wLogComp.layout( true, true );
-    }
-  }
-
-  private void getLogInfo( int previousLogTableIndex ) {
-
-    if ( previousLogTableIndex < 0 ) {
-      return;
-    }
-    // Remember the that was entered data...
-    //
-    ILogTable modifiedLogTable = logTables.get( previousLogTableIndex );
-    ILogTableUser logTableUserInterface = logTableUserInterfaces.get( previousLogTableIndex );
-
-    if ( logTableUserInterface != null ) {
-      logTableUserInterface.retrieveLogTableOptions( modifiedLogTable );
-    } else {
-      if ( modifiedLogTable instanceof WorkflowLogTable ) {
-        getWorkflowLogTableOptions( (WorkflowLogTable) modifiedLogTable );
-      } else if ( modifiedLogTable instanceof ChannelLogTable ) {
-        getChannelLogTableOptions( (ChannelLogTable) modifiedLogTable );
-      } else if ( modifiedLogTable instanceof ActionLogTable ) {
-        getActionLogTableOptions( (ActionLogTable) modifiedLogTable );
-      }
-    }
-
-  }
-
-  private void getWorkflowLogTableOptions( WorkflowLogTable workflowLogTable ) {
-
-    // The connection...
-    //
-    workflowLogTable.setConnectionName( wLogConnection.getText() );
-    workflowLogTable.setSchemaName( wLogSchema.getText() );
-    workflowLogTable.setTableName( wLogTable.getText() );
-    workflowLogTable.setLogInterval( wLogInterval.getText() );
-    workflowLogTable.setLogSizeLimit( wLogSizeLimit.getText() );
-    workflowLogTable.setTimeoutInDays( wLogTimeout.getText() );
-
-    for ( int i = 0; i < workflowLogTable.getFields().size(); i++ ) {
-      TableItem item = wOptionFields.table.getItem( i );
-
-      LogTableField field = workflowLogTable.getFields().get( i );
-      field.setEnabled( item.getChecked() );
-      field.setFieldName( item.getText( 1 ) );
-    }
-  }
-
-  private Control addDBSchemaTableLogOptions( ILogTable logTable ) {
-
-    wLogConnection = new MetaSelectionLine<DatabaseMeta>( workflowMeta, workflowMeta.getMetaStore(), DatabaseMeta.class, wLogOptionsComposite, SWT.NONE,
-      BaseMessages.getString( PKG, "WorkflowDialog.LogConnection.Label" ),
-      BaseMessages.getString( PKG, "WorkflowDialog.LogConnection.Tooltip", logTable.getConnectionNameVariable() ) );
-    FormData fdLogConnection = new FormData();
-    fdLogConnection.left = new FormAttachment( 0, 0 );
-    fdLogConnection.right = new FormAttachment( 100, 0 );
-    fdLogConnection.top = new FormAttachment( 0, 0 );
-    wLogConnection.setLayoutData( fdLogConnection );
-
-    // Log schema ...
-    //
-    Label wlLogSchema = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogSchema.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogSchema.Label" ) );
-    props.setLook( wlLogSchema );
-    FormData fdlLogSchema = new FormData();
-    fdlLogSchema.left = new FormAttachment( 0, 0 );
-    fdlLogSchema.right = new FormAttachment( middle, -margin );
-    fdlLogSchema.top = new FormAttachment( wLogConnection, margin );
-    wlLogSchema.setLayoutData( fdlLogSchema );
-    wLogSchema = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wLogSchema );
-    wLogSchema.addModifyListener( lsMod );
-    FormData fdLogSchema = new FormData();
-    fdLogSchema.left = new FormAttachment( middle, 0 );
-    fdLogSchema.top = new FormAttachment( wLogConnection, margin );
-    fdLogSchema.right = new FormAttachment( 100, 0 );
-    wLogSchema.setLayoutData( fdLogSchema );
-    wLogSchema.setText( Const.NVL( logTable.getSchemaName(), "" ) );
-    wLogSchema.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogSchema.Tooltip", logTable
-      .getSchemaNameVariable() ) );
-
-    // Log table...
-    //
-    Label wlLogtable = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogtable.setText( BaseMessages.getString( PKG, "WorkflowDialog.Logtable.Label" ) );
-    props.setLook( wlLogtable );
-    FormData fdlLogtable = new FormData();
-    fdlLogtable.left = new FormAttachment( 0, 0 );
-    fdlLogtable.right = new FormAttachment( middle, -margin );
-    fdlLogtable.top = new FormAttachment( wLogSchema, margin );
-    wlLogtable.setLayoutData( fdlLogtable );
-    wLogTable = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wLogTable );
-    wLogTable.addModifyListener( lsMod );
-    FormData fdLogtable = new FormData();
-    fdLogtable.left = new FormAttachment( middle, 0 );
-    fdLogtable.top = new FormAttachment( wLogSchema, margin );
-    fdLogtable.right = new FormAttachment( 100, 0 );
-    wLogTable.setLayoutData( fdLogtable );
-    wLogTable.setText( Const.NVL( logTable.getTableName(), "" ) );
-    wLogTable.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTable.Tooltip", logTable
-      .getTableNameVariable() ) );
-
-    return wLogTable;
-
-  }
-
-  private void showWorkflowLogTableOptions( WorkflowLogTable workflowLogTable ) {
-
-    addDBSchemaTableLogOptions( workflowLogTable );
-
-    // Log interval...
-    //
-    Label wlLogInterval = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogInterval.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogInterval.Label" ) );
-    props.setLook( wlLogInterval );
-    FormData fdlLogInterval = new FormData();
-    fdlLogInterval.left = new FormAttachment( 0, 0 );
-    fdlLogInterval.right = new FormAttachment( middle, -margin );
-    fdlLogInterval.top = new FormAttachment( wLogTable, margin );
-    wlLogInterval.setLayoutData( fdlLogInterval );
-    wLogInterval = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wLogInterval );
-    wLogInterval.addModifyListener( lsMod );
-    FormData fdLogInterval = new FormData();
-    fdLogInterval.left = new FormAttachment( middle, 0 );
-    fdLogInterval.top = new FormAttachment( wLogTable, margin );
-    fdLogInterval.right = new FormAttachment( 100, 0 );
-    wLogInterval.setLayoutData( fdLogInterval );
-    wLogInterval.setText( Const.NVL( workflowLogTable.getLogInterval(), "" ) );
-
-    // The log timeout in days
-    //
-    Label wlLogTimeout = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogTimeout.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Label" ) );
-    wlLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wlLogTimeout );
-    FormData fdlLogTimeout = new FormData();
-    fdlLogTimeout.left = new FormAttachment( 0, 0 );
-    fdlLogTimeout.right = new FormAttachment( middle, -margin );
-    fdlLogTimeout.top = new FormAttachment( wLogInterval, margin );
-    wlLogTimeout.setLayoutData( fdlLogTimeout );
-    wLogTimeout = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wLogTimeout );
-    wLogTimeout.addModifyListener( lsMod );
-    FormData fdLogTimeout = new FormData();
-    fdLogTimeout.left = new FormAttachment( middle, 0 );
-    fdLogTimeout.top = new FormAttachment( wLogInterval, margin );
-    fdLogTimeout.right = new FormAttachment( 100, 0 );
-    wLogTimeout.setLayoutData( fdLogTimeout );
-    wLogTimeout.setText( Const.NVL( workflowLogTable.getTimeoutInDays(), "" ) );
-
-    // The log size limit
-    //
-    Label wlLogSizeLimit = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogSizeLimit.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogSizeLimit.Label" ) );
-    wlLogSizeLimit.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogSizeLimit.Tooltip" ) );
-    props.setLook( wlLogSizeLimit );
-    FormData fdlLogSizeLimit = new FormData();
-    fdlLogSizeLimit.left = new FormAttachment( 0, 0 );
-    fdlLogSizeLimit.right = new FormAttachment( middle, -margin );
-    fdlLogSizeLimit.top = new FormAttachment( wLogTimeout, margin );
-    wlLogSizeLimit.setLayoutData( fdlLogSizeLimit );
-    wLogSizeLimit = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wLogSizeLimit.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogSizeLimit.Tooltip" ) );
-    props.setLook( wLogSizeLimit );
-    wLogSizeLimit.addModifyListener( lsMod );
-    FormData fdLogSizeLimit = new FormData();
-    fdLogSizeLimit.left = new FormAttachment( middle, 0 );
-    fdLogSizeLimit.top = new FormAttachment( wLogTimeout, margin );
-    fdLogSizeLimit.right = new FormAttachment( 100, 0 );
-    wLogSizeLimit.setLayoutData( fdLogSizeLimit );
-    wLogSizeLimit.setText( Const.NVL( workflowLogTable.getLogSizeLimit(), "" ) );
-
-    // Add the fields grid...
-    //
-    Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Label" ) );
-    props.setLook( wlFields );
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wLogSizeLimit, margin * 2 );
-    wlFields.setLayoutData( fdlFields );
-
-    final java.util.List<LogTableField> fields = workflowLogTable.getFields();
-    final int nrRows = fields.size();
-
-    ColumnInfo[] colinf =
-      new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.FieldName" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Description" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-
-    wOptionFields =
-      new TableView( workflowMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-        // check
-        // to the
-        // left...
-        colinf, nrRows, true, lsMod, props );
-
-    wOptionFields.setSortable( false );
-
-    for ( int i = 0; i < fields.size(); i++ ) {
-      LogTableField field = fields.get( i );
-      TableItem item = wOptionFields.table.getItem( i );
-      item.setChecked( field.isEnabled() );
-      item.setText( new String[] {
-        "", Const.NVL( field.getFieldName(), "" ), Const.NVL( field.getDescription(), "" ) } );
-    }
-
-    wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Enabled" ) );
-
-    FormData fdOptionFields = new FormData();
-    fdOptionFields.left = new FormAttachment( 0, 0 );
-    fdOptionFields.top = new FormAttachment( wlFields, margin );
-    fdOptionFields.right = new FormAttachment( 100, 0 );
-    fdOptionFields.bottom = new FormAttachment( 100, 0 );
-    wOptionFields.setLayoutData( fdOptionFields );
-
-    wOptionFields.optWidth( true );
-
-    wOptionFields.layout();
-  }
-
-  private void getChannelLogTableOptions( ChannelLogTable channelLogTable ) {
-
-    // The connection...
-    //
-    channelLogTable.setConnectionName( wLogConnection.getText() );
-    channelLogTable.setSchemaName( wLogSchema.getText() );
-    channelLogTable.setTableName( wLogTable.getText() );
-    channelLogTable.setTimeoutInDays( wLogTimeout.getText() );
-
-    for ( int i = 0; i < channelLogTable.getFields().size(); i++ ) {
-      TableItem item = wOptionFields.table.getItem( i );
-
-      LogTableField field = channelLogTable.getFields().get( i );
-      field.setEnabled( item.getChecked() );
-      field.setFieldName( item.getText( 1 ) );
-    }
-  }
-
-  private void showChannelLogTableOptions( ChannelLogTable channelLogTable ) {
-
-    addDBSchemaTableLogOptions( channelLogTable );
-
-    // The log timeout in days
-    //
-    Label wlLogTimeout = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogTimeout.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Label" ) );
-    wlLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wlLogTimeout );
-    FormData fdlLogTimeout = new FormData();
-    fdlLogTimeout.left = new FormAttachment( 0, 0 );
-    fdlLogTimeout.right = new FormAttachment( middle, -margin );
-    fdlLogTimeout.top = new FormAttachment( wLogTable, margin );
-    wlLogTimeout.setLayoutData( fdlLogTimeout );
-    wLogTimeout = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wLogTimeout );
-    wLogTimeout.addModifyListener( lsMod );
-    FormData fdLogTimeout = new FormData();
-    fdLogTimeout.left = new FormAttachment( middle, 0 );
-    fdLogTimeout.top = new FormAttachment( wLogTable, margin );
-    fdLogTimeout.right = new FormAttachment( 100, 0 );
-    wLogTimeout.setLayoutData( fdLogTimeout );
-    wLogTimeout.setText( Const.NVL( channelLogTable.getTimeoutInDays(), "" ) );
-
-    // Add the fields grid...
-    //
-    Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Label" ) );
-    props.setLook( wlFields );
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wLogTimeout, margin * 2 );
-    wlFields.setLayoutData( fdlFields );
-
-    final java.util.List<LogTableField> fields = channelLogTable.getFields();
-    final int nrRows = fields.size();
-
-    ColumnInfo[] colinf =
-      new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.FieldName" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Description" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-
-    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
-
-      public boolean isFieldDisabled( int rowNr ) {
-        if ( rowNr >= 0 && rowNr < fields.size() ) {
-          LogTableField field = fields.get( rowNr );
-          return field.isSubjectAllowed();
-        } else {
-          return true;
-        }
-      }
-    };
-
-    colinf[ 1 ].setDisabledListener( disabledListener );
-
-    wOptionFields =
-      new TableView( workflowMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-        // check
-        // to the
-        // left...
-        colinf, nrRows, true, lsMod, props );
-
-    wOptionFields.setSortable( false );
-
-    for ( int i = 0; i < fields.size(); i++ ) {
-      LogTableField field = fields.get( i );
-      TableItem item = wOptionFields.table.getItem( i );
-      item.setChecked( field.isEnabled() );
-      item.setText( new String[] {
-        "", Const.NVL( field.getFieldName(), "" ), Const.NVL( field.getDescription(), "" ) } );
-    }
-
-    wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Enabled" ) );
-
-    FormData fdOptionFields = new FormData();
-    fdOptionFields.left = new FormAttachment( 0, 0 );
-    fdOptionFields.top = new FormAttachment( wlFields, margin );
-    fdOptionFields.right = new FormAttachment( 100, 0 );
-    fdOptionFields.bottom = new FormAttachment( 100, 0 );
-    wOptionFields.setLayoutData( fdOptionFields );
-
-    wOptionFields.optWidth( true );
-
-    wOptionFields.layout();
-  }
-
-  private void getActionLogTableOptions( ActionLogTable actionLogTable ) {
-
-    // The connection...
-    //
-    actionLogTable.setConnectionName( wLogConnection.getText() );
-    actionLogTable.setSchemaName( wLogSchema.getText() );
-    actionLogTable.setTableName( wLogTable.getText() );
-    actionLogTable.setTimeoutInDays( wLogTimeout.getText() );
-
-    for ( int i = 0; i < actionLogTable.getFields().size(); i++ ) {
-      TableItem item = wOptionFields.table.getItem( i );
-
-      LogTableField field = actionLogTable.getFields().get( i );
-      field.setEnabled( item.getChecked() );
-      field.setFieldName( item.getText( 1 ) );
-    }
-  }
-
-  private void showActionLogTableOptions( ActionLogTable actionLogTable ) {
-
-    addDBSchemaTableLogOptions( actionLogTable );
-
-    // The log timeout in days
-    //
-    Label wlLogTimeout = new Label( wLogOptionsComposite, SWT.RIGHT );
-    wlLogTimeout.setText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Label" ) );
-    wlLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wlLogTimeout );
-    FormData fdlLogTimeout = new FormData();
-    fdlLogTimeout.left = new FormAttachment( 0, 0 );
-    fdlLogTimeout.right = new FormAttachment( middle, -margin );
-    fdlLogTimeout.top = new FormAttachment( wLogTable, margin );
-    wlLogTimeout.setLayoutData( fdlLogTimeout );
-    wLogTimeout = new TextVar( workflowMeta, wLogOptionsComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wLogTimeout.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.LogTimeout.Tooltip" ) );
-    props.setLook( wLogTimeout );
-    wLogTimeout.addModifyListener( lsMod );
-    FormData fdLogTimeout = new FormData();
-    fdLogTimeout.left = new FormAttachment( middle, 0 );
-    fdLogTimeout.top = new FormAttachment( wLogTable, margin );
-    fdLogTimeout.right = new FormAttachment( 100, 0 );
-    wLogTimeout.setLayoutData( fdLogTimeout );
-    wLogTimeout.setText( Const.NVL( actionLogTable.getTimeoutInDays(), "" ) );
-
-    // Add the fields grid...
-    //
-    Label wlFields = new Label( wLogOptionsComposite, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Label" ) );
-    props.setLook( wlFields );
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wLogTimeout, margin * 2 );
-    wlFields.setLayoutData( fdlFields );
-
-    final java.util.List<LogTableField> fields = actionLogTable.getFields();
-    final int nrRows = fields.size();
-
-    ColumnInfo[] colinf =
-      new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.FieldName" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Description" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-
-    IFieldDisabledListener disabledListener = new IFieldDisabledListener() {
-
-      public boolean isFieldDisabled( int rowNr ) {
-        if ( rowNr >= 0 && rowNr < fields.size() ) {
-          LogTableField field = fields.get( rowNr );
-          return field.isSubjectAllowed();
-        } else {
-          return true;
-        }
-      }
-    };
-
-    colinf[ 1 ].setDisabledListener( disabledListener );
-
-    wOptionFields =
-      new TableView( workflowMeta, wLogOptionsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.CHECK, // add a
-        // check
-        // to the
-        // left...
-        colinf, nrRows, true, lsMod, props );
-
-    wOptionFields.setSortable( false );
-
-    for ( int i = 0; i < fields.size(); i++ ) {
-      LogTableField field = fields.get( i );
-      TableItem item = wOptionFields.table.getItem( i );
-      item.setChecked( field.isEnabled() );
-      item.setText( new String[] {
-        "", Const.NVL( field.getFieldName(), "" ), Const.NVL( field.getDescription(), "" ) } );
-    }
-
-    wOptionFields.table.getColumn( 0 ).setText(
-      BaseMessages.getString( PKG, "WorkflowDialog.PipelineLogTable.Fields.Enabled" ) );
-
-    FormData fdOptionFields = new FormData();
-    fdOptionFields.left = new FormAttachment( 0, 0 );
-    fdOptionFields.top = new FormAttachment( wlFields, margin );
-    fdOptionFields.right = new FormAttachment( 100, 0 );
-    fdOptionFields.bottom = new FormAttachment( 100, 0 );
-    wOptionFields.setLayoutData( fdOptionFields );
-
-    wOptionFields.optWidth( true );
-
-    wOptionFields.layout();
-  }
 
   private void addSettingsTab() {
     // ////////////////////////
@@ -1265,15 +625,12 @@ public class WorkflowDialog extends Dialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wJobname.setText( Const.NVL( workflowMeta.getName(), "" ) );
-    wJobFilename.setText( Const.NVL( workflowMeta.getFilename(), "" ) );
-    wJobdescription.setText( Const.NVL( workflowMeta.getDescription(), "" ) );
-    wExtendeddescription.setText( Const.NVL( workflowMeta.getExtendedDescription(), "" ) );
-    wJobversion.setText( Const.NVL( workflowMeta.getJobversion(), "" ) );
+    wWorkflowName.setText( Const.NVL( workflowMeta.getName(), "" ) );
+    wFilename.setText( Const.NVL( workflowMeta.getFilename(), "" ) );
+    wDescription.setText( Const.NVL( workflowMeta.getDescription(), "" ) );
+    wExtendedDescription.setText( Const.NVL( workflowMeta.getExtendedDescription(), "" ) );
+    wVersion.setText( Const.NVL( workflowMeta.getJobversion(), "" ) );
     wWorkflowStatus.select( workflowMeta.getWorkflowStatus() - 1 );
-
-    wLogTypeList.select( 0 );
-    showWorkflowLogTableOptions( (WorkflowLogTable) logTables.get( 0 ) );
 
     if ( workflowMeta.getCreatedUser() != null ) {
       wCreateUser.setText( workflowMeta.getCreatedUser() );
@@ -1328,18 +685,11 @@ public class WorkflowDialog extends Dialog {
   }
 
   private void ok() {
-    if ( previousLogTableIndex >= 0 ) {
-      getLogInfo( previousLogTableIndex );
-    }
 
-    for ( int i = 0; i < logTables.size(); i++ ) {
-      workflowMeta.getLogTables().get( i ).replaceMeta( logTables.get( i ) );
-    }
-
-    workflowMeta.setName( wJobname.getText() );
-    workflowMeta.setDescription( wJobdescription.getText() );
-    workflowMeta.setExtendedDescription( wExtendeddescription.getText() );
-    workflowMeta.setJobversion( wJobversion.getText() );
+    workflowMeta.setName( wWorkflowName.getText() );
+    workflowMeta.setDescription( wDescription.getText() );
+    workflowMeta.setExtendedDescription( wExtendedDescription.getText() );
+    workflowMeta.setJobversion( wVersion.getText() );
     if ( wWorkflowStatus.getSelectionIndex() != 2 ) {
       // Saving the index as meta data is in fact pretty bad, but since
       // it was already in ...
@@ -1371,82 +721,6 @@ public class WorkflowDialog extends Dialog {
     workflowMeta.setChanged( changed || workflowMeta.hasChanged() );
 
     dispose();
-  }
-
-  /**
-   * Generates code for create table... Conversions done by Database
-   */
-  private void sql() {
-    if ( previousLogTableIndex >= 0 ) {
-      getLogInfo( previousLogTableIndex );
-    }
-
-    try {
-
-      for ( ILogTable logTable : logTables ) {
-        if ( logTable.getDatabaseMeta() != null && !Utils.isEmpty( logTable.getTableName() ) ) {
-          // OK, we have something to work with!
-          //
-          Database db = null;
-          try {
-            db = new Database( workflowMeta, logTable.getDatabaseMeta() );
-            db.shareVariablesWith( workflowMeta );
-            db.connect();
-
-            StringBuilder ddl = new StringBuilder();
-
-            IRowMeta fields = logTable.getLogRecord( LogStatus.START, null, null ).getRowMeta();
-            String tableName = db.environmentSubstitute( logTable.getTableName() );
-            String schemaTable =
-              logTable.getDatabaseMeta().getQuotedSchemaTableCombination(
-                db.environmentSubstitute( logTable.getSchemaName() ),
-                db.environmentSubstitute( logTable.getTableName() ) );
-            String createTable = db.getDDL( schemaTable, fields );
-
-            if ( !Utils.isEmpty( createTable ) ) {
-              ddl.append( "-- " ).append( logTable.getLogTableType() ).append( Const.CR );
-              ddl.append( "--" ).append( Const.CR ).append( Const.CR );
-              ddl.append( createTable ).append( Const.CR );
-            }
-
-            java.util.List<IRowMeta> indexes = logTable.getRecommendedIndexes();
-            for ( int i = 0; i < indexes.size(); i++ ) {
-              IRowMeta index = indexes.get( i );
-              if ( !index.isEmpty() ) {
-                String createIndex =
-                  db.getCreateIndexStatement( schemaTable, "IDX_" + tableName + "_" + ( i + 1 ), index
-                    .getFieldNames(), false, false, false, true );
-                if ( !Utils.isEmpty( createIndex ) ) {
-                  ddl.append( createIndex );
-                }
-              }
-            }
-
-            if ( ddl.length() > 0 ) {
-              SqlEditor sqledit =
-                new SqlEditor( workflowMeta, shell, SWT.NONE, logTable.getDatabaseMeta(), DbCache.getInstance(), ddl
-                  .toString() );
-              sqledit.open();
-            } else {
-              MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-              mb.setText( BaseMessages.getString( PKG, "WorkflowDialog.NoSqlNedds.DialogTitle" ) );
-              mb.setMessage( logTable.getLogTableType()
-                + Const.CR + Const.CR + BaseMessages.getString( PKG, "WorkflowDialog.NoSqlNedds.DialogMessage" ) );
-              mb.open();
-            }
-
-          } finally {
-            if ( db != null ) {
-              db.disconnect();
-            }
-          }
-        }
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "WorkflowDialog.Dialog.ErrorCreatingSQL.Title" ), BaseMessages.getString(
-        PKG, "WorkflowDialog.Dialog.ErrorCreatingSQL.Message" ), e );
-    }
   }
 
   public static final Button setShellImage( Shell shell, IAction jobEntry ) {
@@ -1502,35 +776,6 @@ public class WorkflowDialog extends Dialog {
         shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
     }
     return null;
-  }
-
-  public void setDirectoryChangeAllowed( boolean directoryChangeAllowed ) {
-    this.directoryChangeAllowed = directoryChangeAllowed;
-  }
-
-  private ILogTableUser getLogTableUserInterface( ILogTable logTable, WorkflowMeta workflowMeta,
-                                                  ModifyListener lsMod ) {
-
-    if ( !( logTable instanceof ILogTablePlugin ) ) {
-      return null;
-    }
-    ILogTablePlugin pluginInterface = (ILogTablePlugin) logTable;
-
-    String uiClassName = pluginInterface.getLogTablePluginUIClassname();
-
-    Class<?> uiClass;
-    Class<?>[] paramClasses = new Class<?>[] { WorkflowMeta.class, ModifyListener.class, WorkflowDialog.class, };
-    Object[] paramArgs = new Object[] { workflowMeta, lsMod, this, };
-    Constructor<?> uiConstructor;
-    try {
-      uiClass = pluginInterface.getClass().getClassLoader().loadClass( uiClassName );
-      uiConstructor = uiClass.getConstructor( paramClasses );
-      return (ILogTableUser) uiConstructor.newInstance( paramArgs );
-    } catch ( Exception e ) {
-      new ErrorDialog( shell, "Error", "Unable to load UI interface class: " + uiClassName, e );
-      return null;
-    }
-
   }
 
 }

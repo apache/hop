@@ -230,13 +230,6 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       workflow.setSocketRepository( getSocketRepository() );
 
-      // Do we need to expand the workflow when it's running?
-      // Note: the plugin (Workflow and Pipeline) actions need to call the delegation listeners in the parent workflow.
-      //
-      if ( workflowExecutionConfiguration.isExpandingRemoteJob() ) {
-        workflow.addDelegationListener( new HopServerDelegationHandler( getPipelineMap(), getWorkflowMap() ) );
-      }
-
       getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
 
 

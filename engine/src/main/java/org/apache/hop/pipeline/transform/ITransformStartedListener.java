@@ -22,16 +22,21 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
-public class TransformAdapter implements ITransformListener {
+/**
+ * This listener informs the audience when a transform starts processing.
+ *
+ * @author matt
+ */
+public interface ITransformStartedListener {
 
-  @Override
-  public void transformActive( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
-  }
-
-  @Override
-  public void transformFinished( Pipeline pipeline, TransformMeta transformMeta, ITransform transform ) {
-  }
-
+  /**
+   * This method is called when a transform started to execute.
+   *
+   * @param pipeline
+   * @param transformMeta
+   * @param transform
+   */
+  void transformStarted( IPipelineEngine pipeline, TransformMeta transformMeta, ITransform transform );
 }

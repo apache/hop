@@ -479,14 +479,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     this.gatheringMetrics = gatheringMetrics;
   }
 
-  public void setExpandingRemoteJob( boolean expandingRemoteJob ) {
-    this.expandingRemoteJob = expandingRemoteJob;
-  }
-
-  public boolean isExpandingRemoteJob() {
-    return expandingRemoteJob;
-  }
-
   public Map<String, String> getExtensionOptions() {
     return extensionOptions;
   }

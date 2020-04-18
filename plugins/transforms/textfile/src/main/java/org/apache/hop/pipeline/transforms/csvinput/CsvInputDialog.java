@@ -193,7 +193,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       // The filename field ...
       //
       Label wlFilename = new Label( shell, SWT.RIGHT );
-      wlFilename.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "FILENAME_FIELD" ) ) );
+      wlFilename.setText( BaseMessages.getString( PKG, "CsvInputDialog.FilenameField.Label"  ) );
       props.setLook( wlFilename );
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment( lastControl, margin );
@@ -214,7 +214,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       // Checkbox to include the filename in the output...
       //
       Label wlIncludeFilename = new Label( shell, SWT.RIGHT );
-      wlIncludeFilename.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "INCLUDE_FILENAME" ) ) );
+      wlIncludeFilename.setText( BaseMessages.getString( PKG, "CsvInputDialog.IncludeFilenameField.Label" ) );
       props.setLook( wlIncludeFilename );
       FormData fdlIncludeFilename = new FormData();
       fdlIncludeFilename.top = new FormAttachment( lastControl, margin );
@@ -248,7 +248,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       // The field itself...
       //
       Label wlFilename = new Label( shell, SWT.RIGHT );
-      wlFilename.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "FILENAME" ) ) );
+      wlFilename.setText( BaseMessages.getString( PKG, "CsvInputDialog.Filename.Label" ) );
       props.setLook( wlFilename );
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment( lastControl, margin );
@@ -273,7 +273,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // delimiter
     Label wlDelimiter = new Label( shell, SWT.RIGHT );
-    wlDelimiter.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "DELIMITER" ) ) );
+    wlDelimiter.setText( BaseMessages.getString( PKG, "CsvInputDialog.Delimiter.Label"  ) );
     props.setLook( wlDelimiter );
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.top = new FormAttachment( lastControl, margin );
@@ -300,7 +300,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // enclosure
     Label wlEnclosure = new Label( shell, SWT.RIGHT );
-    wlEnclosure.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "ENCLOSURE" ) ) );
+    wlEnclosure.setText( BaseMessages.getString( PKG, "CsvInputDialog.Enclosure.Label"  ) );
     props.setLook( wlEnclosure );
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.top = new FormAttachment( lastControl, margin );
@@ -321,7 +321,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // bufferSize
     //
     Label wlBufferSize = new Label( shell, SWT.RIGHT );
-    wlBufferSize.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "BUFFERSIZE" ) ) );
+    wlBufferSize.setText( BaseMessages.getString( PKG, "CsvInputDialog.BufferSize.Label" ) );
     props.setLook( wlBufferSize );
     FormData fdlBufferSize = new FormData();
     fdlBufferSize.top = new FormAttachment( lastControl, margin );
@@ -341,7 +341,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // performingLazyConversion?
     //
     Label wlLazyConversion = new Label( shell, SWT.RIGHT );
-    wlLazyConversion.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "LAZY_CONVERSION" ) ) );
+    wlLazyConversion.setText( BaseMessages.getString( PKG, "CsvInputDialog.LazyConversion.Label" ) );
     props.setLook( wlLazyConversion );
     FormData fdlLazyConversion = new FormData();
     fdlLazyConversion.top = new FormAttachment( lastControl, margin );
@@ -360,7 +360,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // header row?
     //
     Label wlHeaderPresent = new Label( shell, SWT.RIGHT );
-    wlHeaderPresent.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "HEADER_PRESENT" ) ) );
+    wlHeaderPresent.setText( BaseMessages.getString( PKG, "CsvInputDialog.HeaderPresent.Label"  ) );
     props.setLook( wlHeaderPresent );
     FormData fdlHeaderPresent = new FormData();
     fdlHeaderPresent.top = new FormAttachment( lastControl, margin );
@@ -382,7 +382,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     lastControl = wHeaderPresent;
 
     wlAddResult = new Label( shell, SWT.RIGHT );
-    wlAddResult.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "ADD_FILENAME_RESULT" ) ) );
+    wlAddResult.setText( BaseMessages.getString( PKG, "CsvInputDialog.AddResult.Label" ) );
     props.setLook( wlAddResult );
     fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment( 0, 0 );
@@ -391,7 +391,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     wlAddResult.setLayoutData( fdlAddResult );
     wAddResult = new Button( shell, SWT.CHECK );
     props.setLook( wAddResult );
-    wAddResult.setToolTipText( BaseMessages.getString( PKG, inputMeta.getTooltip( "ADD_FILENAME_RESULT" ) ) );
+    wAddResult.setToolTipText( BaseMessages.getString( PKG, "CsvInputDialog.AddResult.Tooltip" ) );
     fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
     fdAddResult.top = new FormAttachment( wHeaderPresent, margin );
@@ -401,7 +401,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // The field itself...
     //
     Label wlRowNumField = new Label( shell, SWT.RIGHT );
-    wlRowNumField.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "ROW_NUM_FIELD" ) ) );
+    wlRowNumField.setText( BaseMessages.getString( PKG, "CsvInputDialog.RowNumField.Label" ) );
     props.setLook( wlRowNumField );
     FormData fdlRowNumField = new FormData();
     fdlRowNumField.top = new FormAttachment( lastControl, margin );
@@ -421,7 +421,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // running in parallel?
     //
     wlRunningInParallel = new Label( shell, SWT.RIGHT );
-    wlRunningInParallel.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "PARALLEL" ) ) );
+    wlRunningInParallel.setText( BaseMessages.getString( PKG, "CsvInputDialog.RunningInParallel.Label" ) );
     props.setLook( wlRunningInParallel );
     FormData fdlRunningInParallel = new FormData();
     fdlRunningInParallel.top = new FormAttachment( lastControl, margin );
@@ -439,7 +439,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // Is a new line possible in a field?
     //
     Label wlNewlinePossible = new Label( shell, SWT.RIGHT );
-    wlNewlinePossible.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "NEWLINE_POSSIBLE" ) ) );
+    wlNewlinePossible.setText( BaseMessages.getString( PKG, "CsvInputDialog.NewlinePossible.Label" ) );
     props.setLook( wlNewlinePossible );
     FormData fdlNewlinePossible = new FormData();
     fdlNewlinePossible.top = new FormAttachment( lastControl, margin );
@@ -467,7 +467,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // Encoding
     Label wlEncoding = new Label( shell, SWT.RIGHT );
-    wlEncoding.setText( BaseMessages.getString( PKG, inputMeta.getDescription( "ENCODING" ) ) );
+    wlEncoding.setText( BaseMessages.getString( PKG, "CsvInputDialog.Encoding.Label" ) );
     props.setLook( wlEncoding );
     FormData fdlEncoding = new FormData();
     fdlEncoding.top = new FormAttachment( lastControl, margin );
@@ -516,54 +516,33 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // Fields
     ColumnInfo[] colinf =
       new ColumnInfo[] {
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_NAME" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_TYPE" ) ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_FORMAT" ) ),
-          ColumnInfo.COLUMN_TYPE_FORMAT, 2 ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_LENGTH" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_PRECISION" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_CURRENCY" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_DECIMAL" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_GROUP" ) ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, inputMeta.getDescription( "FIELD_TRIM_TYPE" ) ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ), };
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.NameColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.FormatColumn.Column" ), ColumnInfo.COLUMN_TYPE_FORMAT, 2 ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.LengthColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.PrecisionColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.CurrencyColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.DecimalColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.GroupColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "CsvInputDialog.TrimTypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc ),
+      };
 
-    colinf[ 2 ].setComboValuesSelectionListener( new IComboValuesSelectionListener() {
-
-      public String[] getComboValues( TableItem tableItem, int rowNr, int colNr ) {
-        String[] comboValues = new String[] {};
-        int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
-        switch ( type ) {
-          case IValueMeta.TYPE_DATE:
-            comboValues = Const.getDateFormats();
-            break;
-          case IValueMeta.TYPE_INTEGER:
-          case IValueMeta.TYPE_BIGNUMBER:
-          case IValueMeta.TYPE_NUMBER:
-            comboValues = Const.getNumberFormats();
-            break;
-          default:
-            break;
-        }
-        return comboValues;
+    colinf[ 2 ].setComboValuesSelectionListener( ( tableItem, rowNr, colNr ) -> {
+      String[] comboValues = new String[] {};
+      int type = ValueMetaFactory.getIdForValueMeta( tableItem.getText( colNr - 1 ) );
+      switch ( type ) {
+        case IValueMeta.TYPE_DATE:
+          comboValues = Const.getDateFormats();
+          break;
+        case IValueMeta.TYPE_INTEGER:
+        case IValueMeta.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_NUMBER:
+          comboValues = Const.getNumberFormats();
+          break;
+        default:
+          break;
       }
-
+      return comboValues;
     } );
 
     wFields = new TableView( pipelineMeta, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
@@ -577,26 +556,10 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     wFields.setContentListener( lsContent );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getFields();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsPreview = e -> preview();
+    lsGet = e -> getFields();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

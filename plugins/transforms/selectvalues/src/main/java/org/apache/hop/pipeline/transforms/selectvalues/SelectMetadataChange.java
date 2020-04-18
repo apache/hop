@@ -28,7 +28,6 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.pipeline.transform.ITransformAttributes;
 import org.w3c.dom.Node;
 
 public class SelectMetadataChange implements Cloneable, IXml {
@@ -113,48 +112,15 @@ public class SelectMetadataChange implements Cloneable, IXml {
   @Injection( name = "META_ENCODING", group = "METAS" )
   private String encoding;
 
-  private ITransformAttributes attributesInterface;
-
-  public SelectMetadataChange( ITransformAttributes attributesInterface ) {
-    this.attributesInterface = attributesInterface;
+  public SelectMetadataChange( ) {
     storageType = -1; // storage type is not used by default!
   }
 
-  /**
-   * @Deprecated This method is left here for external code that may be using it. It may be removed in the future.
-   * @see #SelectMetadataChange(ITransformAttributes, String, String, int, int, int, int, String, boolean, String,
-   * String, String)
-   */
-  public SelectMetadataChange( ITransformAttributes attributesInterface, String name, String rename, int type,
-                               int length, int precision, int storageType, String conversionMask, String decimalSymbol,
-                               String groupingSymbol, String currencySymbol ) {
-    this(
-      attributesInterface, name, rename, type, length, precision, storageType, conversionMask, false, null,
-      null, false, decimalSymbol, groupingSymbol, currencySymbol );
-  }
-
-  /**
-   * @param attributesInterface
-   * @param name
-   * @param rename
-   * @param type
-   * @param length
-   * @param precision
-   * @param storageType
-   * @param conversionMask
-   * @param dateFormatLenient
-   * @param dateFormatLocale
-   * @param dateFormatTimeZone
-   * @param lenientStringToNumber
-   * @param decimalSymbol
-   * @param groupingSymbol
-   * @param currencySymbol
-   */
-  public SelectMetadataChange( ITransformAttributes attributesInterface, String name, String rename, int type,
+  public SelectMetadataChange( String name, String rename, int type,
                                int length, int precision, int storageType, String conversionMask, boolean dateFormatLenient,
                                String dateFormatLocale, String dateFormatTimeZone, boolean lenientStringToNumber, String decimalSymbol,
                                String groupingSymbol, String currencySymbol ) {
-    this( attributesInterface );
+    this();
     this.name = name;
     this.rename = rename;
     this.type = type;
@@ -174,73 +140,41 @@ public class SelectMetadataChange implements Cloneable, IXml {
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append( "      " ).append( XmlHandler.openTag( XML_TAG ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_NAME" ), name ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_RENAME" ), rename ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_TYPE" ),
-        ValueMetaFactory.getValueMetaName( type ) ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_LENGTH" ), length ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_PRECISION" ), precision ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_CONVERSION_MASK" ), conversionMask ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LENIENT" ), Boolean
-        .toString( dateFormatLenient ) ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ), dateFormatLocale ) );
-    retval
-      .append( "        " ).append(
-      XmlHandler.addTagValue(
-        attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ), dateFormatTimeZone ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ), Boolean
-        .toString( lenientStringToNumber ) ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_ENCODING" ), encoding ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_DECIMAL" ), decimalSymbol ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_GROUPING" ), groupingSymbol ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_CURRENCY" ), currencySymbol ) );
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( attributesInterface.getXmlCode( "META_STORAGE_TYPE" ), ValueMetaBase
-        .getStorageTypeCode( storageType ) ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "name", name ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "rename", rename ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( type ) ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "length", length ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", precision ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "conversion_mask", conversionMask ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "date_format_lenient", Boolean.toString( dateFormatLenient ) ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "date_format_locale", dateFormatLocale ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "date_format_timezone", dateFormatTimeZone ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "lenient_string_to_number", Boolean.toString( lenientStringToNumber ) ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal_symbol", decimalSymbol ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "grouping_symbol", groupingSymbol ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "currency_symbol", currencySymbol ) );
+    retval.append( "        " ).append( XmlHandler.addTagValue( "storage_type", ValueMetaBase.getStorageTypeCode( storageType ) ) );
     retval.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) );
     return retval.toString();
   }
 
   public void loadXml( Node metaNode ) {
-    name = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_NAME" ) );
-    rename = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_RENAME" ) );
-    type = ValueMetaFactory.getIdForValueMeta(
-      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_TYPE" ) ) );
-    length = Const.toInt( XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_LENGTH" ) ), -2 );
-    precision =
-      Const.toInt( XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_PRECISION" ) ), -2 );
-    storageType =
-      ValueMetaBase.getStorageType( XmlHandler.getTagValue( metaNode, attributesInterface
-        .getXmlCode( "META_STORAGE_TYPE" ) ) );
-    conversionMask = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CONVERSION_MASK" ) );
-    dateFormatLenient =
-      Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, attributesInterface
-        .getXmlCode( "META_DATE_FORMAT_LENIENT" ) ) );
-    dateFormatLocale =
-      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_LOCALE" ) );
-    dateFormatTimeZone =
-      XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DATE_FORMAT_TIMEZONE" ) );
-    encoding = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
-    lenientStringToNumber =
-      Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, attributesInterface
-        .getXmlCode( "META_LENIENT_STRING_TO_NUMBER" ) ) );
-    encoding = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_ENCODING" ) );
-    decimalSymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_DECIMAL" ) );
-    groupingSymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_GROUPING" ) );
-    currencySymbol = XmlHandler.getTagValue( metaNode, attributesInterface.getXmlCode( "META_CURRENCY" ) );
+    name = XmlHandler.getTagValue( metaNode, "name" );
+    rename = XmlHandler.getTagValue( metaNode, "rename" );
+    type = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( metaNode, "type" ) );
+    length = Const.toInt( XmlHandler.getTagValue( metaNode, "length" ), -2 );
+    precision = Const.toInt( XmlHandler.getTagValue( metaNode, "precision" ), -2 );
+    storageType = ValueMetaBase.getStorageType( XmlHandler.getTagValue( metaNode, "storage_type" ) );
+    conversionMask = XmlHandler.getTagValue( metaNode, "conversion_mask" );
+    dateFormatLenient = Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, "date_format_lenient" ) );
+    dateFormatLocale = XmlHandler.getTagValue( metaNode, "date_format_locale" );
+    dateFormatTimeZone =  XmlHandler.getTagValue( metaNode, "date_format_timezone" );
+    encoding = XmlHandler.getTagValue( metaNode, "encoding" );
+    lenientStringToNumber = Boolean.parseBoolean( XmlHandler.getTagValue( metaNode, "lenient_string_to_number" ) );
+    decimalSymbol = XmlHandler.getTagValue( metaNode, "decimal_symbol" );
+    groupingSymbol = XmlHandler.getTagValue( metaNode, "grouping_symbol" );
+    currencySymbol = XmlHandler.getTagValue( metaNode, "currency_symbol" );
   }
 
   public SelectMetadataChange clone() {

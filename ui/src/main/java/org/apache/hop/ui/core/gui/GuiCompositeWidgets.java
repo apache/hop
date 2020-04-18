@@ -28,14 +28,20 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -46,6 +52,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -180,7 +187,21 @@ public class GuiCompositeWidgets {
           addListener( item, sourceObject, guiElements );
           toolItemMap.put( guiElements.getId(), item );
           break;
-        case MENU_ITEM:
+        case COMBO:
+          if ( guiElements.isVariablesEnabled() ) {
+            ComboVar comboVar = new ComboVar( variables, parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
+            props.setLook( comboVar );
+            widgetsMap.put( guiElements.getId(), comboVar );
+            comboVar.setItems( getComboItems(sourceObject, guiElements.getGetComboValuesMethod()) );
+            control = comboVar;
+          } else {
+            Combo combo = new Combo( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
+            props.setLook( combo );
+            combo.setItems( getComboItems( sourceObject, guiElements.getGetComboValuesMethod() ) );
+            widgetsMap.put( guiElements.getId(), combo );
+            control = combo;
+          }
+          break;case MENU_ITEM:
           break;
         default:
           break;
@@ -237,6 +258,20 @@ public class GuiCompositeWidgets {
 
 
     return previousControl;
+  }
+
+  private String[] getComboItems( Object sourceObject, String getComboValuesMethod ) {
+    try {
+      Method method = sourceObject.getClass().getMethod( getComboValuesMethod, ILogChannel.class, IMetaStore.class );
+      if (method==null) {
+        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IMetaStore in object '"+sourceObject+"'" );
+      }
+      List<String> names = (List<String>) method.invoke( sourceObject, LogChannel.UI, HopGui.getInstance().getMetaStore() );
+      return names.toArray( new String[0] );
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Error getting list of combo items for method '"+getComboValuesMethod +"' on source object: "+sourceObject, e );
+      return new String[] {};
+    }
   }
 
   private void addListener( ToolItem item, Object sourceObject, GuiElements guiElements ) {
@@ -327,6 +362,13 @@ public class GuiCompositeWidgets {
             button.setSelection( (Boolean) value );
             break;
           case COMBO:
+            if ( guiElements.isVariablesEnabled() ) {
+              ComboVar comboVar = (ComboVar) control;
+              comboVar.setText( stringValue );
+            } else {
+              Combo combo = (Combo) control;
+              combo.setText( stringValue );
+            }
           default:
             System.err.println( "WARNING: setting data on widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
             break;

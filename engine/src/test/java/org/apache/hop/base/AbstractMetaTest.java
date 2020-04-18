@@ -30,7 +30,6 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
-import org.apache.hop.core.logging.ChannelLogTable;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.INamedParams;
@@ -485,14 +484,6 @@ public class AbstractMetaTest {
   @Test
   public void testHasMissingPlugins() throws Exception {
     assertFalse( meta.hasMissingPlugins() );
-  }
-
-  @Test
-  public void testGetSetChannelLogTable() throws Exception {
-    assertNull( meta.getChannelLogTable() );
-    ChannelLogTable table = mock( ChannelLogTable.class );
-    meta.setChannelLogTable( table );
-    assertEquals( table, meta.getChannelLogTable() );
   }
 
   @Test

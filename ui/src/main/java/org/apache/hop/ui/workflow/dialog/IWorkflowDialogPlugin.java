@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
-import org.apache.hop.core.logging.ILogTable;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
@@ -34,6 +33,4 @@ public interface IWorkflowDialogPlugin {
   void getData( WorkflowMeta workflowMeta );
 
   void ok( WorkflowMeta workflowMeta );
-
-  void showLogTableOptions( WorkflowMeta workflowMeta, ILogTable logTable, Composite wLogOptionsComposite );
 }

@@ -722,7 +722,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           workflowExecutionConfiguration.setRemoteServer( remoteSlaveServer );
           workflowExecutionConfiguration.setLogLevel( jobLogLevel );
           workflowExecutionConfiguration.setPassingExport( passingExport );
-          workflowExecutionConfiguration.setExpandingRemoteJob( expandingRemoteJob );
           for ( String param : namedParam.listParameters() ) {
             String defValue = namedParam.getParameterDefault( param );
             String value = namedParam.getParameterValue( param );
