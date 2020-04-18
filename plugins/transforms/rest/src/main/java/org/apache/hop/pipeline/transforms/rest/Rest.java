@@ -69,18 +69,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.List;
 
-/**
- * @author Samatar
- * @since 16-jan-2011
- */
 
-public class Rest extends BaseTransform implements ITransform {
+public class Rest extends BaseTransform<RestMeta, RestData> implements ITransform<RestMeta, RestData> {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
-  private RestMeta meta;
-  private RestData data;
-
-  public Rest( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  public Rest( TransformMeta transformMeta, RestMeta meta, RestData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
@@ -346,8 +339,6 @@ public class Rest extends BaseTransform implements ITransform {
   }
 
   public boolean processRow() throws HopException {
-    meta = (RestMeta) smi;
-    data = (RestData) sdi;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
 
@@ -496,8 +487,6 @@ public class Rest extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (RestMeta) smi;
-    data = (RestData) sdi;
 
     if ( super.init() ) {
       data.resultFieldName = environmentSubstitute( meta.getFieldName() );
@@ -553,9 +542,7 @@ public class Rest extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void.dispose() {
-    meta = (RestMeta) smi;
-    data = (RestData) sdi;
+  public void dispose() {
 
     data.config = null;
     data.headerNames = null;

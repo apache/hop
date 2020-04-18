@@ -63,6 +63,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
+
 @PluginDialog(
         id = "MergeJoin",
         image = "ui/images/MJOIN.svg",

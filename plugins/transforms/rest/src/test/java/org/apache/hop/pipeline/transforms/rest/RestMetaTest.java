@@ -22,8 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
-import org.apache.hop.core.CheckResultInterface;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -32,7 +33,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -40,7 +41,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -77,11 +78,11 @@ public class RestMetaTest {
         "matrixParameterField", "matrixParameterName", "fieldName", "resultCodeFieldName", "responseTimeFieldName",
         "responseHeaderFieldName" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     // Arrays need to be consistent length
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
     fieldLoadSaveValidatorAttributeMap.put( "headerField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "headerName", stringArrayLoadSaveValidator );
@@ -93,7 +94,7 @@ public class RestMetaTest {
     LoadSaveTester<RestMeta> loadSaveTester =
       new LoadSaveTester<RestMeta>( RestMeta.class, attributes, new HashMap<>(),
         new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-        new HashMap<String, FieldLoadSaveValidator<?>>() );
+        new HashMap<String, IFieldLoadSaveValidator<?>>() );
 
     loadSaveTester.testSerialization();
   }
@@ -101,14 +102,14 @@ public class RestMetaTest {
   @Test
   public void testTransformChecks() {
     RestMeta meta = new RestMeta();
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta transform = new TransformMeta();
     IRowMeta prev = new RowMeta();
     IRowMeta info = new RowMeta();
     String[] input = new String[ 0 ];
     String[] output = new String[ 0 ];
-    iVariables variables = new Variables();
+    IVariables variables = new Variables();
     IMetaStore metaStore = null;
 
     // In a default configuration, it's expected that some errors will occur.
@@ -129,9 +130,9 @@ public class RestMetaTest {
     assertTrue( errorsDefault > errorsCurrent );
   }
 
-  private static int getCheckResultErrorCount( List<CheckResultInterface> remarks ) {
+  private static int getCheckResultErrorCount( List<ICheckResult> remarks ) {
     return remarks.stream()
-      .filter( p -> p.getType() == CheckResultInterface.TYPE_RESULT_ERROR )
+      .filter( p -> p.getType() == ICheckResult.TYPE_RESULT_ERROR )
       .collect( Collectors.toList() ).size();
   }
 

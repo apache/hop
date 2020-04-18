@@ -23,8 +23,9 @@
 package org.apache.hop.pipeline.transforms.rest;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -33,27 +34,28 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 
-/**
- * @author Samatar
- * @since 16-jan-2011
- */
 
-public class RestMeta extends BaseTransformMeta implements ITransform {
+@Transform(  id = "Rest",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.rest",
+        name = "BaseTransform.TypeLongDesc.Rest",
+        description = "BaseTransform.TypeTooltipDesc.Rest",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+)
+public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] APPLICATION_TYPES = new String[] {
@@ -393,6 +395,12 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
+  public Rest createTransform(TransformMeta transformMeta, RestData data, int copyNr,
+                              PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new Rest(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+  }
+
+  @Override
   public void setDefault() {
     allocate( 0, 0, 0 );
 
@@ -410,8 +418,8 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                        IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
       IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
       v.setOrigin( name );
@@ -556,8 +564,8 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -626,13 +634,7 @@ public class RestMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new Rest( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-  }
-
-  @Override
-  public ITransformData getTransformData() {
+  public RestData getTransformData() {
     return new RestData();
   }
 

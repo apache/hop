@@ -13,6 +13,6 @@
     <artifactId>hop-transform-rowgenerator</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Transforms Select Values</name>
+    <name>Hop Plugins Transforms Row Generator</name>
 
 </project>
