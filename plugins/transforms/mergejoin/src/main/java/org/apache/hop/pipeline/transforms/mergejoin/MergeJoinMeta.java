@@ -40,6 +40,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
@@ -125,8 +126,8 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return null;
+  public MergeJoin createTransform(TransformMeta transformMeta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new MergeJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public MergeJoinMeta() {
@@ -264,8 +265,8 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
     return;
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, MergeJoinData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
+  public ITransform getTransform(TransformMeta transformMeta, MergeJoinData data, int cnr, PipelineMeta tr,
+                                 Pipeline pipeline ) {
     return new MergeJoin( transformMeta, this, data, cnr, tr, pipeline );
   }
 
@@ -299,4 +300,5 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] { PipelineType.Normal, };
   }
+
 }

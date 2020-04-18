@@ -20,9 +20,10 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.rest;
+package org.apache.hop.pipeline.transforms.rest;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -32,7 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rest.RestMeta;
-import org.apache.hop.ui.core.PropsUI;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -73,6 +74,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+        id = "Rest",
+        image = "ui/images/REST.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -241,7 +248,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wTransformName.setLayoutData( fdTransformName );
 
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, PropsUI.WIDGET_STYLE_TAB );
+    props.setLook( wTabFolder, PropsUi.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
