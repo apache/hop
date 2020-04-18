@@ -1,5 +1,5 @@
 [[database-plugins-sapdb]]
-:documentationPath: /plugins/database/
+:documentationPath: /plugins/databases/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sapdb/src/main/doc/sapdb.adoc
 = MaxDB (SAP DB)

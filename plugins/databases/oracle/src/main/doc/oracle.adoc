@@ -1,5 +1,5 @@
 [[database-plugins-oracle]]
-:documentationPath: /plugins/database/
+:documentationPath: /plugins/databases/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/oracle/src/main/doc/oracle.adoc
 = Oracle
