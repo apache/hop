@@ -1,5 +1,5 @@
 [[database-plugins-oraclerdb]]
-:documentationPath: /plugins/database/
+:documentationPath: /plugins/databases/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/oraclerdb/src/main/doc/oraclerdb.adoc
 = Oracle RDB
