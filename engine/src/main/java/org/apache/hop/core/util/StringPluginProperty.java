@@ -28,9 +28,6 @@ import org.w3c.dom.Node;
 
 import java.util.prefs.Preferences;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public class StringPluginProperty extends KeyValue<String> implements IPluginProperty {
 
   /**

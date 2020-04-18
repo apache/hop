@@ -27,10 +27,6 @@ import org.apache.commons.collections.Predicate;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- * @version $Revision
- */
 public final class CollectionPredicates { // NOPMD
 
   private static final String TO_STRING_PREFIX = CollectionPredicates.class.getName() + ".";

@@ -29,10 +29,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- * @version $Revision
- */
 public final class Assert { // NOPMD
 
   private static final int INPUT_MAX_WIDTH = 30;

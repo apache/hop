@@ -29,14 +29,8 @@ import org.w3c.dom.Node;
 
 import java.util.prefs.Preferences;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public final class PluginPropertyHandler {
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   public abstract static class AbstractHandler implements Closure {
     /**
      * {@inheritDoc}
@@ -64,7 +58,6 @@ public final class PluginPropertyHandler {
   }
 
   /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
    * <p>
    * Fail/throws HopException.
    */
@@ -87,9 +80,6 @@ public final class PluginPropertyHandler {
 
   }
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   public static class AppendXml extends AbstractHandler {
 
     private final StringBuilder builder = new StringBuilder();
@@ -108,9 +98,6 @@ public final class PluginPropertyHandler {
 
   }
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   public static class LoadXml extends AbstractHandler {
 
     private final Node node;
@@ -134,9 +121,6 @@ public final class PluginPropertyHandler {
 
   }
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   public static class SaveToPreferences extends AbstractHandler {
 
     private final Preferences node;
@@ -160,9 +144,6 @@ public final class PluginPropertyHandler {
 
   }
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   public static class ReadFromPreferences extends AbstractHandler {
 
     private final Preferences node;

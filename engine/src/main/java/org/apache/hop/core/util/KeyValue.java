@@ -30,7 +30,6 @@ import java.util.List;
 
 /**
  * @param <T> type of value
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
 public class KeyValue<T> implements Serializable {
 
