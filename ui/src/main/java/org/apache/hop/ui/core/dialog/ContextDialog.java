@@ -22,6 +22,9 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -38,657 +41,640 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-public class ContextDialog implements PaintListener, ModifyListener, FocusListener, KeyListener, MouseListener, ShellListener, MouseMoveListener {
-  private Shell parent;
-  private String message;
-  private Point location;
-  private Shell shell;
-  private List<GuiAction> actions;
-
-  private PropsUi props;
-  private GuiAction selectedAction;
-  private Map<String, Image> imageMap;
-  private Set<String> filteredActions;
-  private Map<String, Rectangle> selectionMap;
-
-  private Text wSearch;
-  private Label wlTooltip;
-  private Canvas wCanvas;
-
-  private int iconSize;
-  private int maxNameWidth;
-  private int maxNameHeight;
-
-  private int cellWidth;
-  private int cellHeight;
-  private int margin;
-
-  private boolean shiftClicked;
-  private boolean ctrlClicked;
-  private boolean focusLost;
-
-  public ContextDialog( Shell parent, String message, Point location, List<GuiAction> actions ) {
-    this.parent = parent;
-    this.message = message;
-    this.location = location;
-    this.actions = actions;
-
-    props = PropsUi.getInstance();
-    imageMap = new HashMap<>();
-    filteredActions = new HashSet<>();
-    selectionMap = new HashMap<>();
-
-    shiftClicked = false;
-    ctrlClicked = false;
-
-    if ( actions.isEmpty() ) {
-      selectedAction = null;
-    } else {
-      // Just grab the first by default
-      selectedAction = actions.get( 0 );
-    }
-
-    // Make the icons a bit smaller to fit more
-    //
-    iconSize = (int) Math.round( props.getZoomFactor() * props.getIconSize() * 0.75 ) ;
-  }
-
-  public GuiAction open() {
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
-    shell.setText( message );
-    shell.setImage( GuiResource.getInstance().getImageHop() );
-    props.setLook( shell );
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-
-    shell.setLayout( formLayout );
-
-    // Load all the images...
-    // Filter all actions by default
-    //
-    maxNameWidth = iconSize;
-    maxNameHeight = 0;
-    Image img = new Image( parent.getDisplay(), 100, 100 );
-    GC gc = new GC( img );
-
-    for ( GuiAction action : actions ) {
-      ClassLoader classLoader = action.getClassLoader();
-      if ( classLoader == null ) {
-        classLoader = ClassLoader.getSystemClassLoader();
-      }
-      SwtUniversalImage universalImage = SwtSvgImageUtil.getUniversalImage( parent.getDisplay(), classLoader, action.getImage() );
-      Image image = universalImage.getAsBitmapForSize( parent.getDisplay(), iconSize, iconSize );
-      imageMap.put( action.getId(), image );
-      filteredActions.add( action.getId() );
-
-      if ( action.getShortName() != null ) {
-        org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getShortName() );
-        if ( extent.x > maxNameWidth ) {
-          maxNameWidth = extent.x;
-        }
-        if ( extent.y > maxNameHeight ) {
-          maxNameHeight = extent.y;
-        }
-      }
-    }
-    gc.dispose();
-    img.dispose();
-
-    // Calculate the cell width height
-    //
-    margin = props.getMargin();
-    cellWidth = maxNameWidth + margin;
-    cellHeight = iconSize + margin + maxNameHeight + margin;
-
-    // Add a search bar at the top...
-    //
-    Label wlSearch = new Label( shell, SWT.LEFT );
-    wlSearch.setText( "Search: " );
-    FormData fdlSearch = new FormData();
-    fdlSearch.left = new FormAttachment( 0, 0 );
-    fdlSearch.top = new FormAttachment( 0, 0 );
-    wlSearch.setLayoutData( fdlSearch );
-
-    wSearch = new Text( shell, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
-    FormData fdSearch = new FormData();
-    fdSearch.left = new FormAttachment( wlSearch, props.getMargin() );
-    fdSearch.right = new FormAttachment( 100, 0 );
-    fdSearch.top = new FormAttachment( wlSearch, 0, SWT.CENTER );
-    wSearch.setLayoutData( fdSearch );
-
-
-    // Add a description label at the bottom...
-    //
-    wlTooltip = new Label( shell, SWT.LEFT );
-    FormData fdlTooltip = new FormData();
-    fdlTooltip.left = new FormAttachment( 0, 0 );
-    fdlTooltip.right = new FormAttachment( 100, 0 );
-    fdlTooltip.bottom = new FormAttachment( 100, 0 );
-    wlTooltip.setLayoutData( fdlTooltip );
-
-    // The rest of the dialog is used to draw the actions...
-    //
-    wCanvas = new Canvas( shell, SWT.NO_BACKGROUND | SWT.V_SCROLL );
-    FormData fdCanvas = new FormData();
-    fdCanvas.left = new FormAttachment( 0, 0 );
-
-    fdCanvas.right = new FormAttachment( 100, 0 );
-    fdCanvas.top = new FormAttachment( wSearch, props.getMargin() );
-    fdCanvas.bottom = new FormAttachment( wlTooltip, -props.getMargin() );
-    wCanvas.setLayoutData( fdCanvas );
-
-    // Set the tooltip
-    //
-    changeSelectedAction( selectedAction );
-
-    // TODO: Calcualte a more dynamic size based on number of actions, screen size and so on
-    //
-    int width = (int) Math.round( 400 * props.getZoomFactor() );
-    int height = (int) Math.round( 300 * props.getZoomFactor() );
-    shell.setSize( width, height );
-
-    // Position the dialog where there was a click to be more intuitive
-    //
-    if ( location != null ) {
-      shell.setLocation( location.x, location.y );
-    } else {
-      Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
-      shell.setLocation( Math.max( ( parentBounds.width - width ) / 2, 0 ), Math.max( ( parentBounds.height - height ) / 2, 0 ) );
-    }
-
-    // Show the dialog now
-    //
-    shell.layout();
-    shell.open();
-
-    // Add all the listeners
-    //
-    shell.addFocusListener( this );
-    shell.addShellListener( this );
-    shell.addListener( SWT.Resize, ( e ) -> changeVerticalBar() );
-    wSearch.addModifyListener( this );
-    wSearch.addFocusListener( this );
-    wSearch.addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetDefaultSelected( SelectionEvent e ) {
-        // Pressed enter
-        //
-        dispose();
-      }
-    } );
-    wSearch.addKeyListener( this );
-    wCanvas.addPaintListener( this );
-    wCanvas.addMouseListener( this );
-    wCanvas.addMouseMoveListener( this );
-    wCanvas.getVerticalBar().addSelectionListener( new SelectionAdapter() {
-      @Override public void widgetSelected( SelectionEvent e ) {
-        wCanvas.redraw();
-      }
-    } );
-    changeVerticalBar();
-
-    wSearch.setFocus();
-    wCanvas.redraw();
-
-    // Wait until the dialog is closed
-    //
-    while ( !shell.isDisposed() ) {
-      if ( !shell.getDisplay().readAndDispatch() ) {
-        shell.getDisplay().sleep();
-      }
-    }
-
-    return selectedAction;
-  }
-
-  private void changeVerticalBar() {
-    ScrollBar verticalBar = wCanvas.getVerticalBar();
-    verticalBar.setMinimum( 0 );
-    verticalBar.setIncrement( 1 );
-    int pageRows = wCanvas.getBounds().height / cellHeight;
-    verticalBar.setPageIncrement( pageRows );
-    verticalBar.setMaximum( calculateNrRows() + pageRows );
-  }
-
-  private void cancel() {
-    selectedAction = null;
-    dispose();
-  }
-
-  private void dispose() {
-    // Clean up the images...
-    //
-    for ( Image image : imageMap.values() ) {
-      image.dispose();
-    }
-    shell.dispose();
-  }
-
-  /**
-   * This is where all the actions are drawn
-   *
-   * @param e
-   */
-  @Override public void paintControl( PaintEvent e ) {
-    GC gc = e.gc;
-
-    // Fill everything with white...
-    //
-    gc.setForeground( GuiResource.getInstance().getColorBackground() );
-    gc.setBackground( GuiResource.getInstance().getColorBackground() );
-    gc.fillRectangle( 0, 0, e.width, e.height );
-
-    // For text and lines...
-    //
-    gc.setForeground( GuiResource.getInstance().getColorBlack() );
-    gc.setLineWidth( 4 );
-
-    // Draw all actions
-    //
-    int x = 0;
-    int y = 0;
-
-    // How many rows and columns do we have?
-    // The canvas width, height and the number of selected actions gives us a clue:
-    //
-    int nrColumns = calculateNrColumns();
-    int nrRows = calculateNrRows();
-    if ( nrColumns == 0 || nrRows == 0 ) {
-      return;
-    }
-
-    // So at which row do we start rendering?
-    //
-    int startRow = calculateStartRow( nrRows );
-    int startAction = startRow * nrColumns;
-
-    // Start rendering one row up if possible
-    // That way we can easily scroll up
-    //
-    if ( startRow > 0 ) {
-      startRow--;
-      y -= cellHeight;
-    }
-
-    selectionMap = new HashMap<>();
-
-    List<GuiAction> filtered = new ArrayList<>();
-    for ( GuiAction action : actions ) {
-      if ( filteredActions.contains( action.getId() ) ) {
-        filtered.add( action );
-      }
-    }
-
-    for ( int i = startAction; i < filtered.size(); i++ ) {
-      GuiAction action = filtered.get( i );
-      Rectangle selectionBox = new Rectangle( x, y, maxNameWidth, iconSize + margin + maxNameHeight );
-      selectionMap.put( action.getId(), selectionBox );
-
-      org.eclipse.swt.graphics.Point extent = gc.textExtent( action.getShortName() );
-      Image image = imageMap.get( action.getId() );
-
-      boolean selected = selectedAction != null && action.equals( selectedAction );
-      if ( selected ) {
-        gc.setBackground( GuiResource.getInstance().getColorLightBlue() );
-        gc.fillRectangle( selectionBox );
-      } else {
-        gc.setBackground( GuiResource.getInstance().getColorBackground() );
-      }
-
-      gc.drawImage( image, x + ( maxNameWidth - iconSize ) / 2, y );
-      gc.drawText( action.getShortName(), x + ( maxNameWidth - extent.x ) / 2, y + iconSize + margin );
-
-      x += cellWidth;
-
-      if ( x + maxNameWidth > e.width ) {
-        x = 0;
-        y += cellHeight;
-      }
-      if ( y > e.height + 2 * cellHeight ) {
-        break;
-      }
-    }
-  }
-
-  private int calculateNrColumns() {
-    double columns = (double) ( wCanvas.getBounds().width ) / (double) cellWidth;
-    return (int) Math.floor( columns );
-  }
-
-  private int calculateNrRows() {
-    int nrRows = calculateNrColumns();
-    if ( nrRows == 0 ) {
-      return 0;
-    }
-    return (int) Math.ceil( (double) filteredActions.size() / (double) nrRows );
-  }
-
-
-  private void changeSelectedAction( GuiAction action ) {
-    this.selectedAction = action;
-
-    if ( action == null ) {
-      wlTooltip.setText( "" );
-    } else {
-      wlTooltip.setText( Const.NVL( action.getTooltip(), "" ) );
-    }
-  }
-
-  /**
-   * If the search text is modified we end up here...
-   *
-   * @param e
-   */
-  @Override public void modifyText( ModifyEvent e ) {
-    filteredActions = new HashSet<>();
-    GuiAction firstAction = null;
-
-    String filterString = wSearch.getText();
-    String[] filters = filterString.split( "," );
-    for ( int i = 0; i < filters.length; i++ ) {
-      filters[ i ] = Const.trim( filters[ i ] );
-    }
-
-    for ( GuiAction action : actions ) {
-      if ( StringUtils.isEmpty( filterString ) || action.containsFilterStrings( filters ) ) {
-        filteredActions.add( action.getId() );
-        if ( firstAction == null ) {
-          firstAction = action;
-        }
-      }
-    }
-    // change to a new default selection: first in the list
-    //
-    if ( filteredActions.isEmpty() ) {
-      changeSelectedAction( null );
-    } else {
-      if ( selectedAction == null || !filteredActions.contains( selectedAction.getId() ) ) {
-        changeSelectedAction( firstAction );
-      }
-    }
-    wCanvas.redraw();
-  }
-
-  @Override public void focusGained( FocusEvent e ) {
-  }
-
-  @Override public void focusLost( FocusEvent e ) {
-    focusLost=true;
-    cancel();
-  }
-
-  @Override public void keyPressed( KeyEvent e ) {
-    if ( filteredActions.isEmpty() ) {
-      return;
-    }
-    if ( selectedAction == null ) {
-      selectedAction = findAction( 5, 5 );
-    } else {
-      Rectangle rectangle = selectionMap.get( selectedAction.getId() );
-      if ( rectangle == null ) {
-        return;
-      }
-      GuiAction action = null;
-      if ( e.keyCode == SWT.ARROW_DOWN ) {
-        action = findAction( rectangle.x + 5, rectangle.y + 5 + rectangle.height + props.getMargin() );
-      }
-      if ( e.keyCode == SWT.ARROW_UP ) {
-        action = findAction( rectangle.x + 5, rectangle.y + 5 - rectangle.height - props.getMargin() );
-      }
-      if ( e.keyCode == SWT.ARROW_LEFT ) {
-        action = findAction( rectangle.x + 5 - rectangle.width - props.getMargin(), rectangle.y + 5 );
-      }
-      if ( e.keyCode == SWT.ARROW_RIGHT ) {
-        action = findAction( rectangle.x + 5 + rectangle.width + props.getMargin(), rectangle.y + 5 );
-      }
-      if ( e.keyCode == SWT.HOME ) {
-        // Position on the first row and column of the screen
-        //
-        action = findHomeAction();
-      }
-      if ( e.keyCode == SWT.ESC ) {
-        cancel();
-      }
-      if ( action != null ) {
-        selectedAction = action;
-        e.doit = false;
-
-        Rectangle r = selectionMap.get( action.getId() );
-        Rectangle bounds = wCanvas.getBounds();
-        ScrollBar bar = wCanvas.getVerticalBar();
-        if ( r.y + r.height > bounds.height ) {
-          // We scrolled down and need to scroll the scrollbar
-          //
-          bar.setSelection( Math.min( bar.getSelection() + bar.getPageIncrement(), bar.getMaximum() ) );
-        }
-        if ( r.y < 0 ) {
-          // We scrolled up and need to scroll the scrollbar up
-          //
-          bar.setSelection( Math.max( bar.getSelection() - bar.getPageIncrement(), bar.getMinimum() ) );
-        }
-      }
-    }
-    changeSelectedAction( selectedAction );
-    wCanvas.redraw();
-  }
-
-  private int calculateStartRow( int nrRows ) {
-    // So at which row do we start rendering?
-    //
-    ScrollBar bar = wCanvas.getVerticalBar();
-    double pctDown = 100.0d * bar.getSelection() / bar.getMaximum();
-    int startRow = (int) pctDown * nrRows / 100;
-    return startRow;
-  }
-
-  private GuiAction findHomeAction() {
-    int startRow = calculateStartRow( calculateNrRows() );
-    int actionNr = startRow * calculateNrColumns();
-    int index = 0;
-    for ( GuiAction action : actions ) {
-      if ( filteredActions.contains( action.getId() ) ) {
-        if ( actionNr == index ) {
-          return action;
-        }
-        index++;
-      }
-    }
-    return null;
-  }
-
-  private GuiAction findAction( int x, int y ) {
-    for ( String id : selectionMap.keySet() ) {
-      Rectangle rect = selectionMap.get( id );
-      if ( rect.contains( x, y ) ) {
-        return findAction( id );
-      }
-    }
-    return null;
-  }
-
-  private GuiAction findAction( String id ) {
-    for ( GuiAction action : actions ) {
-      if ( action.getId().equals( id ) ) {
-        return action;
-      }
-    }
-    return null;
-  }
-
-  @Override public void keyReleased( KeyEvent e ) {
-
-  }
-
-  @Override public void mouseMove( MouseEvent mouseEvent ) {
-    // Do we mouse over an action?
-    //
-    GuiAction action = findAction( mouseEvent.x, mouseEvent.y );
-    if (action!=null) {
-      changeSelectedAction( action );
-      wCanvas.redraw();
-    }
-  }
-
-  @Override public void mouseDoubleClick( MouseEvent e ) {
-
-  }
-
-  @Override public void mouseDown( MouseEvent e ) {
-    // See where the click was...
-    //
-    GuiAction action = findAction( e.x, e.y );
-    if ( action != null ) {
-      selectedAction = action;
-      shiftClicked = (e.stateMask & SWT.SHIFT)!=0;
-      ctrlClicked = (e.stateMask & SWT.CONTROL)!=0 || (Const.isOSX() && (e.stateMask & SWT.COMMAND)!=0);
-
-      dispose();
-    }
-  }
-
-  @Override public void mouseUp( MouseEvent e ) {
-
-  }
-
-  @Override public void shellActivated( ShellEvent e ) {
-  }
-
-  /**
-   * We hit this when Escape is hit by the user
-   *
-   * @param e
-   */
-  @Override public void shellClosed( ShellEvent e ) {
-    selectedAction = null;
-  }
-
-  @Override public void shellDeactivated( ShellEvent e ) {
-  }
-
-  @Override public void shellDeiconified( ShellEvent e ) {
-  }
-
-  @Override public void shellIconified( ShellEvent e ) {
-  }
-
-  public static void main( String[] args ) throws Exception {
-    Display display = new Display();
-    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
-    // shell.setSize( 500, 500 );
-    // shell.open();
-
-    HopClientEnvironment.init();
-    PropsUi.init( display );
-    HopEnvironment.init();
-
-    List<GuiAction> actions = new ArrayList<>();
-    List<IPlugin> transformPlugins = PluginRegistry.getInstance().getPlugins( TransformPluginType.class );
-    for ( IPlugin transformPlugin : transformPlugins ) {
-      GuiAction createTransformAction =
-        new GuiAction( "pipeline-graph-create-transform-" + transformPlugin.getIds()[ 0 ], GuiActionType.Create, transformPlugin.getName(), transformPlugin.getDescription(), transformPlugin.getImageFile(),
-          (shiftClicked, controlClicked, t) -> System.out.println( "Create transform action : " + transformPlugin.getName() + ", shift="+shiftClicked+", control="+controlClicked )
-        );
-      createTransformAction.getKeywords().add( transformPlugin.getCategory() );
-      // if (actions.size()<2) {
-      actions.add( createTransformAction );
-      //}
-    }
-    ContextDialog dialog = new ContextDialog( shell, "Action test", new Point( 50, 50 ), actions );
-    GuiAction action = dialog.open();
-    if ( action == null ) {
-      System.out.println( "There was no selection in dialog" );
-    } else {
-      System.out.println( "Selected action : " + action );
-    }
-
-    // Cleanup
-    //
-    display.dispose();
-  }
-
-  /**
-   * Gets shiftClicked
-   *
-   * @return value of shiftClicked
-   */
-  public boolean isShiftClicked() {
-    return shiftClicked;
-  }
-
-  /**
-   * @param shiftClicked The shiftClicked to set
-   */
-  public void setShiftClicked( boolean shiftClicked ) {
-    this.shiftClicked = shiftClicked;
-  }
-
-  /**
-   * Gets ctrlClicked
-   *
-   * @return value of ctrlClicked
-   */
-  public boolean isCtrlClicked() {
-    return ctrlClicked;
-  }
-
-  /**
-   * @param ctrlClicked The ctrlClicked to set
-   */
-  public void setCtrlClicked( boolean ctrlClicked ) {
-    this.ctrlClicked = ctrlClicked;
-  }
-
-  /**
-   * Gets focusLost
-   *
-   * @return value of focusLost
-   */
-  public boolean isFocusLost() {
-    return focusLost;
-  }
-
-  /**
-   * @param focusLost The focusLost to set
-   */
-  public void setFocusLost( boolean focusLost ) {
-    this.focusLost = focusLost;
-  }
-
+public class ContextDialog extends Dialog {
+
+	private Point location;
+	private List<GuiAction> actions;
+	private PropsUi props;
+	private Shell shell;
+	private Text wSearch;
+	private Label wlTooltip;
+	private Canvas wCanvas;
+
+	private int iconSize;
+	private int maxNameWidth;
+	private int maxNameHeight;
+
+	private int cellWidth;
+	private int cellHeight;
+	private int margin;
+
+	private boolean shiftClicked;
+	private boolean ctrlClicked;
+	private boolean focusLost;
+
+	/**
+	 * All context items.
+	 */
+	private final List<Item> items = new ArrayList<>();
+
+	/**
+	 * List of filtered items.
+	 */
+	private final List<Item> filteredItems = new ArrayList<>();
+
+	private Item selectedItem;
+
+	private GuiAction selectedAction;
+
+	private static class Item {
+		private GuiAction action;
+		private Image image;
+
+		public Item(GuiAction action, Image image) {
+			this.action = action;
+			this.image = image;
+		}
+
+		public GuiAction getAction() {
+			return action;
+		}
+
+		public String getText() {
+			return action.getShortName();
+		}
+
+		public Image getImage() {
+			return image;
+		}
+
+		public void dispose() {
+			if (image != null) {
+				image.dispose();
+			}
+		}
+	}
+
+	public ContextDialog(Shell parent, String title, Point location, List<GuiAction> actions) {
+		super(parent);
+		
+		this.setText(title);
+		this.location = location;
+		this.actions = actions;
+		props = PropsUi.getInstance();
+
+		shiftClicked = false;
+		ctrlClicked = false;
+
+		// Make the icons a bit smaller to fit more
+		//
+		iconSize = (int) Math.round(props.getZoomFactor() * props.getIconSize() * 0.75);
+	}
+
+	public GuiAction open() {
+		
+		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE );
+		shell.setText(getText());
+		shell.setMinimumSize(new org.eclipse.swt.graphics.Point(200,180));
+		shell.setImage(GuiResource.getInstance().getImageHop());
+		shell.setLayout(new FormLayout());
+		//props.setLook(shell);
+		
+		// Load all the images...
+		// Filter all actions by default
+		//
+		maxNameWidth = iconSize;
+		maxNameHeight = 0;
+		Display display = shell.getDisplay();
+		Image img = new Image(display, 100, 100);
+		GC gc = new GC(img);
+
+		items.clear();
+		for (GuiAction action : actions) {
+			ClassLoader classLoader = action.getClassLoader();
+			if (classLoader == null) {
+				classLoader = ClassLoader.getSystemClassLoader();
+			}
+			SwtUniversalImage universalImage = SwtSvgImageUtil.getUniversalImage(display, classLoader,
+					action.getImage());
+			Image image = universalImage.getAsBitmapForSize(display, iconSize, iconSize);
+
+			Item item = new Item(action, image);
+
+			if (item.getText() != null) {
+				org.eclipse.swt.graphics.Point extent = gc.textExtent(action.getShortName());
+				if (extent.x > maxNameWidth) {
+					maxNameWidth = extent.x;
+				}
+				if (extent.y > maxNameHeight) {
+					maxNameHeight = extent.y;
+				}
+			}
+			
+			items.add(item);
+		}
+		gc.dispose();
+		img.dispose();
+
+		// Calculate the cell width height
+		//
+		margin = props.getMargin();
+		cellWidth = maxNameWidth + margin;
+		cellHeight = iconSize + margin + maxNameHeight + margin;
+		
+		// Add a search bar at the top...
+		//
+		Composite toolBar = new Composite(shell, SWT.NONE);		
+		toolBar.setLayout(new GridLayout(2, false));
+		props.setLook(toolBar);
+		FormData fdlToolBar = new FormData();
+		fdlToolBar.top = new FormAttachment(0, 0);
+		fdlToolBar.left = new FormAttachment(0, 0);
+		fdlToolBar.right = new FormAttachment(100, 0);
+		toolBar.setLayoutData(fdlToolBar);
+		
+		Label wlSearch = new Label(toolBar, SWT.LEFT);
+		wlSearch.setText("Search ");
+		props.setLook(wlSearch);			
+		
+		wSearch = new Text(toolBar, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH);
+		wSearch.setLayoutData(new GridData(GridData.FILL_BOTH));		 
+				
+		// Add a description label at the bottom...
+		//
+		wlTooltip = new Label(shell, SWT.LEFT );
+		FormData fdlTooltip = new FormData();
+		fdlTooltip.height=this.cellHeight;				
+		fdlTooltip.left = new FormAttachment(0, Const.FORM_MARGIN);
+		fdlTooltip.right = new FormAttachment(100, -Const.FORM_MARGIN);
+		fdlTooltip.bottom = new FormAttachment(100, -Const.FORM_MARGIN);
+		wlTooltip.setLayoutData(fdlTooltip);
+
+		// The rest of the dialog is used to draw the actions...
+		//
+		wCanvas = new Canvas(shell, SWT.NO_BACKGROUND | SWT.V_SCROLL);
+		FormData fdCanvas = new FormData();
+		fdCanvas.left = new FormAttachment(0, 0);
+		fdCanvas.right = new FormAttachment(100, 0);
+		fdCanvas.top = new FormAttachment(toolBar, 0);
+		fdCanvas.bottom = new FormAttachment(wlTooltip, 0);
+		wCanvas.setLayoutData(fdCanvas);
+
+		// TODO: Calcualte a more dynamic size based on number of actions, screen size
+		// and so on
+		//
+		int width = (int) Math.round(650 * props.getZoomFactor());
+		int height = (int) Math.round(500 * props.getZoomFactor());
+		shell.setSize(width, height);
+		
+		// Position the dialog where there was a click to be more intuitive
+		//
+		if (location != null) {
+			shell.setLocation(location.x, location.y);
+		} else {
+			Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
+			shell.setLocation(Math.max((parentBounds.width - width) / 2, 0),
+					Math.max((parentBounds.height - height) / 2, 0));
+		}
+
+		// Add all the listeners
+		//		
+		shell.addListener(SWT.Resize, event -> updateVerticalBar());
+		shell.addListener(SWT.Deactivate, event -> onFocusLost());
+
+		wSearch.addModifyListener(event -> onModifySearch());
+		wSearch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent event) {
+				onKeyPressed(event);
+			}			
+		});
+		wSearch.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// Pressed enter
+				//
+				if ( selectedItem!=null) {
+					selectedAction = selectedItem.getAction();
+				}
+				dispose();
+			}
+		});
+		
+		wCanvas.addPaintListener(event -> onPaint(event));
+		wCanvas.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent event) {
+				// See where the click was...
+				//									
+				Item item = findItem(event.x, event.y);
+				if (item != null) {
+					selectedAction = item.getAction();
+					
+					shiftClicked = (event.stateMask & SWT.SHIFT) != 0;
+					ctrlClicked = (event.stateMask & SWT.CONTROL) != 0 || (Const.isOSX() && (event.stateMask & SWT.COMMAND) != 0);
+					
+					dispose();
+				}
+			}
+		});
+		wCanvas.addMouseMoveListener((MouseEvent event) -> {
+			// Do we mouse over an action?
+			//
+			Item item = findItem(event.x, event.y);
+			if (item != null) {
+				selectItem(item);
+			}
+		});
+		wCanvas.getVerticalBar().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				wCanvas.redraw();
+			}
+		});
+
+		// Filter all actions by default
+		//
+		this.filter(null);
+				
+		// Show the dialog now
+		//
+		shell.layout();
+		shell.open();
+		
+		// Wait until the dialog is closed
+		//
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+
+		return selectedAction;
+	}	
+
+	private void dispose() {
+		
+		// Close the dialog window
+		shell.close();
+		
+		// Clean up the images...
+		//
+		for (Item item : items) {
+			item.dispose();
+		}
+	}
+
+	/**
+	 * This is where all the actions are drawn
+	 *
+	 * @param e
+	 */	
+	private void onPaint(PaintEvent event) {
+		GC gc = event.gc;
+		
+		// Fill everything with white...
+		//
+		gc.setForeground(GuiResource.getInstance().getColorBlack());
+		gc.setBackground(GuiResource.getInstance().getColorBackground());
+		gc.fillRectangle(0, 0, event.width, event.height);
+		
+		// For text and lines...
+		//
+		gc.setForeground(GuiResource.getInstance().getColorBlack());
+		gc.setLineWidth(4);
+
+		// Draw all actions
+		//
+		int x = 0;
+		int y = 0;
+
+		// How many rows and columns do we have?
+		// The canvas width, height and the number of selected actions gives us a clue:
+		//
+		int nrColumns = calculateNrColumns();
+		int nrRows = calculateNrRows();
+		if (nrColumns == 0 || nrRows == 0) {
+			return;
+		}
+		
+		// So at which row do we start rendering?
+		//
+		ScrollBar bar = wCanvas.getVerticalBar();		
+		int startRow = bar.getSelection();
+		int startItem = startRow * nrColumns;
+
+		for (int i = startItem; i < filteredItems.size();i++)  {
+			
+			if (x + maxNameWidth < event.width) {
+				Item item = filteredItems.get(i);
+			
+			
+				org.eclipse.swt.graphics.Point extent = gc.textExtent(item.getText());
+
+				boolean selected = item.equals(selectedItem);
+				if (selected) {
+					Rectangle selectionBox = new Rectangle(x, y, maxNameWidth, iconSize + margin + maxNameHeight);
+					
+					gc.setBackground(GuiResource.getInstance().getColorLightBlue());
+					gc.fillRectangle(selectionBox);
+					gc.drawFocus(selectionBox.x, selectionBox.y, selectionBox.width, selectionBox.height);
+				} else {
+					gc.setBackground(GuiResource.getInstance().getColorBackground());
+				}
+								
+				gc.drawImage(item.getImage(), x + (maxNameWidth - iconSize) / 2, y);
+				gc.drawText(item.getText(), x + (maxNameWidth - extent.x) / 2, y + iconSize + margin-1);
+			}
+			
+			x += cellWidth;
+
+			if (( i+1) % nrColumns==0 ) {
+				x = 0;
+				y += cellHeight;				
+			}
+					
+			if (y > event.height + 2 * cellHeight) {
+				break;
+			}
+		}
+	}
+
+	private int calculateNrColumns() {	
+		//System.out.println("Client="+wCanvas.getClientArea() + " bounds="+wCanvas.getBounds());
+		return Math.floorDiv(wCanvas.getClientArea().width,cellWidth);		
+	}
+
+	private int calculateNrRows() {
+		int nrColumns = calculateNrColumns();
+		if (nrColumns == 0) {
+			return 0;
+		}
+		
+		return (int) Math.ceil( (double) filteredItems.size() / (double) nrColumns );
+	}
+
+	private void selectItem(Item item) {
+	
+		if ( this.selectedItem==item ) return;
+		
+		this.selectedItem = item;
+		
+		int nrColumns = calculateNrColumns();
+		int index = filteredItems.indexOf(item);		
+		
+		if (item == null) {
+			wlTooltip.setText("");
+		} else {
+			wlTooltip.setText(Const.NVL(item.getAction().getTooltip(), ""));
+
+			ScrollBar bar = wCanvas.getVerticalBar();	
+												
+			int row = Math.floorDiv(index,nrColumns);
+			
+			
+	        if ( row >= bar.getSelection()+bar.getPageIncrement() ) {
+	          // We scrolled down and need to scroll the scrollbar
+	          //
+	          bar.setSelection( Math.min(row, bar.getMaximum() ) );
+	        }
+	        if ( row < bar.getSelection() ) {
+	          // We scrolled up and need to scroll the scrollbar up
+	          //
+	          bar.setSelection( Math.max( row, bar.getMinimum() ) );
+	        }			
+		}
+		
+		wCanvas.redraw();		
+	}
+	
+	private void filter(String text) {
+
+		if ( text==null ) text="";
+		
+		String[] filters = text.split(",");
+		for (int i = 0; i < filters.length; i++) {
+			filters[i] = Const.trim(filters[i]);
+		}
+
+		filteredItems.clear();
+		for (Item item : items) {
+			GuiAction action = item.getAction();
+			
+			if (StringUtils.isEmpty(text) || action.containsFilterStrings(filters)) {
+				filteredItems.add(item);
+			}
+		}
+
+		// if selected item is exclude, change to a new default selection: first in the list
+		//
+		if ( !filteredItems.contains(selectedItem)) {			
+			Item item = ( filteredItems.isEmpty() ) ? null:filteredItems.get(0);		
+			selectItem(item);
+		}
+				
+		// Update vertical bar
+		this.updateVerticalBar();
+		
+		wCanvas.redraw();
+	}
+
+	private void onFocusLost() {
+		focusLost = true;
+				
+		dispose();
+	}
+
+	private void onModifySearch() {
+		String text = wSearch.getText();
+		this.filter(text);				
+	}
+
+	private void onKeyPressed(KeyEvent event) {
+		
+		if (filteredItems.isEmpty()) {
+			return;
+		}
+				
+		Rectangle area = wCanvas.getClientArea();
+		int pageRows = Math.floorDiv(area.height,cellHeight);
+		int nrColumns = calculateNrColumns();
+		int nrRows = calculateNrRows();	
+		int index = filteredItems.indexOf(selectedItem);
+		
+		switch( event.keyCode ) {
+			case SWT.ARROW_DOWN:
+				if ( index+nrColumns<filteredItems.size() ) {
+					index += nrColumns;
+				}			
+				break;
+			case SWT.ARROW_UP:
+				if ( index-nrColumns>=0 ) {
+					index -= nrColumns;
+				}
+				break;
+			case SWT.PAGE_UP:
+				if ( index-(pageRows*nrColumns)>0 ) {
+					index -= pageRows*nrColumns;
+				}			
+				else {
+					index = Math.floorMod(index,nrColumns);
+				}
+				break;
+			case SWT.PAGE_DOWN:
+				if ( index+(pageRows*nrColumns)<filteredItems.size()-1 ) {
+					index += pageRows*nrColumns;
+				}	
+				else {				
+					index = (nrRows-1)*nrColumns+Math.floorMod(index,nrColumns);
+					if ( index>filteredItems.size()-1 ) {
+					index = (nrRows-2)*nrColumns+Math.floorMod(index,nrColumns);
+					}
+				}
+				break;
+			case SWT.ARROW_LEFT:
+				if ( index>0 ) index--;
+				break;
+			case SWT.ARROW_RIGHT:
+				if ( index<filteredItems.size()-1 ) index++;
+				break;
+			case SWT.HOME:
+				// Position on the first row and column of the screen
+				index = 0;
+				break;
+			case SWT.END:
+				// Position on the last row and column of the screen
+				index = filteredItems.size()-1;
+				break;
+		}
+		
+		selectItem(filteredItems.get(index));
+	}
+	
+	private void updateVerticalBar() {
+		ScrollBar verticalBar = wCanvas.getVerticalBar();
+		
+		int pageRows = Math.floorDiv(wCanvas.getClientArea().height,cellHeight);
+		
+		verticalBar.setMinimum(0);
+		verticalBar.setIncrement(1);
+		verticalBar.setPageIncrement(pageRows);
+		verticalBar.setMaximum(calculateNrRows());
+		verticalBar.setThumb(pageRows);	
+	}
+
+	private Item findItem(int x, int y) {
+		ScrollBar verticalBar = wCanvas.getVerticalBar();
+		
+		int startRow = verticalBar.getSelection();	
+		int nrColumns = calculateNrColumns();
+		int nrRows = calculateNrRows();
+		
+		int canvasRow = Math.min(Math.floorDiv(y, cellHeight), nrRows) ;
+		int canvasColumn = Math.min(Math.floorDiv(x, cellWidth), nrColumns) ;
+
+		int index = startRow * calculateNrColumns() + canvasRow * nrColumns + canvasColumn;			
+		Item item = ( index < filteredItems.size() ) ? item = filteredItems.get(index):null;
+		
+		return item;
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Display display = new Display();
+		Shell shell = new Shell(display, SWT.MIN | SWT.MAX | SWT.RESIZE);
+		// shell.setSize( 500, 500 );
+		// shell.open();
+
+		HopClientEnvironment.init();
+		PropsUi.init(display);
+		HopEnvironment.init();
+
+		List<GuiAction> actions = new ArrayList<>();
+		List<IPlugin> transformPlugins = PluginRegistry.getInstance().getPlugins(TransformPluginType.class);
+		for (IPlugin transformPlugin : transformPlugins) {
+			GuiAction createTransformAction = new GuiAction(
+					"pipeline-graph-create-transform-" + transformPlugin.getIds()[0], GuiActionType.Create,
+					transformPlugin.getName(), transformPlugin.getDescription(), transformPlugin.getImageFile(),
+					(shiftClicked, controlClicked, t) -> System.out.println("Create transform action : "
+							+ transformPlugin.getName() + ", shift=" + shiftClicked + ", control=" + controlClicked));
+			createTransformAction.getKeywords().add(transformPlugin.getCategory());
+			// if (actions.size()<2) {
+			actions.add(createTransformAction);
+			// }
+		}
+		ContextDialog dialog = new ContextDialog(shell, "Action test", new Point(50, 50), actions);
+		GuiAction action = dialog.open();
+		if (action == null) {
+			System.out.println("There was no selection in dialog");
+		} else {
+			System.out.println("Selected action : " + action);
+		}
+
+		// Cleanup
+		//
+		display.dispose();
+	}
+
+	/**
+	 * Gets shiftClicked
+	 *
+	 * @return value of shiftClicked
+	 */
+	public boolean isShiftClicked() {
+		return shiftClicked;
+	}
+
+	/**
+	 * @param shiftClicked The shiftClicked to set
+	 */
+	public void setShiftClicked(boolean shiftClicked) {
+		this.shiftClicked = shiftClicked;
+	}
+
+	/**
+	 * Gets ctrlClicked
+	 *
+	 * @return value of ctrlClicked
+	 */
+	public boolean isCtrlClicked() {
+		return ctrlClicked;
+	}
+
+	/**
+	 * @param ctrlClicked The ctrlClicked to set
+	 */
+	public void setCtrlClicked(boolean ctrlClicked) {
+		this.ctrlClicked = ctrlClicked;
+	}
+
+	/**
+	 * Gets focusLost
+	 *
+	 * @return value of focusLost
+	 */
+	public boolean isFocusLost() {
+		return focusLost;
+	}
+
+	/**
+	 * @param focusLost The focusLost to set
+	 */
+	public void setFocusLost(boolean focusLost) {
+		this.focusLost = focusLost;
+	}
 
 }
