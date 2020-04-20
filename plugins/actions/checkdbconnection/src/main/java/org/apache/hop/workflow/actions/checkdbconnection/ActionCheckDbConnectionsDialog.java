@@ -75,7 +75,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   private Text wName;
 
-  private ActionICheckDbConnections jobEntry;
+  private ActionCheckDbConnections jobEntry;
 
   private SelectionAdapter lsDef;
 
@@ -89,9 +89,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   public ActionCheckDbConnectionsDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
     super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionICheckDbConnections) jobEntryInt;
+    jobEntry = (ActionCheckDbConnections) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
+      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionCheckDbConnections.Name.Default" ) );
     }
   }
 
@@ -112,14 +112,14 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.Title" ) );
+    shell.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.Title" ) );
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     Label wlName = new Label( shell, SWT.RIGHT );
-    wlName.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Label" ) );
+    wlName.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.Name.Label" ) );
     props.setLook( wlName );
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
@@ -136,7 +136,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wName.setLayoutData( fdName );
 
     Label wlFields = new Label( shell, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.Label" ) );
     props.setLook( wlFields );
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -147,9 +147,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     // Buttons to the right of the screen...
     Button wbdSourceFileFolder = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbdSourceFileFolder );
-    wbdSourceFileFolder.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.DeleteEntry" ) );
+    wbdSourceFileFolder.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.DeleteEntry" ) );
     wbdSourceFileFolder.setToolTipText( BaseMessages.getString(
-      PKG, "JobCheckDbConnections.DeleteSourceFileButton.Label" ) );
+      PKG, "ActionCheckDbConnections.DeleteSourceFileButton.Label" ) );
     fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment( 100, -margin );
     fdbdSourceFileFolder.top = new FormAttachment( wlFields, 50 );
@@ -158,9 +158,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     // Buttons to the right of the screen...
     Button wbgetConnections = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbgetConnections );
-    wbgetConnections.setText( BaseMessages.getString( PKG, "JobCheckDbConnections.GetConnections" ) );
+    wbgetConnections.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.GetConnections" ) );
     wbgetConnections
-      .setToolTipText( BaseMessages.getString( PKG, "JobCheckDbConnections.GetConnections.Tooltip" ) );
+      .setToolTipText( BaseMessages.getString( PKG, "ActionCheckDbConnections.GetConnections.Tooltip" ) );
     fdbgetConnections = new FormData();
     fdbgetConnections.right = new FormAttachment( 100, -margin );
     fdbgetConnections.top = new FormAttachment( wlFields, 20 );
@@ -174,18 +174,18 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     ColumnInfo[] colinf =
       new ColumnInfo[] {
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Argument.Label" ),
+          BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.Argument.Label" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, workflowMeta.getDatabaseNames(), false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitFor.Label" ),
+          BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.WaitFor.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
-          BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitForTime.Label" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, ActionICheckDbConnections.unitTimeDesc, false ), };
+          BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.WaitForTime.Label" ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, ActionCheckDbConnections.unitTimeDesc, false ), };
 
-    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Column" ) );
+    colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.Column" ) );
     colinf[ 1 ].setUsingVariables( true );
-    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.WaitFor.ToolTip" ) );
+    colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "ActionCheckDbConnections.WaitFor.ToolTip" ) );
 
     wFields =
       new TableView(
@@ -256,7 +256,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     BaseTransformDialog.setSize( shell );
 
     shell.open();
-    props.setDialogSize( shell, "JobCheckDbConnectionsDialogSize" );
+    props.setDialogSize( shell, "ActionCheckDbConnectionsDialogSize" );
     while ( !shell.isDisposed() ) {
       if ( !display.readAndDispatch() ) {
         display.sleep();
@@ -275,7 +275,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     for ( int i = 0; i < databases.size(); i++ ) {
       DatabaseMeta ci = databases.get( i );
       if ( ci != null ) {
-        wFields.add( new String[] { ci.getName(), "0", ActionICheckDbConnections.unitTimeDesc[ 0 ] } );
+        wFields.add( new String[] { ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[ 0 ] } );
       }
     }
     wFields.removeEmptyRows();
@@ -303,7 +303,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         if ( jobEntry.getConnections()[ i ] != null ) {
           ti.setText( 1, jobEntry.getConnections()[ i ].getName() );
           ti.setText( 2, "" + Const.toInt( jobEntry.getWaitfors()[ i ], 0 ) );
-          ti.setText( 3, ActionICheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
+          ti.setText( 3, ActionCheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -343,7 +343,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         connections[ i ] = dbMeta;
         waitfors[ i ] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );
         waittimes[ i ] =
-          ActionICheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
+          ActionCheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
       }
     }
     jobEntry.setConnections( connections );
