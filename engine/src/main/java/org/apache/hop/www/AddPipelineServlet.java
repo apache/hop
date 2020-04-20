@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
@@ -186,7 +187,8 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Parse the XML, create a transformation configuration
       //
-      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString() );
+      IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
+      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString(), metaStore );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
@@ -205,7 +207,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
+        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
 

@@ -103,7 +103,7 @@ public class WorkflowResource {
 
         String carteObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
+          new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
         servletLoggingObject.setContainerObjectId( carteObjectId );
 
         Workflow newWorkflow = new Workflow( workflow.getWorkflowMeta(), servletLoggingObject );
@@ -158,7 +158,7 @@ public class WorkflowResource {
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
+        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 

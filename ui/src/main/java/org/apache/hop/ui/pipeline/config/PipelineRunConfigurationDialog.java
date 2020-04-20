@@ -27,8 +27,10 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.history.AuditList;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
@@ -73,7 +75,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Don't move this class around as it's sync'ed with the PipelineRunConfiguration package to find the dialog.
  */
 public class PipelineRunConfigurationDialog extends Dialog implements IMetaStoreDialog {
+
   private static Class<?> PKG = PipelineRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+
   private Shell parent;
   private Shell shell;
   private IMetaStore metaStore;
@@ -363,6 +367,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     if ( meta.getEngineRunConfiguration() != null && guiCompositeWidgets != null && !guiCompositeWidgets.getWidgetsMap().isEmpty() ) {
       guiCompositeWidgets.getWidgetsContents( meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID );
     }
+
     return meta;
   }
 

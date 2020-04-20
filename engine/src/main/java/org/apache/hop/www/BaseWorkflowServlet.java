@@ -105,6 +105,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       getServletLogging( carteObjectId, pipelineExecutionConfiguration.getLogLevel() );
 
     // Create the pipeline and store in the list...
+    // TODO: Use the pipeline factory!!!
+    //
     final Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
     pipeline.setMetaStore( pipelineMap.getSlaveServerConfig().getMetaStore() );
 
@@ -170,7 +172,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private SimpleLoggingObject getServletLogging( final String carteObjectId, final LogLevel level ) {
     SimpleLoggingObject servletLoggingObject =
-      new SimpleLoggingObject( getContextPath(), LoggingObjectType.CARTE, null );
+      new SimpleLoggingObject( getContextPath(), LoggingObjectType.HOP_SERVER, null );
     servletLoggingObject.setContainerObjectId( carteObjectId );
     servletLoggingObject.setLogLevel( level );
     return servletLoggingObject;

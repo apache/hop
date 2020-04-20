@@ -369,6 +369,7 @@ public class GuiCompositeWidgets {
               Combo combo = (Combo) control;
               combo.setText( stringValue );
             }
+            break;
           default:
             System.err.println( "WARNING: setting data on widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
             break;
@@ -429,6 +430,14 @@ public class GuiCompositeWidgets {
             value = button.getSelection();
             break;
           case COMBO:
+            if ( guiElements.isVariablesEnabled() ) {
+              ComboVar comboVar = (ComboVar) control;
+              value = comboVar.getText();
+            } else {
+              Combo combo = (Combo) control;
+              value = combo.getText();
+            }
+            break;
           default:
             System.err.println( "WARNING: getting data from widget with ID " + guiElements.getId() + " : not implemented type " + guiElements.getType() + " yet." );
             break;

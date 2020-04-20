@@ -180,7 +180,7 @@ public class PausePipelineServlet extends BaseHttpServlet implements IHopServerP
       if ( Utils.isEmpty( id ) ) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
         if ( entry == null ) {
           pipeline = null;
         } else {

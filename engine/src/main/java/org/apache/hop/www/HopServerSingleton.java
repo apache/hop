@@ -233,7 +233,7 @@ public class HopServerSingleton {
 
         String carteObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject( "HopServerSingleton", LoggingObjectType.CARTE, null );
+          new SimpleLoggingObject( "HopServerSingleton", LoggingObjectType.HOP_SERVER, null );
         servletLoggingObject.setContainerObjectId( carteObjectId );
         servletLoggingObject.setLogLevel( LogLevel.BASIC );
 

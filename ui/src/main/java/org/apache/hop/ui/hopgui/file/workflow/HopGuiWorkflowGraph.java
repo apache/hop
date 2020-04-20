@@ -3261,7 +3261,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
             String spoonObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject spoonLoggingObject =
-              new SimpleLoggingObject( "HOPUI", LoggingObjectType.HOPUI, null );
+              new SimpleLoggingObject( "HOPUI", LoggingObjectType.HOP_GUI, null );
             spoonLoggingObject.setContainerObjectId( spoonObjectId );
             spoonLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
             workflow = new Workflow( runWorkflowMeta, spoonLoggingObject );

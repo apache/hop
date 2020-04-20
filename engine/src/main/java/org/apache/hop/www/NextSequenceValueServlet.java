@@ -166,7 +166,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
         response.sendError( HttpServletResponse.SC_NOT_FOUND );
         out.println( XmlHandler.addTagValue( XML_TAG_ERROR, "Slave sequence '" + name + "' could not be found." ) );
       } else {
-        ILoggingObject loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.CARTE, null );
+        ILoggingObject loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.HOP_SERVER, null );
         long nextValue = slaveSequence.getNextValue( loggingObject, increment );
         out.println( XmlHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
         out.println( XmlHandler.addTagValue( XML_TAG_INCREMENT, increment ) );

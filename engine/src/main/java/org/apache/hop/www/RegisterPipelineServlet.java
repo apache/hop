@@ -23,6 +23,7 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 
@@ -46,7 +47,8 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
     final String xml = IOUtils.toString( request.getInputStream() );
 
     // Parse the XML, create a pipeline configuration
-    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml );
+    IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
+    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml, metaStore );
 
     Pipeline pipeline = createPipeline( pipelineConfiguration );
 

@@ -29,6 +29,8 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.history.AuditList;
+import org.apache.hop.history.IAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -38,6 +40,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.shared.AuditManagerGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -53,6 +56,8 @@ import java.util.List;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+
+  public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
 
   public PipelineExecutionConfigurationDialog( Shell parent, PipelineExecutionConfiguration configuration,
                                                PipelineMeta pipelineMeta ) {
@@ -161,6 +166,8 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       hopGui.getLog().logError( "Unable to get list of pipeline run configurations from the metastore", e );
     }
 
+    wRunConfiguration.setText(AuditManagerGui.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ));
+
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
@@ -177,13 +184,16 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     }
 
     wLogLevel.select( configuration.getLogLevel().getLevel() );
+
     getParamsData();
     getVariablesData();
   }
 
   public void getInfo() {
     try {
-      getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
+      String runConfigurationName = wRunConfiguration.getText();
+      getConfiguration().setRunConfiguration( runConfigurationName );
+      AuditManagerGui.addLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS, runConfigurationName );
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 

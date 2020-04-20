@@ -193,7 +193,7 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
       if ( Utils.isEmpty( id ) ) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
         if ( entry == null ) {
           pipeline = null;
         } else {
@@ -217,7 +217,7 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
 
         String carteObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
+          new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
         servletLoggingObject.setContainerObjectId( carteObjectId );
         servletLoggingObject.setLogLevel( pipeline.getLogLevel() );
         pipeline.setParent( servletLoggingObject );

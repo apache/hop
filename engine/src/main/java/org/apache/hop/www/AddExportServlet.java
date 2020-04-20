@@ -213,7 +213,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
       String carteObjectId = null;
       SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
+        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
 
       // Now open the top level resource...
       //

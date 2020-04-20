@@ -22,6 +22,11 @@
 
 package org.apache.hop.core.row;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Node;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +36,17 @@ import java.util.List;
  * @author matt
  */
 public class RowBuffer {
+
+  public static final String XML_TAG = "row-buffer";
+
+
   private IRowMeta rowMeta;
   private List<Object[]> buffer;
+
+  public RowBuffer() {
+    rowMeta = new RowMeta();
+    buffer = new ArrayList<>();
+  }
 
   /**
    * @param rowMeta
@@ -47,7 +61,28 @@ public class RowBuffer {
    * @param rowMeta
    */
   public RowBuffer( IRowMeta rowMeta ) {
-    this( rowMeta, new ArrayList<Object[]>() );
+    this( rowMeta, new ArrayList<>() );
+  }
+
+  public String getXml() throws IOException {
+    String xml = XmlHandler.openTag( XML_TAG );
+    xml+=rowMeta.getMetaXML();
+    for (Object[] row : buffer) {
+      xml+=rowMeta.getDataXML( row );
+    }
+    xml += XmlHandler.closeTag( XML_TAG );
+
+    return xml;
+  }
+
+  public RowBuffer( Node node) throws HopException {
+    this();
+    Node rowMetaNode = XmlHandler.getSubNode( node, RowMeta.XML_META_TAG );
+    rowMeta = new RowMeta(rowMetaNode);
+    List<Node> dataNodes = XmlHandler.getNodes( node, RowMeta.XML_DATA_TAG );
+    for (Node dataNode : dataNodes) {
+      buffer.add( rowMeta.getRow( dataNode ) );
+    }
   }
 
   /**

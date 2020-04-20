@@ -114,11 +114,6 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.feedbackSize = Integer.toString( Const.ROWS_UPDATE );
   }
 
-  public LocalPipelineRunConfiguration( String pluginId, String pluginName, String rowSetSize ) {
-    super( pluginId, pluginName );
-    this.rowSetSize = rowSetSize;
-  }
-
   public LocalPipelineRunConfiguration( LocalPipelineRunConfiguration config ) {
     super( config );
     this.rowSetSize = config.rowSetSize;

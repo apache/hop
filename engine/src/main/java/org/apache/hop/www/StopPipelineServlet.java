@@ -181,7 +181,7 @@ public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPl
       if ( Utils.isEmpty( id ) ) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
         if ( entry == null ) {
           pipeline = null;
         } else {

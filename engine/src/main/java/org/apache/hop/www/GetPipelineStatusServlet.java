@@ -47,6 +47,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -235,7 +236,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
       //
-      entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+      entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
       if ( entry == null ) {
         pipeline = null;
       } else {
@@ -276,7 +277,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               new SlaveServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatus() );
             pipelineStatus.setFirstLoggingLineNr( startLineNr );
             pipelineStatus.setLastLoggingLineNr( lastLineNr );
-            pipelineStatus.setLogDate( pipeline.getExecutionStartDate() );
+            pipelineStatus.setLogDate( new Date() );
+            pipelineStatus.setExecutionStartDate( pipeline.getExecutionStartDate() );
+            pipelineStatus.setExecutionEndDate( pipeline.getExecutionEndDate() );
 
             for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
               ITransform baseTransform = pipeline.getRunThread( i );

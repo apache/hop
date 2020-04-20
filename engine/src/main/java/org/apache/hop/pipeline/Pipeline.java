@@ -30,7 +30,6 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Counter;
 import org.apache.hop.core.IExecutor;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
@@ -74,6 +73,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineMetric;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -119,7 +119,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -166,7 +165,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   protected String pluginId;
-  protected IPipelineEngineRunConfiguration pipelineEngineRunConfiguration;
+  protected PipelineRunConfiguration pipelineRunConfiguration;
 
   /**
    * The log channel interface.
@@ -409,11 +408,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners;
 
   /**
-   * A list of became active listeners attached to the pipeline.
-   */
-  private List<IExecutionBecameActiveListener<PipelineMeta>> executionBecameActiveListeners;
-
-  /**
    * A list of finished listeners attached to the pipeline.
    */
   private List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners;
@@ -427,11 +421,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * The number of finished transforms.
    */
   private int nrOfFinishedTransforms;
-
-  /**
-   * The number of active transforms.
-   */
-  private int nrOfActiveTransforms;
 
   /**
    * The named parameters.
@@ -534,7 +523,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     status = new AtomicInteger();
 
     executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
-    executionBecameActiveListeners = Collections.synchronizedList( new ArrayList<>() );
     executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     pipelineStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
 
@@ -1221,7 +1209,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     // Now prepare to start all the threads...
     //
     nrOfFinishedTransforms = 0;
-    nrOfActiveTransforms = 0;
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStartThreads.id, this );
 
@@ -1232,23 +1219,12 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       sid.transform.markStart();
       sid.transform.initBeforeStart();
 
-      // also attach a Transform Listener to detect when we're done...
+      // also attach a listener to detect when we're done...
       //
-      ITransformStartedListener startedListener = ( pipeline, transformMeta, transform ) -> {
-        nrOfActiveTransforms++;
-        if ( nrOfActiveTransforms == 1 ) {
-          // Pipeline goes from in-active to active...
-          // PDI-5229 sync added
-          synchronized ( executionStartedListeners ) {
-            for ( IExecutionBecameActiveListener<PipelineMeta> listener : executionBecameActiveListeners ) {
-              listener.becameActive( Pipeline.this );
-            }
-          }
-        }
-      };
       ITransformFinishedListener finishedListener = ( pipeline, transformMeta, transform ) -> {
         synchronized ( Pipeline.this ) {
           nrOfFinishedTransforms++;
+          System.out.println("=======> transform "+transformMeta.getName()+"."+transform.getCopy()+" finished, nr of finished = "+nrOfFinishedTransforms);
 
           if ( nrOfFinishedTransforms >= transforms.size() ) {
             // Set the finished flag
@@ -1288,10 +1264,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       // Make sure this is called first!
       //
       if ( sid.transform instanceof BaseTransform ) {
-        ( (BaseTransform) sid.transform ).getTransformStartedListeners().add( 0, startedListener );
         ( (BaseTransform) sid.transform ).getTransformFinishedListeners().add( 0, finishedListener );
       } else {
-        sid.transform.addTransformStartedListener( startedListener );
         sid.transform.addTransformFinishedListener( finishedListener );
       }
     }
@@ -1399,6 +1373,9 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStart.id, this );
 
+    // If there are no transforms we don't catch the number of active transforms dropping to zero
+    // So we fire the execution finished listeners here.
+    //
     if ( transforms.isEmpty() ) {
       fireExecutionFinishedListeners();
     }
@@ -1431,6 +1408,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
       if ( pipelineWaitUntilFinishedBlockingQueue != null ) {
         // Signal for the the waitUntilFinished blocker...
+        System.out.println("------ Adding object to pipeline wait until finished queue ("+pipelineWaitUntilFinishedBlockingQueue.size()+")"+Const.getStackTracker( new Exception() ));
         pipelineWaitUntilFinishedBlockingQueue.add( new Object() );
       }
       if ( !badGuys.isEmpty() ) {
@@ -1719,30 +1697,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       return 0;
     }
     return transforms.size();
-  }
-
-  /**
-   * Gets the number of active (i.e. not finished) transforms in this pipeline
-   *
-   * @return the number of active transforms
-   */
-  public int nrActiveTransforms() {
-    if ( transforms == null ) {
-      return 0;
-    }
-
-    int nr = 0;
-    for ( int i = 0; i < transforms.size(); i++ ) {
-      TransformMetaDataCombi sid = transforms.get( i );
-      // without also considering a transform status of not finished,
-      // the transform execution results grid shows empty while
-      // the pipeline has transforms still running.
-      // if ( sid.transform.isRunning() ) nr++;
-      if ( sid.transform.isRunning() || sid.transform.getStatus() != BaseTransformData.TransformExecutionStatus.STATUS_FINISHED ) {
-        nr++;
-      }
-    }
-    return nr;
   }
 
   /**
@@ -2821,17 +2775,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Adds a pipeline became active listener.
-   *
-   * @param executionBecameActiveListener the pipeline became active listener
-   */
-  public void addExecutionBecameActiveListener( IExecutionBecameActiveListener executionBecameActiveListener ) {
-    synchronized ( executionBecameActiveListener ) {
-      executionBecameActiveListeners.add( executionBecameActiveListener );
-    }
-  }
-
-  /**
    * Adds a pipeline finished listener.
    *
    * @param executionFinishedListener the pipeline finished listener
@@ -3776,22 +3719,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     return new EmptyPipelineRunConfiguration();
   }
 
-  /**
-   * Gets pipelineEngineRunConfiguration
-   *
-   * @return value of pipelineEngineRunConfiguration
-   */
-  public IPipelineEngineRunConfiguration getPipelineEngineRunConfiguration() {
-    return pipelineEngineRunConfiguration;
-  }
-
-  /**
-   * @param pipelineEngineRunConfiguration The pipelineEngineRunConfiguration to set
-   */
-  public void setPipelineEngineRunConfiguration( IPipelineEngineRunConfiguration pipelineEngineRunConfiguration ) {
-    this.pipelineEngineRunConfiguration = pipelineEngineRunConfiguration;
-  }
-
   public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
     ITransform iTransform = findTransformInterface( componentName, copyNr );
     if ( iTransform == null ) {
@@ -3900,5 +3827,21 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    */
   public void setExecutionFinishedListeners( List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners ) {
     this.executionFinishedListeners = executionFinishedListeners;
+  }
+
+  /**
+   * Gets pipelineRunConfiguration
+   *
+   * @return value of pipelineRunConfiguration
+   */
+  @Override public PipelineRunConfiguration getPipelineRunConfiguration() {
+    return pipelineRunConfiguration;
+  }
+
+  /**
+   * @param pipelineRunConfiguration The pipelineRunConfiguration to set
+   */
+  @Override public void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration ) {
+    this.pipelineRunConfiguration = pipelineRunConfiguration;
   }
 }

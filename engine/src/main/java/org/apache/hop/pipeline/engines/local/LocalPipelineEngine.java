@@ -57,14 +57,13 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
   @Override public void prepareExecution() throws HopException {
 
-    if (!(pipelineEngineRunConfiguration instanceof LocalPipelineRunConfiguration)) {
-      throw new HopException( "A local pipeline execution expects a local pipeline configuration, not class "+pipelineEngineRunConfiguration.getClass().getName() );
+    if (!(pipelineRunConfiguration.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration)) {
+      throw new HopException( "A local pipeline execution expects a local pipeline configuration, not class "+pipelineRunConfiguration.getEngineRunConfiguration().getClass().getName() );
     }
-    LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineEngineRunConfiguration;
+    LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
     int sizeRowsSet = Const.toInt( pipelineMeta.environmentSubstitute( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
-
-    setRowSetSize( Const.toInt( environmentSubstitute(config.getRowSetSize()), Const.ROWS_IN_ROWSET) );
+    setRowSetSize( sizeRowsSet );
     setSafeModeEnabled( config.isSafeModeEnabled() );
     setSortingTransformsTopologically( config.isSortingTransformsTopologically() );
     setGatheringMetrics( config.isGatheringMetrics() );

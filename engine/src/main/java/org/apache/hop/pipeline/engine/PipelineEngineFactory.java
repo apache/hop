@@ -47,7 +47,7 @@ public class PipelineEngineFactory {
     }
 
     IPipelineEngine pipelineEngine = pluginRegistry.loadClass( plugin, IPipelineEngine.class );
-    pipelineEngine.setPipelineEngineRunConfiguration( pipelineRunConfiguration.getEngineRunConfiguration() );
+    pipelineEngine.setPipelineRunConfiguration( pipelineRunConfiguration );
 
     pipelineEngine.setSubject( pipelineMeta );
 

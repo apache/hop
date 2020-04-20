@@ -65,6 +65,9 @@ public class SlaveServerPipelineStatus {
 
   private boolean paused;
 
+  private Date executionStartDate;
+  private Date executionEndDate;
+
   public SlaveServerPipelineStatus() {
     transformStatusList = new ArrayList<TransformStatus>();
   }
@@ -95,6 +98,8 @@ public class SlaveServerPipelineStatus {
     xml.append( "  " ).append( XmlHandler.addTagValue( "status_desc", statusDescription ) );
     xml.append( "  " ).append( XmlHandler.addTagValue( "error_desc", errorDescription ) );
     xml.append( "  " ).append( XmlHandler.addTagValue( "log_date", XmlHandler.date2string( logDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "execution_start_date", XmlHandler.date2string( executionStartDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "execution_end_date", XmlHandler.date2string( executionEndDate ) ) );
     xml.append( "  " ).append( XmlHandler.addTagValue( "paused", paused ) );
 
     xml.append( "  " ).append( XmlHandler.openTag( "transform_status_list" ) ).append( Const.CR );
@@ -386,5 +391,37 @@ public class SlaveServerPipelineStatus {
    */
   public void setId( String id ) {
     this.id = id;
+  }
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  public void setExecutionStartDate( Date executionStartDate ) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  public void setExecutionEndDate( Date executionEndDate ) {
+    this.executionEndDate = executionEndDate;
   }
 }

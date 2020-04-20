@@ -2060,11 +2060,11 @@ public class PipelineMeta extends AbstractMeta
    * @throws HopXmlException            if any errors occur during parsing of the specified stream
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public PipelineMeta( InputStream xmlStream, boolean setInternalVariables, IVariables parentVariableSpace )
+  public PipelineMeta( InputStream xmlStream, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
     throws HopXmlException, HopMissingPluginsException {
     Document doc = XmlHandler.loadXmlFile( xmlStream, null, false, false );
     Node pipelineNode = XmlHandler.getSubNode( doc, XML_TAG );
-    loadXml( pipelineNode, setInternalVariables, parentVariableSpace );
+    loadXml( pipelineNode, null, metaStore, setInternalVariables, parentVariableSpace );
   }
 
   /**
@@ -2074,68 +2074,26 @@ public class PipelineMeta extends AbstractMeta
    * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public PipelineMeta( Node pipelineNode ) throws HopXmlException, HopMissingPluginsException {
-    loadXml( pipelineNode, false );
+  public PipelineMeta( Node pipelineNode, IMetaStore metaStore ) throws HopXmlException, HopMissingPluginsException {
+    loadXml( pipelineNode, null, metaStore, false, null );
   }
+
 
   /**
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
    * @param pipelineNode         The XML node to load from
-   * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
-   * @throws HopXmlException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXml( Node pipelineNode, boolean setInternalVariables ) throws HopXmlException,
-    HopMissingPluginsException {
-    loadXml( pipelineNode, setInternalVariables, null );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
-   *
-   * @param pipelineNode         The XML node to load from
+   * @param filename                The filename
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
    * @throws HopXmlException            if any errors occur during parsing of the specified file
    * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
    */
-  public void loadXml( Node pipelineNode, boolean setInternalVariables, IVariables parentVariableSpace ) throws HopXmlException, HopMissingPluginsException {
-    loadXml( pipelineNode, null, setInternalVariables, parentVariableSpace );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
-   *
-   * @param pipelineNode         The XML node to load from
-   * @param fname                The filename
-   * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
-   * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXmlException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXml( Node pipelineNode, String fname, boolean setInternalVariables, IVariables parentVariableSpace )
-    throws HopXmlException, HopMissingPluginsException {
-    loadXml( pipelineNode, fname, null, setInternalVariables, parentVariableSpace );
-  }
-
-  /**
-   * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
-   *
-   * @param pipelineNode         The XML node to load from
-   * @param fname                The filename
-   * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
-   * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
-   * @throws HopXmlException            if any errors occur during parsing of the specified file
-   * @throws HopMissingPluginsException in case missing plugins were found (details are in the exception in that case)
-   */
-  public void loadXml( Node pipelineNode, String fname, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
+  public void loadXml( Node pipelineNode, String filename, IMetaStore metaStore, boolean setInternalVariables, IVariables parentVariableSpace )
     throws HopXmlException, HopMissingPluginsException {
 
-    HopMissingPluginsException
-      missingPluginsException =
-      new HopMissingPluginsException(
-        BaseMessages.getString( PKG, "PipelineMeta.MissingPluginsFoundWhileLoadingPipeline.Exception" ) );
+    HopMissingPluginsException missingPluginsException =
+      new HopMissingPluginsException( BaseMessages.getString( PKG, "PipelineMeta.MissingPluginsFoundWhileLoadingPipeline.Exception" ) );
 
     this.metaStore = metaStore; // Remember this as the primary meta store.
 
@@ -2154,7 +2112,7 @@ public class PipelineMeta extends AbstractMeta
 
         // Set the filename here so it can be used in variables for ALL aspects of the pipeline FIX: PDI-8890
         //
-        setFilename( fname );
+        setFilename( filename );
 
         // Read the notes...
         Node notepadsnode = XmlHandler.getSubNode( pipelineNode, XML_TAG_NOTEPADS );

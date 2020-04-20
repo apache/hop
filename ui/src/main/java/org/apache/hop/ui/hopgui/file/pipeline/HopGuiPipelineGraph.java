@@ -3655,11 +3655,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           pipeline = PipelineEngineFactory.createPipelineEngine( configuration, pipelineMeta );
           pipeline.setMetaStore( hopUi.getMetaStore() );
 
-          String spoonLogObjectId = UUID.randomUUID().toString();
-          SimpleLoggingObject spoonLoggingObject = new SimpleLoggingObject( "HOPUI", LoggingObjectType.HOPUI, null );
-          spoonLoggingObject.setContainerObjectId( spoonLogObjectId );
-          spoonLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
-          pipeline.setParent( spoonLoggingObject );
+          String guiLogObjectId = UUID.randomUUID().toString();
+          SimpleLoggingObject guiLoggingObject = new SimpleLoggingObject( "HOP GUI", LoggingObjectType.HOP_GUI, null );
+          guiLoggingObject.setContainerObjectId( guiLogObjectId );
+          guiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
+          pipeline.setParent( guiLoggingObject );
 
           pipeline.setLogLevel( executionConfiguration.getLogLevel() );
           log.logBasic( BaseMessages.getString( PKG, "PipelineLog.Log.PipelineOpened" ) );

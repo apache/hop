@@ -322,38 +322,43 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       int x = screen.x;
       int y = screen.y;
 
-      List<IEngineComponent> components = engineMetrics.getComponents();
-      for ( IEngineComponent component : components ) {
-        if ( component.getName().equals( transformMeta.getName() ) ) {
-          if ( component.isRunning() ) {
-            long inputRows = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_IN );
-            long outputRows = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_OUT );
+      synchronized ( engineMetrics ) {
+        List<IEngineComponent> components = engineMetrics.getComponents();
+        for ( IEngineComponent component : components ) {
+          if ( component.getName().equals( transformMeta.getName() ) ) {
+            if ( component.isRunning() ) {
+              Long inputRowsValue = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_IN );
+              Long outputRowsValue = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_OUT );
+              if ( inputRowsValue != null && outputRowsValue != null ) {
+                long inputRows = inputRowsValue.longValue();
+                long outputRows = outputRowsValue.longValue();
 
-            // if the transform can't keep up with its input, mark it by drawing an animation
-            boolean isSlow = inputRows * 0.85 > outputRows;
-            if ( isSlow ) {
-              gc.setLineWidth( lineWidth + 1 );
-              if ( System.currentTimeMillis() % 2000 > 1000 ) {
-                gc.setForeground( EColor.BACKGROUND );
-                gc.setLineStyle( ELineStyle.SOLID );
-                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                // if the transform can't keep up with its input, mark it by drawing an animation
+                boolean isSlow = inputRows * 0.85 > outputRows;
+                if ( isSlow ) {
+                  gc.setLineWidth( lineWidth + 1 );
+                  if ( System.currentTimeMillis() % 2000 > 1000 ) {
+                    gc.setForeground( EColor.BACKGROUND );
+                    gc.setLineStyle( ELineStyle.SOLID );
+                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
-                gc.setForeground( EColor.DARKGRAY );
-                gc.setLineStyle( ELineStyle.DOT );
-                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
-              } else {
-                gc.setForeground( EColor.DARKGRAY );
-                gc.setLineStyle( ELineStyle.SOLID );
-                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                    gc.setForeground( EColor.DARKGRAY );
+                    gc.setLineStyle( ELineStyle.DOT );
+                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                  } else {
+                    gc.setForeground( EColor.DARKGRAY );
+                    gc.setLineStyle( ELineStyle.SOLID );
+                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
-                gc.setForeground( EColor.BACKGROUND );
-                gc.setLineStyle( ELineStyle.DOT );
-                gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                    gc.setForeground( EColor.BACKGROUND );
+                    gc.setLineStyle( ELineStyle.DOT );
+                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                  }
+                }
               }
-
             }
+            gc.setLineStyle( ELineStyle.SOLID );
           }
-          gc.setLineStyle( ELineStyle.SOLID );
         }
       }
     }

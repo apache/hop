@@ -1564,7 +1564,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
    * @return LoggingObjectType LoggingObjectType.JOB
    */
   public LoggingObjectType getObjectType() {
-    return LoggingObjectType.JOB;
+    return LoggingObjectType.WORKFLOW;
   }
 
   /**

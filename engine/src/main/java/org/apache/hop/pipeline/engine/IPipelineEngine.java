@@ -30,11 +30,11 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.IExecutionBecameActiveListener;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.workflow.Workflow;
 
 import java.util.Date;
@@ -60,10 +60,9 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
    */
   IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
 
+  void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration);
 
-  void setPipelineEngineRunConfiguration( IPipelineEngineRunConfiguration pipelineRunConfiguration);
-
-  IPipelineEngineRunConfiguration getPipelineEngineRunConfiguration();
+  PipelineRunConfiguration getPipelineRunConfiguration();
 
   /**
    * Executes the object/subject: calls prepareExecution and startThreads in sequence.
@@ -183,15 +182,6 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
    * @throws HopException
    */
   void addExecutionStartedListener( IExecutionStartedListener<T> listener ) throws HopException;
-
-  /**
-   * Call the given listener lambda when this pipeline engine has become active.
-   *
-   * @param listener
-   * @throws HopException
-   */
-  void addExecutionBecameActiveListener( IExecutionBecameActiveListener<T> listener ) throws HopException;
-
 
   /**
    * Call the given listener lambda when this pipeline engine has completed execution.

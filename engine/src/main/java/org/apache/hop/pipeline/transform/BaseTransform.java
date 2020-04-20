@@ -402,7 +402,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private IRowHandler rowHandler;
 
-  private AtomicBoolean markStopped = new AtomicBoolean( false );
+  private AtomicBoolean markStopped;
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this class to implement your own
@@ -513,6 +513,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     transformFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     transformStartedListeners = Collections.synchronizedList( new ArrayList<>() );
+
+    markStopped = new AtomicBoolean( false );
 
     dispatch();
 
@@ -2625,15 +2627,20 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // Here we are completely done with the pipeline.
       // Call all the attached listeners and notify the outside world that the transform has finished.
       //
-      synchronized ( transformFinishedListeners ) {
-        for ( ITransformFinishedListener transformListener : transformFinishedListeners ) {
-          transformListener.transformFinished( pipeline, transformMeta, this );
-        }
-      }
+      fireTransformFinishedListeners();
 
       // We're finally completely done with this transform.
       //
       setRunning( false );
+    }
+  }
+
+  private synchronized void fireTransformFinishedListeners() {
+    System.out.println("**********>>> Fire transform Finished listeners for transform "+toString() + " : "+Const.getStackTracker( new Exception() ));
+    synchronized ( transformFinishedListeners ) {
+      for ( ITransformFinishedListener transformListener : transformFinishedListeners ) {
+        transformListener.transformFinished( pipeline, transformMeta, this );
+      }
     }
   }
 

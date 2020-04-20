@@ -27,6 +27,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -108,7 +109,7 @@ public class PipelineResource {
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
+        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( pipeline.getLogLevel() );
       pipeline.setParent( servletLoggingObject );
@@ -204,7 +205,8 @@ public class PipelineResource {
   public PipelineStatus addPipeline( String xml ) {
     PipelineConfiguration pipelineConfiguration;
     try {
-      pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString() );
+      IMetaStore metaStore = HopServerSingleton.getInstance().getPipelineMap().getSlaveServerConfig().getMetaStore();
+      pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString(), metaStore );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();
@@ -227,7 +229,7 @@ public class PipelineResource {
 
       String carteObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.CARTE, null );
+        new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 

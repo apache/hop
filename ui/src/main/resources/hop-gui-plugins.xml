@@ -80,8 +80,15 @@
     <description>Local pipeline run configuration widgets</description>
   </gui-plugin>
   <gui-plugin>
+    <classname>org.apache.hop.pipeline.engines.remote.RemotePipelineRunConfiguration</classname>
+    <description>Remote pipeline run configuration widgets</description>
+  </gui-plugin>
+
+  <!--
+  <gui-plugin>
     <classname>org.apache.hop.pipeline.engines.localsingle.LocalSinglePipelineRunConfiguration</classname>
     <description>Local single threaded pipeline run configuration widgets</description>
   </gui-plugin>
+  -->
 
 </gui-plugins>

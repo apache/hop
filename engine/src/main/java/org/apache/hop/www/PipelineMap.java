@@ -329,7 +329,7 @@ public class PipelineMap {
     }
   }
 
-  public HopServerObjectEntry getFirstCarteObjectEntry( String pipelineName ) {
+  public HopServerObjectEntry getFirstServerObjectEntry( String pipelineName ) {
     for ( HopServerObjectEntry key : pipelineMap.keySet() ) {
       if ( key.getName().equals( pipelineName ) ) {
         return key;

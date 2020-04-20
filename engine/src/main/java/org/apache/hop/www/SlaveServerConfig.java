@@ -95,7 +95,7 @@ public class SlaveServerConfig {
     slaveSequences = new ArrayList<SlaveSequence>();
     automaticCreationAllowed = false;
     metaStore = new DelegatingMetaStore();
-    // Add the local Hitachi Vantara MetaStore to the delegation.
+    // Add the local MetaStore to the delegation.
     // This sets it as the active one.
     //
     try {
@@ -103,7 +103,7 @@ public class SlaveServerConfig {
       metaStore.addMetaStore( localStore );
       metaStore.setActiveMetaStoreName( localStore.getName() );
     } catch ( MetaStoreException e ) {
-      LogChannel.GENERAL.logError( "Unable to open local Pentaho meta store from [" + MetaStoreConst.getDefaultHopMetaStoreLocation() + "]", e );
+      LogChannel.GENERAL.logError( "Unable to open local hop metastore from [" + MetaStoreConst.getDefaultHopMetaStoreLocation() + "]", e );
       // now replace this with an in memory metastore.
       //
       try {

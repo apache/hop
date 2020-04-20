@@ -412,7 +412,7 @@ public class HopRun implements Runnable {
 
       while ( !dontWait ) {
         try {
-          jobStatus = slaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
+          jobStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), carteObjectId, 0 );
           if ( jobStatus.getResult() != null ) {
             // The workflow is finished, get the result...
             //
@@ -437,7 +437,7 @@ public class HopRun implements Runnable {
       // Get the status
       //
       if ( !dontWait ) {
-        jobStatus = slaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
+        jobStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), carteObjectId, 0 );
         if ( remoteLogging ) {
           log.logBasic( jobStatus.getLoggingString() );
         }

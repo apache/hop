@@ -755,7 +755,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           SlaveServerWorkflowStatus jobStatus = null;
           while ( !parentWorkflow.isStopped() && waitingToFinish ) {
             try {
-              jobStatus = remoteSlaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
+              jobStatus = remoteSlaveServer.getWorkflowStatus( workflowMeta.getName(), carteObjectId, 0 );
               if ( jobStatus.getResult() != null ) {
                 // The workflow is finished, get the result...
                 //
@@ -819,7 +819,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
               if ( jobStatus == null || jobStatus.isRunning() ) {
                 // Try a remote abort ...
                 //
-                remoteSlaveServer.stopJob( workflowMeta.getName(), carteObjectId );
+                remoteSlaveServer.stopWorkflow( workflowMeta.getName(), carteObjectId );
               }
             } catch ( Exception e1 ) {
               logError( "Unable to contact slave server ["

@@ -125,6 +125,15 @@ public abstract class BaseTransformData implements ITransformData {
     public String toString() {
       return description;
     }
+
+    public static TransformExecutionStatus getStatusFromDescription(String description) {
+      for (TransformExecutionStatus status : values()) {
+        if (status.description.equalsIgnoreCase( description )) {
+          return status;
+        }
+      }
+      return STATUS_EMPTY;
+    }
   }
 
   /**
