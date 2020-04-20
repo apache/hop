@@ -1,5 +1,5 @@
 [[database-plugins-sybase]]
-:documentationPath: /plugins/database/
+:documentationPath: /plugins/databases/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sybase/src/main/doc/sybase.adoc
 = Sybase

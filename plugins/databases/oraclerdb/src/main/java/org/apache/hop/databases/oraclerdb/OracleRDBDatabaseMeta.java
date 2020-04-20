@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
   type = "ORACLERDB",
   typeDescription = "Oracle RDB"
 )
-@GuiPlugin( id = "GUI-OracleDatabaseMeta" )
+@GuiPlugin( id = "GUI-OracleRDBDatabaseMeta" )
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {

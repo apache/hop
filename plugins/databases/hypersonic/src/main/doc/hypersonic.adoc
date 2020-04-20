@@ -1,5 +1,5 @@
 [[database-plugins-hypersonic]]
-:documentationPath: /plugins/database/
+:documentationPath: /plugins/databases/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/hypersonic/src/main/doc/hypersonic.adoc
 = Hypersonic
