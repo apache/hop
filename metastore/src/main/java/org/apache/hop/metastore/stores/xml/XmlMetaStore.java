@@ -676,7 +676,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
       }
       totalTime += 100;
       if ( totalTime > 10000 ) {
-        throw new MetaStoreException( "Maximum wait time of 10 seconds exceed while acquiring lock" );
+        throw new MetaStoreException( "Maximum wait time of 10 seconds exceed while acquiring lock using file '"+lockFile.toString()+"' for metastore: "+getName() );
       }
     }
   }

@@ -63,7 +63,7 @@ public class ActionDialog extends Dialog {
   /**
    * The loggingObject for the dialog
    */
-  public static final ILoggingObject loggingObject = new SimpleLoggingObject( "Action dialog", LoggingObjectType.JOBENTRYDIALOG, null );
+  public static final ILoggingObject loggingObject = new SimpleLoggingObject( "Action dialog", LoggingObjectType.ACTION_DIALOG, null );
 
   /**
    * A reference to the action interface

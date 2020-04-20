@@ -24,12 +24,13 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 public class PipelineMetaFactoryImpl implements IPipelineMetaFactory {
 
   @Override
-  public PipelineMeta create( Node pipelineNode ) throws HopXmlException, HopMissingPluginsException {
-    return new PipelineMeta( pipelineNode );
+  public PipelineMeta create( Node pipelineNode, IMetaStore metaStore ) throws HopXmlException, HopMissingPluginsException {
+    return new PipelineMeta( pipelineNode, metaStore );
   }
 }

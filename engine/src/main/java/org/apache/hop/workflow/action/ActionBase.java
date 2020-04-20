@@ -989,7 +989,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    */
   @Override
   public LoggingObjectType getObjectType() {
-    return LoggingObjectType.JOBENTRY;
+    return LoggingObjectType.ACTION;
   }
 
   /**

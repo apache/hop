@@ -74,7 +74,7 @@ public abstract class BasePartitioner implements IPartitioner {
   }
 
   /**
-   * Inits the.
+   * Inits the partitioner.
    *
    * @param rowMeta the row meta
    * @throws HopException the kettle exception

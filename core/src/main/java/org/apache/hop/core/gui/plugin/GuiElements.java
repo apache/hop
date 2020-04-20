@@ -92,7 +92,12 @@ public class GuiElements {
     String fieldName = field.getName();
     Class<?> fieldClass = field.getType();
 
-    this.id = guiElement.id();
+    if (StringUtil.isEmpty( guiElement.id() )) {
+      this.id = field.getName();
+    } else {
+      this.id = guiElement.id();
+    }
+
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
     this.order = guiElement.order();

@@ -28,6 +28,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -172,12 +174,12 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     try {
       // ID is optional...
       //
-      Pipeline pipeline;
+      IPipelineEngine<PipelineMeta> pipeline;
       HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first pipeline that matches...
         //
-        entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+        entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
         if ( entry == null ) {
           pipeline = null;
         } else {
@@ -260,7 +262,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
-  protected void startThreads( Pipeline pipeline ) throws HopException {
+  protected void startThreads( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     pipeline.startThreads();
   }
 

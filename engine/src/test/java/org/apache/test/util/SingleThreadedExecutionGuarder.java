@@ -30,6 +30,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.BeforeClass;
@@ -67,7 +68,7 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta
     pipelineMeta.setName( "failsWhenGivenNonSingleThreadTransforms" );
     pipelineMeta.addTransform( transformMeta );
 
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipeline.prepareExecution();
 
     SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor( pipeline );

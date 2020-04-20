@@ -94,7 +94,7 @@ public class PipelineExecutorUnitTest {
     PipelineMeta internalPipelineMeta = mock( PipelineMeta.class );
     doReturn( internalPipelineMeta ).when( executor ).loadExecutorPipelineMeta();
 
-    internalPipeline = spy( new Pipeline() );
+    internalPipeline = spy( new LocalPipelineEngine() );
     internalPipeline.setLog( mock( LogChannelInterface.class ) );
     doNothing().when( internalPipeline ).prepareExecution();
     doNothing().when( internalPipeline ).startThreads();
@@ -413,7 +413,7 @@ public class PipelineExecutorUnitTest {
     meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
     meta.getParameters().setInput( new String[] { null, null } );
     meta.getParameters().setField( new String[] { null, null } );
-    Pipeline parent = new Pipeline();
+    Pipeline parent = new LocalPipelineEngine();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
     executor.init();
@@ -451,7 +451,7 @@ public class PipelineExecutorUnitTest {
     meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
     meta.getParameters().setInput( new String[] { null, null } );
     meta.getParameters().setField( new String[] { childParam, paramOverwrite } );
-    Pipeline parent = new Pipeline();
+    Pipeline parent = new LocalPipelineEngine();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
     executor.init();
@@ -496,7 +496,7 @@ public class PipelineExecutorUnitTest {
     meta.getParameters().setVariable( new String[] { childParam, paramOverwrite } );
     meta.getParameters().setInput( new String[] { inputValue1, inputValue2 } );
     meta.getParameters().setField( new String[] { null, null } );
-    Pipeline parent = new Pipeline();
+    Pipeline parent = new LocalPipelineEngine();
     Mockito.when( executor.getPipeline() ).thenReturn( parent );
 
     executor.init();

@@ -26,10 +26,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.owasp.encoder.Encode;
@@ -53,13 +57,6 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
   public static final String TYPE_INPUT = "input";
   public static final String TYPE_OUTPUT = "output";
 
-  public static final String XML_TAG = "transform-sniff";
-
-  final class MetaAndData {
-    public IRowMeta bufferRowMeta;
-    public List<Object[]> bufferRowData;
-  }
-
   public SniffTransformServlet() {
   }
 
@@ -67,155 +64,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
     super( pipelineMap );
   }
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/sniffTransform</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Sniff metadata and data from the specified transform of the specified pipeline.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /hop/sniffTransform?pipeline=dummy-pipeline&transform=tf&xml=Y&lines=10
-   * </pre>
-   *
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>pipeline</td>
-   * <td>Name of the pipeline containing required transform.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>transformName</td>
-   * <td>Name of the pipeline transform to collect data for.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>copynr</td>
-   * <td>Copy number of the transform to be used for collecting data. If not provided 0 is used.</td>
-   * <td>integer, optional</td>
-   * </tr>
-   * <tr>
-   * <td>type</td>
-   * <td>Type of the data to be collected (<code>input</code> or <code>output</code>).
-   * If not provided output data is collected.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * <tr>
-   * <td>xml</td>
-   * <td>Boolean flag which defines output format <code>Y</code> forces XML output to be generated.
-   * HTML is returned otherwise.</td>
-   * <td>boolean, optional</td>
-   * </tr>
-   * <tr>
-   * <td>id</td>
-   * <td>HopServer id of the pipeline to be used for transform lookup.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * <tr>
-   * <td>lines</td>
-   * <td>Number of lines to collect and include into response. If not provided 0 lines will be collected.</td>
-   * <td>integer, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">element:</td>
-   * <td>(custom)</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>text/xml, text/html</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>Response XML or HTML response containing data and metadata of the transform.
-   * If an error occurs during method invocation <code>result</code> field of the response
-   * will contain <code>ERROR</code> status.</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <?xml version="1.0" encoding="UTF-8"?>
-   * <transform-sniff>
-   * <row-meta>
-   * <value-meta><type>String</type>
-   * <storagetype>normal</storagetype>
-   * <name>Field1</name>
-   * <length>0</length>
-   * <precision>-1</precision>
-   * <origin>tf</origin>
-   * <comments/>
-   * <conversion_Mask/>
-   * <decimal_symbol>.</decimal_symbol>
-   * <grouping_symbol>,</grouping_symbol>
-   * <currency_symbol>&#x24;</currency_symbol>
-   * <trim_type>none</trim_type>
-   * <case_insensitive>N</case_insensitive>
-   * <sort_descending>N</sort_descending>
-   * <output_padding>N</output_padding>
-   * <date_format_lenient>Y</date_format_lenient>
-   * <date_format_locale>en_US</date_format_locale>
-   * <date_format_timezone>America&#x2f;Bahia</date_format_timezone>
-   * <lenient_string_to_number>N</lenient_string_to_number>
-   * </value-meta>
-   * </row-meta>
-   * <nr_rows>10</nr_rows>
-   *
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data </value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * <row-data><value-data>my-data</value-data>
-   * </row-data>
-   * </transform-sniff>
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
+
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -247,12 +96,12 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
     // ID is optional...
     //
-    Pipeline pipeline;
+    IPipelineEngine<PipelineMeta> pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
       //
-      entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+      entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
       if ( entry == null ) {
         pipeline = null;
       } else {
@@ -270,63 +119,70 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
       // Find the transform to look at...
       //
-      ITransform transform = null;
-      List<ITransform> transformInterfaces = pipeline.findBaseTransforms( transformName );
-      for ( int i = 0; i < transformInterfaces.size(); i++ ) {
-        ITransform look = transformInterfaces.get( i );
-        if ( look.getCopy() == copyNr ) {
-          transform = look;
+      IEngineComponent component = null;
+      List<IEngineComponent> componentCopies = pipeline.getComponentCopies( transformName );
+      for ( IEngineComponent componentCopy : componentCopies ) {
+        if ( componentCopy.getCopyNr() == copyNr ) {
+          component = componentCopy;
         }
       }
-      if ( transform != null ) {
+      final RowBuffer rowBuffer = new RowBuffer();
 
-        // Add a listener to the pipeline transform...
+      if ( component != null ) {
+
+        // Wait until the pipeline is running...
         //
-        final boolean read = type.equalsIgnoreCase( TYPE_INPUT );
-        final boolean written = type.equalsIgnoreCase( TYPE_OUTPUT ) || !read;
-        final MetaAndData metaData = new MetaAndData();
-
-        metaData.bufferRowMeta = null;
-        metaData.bufferRowData = new ArrayList<Object[]>();
-
-        IRowListener rowListener = new IRowListener() {
-          public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-            if ( read && metaData.bufferRowData.size() < nrLines ) {
-              metaData.bufferRowMeta = rowMeta;
-              metaData.bufferRowData.add( row );
-            }
-          }
-
-          public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-            if ( written && metaData.bufferRowData.size() < nrLines ) {
-              metaData.bufferRowMeta = rowMeta;
-              metaData.bufferRowData.add( row );
-            }
-          }
-
-          public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-          }
-        };
-
-        transform.addRowListener( rowListener );
-
-        // Wait until we have enough rows...
-        //
-        while ( metaData.bufferRowData.size() < nrLines
-          && transform.isRunning() && !pipeline.isFinished() && !pipeline.isStopped() ) {
-
+        while (!(pipeline.isRunning() || pipeline.isReadyToStart()) && !pipeline.isStopped()) {
           try {
-            Thread.sleep( 100 );
+            Thread.sleep(10);
           } catch ( InterruptedException e ) {
-            // Ignore
-            //
-            break;
+            // ignore
           }
         }
 
-        // Remove the row listener
-        //
-        transform.removeRowListener( rowListener );
+        if (!pipeline.isStopped()) {
+          // Add a listener to the pipeline transform...
+          //
+          final boolean read = type.equalsIgnoreCase( TYPE_INPUT );
+          final boolean written = type.equalsIgnoreCase( TYPE_OUTPUT ) || !read;
+
+          IRowListener rowListener = new IRowListener() {
+            public void rowReadEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+              if ( read && rowBuffer.getBuffer().size() < nrLines ) {
+                rowBuffer.setRowMeta( rowMeta );
+                rowBuffer.getBuffer().add( row );
+              }
+            }
+
+            public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+              if ( written && rowBuffer.getBuffer().size() < nrLines ) {
+                rowBuffer.setRowMeta( rowMeta );
+                rowBuffer.getBuffer().add( row );
+              }
+            }
+
+            public void errorRowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+            }
+          };
+
+          component.addRowListener( rowListener );
+
+          // Wait until we have enough rows...
+          //
+          while ( rowBuffer.getBuffer().size() < nrLines && component.isRunning() && !pipeline.isFinished() && !pipeline.isStopped() ) {
+            try {
+              Thread.sleep( 10 );
+            } catch ( InterruptedException e ) {
+              // Ignore
+              //
+              break;
+            }
+          }
+
+          // Remove the row listener
+          //
+          component.removeRowListener( rowListener );
+        }
 
         // Pass along the rows of data...
         //
@@ -337,28 +193,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           response.setContentType( "text/xml" );
           response.setCharacterEncoding( Const.XML_ENCODING );
           out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
-
-          out.println( XmlHandler.openTag( XML_TAG ) );
-
-          if ( metaData.bufferRowMeta != null ) {
-
-            // Row Meta data
-            //
-            out.println( metaData.bufferRowMeta.getMetaXML() );
-
-            // Nr of lines
-            //
-            out.println( XmlHandler.addTagValue( "nr_rows", metaData.bufferRowData.size() ) );
-
-            // Rows of data
-            //
-            for ( int i = 0; i < metaData.bufferRowData.size(); i++ ) {
-              Object[] rowData = metaData.bufferRowData.get( i );
-              out.println( metaData.bufferRowMeta.getDataXML( rowData ) );
-            }
-          }
-
-          out.println( XmlHandler.closeTag( XML_TAG ) );
+          out.println( rowBuffer.getXml() );
 
         } else {
           response.setContentType( "text/html;charset=UTF-8" );
@@ -379,23 +214,23 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           try {
             out.println( "<table border=\"1\">" );
 
-            if ( metaData.bufferRowMeta != null ) {
+            if ( rowBuffer.getRowMeta() != null ) {
               // Print a header row containing all the field names...
               //
               out.print( "<tr><th>#</th>" );
-              for ( IValueMeta valueMeta : metaData.bufferRowMeta.getValueMetaList() ) {
+              for ( IValueMeta valueMeta : rowBuffer.getRowMeta().getValueMetaList() ) {
                 out.print( "<th>" + valueMeta.getName() + "</th>" );
               }
               out.println( "</tr>" );
 
               // Now output the data rows...
               //
-              for ( int r = 0; r < metaData.bufferRowData.size(); r++ ) {
-                Object[] rowData = metaData.bufferRowData.get( r );
+              for ( int r = 0; r < rowBuffer.getBuffer().size(); r++ ) {
+                Object[] rowData = rowBuffer.getBuffer().get( r );
                 out.print( "<tr>" );
                 out.println( "<td>" + ( r + 1 ) + "</td>" );
-                for ( int v = 0; v < metaData.bufferRowMeta.size(); v++ ) {
-                  IValueMeta valueMeta = metaData.bufferRowMeta.getValueMeta( v );
+                for ( int v = 0; v < rowBuffer.getRowMeta().size(); v++ ) {
+                  IValueMeta valueMeta = rowBuffer.getRowMeta().getValueMeta( v );
                   Object valueData = rowData[ v ];
                   out.println( "<td>" + valueMeta.getString( valueData ) + "</td>" );
                 }
@@ -447,7 +282,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
   }
 
   public String toString() {
-    return "Pipeline Status IHandler";
+    return "Sniff Transform";
   }
 
   public String getService() {

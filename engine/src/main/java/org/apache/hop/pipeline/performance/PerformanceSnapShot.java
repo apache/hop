@@ -26,7 +26,6 @@ import java.util.Date;
 
 public class PerformanceSnapShot {
 
-  private long batchId;
   private int seqNr;
   private Date date;
   private String parentName;
@@ -64,11 +63,10 @@ public class PerformanceSnapShot {
    * @param totalLinesRejected
    * @param totalErrors
    */
-  public PerformanceSnapShot( int seqNr, long batchId, Date date, String parentName, String componentName,
+  public PerformanceSnapShot( int seqNr, Date date, String parentName, String componentName,
                               int copyNr, long totalLinesRead, long totalLinesWritten, long totalLinesInput, long totalLinesOutput,
                               long totalLinesUpdated, long totalLinesRejected, long totalErrors ) {
     this.seqNr = seqNr;
-    this.batchId = batchId;
     this.date = date;
     this.parentName = parentName;
     this.componentName = componentName;
@@ -399,20 +397,6 @@ public class PerformanceSnapShot {
    */
   public void setSeqNr( int seqNr ) {
     this.seqNr = seqNr;
-  }
-
-  /**
-   * @return the batchId
-   */
-  public long getBatchId() {
-    return batchId;
-  }
-
-  /**
-   * @param batchId the batchId to set
-   */
-  public void setBatchId( long batchId ) {
-    this.batchId = batchId;
   }
 
   /**

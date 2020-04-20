@@ -23,7 +23,10 @@
 package org.apache.hop.concurrency;
 
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -57,7 +60,7 @@ public class ActiveSubPipelineConcurrencyTest {
   @Test
   public void getAndCreateConcurrently() throws Exception {
     AtomicBoolean condition = new AtomicBoolean( true );
-    Pipeline pipeline = new Pipeline();
+    IPipelineEngine<PipelineMeta> pipeline = new LocalPipelineEngine();
     createSubPipeline( pipeline );
 
     List<Getter> getters = generateGetters( pipeline, condition );
@@ -66,13 +69,13 @@ public class ActiveSubPipelineConcurrencyTest {
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised( creators, getters, condition );
   }
 
-  private void createSubPipeline( Pipeline pipeline ) {
+  private void createSubPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
     for ( int i = 0; i < INITIAL_NUMBER_OF_PIPELINE; i++ ) {
-      pipeline.addActiveSubPipeline( createPipelineName( i ), new Pipeline() );
+      pipeline.addActiveSubPipeline( createPipelineName( i ), new LocalPipelineEngine() );
     }
   }
 
-  private List<Getter> generateGetters( Pipeline pipeline, AtomicBoolean condition ) {
+  private List<Getter> generateGetters( IPipelineEngine<PipelineMeta> pipeline, AtomicBoolean condition ) {
     List<Getter> getters = new ArrayList<>();
     for ( int i = 0; i < NUMBER_OF_GETTERS; i++ ) {
       getters.add( new Getter( pipeline, condition ) );
@@ -81,7 +84,7 @@ public class ActiveSubPipelineConcurrencyTest {
     return getters;
   }
 
-  private List<Creator> generateCreators( Pipeline pipeline, AtomicBoolean condition ) {
+  private List<Creator> generateCreators( IPipelineEngine<PipelineMeta> pipeline, AtomicBoolean condition ) {
     List<Creator> creators = new ArrayList<Creator>();
     for ( int i = 0; i < NUMBER_OF_CREATES; i++ ) {
       creators.add( new Creator( pipeline, condition ) );
@@ -92,10 +95,10 @@ public class ActiveSubPipelineConcurrencyTest {
 
 
   private class Getter extends StopOnErrorCallable<Object> {
-    private final Pipeline pipeline;
+    private final IPipelineEngine<PipelineMeta> pipeline;
     private final Random random;
 
-    Getter( Pipeline pipeline, AtomicBoolean condition ) {
+    Getter( IPipelineEngine<PipelineMeta> pipeline, AtomicBoolean condition ) {
       super( condition );
       this.pipeline = pipeline;
       random = new Random();
@@ -120,10 +123,10 @@ public class ActiveSubPipelineConcurrencyTest {
   }
 
   private class Creator extends StopOnErrorCallable<Object> {
-    private final Pipeline pipeline;
+    private final IPipelineEngine<PipelineMeta> pipeline;
     private final Random random;
 
-    Creator( Pipeline pipeline, AtomicBoolean condition ) {
+    Creator( IPipelineEngine<PipelineMeta> pipeline, AtomicBoolean condition ) {
       super( condition );
       this.pipeline = pipeline;
       random = new Random();
@@ -134,7 +137,7 @@ public class ActiveSubPipelineConcurrencyTest {
       for ( int i = 0; i < NUMBER_OF_CREATE_CYCLES; i++ ) {
         synchronized ( lock ) {
           String pipelineName = createPipelineName( randomInt( INITIAL_NUMBER_OF_PIPELINE, Integer.MAX_VALUE ) );
-          pipeline.addActiveSubPipeline( pipelineName, new Pipeline() );
+          pipeline.addActiveSubPipeline( pipelineName, new LocalPipelineEngine() );
         }
       }
       return null;

@@ -28,8 +28,6 @@ public interface IActionRunConfigurable {
 
   void setRunConfiguration( String runConfiguration );
 
-  void setRemoteSlaveServerName( String remoteSlaveServerName );
-
   void setLoggingRemoteWork( boolean loggingRemoteWork );
 
   void setChanged();

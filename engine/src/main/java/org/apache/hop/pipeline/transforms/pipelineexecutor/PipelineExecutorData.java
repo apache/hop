@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -38,7 +39,7 @@ import java.util.List;
  * @since 18-mar-2013
  */
 public class PipelineExecutorData extends BaseTransformData implements ITransformData {
-  private Pipeline executorPipeline;
+  private IPipelineEngine<PipelineMeta> executorPipeline;
   private PipelineMeta executorPipelineMeta;
 
   private IRowMeta inputRowMeta;
@@ -67,11 +68,19 @@ public class PipelineExecutorData extends BaseTransformData implements ITransfor
     super();
   }
 
-  public Pipeline getExecutorPipeline() {
+  /**
+   * Gets executorPipeline
+   *
+   * @return value of executorPipeline
+   */
+  public IPipelineEngine<PipelineMeta> getExecutorPipeline() {
     return executorPipeline;
   }
 
-  public void setExecutorPipeline( Pipeline executorPipeline ) {
+  /**
+   * @param executorPipeline The executorPipeline to set
+   */
+  public void setExecutorPipeline( IPipelineEngine<PipelineMeta> executorPipeline ) {
     this.executorPipeline = executorPipeline;
   }
 

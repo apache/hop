@@ -35,9 +35,7 @@ import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
-import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -47,16 +45,12 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogStatus;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -2099,7 +2093,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @see org.apache.hop.core.logging.ILoggingObject#getObjectType()
    */
   public LoggingObjectType getObjectType() {
-    return LoggingObjectType.JOB_META;
+    return LoggingObjectType.WORKFLOW_META;
   }
   
   /**

@@ -106,7 +106,7 @@ public class MappingInputFieldsTest {
     PipelineMeta tm = new PipelineMeta();
     tm.addTransform( sm );
     LoggingObjectInterface loi = new SimpleLoggingObject( "lo", LoggingObjectType.TRANSFORM, null );
-    Pipeline tr = new Pipeline( tm, loi );
+    Pipeline tr = new LocalPipelineEngine( tm, loi );
 
     transform = new MappingInput( sm, null, 0, tm, tr );
     transform.getPipeline().setRunning( true );

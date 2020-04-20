@@ -56,10 +56,9 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.BasePartitioner;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.www.SocketRepository;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -350,11 +349,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   private List<ITransformStartedListener> transformStartedListeners;
 
   /**
-   * The socket repository to use when opening server side sockets in clustering mode
-   */
-  private SocketRepository socketRepository;
-
-  /**
    * The upper buffer size boundary after which we manage the thread priority a little bit to prevent excessive locking
    */
   private int upperBufferBoundary;
@@ -402,7 +396,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private IRowHandler rowHandler;
 
-  private AtomicBoolean markStopped = new AtomicBoolean( false );
+  private AtomicBoolean markStopped;
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this class to implement your own
@@ -423,12 +417,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     this.pipelineMeta = pipelineMeta;
     this.pipeline = pipeline;
     this.transformName = transformMeta.getName();
-    this.socketRepository = pipeline.getSocketRepository();
 
     // Set the name of the thread
     if ( transformMeta.getName() == null ) {
-      throw new RuntimeException( "A transform in pipeline ["
-        + pipelineMeta.toString() + "] doesn't have a name.  A transform should always have a name to identify it by." );
+      throw new RuntimeException( "A transform in pipeline [" + pipelineMeta.toString() + "] doesn't have a name.  A transform should always have a name to identify it by." );
     }
 
     log = HopLogStore.getLogChannelFactory().create( this, pipeline );
@@ -514,6 +506,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     transformFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     transformStartedListeners = Collections.synchronizedList( new ArrayList<>() );
 
+    markStopped = new AtomicBoolean( false );
+
     dispatch();
 
     upperBufferBoundary = (int) ( pipeline.getRowSetSize() * 0.99 );
@@ -522,7 +516,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   @Override public boolean init() {
 
-    data.setStatus( TransformExecutionStatus.STATUS_INIT );
+    data.setStatus( ComponentExecutionStatus.STATUS_INIT );
 
     if ( transformMeta.isPartitioned() ) {
       // This is a locally partitioned transform...
@@ -605,7 +599,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   @Override public void dispose() {
-    data.setStatus( TransformExecutionStatus.STATUS_DISPOSED );
+    data.setStatus( ComponentExecutionStatus.STATUS_DISPOSED );
   }
 
   /*
@@ -2625,15 +2619,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // Here we are completely done with the pipeline.
       // Call all the attached listeners and notify the outside world that the transform has finished.
       //
-      synchronized ( transformFinishedListeners ) {
-        for ( ITransformFinishedListener transformListener : transformFinishedListeners ) {
-          transformListener.transformFinished( pipeline, transformMeta, this );
-        }
-      }
+      fireTransformFinishedListeners();
 
       // We're finally completely done with this transform.
       //
       setRunning( false );
+    }
+  }
+
+  private synchronized void fireTransformFinishedListeners() {
+    synchronized ( transformFinishedListeners ) {
+      for ( ITransformFinishedListener transformListener : transformFinishedListeners ) {
+        transformListener.transformFinished( pipeline, transformMeta, this );
+      }
     }
   }
 
@@ -2643,7 +2641,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#getRuntime()
    */
   @Override
-  public long getRuntime() {
+  public long getExecutionDuration() {
     long lapsed;
     if ( startTime != null && stopTime == null ) {
       Calendar cal = Calendar.getInstance();
@@ -2657,6 +2655,22 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     return lapsed;
+  }
+
+  @Override public long getInputBufferSize() {
+    long total = 0L;
+    for ( IRowSet inputRowSet : getInputRowSets() ) {
+      return inputRowSet.size();
+    }
+    return total;
+  }
+
+  @Override public long getOutputBufferSize() {
+    long total = 0L;
+    for ( IRowSet outputRowSet : getOutputRowSets() ) {
+      return outputRowSet.size();
+    }
+    return total;
   }
 
   /**
@@ -3062,17 +3076,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#getStatus()
    */
   @Override
-  public TransformExecutionStatus getStatus() {
+  public ComponentExecutionStatus getStatus() {
     // Is this thread alive or not?
     //
     if ( isRunning() ) {
       if ( isStopped() ) {
-        return TransformExecutionStatus.STATUS_HALTING;
+        return ComponentExecutionStatus.STATUS_HALTING;
       } else {
         if ( isPaused() ) {
-          return BaseTransformData.TransformExecutionStatus.STATUS_PAUSED;
+          return ComponentExecutionStatus.STATUS_PAUSED;
         } else {
-          return TransformExecutionStatus.STATUS_RUNNING;
+          return ComponentExecutionStatus.STATUS_RUNNING;
         }
       }
     } else {
@@ -3082,23 +3096,23 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       //
       if ( pipeline.isPreparing() ) {
         if ( isInitialising() ) {
-          return TransformExecutionStatus.STATUS_INIT;
+          return ComponentExecutionStatus.STATUS_INIT;
         } else {
           // Done initializing, but other threads are still busy.
           // So this transform is idle
           //
-          return TransformExecutionStatus.STATUS_IDLE;
+          return ComponentExecutionStatus.STATUS_IDLE;
         }
       } else {
         // It's not running, it's not initializing, so what is it doing?
         //
         if ( isStopped() ) {
-          return TransformExecutionStatus.STATUS_STOPPED;
+          return ComponentExecutionStatus.STATUS_STOPPED;
         } else {
           // To be sure (race conditions and all), get the rest in ITransformData object:
           //
-          if ( data.getStatus() == TransformExecutionStatus.STATUS_DISPOSED ) {
-            return TransformExecutionStatus.STATUS_FINISHED;
+          if ( data.getStatus() == ComponentExecutionStatus.STATUS_DISPOSED ) {
+            return ComponentExecutionStatus.STATUS_FINISHED;
           } else {
             return data.getStatus();
           }
@@ -3480,24 +3494,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public boolean isMapping() {
     return transformMeta.isMapping();
-  }
-
-  /**
-   * Retutns the socket repository.
-   *
-   * @return the socketRepository
-   */
-  public SocketRepository getSocketRepository() {
-    return socketRepository;
-  }
-
-  /**
-   * Sets the socket repository.
-   *
-   * @param socketRepository the socketRepository to set
-   */
-  public void setSocketRepository( SocketRepository socketRepository ) {
-    this.socketRepository = socketRepository;
   }
 
   /*

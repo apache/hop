@@ -81,7 +81,7 @@ public class SqlEditor {
   private static Class<?> PKG = SqlEditor.class; // for i18n purposes, needed by Translator!!
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
-    "SQL Editor", LoggingObjectType.HOPUI, null );
+    "SQL Editor", LoggingObjectType.HOP_GUI, null );
 
   private PropsUi props;
 

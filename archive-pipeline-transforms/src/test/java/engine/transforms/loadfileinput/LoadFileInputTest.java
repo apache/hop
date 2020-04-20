@@ -127,7 +127,7 @@ public class LoadFileInputTest {
     pipelineName = "LoadFileInput";
     pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( pipelineName );
-    pipeline = new Pipeline( pipelineMeta );
+    pipeline = new LocalPipelineEngine( pipelineMeta );
 
     transformMetaInterface = spy( new LoadFileInputMeta() );
     transformInputFiles = new FileInputList();

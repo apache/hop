@@ -77,7 +77,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wLogLevel );
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 180;
+    fdLogLevel.width = 350;
     fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
     wLogLevel.setLayoutData( fdLogLevel );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
@@ -146,7 +146,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigTooltip = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Tooltip" );
 
     wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
-      shell, SWT.BORDER, runConfigLabel, runConfigTooltip);
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true);
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment( 100, 0 );

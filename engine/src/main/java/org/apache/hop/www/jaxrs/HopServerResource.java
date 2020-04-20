@@ -22,6 +22,8 @@
 
 package org.apache.hop.www.jaxrs;
 
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.www.HopServerObjectEntry;
@@ -41,7 +43,7 @@ public class HopServerResource {
   public HopServerResource() {
   }
 
-  public static Pipeline getPipeline( String id ) {
+  public static IPipelineEngine<PipelineMeta> getPipeline( String id ) {
     return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getCarteObjectEntry( id ) );
   }
 

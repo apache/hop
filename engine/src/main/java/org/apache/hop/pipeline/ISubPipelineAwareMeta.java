@@ -29,7 +29,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public interface ISubPipelineAwareMeta {
 
-  String getFileName();
+  String getFilename();
 
   TransformMeta getParentTransformMeta();
 

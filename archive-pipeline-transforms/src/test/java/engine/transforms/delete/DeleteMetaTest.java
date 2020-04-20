@@ -123,7 +123,7 @@ public class DeleteMetaTest implements InitializerInterface<ITransform> {
     String deletePid = plugReg.getPluginId( TransformPluginType.class, dmi );
 
     transformMeta = new TransformMeta( deletePid, "delete", dmi );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     del = new Delete( transformMeta, dd, 1, pipelineMeta, pipeline );
     del.copyVariablesFrom( pipelineMeta );

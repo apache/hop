@@ -138,7 +138,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
 
     SimpleMappingData simpleMappingData = getData();
     // Create the pipeline from meta-data...
-    simpleMappingData.mappingPipeline = new Pipeline( simpleMappingData.mappingPipelineMeta, this );
+    simpleMappingData.mappingPipeline = new LocalPipelineEngine( simpleMappingData.mappingPipelineMeta, this );
 
     // Set the parameters values in the mapping.
     //

@@ -23,8 +23,11 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,11 +49,12 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
     final String xml = IOUtils.toString( request.getInputStream() );
 
     // Parse the XML, create a pipeline configuration
-    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml );
+    IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
+    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml, metaStore );
 
-    Pipeline pipeline = createPipeline( pipelineConfiguration );
+    IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
 
-    String message = "Pipeline '" + pipeline.getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
+    String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
     return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerObjectId() );
   }
 

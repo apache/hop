@@ -51,7 +51,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetaStoreEdit() {
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point( 0, 0 ), hopUi, GuiActionType.Modify );
+    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopUi, GuiActionType.Modify );
   }
 
   /**
@@ -59,7 +59,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetaStoreDelete() {
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point( 0, 0 ), hopUi, GuiActionType.Delete );
+    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopUi, GuiActionType.Delete );
   }
 
   /**

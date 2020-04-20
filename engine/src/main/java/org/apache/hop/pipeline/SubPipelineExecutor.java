@@ -28,13 +28,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -53,16 +53,17 @@ public class SubPipelineExecutor {
   private static final Class<?> PKG = SubPipelineExecutor.class;
   private final Map<String, TransformStatus> statuses;
   private final String subPipelineName;
-  private Pipeline parentPipeline;
+  private IPipelineEngine<PipelineMeta> parentPipeline;
   private PipelineMeta subPipelineMeta;
   private boolean shareVariables;
   private PipelineExecutorParameters parameters;
   private String subTransform;
   private boolean stopped;
-  Set<Pipeline> running;
+  private Set<IPipelineEngine<PipelineMeta>> running;
+  private PipelineRunConfiguration runConfiguration;
 
-  public SubPipelineExecutor( String subPipelineName, Pipeline parentPipeline, PipelineMeta subPipelineMeta, boolean shareVariables,
-                              PipelineExecutorParameters parameters, String subTransform ) {
+  public SubPipelineExecutor( String subPipelineName, IPipelineEngine<PipelineMeta> parentPipeline, PipelineMeta subPipelineMeta, boolean shareVariables,
+                              PipelineExecutorParameters parameters, String subTransform, PipelineRunConfiguration runConfiguration ) {
     this.subPipelineName = subPipelineName;
     this.parentPipeline = parentPipeline;
     this.subPipelineMeta = subPipelineMeta;
@@ -71,6 +72,7 @@ public class SubPipelineExecutor {
     this.subTransform = subTransform;
     this.statuses = new LinkedHashMap<>();
     this.running = new ConcurrentHashSet<>();
+    this.runConfiguration = runConfiguration;
   }
 
   public Optional<Result> execute( List<RowMetaAndData> rows ) throws HopException {
@@ -78,7 +80,7 @@ public class SubPipelineExecutor {
       return Optional.empty();
     }
 
-    Pipeline subPipeline = this.createSubPipeline();
+    IPipelineEngine<PipelineMeta> subPipeline = this.createSubPipeline();
     running.add( subPipeline );
     parentPipeline.addActiveSubPipeline( subPipelineName, subPipeline );
 
@@ -91,10 +93,10 @@ public class SubPipelineExecutor {
 
     subPipeline.prepareExecution();
     List<RowMetaAndData> rowMetaAndData = new ArrayList<>();
-    subPipeline.getTransforms().stream()
-      .filter( c -> c.transform.getTransformName().equalsIgnoreCase( subTransform ) )
+    subPipeline.getComponents().stream()
+      .filter( c -> c.getName().equalsIgnoreCase( subTransform ) )
       .findFirst()
-      .ifPresent( c -> c.transform.addRowListener( new RowAdapter() {
+      .ifPresent( c -> c.addRowListener( new RowAdapter() {
         @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) {
           rowMetaAndData.add( new RowMetaAndData( rowMeta, row ) );
         }
@@ -110,25 +112,25 @@ public class SubPipelineExecutor {
     return Optional.of( subpipelineResult );
   }
 
-  private synchronized void updateStatuses( Pipeline subPipeline ) {
-    List<TransformMetaDataCombi<ITransform, ITransformMeta, ITransformData>> transforms =
-      subPipeline.getTransforms();
-    for ( TransformMetaDataCombi combi : transforms ) {
+  private synchronized void updateStatuses( IPipelineEngine<PipelineMeta> subPipeline ) {
+    List<IEngineComponent> components = subPipeline.getComponents();
+    for ( IEngineComponent component : components ) {
+
       TransformStatus transformStatus;
-      if ( statuses.containsKey( combi.transformName ) ) {
-        transformStatus = statuses.get( combi.transformName );
-        transformStatus.updateAll( combi.transform );
+      if ( statuses.containsKey( component.getName() ) ) {
+        transformStatus = statuses.get( component.getName() );
+        transformStatus.updateAll( component );
       } else {
-        transformStatus = new TransformStatus( combi.transform );
-        statuses.put( combi.transformName, transformStatus );
+        transformStatus = new TransformStatus( component );
+        statuses.put( component.getName(), transformStatus );
       }
 
-      transformStatus.setStatusDescription( BaseTransformData.TransformExecutionStatus.STATUS_RUNNING.getDescription() );
+      transformStatus.setStatusDescription( EngineComponent.ComponentExecutionStatus.STATUS_RUNNING.getDescription() );
     }
   }
 
-  private Pipeline createSubPipeline() {
-    Pipeline subPipeline = new Pipeline( this.subPipelineMeta, this.parentPipeline );
+  private IPipelineEngine<PipelineMeta> createSubPipeline() throws HopException {
+    IPipelineEngine<PipelineMeta> subPipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, this.subPipelineMeta );
     subPipeline.setParentPipeline( this.parentPipeline );
     subPipeline.setLogLevel( this.parentPipeline.getLogLevel() );
     if ( this.shareVariables ) {
@@ -142,7 +144,7 @@ public class SubPipelineExecutor {
     return subPipeline;
   }
 
-  private void passParametersToPipeline( Pipeline internalPipeline, RowMetaAndData rowMetaAndData ) throws HopException {
+  private void passParametersToPipeline( IPipelineEngine<PipelineMeta> internalPipeline, RowMetaAndData rowMetaAndData ) throws HopException {
     internalPipeline.clearParameters();
     String[] parameterNames = internalPipeline.listParameters();
 
@@ -175,12 +177,12 @@ public class SubPipelineExecutor {
 
   public void stop() {
     stopped = true;
-    for ( Pipeline subPipeline : running ) {
+    for ( IPipelineEngine<PipelineMeta> subPipeline : running ) {
       subPipeline.stopAll();
     }
     running.clear();
     for ( Map.Entry<String, TransformStatus> entry : statuses.entrySet() ) {
-      entry.getValue().setStatusDescription( BaseTransformData.TransformExecutionStatus.STATUS_STOPPED.getDescription() );
+      entry.getValue().setStatusDescription( EngineComponent.ComponentExecutionStatus.STATUS_STOPPED.getDescription() );
     }
   }
 
@@ -188,7 +190,23 @@ public class SubPipelineExecutor {
     return statuses;
   }
 
-  public Pipeline getParentPipeline() {
+  public IPipelineEngine<PipelineMeta> getParentPipeline() {
     return parentPipeline;
+  }
+
+  /**
+   * Gets running
+   *
+   * @return value of running
+   */
+  public Set<IPipelineEngine<PipelineMeta>> getRunning() {
+    return running;
+  }
+
+  /**
+   * @param running The running to set
+   */
+  public void setRunning( Set<IPipelineEngine<PipelineMeta>> running ) {
+    this.running = running;
   }
 }

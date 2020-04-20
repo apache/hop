@@ -26,17 +26,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -55,20 +51,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 import static com.google.common.collect.ImmutableList.of;
-import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -87,7 +80,7 @@ public class PipelineTest {
 
 
   int count = 10000;
-  Pipeline pipeline;
+  IPipelineEngine<PipelineMeta> pipeline;
   PipelineMeta meta;
 
 
@@ -99,8 +92,8 @@ public class PipelineTest {
   @Before
   public void beforeTest() throws HopException {
     meta = new PipelineMeta();
-    pipeline = new Pipeline( meta );
-    pipeline.setLog( Mockito.mock( ILogChannel.class ) );
+    pipeline = new LocalPipelineEngine( meta );
+    pipeline.setLogChannel( Mockito.mock( ILogChannel.class ) );
     pipeline.prepareExecution();
     pipeline.startThreads();
   }
@@ -110,7 +103,7 @@ public class PipelineTest {
    */
   @Test( timeout = 1000 )
   public void pipelineWithNoTransformsIsNotEndless() throws Exception {
-    Pipeline pipelineWithNoTransforms = new Pipeline( new PipelineMeta() );
+    Pipeline pipelineWithNoTransforms = new LocalPipelineEngine( new PipelineMeta() );
     pipelineWithNoTransforms = spy( pipelineWithNoTransforms );
 
     pipelineWithNoTransforms.prepareExecution();
@@ -119,7 +112,7 @@ public class PipelineTest {
 
     // check pipeline lifecycle is not corrupted
     verify( pipelineWithNoTransforms ).firePipelineExecutionStartedListeners();
-    verify( pipelineWithNoTransforms ).fireExecutionFinishedListeners();
+    verify( pipelineWithNoTransforms ).firePipelineExecutionFinishedListeners();
   }
 
   /**
@@ -194,30 +187,30 @@ public class PipelineTest {
       InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Pipeline pipeline = new Pipeline( mockPipelineMeta, null, ktr.getURL().toURI().toString(), new MemoryMetaStore() );
+    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, ktr.getURL().toURI().toString(), new MemoryMetaStore() );
     assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
   }
 
 
   @Test
   public void testFirePipelineFinishedListeners() throws Exception {
-    Pipeline pipeline = new Pipeline();
+    Pipeline pipeline = new LocalPipelineEngine();
     IExecutionFinishedListener mockListener = mock( IExecutionFinishedListener.class );
     pipeline.setExecutionFinishedListeners( Collections.singletonList( mockListener ) );
 
-    pipeline.fireExecutionFinishedListeners();
+    pipeline.firePipelineExecutionFinishedListeners();
 
     verify( mockListener ).finished( pipeline );
   }
 
   @Test( expected = HopException.class )
   public void testFirePipelineFinishedListenersExceptionOnPipelineFinished() throws Exception {
-    Pipeline pipeline = new Pipeline();
+    Pipeline pipeline = new LocalPipelineEngine();
     IExecutionFinishedListener mockListener = mock( IExecutionFinishedListener.class );
     doThrow( HopException.class ).when( mockListener ).finished( pipeline );
     pipeline.setExecutionFinishedListeners( Collections.singletonList( mockListener ) );
 
-    pipeline.fireExecutionFinishedListeners();
+    pipeline.firePipelineExecutionFinishedListeners();
   }
 
   @Test
@@ -225,24 +218,7 @@ public class PipelineTest {
     while ( pipeline.isRunning() ) {
       Thread.sleep( 1 );
     }
-    assertEquals( Pipeline.STRING_FINISHED, pipeline.getStatus() );
-  }
-
-  @Test
-  public void safeLetsNonInputTransformsKeepRunning() throws HopException {
-    pipeline.setTransforms( of(
-      combi( transformMock, data, transformMeta ),
-      combi( transformMock2, data2, transformMeta2 ) ) );
-
-    when( pipelineMeta.findPreviousTransforms( transformMeta, true ) ).thenReturn( emptyList() );
-    // transformMeta2 will have transformMeta as previous, so is not an input transform
-    when( pipelineMeta.findPreviousTransforms( transformMeta2, true ) ).thenReturn( of( transformMeta ) );
-    pipeline.pipelineMeta = pipelineMeta;
-
-    pipeline.safeStop();
-    verifyStopped( transformMock, 1 );
-    // non input transform shouldn't have stop called
-    verifyStopped( transformMock2, 0 );
+    assertEquals( Pipeline.STRING_FINISHED, pipeline.getStatusDescription() );
   }
 
   private void verifyStopped( ITransform transform, int numberTimesCalled ) throws HopException {
@@ -271,13 +247,13 @@ public class PipelineTest {
   }
 
   private abstract class PipelineKicker implements Runnable {
-    protected Pipeline tr;
+    protected IPipelineEngine<PipelineMeta> pipeline;
     protected int c = 0;
     protected CountDownLatch start;
     protected int max = count;
 
-    PipelineKicker( Pipeline tr, CountDownLatch start ) {
-      this.tr = tr;
+    PipelineKicker( IPipelineEngine<PipelineMeta> pipeline, CountDownLatch start ) {
+      this.pipeline = pipeline;
       this.start = start;
     }
 
@@ -288,8 +264,8 @@ public class PipelineTest {
   }
 
   private class PipelineStoppedCaller extends PipelineKicker {
-    PipelineStoppedCaller( Pipeline tr, CountDownLatch start ) {
-      super( tr, start );
+    PipelineStoppedCaller( IPipelineEngine<PipelineMeta> pipeline, CountDownLatch start ) {
+      super( pipeline, start );
     }
 
     @Override
@@ -306,8 +282,8 @@ public class PipelineTest {
   }
 
   private class PipelineStopListenerAdder extends PipelineKicker {
-    PipelineStopListenerAdder( Pipeline tr, CountDownLatch start ) {
-      super( tr, start );
+    PipelineStopListenerAdder( IPipelineEngine<PipelineMeta> pipeline, CountDownLatch start ) {
+      super( pipeline, start );
     }
 
     @Override
@@ -318,14 +294,18 @@ public class PipelineTest {
         throw new RuntimeException();
       }
       while ( !isStopped() ) {
-        pipeline.addPipelineStoppedListener( pipelineStoppedListener );
+        try {
+          pipeline.addExecutionStoppedListener( pipelineStoppedListener );
+        } catch ( HopException e ) {
+          throw new RuntimeException( e );
+        }
       }
     }
   }
 
   private class PipelineFinishListenerAdder extends PipelineKicker {
-    PipelineFinishListenerAdder( Pipeline tr, CountDownLatch start ) {
-      super( tr, start );
+    PipelineFinishListenerAdder( IPipelineEngine<PipelineMeta> pipeline, CountDownLatch start ) {
+      super( pipeline, start );
     }
 
     @Override
@@ -337,13 +317,17 @@ public class PipelineTest {
       }
       // run
       while ( !isStopped() ) {
-        tr.addExecutionFinishedListener( listener );
+        try {
+          pipeline.addExecutionFinishedListener( listener );
+        } catch ( HopException e ) {
+          throw new RuntimeException( e );
+        }
       }
     }
   }
 
   private class PipelineFinishListenerFirer extends PipelineKicker {
-    PipelineFinishListenerFirer( Pipeline tr, CountDownLatch start ) {
+    PipelineFinishListenerFirer( IPipelineEngine<PipelineMeta> tr, CountDownLatch start ) {
       super( tr, start );
     }
 
@@ -357,9 +341,9 @@ public class PipelineTest {
       // run
       while ( !isStopped() ) {
         try {
-          tr.fireExecutionFinishedListeners();
+          pipeline.firePipelineExecutionFinishedListeners();
           // clean array blocking queue
-          tr.waitUntilFinished();
+          pipeline.waitUntilFinished();
         } catch ( HopException e ) {
           throw new RuntimeException();
         }
@@ -368,8 +352,8 @@ public class PipelineTest {
   }
 
   private class PipelineStartListenerFirer extends PipelineKicker {
-    PipelineStartListenerFirer( Pipeline tr, CountDownLatch start ) {
-      super( tr, start );
+    PipelineStartListenerFirer( IPipelineEngine<PipelineMeta> pipeline, CountDownLatch start ) {
+      super( pipeline, start );
     }
 
     @Override
@@ -382,7 +366,7 @@ public class PipelineTest {
       // run
       while ( !isStopped() ) {
         try {
-          tr.firePipelineExecutionStartedListeners();
+          pipeline.firePipelineExecutionStartedListeners();
         } catch ( HopException e ) {
           throw new RuntimeException();
         }
@@ -390,18 +374,9 @@ public class PipelineTest {
     }
   }
 
-  private final IExecutionFinishedListener<PipelineMeta> listener = new IExecutionFinishedListener<PipelineMeta>() {
-    @Override
-    public void finished( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
-    }
-  };
+  private final IExecutionFinishedListener<PipelineMeta> listener = pipeline -> { };
 
-  private final IPipelineStoppedListener pipelineStoppedListener = new IPipelineStoppedListener() {
-    @Override
-    public void pipelineStopped( Pipeline pipeline ) {
-    }
-
-  };
+  private final IExecutionStoppedListener<PipelineMeta> pipelineStoppedListener = pipeline -> { };
 
   @Test
   public void testNewPipelineWithContainerObjectId() throws Exception {
@@ -416,7 +391,7 @@ public class PipelineTest {
     String carteId = UUID.randomUUID().toString();
     doReturn( carteId ).when( meta ).getContainerObjectId();
 
-    Pipeline pipeline = new Pipeline( meta );
+    Pipeline pipeline = new LocalPipelineEngine( meta );
 
     assertEquals( carteId, pipeline.getContainerObjectId() );
   }
@@ -435,8 +410,8 @@ public class PipelineTest {
     doReturn( "" ).when( meta ).getParameterDefault( anyString() );
     doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
-    Pipeline pipeline1 = new Pipeline( meta );
-    Pipeline pipeline2 = new Pipeline( meta );
+    IPipelineEngine<PipelineMeta> pipeline1 = new LocalPipelineEngine( meta );
+    IPipelineEngine<PipelineMeta> pipeline2 = new LocalPipelineEngine( meta );
 
     assertEquals( pipeline1.getLogChannelId(), pipeline2.getLogChannelId() );
   }
@@ -470,8 +445,8 @@ public class PipelineTest {
     doReturn( carteId1 ).when( meta1 ).getContainerObjectId();
     doReturn( carteId2 ).when( meta2 ).getContainerObjectId();
 
-    Pipeline pipeline1 = new Pipeline( meta1 );
-    Pipeline pipeline2 = new Pipeline( meta2 );
+    Pipeline pipeline1 = new LocalPipelineEngine( meta1 );
+    Pipeline pipeline2 = new LocalPipelineEngine( meta2 );
 
     assertNotEquals( pipeline1.getContainerObjectId(), pipeline2.getContainerObjectId() );
     assertNotEquals( pipeline1.getLogChannelId(), pipeline2.getLogChannelId() );
@@ -479,7 +454,7 @@ public class PipelineTest {
 
   @Test
   public void testSetInternalEntryCurrentDirectoryWithFilename() {
-    Pipeline pipelineTest = new Pipeline();
+    Pipeline pipelineTest = new LocalPipelineEngine();
     boolean hasFilename = true;
     boolean hasRepoDir = false;
     pipelineTest.copyVariablesFrom( null );
@@ -493,7 +468,7 @@ public class PipelineTest {
 
   @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
-    Pipeline pipelineTest = new Pipeline();
+    Pipeline pipelineTest = new LocalPipelineEngine();
     pipelineTest.copyVariablesFrom( null );
     boolean hasFilename = false;
     boolean hasRepoDir = false;

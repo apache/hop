@@ -80,7 +80,6 @@ public class WebServerTest {
   private SlaveServerConfig sServerConfMock = mock( SlaveServerConfig.class );
   private SlaveServer sServer = mock( SlaveServer.class );
   private WorkflowMap jbMapMock = mock( WorkflowMap.class );
-  private SocketRepository sRepoMock = mock( SocketRepository.class );
   private List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
   private ILogChannel logMock = mock( ILogChannel.class );
   //  private static final SocketConnector defSocketConnector = new SocketConnector();
@@ -99,7 +98,7 @@ public class WebServerTest {
     when( trMapMock.getSlaveServerConfig() ).thenReturn( sServerConfMock );
     when( sServer.getPassword() ).thenReturn( "cluster" );
     when( sServer.getUsername() ).thenReturn( "cluster" );
-    webServer = new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT, SHOULD_JOIN, null );
+    webServer = new WebServer( logMock, trMapMock, jbMapMock, detections, HOST_NAME, PORT, SHOULD_JOIN, null );
 
   }
 
@@ -147,7 +146,7 @@ public class WebServerTest {
     System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, "TEST" );
     try {
       webServerNg =
-        new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
+        new WebServer( logMock, trMapMock, jbMapMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
     } catch ( NumberFormatException nmbfExc ) {
       fail( "Should not have thrown any NumberFormatException but it does: " + nmbfExc );
     }
@@ -164,7 +163,7 @@ public class WebServerTest {
     System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, EMPTY_STRING );
     try {
       webServerNg =
-        new WebServer( logMock, trMapMock, jbMapMock, sRepoMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
+        new WebServer( logMock, trMapMock, jbMapMock, detections, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
     } catch ( NumberFormatException nmbfExc ) {
       fail( "Should not have thrown any NumberFormatException but it does: " + nmbfExc );
     }

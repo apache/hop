@@ -22,14 +22,19 @@
 
 package org.apache.hop.www;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -75,95 +80,6 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
   public AddExportServlet( WorkflowMap workflowMap, PipelineMap transformationMap ) {
     super( transformationMap, workflowMap );
   }
-
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/addExport</h1>
-   * <a name="POST"></a>
-   * <h2>POST</h2>
-   * <p>Returns the list of users in the platform. This list is in an xml format as shown in the example response.
-   * Uploads and executes previously exported workflow or transformation.
-   * Uploads zip file containing workflow or transformation to be executed and executes it.
-   * Method relies on the input parameters to find the entity to be executed. The archive is
-   * transferred within request body.
-   *
-   * <code>File url of the executed entity </code> will be returned in the Response object
-   * or <code>message</code> describing error occurred. To determine if the call is successful
-   * rely on <code>result</code> parameter in response.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * POST /hop/addExport/?type=workflow&load=dummy_job.hwf
-   * </pre>
-   * Request body should contain zip file prepared for HopServer execution.
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>type</td>
-   * <td>The type of the entity to be executed either <code>workflow</code> or <code>pipeline</code>.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>load</td>
-   * <td>The name of the entity within archive to be executed.</td>
-   * <td>query</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">element:</td>
-   * <td>(custom)</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>application/xml</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>Response wraps file url of the entity that was executed or error stack trace if an error occurred.
-   * Response has <code>result</code> OK if there were no errors. Otherwise it returns ERROR.</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <?xml version="1.0" encoding="UTF-8"?>
-   * <webresult>
-   * <result>OK</result>
-   * <message>zip&#x3a;file&#x3a;&#x2f;&#x2f;&#x2f;temp&#x2f;export_ee2a67de-6a72-11e4-82c0-4701a2bac6a5.zip&#x21;dummy_job.hwf</message>
-   * <id>74cf4219-c881-4633-a71a-2ed16b7db7b8</id>
-   * </webresult>
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed and XML response is returned.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
 
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
@@ -211,9 +127,8 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
       String archiveUrl = tempFile.getName().toString();
       String fileUrl = null;
 
-      String carteObjectId = null;
-      SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
+      String serverObjectId = null;
+      SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
 
       // Now open the top level resource...
       //
@@ -232,19 +147,17 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           String configUrl = "zip:" + archiveUrl + "!" + Workflow.CONFIGURATION_IN_EXPORT_FILENAME;
           Document configDoc = XmlHandler.loadXmlFile( configUrl );
-          WorkflowExecutionConfiguration workflowExecutionConfiguration =
-            new WorkflowExecutionConfiguration( XmlHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
+          WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration( XmlHandler.getSubNode( configDoc, WorkflowExecutionConfiguration.XML_TAG ) );
 
-          carteObjectId = UUID.randomUUID().toString();
-          servletLoggingObject.setContainerObjectId( carteObjectId );
+          serverObjectId = UUID.randomUUID().toString();
+          servletLoggingObject.setContainerObjectId( serverObjectId );
           servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
           Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
 
           // store it all in the map...
           //
-          getWorkflowMap().addWorkflow(
-            workflow.getJobname(), carteObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration ) );
+          getWorkflowMap().addWorkflow( workflow.getJobname(), serverObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration ) );
 
           // Apply the execution configuration...
           //
@@ -269,25 +182,42 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           String configUrl = "zip:" + archiveUrl + "!" + Pipeline.CONFIGURATION_IN_EXPORT_FILENAME;
           Document configDoc = XmlHandler.loadXmlFile( configUrl );
-          PipelineExecutionConfiguration executionConfiguration =
-            new PipelineExecutionConfiguration( XmlHandler.getSubNode(
-              configDoc, PipelineExecutionConfiguration.XML_TAG ) );
+          PipelineExecutionConfiguration executionConfiguration = new PipelineExecutionConfiguration( XmlHandler.getSubNode( configDoc, PipelineExecutionConfiguration.XML_TAG ) );
 
-          carteObjectId = UUID.randomUUID().toString();
-          servletLoggingObject.setContainerObjectId( carteObjectId );
+          serverObjectId = UUID.randomUUID().toString();
+          servletLoggingObject.setContainerObjectId( serverObjectId );
           servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
-          Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
+          String runConfigurationName = executionConfiguration.getRunConfiguration();
+          if ( StringUtils.isEmpty(runConfigurationName)) {
+            throw new HopException( "We need to know which pipeline run configuration to use to execute the pipeline");
+          }
+          PipelineRunConfiguration runConfiguration;
+          try {
+            runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+          } catch(Exception e) {
+            throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
+          }
+          if (runConfiguration==null) {
+            throw new HopException( "Pipeline run configuration '"+runConfigurationName+"' could not be found" );
+          }
+          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta );
+          pipeline.setParent( servletLoggingObject );
 
           // store it all in the map...
           //
-          getPipelineMap().addPipeline( pipeline.getName(), carteObjectId, pipeline, new PipelineConfiguration( pipelineMeta, executionConfiguration ) );
+          getPipelineMap().addPipeline(
+            pipeline.getSubject().getName(),
+            serverObjectId,
+            pipeline,
+            new PipelineConfiguration( pipelineMeta, executionConfiguration )
+          );
         }
       } else {
         fileUrl = archiveUrl;
       }
 
-      out.println( new WebResult( WebResult.STRING_OK, fileUrl, carteObjectId ) );
+      out.println( new WebResult( WebResult.STRING_OK, fileUrl, serverObjectId ) );
     } catch ( Exception ex ) {
       out.println( new WebResult( WebResult.STRING_ERROR, Const.getStackTracker( ex ) ) );
     } finally {

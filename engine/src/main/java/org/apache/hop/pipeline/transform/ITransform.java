@@ -32,6 +32,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
@@ -361,12 +363,12 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   /**
    * @return the description as in {@link ITransformData}
    */
-  BaseTransformData.TransformExecutionStatus getStatus();
+  ComponentExecutionStatus getStatus();
 
   /**
    * @return The number of ms that this transform has been running
    */
-  long getRuntime();
+  long getExecutionDuration();
 
   /**
    * To be used to flag an error output channel of a transform prior to execution for performance reasons.

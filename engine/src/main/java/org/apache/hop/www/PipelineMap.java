@@ -27,6 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,14 +64,14 @@ public class PipelineMap {
    * @param pipeline              The pipeline to add
    * @param pipelineConfiguration the pipeline configuration to add
    */
-  public void addPipeline( String pipelineName, String containerObjectId, Pipeline pipeline,
+  public void addPipeline( String pipelineName, String containerObjectId, IPipelineEngine<PipelineMeta> pipeline,
                            PipelineConfiguration pipelineConfiguration ) {
     HopServerObjectEntry entry = new HopServerObjectEntry( pipelineName, containerObjectId );
     pipelineMap.put( entry, new PipelineData( pipeline, pipelineConfiguration ) );
   }
 
   public void registerPipeline( Pipeline pipeline, PipelineConfiguration pipelineConfiguration ) {
-    pipeline.setContainerObjectId( UUID.randomUUID().toString() );
+    pipeline.setContainerId( UUID.randomUUID().toString() );
     HopServerObjectEntry entry = new HopServerObjectEntry( pipeline.getPipelineMeta().getName(), pipeline.getContainerObjectId() );
     pipelineMap.put( entry, new PipelineData( pipeline, pipelineConfiguration ) );
   }
@@ -80,7 +82,7 @@ public class PipelineMap {
    * @param pipelineName
    * @return the first pipeline with the specified name
    */
-  public Pipeline getPipeline( String pipelineName ) {
+  public IPipelineEngine<PipelineMeta> getPipeline( String pipelineName ) {
     for ( HopServerObjectEntry entry : pipelineMap.keySet() ) {
       if ( entry.getName().equals( pipelineName ) ) {
         return pipelineMap.get( entry ).getPipeline();
@@ -93,7 +95,7 @@ public class PipelineMap {
    * @param entry The HopServer pipeline object
    * @return the pipeline with the specified entry
    */
-  public Pipeline getPipeline( HopServerObjectEntry entry ) {
+  public IPipelineEngine<PipelineMeta> getPipeline( HopServerObjectEntry entry ) {
     return pipelineMap.get( entry ).getPipeline();
   }
 
@@ -329,7 +331,7 @@ public class PipelineMap {
     }
   }
 
-  public HopServerObjectEntry getFirstCarteObjectEntry( String pipelineName ) {
+  public HopServerObjectEntry getFirstServerObjectEntry( String pipelineName ) {
     for ( HopServerObjectEntry key : pipelineMap.keySet() ) {
       if ( key.getName().equals( pipelineName ) ) {
         return key;
@@ -386,20 +388,20 @@ public class PipelineMap {
 
   private static class PipelineData {
 
-    private Pipeline pipeline;
+    private IPipelineEngine<PipelineMeta> pipeline;
 
     private PipelineConfiguration configuration;
 
-    PipelineData( Pipeline pipeline, PipelineConfiguration configuration ) {
+    PipelineData( IPipelineEngine<PipelineMeta> pipeline, PipelineConfiguration configuration ) {
       this.pipeline = pipeline;
       this.configuration = configuration;
     }
 
-    public Pipeline getPipeline() {
+    public IPipelineEngine<PipelineMeta> getPipeline() {
       return pipeline;
     }
 
-    public void setPipeline( Pipeline pipeline ) {
+    public void setPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
       this.pipeline = pipeline;
     }
 

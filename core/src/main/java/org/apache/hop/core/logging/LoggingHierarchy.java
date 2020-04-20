@@ -29,7 +29,6 @@ package org.apache.hop.core.logging;
  */
 public class LoggingHierarchy {
   private String rootChannelId; // from the xform or workflow
-  private long batchId; // from the xform or workflow
   private ILoggingObject loggingObject;
 
   /**
@@ -46,19 +45,6 @@ public class LoggingHierarchy {
     this.rootChannelId = rootChannelId;
   }
 
-  /**
-   * @return the batchId
-   */
-  public long getBatchId() {
-    return batchId;
-  }
-
-  /**
-   * @param batchId the batchId to set
-   */
-  public void setBatchId( long batchId ) {
-    this.batchId = batchId;
-  }
 
   /**
    * @return the loggingObject
@@ -76,12 +62,10 @@ public class LoggingHierarchy {
 
   /**
    * @param rootChannelId
-   * @param batchId
    * @param loggingObject
    */
-  public LoggingHierarchy( String rootChannelId, long batchId, ILoggingObject loggingObject ) {
+  public LoggingHierarchy( String rootChannelId, ILoggingObject loggingObject ) {
     this.rootChannelId = rootChannelId;
-    this.batchId = batchId;
     this.loggingObject = loggingObject;
   }
 

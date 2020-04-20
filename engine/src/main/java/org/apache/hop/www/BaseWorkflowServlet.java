@@ -32,7 +32,11 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -69,7 +73,6 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     workflow.getWorkflowMeta().setMetaStore( workflowMap.getSlaveServerConfig().getMetaStore() );
     workflow.getWorkflowMeta().setInternalHopVariables( workflow );
     workflow.injectVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
-    workflow.setSocketRepository( getSocketRepository() );
 
     copyJobParameters( workflow, workflowExecutionConfiguration.getParametersMap() );
 
@@ -83,15 +86,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
 
-    final Long passedBatchId = workflowExecutionConfiguration.getPassedBatchId();
-    if ( passedBatchId != null ) {
-      workflow.setPassedBatchId( passedBatchId );
-    }
-
     return workflow;
   }
 
-  protected Pipeline createPipeline( PipelineConfiguration pipelineConfiguration ) throws UnknownParamException {
+  protected IPipelineEngine<PipelineMeta> createPipeline( PipelineConfiguration pipelineConfiguration ) throws HopException {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
     pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
@@ -101,11 +99,30 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParametersMap() );
 
     String carteObjectId = UUID.randomUUID().toString();
-    SimpleLoggingObject servletLoggingObject =
-      getServletLogging( carteObjectId, pipelineExecutionConfiguration.getLogLevel() );
+    SimpleLoggingObject servletLoggingObject = getServletLogging( carteObjectId, pipelineExecutionConfiguration.getLogLevel() );
+
+    // Get the metastore from the server
+    //
+    IMetaStore metaStore = getPipelineMap().getSlaveServerConfig().getMetaStore();
 
     // Create the pipeline and store in the list...
-    final Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
+    //
+    String runConfigurationName = pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
+    if ( StringUtils.isEmpty(runConfigurationName)) {
+      throw new HopException( "We need to know which pipeline run configuration to use to execute the pipeline");
+    }
+    PipelineRunConfiguration runConfiguration;
+    try {
+      runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+    } catch(Exception e) {
+      throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
+    }
+    if (runConfiguration==null) {
+      throw new HopException( "Pipeline run configuration '"+runConfigurationName+"' could not be found" );
+    }
+
+    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta );
+    pipeline.setParent( servletLoggingObject );
     pipeline.setMetaStore( pipelineMap.getSlaveServerConfig().getMetaStore() );
 
     if ( pipelineExecutionConfiguration.isSetLogfile() ) {
@@ -129,15 +146,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     }
 
-    pipeline.setSocketRepository( getSocketRepository() );
-
-    pipeline.setContainerObjectId( carteObjectId );
+    pipeline.setContainerId( carteObjectId );
     getPipelineMap().addPipeline( pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
-
-    final Long passedBatchId = pipelineExecutionConfiguration.getPassedBatchId();
-    if ( passedBatchId != null ) {
-      pipeline.setPassedBatchId( passedBatchId );
-    }
 
     return pipeline;
   }
@@ -170,7 +180,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private SimpleLoggingObject getServletLogging( final String carteObjectId, final LogLevel level ) {
     SimpleLoggingObject servletLoggingObject =
-      new SimpleLoggingObject( getContextPath(), LoggingObjectType.CARTE, null );
+      new SimpleLoggingObject( getContextPath(), LoggingObjectType.HOP_SERVER, null );
     servletLoggingObject.setContainerObjectId( carteObjectId );
     servletLoggingObject.setLogLevel( level );
     return servletLoggingObject;

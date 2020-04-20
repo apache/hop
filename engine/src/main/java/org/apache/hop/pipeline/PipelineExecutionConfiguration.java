@@ -24,7 +24,6 @@ package org.apache.hop.pipeline;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -50,10 +49,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
   private final ILogChannel log = LogChannel.GENERAL;
 
-  private boolean executingLocally;
-
-  private boolean executingRemotely;
-  private SlaveServer remoteServer;
   private boolean passingExport;
 
   private Map<String, String> parametersMap;
@@ -69,13 +64,11 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   private boolean setAppendLogfile;
   private String logFileName;
   private boolean createParentFolder;
-  private Long passedBatchId;
 
   private String runConfiguration;
   private boolean logRemoteExecutionLocally;
 
   public PipelineExecutionConfiguration() {
-    executingLocally = true;
 
     passingExport = false;
 
@@ -140,49 +133,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
       String value = variablesMap.getVariable( name );
       this.variablesMap.put( name, value );
     }
-  }
-
-  /**
-   * @return the remoteExecution
-   */
-  public boolean isExecutingRemotely() {
-    return executingRemotely;
-  }
-
-  /**
-   * @param remoteExecution the remoteExecution to set
-   */
-  public void setExecutingRemotely( boolean remoteExecution ) {
-    this.executingRemotely = remoteExecution;
-  }
-
-
-  /**
-   * @return the localExecution
-   */
-  public boolean isExecutingLocally() {
-    return executingLocally;
-  }
-
-  /**
-   * @param localExecution the localExecution to set
-   */
-  public void setExecutingLocally( boolean localExecution ) {
-    this.executingLocally = localExecution;
-  }
-
-  /**
-   * @return the remoteServer
-   */
-  public SlaveServer getRemoteServer() {
-    return remoteServer;
-  }
-
-  /**
-   * @param remoteServer the remoteServer to set
-   */
-  public void setRemoteServer( SlaveServer remoteServer ) {
-    this.remoteServer = remoteServer;
   }
 
   public void getAllVariables( PipelineMeta pipelineMeta ) {
@@ -268,12 +218,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
     xml.append( "  <" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_local", executingLocally ) );
-
-    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_remote", executingRemotely ) );
-    if ( remoteServer != null ) {
-      xml.append( "    " ).append( remoteServer.getXml() ).append( Const.CR );
-    }
     xml.append( "    " ).append( XmlHandler.addTagValue( "pass_export", passingExport ) );
 
     // Serialize the parameters...
@@ -315,9 +259,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     xml.append( "    " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "clear_log", clearingLog ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "show_subcomponents", showingSubComponents ) );
-    if ( passedBatchId != null ) {
-      xml.append( "    " ).append( XmlHandler.addTagValue( "passedBatchId", passedBatchId ) );
-    }
     xml.append( "    " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     // The source rows...
@@ -333,13 +274,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public PipelineExecutionConfiguration( Node trecNode ) throws HopException {
     this();
 
-    executingLocally = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_local" ) );
-
-    executingRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_remote" ) );
-    Node remoteHostNode = XmlHandler.getSubNode( trecNode, SlaveServer.XML_TAG );
-    if ( remoteHostNode != null ) {
-      remoteServer = new SlaveServer( remoteHostNode );
-    }
     passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "pass_export" ) );
 
     // Read the variables...
@@ -377,10 +311,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "create_parent_folder" ) );
     clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "clear_log" ) );
     showingSubComponents = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "show_subcomponents" ) );
-    String sPassedBatchId = XmlHandler.getTagValue( trecNode, "passedBatchId" );
-    if ( !StringUtils.isEmpty( sPassedBatchId ) ) {
-      passedBatchId = Long.parseLong( sPassedBatchId );
-    }
     runConfiguration = XmlHandler.getTagValue( trecNode, "run_configuration" );
 
     Node resultNode = XmlHandler.getSubNode( trecNode, Result.XML_TAG );
@@ -480,14 +410,6 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
   public void setCreateParentFolder( boolean createParentFolder ) {
     this.createParentFolder = createParentFolder;
-  }
-
-  public Long getPassedBatchId() {
-    return passedBatchId;
-  }
-
-  public void setPassedBatchId( Long passedBatchId ) {
-    this.passedBatchId = passedBatchId;
   }
 
   public String getRunConfiguration() {

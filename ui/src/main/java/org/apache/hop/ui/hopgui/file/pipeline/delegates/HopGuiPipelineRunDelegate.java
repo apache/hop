@@ -30,7 +30,6 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -93,8 +92,7 @@ public class HopGuiPipelineRunDelegate {
     pipelinePreviewMetaMap = new HashMap<>();
   }
 
-  public PipelineExecutionConfiguration executePipeline( final ILogChannel log, final PipelineMeta pipelineMeta, final boolean local, final boolean remote,
-                                                         final boolean preview, final boolean debug, final boolean safe, LogLevel logLevel ) throws HopException {
+  public PipelineExecutionConfiguration executePipeline( final ILogChannel log, final PipelineMeta pipelineMeta, final boolean preview, final boolean debug, LogLevel logLevel ) throws HopException {
 
     if ( pipelineMeta == null ) {
       return null;
@@ -112,10 +110,6 @@ public class HopGuiPipelineRunDelegate {
     } else {
       executionConfiguration = getPipelineExecutionConfiguration();
     }
-
-    // Set defaults so the run configuration can set it up correctly
-    executionConfiguration.setExecutingLocally( true );
-    executionConfiguration.setExecutingRemotely( false );
 
     // Set MetaStore and safe mode information in both the exec config and the metadata
     //
@@ -174,10 +168,7 @@ public class HopGuiPipelineRunDelegate {
     if ( debug || preview ) {
       PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopUi.getShell(), pipelineDebugMeta );
       debugAnswer = pipelineDebugDialog.open();
-      if ( debugAnswer != PipelineDebugDialog.DEBUG_CANCEL ) {
-        executionConfiguration.setExecutingLocally( true );
-        executionConfiguration.setExecutingRemotely( false );
-      } else {
+      if ( debugAnswer == PipelineDebugDialog.DEBUG_CANCEL ) {
         // If we cancel the debug dialog, we don't go further with the execution either.
         //
         return null;
@@ -235,10 +226,8 @@ public class HopGuiPipelineRunDelegate {
         return null;
       }
 
-      if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() ) {
-        if ( pipelineMeta.hasChanged() ) {
-          pipelineGraph.showSaveFileMessage();
-        }
+      if ( pipelineMeta.hasChanged() ) {
+        pipelineGraph.showSaveFileMessage();
       }
 
       // Verify if there is at least one transform specified to debug or preview...
@@ -255,65 +244,16 @@ public class HopGuiPipelineRunDelegate {
         }
       }
 
-      // Is this a local execution?
+      // Is this a local preview or debugging execution? // TODO: get rid of the distinction
       //
-      if ( executionConfiguration.isExecutingLocally() ) {
-        if ( debug || preview ) {
-          pipelineGraph.debug( executionConfiguration, pipelineDebugMeta );
-        } else {
-          pipelineGraph.start( executionConfiguration );
-        }
-
-        // Are we executing remotely?
-        //
-      } else if ( executionConfiguration.isExecutingRemotely() ) {
-        pipelineGraph.handlePipelineMetaChanges( pipelineMeta );
-        if ( pipelineMeta.hasChanged() ) {
-          showSavePipelineBeforeRunningDialog( hopUi.getShell() );
-        } else if ( executionConfiguration.getRemoteServer() != null ) {
-          String carteObjectId =
-            Pipeline.sendToSlaveServer( pipelineMeta, executionConfiguration, hopUi.getMetaStore() );
-          monitorRemotePipeline( pipelineMeta, carteObjectId, executionConfiguration.getRemoteServer() );
-
-          // TODO: add slave server monitor in different perspective
-          // Also: make remote execution just like local execution through execution configurations and plugable engines.
-          //hopUi.delegates.slaves.addHopGuiSlave( executionConfiguration.getRemoteServer() );
-
-        } else {
-          MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
-          mb.open();
-        }
+      if ( debug || preview ) {
+        pipelineGraph.debug( executionConfiguration, pipelineDebugMeta );
+      } else {
+        pipelineGraph.start( executionConfiguration );
       }
     }
     return executionConfiguration;
   }
-
-  private static void showSavePipelineBeforeRunningDialog( Shell shell ) {
-    MessageBox m = new MessageBox( shell, SWT.OK | SWT.ICON_WARNING );
-    m.setText( BaseMessages.getString( PKG, "PipelineLog.Dialog.SavePipelineBeforeRunning.Title" ) );
-    m.setMessage( BaseMessages.getString( PKG, "PipelineLog.Dialog.SavePipelineBeforeRunning.Message" ) );
-    m.open();
-  }
-
-  private void monitorRemotePipeline( final PipelineMeta pipelineMeta, final String carteObjectId,
-                                   final SlaveServer remoteSlaveServer ) {
-    // There is a pipeline running in the background. When it finishes, clean it up and log the result on the
-    // console.
-    // Launch in a separate thread to prevent GUI blocking...
-    //
-    Thread thread = new Thread( new Runnable() {
-      public void run() {
-        remoteSlaveServer.monitorRemotePipeline( hopUi.getLog(), carteObjectId, pipelineMeta.toString() );
-      }
-    } );
-
-    thread.setName( "Monitor remote pipeline '" + pipelineMeta.getName() + "', carte object id=" + carteObjectId
-      + ", slave server: " + remoteSlaveServer.getName() );
-    thread.start();
-  }
-
 
   /**
    * Gets pipelineGraph

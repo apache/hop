@@ -42,17 +42,9 @@ public interface IExecutionConfiguration extends Cloneable {
 
   void setParametersMap( Map<String, String> parametersMap );
 
-  Long getPassedBatchId();
-
-  void setPassedBatchId( Long passedBatchId );
-
   Result getPreviousResult();
 
   void setPreviousResult( Result previousResult );
-
-  SlaveServer getRemoteServer();
-
-  void setRemoteServer( SlaveServer remoteServer );
 
   Map<String, String> getVariablesMap();
 
@@ -65,18 +57,6 @@ public interface IExecutionConfiguration extends Cloneable {
   boolean isClearingLog();
 
   void setClearingLog( boolean clearingLog );
-
-  boolean isExecutingLocally();
-
-  void setExecutingLocally( boolean localExecution );
-
-  boolean isExecutingRemotely();
-
-  void setExecutingRemotely( boolean remoteExecution );
-
-  boolean isPassingExport();
-
-  void setPassingExport( boolean passingExport );
 
   String getRunConfiguration();
 
