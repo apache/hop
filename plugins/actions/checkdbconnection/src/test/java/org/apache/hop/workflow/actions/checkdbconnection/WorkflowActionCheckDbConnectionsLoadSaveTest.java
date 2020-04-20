@@ -39,12 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class WorkflowActionCheckDbConnectionsLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionICheckDbConnections> {
+public class WorkflowActionCheckDbConnectionsLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionCheckDbConnections> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<ActionICheckDbConnections> getActionClass() {
-    return ActionICheckDbConnections.class;
+  protected Class<ActionCheckDbConnections> getActionClass() {
+    return ActionCheckDbConnections.class;
   }
 
   @Override
@@ -61,7 +61,7 @@ public class WorkflowActionCheckDbConnectionsLoadSaveTest extends WorkflowAction
     validators.put( "waitfors", new ArrayLoadSaveValidator<String>(
       new StringLoadSaveValidator(), entries ) );
     validators.put( "waittimes", new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator( ActionICheckDbConnections.unitTimeCode.length ), entries ) );
+      new IntLoadSaveValidator( ActionCheckDbConnections.unitTimeCode.length ), entries ) );
     return validators;
   }
 }

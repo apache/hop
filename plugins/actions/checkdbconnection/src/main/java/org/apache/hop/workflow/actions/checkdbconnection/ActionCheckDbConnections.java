@@ -56,12 +56,12 @@ import java.util.List;
 @Action( id = "CHECK_DB_CONNECTIONS",
   i18nPackageName = "org.apache.hop.workflow.actions.checkdbconnection",
   name = "ActionCheckDbConnections.Name",
-  description = "ActionCheckDbConnections.TypeDesc",
+  description = "ActionCheckDbConnections.Description",
   image="CheckDbConnection.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions"
 )
-public class ActionICheckDbConnections extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionICheckDbConnections.class; // for i18n purposes, needed by Translator!!
+public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
+  private static final Class<?> PKG = ActionCheckDbConnections.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta[] connections;
 
@@ -83,19 +83,19 @@ public class ActionICheckDbConnections extends ActionBase implements Cloneable, 
   private long timeStart;
   private long now;
 
-  public ActionICheckDbConnections( String name ) {
+  public ActionCheckDbConnections( String name ) {
     super( name, "" );
     connections = null;
     waitfors = null;
     waittimes = null;
   }
 
-  public ActionICheckDbConnections() {
+  public ActionCheckDbConnections() {
     this( "" );
   }
 
   public Object clone() {
-    ActionICheckDbConnections je = (ActionICheckDbConnections) super.clone();
+    ActionCheckDbConnections je = (ActionCheckDbConnections) super.clone();
     return je;
   }
 
@@ -244,19 +244,19 @@ public class ActionICheckDbConnections extends ActionBase implements Cloneable, 
             int multiple = 1;
             String waitTimeMessage = unitTimeDesc[ 0 ];
             switch ( waittimes[ i ] ) {
-              case ActionICheckDbConnections.UNIT_TIME_MILLI_SECOND:
+              case ActionCheckDbConnections.UNIT_TIME_MILLI_SECOND:
                 multiple = 1;
                 waitTimeMessage = unitTimeDesc[ 0 ];
                 break;
-              case ActionICheckDbConnections.UNIT_TIME_SECOND:
+              case ActionCheckDbConnections.UNIT_TIME_SECOND:
                 multiple = 1000; // Second
                 waitTimeMessage = unitTimeDesc[ 1 ];
                 break;
-              case ActionICheckDbConnections.UNIT_TIME_MINUTE:
+              case ActionCheckDbConnections.UNIT_TIME_MINUTE:
                 multiple = 60000; // Minute
                 waitTimeMessage = unitTimeDesc[ 2 ];
                 break;
-              case ActionICheckDbConnections.UNIT_TIME_HOUR:
+              case ActionCheckDbConnections.UNIT_TIME_HOUR:
                 multiple = 3600000; // Hour
                 waitTimeMessage = unitTimeDesc[ 3 ];
                 break;
