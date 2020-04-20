@@ -84,7 +84,6 @@ public class HopServer {
     final WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
     workflowMap.setSlaveServerConfig( config );
     List<SlaveServerDetection> detections = new CopyOnWriteArrayList<SlaveServerDetection>();
-    SocketRepository socketRepository = HopServerSingleton.getInstance().getSocketRepository();
 
     SlaveServer slaveServer = config.getSlaveServer();
 
@@ -152,9 +151,7 @@ public class HopServer {
         shouldJoin = joinOverride;
       }
 
-      this.webServer =
-        new WebServer( log, pipelineMap, workflowMap, socketRepository, detections, hostname, port, shouldJoin,
-          config.getPasswordFile(), slaveServer.getSslConfig() );
+      this.webServer = new WebServer( log, pipelineMap, workflowMap, detections, hostname, port, shouldJoin, config.getPasswordFile(), slaveServer.getSslConfig() );
     }
   }
 

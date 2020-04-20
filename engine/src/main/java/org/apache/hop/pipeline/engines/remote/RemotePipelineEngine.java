@@ -1,7 +1,9 @@
 package org.apache.hop.pipeline.engines.remote;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -11,32 +13,48 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.parameters.DuplicateParamException;
+import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
-import org.apache.hop.pipeline.IPipelineStoppedListener;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.transform.TransformStatus;
+import org.apache.hop.resource.ResourceUtil;
+import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.www.PrepareExecutionPipelineServlet;
+import org.apache.hop.www.RegisterPackageServlet;
+import org.apache.hop.www.RegisterPipelineServlet;
 import org.apache.hop.www.SlaveServerPipelineStatus;
 import org.apache.hop.www.SniffTransformServlet;
+import org.apache.hop.www.StartExecutionPipelineServlet;
 import org.apache.hop.www.WebResult;
 import org.w3c.dom.Node;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +65,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class RemotePipelineEngine extends Variables implements IPipelineEngine<PipelineMeta> {
+
+  /**
+   * Constant specifying a filename containing XML to inject into a ZIP file created during resource export.
+   */
+  public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__job_execution_configuration__.xml";
+  private final PipelineEngineCapabilities engineCapabilities;
+
   protected PipelineMeta subject;
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;
@@ -76,6 +101,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected boolean feedbackShown; // TODO factor out
   protected int feedbackSize; // TODO factor out
 
+  protected String containerId;
+
   /**
    * A list of started listeners attached to the pipeline.
    */
@@ -89,20 +116,30 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * A list of stop-event listeners attached to the pipeline.
    */
-  protected List<IPipelineStoppedListener> pipelineStoppedListeners;
+  protected List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners;
 
   /**
    * The active sub-pipelines.
    */
-  private Map<String, IPipelineEngine> activeSubPipelines;
+  protected Map<String, IPipelineEngine> activeSubPipelines;
 
   /**
    * The active subjobs
    */
-  private Map<String, Workflow> activeSubWorkflows;
+  protected Map<String, Workflow> activeSubWorkflows;
 
   protected int lastLogLineNr;
-  private Timer refreshTimer;
+  protected Timer refreshTimer;
+
+  /**
+   * The named parameters.
+   */
+  protected INamedParams namedParams = new NamedParamsDefault();
+  private String statusDescription;
+  private ComponentExecutionStatus status;
+
+  protected long serverPollDelay;
+  protected long serverPollInterval;
 
   public RemotePipelineEngine() {
     super();
@@ -110,17 +147,15 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     engineMetrics = new EngineMetrics();
     executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
     executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
-    pipelineStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
     activeSubPipelines = new HashMap<>();
     activeSubWorkflows = new HashMap<>();
+    engineCapabilities = new RemotePipelineEngineCapabilities();
   }
 
   public RemotePipelineEngine( PipelineMeta subject ) {
     this();
     this.subject = subject;
-
-    loggingObject = new LoggingObject( this );
-
   }
 
   @Override public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
@@ -129,7 +164,6 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void prepareExecution() throws HopException {
     try {
-
       IPipelineEngineRunConfiguration engineRunConfiguration = pipelineRunConfiguration.getEngineRunConfiguration();
       if ( !( engineRunConfiguration instanceof RemotePipelineRunConfiguration ) ) {
         throw new HopException( "The remote pipeline engine expects a remote pipeline configuration" );
@@ -144,10 +178,21 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       if ( StringUtils.isEmpty( remoteRunConfigurationName ) ) {
         throw new HopException( "No run configuration was specified to the remote pipeline with" );
       }
-
       if ( metaStore == null ) {
         throw new HopException( "The remote pipeline engine didn't receive a metastore to slave server '" + slaveServerName + "' from" );
       }
+
+      // Create a new log channel when we start the action
+      // It's only now that we use it
+      //
+      this.logChannel = new LogChannel( this, subject );
+      loggingObject = new LoggingObject( this );
+      logLevel = logChannel.getLogLevel();
+
+      logChannel.logBasic("Executing this pipeline using the Remote Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
+
+      serverPollDelay = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollDelay() ), 1000L );
+      serverPollInterval = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollInterval() ), 2000L );
 
       slaveFactory = SlaveServer.createFactory( metaStore );
       slaveServer = slaveFactory.loadElement( slaveServerName );
@@ -156,16 +201,15 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       }
 
       PipelineExecutionConfiguration pipelineExecutionConfiguration = new PipelineExecutionConfiguration();
-      pipelineExecutionConfiguration.setExecutingRemotely( true );
       pipelineExecutionConfiguration.setRunConfiguration( remoteRunConfigurationName );
-      pipelineExecutionConfiguration.setRemoteServer( slaveServer );
       if ( logLevel != null ) {
         pipelineExecutionConfiguration.setLogLevel( logLevel );
       }
       if ( previousResult != null ) {
         pipelineExecutionConfiguration.setPreviousResult( previousResult );
       }
-      serverObjectId = Pipeline.sendToSlaveServer( subject, pipelineExecutionConfiguration, metaStore );
+
+      sendToSlaveServer( subject, pipelineExecutionConfiguration, metaStore );
 
       setReadyToStart( true );
     } catch ( Exception e ) {
@@ -173,9 +217,101 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
+  /**
+   * Send the pipeline for execution to a HopServer slave server.
+   *
+   * @param pipelineMeta           the pipeline meta-data
+   * @param executionConfiguration the pipeline execution configuration
+   * @throws HopException if any errors occur during the dispatch to the slave server
+   */
+  private void sendToSlaveServer( PipelineMeta pipelineMeta, PipelineExecutionConfiguration executionConfiguration, IMetaStore metaStore ) throws HopException {
+
+    if ( slaveServer == null ) {
+      throw new HopException( "No remote server specified" );
+    }
+    if ( Utils.isEmpty( pipelineMeta.getName() ) ) {
+      throw new HopException( "The pipeline needs a name to uniquely identify it by on the remote server." );
+    }
+
+    // Inject certain internal variables to make it more intuitive.
+    //
+    Map<String, String> vars = new HashMap<>();
+
+    for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
+      vars.put( var, pipelineMeta.getVariable( var ) );
+    }
+    for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
+      vars.put( var, pipelineMeta.getVariable( var ) );
+    }
+
+    executionConfiguration.getVariablesMap().putAll( vars );
+    slaveServer.injectVariables( executionConfiguration.getVariablesMap() );
+
+    slaveServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
+
+    try {
+      if ( executionConfiguration.isPassingExport() ) {
+
+        // First export the workflow...
+        //
+        FileObject tempFile = HopVfs.createTempFile( "pipelineExport", HopVfs.Suffix.ZIP, pipelineMeta );
+
+        // The executionConfiguration should not include external references here because all the resources should be
+        // retrieved from the exported zip file
+        // TODO: Serialize metastore objects to JSON (Kettle Beam project) and include it in the zip file
+        //
+        PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
+        TopLevelResource topLevelResource =
+          ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
+            metaStore, clonedConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
+
+        // Send the zip file over to the slave server...
+        //
+        String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_PIPELINE, topLevelResource.getBaseResourceName() );
+        WebResult webResult = WebResult.fromXMLString( result );
+        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
+          throw new HopException( "There was an error passing the exported pipeline to the remote server: "
+            + Const.CR + webResult.getMessage() );
+        }
+        serverObjectId = webResult.getId();
+      } else {
+
+        // Now send it off to the remote server...
+        //
+        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXml();
+        String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
+        WebResult webResult = WebResult.fromXMLString( reply );
+        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
+          throw new HopException( "There was an error posting the pipeline on the remote server: " + Const.CR
+            + webResult.getMessage() );
+        }
+        serverObjectId = webResult.getId();
+      }
+
+      // Prepare the pipeline
+      //
+      String reply = slaveServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
+      WebResult webResult = WebResult.fromXMLString( reply );
+      if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
+        throw new HopException( "There was an error preparing the pipeline for execution on the remote server: " + Const.CR + webResult.getMessage() );
+      }
+      // Get the status right after preparation.
+      //
+      getPipelineStatus();
+    } catch ( HopException ke ) {
+      throw ke;
+    } catch ( Exception e ) {
+      throw new HopException( e );
+    }
+  }
+
+
   @Override public void startThreads() throws HopException {
     try {
-      WebResult webResult = slaveServer.startPipeline( subject.getName(), serverObjectId );
+      // Start the pipeline
+      //
+      String reply = slaveServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
+      WebResult webResult = WebResult.fromXMLString( reply );
       if ( WebResult.STRING_OK.equals( webResult.getResult() ) ) {
         // Inform anyone that wants to know that the show has started
         //
@@ -184,7 +320,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // So the pipeline has been successfully started.
         // That doesn't mean that the execution itself is without error
         // To know that we need to monitor the execution remotely
-        // We monitor this every 5 seconds after a 1 second delay (TODO: configure this in the run configuration)
+        // We monitor this every 2 seconds after a 1 second delay (configurable)
         //
         TimerTask refreshTask = new TimerTask() {
           @Override public void run() {
@@ -192,7 +328,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           }
         };
         refreshTimer = new Timer();
-        refreshTimer.schedule( refreshTask, 1000L, 5000L );
+        refreshTimer.schedule( refreshTask, serverPollDelay, serverPollInterval );
 
       } else {
         throw new HopException( "Error starting pipeline on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "' : " + webResult.getMessage() );
@@ -217,10 +353,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         for ( TransformStatus transformStatus : pipelineStatus.getTransformStatusList() ) {
           EngineComponent component = new EngineComponent( transformStatus.getTransformName(), transformStatus.getCopy() );
           component.setErrors( transformStatus.getErrors() );
-          BaseTransformData.TransformExecutionStatus status = BaseTransformData.TransformExecutionStatus.getStatusFromDescription( transformStatus.getStatusDescription() );
-          boolean running = status.equals( BaseTransformData.TransformExecutionStatus.STATUS_RUNNING );
+          status = ComponentExecutionStatus.getStatusFromDescription( transformStatus.getStatusDescription() );
+          statusDescription = status.getDescription();
+          boolean running = status == ComponentExecutionStatus.STATUS_RUNNING;
           component.setRunning( running );
-          boolean halted = status.equals( BaseTransformData.TransformExecutionStatus.STATUS_HALTED ) || status.equals( BaseTransformData.TransformExecutionStatus.STATUS_HALTING );
+          boolean halted = status == ComponentExecutionStatus.STATUS_HALTED || status == ComponentExecutionStatus.STATUS_HALTING;
           if ( halted ) {
             hasHaltedComponents = true;
           }
@@ -251,18 +388,24 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // TODO: make this configurable and split up the log lines individually so we can do a better job of this.
         // Now it's a bit garbled
         //
-        logChannel.logBasic( pipelineStatus.getLoggingString() );
+        if ( StringUtils.isNotEmpty( pipelineStatus.getLoggingString() ) ) {
+          logChannel.logBasic( pipelineStatus.getLoggingString() );
+        }
 
         // If the pipeline is finished, cancel the timer task
         //
         if ( finished ) {
-          fireExecutionFinishedListeners();
+          firePipelineExecutionFinishedListeners();
           refreshTimer.cancel();
         }
       }
     } catch ( Exception e ) {
       throw new RuntimeException( "Error getting the status of pipeline '" + subject.getName() + "' on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "'", e );
     }
+  }
+
+  @Override public String getStatusDescription() {
+    return statusDescription;
   }
 
   @Override public void execute() throws HopException {
@@ -317,6 +460,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   @Override public void stopAll() {
     try {
       slaveServer.stopPipeline( subject.getName(), serverObjectId );
+      getPipelineStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Stopping of pipeline '" + subject.getName() + "' with ID " + serverObjectId + " failed", e );
     }
@@ -329,6 +473,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   @Override public void pauseExecution() {
     try {
       slaveServer.pauseResumePipeline( subject.getName(), serverObjectId );
+      getPipelineStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Pause/Resume of pipeline '" + subject.getName() + "' with ID " + serverObjectId + " failed", e );
     }
@@ -524,6 +669,10 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return activeSubWorkflows.get( subWorkflowName );
   }
 
+  @Override public void setInternalHopVariables( IVariables var ) {
+    // TODO: get rid of this method.  Internal variables should always be available.
+  }
+
 
   /**
    * Gets parentPipeline
@@ -575,7 +724,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   private void fireExecutionStartedListeners() throws HopException {
     synchronized ( executionStartedListeners ) {
-      for (IExecutionStartedListener<PipelineMeta> listener : executionStartedListeners) {
+      for ( IExecutionStartedListener<PipelineMeta> listener : executionStartedListeners ) {
         listener.started( this );
       }
     }
@@ -597,28 +746,51 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     this.executionFinishedListeners = executionFinishedListeners;
   }
 
-  private void fireExecutionFinishedListeners() throws HopException {
+
+  @Override public void addExecutionStoppedListener( IExecutionStoppedListener<PipelineMeta> listener ) throws HopException {
+    synchronized ( executionStoppedListeners ) {
+      executionStoppedListeners.add( listener );
+    }
+  }
+
+  @Override public void firePipelineExecutionStartedListeners() throws HopException {
+    synchronized ( executionStartedListeners ) {
+      for ( IExecutionStartedListener<PipelineMeta> listener : executionStartedListeners ) {
+        listener.started( this );
+      }
+    }
+  }
+
+  @Override public void firePipelineExecutionFinishedListeners() throws HopException {
     synchronized ( executionFinishedListeners ) {
-      for (IExecutionFinishedListener<PipelineMeta> listener : executionFinishedListeners) {
+      for ( IExecutionFinishedListener<PipelineMeta> listener : executionFinishedListeners ) {
         listener.finished( this );
       }
     }
   }
 
-  /**
-   * Gets pipelineStoppedListeners
-   *
-   * @return value of pipelineStoppedListeners
-   */
-  public List<IPipelineStoppedListener> getPipelineStoppedListeners() {
-    return pipelineStoppedListeners;
+  @Override public void firePipelineExecutionStoppedListeners() throws HopException {
+    synchronized ( executionStoppedListeners ) {
+      for ( IExecutionStoppedListener<PipelineMeta> listener : executionStoppedListeners ) {
+        listener.stopped( this );
+      }
+    }
   }
 
   /**
-   * @param pipelineStoppedListeners The pipelineStoppedListeners to set
+   * Gets executionStoppedListeners
+   *
+   * @return value of executionStoppedListeners
    */
-  public void setPipelineStoppedListeners( List<IPipelineStoppedListener> pipelineStoppedListeners ) {
-    this.pipelineStoppedListeners = pipelineStoppedListeners;
+  public List<IExecutionStoppedListener<PipelineMeta>> getExecutionStoppedListeners() {
+    return executionStoppedListeners;
+  }
+
+  /**
+   * @param executionStoppedListeners The executionStoppedListeners to set
+   */
+  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners ) {
+    this.executionStoppedListeners = executionStoppedListeners;
   }
 
   /**
@@ -891,6 +1063,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   @Override public void setParent( ILoggingObject parent ) {
     this.parent = parent;
+
+    this.logChannel = new LogChannel( this, parent );
+    this.logLevel = logChannel.getLogLevel();
   }
 
   /**
@@ -1051,5 +1226,189 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   public void setActiveSubWorkflows( Map<String, Workflow> activeSubWorkflows ) {
     this.activeSubWorkflows = activeSubWorkflows;
+  }
+
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * java.lang.String)
+   */
+  @Override
+  public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
+    namedParams.addParameterDefinition( key, defValue, description );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
+   */
+  @Override
+  public String getParameterDescription( String key ) throws UnknownParamException {
+    return namedParams.getParameterDescription( key );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
+   */
+  @Override
+  public String getParameterDefault( String key ) throws UnknownParamException {
+    return namedParams.getParameterDefault( key );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
+   */
+  @Override
+  public String getParameterValue( String key ) throws UnknownParamException {
+    return namedParams.getParameterValue( key );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
+   */
+  @Override
+  public String[] listParameters() {
+    return namedParams.listParameters();
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
+   */
+  @Override
+  public void setParameterValue( String key, String value ) throws UnknownParamException {
+    namedParams.setParameterValue( key, value );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
+   */
+  @Override
+  public void eraseParameters() {
+    namedParams.eraseParameters();
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
+   */
+  @Override
+  public void clearParameters() {
+    namedParams.clearParameters();
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
+   */
+  @Override
+  public void copyParametersFrom( INamedParams params ) {
+    namedParams.copyParametersFrom( params );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams, boolean replace)
+   */
+  @Override
+  public void mergeParametersWith( INamedParams params, boolean replace ) {
+    namedParams.mergeParametersWith( params, replace );
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
+   */
+  @Override
+  public void activateParameters() {
+    String[] keys = listParameters();
+
+    for ( String key : keys ) {
+      String value;
+      try {
+        value = getParameterValue( key );
+      } catch ( UnknownParamException e ) {
+        value = "";
+      }
+      String defValue;
+      try {
+        defValue = getParameterDefault( key );
+      } catch ( UnknownParamException e ) {
+        defValue = "";
+      }
+
+      if ( Utils.isEmpty( value ) ) {
+        setVariable( key, defValue );
+      } else {
+        setVariable( key, value );
+      }
+    }
+  }
+
+
+  /**
+   * Gets engineCapabilities
+   *
+   * @return value of engineCapabilities
+   */
+  public PipelineEngineCapabilities getEngineCapabilities() {
+    return engineCapabilities;
+  }
+
+  /**
+   * Gets namedParams
+   *
+   * @return value of namedParams
+   */
+  public INamedParams getNamedParams() {
+    return namedParams;
+  }
+
+  /**
+   * @param namedParams The namedParams to set
+   */
+  public void setNamedParams( INamedParams namedParams ) {
+    this.namedParams = namedParams;
+  }
+
+  /**
+   * Gets containerId
+   *
+   * @return value of containerId
+   */
+  public String getContainerId() {
+    return containerId;
+  }
+
+  /**
+   * @param containerId The containerId to set
+   */
+  @Override public void setContainerId( String containerId ) {
+    this.containerId = containerId;
+  }
+
+  /**
+   * Gets status
+   *
+   * @return value of status
+   */
+  public ComponentExecutionStatus getStatus() {
+    return status;
   }
 }

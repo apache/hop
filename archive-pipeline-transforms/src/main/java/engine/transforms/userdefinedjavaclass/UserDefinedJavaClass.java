@@ -39,7 +39,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.www.SocketRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -493,18 +492,6 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     } else {
       return super.getSlaveNr();
     }
-  }
-
-  public SocketRepository getSocketRepository() {
-    if ( child == null ) {
-      return getSocketRepositoryImpl();
-    } else {
-      return child.getSocketRepository();
-    }
-  }
-
-  public SocketRepository getSocketRepositoryImpl() {
-    return super.getSocketRepository();
   }
 
   public TransformExecutionStatus getStatus() {

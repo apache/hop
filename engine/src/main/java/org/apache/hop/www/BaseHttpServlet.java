@@ -38,7 +38,6 @@ public class BaseHttpServlet extends HttpServlet {
 
   protected PipelineMap pipelineMap;
   protected WorkflowMap workflowMap;
-  protected SocketRepository socketRepository;
   protected List<SlaveServerDetection> detections;
 
   private boolean jettyMode = false;
@@ -68,18 +67,6 @@ public class BaseHttpServlet extends HttpServlet {
   public BaseHttpServlet( PipelineMap pipelineMap, WorkflowMap workflowMap ) {
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.jettyMode = true;
-  }
-
-  public BaseHttpServlet( PipelineMap pipelineMap, SocketRepository socketRepository ) {
-    this.pipelineMap = pipelineMap;
-    this.socketRepository = socketRepository;
-    this.jettyMode = true;
-  }
-
-  public BaseHttpServlet( WorkflowMap workflowMap, SocketRepository socketRepository ) {
-    this.workflowMap = workflowMap;
-    this.socketRepository = socketRepository;
     this.jettyMode = true;
   }
 
@@ -118,13 +105,6 @@ public class BaseHttpServlet extends HttpServlet {
       return HopServerSingleton.getInstance().getWorkflowMap();
     }
     return workflowMap;
-  }
-
-  public SocketRepository getSocketRepository() {
-    if ( socketRepository == null ) {
-      return HopServerSingleton.getInstance().getSocketRepository();
-    }
-    return socketRepository;
   }
 
   public List<SlaveServerDetection> getDetections() {
@@ -179,11 +159,9 @@ public class BaseHttpServlet extends HttpServlet {
     log.logRowlevel( s );
   }
 
-  public void setup( PipelineMap pipelineMap, WorkflowMap workflowMap, SocketRepository socketRepository,
-                     List<SlaveServerDetection> detections ) {
+  public void setup( PipelineMap pipelineMap, WorkflowMap workflowMap, List<SlaveServerDetection> detections ) {
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.socketRepository = socketRepository;
     this.detections = detections;
   }
 

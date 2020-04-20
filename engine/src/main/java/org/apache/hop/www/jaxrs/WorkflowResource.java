@@ -189,8 +189,6 @@ public class WorkflowResource {
       }
       workflowMeta.activateParameters();
 
-      workflow.setSocketRepository( HopServerSingleton.getInstance().getSocketRepository() );
-
       HopServerSingleton.getInstance().getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
 
       return getWorkflowStatus( carteObjectId );

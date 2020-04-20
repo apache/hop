@@ -25,7 +25,6 @@ package org.apache.hop.pipeline;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -82,7 +81,6 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
-import org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta;
 import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
@@ -114,7 +112,7 @@ import java.util.stream.Collectors;
  */
 public class PipelineMeta extends AbstractMeta
   implements IXml, Comparator<PipelineMeta>, Comparable<PipelineMeta>, Cloneable, IResourceExport,
-  ILoggingObject, IHasFilename {
+  ILoggingObject, IHasFilename, IVariables {
 
   /**
    * The package name, used for internationalization of messages.
@@ -1801,9 +1799,6 @@ public class PipelineMeta extends AbstractMeta
   private void setMetaStoreOnMappingTransforms() {
 
     for ( TransformMeta transform : transforms ) {
-      if ( transform.getTransformMetaInterface() instanceof SingleThreaderMeta ) {
-        ( (SingleThreaderMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
-      }
       if ( transform.getTransformMetaInterface() instanceof WorkflowExecutorMeta ) {
         ( (WorkflowExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
       }
@@ -2083,7 +2078,7 @@ public class PipelineMeta extends AbstractMeta
    * Parses an XML DOM (starting at the specified Node) that describes the pipeline.
    *
    * @param pipelineNode         The XML node to load from
-   * @param filename                The filename
+   * @param filename             The filename
    * @param setInternalVariables true if you want to set the internal variables based on this pipeline information
    * @param parentVariableSpace  the parent variable space to use during PipelineMeta construction
    * @throws HopXmlException            if any errors occur during parsing of the specified file

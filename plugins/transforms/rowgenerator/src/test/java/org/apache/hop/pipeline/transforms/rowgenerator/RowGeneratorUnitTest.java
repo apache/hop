@@ -31,6 +31,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -76,8 +77,7 @@ public class RowGeneratorUnitTest {
     pipelineMeta.injectVariables( map );
     when( pipelineMeta.findTransform( anyString() ) ).thenReturn( transformMeta );
 
-    Pipeline pipeline = spy( new Pipeline( pipelineMeta, null ) );
-    when( pipeline.getSocketRepository() ).thenReturn( null );
+    Pipeline pipeline = spy( new LocalPipelineEngine( pipelineMeta, null ) );
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
     //prepare row generator, substitutes variable by value from pipeline variable space
@@ -96,7 +96,7 @@ public class RowGeneratorUnitTest {
   @Test
   public void doesNotWriteRowOnTimeWhenStopped() throws HopException, InterruptedException {
     PipelineMeta pipelineMeta = new PipelineMeta( getClass().getResource( "safe-stop.hpl" ).getPath(), new MemoryMetaStore(), true, Variables.getADefaultVariableSpace() );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipeline.prepareExecution();
     pipeline.getTransforms().get( 1 ).transform.addRowListener( new RowAdapter() {
       @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {

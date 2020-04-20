@@ -79,7 +79,7 @@ public class TransformWithMappingMetaTest {
 
     //attach the executor to transform which was described above
     TransformWithMappingMeta mappingMetaMock = mock( TransformWithMappingMeta.class );
-    when( mappingMetaMock.getFileName() ).thenReturn( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + fileName );
+    when( mappingMetaMock.getFilename() ).thenReturn( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + fileName );
     when( mappingMetaMock.getParentTransformMeta() ).thenReturn( transformMeta );
 
     //we will try to load the subtras which was linked at the transform metas

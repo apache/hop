@@ -28,10 +28,11 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 
 public class PipelineEngineFactory {
 
-  public static final IPipelineEngine createPipelineEngine( PipelineRunConfiguration pipelineRunConfiguration, PipelineMeta pipelineMeta ) throws HopException {
+  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( PipelineRunConfiguration pipelineRunConfiguration, T pipelineMeta ) throws HopException {
     IPipelineEngineRunConfiguration engineRunConfiguration = pipelineRunConfiguration.getEngineRunConfiguration();
     if (engineRunConfiguration==null) {
       throw new HopException( "There is no pipeline execution engine specified in run configuration '"+pipelineRunConfiguration.getName()+"'" );
@@ -46,12 +47,11 @@ public class PipelineEngineFactory {
       throw new HopException( "Unable to find pipeline engine plugin type with ID '"+enginePluginId+"'" );
     }
 
-    IPipelineEngine pipelineEngine = pluginRegistry.loadClass( plugin, IPipelineEngine.class );
+    IPipelineEngine<T> pipelineEngine = pluginRegistry.loadClass( plugin, IPipelineEngine.class );
     pipelineEngine.setPipelineRunConfiguration( pipelineRunConfiguration );
 
     pipelineEngine.setSubject( pipelineMeta );
 
     return pipelineEngine;
   }
-
 }

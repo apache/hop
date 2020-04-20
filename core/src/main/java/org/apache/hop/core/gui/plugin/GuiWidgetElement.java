@@ -41,7 +41,7 @@ public @interface GuiWidgetElement {
    *
    * @return The unique ID of the GUI Element
    */
-  String id();
+  String id() default "";
 
   /**
    * The type of GUI Element this method covers for

@@ -40,6 +40,9 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -49,11 +52,9 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.www.SlaveServerWorkflowStatus;
-import org.apache.hop.www.SlaveServerPipelineStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
@@ -198,10 +199,6 @@ public class HopRun implements Runnable {
       //
       PipelineExecutionConfiguration configuration = new PipelineExecutionConfiguration();
 
-      // Copy run config details from the metastore over to the run configuration
-      // TODO
-      // parseRunConfiguration( cmd, configuration, metaStore );
-
       // Overwrite if the user decided this
       //
       parseOptions( cmd, configuration, pipelineMeta );
@@ -221,13 +218,9 @@ public class HopRun implements Runnable {
         printOptions( configuration );
       }
 
-      // Now run the pipeline
+      // Now run the pipeline using the run configuration
       //
-      if ( configuration.isExecutingLocally() ) {
-        runPipelineLocal( cmd, log, configuration, pipelineMeta );
-      } else if ( configuration.isExecutingRemotely() ) {
-        runPipelineRemote( cmd, log, pipelineMeta, configuration );
-      }
+      runPipeline( cmd, log, configuration, pipelineMeta );
 
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "There was an error during execution of pipeline '" + filename + "'", e );
@@ -257,11 +250,20 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runPipelineLocal( CommandLine cmd, ILogChannel log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
+  private void runPipeline( CommandLine cmd, ILogChannel log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
     try {
-      Pipeline pipeline = new Pipeline( pipelineMeta );
+      String runConfigurationName = configuration.getRunConfiguration();
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        throw new HopException( "Please specify a run configuration to execute the pipeline with" );
+      }
+      PipelineRunConfiguration pipelineRunConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+      if (pipelineRunConfiguration==null) {
+        throw new HopException( "Unable to find the specified run configuration '"+runConfigurationName+"'" );
+      }
+
+      IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
       pipeline.initializeVariablesFrom( null );
-      pipeline.getPipelineMeta().setInternalHopVariables( pipeline );
+      pipeline.getSubject().setInternalHopVariables( pipeline );
       pipeline.injectVariables( configuration.getVariablesMap() );
 
       pipeline.setLogLevel( configuration.getLogLevel() );
@@ -283,39 +285,6 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void runPipelineRemote( CommandLine cmd, ILogChannel log, PipelineMeta pipelineMeta, PipelineExecutionConfiguration configuration ) {
-    SlaveServer slaveServer = configuration.getRemoteServer();
-    slaveServer.shareVariablesWith( pipelineMeta );
-    try {
-      runPipelineOnSlaveServer( log, pipelineMeta, slaveServer, configuration, metaStore, dontWait, getQueryDelay() );
-    } catch ( Exception e ) {
-      throw new ExecutionException( cmd, e.getMessage(), e );
-    }
-  }
-
-  public static Result runPipelineOnSlaveServer( ILogChannel log, PipelineMeta pipelineMeta, SlaveServer slaveServer, PipelineExecutionConfiguration configuration, IMetaStore metaStore,
-                                                 boolean dontWait, int queryDelay ) throws Exception {
-    try {
-      String carteObjectId = Pipeline.sendToSlaveServer( pipelineMeta, configuration, metaStore );
-      if ( !dontWait ) {
-        slaveServer.monitorRemotePipeline( log, carteObjectId, pipelineMeta.getName(), queryDelay );
-        SlaveServerPipelineStatus pipelineStatus = slaveServer.getPipelineStatus( pipelineMeta.getName(), carteObjectId, 0 );
-        if ( configuration.isLogRemoteExecutionLocally() ) {
-          log.logBasic( pipelineStatus.getLoggingString() );
-        }
-        if ( pipelineStatus.getNrTransformErrors() > 0 ) {
-          // Error
-          throw new Exception( "Remote pipeline ended with an error" );
-        }
-
-        return pipelineStatus.getResult();
-      }
-      return null; // No status, we don't wait for it.
-    } catch ( Exception e ) {
-      throw new Exception( "Error executing pipeline remotely on server '" + slaveServer.getName() + "'", e );
-    }
-  }
-
   private void runJob( CommandLine cmd, ILogChannel log ) {
     try {
       calculateRealFilename();
@@ -327,10 +296,6 @@ public class HopRun implements Runnable {
       // Configure the basic execution settings
       //
       WorkflowExecutionConfiguration configuration = new WorkflowExecutionConfiguration();
-
-      // Copy run config details from the metastore over to the run configuration
-      //
-      // parseRunConfiguration( cmd, configuration, metaStore );
 
       // Overwrite the run configuration with optional command line options
       //
@@ -466,10 +431,8 @@ public class HopRun implements Runnable {
     if ( StringUtils.isNotEmpty( slaveServerName ) ) {
       realSlaveServerName = variables.environmentSubstitute( slaveServerName );
       configureSlaveServer( configuration, realSlaveServerName );
-      configuration.setExecutingRemotely( true );
-      configuration.setExecutingLocally( false );
     }
-    configuration.setPassingExport( exportToSlaveServer );
+
     realRunConfigurationName = variables.environmentSubstitute( runConfigurationName );
     configuration.setRunConfiguration( realRunConfigurationName );
     configuration.setLogLevel( LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) ) );
@@ -485,7 +448,6 @@ public class HopRun implements Runnable {
     if ( slaveServer == null ) {
       throw new ParameterException( cmd, "Unable to find slave server '" + name + "' in the metastore" );
     }
-    configuration.setRemoteServer( slaveServer );
   }
 
   private boolean isPipeline() {
@@ -634,17 +596,7 @@ public class HopRun implements Runnable {
     if ( StringUtils.isNotEmpty( realSlaveServerName ) ) {
       log.logMinimal( "OPTION: slave server: '" + realSlaveServerName + "'" );
     }
-    // Where are we executing? Local or Remote?
-    if ( configuration.isExecutingLocally() ) {
-      log.logMinimal( "OPTION: Local execution" );
-    } else {
-      if ( configuration.isExecutingRemotely() ) {
-        log.logMinimal( "OPTION: Remote execution" );
-      }
-    }
-    if ( configuration.isPassingExport() ) {
-      log.logMinimal( "OPTION: Passing export to slave server" );
-    }
+
     log.logMinimal( "OPTION: Logging level : " + configuration.getLogLevel().getDescription() );
 
     if ( !configuration.getVariablesMap().isEmpty() ) {

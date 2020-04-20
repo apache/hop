@@ -76,7 +76,6 @@ import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
-import org.apache.hop.www.SocketRepository;
 import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.WebResult;
 
@@ -157,14 +156,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
 
   private Date executionEndDate;
 
-  private long batchId;
-
-  /**
-   * This is the batch ID that is passed from workflow to workflow to pipeline, if nothing is passed, it's the workflow's batch
-   * id
-   */
-  private long passedBatchId;
-
   /**
    * The rows that were passed onto this workflow by a previous pipeline. These rows are passed onto the first workflow
    * entry in this workflow (on the result object)
@@ -192,8 +183,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
    * Parameters of the workflow.
    */
   private INamedParams namedParams = new NamedParamsDefault();
-
-  private SocketRepository socketRepository;
 
   private int maxJobEntriesLogged;
 
@@ -259,8 +248,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
       actionResults.clear();
     }
     errors = new AtomicInteger( 0 );
-    batchId = -1;
-    passedBatchId = -1;
     maxJobEntriesLogged = Const.toInt( EnvUtil.getSystemProperty( Const.HOP_MAX_ACTIONS_LOGGED ), 1000 );
 
     result = null;
@@ -1045,22 +1032,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     this.result = result;
   }
 
-  public long getBatchId() {
-    return batchId;
-  }
-
-  public void setBatchId( long batchId ) {
-    this.batchId = batchId;
-  }
-
-  public long getPassedBatchId() {
-    return passedBatchId;
-  }
-
-  public void setPassedBatchId( long jobBatchId ) {
-    this.passedBatchId = jobBatchId;
-  }
-
   /**
    * Sets the internal kettle variables.
    *
@@ -1493,24 +1464,6 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
   }
 
   /**
-   * Sets the socket repository.
-   *
-   * @param socketRepository the new socket repository
-   */
-  public void setSocketRepository( SocketRepository socketRepository ) {
-    this.socketRepository = socketRepository;
-  }
-
-  /**
-   * Gets the socket repository.
-   *
-   * @return the socket repository
-   */
-  public SocketRepository getSocketRepository() {
-    return socketRepository;
-  }
-
-  /**
    * Gets the log channel interface.
    *
    * @return ILogChannel
@@ -1606,7 +1559,7 @@ public class Workflow extends Thread implements IVariables, INamedParams, IHasLo
     for ( String childId : childIds ) {
       ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
       if ( loggingObject != null ) {
-        hierarchy.add( new LoggingHierarchy( getLogChannelId(), batchId, loggingObject ) );
+        hierarchy.add( new LoggingHierarchy( getLogChannelId(), loggingObject ) );
       }
     }
 

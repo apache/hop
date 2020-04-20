@@ -77,6 +77,11 @@ public class PipelineExecutorMeta
   static final String F_EXECUTOR_OUTPUT_TRANSFORM = "executors_output_transform";
 
   /**
+   * The name of the pipeline run configuration with which we want to execute the pipeline.
+   */
+  private String runConfigurationName;
+
+  /**
    * The number of input rows that are sent as result rows to the workflow in one go, defaults to "1"
    */
   private String groupSize;
@@ -229,7 +234,8 @@ public class PipelineExecutorMeta
   public String getXml() {
     StringBuilder retval = new StringBuilder( 300 );
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "run_configuration", runConfigurationName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", filename ) );
 
     retval.append( "    " ).append( XmlHandler.addTagValue( "group_size", groupSize ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "group_field", groupField ) );
@@ -290,7 +296,8 @@ public class PipelineExecutorMeta
 
   public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XmlHandler.getTagValue( transformNode, "filename" );
+      runConfigurationName = XmlHandler.getTagValue( transformNode, "run_configuration" );
+      filename = XmlHandler.getTagValue( transformNode, "filename" );
 
       groupSize = XmlHandler.getTagValue( transformNode, "group_size" );
       groupField = XmlHandler.getTagValue( transformNode, "group_field" );
@@ -487,7 +494,7 @@ public class PipelineExecutorMeta
   @Override
   public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    String realFilename = pipelineMeta.environmentSubstitute( fileName );
+    String realFilename = pipelineMeta.environmentSubstitute( filename );
     ResourceReference reference = new ResourceReference( transformInfo );
 
     if ( StringUtils.isNotEmpty( realFilename ) ) {
@@ -892,7 +899,7 @@ public class PipelineExecutorMeta
   }
 
   private boolean isPipelineDefined() {
-    return StringUtils.isNotEmpty( fileName );
+    return StringUtils.isNotEmpty( filename );
   }
 
   public boolean[] isReferencedObjectEnabled() {
@@ -1038,5 +1045,21 @@ public class PipelineExecutorMeta
       hasChanged = true;
     }
     return hasChanged;
+  }
+
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
+  public void setRunConfigurationName( String runConfigurationName ) {
+    this.runConfigurationName = runConfigurationName;
   }
 }

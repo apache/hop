@@ -82,8 +82,13 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private PropsUi props;
   private Label wLabel;
   private ComboVar wCombo;
+  private boolean leftAlignedLabel;
 
   public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
+    this(variables, metaStore, managedClass, parentComposite, flags, labelText, toolTipText, false);
+  }
+
+  public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText, boolean leftAlignedLabel ) {
     super( parentComposite, SWT.NONE );
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
@@ -91,6 +96,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     this.managedClass = managedClass;
     this.parentComposite = parentComposite;
     this.props = PropsUi.getInstance();
+    this.leftAlignedLabel = leftAlignedLabel;
 
     this.manager = new MetaStoreManager<>( variables, metaStore, managedClass );
 
@@ -107,14 +113,22 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
 
     this.setLayout( formLayout );
 
-    wLabel = new Label( this, SWT.RIGHT );
+    int labelFlags;
+    if (leftAlignedLabel) {
+      labelFlags = SWT.NONE | SWT.SINGLE;
+    } else {
+      labelFlags = SWT.RIGHT | SWT.SINGLE;
+    }
+    wLabel = new Label( this, labelFlags );
     props.setLook( wLabel );
-    wLabel.setText( labelText );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
-    fdLabel.right = new FormAttachment( middle, 0 );
-    fdLabel.top = new FormAttachment( 0, 0 );
+    if (!leftAlignedLabel) {
+      fdLabel.right = new FormAttachment( middle, 0 );
+    }
+    fdLabel.top = new FormAttachment( 0, margin );
     wLabel.setLayoutData( fdLabel );
+    wLabel.setText( labelText );
     wLabel.setToolTipText( toolTipText );
 
     wManage = new Button( this, SWT.PUSH );
@@ -146,12 +160,18 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
       textFlags = flags;
     }
     wCombo = new ComboVar( this.variables, this, textFlags, toolTipText );
-    FormData fdText = new FormData();
-    fdText.left = new FormAttachment( middle, margin );
-    fdText.right = new FormAttachment( wEdit, -margin );
-    fdText.top = new FormAttachment( wLabel, 0, SWT.CENTER );
-    wCombo.setLayoutData( fdText );
+    FormData fdCombo = new FormData();
+    if (leftAlignedLabel) {
+      fdCombo.left = new FormAttachment( wLabel, margin, SWT.RIGHT );
+    } else {
+      fdCombo.left = new FormAttachment( middle, margin );
+    }
+    fdCombo.right = new FormAttachment( wEdit, -margin );
+    fdCombo.top = new FormAttachment( wLabel, 0, SWT.CENTER );
+    wCombo.setLayoutData( fdCombo );
     wCombo.getCComboWidget().setToolTipText( toolTipText );
+
+    layout( true, true );
   }
 
 
@@ -408,6 +428,16 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     this.props = props;
   }
 
+  /**
+   * Gets leftAlignedLabel
+   *
+   * @return value of leftAlignedLabel
+   */
+  public boolean isLeftAlignedLabel() {
+    return leftAlignedLabel;
+  }
+
+
   public static void main( String[] args ) throws Exception {
     HopClientEnvironment.init();
     Display display = new Display();
@@ -424,13 +454,14 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     shellLayout.marginRight = 5;
     shell.setLayout( shellLayout );
 
-    MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<DatabaseMeta>(
+    MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
       Variables.getADefaultVariableSpace(),
       metaStore,
       DatabaseMeta.class,
       shell, SWT.NONE,
       "Database connection",
-      "Select the database connection to use."
+      "Select the database connection to use.",
+      true
     );
     wConnection.fillItems();
 

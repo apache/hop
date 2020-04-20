@@ -26,7 +26,6 @@ package org.apache.hop.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.BlockingBatchingRowSet;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
@@ -74,6 +73,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.EngineMetric;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -83,13 +83,10 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.pipeline.performance.PerformanceSnapShot;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformFinishedListener;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.ITransformStartedListener;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.RunThread;
 import org.apache.hop.pipeline.transform.TransformInitThread;
@@ -99,22 +96,13 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.workflow.Workflow;
-import org.apache.hop.www.PrepareExecutionPipelineServlet;
-import org.apache.hop.www.RegisterPackageServlet;
-import org.apache.hop.www.RegisterPipelineServlet;
-import org.apache.hop.www.SocketRepository;
-import org.apache.hop.www.StartExecutionPipelineServlet;
-import org.apache.hop.www.WebResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -146,7 +134,7 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
  * @since 07-04-2003
  */
 
-public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
+public abstract class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IPipelineEngine<PipelineMeta> {
 
   public static final String METRIC_NAME_INPUT = "input";
@@ -214,11 +202,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   private ILoggingObject parent;
 
   /**
-   * The name of the mapping transform that executes this pipeline in case this is a mapping.
-   */
-  private String mappingTransformName;
-
-  /**
    * Indicates that we want to do a topological sort of the transforms in a GUI.
    */
   private boolean sortingTransformsTopologically;
@@ -237,17 +220,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * Keeps track of when this pipeline ended preparation
    */
   private Date executionEndDate;
-
-  /**
-   * The batch id.
-   */
-  private long batchId;
-
-  /**
-   * This is the batch ID that is passed from workflow to workflow to pipeline, if nothing is passed, it's the
-   * pipeline's batch id.
-   */
-  private long passedBatchId;
 
   /**
    * The variable bindings for the pipeline.
@@ -415,7 +387,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * A list of stop-event listeners attached to the pipeline.
    */
-  private List<IPipelineStoppedListener> pipelineStoppedListeners;
+  private List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners;
 
   /**
    * The number of finished transforms.
@@ -426,11 +398,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    * The named parameters.
    */
   private INamedParams namedParams = new NamedParamsDefault();
-
-  /**
-   * The socket repository.
-   */
-  private SocketRepository socketRepository;
 
   /**
    * The pipeline log table database connection.
@@ -524,7 +491,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
     executionFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
-    pipelineStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
+    executionStoppedListeners = Collections.synchronizedList( new ArrayList<>() );
 
     errors = new AtomicInteger( 0 );
 
@@ -636,7 +603,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @param log the new log channel interface
    */
-  public void setLog( ILogChannel log ) {
+  public void setLogChannel( ILogChannel log ) {
     this.log = log;
   }
 
@@ -718,12 +685,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     if ( pipelineMeta.getName() == null ) {
       if ( pipelineMeta.getFilename() != null ) {
-        log.logBasic( BaseMessages.getString( PKG, "Pipeline.Log.DispacthingStartedForFilename", pipelineMeta
-          .getFilename() ) );
+        log.logBasic( BaseMessages.getString( PKG, "Pipeline.Log.ExecutionStartedForFilename", pipelineMeta.getFilename() ) );
       }
     } else {
-      log.logBasic( BaseMessages.getString( PKG, "Pipeline.Log.DispacthingStartedForPipeline", pipelineMeta
-        .getName() ) );
+      log.logBasic( BaseMessages.getString( PKG, "Pipeline.Log.ExecutionStartedForPipeline", pipelineMeta.getName() ) );
     }
 
     if ( isSafeModeEnabled() ) {
@@ -1139,10 +1104,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       TransformMetaDataCombi combi = initThreads[ i ].getCombi();
       if ( !initThreads[ i ].isOk() ) {
         log.logError( BaseMessages.getString( PKG, "Pipeline.Log.TransformFailedToInit", combi.transformName + "." + combi.copy ) );
-        combi.data.setStatus( TransformExecutionStatus.STATUS_STOPPED );
+        combi.data.setStatus( ComponentExecutionStatus.STATUS_STOPPED );
         ok = false;
       } else {
-        combi.data.setStatus( TransformExecutionStatus.STATUS_IDLE );
+        combi.data.setStatus( ComponentExecutionStatus.STATUS_IDLE );
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.TransformInitialized", combi.transformName + "."
             + combi.copy ) );
@@ -1164,15 +1129,15 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         combi.transform.dispose();
 
         if ( initThreads[ i ].isOk() ) {
-          combi.data.setStatus( BaseTransformData.TransformExecutionStatus.STATUS_HALTED );
+          combi.data.setStatus( ComponentExecutionStatus.STATUS_HALTED );
         } else {
-          combi.data.setStatus( TransformExecutionStatus.STATUS_STOPPED );
+          combi.data.setStatus( ComponentExecutionStatus.STATUS_STOPPED );
         }
       }
 
       // Just for safety, fire the pipeline finished listeners...
       try {
-        fireExecutionFinishedListeners();
+        firePipelineExecutionFinishedListeners();
       } catch ( HopException e ) {
         // listeners produces errors
         log.logError( BaseMessages.getString( PKG, "Pipeline.FinishListeners.Exception" ) );
@@ -1224,7 +1189,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       ITransformFinishedListener finishedListener = ( pipeline, transformMeta, transform ) -> {
         synchronized ( Pipeline.this ) {
           nrOfFinishedTransforms++;
-          System.out.println("=======> transform "+transformMeta.getName()+"."+transform.getCopy()+" finished, nr of finished = "+nrOfFinishedTransforms);
 
           if ( nrOfFinishedTransforms >= transforms.size() ) {
             // Set the finished flag
@@ -1236,11 +1200,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
             addTransformPerformanceSnapShot();
 
             try {
-              fireExecutionFinishedListeners();
+              firePipelineExecutionFinishedListeners();
             } catch ( Exception e ) {
               transform.setErrors( transform.getErrors() + 1L );
-              log.logError( getName() + " : " + BaseMessages.getString( PKG,
-                "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
+              log.logError( getName() + " : " + BaseMessages.getString( PKG, "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
             }
 
             // We're really done now.
@@ -1377,7 +1340,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     // So we fire the execution finished listeners here.
     //
     if ( transforms.isEmpty() ) {
-      fireExecutionFinishedListeners();
+      firePipelineExecutionFinishedListeners();
     }
 
     if ( log.isDetailed() ) {
@@ -1391,7 +1354,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @throws HopException if any errors occur during notification
    */
-  protected void fireExecutionFinishedListeners() throws HopException {
+  public void firePipelineExecutionFinishedListeners() throws HopException {
 
     synchronized ( executionFinishedListeners ) {
       if ( executionFinishedListeners.size() == 0 ) {
@@ -1408,7 +1371,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       }
       if ( pipelineWaitUntilFinishedBlockingQueue != null ) {
         // Signal for the the waitUntilFinished blocker...
-        System.out.println("------ Adding object to pipeline wait until finished queue ("+pipelineWaitUntilFinishedBlockingQueue.size()+")"+Const.getStackTracker( new Exception() ));
         pipelineWaitUntilFinishedBlockingQueue.add( new Object() );
       }
       if ( !badGuys.isEmpty() ) {
@@ -1423,7 +1385,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @throws HopException if any errors occur during notification
    */
-  protected void firePipelineExecutionStartedListeners() throws HopException {
+  public void firePipelineExecutionStartedListeners() throws HopException {
     synchronized ( executionStartedListeners ) {
       for ( IExecutionStartedListener executionListener : executionStartedListeners ) {
         executionListener.started( this );
@@ -1451,10 +1413,9 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
         TransformMeta transformMeta = transforms.get( i ).transformMeta;
         ITransform transform = transforms.get( i ).transform;
 
-        PerformanceSnapShot snapShot =
-          new PerformanceSnapShot( seqNr, getBatchId(), new Date(), getName(), transformMeta.getName(), transform.getCopy(),
-            transform.getLinesRead(), transform.getLinesWritten(), transform.getLinesInput(), transform.getLinesOutput(), transform
-            .getLinesUpdated(), transform.getLinesRejected(), transform.getErrors() );
+        PerformanceSnapShot snapShot = new PerformanceSnapShot( seqNr, new Date(), getName(), transformMeta.getName(), transform.getCopy(),
+          transform.getLinesRead(), transform.getLinesWritten(), transform.getLinesInput(), transform.getLinesOutput(), transform
+          .getLinesUpdated(), transform.getLinesRejected(), transform.getErrors() );
 
         synchronized ( transformPerformanceSnapShots ) {
           List<PerformanceSnapShot> snapShotList = transformPerformanceSnapShots.get( transform.toString() );
@@ -1636,7 +1597,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       .filter( this::isInputTransform )
       .forEach( combi -> stopTransform( combi, true ) );
 
-    notifyStoppedListeners();
+    firePipelineExecutionStoppedListeners();
   }
 
   private boolean isInputTransform( TransformMetaDataCombi combi ) {
@@ -1657,7 +1618,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     setPaused( false );
     setStopped( true );
 
-    notifyStoppedListeners();
+    firePipelineExecutionStoppedListeners();
   }
 
   public void stopTransform( TransformMetaDataCombi combi, boolean safeStop ) {
@@ -1671,18 +1632,18 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     } catch ( Exception e ) {
       log.logError( "Something went wrong while trying to safe stop the pipeline: ", e );
     }
-    combi.data.setStatus( BaseTransformData.TransformExecutionStatus.STATUS_STOPPED );
+    combi.data.setStatus( ComponentExecutionStatus.STATUS_STOPPED );
     if ( safeStop ) {
       rt.setOutputDone();
     }
   }
 
-  public void notifyStoppedListeners() {
+  public void firePipelineExecutionStoppedListeners() {
     // Fire the stopped listener...
     //
-    synchronized ( pipelineStoppedListeners ) {
-      for ( IPipelineStoppedListener listener : pipelineStoppedListeners ) {
-        listener.pipelineStopped( this );
+    synchronized ( executionStoppedListeners ) {
+      for ( IExecutionStoppedListener listener : executionStoppedListeners ) {
+        listener.stopped( this );
       }
     }
   }
@@ -1712,7 +1673,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     boolean[] tResult = new boolean[ transforms.size() ];
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      tResult[ i ] = ( sid.transform.isRunning() || sid.transform.getStatus() != TransformExecutionStatus.STATUS_FINISHED );
+      tResult[ i ] = ( sid.transform.isRunning() || sid.transform.getStatus() != ComponentExecutionStatus.STATUS_FINISHED );
     }
     return tResult;
   }
@@ -1722,7 +1683,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @return an array associated with the transform list, indicating the status of that transform.
    */
-  public TransformExecutionStatus[] getPipelineTransformExecutionStatusLookup() {
+  public ComponentExecutionStatus[] getPipelineTransformExecutionStatusLookup() {
     if ( transforms == null ) {
       return null;
     }
@@ -1730,7 +1691,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     // we need this snapshot for the PipelineGridDelegate refresh method to handle the
     // difference between a timed refresh and continual transform status updates
     int totalTransforms = transforms.size();
-    TransformExecutionStatus[] tList = new TransformExecutionStatus[ totalTransforms ];
+    ComponentExecutionStatus[] tList = new ComponentExecutionStatus[ totalTransforms ];
     for ( int i = 0; i < totalTransforms; i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
       tList[ i ] = sid.transform.getStatus();
@@ -2041,12 +2002,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
       string.append( '[' ).append( getParentPipeline().toString() ).append( ']' ).append( '.' );
     }
 
-    // When we run a mapping we also set a mapping transform name in there...
-    //
-    if ( !Utils.isEmpty( mappingTransformName ) ) {
-      string.append( '[' ).append( mappingTransformName ).append( ']' ).append( '.' );
-    }
-
     string.append( pipelineMeta.getName() );
 
     return string.toString();
@@ -2228,48 +2183,11 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
     for ( int i = 0; i < transforms.size(); i++ ) {
       TransformMetaDataCombi sid = transforms.get( i );
-      if ( sid.data.getStatus() == TransformExecutionStatus.STATUS_HALTED ) {
+      if ( sid.data.getStatus() == ComponentExecutionStatus.STATUS_HALTED ) {
         return true;
       }
     }
     return false;
-  }
-
-  /**
-   * Get the batch ID that is passed from the parent workflow to the pipeline. If nothing is passed, it's the
-   * pipeline's batch ID
-   *
-   * @return the parent workflow's batch ID, or the pipeline's batch ID if there is no parent workflow
-   */
-  public long getPassedBatchId() {
-    return passedBatchId;
-  }
-
-  /**
-   * Sets the passed batch ID of the pipeline from the batch ID of the parent workflow.
-   *
-   * @param jobBatchId the jobBatchId to set
-   */
-  public void setPassedBatchId( long jobBatchId ) {
-    this.passedBatchId = jobBatchId;
-  }
-
-  /**
-   * Gets the batch ID of the pipeline.
-   *
-   * @return the batch ID of the pipeline
-   */
-  public long getBatchId() {
-    return batchId;
-  }
-
-  /**
-   * Sets the batch ID of the pipeline.
-   *
-   * @param batchId the batch ID to set
-   */
-  public void setBatchId( long batchId ) {
-    this.batchId = batchId;
   }
 
   /**
@@ -2365,116 +2283,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     status.updateAndGet( v -> running ? v | RUNNING.mask : ( BIT_STATUS_SUM ^ RUNNING.mask ) & v );
   }
 
-
-  /**
-   * Send the pipeline for execution to a HopServer slave server.
-   *
-   * @param pipelineMeta           the pipeline meta-data
-   * @param executionConfiguration the pipeline execution configuration
-   * @return The HopServer object ID on the server.
-   * @throws HopException if any errors occur during the dispatch to the slave server
-   */
-  public static String sendToSlaveServer( PipelineMeta pipelineMeta, PipelineExecutionConfiguration executionConfiguration,
-                                          IMetaStore metaStore ) throws HopException {
-    String carteObjectId;
-    SlaveServer slaveServer = executionConfiguration.getRemoteServer();
-
-    if ( slaveServer == null ) {
-      throw new HopException( "No slave server specified" );
-    }
-    if ( Utils.isEmpty( pipelineMeta.getName() ) ) {
-      throw new HopException( "The pipeline needs a name to uniquely identify it by on the remote server." );
-    }
-
-    // Inject certain internal variables to make it more intuitive.
-    //
-    Map<String, String> vars = new HashMap<>();
-
-    for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
-      vars.put( var, pipelineMeta.getVariable( var ) );
-    }
-    for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      vars.put( var, pipelineMeta.getVariable( var ) );
-    }
-
-    executionConfiguration.getVariablesMap().putAll( vars );
-    slaveServer.injectVariables( executionConfiguration.getVariablesMap() );
-
-    slaveServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
-
-    try {
-      if ( executionConfiguration.isPassingExport() ) {
-
-        // First export the workflow...
-        //
-        FileObject tempFile = HopVfs.createTempFile( "pipelineExport", HopVfs.Suffix.ZIP, pipelineMeta );
-
-        // The executionConfiguration should not include external references here because all the resources should be
-        // retrieved from the exported zip file
-        // TODO: Serialize metastore objects to JSON (Kettle Beam project) and include it in the zip file
-        //
-        PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
-        TopLevelResource topLevelResource =
-          ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
-            metaStore, clonedConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
-
-        // Send the zip file over to the slave server...
-        //
-        String result = slaveServer.sendExport(
-          topLevelResource.getArchiveName(),
-          RegisterPackageServlet.TYPE_PIPELINE,
-          topLevelResource.getBaseResourceName() );
-        WebResult webResult = WebResult.fromXMLString( result );
-        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-          throw new HopException( "There was an error passing the exported pipeline to the remote server: "
-            + Const.CR + webResult.getMessage() );
-        }
-        carteObjectId = webResult.getId();
-      } else {
-
-        // Now send it off to the remote server...
-        //
-        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXml();
-        String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
-        WebResult webResult = WebResult.fromXMLString( reply );
-        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-          throw new HopException( "There was an error posting the pipeline on the remote server: " + Const.CR
-            + webResult.getMessage() );
-        }
-        carteObjectId = webResult.getId();
-      }
-
-      // Prepare the pipeline
-      //
-      String reply =
-        slaveServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta
-          .getName(), "UTF-8" ) + "&xml=Y&id=" + carteObjectId );
-      WebResult webResult = WebResult.fromXMLString( reply );
-      if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-        throw new HopException( "There was an error preparing the pipeline for excution on the remote server: "
-          + Const.CR + webResult.getMessage() );
-      }
-
-      // Start the pipeline
-      //
-      reply =
-        slaveServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta
-          .getName(), "UTF-8" ) + "&xml=Y&id=" + carteObjectId );
-      webResult = WebResult.fromXMLString( reply );
-
-      if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-        throw new HopException( "There was an error starting the pipeline on the remote server: " + Const.CR
-          + webResult.getMessage() );
-      }
-
-      return carteObjectId;
-    } catch ( HopException ke ) {
-      throw ke;
-    } catch ( Exception e ) {
-      throw new HopException( e );
-    }
-  }
-
   /**
    * Checks whether the pipeline is ready to start (i.e. execution preparation was successful)
    *
@@ -2491,13 +2299,13 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
 
 
   /**
-   * Sets the internal kettle variables.
+   * Sets the internal Hop variables.
    *
-   * @param var the new internal kettle variables
+   * @param var the new internal hop variables
    */
   public void setInternalHopVariables( IVariables var ) {
     boolean hasFilename = pipelineMeta != null && !Utils.isEmpty( pipelineMeta.getFilename() );
-    if ( hasFilename ) { // we have a finename that's defined.
+    if ( hasFilename ) { // we have a filename that's defined.
       try {
         FileObject fileObject = HopVfs.getFileObject( pipelineMeta.getFilename(), var );
         FileName fileName = fileObject.getName();
@@ -2786,12 +2594,23 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
+   * Adds a pipeline stopped listener.
+   *
+   * @param executionStoppedListener the pipeline stopped listener
+   */
+  public void addExecutionStoppedListener( IExecutionStoppedListener executionStoppedListener ) {
+    synchronized ( executionStoppedListener ) {
+      executionStoppedListeners.add( executionStoppedListener );
+    }
+  }
+
+  /**
    * Sets the list of stop-event listeners for the pipeline.
    *
-   * @param pipelineStoppedListeners the list of stop-event listeners to set
+   * @param executionStoppedListeners the list of stop-event listeners to set
    */
-  public void setPipelineStoppedListeners( List<IPipelineStoppedListener> pipelineStoppedListeners ) {
-    this.pipelineStoppedListeners = Collections.synchronizedList( pipelineStoppedListeners );
+  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners ) {
+    this.executionStoppedListeners = Collections.synchronizedList( executionStoppedListeners );
   }
 
   /**
@@ -2800,8 +2619,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @return the list of stop-event listeners
    */
-  public List<IPipelineStoppedListener> getPipelineStoppedListeners() {
-    return pipelineStoppedListeners;
+  public List<IExecutionStoppedListener<PipelineMeta>> getExecutionStoppedListeners() {
+    return executionStoppedListeners;
   }
 
   /**
@@ -2809,8 +2628,8 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
    *
    * @param pipelineStoppedListener the stop-event listener to add
    */
-  public void addPipelineStoppedListener( IPipelineStoppedListener pipelineStoppedListener ) {
-    pipelineStoppedListeners.add( pipelineStoppedListener );
+  public void addPipelineStoppedListener( IExecutionStoppedListener<PipelineMeta> pipelineStoppedListener ) {
+    executionStoppedListeners.add( pipelineStoppedListener );
   }
 
   /**
@@ -3016,42 +2835,6 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   }
 
   /**
-   * Gets the mapping transform name.
-   *
-   * @return the name of the mapping transform that created this pipeline
-   */
-  public String getMappingTransformName() {
-    return mappingTransformName;
-  }
-
-  /**
-   * Sets the mapping transform name.
-   *
-   * @param mappingTransformName the name of the mapping transform that created this pipeline
-   */
-  public void setMappingTransformName( String mappingTransformName ) {
-    this.mappingTransformName = mappingTransformName;
-  }
-
-  /**
-   * Sets the socket repository.
-   *
-   * @param socketRepository the new socket repository
-   */
-  public void setSocketRepository( SocketRepository socketRepository ) {
-    this.socketRepository = socketRepository;
-  }
-
-  /**
-   * Gets the socket repository.
-   *
-   * @return the socket repository
-   */
-  public SocketRepository getSocketRepository() {
-    return socketRepository;
-  }
-
-  /**
    * Gets the object name.
    *
    * @return the object name
@@ -3153,7 +2936,7 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
     for ( String childId : childIds ) {
       ILoggingObject loggingObject = LoggingRegistry.getInstance().getLoggingObject( childId );
       if ( loggingObject != null ) {
-        hierarchy.add( new LoggingHierarchy( getLogChannelId(), batchId, loggingObject ) );
+        hierarchy.add( new LoggingHierarchy( getLogChannelId(), loggingObject ) );
       }
     }
 
@@ -3199,10 +2982,10 @@ public class Pipeline implements IVariables, INamedParams, IHasLogChannel, ILogg
   /**
    * Sets the container object ID.
    *
-   * @param containerObjectId the HopServer object ID to set
+   * @param containerId the HopServer object ID to set
    */
-  public void setContainerObjectId( String containerObjectId ) {
-    this.containerObjectId = containerObjectId;
+  public void setContainerId( String containerId ) {
+    this.containerObjectId = containerId;
   }
 
   /**

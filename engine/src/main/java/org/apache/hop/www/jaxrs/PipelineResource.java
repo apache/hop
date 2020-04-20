@@ -27,12 +27,18 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.HopServerObjectEntry;
@@ -66,7 +72,7 @@ public class PipelineResource {
   @Produces( { MediaType.TEXT_PLAIN } )
   public String getPipelineLog( @PathParam( "id" ) String id, @PathParam( "logStart" ) int startLineNr ) {
     int lastLineNr = HopLogStore.getLastBufferLineNr();
-    Pipeline pipeline = HopServerResource.getPipeline( id );
+    IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline( id );
     String logText =
       HopLogStore.getAppender().getBuffer(
         pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();
@@ -79,17 +85,16 @@ public class PipelineResource {
   public PipelineStatus getPipelineStatus( @PathParam( "id" ) String id ) {
     PipelineStatus status = new PipelineStatus();
     // find pipeline
-    Pipeline pipeline = HopServerResource.getPipeline( id );
+    IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline( id );
     HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
 
     status.setId( entry.getId() );
     status.setName( entry.getName() );
-    status.setStatus( pipeline.getStatus() );
+    status.setStatus( pipeline.getStatusDescription() );
 
-    for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-      ITransform transform = pipeline.getRunThread( i );
-      if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
-        TransformStatus transformStatus = new TransformStatus( transform );
+    for ( IEngineComponent component : pipeline.getComponents() ) {
+      if ( ( component.isRunning() ) || ( component.getStatus() != ComponentExecutionStatus.STATUS_EMPTY ) ) {
+        TransformStatus transformStatus = new TransformStatus( component );
         status.addTransformStatus( transformStatus );
       }
     }
@@ -101,7 +106,7 @@ public class PipelineResource {
   @Path( "/start/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public PipelineStatus startPipeline( @PathParam( "id" ) String id ) {
-    Pipeline pipeline = HopServerResource.getPipeline( id );
+    IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline( id );
     try {
       // Discard old log lines from old pipeline runs
       //
@@ -125,7 +130,7 @@ public class PipelineResource {
   @Path( "/prepare/{id : .+}" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public PipelineStatus preparePipeline( @PathParam( "id" ) String id ) {
-    Pipeline pipeline = HopServerResource.getPipeline( id );
+    IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline( id );
     try {
 
       HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
@@ -172,18 +177,9 @@ public class PipelineResource {
 
   // change from GET to UPDATE/POST for proper REST method
   @GET
-  @Path( "/safeStop/{id : .+}" )
-  @Produces( { MediaType.APPLICATION_JSON } )
-  public PipelineStatus safeStopPipeline( @PathParam( "id" ) String id ) {
-    HopServerResource.getPipeline( id ).safeStop();
-    return getPipelineStatus( id );
-  }
-
-  // change from GET to UPDATE/POST for proper REST method
-  @GET
   @Path( "/remove/{id : .+}" )
   public Response removePipeline( @PathParam( "id" ) String id ) {
-    Pipeline pipeline = HopServerResource.getPipeline( id );
+    IPipelineEngine<PipelineMeta> pipeline = HopServerResource.getPipeline( id );
     HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
     HopLogStore.discardLines( pipeline.getLogChannelId(), true );
     HopServerSingleton.getInstance().getPipelineMap().removePipeline( entry );
@@ -233,15 +229,24 @@ public class PipelineResource {
       servletLoggingObject.setContainerObjectId( carteObjectId );
       servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
+      String runConfigurationName = executionConfiguration.getRunConfiguration();
+      if ( StringUtil.isEmpty(runConfigurationName)) {
+        throw new HopException( "You need to specify a run configuration to use for executing the pipeline" );
+      }
+      PipelineRunConfiguration runConfiguration;
+      try {
+        runConfiguration = PipelineRunConfiguration.createFactory(metaStore).loadElement( runConfigurationName );
+      } catch(Exception e) {
+        throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
+      }
+
       // Create the pipeline and store in the list...
       //
-      final Pipeline pipeline = new Pipeline( pipelineMeta, servletLoggingObject );
+      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta);
+      pipeline.setParent( servletLoggingObject );
 
-      pipeline.setSocketRepository( HopServerSingleton.getInstance().getSocketRepository() );
-
-      HopServerSingleton.getInstance().getPipelineMap().addPipeline(
-        pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
-      pipeline.setContainerObjectId( carteObjectId );
+      HopServerSingleton.getInstance().getPipelineMap().addPipeline(pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
+      pipeline.setContainerId( carteObjectId );
 
       return getPipelineStatus( carteObjectId );
     } catch ( HopException e ) {

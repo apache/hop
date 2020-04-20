@@ -28,11 +28,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
-import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.workflow.Workflow;
@@ -45,24 +46,32 @@ import java.util.List;
  *
  * @param <T> The subject class to execute
  */
-public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
+public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedParams {
 
   T getSubject();
 
-  void setSubject(T t);
+  void setSubject( T t );
 
   String getPluginId();
-  void setPluginId(String pluginId);
+
+  void setPluginId( String pluginId );
 
   /**
    * Ask the engine to generate a default pipeline engine configuration for this engine
+   *
    * @return a new pipeline engine run configuration
    */
   IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
 
-  void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration);
+  void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration );
 
   PipelineRunConfiguration getPipelineRunConfiguration();
+
+  /**
+   * See which operations are supported by the pipeline engine.
+   * @return The engine capabilities
+   */
+  PipelineEngineCapabilities getEngineCapabilities();
 
   /**
    * Executes the object/subject: calls prepareExecution and startThreads in sequence.
@@ -87,6 +96,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Check to see if the pipeline engine is ready to start threads.
+   *
    * @return True if the pipeline engine was prepared and is ready to start.
    */
   boolean isReadyToStart();
@@ -107,11 +117,12 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Get the engine metrics for a specific component name and/or copy nr
+   *
    * @param componentName the name of the component or null for all components
-   * @param copyNr The copy nr to select or a negative number for all components
+   * @param copyNr        The copy nr to select or a negative number for all components
    * @return The engine metrics for the given
    */
-  EngineMetrics getEngineMetrics(String componentName, int copyNr);
+  EngineMetrics getEngineMetrics( String componentName, int copyNr );
 
   /**
    * This method performs any cleanup operations on the various sub-components of the engine after execution.
@@ -130,18 +141,21 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * See if there are any halted components in the engine: actions, auditing, ...
+   *
    * @return True if there are halted components
    */
   public boolean hasHaltedComponents();
 
   /**
    * Indicates whether or not the engine is running
+   *
    * @return True is the engine is running
    */
   boolean isRunning();
 
   /**
    * Indicates whether or not the engine is stopped.
+   *
    * @return True is the engine execution has stopped
    */
   boolean isStopped();
@@ -183,6 +197,8 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
    */
   void addExecutionStartedListener( IExecutionStartedListener<T> listener ) throws HopException;
 
+  void firePipelineExecutionStartedListeners() throws HopException;
+
   /**
    * Call the given listener lambda when this pipeline engine has completed execution.
    *
@@ -190,6 +206,20 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
    * @throws HopException
    */
   void addExecutionFinishedListener( IExecutionFinishedListener<T> listener ) throws HopException;
+
+  void firePipelineExecutionFinishedListeners() throws HopException;
+
+
+  /**
+   * Call the given listener lambda when this pipeline engine has stopped execution.
+   *
+   * @param listener
+   * @throws HopException
+   */
+  void addExecutionStoppedListener( IExecutionStoppedListener<T> listener ) throws HopException;
+
+  void firePipelineExecutionStoppedListeners() throws HopException;
+
 
   /**
    * Retrieve the logging text of a particular component in the engine
@@ -210,7 +240,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
   /**
    * Find all component copies by name
    *
-   * @param name   The name of the component to look for (transform)
+   * @param name The name of the component to look for (transform)
    * @return The list of components found
    */
   List<IEngineComponent> getComponentCopies( String name );
@@ -232,7 +262,14 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
   ILogChannel getLogChannel();
 
   /**
+   * Sets the log channel. For testing only
+   * @param log
+   */
+  void setLogChannel(ILogChannel log);
+
+  /**
    * The log channel ID if there is any
+   *
    * @return
    */
   String getLogChannelId();
@@ -243,6 +280,27 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
    * @param parent the new parent
    */
   void setParent( ILoggingObject parent );
+
+  /**
+   * Inform the pipeline that it's being executed as part of a workflow
+   *
+   * @param parentWorkflow
+   */
+  void setParentWorkflow( Workflow parentWorkflow );
+
+  /**
+   * Inform the pipeline that it's being executed as part of another pipeline
+   *
+   * @param parentPipeline
+   */
+  void setParentPipeline( IPipelineEngine parentPipeline );
+
+  /**
+   * Inform the pipeline about a previous execution result in a workflow or pipeline
+   *
+   * @param previousResult
+   */
+  void setPreviousResult( Result previousResult );
 
   /**
    * Get the result of the execution after it's done, a resume
@@ -263,6 +321,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Temporary until we find a better way to preview/debug
+   *
    * @param preview
    */
   @Deprecated
@@ -270,6 +329,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Temporary until we find a better way to preview/debug
+   *
    * @return
    */
   @Deprecated
@@ -288,6 +348,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Determine the pipeline engine which is executing this pipeline engine.
+   *
    * @return The executing pipeline or null if none is known.
    */
   IPipelineEngine<T> getParentPipeline();
@@ -301,12 +362,14 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * True if the engine is doing extra validations at runtime to detect possible issues with data types and so on.
+   *
    * @return True if safe mode is enabled.
    */
   boolean isSafeModeEnabled();
 
   /**
    * For engines that support it we allow the retrieval of a rowset from one transform copy to another
+   *
    * @param fromTransformName
    * @param fromTransformCopy
    * @param toTransformName
@@ -318,6 +381,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * True if feedback need to be given every X rows
+   *
    * @return True if feedback needs to be given
    */
   @Deprecated // TODO: move this to the run configuration API
@@ -325,6 +389,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * The feedback size in rows
+   *
    * @return The feedback size in rows
    */
   @Deprecated // TODO: move the run configuration API
@@ -332,6 +397,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Get the execution result of a previous execution in a workflow
+   *
    * @return the previous execution result
    */
   Result getPreviousResult();
@@ -348,6 +414,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Add an active sub-pipeline to allow drill-down in the GUI
+   *
    * @param transformName
    * @param executorPipeline
    */
@@ -355,6 +422,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Get the active sub-pipeline with the given name
+   *
    * @param subPipelineName
    * @return The active pipeline engine or null if it was not found
    */
@@ -362,6 +430,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Add an active sub-workflow to allow drill-down in the GUI
+   *
    * @param subWorkflowName
    * @param subWorkflow
    */
@@ -369,9 +438,30 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject {
 
   /**
    * Get the active sub-workflow with the given name
+   *
    * @param subWorkflowName
    * @return The active workflow or null if nothing was found
    */
   Workflow getActiveSubWorkflow( final String subWorkflowName );
+
+
+  /**
+   * Make the engine define internal hop variables based on the given variables, the filename and so on
+   * @param var
+   * TODO get rid of this method, internal variables should be available
+   */
+  void setInternalHopVariables( IVariables var );
+
+  /**
+   * The unique ID this pipeline engine has while executing in a container like a web-server and so on.
+   * When we have multiple pipelines running with the same name
+   * @param containerId The unique ID to identify this executing engine with
+   */
+  void setContainerId( String containerId );
+
+  /**
+   * @return Get a status description of the state of the engine (running, stopped, finished, paused, halted, ...)
+   */
+  String getStatusDescription();
 
 }

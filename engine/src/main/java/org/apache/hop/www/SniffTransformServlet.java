@@ -31,6 +31,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.owasp.encoder.Encode;
@@ -93,7 +96,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
     // ID is optional...
     //
-    Pipeline pipeline;
+    IPipelineEngine<PipelineMeta> pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
@@ -116,17 +119,16 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
       // Find the transform to look at...
       //
-      ITransform transform = null;
-      List<ITransform> transformInterfaces = pipeline.findBaseTransforms( transformName );
-      for ( int i = 0; i < transformInterfaces.size(); i++ ) {
-        ITransform look = transformInterfaces.get( i );
-        if ( look.getCopy() == copyNr ) {
-          transform = look;
+      IEngineComponent component = null;
+      List<IEngineComponent> componentCopies = pipeline.getComponentCopies( transformName );
+      for ( IEngineComponent componentCopy : componentCopies ) {
+        if ( componentCopy.getCopyNr() == copyNr ) {
+          component = componentCopy;
         }
       }
       final RowBuffer rowBuffer = new RowBuffer();
 
-      if ( transform != null ) {
+      if ( component != null ) {
 
         // Wait until the pipeline is running...
         //
@@ -163,11 +165,11 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
             }
           };
 
-          transform.addRowListener( rowListener );
+          component.addRowListener( rowListener );
 
           // Wait until we have enough rows...
           //
-          while ( rowBuffer.getBuffer().size() < nrLines && transform.isRunning() && !pipeline.isFinished() && !pipeline.isStopped() ) {
+          while ( rowBuffer.getBuffer().size() < nrLines && component.isRunning() && !pipeline.isFinished() && !pipeline.isStopped() ) {
             try {
               Thread.sleep( 10 );
             } catch ( InterruptedException e ) {
@@ -179,7 +181,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
           // Remove the row listener
           //
-          transform.removeRowListener( rowListener );
+          component.removeRowListener( rowListener );
         }
 
         // Pass along the rows of data...

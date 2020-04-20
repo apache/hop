@@ -44,7 +44,6 @@ import java.util.List;
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IPipelineEngineRunConfiguration {
 
   @GuiWidgetElement(
-    id = "slaveServer",
     order = "10",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
@@ -56,7 +55,6 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   protected String slaveServerName;
 
   @GuiWidgetElement(
-    id = "runConfiguration",
     order = "20",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
@@ -67,15 +65,37 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   @MetaStoreAttribute(key="safe_mode")
   protected String runConfigurationName;
 
+  @GuiWidgetElement(
+    order = "30",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    i18nPackage = "org.apache.hop.ui.pipeline.config",
+    label = "PipelineRunConfigurationDialog.ServerPollDelay.Label"
+  )
+  @MetaStoreAttribute(key="server_poll_delay")
+  protected String serverPollDelay;
+
+  @GuiWidgetElement(
+    order = "40",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    i18nPackage = "org.apache.hop.ui.pipeline.config",
+    label = "PipelineRunConfigurationDialog.ServerPollInterval.Label"
+  )
+  @MetaStoreAttribute(key="server_poll_interval")
+  protected String serverPollInterval;
+
+
   public RemotePipelineRunConfiguration() {
     super();
   }
-
 
   public RemotePipelineRunConfiguration( RemotePipelineRunConfiguration config ) {
     super( config );
     this.slaveServerName = config.slaveServerName;
     this.runConfigurationName = config.runConfigurationName;
+    this.serverPollDelay = config.serverPollDelay;
+    this.serverPollInterval = config.serverPollInterval;
   }
 
   public List<String> getSlaveServerNames( ILogChannel log, IMetaStore metaStore ) {
@@ -136,5 +156,37 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
    */
   public void setRunConfigurationName( String runConfigurationName ) {
     this.runConfigurationName = runConfigurationName;
+  }
+
+  /**
+   * Gets serverPollDelay
+   *
+   * @return value of serverPollDelay
+   */
+  public String getServerPollDelay() {
+    return serverPollDelay;
+  }
+
+  /**
+   * @param serverPollDelay The serverPollDelay to set
+   */
+  public void setServerPollDelay( String serverPollDelay ) {
+    this.serverPollDelay = serverPollDelay;
+  }
+
+  /**
+   * Gets serverPollInterval
+   *
+   * @return value of serverPollInterval
+   */
+  public String getServerPollInterval() {
+    return serverPollInterval;
+  }
+
+  /**
+   * @param serverPollInterval The serverPollInterval to set
+   */
+  public void setServerPollInterval( String serverPollInterval ) {
+    this.serverPollInterval = serverPollInterval;
   }
 }

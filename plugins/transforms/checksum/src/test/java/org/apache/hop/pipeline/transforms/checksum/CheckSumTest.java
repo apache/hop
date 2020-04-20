@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -113,7 +114,7 @@ public class CheckSumTest {
     PipelineHopMeta hop = new PipelineHopMeta( checkSumTransform, dummyTransform );
     pipelineMeta.addPipelineHop( hop );
 
-    return new Pipeline( pipelineMeta );
+    return new LocalPipelineEngine( pipelineMeta );
   }
 
   private RowMeta createStringRowMeta( IValueMeta meta ) throws Exception {

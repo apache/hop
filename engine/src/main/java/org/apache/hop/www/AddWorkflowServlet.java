@@ -51,97 +51,10 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
   public AddWorkflowServlet() {
   }
 
-  public AddWorkflowServlet( WorkflowMap workflowMap, SocketRepository socketRepository ) {
-    super( workflowMap, socketRepository );
+  public AddWorkflowServlet( WorkflowMap workflowMap ) {
+    super( workflowMap );
   }
 
-  /**
-   * /**
-   *
-   * <div id="mindtouch">
-   * <h1>/hop/addJob</h1>
-   * <a name="POST"></a>
-   * <h2>POST</h2>
-   * <p>Uploads and executes workflow configuration XML file.
-   * Uploads xml file containing workflow and job_execution_configuration (wrapped in job_configuration tag)
-   * to be executed and executes it. Method relies on the input parameter to determine if xml or html
-   * reply should be produced. The job_configuration xml is
-   * transferred within request body.
-   *
-   * <code>Workflow name of the executed workflow </code> will be returned in the Response object
-   * or <code>message</code> describing error occurred. To determine if the call successful or not you should
-   * rely on <code>result</code> parameter in response.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * POST /hop/addJob/?xml=Y
-   * </pre>
-   * <p>Request body should contain xml containing job_configuration (workflow + job_execution_configuration
-   * wrapped in job_configuration tag).</p>
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>xml</td>
-   * <td>Boolean flag set to either <code>Y</code> or <code>N</code> describing if xml or html reply
-   * should be produced.</td>
-   * <td>boolean, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">element:</td>
-   * <td>(custom)</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>text/xml, text/html</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>Response wraps workflow name that was executed or error stack trace
-   * if an error occurred. Response has <code>result</code> OK if there were no errors. Otherwise it returns ERROR.</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <?xml version="1.0" encoding="UTF-8"?>
-   * <webresult>
-   * <result>OK</result>
-   * <message>Workflow &#x27;dummy_job&#x27; was added to the list with id 1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</message>
-   * <id>1e90eca8-4d4c-47f7-8e5c-99ec36525e7c</id>
-   * </webresult>
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed and XML response is returned.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getRequestURI().startsWith( CONTEXT_PATH ) ) {
@@ -227,8 +140,6 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
         ActionCopy startActionCopy = workflowMeta.findAction( startCopyName, startCopyNr );
         workflow.setStartActionCopy( startActionCopy );
       }
-
-      workflow.setSocketRepository( getSocketRepository() );
 
       getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
 

@@ -36,6 +36,8 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
@@ -59,7 +61,6 @@ public class HopServerSingleton {
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;
   private List<SlaveServerDetection> detections;
-  private SocketRepository socketRepository;
 
   private HopServerSingleton( SlaveServerConfig config ) throws HopException {
     HopEnvironment.init();
@@ -70,8 +71,7 @@ public class HopServerSingleton {
     pipelineMap.setSlaveServerConfig( config );
     workflowMap = new WorkflowMap();
     workflowMap.setSlaveServerConfig( config );
-    detections = new ArrayList<SlaveServerDetection>();
-    socketRepository = new SocketRepository( log );
+    detections = new ArrayList<>();
 
     installPurgeTimer( config, log, pipelineMap, workflowMap );
 
@@ -153,7 +153,7 @@ public class HopServerSingleton {
               // Check all pipelines...
               //
               for ( HopServerObjectEntry entry : pipelineMap.getPipelineObjects() ) {
-                Pipeline pipeline = pipelineMap.getPipeline( entry );
+                IPipelineEngine<PipelineMeta> pipeline = pipelineMap.getPipeline( entry );
 
                 // See if the pipeline is finished or stopped.
                 //
@@ -268,14 +268,6 @@ public class HopServerSingleton {
 
   public void setDetections( List<SlaveServerDetection> detections ) {
     this.detections = detections;
-  }
-
-  public SocketRepository getSocketRepository() {
-    return socketRepository;
-  }
-
-  public void setSocketRepository( SocketRepository socketRepository ) {
-    this.socketRepository = socketRepository;
   }
 
   public static SlaveServerConfig getSlaveServerConfig() {

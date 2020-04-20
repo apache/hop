@@ -268,13 +268,13 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cParams = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Argument" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 126 ), // TransformName
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true), // TransformName
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Default" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 138 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true), // Preview size
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Value" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 142 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false), // Preview size
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".ParamsColumn.Description" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, true, 181 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, true ), // Preview size
     };
 
     String[] namedParams = abstractMeta.listParameters();
@@ -302,14 +302,13 @@ public abstract class ConfigurationDialog extends Dialog {
 
     ColumnInfo[] cVariables = {
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Argument" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 287 ), // TransformName
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false ), // TransformName
       new ColumnInfo( BaseMessages.getString( PKG, prefix + ".VariablesColumn.Value" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, false, false, 300 ), // Preview size
+        ColumnInfo.COLUMN_TYPE_TEXT, false, false ), // Preview size
     };
 
     int nrVariables = configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
-    wVariables =
-      new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
+    wVariables = new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
         nrVariables, false, null, props, false );
 
     FormData fdVariables = new FormData();

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 /**
  * This class is the base class for the ITransformData and contains the methods to set and retrieve the status of the
@@ -39,113 +39,15 @@ public abstract class BaseTransformData implements ITransformData {
   private static Class<?> PKG = BaseTransform.class; // for i18n purposes, needed by Translator!!
 
   /**
-   * The Enum TransformExecutionStatus.
-   */
-  public enum TransformExecutionStatus {
-
-    /**
-     * The status empty.
-     */
-    STATUS_EMPTY( BaseMessages.getString( PKG, "BaseTransform.status.Empty" ) ),
-
-    /**
-     * The status init.
-     */
-    STATUS_INIT( BaseMessages.getString( PKG, "BaseTransform.status.Init" ) ),
-
-    /**
-     * The status running.
-     */
-    STATUS_RUNNING( BaseMessages.getString( PKG, "BaseTransform.status.Running" ) ),
-
-    /**
-     * The status idle.
-     */
-    STATUS_IDLE( BaseMessages.getString( PKG, "BaseTransform.status.Idle" ) ),
-
-    /**
-     * The status finished.
-     */
-    STATUS_FINISHED( BaseMessages.getString( PKG, "BaseTransform.status.Finished" ) ),
-
-    /**
-     * The status stopped.
-     */
-    STATUS_STOPPED( BaseMessages.getString( PKG, "BaseTransform.status.Stopped" ) ),
-
-    /**
-     * The status disposed.
-     */
-    STATUS_DISPOSED( BaseMessages.getString( PKG, "BaseTransform.status.Disposed" ) ),
-
-    /**
-     * The status halted.
-     */
-    STATUS_HALTED( BaseMessages.getString( PKG, "BaseTransform.status.Halted" ) ),
-
-    /**
-     * The status paused.
-     */
-    STATUS_PAUSED( BaseMessages.getString( PKG, "BaseTransform.status.Paused" ) ),
-
-    /**
-     * The status halting.
-     */
-    STATUS_HALTING( BaseMessages.getString( PKG, "BaseTransform.status.Halting" ) );
-
-    /**
-     * The description.
-     */
-    private String description;
-
-    /**
-     * Instantiates a new transform execution status.
-     *
-     * @param description the description
-     */
-    private TransformExecutionStatus( String description ) {
-      this.description = description;
-    }
-
-    /**
-     * Gets the description.
-     *
-     * @return the description
-     */
-    public String getDescription() {
-      return description;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Enum#toString()
-     */
-    @Override
-    public String toString() {
-      return description;
-    }
-
-    public static TransformExecutionStatus getStatusFromDescription(String description) {
-      for (TransformExecutionStatus status : values()) {
-        if (status.description.equalsIgnoreCase( description )) {
-          return status;
-        }
-      }
-      return STATUS_EMPTY;
-    }
-  }
-
-  /**
    * The status.
    */
-  private TransformExecutionStatus status;
+  private ComponentExecutionStatus status;
 
   /**
    * Instantiates a new base transform data.
    */
   public BaseTransformData() {
-    status = TransformExecutionStatus.STATUS_EMPTY;
+    status = ComponentExecutionStatus.STATUS_EMPTY;
   }
 
   /**
@@ -153,7 +55,7 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @param status the new status.
    */
-  @Override public void setStatus( TransformExecutionStatus status ) {
+  @Override public void setStatus( ComponentExecutionStatus status ) {
     this.status = status;
   }
 
@@ -162,7 +64,7 @@ public abstract class BaseTransformData implements ITransformData {
    *
    * @return the status of the transform data
    */
-  @Override public TransformExecutionStatus getStatus() {
+  @Override public ComponentExecutionStatus getStatus() {
     return status;
   }
 
@@ -172,7 +74,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is empty
    */
   @Override public boolean isEmpty() {
-    return status == TransformExecutionStatus.STATUS_EMPTY;
+    return status == ComponentExecutionStatus.STATUS_EMPTY;
   }
 
   /**
@@ -181,7 +83,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is initialising
    */
   @Override public boolean isInitialising() {
-    return status == TransformExecutionStatus.STATUS_INIT;
+    return status == ComponentExecutionStatus.STATUS_INIT;
   }
 
   /**
@@ -190,7 +92,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is running
    */
   @Override public boolean isRunning() {
-    return status == TransformExecutionStatus.STATUS_RUNNING;
+    return status == ComponentExecutionStatus.STATUS_RUNNING;
   }
 
   /**
@@ -199,7 +101,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is idle
    */
   @Override public boolean isIdle() {
-    return status == TransformExecutionStatus.STATUS_IDLE;
+    return status == ComponentExecutionStatus.STATUS_IDLE;
   }
 
   /**
@@ -208,7 +110,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is finished
    */
   @Override public boolean isFinished() {
-    return status == TransformExecutionStatus.STATUS_FINISHED;
+    return status == ComponentExecutionStatus.STATUS_FINISHED;
   }
 
   /**
@@ -217,7 +119,7 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is stopped
    */
   public boolean isStopped() {
-    return status == TransformExecutionStatus.STATUS_STOPPED;
+    return status == ComponentExecutionStatus.STATUS_STOPPED;
   }
 
   /**
@@ -226,6 +128,6 @@ public abstract class BaseTransformData implements ITransformData {
    * @return true, if is disposed
    */
   @Override public boolean isDisposed() {
-    return status == TransformExecutionStatus.STATUS_DISPOSED;
+    return status == ComponentExecutionStatus.STATUS_DISPOSED;
   }
 }

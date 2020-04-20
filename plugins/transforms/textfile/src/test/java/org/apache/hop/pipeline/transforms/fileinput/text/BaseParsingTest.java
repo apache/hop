@@ -34,6 +34,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -83,8 +84,8 @@ public abstract class BaseParsingTest<Meta extends ITransformMeta, Data extends 
     transformMeta = new TransformMeta();
     transformMeta.setName( "test" );
 
-    pipeline = new Pipeline();
-    pipeline.setLog( log );
+    pipeline = new LocalPipelineEngine();
+    pipeline.setLogChannel( log );
     pipeline.setRunning( true );
     pipelineMeta = new PipelineMeta() {
       @Override

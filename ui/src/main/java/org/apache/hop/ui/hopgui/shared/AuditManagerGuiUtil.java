@@ -6,10 +6,12 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.ui.hopgui.HopGui;
 
+import java.util.List;
+
 /**
  * Utility methods for conveniently storing and retrieving items, lists and so on...
  */
-public class AuditManagerGui {
+public class AuditManagerGuiUtil {
 
   /**
    * Return the last used value of a certain type.
@@ -45,11 +47,20 @@ public class AuditManagerGui {
       if (list==null) {
         list = new AuditList();
       }
-      list.getNames().add(value);
-      // Remove when we have more than 50 items in the list // TODO allow this to be configured
+      List<String> names = list.getNames();
+
+      // Move the value to the start of the list if it exists
+      //
+      int index = names.indexOf( value );
+      if (index>=0) {
+        names.remove( index );
+      }
+      names.add(0, value);
+
+      // Remove the last items when we have more than 20 in the list // TODO allow this to be configured
       // We don't want these things to grow out of control
       //
-      while (list.getNames().size()>50) {
+      while (list.getNames().size()>20) {
         list.getNames().remove( list.getNames().size()-1 );
       }
       auditManager.storeList( list );

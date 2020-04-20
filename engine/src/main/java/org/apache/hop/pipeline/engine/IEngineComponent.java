@@ -22,6 +22,9 @@
 
 package org.apache.hop.pipeline.engine;
 
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.IRowListener;
+
 /**
  * An identifiable component of an execution engine {@link IPipelineEngine}
  * In a pipeline engine this would be a transform
@@ -62,7 +65,50 @@ public interface IEngineComponent {
   boolean isSelected();
 
   /**
+   * @return True if the component is stopped
+   */
+  boolean isStopped();
+
+  /**
+   * @return True if the component is paused
+   */
+  boolean isPaused();
+
+  /**
    * @return The number of errors in this component
    */
   long getErrors();
+
+  long getLinesRead();
+  long getLinesWritten();
+  long getLinesInput();
+  long getLinesOutput();
+  long getLinesRejected();
+  long getLinesUpdated();
+
+  String getStatusDescription();
+
+  long getExecutionDuration();
+
+  long getInputBufferSize();
+
+  long getOutputBufferSize();
+
+  /**
+   * Add a rowlistener to the transform allowing you to inspect (or manipulate, be careful) the rows coming in or exiting the
+   * transform.
+   *
+   * @param rowListener the rowlistener to add
+   */
+  void addRowListener( IRowListener rowListener );
+
+  void removeRowListener( IRowListener rowListener );
+
+  /**
+   * Get the execution status of the component
+   * @return
+   */
+  EngineComponent.ComponentExecutionStatus getStatus();
+
+
 }

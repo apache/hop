@@ -41,6 +41,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -969,7 +970,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         meta.getFields( rowMeta, transformName, null, null, pipelineMeta, metaStore );
 
         PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, meta, transformName );
-        final Pipeline pipeline = new Pipeline( previewPipelineMeta );
+        final Pipeline pipeline = new LocalPipelineEngine( previewPipelineMeta );
         pipeline.prepareExecution();
         ITransform transform = pipeline.getRunThread( transformName, 0 );
         transform.addRowListener( new RowAdapter() {

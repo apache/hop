@@ -115,43 +115,4 @@ public class GetPipelineStatusServletTest {
     Encode.forHtml( anyString() );
   }
 
-  @Test
-  public void testGetPipelineStatus() throws ServletException, IOException {
-    HopLogStore.init();
-    HopServerStatusCache cacheMock = mock( HopServerStatusCache.class );
-    getPipelineStatusServlet.cache = cacheMock;
-    HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
-    HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Pipeline mockPipeline = mock( Pipeline.class );
-    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    ILogChannel mockChannelInterface = mock( ILogChannel.class );
-    ServletOutputStream outMock = mock( ServletOutputStream.class );
-
-    String id = "123";
-    String logId = "logId";
-    String useXml = "Y";
-
-    when( mockHttpServletRequest.getContextPath() ).thenReturn( GetPipelineStatusServlet.CONTEXT_PATH );
-    when( mockHttpServletRequest.getParameter( "id" ) ).thenReturn( id );
-    when( mockHttpServletRequest.getParameter( "xml" ) ).thenReturn( useXml );
-    when( mockHttpServletResponse.getOutputStream() ).thenReturn( outMock );
-    when( mockPipelineMap.getPipeline( any( HopServerObjectEntry.class ) ) ).thenReturn( mockPipeline );
-    when( mockPipeline.getLogChannel() ).thenReturn( mockChannelInterface );
-    when( mockPipeline.getPipelineMeta() ).thenReturn( mockPipelineMeta );
-    when( mockPipeline.getLogChannelId() ).thenReturn( logId );
-    when( mockPipeline.isFinishedOrStopped() ).thenReturn( true );
-    when( mockPipeline.getStatus() ).thenReturn( "Finished" );
-
-    when( mockPipelineMeta.getMaximum() ).thenReturn( new Point( 10, 10 ) );
-
-    getPipelineStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-    when( cacheMock.get( logId, 0 ) ).thenReturn( new byte[] { 0, 1, 2 } );
-    getPipelineStatusServlet.doGet( mockHttpServletRequest, mockHttpServletResponse );
-
-    verify( cacheMock, times( 2 ) ).get( logId, 0 );
-    verify( cacheMock, times( 1 ) ).put( eq( logId ), anyString(), eq( 0 ) );
-    verify( mockPipeline, times( 1 ) ).getLogChannel();
-
-  }
-
 }

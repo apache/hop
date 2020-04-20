@@ -24,42 +24,58 @@ package org.apache.hop.pipeline.engines.local;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 
 public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
+  private PipelineEngineCapabilities engineCapabilities = new LocalPipelineEngineCapabilities();
+
   public LocalPipelineEngine() {
     super();
+    setDefaultRunConfiguration();
   }
 
   public LocalPipelineEngine( PipelineMeta pipelineMeta ) {
     super( pipelineMeta );
+    setDefaultRunConfiguration();
   }
 
   public LocalPipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent ) {
     super( pipelineMeta, parent );
+    setDefaultRunConfiguration();
   }
 
   public <Parent extends IVariables & INamedParams> LocalPipelineEngine( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
     super( parent, name, filename, metaStore );
+    setDefaultRunConfiguration();
   }
 
   @Override public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {
     return new LocalPipelineRunConfiguration();
   }
 
+  private void setDefaultRunConfiguration() {
+    setPipelineRunConfiguration( new PipelineRunConfiguration( "local", "", createDefaultPipelineEngineRunConfiguration() ) );
+  }
+
   @Override public void prepareExecution() throws HopException {
 
     if (!(pipelineRunConfiguration.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration)) {
-      throw new HopException( "A local pipeline execution expects a local pipeline configuration, not class "+pipelineRunConfiguration.getEngineRunConfiguration().getClass().getName() );
+      throw new HopException( "A local pipeline execution expects a local pipeline configuration, not an instance of class "+pipelineRunConfiguration.getEngineRunConfiguration().getClass().getName() );
     }
+    log.logBasic("Executing this pipeline using the Local Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
+
     LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
     int sizeRowsSet = Const.toInt( pipelineMeta.environmentSubstitute( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
@@ -71,5 +87,25 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     setFeedbackSize( Const.toInt( environmentSubstitute( config.getFeedbackSize() ), Const.ROWS_UPDATE ) );
 
     super.prepareExecution();
+  }
+
+  /**
+   * Gets engineCapabilities
+   *
+   * @return value of engineCapabilities
+   */
+  @Override public PipelineEngineCapabilities getEngineCapabilities() {
+    return engineCapabilities;
+  }
+
+  /**
+   * @param engineCapabilities The engineCapabilities to set
+   */
+  public void setEngineCapabilities( PipelineEngineCapabilities engineCapabilities ) {
+    this.engineCapabilities = engineCapabilities;
+  }
+
+  @Override public String getStatusDescription() {
+    return super.getStatus();
   }
 }

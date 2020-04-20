@@ -620,11 +620,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           if ( workflow.isInteractive() ) {
             workflow.getJobEntryListeners().addAll( parentWorkflow.getJobEntryListeners() );
           }
-
-          // Pass the socket repository all around.
-          //
-          workflow.setSocketRepository( parentWorkflow.getSocketRepository() );
-
+          
           // Set the parameters calculated above on this instance.
           //
           workflow.clearParameters();
@@ -665,9 +661,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           // Link both ways!
           workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
 
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            workflow.setPassedBatchId( parentWorkflow.getBatchId() );
-          }
 
           // Inform the parent workflow we started something here...
           //
@@ -726,9 +719,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
             String defValue = namedParam.getParameterDefault( param );
             String value = namedParam.getParameterValue( param );
             workflowExecutionConfiguration.getParametersMap().put( param, Const.NVL( value, defValue ) );
-          }
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            workflowExecutionConfiguration.setPassedBatchId( parentWorkflow.getBatchId() );
           }
 
           // Send the XML over to the slave server

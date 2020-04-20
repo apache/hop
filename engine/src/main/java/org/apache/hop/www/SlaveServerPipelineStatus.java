@@ -253,7 +253,9 @@ public class SlaveServerPipelineStatus {
 
   public boolean isRunning() {
     return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING );
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_PAUSED )
+      ;
   }
 
   public boolean isStopped() {

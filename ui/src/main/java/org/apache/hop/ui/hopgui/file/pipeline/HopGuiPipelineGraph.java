@@ -85,6 +85,7 @@ import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
@@ -3143,7 +3144,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void preview() {
     try {
-      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, true, false, true, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
+      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error previewing pipeline", e );
     }
@@ -3165,7 +3166,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       context.getPipelineMeta().unselectAll();
       context.getTransformMeta().setSelected( true );
-      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, true, false, true, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
+      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error previewing pipeline", e );
     }
@@ -3182,7 +3183,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void debug() {
     try {
-      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, false, true, true, pipelineRunDelegate.getPipelineDebugExecutionConfiguration().getLogLevel() );
+      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, false, true, pipelineRunDelegate.getPipelineDebugExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error debugging pipeline", e );
     }
@@ -3204,7 +3205,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       context.getPipelineMeta().unselectAll();
       context.getTransformMeta().setSelected( true );
-      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, false, true, true, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
+      pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, false, debug, pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel() );
     } catch ( Exception e ) {
       new ErrorDialog( hopShell(), "Error", "Error previewing pipeline", e );
     }
@@ -3391,7 +3392,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           if ( isRunning() && pipeline.isPaused() ) {
             pauseResume();
           } else {
-            pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, true, false, false, false, false, LogLevel.BASIC );
+            pipelineRunDelegate.executePipeline( hopUi.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
           }
         } catch ( Throwable e ) {
           new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
@@ -3771,7 +3772,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Create a new pipeline to execution
         //
-        pipeline = new Pipeline( pipelineMeta );
+        pipeline = new LocalPipelineEngine( pipelineMeta );
         pipeline.setPreview( true );
         pipeline.setMetaStore( hopUi.getMetaStore() );
         pipeline.prepareExecution();
@@ -3915,6 +3916,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       try {
         pipeline.prepareExecution();
 
+        // Refresh tool bar buttons and so on
+        //
+        updateGui();
+
         // Capture data?
         //
         pipelinePreviewDelegate.capturePreviewData( pipeline, pipelineMeta.getTransforms() );
@@ -3924,6 +3929,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         log.logError( pipeline.getSubject().getName() + ": preparing pipeline execution failed", e );
         checkErrorVisuals();
       }
+
       halted = pipeline.hasHaltedComponents();
       if ( pipeline.isReadyToStart() ) {
         checkStartThreads(); // After init, launch the threads.
@@ -3949,15 +3955,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       //
       pipeline.addExecutionFinishedListener( pipeline -> {
           checkPipelineEnded();
-          // checkErrorVisuals();
-          // stopRedrawTimer();
+          checkErrorVisuals();
+          stopRedrawTimer();
 
-          // pipelineMetricsDelegate.resetLastRefreshTime();
-          // pipelineMetricsDelegate.updateGraph();
+          pipelineMetricsDelegate.resetLastRefreshTime();
+          pipelineMetricsDelegate.updateGraph();
         }
       );
 
       pipeline.startThreads();
+
       startRedrawTimer();
 
       updateGui();
@@ -3986,12 +3993,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       @Override
       public void run() {
         if ( !hopDisplay().isDisposed() ) {
-          hopDisplay().asyncExec( new Runnable() {
-            @Override
-            public void run() {
-              if ( !HopGuiPipelineGraph.this.canvas.isDisposed() ) {
-                HopGuiPipelineGraph.this.canvas.redraw();
-              }
+          hopDisplay().asyncExec( () -> {
+            if ( !HopGuiPipelineGraph.this.canvas.isDisposed() ) {
+              HopGuiPipelineGraph.this.canvas.redraw();
+              HopGuiPipelineGraph.this.updateGui();
             }
           } );
         }
@@ -4432,7 +4437,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedTransforms );
 
         boolean running = isRunning();
-        boolean paused = isRunning() && pipeline.isPaused();
+        boolean paused =  running && pipeline.isPaused();
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running || paused );
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PAUSE, running && !paused );

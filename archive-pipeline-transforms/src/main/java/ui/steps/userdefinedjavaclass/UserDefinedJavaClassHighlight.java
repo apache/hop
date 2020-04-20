@@ -432,7 +432,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
     "getInfoTransforms", "getInputRowMeta", "getInputRowSets", "getLinesInput", "getLinesOutput", "getLinesRead",
     "getLinesRejected", "getLinesSkipped", "getLinesUpdated", "getLinesWritten", "getOutputRowSets",
     "getPartitionID", "getPartitionTargets", "getProcessed", "getRepartitioning", "getResultFiles", "getRow",
-    "getRowFrom", "getRowListeners", "getRuntime", "getSlaveNr", "getSocketRepository", "getStatus",
+    "getRowFrom", "getRowListeners", "getRuntime", "getSlaveNr", "getStatus",
     "getStatusDescription", "getTransformDataInterface", "getTransformID", "getTransformListeners", "getTransformMeta",
     "getTransformname", "getPipeline", "getPipelineMeta", "getTypeId", "getUniqueTransformCountAcrossSlaves",
     "getUniqueTransformNrAcrossSlaves", "getVariable", "incrementLinesInput", "incrementLinesOutput",

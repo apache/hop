@@ -42,10 +42,10 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
@@ -108,7 +108,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
                           boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
 
     this( gc, pipelineMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, iconsize,
-      linewidth, gridsize, noteFontName, noteFontHeight, new Pipeline( pipelineMeta ), false, zoomFactor );
+      linewidth, gridsize, noteFontName, noteFontHeight, null, false, zoomFactor );
   }
 
   private static String[] getPeekTitles() {
@@ -529,7 +529,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         for ( IEngineComponent transform : transforms ) {
           String transformStatus = engineMetrics.getComponentStatusMap().get( transform );
-          if ( transformStatus != null && transformStatus.equals( TransformExecutionStatus.STATUS_FINISHED ) ) {
+          if ( transformStatus != null && transformStatus.equalsIgnoreCase( EngineComponent.ComponentExecutionStatus.STATUS_FINISHED.getDescription() ) ) {
             gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
           }
         }
@@ -1023,7 +1023,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return pipeline;
   }
 
-  public void setPipeline( Pipeline pipeline ) {
+  public void setPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
     this.pipeline = pipeline;
   }
 

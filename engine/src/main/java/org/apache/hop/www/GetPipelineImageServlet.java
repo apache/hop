@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -134,7 +135,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
     // ID is optional...
     //
-    Pipeline pipeline;
+    IPipelineEngine<PipelineMeta> pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
@@ -163,7 +164,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
         // Generate xform image
         //
-        BufferedImage image = generatePipelineImage( pipeline.getPipelineMeta() );
+        BufferedImage image = generatePipelineImage( pipeline.getSubject() );
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
           ImageIO.write( image, "png", os );
@@ -187,8 +188,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     maximum.multiply( magnification );
 
     SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
-    PipelinePainter pipelinePainter =
-      new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, true, "Arial", 10, 1.0d );
+    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, true, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.buildPipelineImage();
 

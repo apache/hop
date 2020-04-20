@@ -29,6 +29,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
@@ -170,7 +172,7 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
 
     // ID is optional...
     //
-    Pipeline pipeline;
+    IPipelineEngine<PipelineMeta> pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
