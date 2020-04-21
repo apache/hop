@@ -97,6 +97,7 @@
         <module>getvariable</module>
         <module>http</module>
         <module>httppost</module>
+        <module>insertupdate</module>
         <module>loadfileinput</module>
         <module>mergejoin</module>
         <module>pgbulkloader</module>
@@ -106,9 +107,12 @@
         <module>sort</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>tablecompare</module>
+        <module>tableexists</module>
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
+        <module>update</module>
       </modules>
     </profile>
 

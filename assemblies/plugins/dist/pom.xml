@@ -390,8 +390,8 @@
                  <artifactId>*</artifactId>
              </exclusion>
          </exclusions>
-     </dependency>  
-          
+     </dependency>
+
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-action-mail</artifactId>
@@ -1372,6 +1372,19 @@
 
      <dependency>
          <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-transforms-insertupdate</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-transforms-loadfileinput</artifactId>
          <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
@@ -1489,6 +1502,45 @@
 
      <dependency>
          <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-transforms-switchcase</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-transforms-tablecompare</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-transforms-tableexists</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-transforms-terafast</artifactId>
          <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
@@ -1503,6 +1555,19 @@
      <dependency>
          <groupId>org.hop</groupId>
          <artifactId>hop-assemblies-plugins-transforms-textfile</artifactId>
+         <version>${hop-plugins-transforms.version}</version>
+         <type>zip</type>
+         <exclusions>
+             <exclusion>
+                 <groupId>*</groupId>
+                 <artifactId>*</artifactId>
+             </exclusion>
+         </exclusions>
+     </dependency>
+
+     <dependency>
+         <groupId>org.hop</groupId>
+         <artifactId>hop-assemblies-plugins-transforms-update</artifactId>
          <version>${hop-plugins-transforms.version}</version>
          <type>zip</type>
          <exclusions>
