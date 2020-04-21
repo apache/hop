@@ -23,10 +23,10 @@ package org.apache.hop.databases.mariadb;
 
 import com.google.common.collect.Sets;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 

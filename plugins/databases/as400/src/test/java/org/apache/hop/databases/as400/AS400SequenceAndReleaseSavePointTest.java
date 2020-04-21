@@ -22,13 +22,15 @@
 
 package org.apache.hop.databases.as400;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class AS400SequenceAndReleaseSavePointTest {
   @ClassRule

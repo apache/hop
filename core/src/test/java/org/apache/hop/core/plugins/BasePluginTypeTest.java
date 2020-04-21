@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.junit.Test;
 

@@ -22,9 +22,9 @@
 
 package org.apache.hop.databases.greenplum;
 
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
 
 /**

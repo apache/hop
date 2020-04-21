@@ -22,8 +22,8 @@
 
 package org.apache.hop.databases.infinidb;
 
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 
 @DatabaseMetaPlugin(
