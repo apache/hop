@@ -24,9 +24,9 @@ package org.apache.hop.databases.remedyarsystem;
 
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.GenericDatabaseMeta;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 
 /**
  * Contains Database Connection information through static final members for a BMW Remedy Action Request System. These

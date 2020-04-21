@@ -22,6 +22,7 @@
 
 package org.apache.hop.core;
 
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -32,7 +33,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingPlugin;
 import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.logging.Slf4jLoggingEventListener;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginType;

@@ -28,12 +28,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.util.DatabaseLogExceptionFactory;
 import org.apache.hop.core.database.util.ILogExceptionBehaviour;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogTableCore;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;

@@ -33,7 +33,6 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;

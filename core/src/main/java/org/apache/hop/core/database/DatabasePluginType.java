@@ -20,11 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.plugins;
+package org.apache.hop.core.database;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginAnnotationType;
+import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.plugins;
+package org.apache.hop.core.database;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

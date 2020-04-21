@@ -23,12 +23,12 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.sqlite.SQLiteDatabaseMeta;
