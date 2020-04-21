@@ -29,10 +29,10 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
@@ -766,12 +766,14 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private DatabaseMeta getInfo( DatabaseMeta meta ) {
 
     meta.setName( wName.getText() );
-
+    meta.setDatabaseType(wConnectionType.getText() );
+    
     // Get the database specific information
     //
     guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     meta.setAccessType( wODBC.getSelection() ? DatabaseMeta.TYPE_ACCESS_ODBC : DatabaseMeta.TYPE_ACCESS_NATIVE );
+
     meta.setOdbcDsn( wOdbcDsn.getText() );
     meta.setManualUrl( wManualUrl.getText() );
     meta.setUsername( wUsername.getText() );

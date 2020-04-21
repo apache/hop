@@ -22,9 +22,9 @@
 
 package org.apache.hop.core.database.metastore;
 
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;

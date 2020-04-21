@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.util;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public class PluginPropertyFactory {
 
   private final KeyValueSet properties;

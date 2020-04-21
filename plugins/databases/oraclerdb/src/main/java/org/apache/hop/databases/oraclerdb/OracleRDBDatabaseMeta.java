@@ -26,9 +26,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
 /**
@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
   type = "ORACLERDB",
   typeDescription = "Oracle RDB"
 )
-@GuiPlugin( id = "GUI-OracleDatabaseMeta" )
+@GuiPlugin( id = "GUI-OracleRDBDatabaseMeta" )
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {

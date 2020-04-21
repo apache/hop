@@ -51,7 +51,6 @@ import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.Metrics;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;

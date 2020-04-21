@@ -136,8 +136,6 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
   private FormData fdDoMapping;
 
-  private Button wAbout;
-
   private ColumnInfo[] ciReturn;
 
   private Map<String, Integer> inputFields = new HashMap<>();
@@ -315,12 +313,6 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         ok();
       }
     };
-
-    this.wAbout.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event arg0 ) {
-        new TeraFastAboutDialog( TeraFastDialog.this.shell ).open();
-      }
-    } );
 
     this.wCancel.addListener( SWT.Selection, this.lsCancel );
     this.wOk.addListener( SWT.Selection, this.lsOk );
@@ -557,8 +549,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
     this.wOk = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.OK" ) );
     this.wCancel = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    this.wAbout = factory.createPushButton( BaseMessages.getString( PKG, "TeraFastDialog.About.Button" ) );
-    setButtonPositions( new Button[] { this.wOk, this.wCancel, this.wAbout }, factory.getMargin(), this.wAscLink );
+    setButtonPositions( new Button[] { this.wOk, this.wCancel, }, factory.getMargin(), this.wAscLink );
     
     this.wTransformName.addModifyListener( lsMod );
     this.wControlFile.addModifyListener( lsMod );
@@ -905,9 +896,6 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     return this.meta;
   }
 
-  /**
-   * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
-   */
   private static final class FieldLoader extends Thread {
 
     private TeraFastDialog dialog;

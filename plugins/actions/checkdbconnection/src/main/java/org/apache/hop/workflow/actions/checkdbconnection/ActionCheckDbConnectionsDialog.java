@@ -27,15 +27,15 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -64,10 +64,10 @@ import java.util.List;
  * @since 12-10-2007
  */
 @PluginDialog(
-  id = "CHECK_DB_CONNECTIONS", 
-  image = "CheckDbConnection.svg", 
+  id = "CHECK_DB_CONNECTIONS",
+  image = "CheckDbConnection.svg",
   pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/" 
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
@@ -75,12 +75,12 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   private Text wName;
 
-  private ActionICheckDbConnections action;
+  private ActionCheckDbConnections action;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
-  
+
   private TableView wFields;
 
   private FormData fdbdSourceFileFolder;
@@ -89,7 +89,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   public ActionCheckDbConnectionsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionICheckDbConnections) action;
+    this.action = (ActionCheckDbConnections) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
     }
@@ -105,7 +105,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
-	  changed = action.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -181,7 +181,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.WaitForTime.Label" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, ActionICheckDbConnections.unitTimeDesc, false ), };
+          ColumnInfo.COLUMN_TYPE_CCOMBO, ActionCheckDbConnections.unitTimeDesc, false ), };
 
     colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "JobCheckDbConnections.Fields.Column" ) );
     colinf[ 1 ].setUsingVariables( true );
@@ -205,7 +205,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wOk.setLayoutData( fd );
-    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wOk.addListener( SWT.Selection, ( Event e ) -> {
+      ok();
+    } );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -214,7 +216,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wCancel.setLayoutData( fd );
-    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> {
+      cancel();
+    } );
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
@@ -265,9 +269,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     return action;
   }
 
-//  public void addDatabases() {
-//    connections = workflowMeta.getDatabaseNames();
-//  }
+  //  public void addDatabases() {
+  //    connections = workflowMeta.getDatabaseNames();
+  //  }
 
   public void getDatabases() {
     wFields.removeAll();
@@ -275,7 +279,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     for ( int i = 0; i < databases.size(); i++ ) {
       DatabaseMeta ci = databases.get( i );
       if ( ci != null ) {
-        wFields.add( new String[] { ci.getName(), "0", ActionICheckDbConnections.unitTimeDesc[ 0 ] } );
+        wFields.add( new String[] { ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[ 0 ] } );
       }
     }
     wFields.removeEmptyRows();
@@ -303,7 +307,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         if ( action.getConnections()[ i ] != null ) {
           ti.setText( 1, action.getConnections()[ i ].getName() );
           ti.setText( 2, "" + Const.toInt( action.getWaitfors()[ i ], 0 ) );
-          ti.setText( 3, ActionICheckDbConnections.getWaitTimeDesc( action.getWaittimes()[ i ] ) );
+          ti.setText( 3, ActionCheckDbConnections.getWaitTimeDesc( action.getWaittimes()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -343,7 +347,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         connections[ i ] = dbMeta;
         waitfors[ i ] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );
         waittimes[ i ] =
-          ActionICheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
+          ActionCheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
       }
     }
     action.setConnections( connections );

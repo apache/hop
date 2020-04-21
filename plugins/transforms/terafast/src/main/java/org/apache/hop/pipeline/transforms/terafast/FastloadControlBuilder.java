@@ -30,9 +30,6 @@ import org.apache.hop.core.util.Assert;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.Utils;
 
-/**
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
- */
 public class FastloadControlBuilder {
 
   public static final String DATAFILE_COLUMN_SEPERATOR = "|";

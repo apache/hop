@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * MESSAGES.getString([key])
  * </code>
  *
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
 public final class PluginMessages {
 

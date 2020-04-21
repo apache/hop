@@ -1,3 +1,6 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/filelocked/src/main/doc/filelocked.adoc
 = File locked
 
 == Description

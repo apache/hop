@@ -28,7 +28,6 @@ import java.util.ArrayList;
 
 /**
  * @param <T> type.
- * @author <a href="mailto:thomas.hoedl@aschauer-edv.at">Thomas Hoedl(asc042)</a>
  */
 public class AddClosureArrayList<T> extends ArrayList<T> implements Closure {
 

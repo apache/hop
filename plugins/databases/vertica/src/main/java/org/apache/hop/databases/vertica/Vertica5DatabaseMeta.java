@@ -22,9 +22,9 @@
 
 package org.apache.hop.databases.vertica;
 
+import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.DatabaseMetaPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
 import java.sql.ResultSet;

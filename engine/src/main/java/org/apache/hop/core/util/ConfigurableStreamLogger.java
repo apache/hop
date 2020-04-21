@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * @author <a href="mailto:michael.gugerell@aschauer-edv.at">Michael Gugerell(asc145)</a>
  * <p>
  * Provides the ability to specify the desired logLevel on which the StreamLogger should write.
  */
