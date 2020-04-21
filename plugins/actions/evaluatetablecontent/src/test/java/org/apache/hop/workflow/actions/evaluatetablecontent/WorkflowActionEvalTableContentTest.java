@@ -22,22 +22,32 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.plugins.DatabasePluginType;
 import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,16 +55,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /*
  * tests fix for PDI-1044
