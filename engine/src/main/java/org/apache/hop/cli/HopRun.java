@@ -62,7 +62,6 @@ import picocli.CommandLine.ParameterException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 public class HopRun implements Runnable {
@@ -79,8 +78,11 @@ public class HopRun implements Runnable {
   @Option( names = { "-h", "--help" }, usageHelp = true, description = "Displays this help message and quits." )
   private boolean helpRequested;
 
-  @Option( names = { "-p", "--parameters" }, description = "A comma separated list of PARAMTER=VALUE pairs", split = "," )
+  @Option( names = { "-p", "--parameters" }, description = "A comma separated list of PARAMETER=VALUE pairs", split = "," )
   private String[] parameters = null;
+
+  @Option( names = { "-s", "--system-properties" }, description = "A comma separated list of KEY=VALUE pairs", split = "," )
+  private String[] systemProperties = null;
 
   @Option( names = { "-r", "--runconfig" }, description = "The name of the Run Configuration to use" )
   private String runConfigurationName = null;
@@ -88,14 +90,8 @@ public class HopRun implements Runnable {
   @Option( names = { "-t", "--pipeline" }, description = "Force execution of a pipeline" )
   private boolean runPipeline = false;
 
-  @Option( names = { "-j", "--workflow" }, description = "Force execution of a workflow" )
-  private boolean runJob = false;
-
-  @Option( names = { "-s", "--slave" }, description = "The slave server to run on" )
-  private String slaveServerName;
-
-  @Option( names = { "-x", "--export" }, description = "Export all resources and send them to the slave server" )
-  private boolean exportToSlaveServer = false;
+  @Option( names = { "-w", "--workflow" }, description = "Force execution of a workflow" )
+  private boolean runWorkflow = false;
 
   @Option( names = { "-q", "--querydelay" }, description = "Delay between querying of remote servers" )
   private String queryDelay;
@@ -112,23 +108,9 @@ public class HopRun implements Runnable {
   @Option( names = { "-initialDir" }, description = "Ignored", hidden = true )
   private String intialDir = null;
 
-  @Option( names = { "-e", "--environment" }, description = "The name of the environment to use" )
-  private String environment;
-
-  @Option( names = { "-C", "--create-environment" }, description = "Create an environment using format <Name>=<Base folder>, applies the environment created" )
-  private String createEnvironmentOption;
-
-  @Option( names = { "-I", "--import-environment" }, description = "Import an environment from a JSON file" )
-  private String environmentJsonFilename;
-
-  @Option( names = { "-V",
-    "--add-variable-to-environment", }, description = "When creating an environment, add the given variable in format <Variable>=<Value>:<Description>. You can specify this option multiple times." )
-  private Map<String, String> variablesToAddToEnvironment;
-
   private IVariables variables;
   private String realRunConfigurationName;
   private String realFilename;
-  private String realSlaveServerName;
   private CommandLine cmd;
   private ILogChannel log;
   private DelegatingMetaStore metaStore;
@@ -141,20 +123,6 @@ public class HopRun implements Runnable {
 
       log = new LogChannel( "HopRun" );
       log.logDetailed( "Start of Hop Run" );
-
-      // Allow modification of various environment settings
-      //
-      ExtensionPointHandler.callExtensionPoint( log, XP_HOP_RUN_START, environment );
-
-      buildVariableSpace();
-      buildMetaStore();
-
-      if ( StringUtils.isNotEmpty( createEnvironmentOption ) ) {
-        createEnvironment();
-      }
-      if ( StringUtils.isNotEmpty( environmentJsonFilename ) ) {
-        importEnvironment();
-      }
 
       if ( isPipeline() ) {
         runPipeline( cmd, log );
@@ -169,6 +137,27 @@ public class HopRun implements Runnable {
 
   private void initialize( CommandLine cmd ) {
     try {
+      // Set some System properties if there were any
+      //
+      if (systemProperties!=null) {
+        for ( String parameter : systemProperties ) {
+          String[] split = parameter.split( "=" );
+          String key = split.length > 0 ? split[ 0 ] : null;
+          String value = split.length > 1 ? split[ 1 ] : null;
+          if ( StringUtils.isNotEmpty( key ) && StringUtils.isNotEmpty( value ) ) {
+            System.setProperty( key, value );
+          }
+        }
+      }
+
+      // Picks up these system settings in the variables
+      //
+      buildVariableSpace();
+
+      // Set up the metastore(s) to use
+      //
+      buildMetaStore();
+
       HopEnvironment.init();
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "There was a problem during the initialization of the Hop environment", e );
@@ -428,11 +417,6 @@ public class HopRun implements Runnable {
 
   private void parseOptions( CommandLine cmd, IExecutionConfiguration configuration, INamedParams namedParams ) throws MetaStoreException {
 
-    if ( StringUtils.isNotEmpty( slaveServerName ) ) {
-      realSlaveServerName = variables.environmentSubstitute( slaveServerName );
-      configureSlaveServer( configuration, realSlaveServerName );
-    }
-
     realRunConfigurationName = variables.environmentSubstitute( runConfigurationName );
     configuration.setRunConfiguration( realRunConfigurationName );
     configuration.setLogLevel( LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) ) );
@@ -461,7 +445,7 @@ public class HopRun implements Runnable {
   }
 
   private boolean isJob() {
-    if ( runJob ) {
+    if ( runWorkflow ) {
       return true;
     }
     if ( StringUtils.isEmpty( filename ) ) {
@@ -540,47 +524,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  public void createEnvironment() throws HopException {
-
-    // Parse the options and call an extension point...
-    // Look in the kettle-environment project for the actual code behind this.
-    //
-    String environmentName;
-    String baseFolder;
-
-    int equalsIndex = createEnvironmentOption.indexOf( '=' );
-    if ( equalsIndex < 0 ) {
-      // Default
-      environmentName = createEnvironmentOption;
-      baseFolder = null;
-    } else {
-      environmentName = createEnvironmentOption.substring( 0, equalsIndex );
-      baseFolder = createEnvironmentOption.substring( equalsIndex + 1 );
-    }
-
-    // Now call the extension point.
-    // The kettle-environment project knows how to handle this in the best possible way
-    //
-    ExtensionPointHandler.callExtensionPoint( log, XP_CREATE_ENVIRONMENT, new Object[] { environmentName, baseFolder, variablesToAddToEnvironment } );
-  }
-
-  public void importEnvironment() throws HopException {
-
-    // Call an extension point with the file to import...
-    // Look in the kettle-environment project for the actual code behind this.
-    // The kettle-environment project knows how to handle this in the best possible way
-    //
-    ExtensionPointHandler.callExtensionPoint( log, XP_IMPORT_ENVIRONMENT, new Object[] { environmentJsonFilename } );
-  }
-
   private void validateOptions() {
-    if ( StringUtils.isNotEmpty( createEnvironmentOption ) ) {
-      return;
-    }
-    if ( StringUtils.isNotEmpty( environmentJsonFilename ) ) {
-      return;
-    }
-
     if ( StringUtils.isEmpty( filename ) ) {
       throw new ParameterException( new CommandLine( this ), "A filename is needed to run a workflow or pipeline" );
     }
@@ -593,10 +537,6 @@ public class HopRun implements Runnable {
     if ( StringUtils.isNotEmpty( realRunConfigurationName ) ) {
       log.logMinimal( "OPTION: run configuration : '" + realRunConfigurationName + "'" );
     }
-    if ( StringUtils.isNotEmpty( realSlaveServerName ) ) {
-      log.logMinimal( "OPTION: slave server: '" + realSlaveServerName + "'" );
-    }
-
     log.logMinimal( "OPTION: Logging level : " + configuration.getLogLevel().getDescription() );
 
     if ( !configuration.getVariablesMap().isEmpty() ) {
@@ -758,47 +698,15 @@ public class HopRun implements Runnable {
    *
    * @return value of runJob
    */
-  public boolean isRunJob() {
-    return runJob;
+  public boolean isRunWorkflow() {
+    return runWorkflow;
   }
 
   /**
-   * @param runJob The runJob to set
+   * @param runWorkflow The runJob to set
    */
-  public void setRunJob( boolean runJob ) {
-    this.runJob = runJob;
-  }
-
-  /**
-   * Gets slaveServerName
-   *
-   * @return value of slaveServerName
-   */
-  public String getSlaveServerName() {
-    return slaveServerName;
-  }
-
-  /**
-   * @param slaveServerName The slaveServerName to set
-   */
-  public void setSlaveServerName( String slaveServerName ) {
-    this.slaveServerName = slaveServerName;
-  }
-
-  /**
-   * Gets exportToSlaveServer
-   *
-   * @return value of exportToSlaveServer
-   */
-  public boolean isExportToSlaveServer() {
-    return exportToSlaveServer;
-  }
-
-  /**
-   * @param exportToSlaveServer The exportToSlaveServer to set
-   */
-  public void setExportToSlaveServer( boolean exportToSlaveServer ) {
-    this.exportToSlaveServer = exportToSlaveServer;
+  public void setRunWorkflow( boolean runWorkflow ) {
+    this.runWorkflow = runWorkflow;
   }
 
   /**
@@ -871,39 +779,6 @@ public class HopRun implements Runnable {
   public void setIntialDir( String intialDir ) {
     this.intialDir = intialDir;
   }
-
-  /**
-   * Gets environment
-   *
-   * @return value of environment
-   */
-  public String getEnvironment() {
-    return environment;
-  }
-
-  /**
-   * @param environment The environment to set
-   */
-  public void setEnvironment( String environment ) {
-    this.environment = environment;
-  }
-
-  /**
-   * Gets createEnvironmentOption
-   *
-   * @return value of createEnvironmentOption
-   */
-  public String getCreateEnvironmentOption() {
-    return createEnvironmentOption;
-  }
-
-  /**
-   * @param createEnvironmentOption The createEnvironmentOption to set
-   */
-  public void setCreateEnvironmentOption( String createEnvironmentOption ) {
-    this.createEnvironmentOption = createEnvironmentOption;
-  }
-
 
   public static void main( String[] args ) {
 

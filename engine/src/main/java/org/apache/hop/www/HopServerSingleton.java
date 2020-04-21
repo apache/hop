@@ -39,7 +39,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
-import org.apache.hop.pipeline.Pipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +121,7 @@ public class HopServerSingleton {
                                         final PipelineMap pipelineMap, final WorkflowMap workflowMap ) {
 
     final int objectTimeout;
-    String systemTimeout = EnvUtil.getSystemProperty( Const.HOP_CARTE_OBJECT_TIMEOUT_MINUTES, null );
+    String systemTimeout = EnvUtil.getSystemProperty( Const.HOP_SERVER_OBJECT_TIMEOUT_MINUTES, null );
 
     // The value specified in XML takes precedence over the environment variable!
     //

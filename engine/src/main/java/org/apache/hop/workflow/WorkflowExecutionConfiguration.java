@@ -22,7 +22,6 @@
 
 package org.apache.hop.workflow;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -46,7 +45,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
-  public static final String XML_TAG = "job_execution_configuration";
+  public static final String XML_TAG = "workflow_execution_configuration";
 
   private final ILogChannel log = LogChannel.GENERAL;
 
@@ -76,7 +75,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   private boolean gatheringMetrics;
 
-  private boolean expandingRemoteJob;
+  private boolean expandingRemoteWorkflow;
 
   private Map<String, String> extensionOptions;
 
@@ -314,7 +313,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_nr", startCopyNr ) );
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "gather_metrics", gatheringMetrics ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_job", expandingRemoteJob ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_workflow", expandingRemoteWorkflow ) );
 
     // The source rows...
     //
@@ -337,7 +336,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
       remoteServer = new SlaveServer( remoteHostNode );
     }
     passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "pass_export" ) );
-    expandingRemoteJob = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "expand_remote_job" ) );
+    expandingRemoteWorkflow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "expand_remote_workflow" ) );
 
     // Read the variables...
     //

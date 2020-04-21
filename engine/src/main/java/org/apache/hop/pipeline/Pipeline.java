@@ -487,6 +487,9 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * Instantiates a new pipeline.
    */
   public Pipeline() {
+
+    log = LogChannel.GENERAL;
+
     status = new AtomicInteger();
 
     executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
@@ -553,22 +556,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    */
   public void setParent( ILoggingObject parent ) {
     this.parent = parent;
-
-    this.log = new LogChannel( this, parent );
-    this.logLevel = log.getLogLevel();
-
-    if ( this.containerObjectId == null ) {
-      this.containerObjectId = log.getContainerObjectId();
-    }
-
-    if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsPreloaded" ) );
-    }
-    if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfTransformsToRun", String.valueOf( pipelineMeta.nrTransforms() ),
-        String.valueOf( pipelineMeta.nrPipelineHops() ) ) );
-    }
-
   }
 
   /**
@@ -675,8 +662,25 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     executionStartDate = new Date();
     setRunning( false );
 
+    // We create the log channel when we're ready to rock and roll
+    // Before that it makes little sense. We default to GENERAL there.
+    //
+    this.log = new LogChannel( this, parent );
+    this.log.setLogLevel( logLevel );
+
+    if ( this.containerObjectId == null ) {
+      this.containerObjectId = log.getContainerObjectId();
+    }
+
+    if ( log.isDebug() ) {
+      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfTransformsToRun", String.valueOf( pipelineMeta.nrTransforms() ),
+        String.valueOf( pipelineMeta.nrPipelineHops() ) ) );
+    }
+
     log.snap( Metrics.METRIC_PIPELINE_EXECUTION_START );
     log.snap( Metrics.METRIC_PIPELINE_INIT_START );
+
+    log.logBasic("Executing this pipeline using the Local Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelinePrepareExecution.id, this );
 
@@ -1205,6 +1209,8 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
               transform.setErrors( transform.getErrors() + 1L );
               log.logError( getName() + " : " + BaseMessages.getString( PKG, "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
             }
+
+            log.logBasic("Execution finished on a local pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
             // We're really done now.
             //
@@ -2143,8 +2149,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * @param parentWorkflow The parent workflow to set
    */
   public void setParentWorkflow( Workflow parentWorkflow ) {
-    this.logLevel = parentWorkflow.getLogLevel();
-    this.log.setLogLevel( logLevel );
     this.parentWorkflow = parentWorkflow;
   }
 
@@ -2829,8 +2833,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * @param parentPipeline the parentPipeline to set
    */
   public void setParentPipeline( IPipelineEngine parentPipeline ) {
-    this.logLevel = parentPipeline.getLogLevel();
-    this.log.setLogLevel( logLevel );
     this.parentPipeline = parentPipeline;
   }
 
@@ -2922,7 +2924,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
-    log.setLogLevel( logLevel );
   }
 
   /**

@@ -2022,9 +2022,14 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetCustomStackTrace() {
-    assertTrue( Const.getCustomStackTrace( new Exception() ).contains( getClass().getName()
-      + ".testGetCustomStackTrace(" + getClass().getSimpleName() + ".java:" ) );
+  public void testGetSimpleStackTrace() {
+    Throwable throwable = new HopException( "Message1", new HopException( "Cause1", new RuntimeException( "Cause2", new Exception( "Cause3" ) ) ) );
+    String simpleStackTrace = Const.getSimpleStackTrace( throwable );
+    assertFalse( simpleStackTrace.contains( ".java" ));
+    assertTrue( simpleStackTrace.contains( "Message1" ));
+    assertTrue( simpleStackTrace.contains( "Cause1" ));
+    assertTrue( simpleStackTrace.contains( "Cause2" ));
+    assertTrue( simpleStackTrace.contains( "Cause3" ));
   }
 
   @Test

@@ -25,6 +25,7 @@ package org.apache.hop.core;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -648,10 +649,20 @@ public class Const {
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
   /**
+   * System wide flag to log stack traces in a simpler, more human readable format
+   */
+  public static final String HOP_SIMPLE_STACK_TRACES = "HOP_SIMPLE_STACK_TRACES";
+
+  public static final boolean isUsingSimpleStackTraces() {
+    String property = System.getProperty( Const.HOP_SIMPLE_STACK_TRACES );
+    return "y".equalsIgnoreCase(property) || "true".equalsIgnoreCase(property);
+  }
+
+  /**
    * This environment variable will set a time-out after which waiting, completed or stopped pipelines and workflows
    * will be automatically cleaned up. The default value is 1440 (one day).
    */
-  public static final String HOP_CARTE_OBJECT_TIMEOUT_MINUTES = "HOP_CARTE_OBJECT_TIMEOUT_MINUTES";
+  public static final String HOP_SERVER_OBJECT_TIMEOUT_MINUTES = "HOP_SERVER_OBJECT_TIMEOUT_MINUTES";
 
   /**
    * System wide parameter: the maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all
@@ -2469,7 +2480,11 @@ public class Const {
    * Returns a string of the stack trace of the specified exception
    */
   public static String getStackTracker( Throwable e ) {
-    return getClassicStackTrace( e );
+    if (isUsingSimpleStackTraces()) {
+      return getSimpleStackTrace( e );
+    } else {
+      return getClassicStackTrace( e );
+    }
   }
 
   public static String getClassicStackTrace( Throwable e ) {
@@ -2485,20 +2500,12 @@ public class Const {
     return string;
   }
 
-  public static String getCustomStackTrace( Throwable aThrowable ) {
+  public static String getSimpleStackTrace( Throwable aThrowable ) {
     final StringBuilder result = new StringBuilder();
-    String errorMessage = aThrowable.toString();
-    result.append( errorMessage );
-    if ( !errorMessage.contains( Const.CR ) ) {
-      result.append( CR );
-    }
-
-    // add each element of the stack trace
-    //
-    for ( StackTraceElement element : aThrowable.getStackTrace() ) {
-      result.append( element );
-      result.append( CR );
-    }
+    result.append(ExceptionUtils.getMessage( aThrowable ));
+    result.append( Const.CR );
+    result.append("Root cause: ");
+    result.append(ExceptionUtils.getRootCauseMessage( aThrowable ));
     return result.toString();
   }
 

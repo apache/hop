@@ -187,7 +187,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       //
       this.logChannel = new LogChannel( this, subject );
       loggingObject = new LoggingObject( this );
-      logLevel = logChannel.getLogLevel();
+      this.logChannel.setLogLevel( logLevel );
 
       logChannel.logBasic("Executing this pipeline using the Remote Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
@@ -330,6 +330,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         refreshTimer = new Timer();
         refreshTimer.schedule( refreshTask, serverPollDelay, serverPollInterval );
 
+        readyToStart = false;
+        running = true;
       } else {
         throw new HopException( "Error starting pipeline on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "' : " + webResult.getMessage() );
       }
@@ -397,6 +399,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         if ( finished ) {
           firePipelineExecutionFinishedListeners();
           refreshTimer.cancel();
+          logChannel.logBasic("Execution finished on a remote pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
         }
       }
     } catch ( Exception e ) {
@@ -445,9 +448,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override public void waitUntilFinished() {
-    while ( running && !stopped ) {
+    while ( ( running || paused || readyToStart ) && !( stopped || finished ) ) {
       try {
-        Thread.sleep( 100 );
+        Thread.sleep( 1000 );
       } catch ( Exception e ) {
         // ignore
       }
