@@ -108,7 +108,7 @@ public class HopGuiWorkflowLogDelegate {
     //
     jobLogTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
     jobLogTab.setImage( GuiResource.getInstance().getImageShowLog() );
-    jobLogTab.setText( BaseMessages.getString( PKG, "JobGraph.LogTab.Name" ) );
+    jobLogTab.setText( BaseMessages.getString( PKG, "WorkflowGraph.LogTab.Name" ) );
 
     jobLogComposite = new Composite( jobGraph.extraViewTabFolder, SWT.NONE );
     jobLogComposite.setLayout( new FormLayout() );
@@ -135,11 +135,9 @@ public class HopGuiWorkflowLogDelegate {
 
     // If the workflow is closed, we should dispose of all the logging information in the buffer and registry for it
     //
-    jobGraph.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        if ( jobGraph.workflow != null ) {
-          HopLogStore.discardLines( jobGraph.workflow.getLogChannelId(), true );
-        }
+    jobGraph.addDisposeListener( event -> {
+      if ( jobGraph.getWorkflow() != null ) {
+        HopLogStore.discardLines( jobGraph.getWorkflow().getLogChannelId(), true );
       }
     } );
 
@@ -172,8 +170,8 @@ public class HopGuiWorkflowLogDelegate {
     id = TOOLBAR_ICON_LOG_SETTINGS,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "JobLog.Button.LogSettings",
-    toolTip = "JobLog.Button.LogSettings",
+    label = "WorkflowLog.Button.LogSettings",
+    toolTip = "WorkflowLog.Button.LogSettings",
     i18nPackageClass = HopGui.class,
     image = "ui/images/log-settings.svg"
   )
@@ -185,8 +183,8 @@ public class HopGuiWorkflowLogDelegate {
     id = TOOLBAR_ICON_SHOW_ERROR_LINES,
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "JobLog.Button.ShowErrorLines",
-    toolTip = "JobLog.Button.ShowErrorLines",
+    label = "WorkflowLog.Button.ShowErrorLines",
+    toolTip = "WorkflowLog.Button.ShowErrorLines",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-error-lines.svg"
   )
@@ -204,8 +202,8 @@ public class HopGuiWorkflowLogDelegate {
       if ( all.substring( i, i + crlen ).equalsIgnoreCase( Const.CR ) ) {
         line = all.substring( startpos, i );
         lineUpper = line.toUpperCase();
-        if ( lineUpper.indexOf( BaseMessages.getString( PKG, "JobLog.System.ERROR" ) ) >= 0
-          || lineUpper.indexOf( BaseMessages.getString( PKG, "JobLog.System.EXCEPTION" ) ) >= 0 ) {
+        if ( lineUpper.indexOf( BaseMessages.getString( PKG, "WorkflowLog.System.ERROR" ) ) >= 0
+          || lineUpper.indexOf( BaseMessages.getString( PKG, "WorkflowLog.System.EXCEPTION" ) ) >= 0 ) {
           err.add( line );
         }
         // New start of line
@@ -216,8 +214,8 @@ public class HopGuiWorkflowLogDelegate {
     }
     line = all.substring( startpos );
     lineUpper = line.toUpperCase();
-    if ( lineUpper.indexOf( BaseMessages.getString( PKG, "JobLog.System.ERROR" ) ) >= 0
-      || lineUpper.indexOf( BaseMessages.getString( PKG, "JobLog.System.EXCEPTION" ) ) >= 0 ) {
+    if ( lineUpper.indexOf( BaseMessages.getString( PKG, "WorkflowLog.System.ERROR" ) ) >= 0
+      || lineUpper.indexOf( BaseMessages.getString( PKG, "WorkflowLog.System.EXCEPTION" ) ) >= 0 ) {
       err.add( line );
     }
 
@@ -228,8 +226,8 @@ public class HopGuiWorkflowLogDelegate {
       }
 
       EnterSelectionDialog esd = new EnterSelectionDialog( jobGraph.getShell(), err_lines,
-        BaseMessages.getString( PKG, "JobLog.Dialog.ErrorLines.Title" ),
-        BaseMessages.getString( PKG, "JobLog.Dialog.ErrorLines.Message" ) );
+        BaseMessages.getString( PKG, "WorkflowLog.Dialog.ErrorLines.Title" ),
+        BaseMessages.getString( PKG, "WorkflowLog.Dialog.ErrorLines.Message" ) );
       line = esd.open();
       if ( line != null ) {
         WorkflowMeta workflowMeta = jobGraph.getManagedObject();
@@ -253,8 +251,8 @@ public class HopGuiWorkflowLogDelegate {
   @GuiToolbarElement(
     id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "JobLog.Button.Pause",
-    toolTip = "JobLog.Button.Pause",
+    label = "WorkflowLog.Button.Pause",
+    toolTip = "WorkflowLog.Button.Pause",
     i18nPackageClass = HopGui.class,
     image = "ui/images/pause-log.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,

@@ -56,6 +56,7 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceHolder;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -109,7 +110,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * The parent workflow
    */
-  protected Workflow parentWorkflow;
+  protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
   /**
    * The log channel interface object, used for logging
@@ -762,7 +763,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @param parentWorkflow the new parent workflow
    */
-  public void setParentWorkflow( Workflow parentWorkflow ) {
+  public void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     this.parentWorkflow = parentWorkflow;
     this.logLevel = parentWorkflow.getLogLevel();
     this.log = new LogChannel( this, parentWorkflow );
@@ -774,7 +775,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @return the parent workflow
    */
-  public Workflow getParentWorkflow() {
+  public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
 

@@ -374,9 +374,9 @@ public class PipelineTest {
     }
   }
 
-  private final IExecutionFinishedListener<PipelineMeta> listener = pipeline -> { };
+  private final IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener = pipeline -> { };
 
-  private final IExecutionStoppedListener<PipelineMeta> pipelineStoppedListener = pipeline -> { };
+  private final IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> pipelineStoppedListener = pipeline -> { };
 
   @Test
   public void testNewPipelineWithContainerObjectId() throws Exception {
@@ -416,42 +416,6 @@ public class PipelineTest {
     assertEquals( pipeline1.getLogChannelId(), pipeline2.getLogChannelId() );
   }
 
-  /**
-   * This test demonstrates the fix for PDI-17436.
-   * Two schedules -> two HopServer object Ids -> two log channel Ids
-   */
-  @Test
-  public void testTwoPipelineGetDifferentLogChannelIdWithDifferentCarteId() throws Exception {
-    PipelineMeta meta1 = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta1 ).listVariables();
-    doReturn( new String[] { "A", "B", "C" } ).when( meta1 ).listParameters();
-    doReturn( "XYZ" ).when( meta1 ).getVariable( anyString() );
-    doReturn( "" ).when( meta1 ).getParameterDescription( anyString() );
-    doReturn( "" ).when( meta1 ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta1 ).getParameterValue( anyString() );
-
-    PipelineMeta meta2 = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta2 ).listVariables();
-    doReturn( new String[] { "A", "B", "C" } ).when( meta2 ).listParameters();
-    doReturn( "XYZ" ).when( meta2 ).getVariable( anyString() );
-    doReturn( "" ).when( meta2 ).getParameterDescription( anyString() );
-    doReturn( "" ).when( meta2 ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta2 ).getParameterValue( anyString() );
-
-
-    String carteId1 = UUID.randomUUID().toString();
-    String carteId2 = UUID.randomUUID().toString();
-
-    doReturn( carteId1 ).when( meta1 ).getContainerObjectId();
-    doReturn( carteId2 ).when( meta2 ).getContainerObjectId();
-
-    Pipeline pipeline1 = new LocalPipelineEngine( meta1 );
-    Pipeline pipeline2 = new LocalPipelineEngine( meta2 );
-
-    assertNotEquals( pipeline1.getContainerObjectId(), pipeline2.getContainerObjectId() );
-    assertNotEquals( pipeline1.getLogChannelId(), pipeline2.getLogChannelId() );
-  }
-
   @Test
   public void testSetInternalEntryCurrentDirectoryWithFilename() {
     Pipeline pipelineTest = new LocalPipelineEngine();
@@ -471,7 +435,6 @@ public class PipelineTest {
     Pipeline pipelineTest = new LocalPipelineEngine();
     pipelineTest.copyVariablesFrom( null );
     boolean hasFilename = false;
-    boolean hasRepoDir = false;
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineTest.setInternalEntryCurrentDirectory( hasFilename );

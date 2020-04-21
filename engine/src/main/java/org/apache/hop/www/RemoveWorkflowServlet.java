@@ -29,6 +29,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
@@ -168,7 +170,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
 
     // ID is optional...
     //
-    Workflow workflow;
+    IWorkflowEngine<WorkflowMeta> workflow;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...

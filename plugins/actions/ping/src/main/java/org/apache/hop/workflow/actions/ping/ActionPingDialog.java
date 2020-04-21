@@ -85,7 +85,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionPing jobEntry;
+  private ActionPing action;
 
   private Shell shell;
 
@@ -101,11 +101,11 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionPingDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionPing) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobPing.Name.Default" ) );
+  public ActionPingDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionPing) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobPing.Name.Default" ) );
     }
   }
 
@@ -115,14 +115,14 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -200,7 +200,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wPingType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setPingType();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -301,18 +301,18 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setPingType() {
-    wlTimeOut.setEnabled( wPingType.getSelectionIndex() == jobEntry.isystemPing
-      || wPingType.getSelectionIndex() == jobEntry.ibothPings );
-    wTimeOut.setEnabled( wPingType.getSelectionIndex() == jobEntry.isystemPing
-      || wPingType.getSelectionIndex() == jobEntry.ibothPings );
-    wlNbrPackets.setEnabled( wPingType.getSelectionIndex() == jobEntry.iclassicPing
-      || wPingType.getSelectionIndex() == jobEntry.ibothPings );
-    wNbrPackets.setEnabled( wPingType.getSelectionIndex() == jobEntry.iclassicPing
-      || wPingType.getSelectionIndex() == jobEntry.ibothPings );
+    wlTimeOut.setEnabled( wPingType.getSelectionIndex() == action.isystemPing
+      || wPingType.getSelectionIndex() == action.ibothPings );
+    wTimeOut.setEnabled( wPingType.getSelectionIndex() == action.isystemPing
+      || wPingType.getSelectionIndex() == action.ibothPings );
+    wlNbrPackets.setEnabled( wPingType.getSelectionIndex() == action.iclassicPing
+      || wPingType.getSelectionIndex() == action.ibothPings );
+    wNbrPackets.setEnabled( wPingType.getSelectionIndex() == action.iclassicPing
+      || wPingType.getSelectionIndex() == action.ibothPings );
   }
 
   public void dispose() {
@@ -325,31 +325,31 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    if ( jobEntry.getHostname() != null ) {
-      wHostname.setText( jobEntry.getHostname() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    if ( action.getHostname() != null ) {
+      wHostname.setText( action.getHostname() );
     }
-    if ( jobEntry.getNbrPackets() != null ) {
-      wNbrPackets.setText( jobEntry.getNbrPackets() );
+    if ( action.getNbrPackets() != null ) {
+      wNbrPackets.setText( action.getNbrPackets() );
     } else {
       wNbrPackets.setText( "2" );
     }
 
-    if ( jobEntry.getTimeOut() != null ) {
-      wTimeOut.setText( jobEntry.getTimeOut() );
+    if ( action.getTimeOut() != null ) {
+      wTimeOut.setText( action.getTimeOut() );
     } else {
       wTimeOut.setText( "3000" );
     }
 
-    wPingType.select( jobEntry.ipingtype );
+    wPingType.select( action.ipingtype );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -361,17 +361,17 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setHostname( wHostname.getText() );
-    jobEntry.setNbrPackets( wNbrPackets.getText() );
-    jobEntry.setTimeOut( wTimeOut.getText() );
-    jobEntry.ipingtype = wPingType.getSelectionIndex();
-    if ( wPingType.getSelectionIndex() == jobEntry.isystemPing ) {
-      jobEntry.pingtype = jobEntry.systemPing;
-    } else if ( wPingType.getSelectionIndex() == jobEntry.ibothPings ) {
-      jobEntry.pingtype = jobEntry.bothPings;
+    action.setName( wName.getText() );
+    action.setHostname( wHostname.getText() );
+    action.setNbrPackets( wNbrPackets.getText() );
+    action.setTimeOut( wTimeOut.getText() );
+    action.ipingtype = wPingType.getSelectionIndex();
+    if ( wPingType.getSelectionIndex() == action.isystemPing ) {
+      action.pingtype = action.systemPing;
+    } else if ( wPingType.getSelectionIndex() == action.ibothPings ) {
+      action.pingtype = action.bothPings;
     } else {
-      jobEntry.pingtype = jobEntry.classicPing;
+      action.pingtype = action.classicPing;
     }
 
     dispose();

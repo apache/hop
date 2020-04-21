@@ -80,7 +80,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
   private Button wbDirectory;
   private TextVar wFilename;
   
-  private ActionDeleteFolders jobEntry;
+  private ActionDeleteFolders action;
 
   private SelectionAdapter lsDef;
 
@@ -101,12 +101,12 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
   private Label wlNrErrorsLessThan;
   private TextVar wLimitFolders;
 
-  public ActionDeleteFoldersDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionDeleteFolders) jobEntryInt;
+  public ActionDeleteFoldersDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionDeleteFolders) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobDeleteFolders.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobDeleteFolders.Name.Default" ) );
     }
   }
 
@@ -116,10 +116,10 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
 
     Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();   
-    changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -173,7 +173,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.argFromPrevious );
+    wPrevious.setSelection( action.argFromPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobDeleteFolders.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -183,7 +183,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     FormData fdSettings = new FormData();
@@ -362,7 +362,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdlFields.top = new FormAttachment( wFilename, margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.arguments == null ? 1 : ( jobEntry.arguments.length == 0 ? 0 : jobEntry.arguments.length );
+    int rows = action.arguments == null ? 1 : ( action.arguments.length == 0 ? 0 : action.arguments.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -384,8 +384,8 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdFields.bottom = new FormAttachment( 100, -50 );
     wFields.setLayoutData( fdFields );
 
-    wlFields.setEnabled( !jobEntry.argFromPrevious );
-    wFields.setEnabled( !jobEntry.argFromPrevious );
+    wlFields.setEnabled( !action.argFromPrevious );
+    wFields.setEnabled( !action.argFromPrevious );
 
     // Add the file to the list of files...
     SelectionAdapter selA = new SelectionAdapter() {
@@ -461,7 +461,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeSuccessCondition() {
@@ -493,32 +493,32 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.arguments != null ) {
-      for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
+    if ( action.arguments != null ) {
+      for ( int i = 0; i < action.arguments.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[ i ] != null ) {
-          ti.setText( 1, jobEntry.arguments[ i ] );
+        if ( action.arguments[ i ] != null ) {
+          ti.setText( 1, action.arguments[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.argFromPrevious );
+    wPrevious.setSelection( action.argFromPrevious );
 
-    if ( jobEntry.getLimitFolders() != null ) {
-      wLimitFolders.setText( jobEntry.getLimitFolders() );
+    if ( action.getLimitFolders() != null ) {
+      wLimitFolders.setText( action.getLimitFolders() );
     } else {
       wLimitFolders.setText( "10" );
     }
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -532,8 +532,8 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -545,16 +545,16 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setPrevious( wPrevious.getSelection() );
-    jobEntry.setLimitFolders( wLimitFolders.getText() );
+    action.setName( wName.getText() );
+    action.setPrevious( wPrevious.getSelection() );
+    action.setLimitFolders( wLimitFolders.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED );
+      action.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_NO_ERRORS );
     }
 
     int nritems = wFields.nrNonEmpty();
@@ -565,12 +565,12 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
         nr++;
       }
     }
-    jobEntry.arguments = new String[ nr ];
+    action.arguments = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[ nr ] = arg;
+        action.arguments[ nr ] = arg;
         nr++;
       }
     }

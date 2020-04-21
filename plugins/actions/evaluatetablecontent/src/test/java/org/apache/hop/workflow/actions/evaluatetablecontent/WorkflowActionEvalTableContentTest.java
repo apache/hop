@@ -38,6 +38,8 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -145,7 +147,7 @@ public class WorkflowActionEvalTableContentTest {
   @Before
   public void setUp() throws Exception {
     MockDriver.registerInstance();
-    Workflow workflow = new Workflow( new WorkflowMeta() );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionEvalTableContent();
 
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );

@@ -116,31 +116,31 @@ public class HopGuiWorkflowGridDelegate {
     TreeMemory.addTreeListener( wTree, STRING_CHEF_LOG_TREE_NAME );
 
     TreeColumn column1 = new TreeColumn( wTree, SWT.LEFT );
-    column1.setText( BaseMessages.getString( PKG, "JobLog.Column.JobAction" ) );
+    column1.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.WorkflowAction" ) );
     column1.setWidth( 200 );
 
     TreeColumn column2 = new TreeColumn( wTree, SWT.LEFT );
-    column2.setText( BaseMessages.getString( PKG, "JobLog.Column.Comment" ) );
+    column2.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.Comment" ) );
     column2.setWidth( 200 );
 
     TreeColumn column3 = new TreeColumn( wTree, SWT.LEFT );
-    column3.setText( BaseMessages.getString( PKG, "JobLog.Column.Result" ) );
+    column3.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.Result" ) );
     column3.setWidth( 100 );
 
     TreeColumn column4 = new TreeColumn( wTree, SWT.LEFT );
-    column4.setText( BaseMessages.getString( PKG, "JobLog.Column.Reason" ) );
+    column4.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.Reason" ) );
     column4.setWidth( 200 );
 
     TreeColumn column5 = new TreeColumn( wTree, SWT.LEFT );
-    column5.setText( BaseMessages.getString( PKG, "JobLog.Column.Filename" ) );
+    column5.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.Filename" ) );
     column5.setWidth( 200 );
 
     TreeColumn column6 = new TreeColumn( wTree, SWT.RIGHT );
-    column6.setText( BaseMessages.getString( PKG, "JobLog.Column.Nr" ) );
+    column6.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.Nr" ) );
     column6.setWidth( 50 );
 
     TreeColumn column7 = new TreeColumn( wTree, SWT.RIGHT );
-    column7.setText( BaseMessages.getString( PKG, "JobLog.Column.LogDate" ) );
+    column7.setText( BaseMessages.getString( PKG, "WorkflowLog.Column.LogDate" ) );
     column7.setWidth( 120 );
 
     FormData fdTree = new FormData();
@@ -196,10 +196,10 @@ public class HopGuiWorkflowGridDelegate {
         String workflowName = workflowTracker.getWorkflowName();
 
         if ( Utils.isEmpty( workflowName ) ) {
-          if ( !Utils.isEmpty( workflowTracker.getJobFilename() ) ) {
-            workflowName = workflowTracker.getJobFilename();
+          if ( !Utils.isEmpty( workflowTracker.getWorfkflowFilename() ) ) {
+            workflowName = workflowTracker.getWorfkflowFilename();
           } else {
-            workflowName = BaseMessages.getString( PKG, "JobLog.Tree.StringToDisplayWhenJobHasNoName" );
+            workflowName = BaseMessages.getString( PKG, "WorkflowLog.Tree.StringToDisplayWhenWorkflowHasNoName" );
           }
         }
         treeItem.setText( 0, workflowName );
@@ -225,7 +225,7 @@ public class HopGuiWorkflowGridDelegate {
         nrRow++;
         if ( workflowTracker.nrWorkflowTrackers() > 0 ) {
           // This is a sub-workflow: display the name at the top of the list...
-          treeItem.setText( 0, BaseMessages.getString( PKG, "JobLog.Tree.JobPrefix" ) + workflowTracker.getWorkflowName() );
+          treeItem.setText( 0, BaseMessages.getString( PKG, "WorkflowLog.Tree.WorkflowPrefix" ) + workflowTracker.getWorkflowName() );
 
           // then populate the sub-actions ...
           for ( int i = 0; i < workflowTracker.nrWorkflowTrackers(); i++ ) {
@@ -239,7 +239,7 @@ public class HopGuiWorkflowGridDelegate {
               treeItem.setText( 0, jobEntryName );
               treeItem.setText( 4, Const.NVL( result.getActionFilename(), "" ) );
             } else {
-              treeItem.setText( 0, BaseMessages.getString( PKG, "JobLog.Tree.JobPrefix2" )
+              treeItem.setText( 0, BaseMessages.getString( PKG, "WorkflowLog.Tree.WorkflowPrefix2" )
                 + workflowTracker.getWorkflowName() );
             }
             String comment = result.getComment();
@@ -249,8 +249,8 @@ public class HopGuiWorkflowGridDelegate {
             Result res = result.getResult();
             if ( res != null ) {
               treeItem.setText( 2, res.getResult()
-                ? BaseMessages.getString( PKG, "JobLog.Tree.Success" ) : BaseMessages.getString(
-                PKG, "JobLog.Tree.Failure" ) );
+                ? BaseMessages.getString( PKG, "WorkflowLog.Tree.Success" ) : BaseMessages.getString(
+                PKG, "WorkflowLog.Tree.Failure" ) );
               treeItem.setText( 5, Long.toString( res.getEntryNr() ) );
               if ( res.getResult() ) {
                 treeItem.setForeground( GuiResource.getInstance().getColorSuccessGreen() );

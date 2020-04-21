@@ -29,6 +29,8 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -56,7 +58,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class WorkflowEntrySetVariablesTest {
-  private Workflow workflow;
+  private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSetVariables entry;
 
   @BeforeClass
@@ -70,7 +72,7 @@ public class WorkflowEntrySetVariablesTest {
 
   @Before
   public void setUp() throws Exception {
-    workflow = new Workflow( new WorkflowMeta() );
+    workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionSetVariables();
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
     entry.setParentWorkflow( workflow );
@@ -133,7 +135,7 @@ public class WorkflowEntrySetVariablesTest {
     entry.setReplaceVars( true );
     entry.setFileVariableType( 1 );
 
-    Workflow parentWorkflow = entry.getParentWorkflow();
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = entry.getParentWorkflow();
 
     parentWorkflow.addParameterDefinition( "parentParam", "", "" );
     parentWorkflow.setParameterValue( "parentParam", "parentValue" );

@@ -150,6 +150,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
   public static final String ID_MAIN_MENU_RUN_PAUSE = "30030-menu-run-pause";
+  public static final String ID_MAIN_MENU_RUN_RESUME = "30035-menu-run-resume";
   public static final String ID_MAIN_MENU_RUN_STOP = "30040-menu-run-stop";
   public static final String ID_MAIN_MENU_RUN_PREVIEW = "30050-menu-run-preview";
   public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
@@ -180,13 +181,13 @@ public class HopGui implements IActionContextHandlersProvider {
   private MetaStoreContext metaStoreContext;
 
   private ILoggingObject loggingObject;
+  private ILogChannel log;
 
   private Shell shell;
   private Display display;
   private List<String> commandLineArguments;
   private IVariables variables;
   private PropsUi props;
-  private ILogChannel log;
 
   private Menu mainMenu;
   private GuiMenuWidgets mainMenuWidgets;
@@ -227,7 +228,7 @@ public class HopGui implements IActionContextHandlersProvider {
     props = PropsUi.getInstance();
 
     loggingObject = new LoggingObject( APP_NAME );
-    log = new LogChannel( APP_NAME, loggingObject );
+    log = new LogChannel( APP_NAME );
 
     activePerspective = new EmptyHopPerspective();
 
@@ -429,7 +430,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
     shell.setMenuBar( mainMenu );
     setUndoMenu( null );
-    handleFileCapabilities( new EmptyFileType() );
+    handleFileCapabilities( new EmptyFileType(), false, false );
   }
 
   @GuiMenuElement( id = ID_MAIN_MENU_FILE, type = GuiElementType.MENU_ITEM, label = "&File", parentId = ID_MAIN_MENU )
@@ -611,6 +612,11 @@ public class HopGui implements IActionContextHandlersProvider {
     getActiveFileTypeHandler().pause();
   }
 
+  @GuiMenuElement( id = ID_MAIN_MENU_RUN_RESUME, type = GuiElementType.MENU_ITEM, label = "Resume execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  public void menuRunResume() {
+    getActiveFileTypeHandler().pause();
+  }
+
   @GuiMenuElement( id = ID_MAIN_MENU_RUN_PREVIEW, type = GuiElementType.MENU_ITEM, label = "Preview", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
   public void menuRunPreview() {
     getActiveFileTypeHandler().preview();
@@ -736,8 +742,10 @@ public class HopGui implements IActionContextHandlersProvider {
    * In this method we'll enable/disable menu and toolbar items
    *
    * @param fileType The type of file to handle giving you its capabilities to take into account from {@link IHopFileType} or set by a plugin
+   * @param running set this to true if the current file is running
+   * @param paused set this to true if the current file is paused
    */
-  public void handleFileCapabilities( IHopFileType fileType ) {
+  public void handleFileCapabilities( IHopFileType fileType, boolean running, boolean paused ) {
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE );
@@ -751,9 +759,10 @@ public class HopGui implements IActionContextHandlersProvider {
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_CUT, IHopFileType.CAPABILITY_CUT );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_DELETE, IHopFileType.CAPABILITY_DELETE );
 
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START, !running );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP, running );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, !paused );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG );
 
@@ -913,13 +922,6 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public ILogChannel getLog() {
     return log;
-  }
-
-  /**
-   * @param log The log to set
-   */
-  public void setLog( ILogChannel log ) {
-    this.log = log;
   }
 
   /**

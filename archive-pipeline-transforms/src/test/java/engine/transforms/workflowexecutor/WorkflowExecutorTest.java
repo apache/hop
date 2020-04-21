@@ -64,7 +64,7 @@ public class WorkflowExecutorTest {
 
     meta = new WorkflowExecutorMeta();
     data = new WorkflowExecutorData();
-    Workflow workflow = mock( Workflow.class );
+    IWorkflowEngine<WorkflowMeta> workflow = mock( IWorkflowEngine.class );
     doReturn( workflow ).when( executor ).createWorkflow( any( WorkflowMeta.class ),
       any( LoggingObjectInterface.class ) );
     doReturn( ArrayUtils.EMPTY_STRING_ARRAY ).when( workflow ).listParameters();

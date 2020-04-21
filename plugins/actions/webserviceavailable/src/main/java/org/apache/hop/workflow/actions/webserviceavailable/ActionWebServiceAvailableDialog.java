@@ -96,7 +96,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
 
   private Listener lsOk, lsCancel;
 
-  private ActionWebServiceAvailable jobEntry;
+  private ActionWebServiceAvailable action;
 
   private Shell shell;
 
@@ -104,12 +104,12 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
 
   private boolean changed;
 
-  public ActionWebServiceAvailableDialog( Shell parent, IAction jobEntryInt,
+  public ActionWebServiceAvailableDialog( Shell parent, IAction action,
                                           WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWebServiceAvailable) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionWebServiceAvailable.Name.Default" ) );
+    super( parent, action, workflowMeta );
+    this.action = (ActionWebServiceAvailable) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionWebServiceAvailable.Name.Default" ) );
     }
   }
 
@@ -119,14 +119,14 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -297,7 +297,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -310,18 +310,18 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wURL.setText( Const.nullToEmpty( jobEntry.getURL() ) );
-    wConnectTimeOut.setText( Const.NVL( jobEntry.getConnectTimeOut(), "0" ) );
-    wReadTimeOut.setText( Const.NVL( jobEntry.getReadTimeOut(), "0" ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wURL.setText( Const.nullToEmpty( action.getURL() ) );
+    wConnectTimeOut.setText( Const.NVL( action.getConnectTimeOut(), "0" ) );
+    wReadTimeOut.setText( Const.NVL( action.getReadTimeOut(), "0" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -333,10 +333,10 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setURL( wURL.getText() );
-    jobEntry.setConnectTimeOut( wConnectTimeOut.getText() );
-    jobEntry.setReadTimeOut( wReadTimeOut.getText() );
+    action.setName( wName.getText() );
+    action.setURL( wURL.getText() );
+    action.setConnectTimeOut( wConnectTimeOut.getText() );
+    action.setReadTimeOut( wReadTimeOut.getText() );
     dispose();
   }
 

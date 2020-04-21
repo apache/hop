@@ -30,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -49,78 +50,6 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
   public static final String CONTEXT_PATH = "/hop/workflowImage";
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/workflowImage</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Generates and returns image of the specified workflow.
-   * Generates PNG image of the specified workflow currently present on HopServer server. Workflow name and HopServer workflow ID (optional)
-   * is used for specifying workflow to get information for. Response is binary of the PNG image.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /hop/workflowImage?name=dummyWorkflow
-   * </pre>
-   *
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>name</td>
-   * <td>Name of the workflow to be used for image generation.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>id</td>
-   * <td>HopServer id of the workflow to be used for image generation.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">binary streak:</td>
-   * <td>image</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>image/png</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>A binary PNG image or empty response if no workflow is found.</p>
-   *
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -136,7 +65,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
     // ID is optional...
     //
-    Workflow workflow;
+    IWorkflowEngine<WorkflowMeta> workflow;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...

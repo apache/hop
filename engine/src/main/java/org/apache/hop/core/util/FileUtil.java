@@ -42,28 +42,28 @@ public class FileUtil {
       if ( !parentfolder.exists() ) {
         if ( createParentFolder ) {
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "JobPipeline.Log.ParentLogFolderNotExist", parentfolder
+            log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderNotExist", parentfolder
               .getName().toString() ) );
           }
           parentfolder.createFolder();
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "JobPipeline.Log.ParentLogFolderCreated", parentfolder
+            log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderCreated", parentfolder
               .getName().toString() ) );
           }
         } else {
-          log.logError( BaseMessages.getString( PKG, "JobPipeline.Log.ParentLogFolderNotExist", parentfolder
+          log.logError( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderNotExist", parentfolder
             .getName().toString() ) );
           resultat = false;
         }
       } else {
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "JobPipeline.Log.ParentLogFolderExists", parentfolder.getName().toString() ) );
+          log.logDebug( BaseMessages.getString( PKG, "ActionPipeline.Log.ParentLogFolderExists", parentfolder.getName().toString() ) );
         }
       }
     } catch ( Exception e ) {
       resultat = false;
-      log.logError( BaseMessages.getString( PKG, "JobPipeline.Error.ChekingParentLogFolderTitle" ),
-        BaseMessages.getString( PKG, "JobPipeline.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
+      log.logError( BaseMessages.getString( PKG, "ActionPipeline.Error.ChekingParentLogFolderTitle" ),
+        BaseMessages.getString( PKG, "ActionPipeline.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
     } finally {
       if ( parentfolder != null ) {
         try {

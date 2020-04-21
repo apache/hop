@@ -44,7 +44,7 @@ import java.util.Objects;
   name = "Pipeline Run Configuration",
   description = "Describes how and with which engine a pipeline is to be executed"
 )
-public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMetaStoreElement<PipelineRunConfiguration> {
+public class PipelineRunConfiguration extends Variables implements Cloneable, IVariables, IHopMetaStoreElement<PipelineRunConfiguration> {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "PipelineRunConfiguration-PluginSpecific-Options";
 
@@ -56,8 +56,6 @@ public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMeta
 
   @MetaStoreAttribute
   private IPipelineEngineRunConfiguration engineRunConfiguration;
-
-  private IVariables variables = new Variables();
 
   public PipelineRunConfiguration() {
   }
@@ -90,82 +88,6 @@ public class PipelineRunConfiguration implements Cloneable, IVariables, IHopMeta
 
   @Override public int hashCode() {
     return Objects.hash( name );
-  }
-
-  @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
-  }
-
-  @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
-  }
-
-  @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
-  }
-
-  @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
-  }
-
-  @Override
-  public String getVariable( String variableName, String defaultValue ) {
-    return variables.getVariable( variableName, defaultValue );
-  }
-
-  @Override
-  public String getVariable( String variableName ) {
-    return variables.getVariable( variableName );
-  }
-
-  @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
-    if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
-      if ( !Utils.isEmpty( value ) ) {
-        return ValueMetaBase.convertStringToBoolean( value );
-      }
-    }
-    return defaultValue;
-  }
-
-  @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
-  }
-
-  @Override
-  public String[] listVariables() {
-    return variables.listVariables();
-  }
-
-  @Override
-  public void setVariable( String variableName, String variableValue ) {
-    variables.setVariable( variableName, variableValue );
-  }
-
-  @Override
-  public void shareVariablesWith( IVariables variables ) {
-    this.variables = variables;
-  }
-
-  @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
   }
 
   @Override public MetaStoreFactory<PipelineRunConfiguration> getFactory( IMetaStore metaStore ) {

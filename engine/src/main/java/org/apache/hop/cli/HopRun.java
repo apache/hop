@@ -54,6 +54,9 @@ import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.apache.hop.www.SlaveServerWorkflowStatus;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
@@ -318,7 +321,16 @@ public class HopRun implements Runnable {
 
   private void runJobLocal( CommandLine cmd, ILogChannel log, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
     try {
-      Workflow workflow = new Workflow( null, workflowMeta );
+      String runConfigurationName = configuration.getRunConfiguration();
+      if (StringUtils.isEmpty(runConfigurationName)) {
+        throw new HopException( "Please specify a run configuration to execute the workflow with" );
+      }
+      WorkflowRunConfiguration workflowRunConfiguration = WorkflowRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+      if (workflowRunConfiguration==null) {
+        throw new HopException( "Unable to find the specified run configuration '"+runConfigurationName+"'" );
+      }
+
+      IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( workflowRunConfiguration, workflowMeta );
       workflow.initializeVariablesFrom( null );
       workflow.getWorkflowMeta().setInternalHopVariables( workflow );
       workflow.injectVariables( configuration.getVariablesMap() );
@@ -336,8 +348,7 @@ public class HopRun implements Runnable {
       workflowMeta.activateParameters();
       workflow.activateParameters();
 
-      workflow.start();
-      workflow.waitUntilFinished();
+      workflow.startExecution();
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "Error running workflow locally", e );
     }

@@ -75,7 +75,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   private Text wName;
 
-  private ActionICheckDbConnections jobEntry;
+  private ActionICheckDbConnections action;
 
   private SelectionAdapter lsDef;
 
@@ -87,11 +87,11 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   private FormData fdbgetConnections;
 
-  public ActionCheckDbConnectionsDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionICheckDbConnections) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
+  public ActionCheckDbConnectionsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionICheckDbConnections) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobCheckDbConnections.Name.Default" ) );
     }
   }
 
@@ -102,10 +102,10 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();    
-	changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
+	changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -166,8 +166,8 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fdbgetConnections.top = new FormAttachment( wlFields, 20 );
     wbgetConnections.setLayoutData( fdbgetConnections );
 
-    int rows = jobEntry.getConnections() == null ? 1
-      : ( jobEntry.getConnections().length == 0 ? 0 : jobEntry.getConnections().length );
+    int rows = action.getConnections() == null ? 1
+      : ( action.getConnections().length == 0 ? 0 : action.getConnections().length );
 
     final int FieldsRows = rows;
 
@@ -262,7 +262,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
 //  public void addDatabases() {
@@ -293,17 +293,17 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.getConnections() != null ) {
-      for ( int i = 0; i < jobEntry.getConnections().length; i++ ) {
+    if ( action.getConnections() != null ) {
+      for ( int i = 0; i < action.getConnections().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getConnections()[ i ] != null ) {
-          ti.setText( 1, jobEntry.getConnections()[ i ].getName() );
-          ti.setText( 2, "" + Const.toInt( jobEntry.getWaitfors()[ i ], 0 ) );
-          ti.setText( 3, ActionICheckDbConnections.getWaitTimeDesc( jobEntry.getWaittimes()[ i ] ) );
+        if ( action.getConnections()[ i ] != null ) {
+          ti.setText( 1, action.getConnections()[ i ].getName() );
+          ti.setText( 2, "" + Const.toInt( action.getWaitfors()[ i ], 0 ) );
+          ti.setText( 3, ActionICheckDbConnections.getWaitTimeDesc( action.getWaittimes()[ i ] ) );
         }
       }
       wFields.setRowNums();
@@ -315,8 +315,8 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -328,7 +328,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
 
     int nritems = wFields.nrNonEmpty();
 
@@ -346,9 +346,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
           ActionICheckDbConnections.getWaitTimeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
       }
     }
-    jobEntry.setConnections( connections );
-    jobEntry.setWaitfors( waitfors );
-    jobEntry.setWaittimes( waittimes );
+    action.setConnections( connections );
+    action.setWaitfors( waitfors );
+    action.setWaittimes( waittimes );
 
     dispose();
   }

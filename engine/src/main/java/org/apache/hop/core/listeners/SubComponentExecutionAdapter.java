@@ -23,25 +23,27 @@
 package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class SubComponentExecutionAdapter implements ISubComponentExecutionListener {
 
-  @Override
-  public void beforePipelineExecution( Pipeline pipeline ) throws HopException {
+  @Override public void beforePipelineExecution( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+
   }
 
-  @Override
-  public void afterPipelineExecution( Pipeline pipeline ) throws HopException {
+  @Override public void afterPipelineExecution( IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+
   }
 
-  @Override
-  public void beforeJobExecution( Workflow workflow ) throws HopException {
+  @Override public void beforeJobExecution( IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
+
   }
 
-  @Override
-  public void afterJobExecution( Workflow workflow ) throws HopException {
+  @Override public void afterJobExecution( IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
   }
-
 }

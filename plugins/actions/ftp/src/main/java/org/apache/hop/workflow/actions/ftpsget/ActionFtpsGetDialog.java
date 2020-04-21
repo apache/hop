@@ -134,7 +134,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionFtpsGet jobEntry;
+  private ActionFtpsGet action;
 
   private Shell shell;
 
@@ -268,11 +268,11 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
 
   private FtpsConnection connection = null;
 
-  public ActionFtpsGetDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFtpsGet) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPS.Name.Default" ) );
+  public ActionFtpsGetDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFtpsGet) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFTPS.Name.Default" ) );
     }
   }
 
@@ -282,16 +282,16 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         // pwdFolder=null;
         connection = null;
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -835,7 +835,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // Create multi-part file?
@@ -857,7 +857,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -880,7 +880,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
         setAddDateBeforeExtension();
       }
@@ -931,7 +931,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wAddDateBeforeExtension.setLayoutData( fdAddDateBeforeExtension );
     wAddDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -955,7 +955,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wOnlyNew.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeIfExists();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1241,7 +1241,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeIfExists() {
@@ -1404,46 +1404,46 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wPort.setText( Const.NVL( jobEntry.getPort(), "21" ) );
-    wUserName.setText( Const.NVL( jobEntry.getUserName(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wFTPSDirectory.setText( Const.NVL( jobEntry.getFTPSDirectory(), "" ) );
-    wTargetDirectory.setText( Const.NVL( jobEntry.getTargetDirectory(), "" ) );
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wBinaryMode.setSelection( jobEntry.isBinaryMode() );
-    wTimeout.setText( "" + jobEntry.getTimeout() );
-    wRemove.setSelection( jobEntry.getRemove() );
-    wOnlyNew.setSelection( jobEntry.isOnlyGettingNewFiles() );
-    wActive.setSelection( jobEntry.isActiveConnection() );
-    wMove.setSelection( jobEntry.isMoveFiles() );
-    wMoveToDirectory.setText( Const.NVL( jobEntry.getMoveToDirectory(), "" ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wPort.setText( Const.NVL( action.getPort(), "21" ) );
+    wUserName.setText( Const.NVL( action.getUserName(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wFTPSDirectory.setText( Const.NVL( action.getFTPSDirectory(), "" ) );
+    wTargetDirectory.setText( Const.NVL( action.getTargetDirectory(), "" ) );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wBinaryMode.setSelection( action.isBinaryMode() );
+    wTimeout.setText( "" + action.getTimeout() );
+    wRemove.setSelection( action.getRemove() );
+    wOnlyNew.setSelection( action.isOnlyGettingNewFiles() );
+    wActive.setSelection( action.isActiveConnection() );
+    wMove.setSelection( action.isMoveFiles() );
+    wMoveToDirectory.setText( Const.NVL( action.getMoveToDirectory(), "" ) );
 
-    wAddDate.setSelection( jobEntry.isDateInFilename() );
-    wAddTime.setSelection( jobEntry.isTimeInFilename() );
+    wAddDate.setSelection( action.isDateInFilename() );
+    wAddTime.setSelection( action.isTimeInFilename() );
 
-    wDateTimeFormat.setText( Const.nullToEmpty( jobEntry.getDateTimeFormat() ) );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
+    wDateTimeFormat.setText( Const.nullToEmpty( action.getDateTimeFormat() ) );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
 
-    wAddDateBeforeExtension.setSelection( jobEntry.isAddDateBeforeExtension() );
-    wAddFilenameToResult.setSelection( jobEntry.isAddToResult() );
-    wCreateMoveFolder.setSelection( jobEntry.isCreateMoveFolder() );
+    wAddDateBeforeExtension.setSelection( action.isAddDateBeforeExtension() );
+    wAddFilenameToResult.setSelection( action.isAddToResult() );
+    wCreateMoveFolder.setSelection( action.isCreateMoveFolder() );
 
-    wProxyHost.setText( Const.NVL( jobEntry.getProxyHost(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wProxyUsername.setText( Const.NVL( jobEntry.getProxyUsername(), "" ) );
-    wProxyPassword.setText( Const.NVL( jobEntry.getProxyPassword(), "" ) );
+    wProxyHost.setText( Const.NVL( action.getProxyHost(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wProxyUsername.setText( Const.NVL( action.getProxyUsername(), "" ) );
+    wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
 
-    wIfFileExists.select( jobEntry.getIfFileExists() );
+    wIfFileExists.select( action.getIfFileExists() );
 
-    wNrErrorsLessThan.setText( Const.NVL( jobEntry.getLimit(), "10" ) );
+    wNrErrorsLessThan.setText( Const.NVL( action.getLimit(), "10" ) );
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -1452,15 +1452,15 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
       wSuccessCondition.select( 0 );
     }
 
-    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( jobEntry.getConnectionType() ) );
+    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( action.getConnectionType() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1472,50 +1472,50 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setFTPSDirectory( wFTPSDirectory.getText() );
-    jobEntry.setTargetDirectory( wTargetDirectory.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setBinaryMode( wBinaryMode.getSelection() );
-    jobEntry.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
-    jobEntry.setRemove( wRemove.getSelection() );
-    jobEntry.setOnlyGettingNewFiles( wOnlyNew.getSelection() );
-    jobEntry.setActiveConnection( wActive.getSelection() );
-    jobEntry.setMoveFiles( wMove.getSelection() );
-    jobEntry.setMoveToDirectory( wMoveToDirectory.getText() );
+    action.setName( wName.getText() );
+    action.setPort( wPort.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setFTPSDirectory( wFTPSDirectory.getText() );
+    action.setTargetDirectory( wTargetDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setBinaryMode( wBinaryMode.getSelection() );
+    action.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
+    action.setRemove( wRemove.getSelection() );
+    action.setOnlyGettingNewFiles( wOnlyNew.getSelection() );
+    action.setActiveConnection( wActive.getSelection() );
+    action.setMoveFiles( wMove.getSelection() );
+    action.setMoveToDirectory( wMoveToDirectory.getText() );
 
-    jobEntry.setDateInFilename( wAddDate.getSelection() );
-    jobEntry.setTimeInFilename( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setDateInFilename( wAddDate.getSelection() );
+    action.setTimeInFilename( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
 
-    jobEntry.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
-    jobEntry.setAddToResult( wAddFilenameToResult.getSelection() );
-    jobEntry.setCreateMoveFolder( wCreateMoveFolder.getSelection() );
+    action.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
+    action.setAddToResult( wAddFilenameToResult.getSelection() );
+    action.setCreateMoveFolder( wCreateMoveFolder.getSelection() );
 
-    jobEntry.setProxyHost( wProxyHost.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
-    jobEntry.setProxyPassword( wProxyPassword.getText() );
+    action.setProxyHost( wProxyHost.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setProxyUsername( wProxyUsername.getText() );
+    action.setProxyPassword( wProxyPassword.getText() );
 
     int index = wIfFileExists.getSelectionIndex();
-    jobEntry.setIfFileExists( index );
+    action.setIfFileExists( index );
 
-    jobEntry.setLimit( wNrErrorsLessThan.getText() );
+    action.setLimit( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( action.SUCCESS_IF_NO_ERRORS );
     }
 
-    jobEntry.setConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
+    action.setConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
 
     dispose();
   }

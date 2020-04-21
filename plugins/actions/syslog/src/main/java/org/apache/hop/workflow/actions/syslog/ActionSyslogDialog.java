@@ -95,7 +95,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionSyslog jobEntry;
+  private ActionSyslog action;
 
   private Shell shell;
 
@@ -155,11 +155,11 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private Button wAddHostName;
   private FormData fdAddHostName;
 
-  public ActionSyslogDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSyslog) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionSyslog.Name.Default" ) );
+  public ActionSyslogDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSyslog) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionSyslog.Name.Default" ) );
     }
   }
 
@@ -169,14 +169,14 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -375,7 +375,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     wAddHostName.setLayoutData( fdAddHostName );
     wAddHostName.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -399,7 +399,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     wAddTimestamp.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeAddTimestamp();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -436,8 +436,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     fdlMessage.right = new FormAttachment( middle, -margin );
     wlMessage.setLayoutData( fdlMessage );
 
-    wMessage =
-      new StyledTextComp( jobEntry, wMessageGroup, SWT.MULTI
+    wMessage = new StyledTextComp( action, wMessageGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
@@ -536,7 +535,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeAddTimestamp() {
@@ -589,31 +588,31 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wPort.setText( Const.NVL( jobEntry.getPort(), String.valueOf( SyslogDefs.DEFAULT_PORT ) ) );
-    if ( jobEntry.getFacility() != null ) {
-      wFacility.setText( jobEntry.getFacility() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wPort.setText( Const.NVL( action.getPort(), String.valueOf( SyslogDefs.DEFAULT_PORT ) ) );
+    if ( action.getFacility() != null ) {
+      wFacility.setText( action.getFacility() );
     }
-    if ( jobEntry.getPriority() != null ) {
-      wPriority.setText( jobEntry.getPriority() );
+    if ( action.getPriority() != null ) {
+      wPriority.setText( action.getPriority() );
     }
-    if ( jobEntry.getMessage() != null ) {
-      wMessage.setText( jobEntry.getMessage() );
+    if ( action.getMessage() != null ) {
+      wMessage.setText( action.getMessage() );
     }
-    if ( jobEntry.getDatePattern() != null ) {
-      wDatePattern.setText( jobEntry.getDatePattern() );
+    if ( action.getDatePattern() != null ) {
+      wDatePattern.setText( action.getDatePattern() );
     }
-    wAddTimestamp.setSelection( jobEntry.isAddTimestamp() );
-    wAddHostName.setSelection( jobEntry.isAddHostName() );
+    wAddTimestamp.setSelection( action.isAddTimestamp() );
+    wAddHostName.setSelection( action.isAddHostName() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -625,15 +624,15 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setFacility( wFacility.getText() );
-    jobEntry.setPriority( wPriority.getText() );
-    jobEntry.setMessage( wMessage.getText() );
-    jobEntry.addTimestamp( wAddTimestamp.getSelection() );
-    jobEntry.setDatePattern( wDatePattern.getText() );
-    jobEntry.addHostName( wAddHostName.getSelection() );
+    action.setName( wName.getText() );
+    action.setPort( wPort.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setFacility( wFacility.getText() );
+    action.setPriority( wPriority.getText() );
+    action.setMessage( wMessage.getText() );
+    action.addTimestamp( wAddTimestamp.getSelection() );
+    action.setDatePattern( wDatePattern.getText() );
+    action.addHostName( wAddHostName.getSelection() );
     dispose();
   }
 

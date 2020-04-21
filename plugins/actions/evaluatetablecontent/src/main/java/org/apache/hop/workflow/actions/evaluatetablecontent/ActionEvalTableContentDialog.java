@@ -102,7 +102,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
   private Listener lsOk, lsCancel, lsbSQLTable;
 
-  private ActionEvalTableContent jobEntry;
+  private ActionEvalTableContent action;
 
   private Shell shell;
 
@@ -167,12 +167,12 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   private TextVar wLimit;
   private FormData fdlLimit, fdLimit;
 
-  public ActionEvalTableContentDialog( Shell parent, IAction jobEntryInt,
+  public ActionEvalTableContentDialog( Shell parent, IAction action,
                                        WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionEvalTableContent) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionEvalTableContent.Name.Default" ) );
+    super( parent, action, workflowMeta );
+    this.action = (ActionEvalTableContent) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionEvalTableContent.Name.Default" ) );
     }
   }
 
@@ -182,14 +182,14 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -238,7 +238,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -394,7 +394,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       public void widgetSelected( SelectionEvent e ) {
 
         setCustomerSQL();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // use Variable substitution?
@@ -416,7 +416,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wUseSubs.setLayoutData( fdUseSubs );
     wUseSubs.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -440,7 +440,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wClearResultList.setLayoutData( fdClearResultList );
     wClearResultList.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -464,7 +464,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wAddRowsToResult.setLayoutData( fdAddRowsToResult );
     wAddRowsToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -495,7 +495,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wbSQLTable.setLayoutData( fdbSQLTable );
 
     wSql =
-      new StyledTextComp( jobEntry, wCustomGroup, SWT.MULTI
+      new StyledTextComp( action, wCustomGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
@@ -606,7 +606,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void getSql() {
@@ -726,34 +726,34 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
 
-    if ( jobEntry.getSchemaname() != null ) {
-      wSchemaname.setText( jobEntry.getSchemaname() );
+    if ( action.getSchemaname() != null ) {
+      wSchemaname.setText( action.getSchemaname() );
     }
-    if ( jobEntry.getTablename() != null ) {
-      wTablename.setText( jobEntry.getTablename() );
+    if ( action.getTablename() != null ) {
+      wTablename.setText( action.getTablename() );
     }
 
-    wSuccessCondition.setText( ActionEvalTableContent.getSuccessConditionDesc( jobEntry.getSuccessCondition() ) );
-    if ( jobEntry.getLimit() != null ) {
-      wLimit.setText( jobEntry.getLimit() );
+    wSuccessCondition.setText( ActionEvalTableContent.getSuccessConditionDesc( action.getSuccessCondition() ) );
+    if ( action.getLimit() != null ) {
+      wLimit.setText( action.getLimit() );
     } else {
       wLimit.setText( "0" );
     }
 
-    wcustomSQL.setSelection( jobEntry.isUseCustomSQL() );
-    wUseSubs.setSelection( jobEntry.isUseVars() );
-    wClearResultList.setSelection( jobEntry.isClearResultList() );
-    wAddRowsToResult.setSelection( jobEntry.isAddRowsResult() );
-    if ( jobEntry.getCustomSQL() != null ) {
-      wSql.setText( jobEntry.getCustomSQL() );
+    wcustomSQL.setSelection( action.isUseCustomSQL() );
+    wUseSubs.setSelection( action.isUseVars() );
+    wClearResultList.setSelection( action.isClearResultList() );
+    wAddRowsToResult.setSelection( action.isAddRowsResult() );
+    if ( action.getCustomSQL() != null ) {
+      wSql.setText( action.getCustomSQL() );
     }
 
     wName.selectAll();
@@ -761,8 +761,8 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -774,19 +774,19 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
 
-    jobEntry.setSchemaname( wSchemaname.getText() );
-    jobEntry.setTablename( wTablename.getText() );
-    jobEntry.setSuccessCondition( ActionEvalTableContent.getSuccessConditionByDesc( wSuccessCondition.getText() ) );
-    jobEntry.setLimit( wLimit.getText() );
-    jobEntry.setUseCustomSQL( wcustomSQL.getSelection() );
-    jobEntry.setUseVars( wUseSubs.getSelection() );
-    jobEntry.setAddRowsResult( wAddRowsToResult.getSelection() );
-    jobEntry.setClearResultList( wClearResultList.getSelection() );
+    action.setSchemaname( wSchemaname.getText() );
+    action.setTablename( wTablename.getText() );
+    action.setSuccessCondition( ActionEvalTableContent.getSuccessConditionByDesc( wSuccessCondition.getText() ) );
+    action.setLimit( wLimit.getText() );
+    action.setUseCustomSQL( wcustomSQL.getSelection() );
+    action.setUseVars( wUseSubs.getSelection() );
+    action.setAddRowsResult( wAddRowsToResult.getSelection() );
+    action.setClearResultList( wClearResultList.getSelection() );
 
-    jobEntry.setCustomSQL( wSql.getText() );
+    action.setCustomSQL( wSql.getText() );
     dispose();
   }
 

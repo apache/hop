@@ -107,7 +107,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
-  private ActionMssqlBulkLoad jobEntry;
+  private ActionMssqlBulkLoad action;
   private Shell shell;
   private SelectionAdapter lsDef;
   private boolean changed;
@@ -242,11 +242,11 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
   private FormData fdGeneralComp, fdAdvancedComp;
   private FormData fdTabFolder;
 
-  public ActionMssqlBulkLoadDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMssqlBulkLoad) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Name.Default" ) );
+  public ActionMssqlBulkLoadDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMssqlBulkLoad) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Name.Default" ) );
     }
   }
 
@@ -256,14 +256,14 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -324,7 +324,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wConnectionGroup.setLayout( ConnectionGroupLayout );
 
     // Connection line
-    wConnection = addConnectionLine( wConnectionGroup, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( wConnectionGroup, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( wConnectionGroup, SWT.RIGHT );
@@ -398,7 +398,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wTruncate.setLayoutData( fdTruncate );
     wTruncate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -696,7 +696,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFireTriggers.setLayoutData( fdFireTriggers );
     wFireTriggers.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -719,7 +719,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wCheckConstraints.setLayoutData( fdCheckConstraints );
     wCheckConstraints.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -742,7 +742,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wKeepNulls.setLayoutData( fdKeepNulls );
     wKeepNulls.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -765,7 +765,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wKeepIdentity.setLayoutData( fdKeepIdentity );
     wKeepIdentity.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -788,7 +788,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wTablock.setLayoutData( fdTablock );
     wTablock.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -954,7 +954,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddDateTime.setLayoutData( fdAddDateTime );
     wAddDateTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1051,7 +1051,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1137,7 +1137,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -1170,55 +1170,55 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
-    if ( jobEntry.getSchemaname() != null ) {
-      wSchemaname.setText( jobEntry.getSchemaname() );
+    if ( action.getSchemaname() != null ) {
+      wSchemaname.setText( action.getSchemaname() );
     }
-    if ( jobEntry.getTablename() != null ) {
-      wTablename.setText( jobEntry.getTablename() );
+    if ( action.getTablename() != null ) {
+      wTablename.setText( action.getTablename() );
     }
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
-    if ( jobEntry.getDataFileType() != null ) {
-      wDataFiletype.setText( jobEntry.getDataFileType() );
+    if ( action.getDataFileType() != null ) {
+      wDataFiletype.setText( action.getDataFileType() );
     }
-    if ( jobEntry.getFieldTerminator() != null ) {
-      wFieldTerminator.setText( jobEntry.getFieldTerminator() );
+    if ( action.getFieldTerminator() != null ) {
+      wFieldTerminator.setText( action.getFieldTerminator() );
     }
-    if ( jobEntry.getLineterminated() != null ) {
-      wLineterminated.setText( jobEntry.getLineterminated() );
+    if ( action.getLineterminated() != null ) {
+      wLineterminated.setText( action.getLineterminated() );
     }
-    if ( jobEntry.getCodePage() != null ) {
-      wCodePage.setText( jobEntry.getCodePage() );
+    if ( action.getCodePage() != null ) {
+      wCodePage.setText( action.getCodePage() );
     } else {
       wCodePage.setText( "RAW" );
     }
-    if ( jobEntry.getSpecificCodePage() != null ) {
-      wSpecificCodePage.setText( jobEntry.getSpecificCodePage() );
+    if ( action.getSpecificCodePage() != null ) {
+      wSpecificCodePage.setText( action.getSpecificCodePage() );
     }
-    if ( jobEntry.getFormatFilename() != null ) {
-      wFormatFilename.setText( jobEntry.getFormatFilename() );
+    if ( action.getFormatFilename() != null ) {
+      wFormatFilename.setText( action.getFormatFilename() );
     }
 
-    wFireTriggers.setSelection( jobEntry.isFireTriggers() );
-    wCheckConstraints.setSelection( jobEntry.isCheckConstraints() );
-    wKeepNulls.setSelection( jobEntry.isKeepNulls() );
-    wKeepIdentity.setSelection( jobEntry.isKeepIdentity() );
+    wFireTriggers.setSelection( action.isFireTriggers() );
+    wCheckConstraints.setSelection( action.isCheckConstraints() );
+    wKeepNulls.setSelection( action.isKeepNulls() );
+    wKeepIdentity.setSelection( action.isKeepIdentity() );
 
-    wTablock.setSelection( jobEntry.isTablock() );
+    wTablock.setSelection( action.isTablock() );
 
-    wStartFile.setText( "" + jobEntry.getStartFile() );
-    wEndFile.setText( "" + jobEntry.getEndFile() );
+    wStartFile.setText( "" + action.getStartFile() );
+    wEndFile.setText( "" + action.getEndFile() );
 
-    if ( jobEntry.getOrderBy() != null ) {
-      wOrderBy.setText( jobEntry.getOrderBy() );
+    if ( action.getOrderBy() != null ) {
+      wOrderBy.setText( action.getOrderBy() );
     }
-    if ( jobEntry.getOrderDirection() != null ) {
-      if ( jobEntry.getOrderDirection().equals( "Asc" ) ) {
+    if ( action.getOrderDirection() != null ) {
+      if ( action.getOrderDirection().equals( "Asc" ) ) {
         wOrderDirection.select( 0 );
       } else {
         wOrderDirection.select( 1 );
@@ -1227,26 +1227,26 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       wOrderDirection.select( 0 );
     }
 
-    if ( jobEntry.getErrorFilename() != null ) {
-      wErrorFilename.setText( jobEntry.getErrorFilename() );
+    if ( action.getErrorFilename() != null ) {
+      wErrorFilename.setText( action.getErrorFilename() );
     }
 
-    wMaxErrors.setText( "" + jobEntry.getMaxErrors() );
-    wBatchSize.setText( "" + jobEntry.getBatchSize() );
-    wRowsPerBatch.setText( "" + jobEntry.getRowsPerBatch() );
+    wMaxErrors.setText( "" + action.getMaxErrors() );
+    wBatchSize.setText( "" + action.getBatchSize() );
+    wRowsPerBatch.setText( "" + action.getRowsPerBatch() );
 
-    wAddDateTime.setSelection( jobEntry.isAddDatetime() );
+    wAddDateTime.setSelection( action.isAddDatetime() );
 
-    wAddFileToResult.setSelection( jobEntry.isAddFileToResult() );
-    wTruncate.setSelection( jobEntry.isTruncate() );
+    wAddFileToResult.setSelection( action.isAddFileToResult() );
+    wTruncate.setSelection( action.isTruncate() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1258,42 +1258,42 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.setSchemaname( wSchemaname.getText() );
-    jobEntry.setTablename( wTablename.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setDataFileType( wDataFiletype.getText() );
-    jobEntry.setFieldTerminator( wFieldTerminator.getText() );
-    jobEntry.setLineterminated( wLineterminated.getText() );
-    jobEntry.setCodePage( wCodePage.getText() );
-    jobEntry.setSpecificCodePage( wSpecificCodePage.getText() );
-    jobEntry.setFormatFilename( wFormatFilename.getText() );
-    jobEntry.setFireTriggers( wFireTriggers.getSelection() );
-    jobEntry.setCheckConstraints( wCheckConstraints.getSelection() );
-    jobEntry.setKeepNulls( wKeepNulls.getSelection() );
-    jobEntry.setKeepIdentity( wKeepIdentity.getSelection() );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setSchemaname( wSchemaname.getText() );
+    action.setTablename( wTablename.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setDataFileType( wDataFiletype.getText() );
+    action.setFieldTerminator( wFieldTerminator.getText() );
+    action.setLineterminated( wLineterminated.getText() );
+    action.setCodePage( wCodePage.getText() );
+    action.setSpecificCodePage( wSpecificCodePage.getText() );
+    action.setFormatFilename( wFormatFilename.getText() );
+    action.setFireTriggers( wFireTriggers.getSelection() );
+    action.setCheckConstraints( wCheckConstraints.getSelection() );
+    action.setKeepNulls( wKeepNulls.getSelection() );
+    action.setKeepIdentity( wKeepIdentity.getSelection() );
 
-    jobEntry.setTablock( wTablock.getSelection() );
+    action.setTablock( wTablock.getSelection() );
 
-    jobEntry.setStartFile( Const.toInt( wStartFile.getText(), 0 ) );
-    jobEntry.setEndFile( Const.toInt( wEndFile.getText(), 0 ) );
-    jobEntry.setOrderBy( wOrderBy.getText() );
+    action.setStartFile( Const.toInt( wStartFile.getText(), 0 ) );
+    action.setEndFile( Const.toInt( wEndFile.getText(), 0 ) );
+    action.setOrderBy( wOrderBy.getText() );
     if ( wOrderDirection.getSelectionIndex() == 0 ) {
-      jobEntry.setOrderDirection( "Asc" );
+      action.setOrderDirection( "Asc" );
     } else {
-      jobEntry.setOrderDirection( "Desc" );
+      action.setOrderDirection( "Desc" );
     }
 
-    jobEntry.setErrorFilename( wErrorFilename.getText() );
-    jobEntry.setMaxErrors( Const.toInt( wMaxErrors.getText(), 0 ) );
-    jobEntry.setBatchSize( Const.toInt( wBatchSize.getText(), 0 ) );
-    jobEntry.setRowsPerBatch( Const.toInt( wRowsPerBatch.getText(), 0 ) );
+    action.setErrorFilename( wErrorFilename.getText() );
+    action.setMaxErrors( Const.toInt( wMaxErrors.getText(), 0 ) );
+    action.setBatchSize( Const.toInt( wBatchSize.getText(), 0 ) );
+    action.setRowsPerBatch( Const.toInt( wRowsPerBatch.getText(), 0 ) );
 
-    jobEntry.setAddDatetime( wAddDateTime.getSelection() );
+    action.setAddDatetime( wAddDateTime.getSelection() );
 
-    jobEntry.setAddFileToResult( wAddFileToResult.getSelection() );
-    jobEntry.setTruncate( wTruncate.getSelection() );
+    action.setAddFileToResult( wAddFileToResult.getSelection() );
+    action.setTruncate( wTruncate.getSelection() );
 
     dispose();
   }

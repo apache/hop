@@ -56,8 +56,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -388,8 +390,7 @@ public class Const {
   /**
    * The build version as an internal variable
    */
-  public static final String INTERNAL_VARIABLE_HOP_BUILD_VERSION = INTERNAL_VARIABLE_PREFIX
-    + ".Hop.Build.Version";
+  public static final String INTERNAL_VARIABLE_HOP_BUILD_VERSION = INTERNAL_VARIABLE_PREFIX + ".Hop.Build.Version";
 
   /**
    * The build date as an internal variable
@@ -399,8 +400,7 @@ public class Const {
   /**
    * The workflow filename directory
    */
-  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Workflow.Filename.Directory";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX + ".Workflow.Filename.Directory";
 
   /**
    * The workflow filename name
@@ -413,30 +413,9 @@ public class Const {
   public static final String INTERNAL_VARIABLE_WORKFLOW_NAME = INTERNAL_VARIABLE_PREFIX + ".Workflow.Name";
 
   /**
-   * The workflow run ID
-   */
-  public static final String INTERNAL_VARIABLE_WORKFLOW_RUN_ID = INTERNAL_VARIABLE_PREFIX + ".Workflow.Run.ID";
-
-  /**
-   * The workflow run attempt nr
-   */
-  public static final String INTERNAL_VARIABLE_WORKFLOW_RUN_ATTEMPTNR = INTERNAL_VARIABLE_PREFIX + ".Workflow.Run.AttemptNr";
-
-  /**
-   * workflow/pipeline heartbeat scheduled executor periodic interval ( in seconds )
-   */
-  public static final String VARIABLE_HEARTBEAT_PERIODIC_INTERVAL_SECS = "heartbeat.periodic.interval.seconds";
-
-  /**
-   * comma-separated list of extension point plugins for which snmp traps should be sent
-   */
-  public static final String VARIABLE_MONITORING_SNMP_TRAPS_ENABLED = "monitoring.snmp.traps.enabled";
-
-  /**
    * The current pipeline directory
    */
-  public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY = INTERNAL_VARIABLE_PREFIX
-    + ".Entry.Current.Directory";
+  public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY = INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Directory";
 
   /**
    * All the internal pipeline variables
@@ -454,7 +433,7 @@ public class Const {
     Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
     Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
     Const.INTERNAL_VARIABLE_WORKFLOW_NAME,
-    Const.INTERNAL_VARIABLE_WORKFLOW_RUN_ID, Const.INTERNAL_VARIABLE_WORKFLOW_RUN_ATTEMPTNR, };
+  };
 
   /*
    * Deprecated variables array.
@@ -892,6 +871,11 @@ public class Const {
    * The XML file that contains the list of native pipeline engines
    */
   public static final String XML_FILE_HOP_PIPELINE_ENGINES = "hop-pipeline-engines.xml";
+
+  /**
+   * The XML file that contains the list of native workflow engines
+   */
+  public static final String XML_FILE_HOP_WORKFLOW_ENGINES = "hop-workflow-engines.xml";
 
   /**
    * the value the Pan JVM should return on exit.
@@ -2436,7 +2420,6 @@ public class Const {
   }
 
   private static String removeEnclosure( String stringToSplit, String enclosure ) {
-
     int firstIndex = stringToSplit.indexOf( enclosure );
     int lastIndex = stringToSplit.lastIndexOf( enclosure );
     if ( firstIndex == lastIndex ) {
@@ -2462,18 +2445,13 @@ public class Const {
     if ( strings.length == 0 ) {
       return new String[] {};
     }
-
-    String[] sorted = sortStrings( strings );
-    List<String> result = new ArrayList<>();
-    String previous = "";
-    for ( int i = 0; i < sorted.length; i++ ) {
-      if ( !sorted[ i ].equalsIgnoreCase( previous ) ) {
-        result.add( sorted[ i ] );
-      }
-      previous = sorted[ i ];
+    HashSet<String> set = new HashSet<>();
+    for (String string : strings) {
+      set.add(string);
     }
-
-    return result.toArray( new String[ result.size() ] );
+    List<String> list = new ArrayList<>( set );
+    Collections.sort(list);
+    return list.toArray( new String[0] );
   }
 
   /**
@@ -2507,158 +2485,6 @@ public class Const {
     result.append("Root cause: ");
     result.append(ExceptionUtils.getRootCauseMessage( aThrowable ));
     return result.toString();
-  }
-
-  /**
-   * Check if the string supplied is empty. A String is empty when it is null or when the length is 0
-   *
-   * @param val The value to check
-   * @return true if the string supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( String val ) {
-    return Utils.isEmpty( val );
-  }
-
-  /**
-   * Check if the stringBuffer supplied is empty. A StringBuffer is empty when it is null or when the length is 0
-   *
-   * @param val The stringBuffer to check
-   * @return true if the stringBuffer supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( StringBuffer val ) {
-    return Utils.isEmpty( val );
-  }
-
-  /**
-   * Check if the string array supplied is empty. A String array is empty when it is null or when the number of elements
-   * is 0
-   *
-   * @param vals The string array to check
-   * @return true if the string array supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence[])
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( String[] vals ) {
-    return Utils.isEmpty( vals );
-  }
-
-  /**
-   * Check if the CharSequence supplied is empty. A CharSequence is empty when it is null or when the length is 0
-   *
-   * @param val The stringBuffer to check
-   * @return true if the stringBuffer supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence)
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( CharSequence val ) {
-    return Utils.isEmpty( val );
-  }
-
-  /**
-   * Check if the CharSequence array supplied is empty. A CharSequence array is empty when it is null or when the number of elements
-   * is 0
-   *
-   * @param vals The string array to check
-   * @return true if the string array supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(CharSequence[])
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( CharSequence[] vals ) {
-    return Utils.isEmpty( vals );
-  }
-
-  /**
-   * Check if the array supplied is empty. An array is empty when it is null or when the length is 0
-   *
-   * @param array The array to check
-   * @return true if the array supplied is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(Object[])
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( Object[] array ) {
-    return Utils.isEmpty( array );
-  }
-
-  /**
-   * Check if the list supplied is empty. An array is empty when it is null or when the length is 0
-   *
-   * @param list the list to check
-   * @return true if the supplied list is empty
-   * @see org.apache.hop.core.util.Utils#isEmpty(List)
-   * @deprecated
-   */
-  @Deprecated
-  public static boolean isEmpty( List<?> list ) {
-    return Utils.isEmpty( list );
-  }
-
-  /**
-   * @return a new ClassLoader
-   */
-  public static ClassLoader createNewClassLoader() throws HopException {
-    try {
-      // Nothing really in URL, everything is in scope.
-      URL[] urls = new URL[] {};
-      URLClassLoader ucl = new URLClassLoader( urls );
-
-      return ucl;
-    } catch ( Exception e ) {
-      throw new HopException( "Unexpected error during classloader creation", e );
-    }
-  }
-
-  /**
-   * Utility class for use in JavaScript to create a new byte array. This is surprisingly difficult to do in JavaScript.
-   *
-   * @return a new java byte array
-   */
-  public static byte[] createByteArray( int size ) {
-    return new byte[ size ];
-  }
-
-  /**
-   * Sets the first character of each word in upper-case.
-   *
-   * @param string The strings to convert to initcap
-   * @return the input string but with the first character of each word converted to upper-case.
-   */
-  public static String initCap( String string ) {
-    StringBuilder change = new StringBuilder( string );
-    boolean new_word;
-    int i;
-    char lower, upper, ch;
-
-    new_word = true;
-    for ( i = 0; i < string.length(); i++ ) {
-      lower = change.substring( i, i + 1 ).toLowerCase().charAt( 0 ); // Lowercase is default.
-      upper = change.substring( i, i + 1 ).toUpperCase().charAt( 0 ); // Uppercase for new words.
-      ch = upper;
-
-      if ( new_word ) {
-        change.setCharAt( i, upper );
-      } else {
-        change.setCharAt( i, lower );
-      }
-
-      new_word = false;
-
-      // Cast to (int) is required for extended characters (SB)
-      if ( !Character.isLetterOrDigit( (int) ch ) && ch != '_' ) {
-        new_word = true;
-      }
-    }
-
-    return change.toString();
   }
 
   /**

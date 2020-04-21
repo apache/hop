@@ -202,7 +202,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   private Button wAddFilenameToResult;
   private FormData fdlAddFilenameToResult, fdAddFilenameToResult;
 
-  private ActionHttp jobEntry;
+  private ActionHttp action;
 
   private Shell shell;
 
@@ -216,11 +216,11 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   private FormData fdGeneralComp, fdHeadersComp;
   private FormData fdTabFolder;
 
-  public ActionHttpDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionHttp) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobHTTP.Name.Default" ) );
+  public ActionHttpDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionHttp) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobHTTP.Name.Default" ) );
     }
   }
 
@@ -230,14 +230,14 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -739,8 +739,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wHeadersComp.setLayout( HeadersLayout );
 
     int rows =
-      jobEntry.getHeaderName() == null ? 1 : ( jobEntry.getHeaderName().length == 0 ? 0 : jobEntry
-        .getHeaderName().length );
+      action.getHeaderName() == null ? 1 : ( action.getHeaderName().length == 0 ? 0 : action.getHeaderName().length );
 
     colinf =
       new ColumnInfo[] {
@@ -836,7 +835,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setFlags() {
@@ -873,32 +872,32 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
+    wName.setText( Const.NVL( action.getName(), "" ) );
 
-    wURL.setText( Const.NVL( jobEntry.getUrl(), "" ) );
-    wRunEveryRow.setSelection( jobEntry.isRunForEveryRow() );
-    wFieldURL.setText( Const.NVL( jobEntry.getUrlFieldname(), "" ) );
-    wFieldUpload.setText( Const.NVL( jobEntry.getUploadFieldname(), "" ) );
-    wFieldTarget.setText( Const.NVL( jobEntry.getDestinationFieldname(), "" ) );
-    wTargetFile.setText( Const.NVL( jobEntry.getTargetFilename(), "" ) );
-    wAppend.setSelection( jobEntry.isFileAppended() );
-    wDateTimeAdded.setSelection( jobEntry.isDateTimeAdded() );
-    wTargetExt.setText( Const.NVL( jobEntry.getTargetFilenameExtension(), "" ) );
+    wURL.setText( Const.NVL( action.getUrl(), "" ) );
+    wRunEveryRow.setSelection( action.isRunForEveryRow() );
+    wFieldURL.setText( Const.NVL( action.getUrlFieldname(), "" ) );
+    wFieldUpload.setText( Const.NVL( action.getUploadFieldname(), "" ) );
+    wFieldTarget.setText( Const.NVL( action.getDestinationFieldname(), "" ) );
+    wTargetFile.setText( Const.NVL( action.getTargetFilename(), "" ) );
+    wAppend.setSelection( action.isFileAppended() );
+    wDateTimeAdded.setSelection( action.isDateTimeAdded() );
+    wTargetExt.setText( Const.NVL( action.getTargetFilenameExtension(), "" ) );
 
-    wUploadFile.setText( Const.NVL( jobEntry.getUploadFilename(), "" ) );
+    wUploadFile.setText( Const.NVL( action.getUploadFilename(), "" ) );
 
-    jobEntry.setDateTimeAdded( wDateTimeAdded.getSelection() );
-    jobEntry.setTargetFilenameExtension( wTargetExt.getText() );
+    action.setDateTimeAdded( wDateTimeAdded.getSelection() );
+    action.setTargetFilenameExtension( wTargetExt.getText() );
 
-    wUserName.setText( Const.NVL( jobEntry.getUsername(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
+    wUserName.setText( Const.NVL( action.getUsername(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
 
-    wProxyServer.setText( Const.NVL( jobEntry.getProxyHostname(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wNonProxyHosts.setText( Const.NVL( jobEntry.getNonProxyHosts(), "" ) );
+    wProxyServer.setText( Const.NVL( action.getProxyHostname(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wNonProxyHosts.setText( Const.NVL( action.getNonProxyHosts(), "" ) );
 
-    String[] headerNames = jobEntry.getHeaderName();
-    String[] headerValues = jobEntry.getHeaderValue();
+    String[] headerNames = action.getHeaderName();
+    String[] headerValues = action.getHeaderValue();
     if ( headerNames != null ) {
       for ( int i = 0; i < headerNames.length; i++ ) {
         TableItem ti = wHeaders.table.getItem( i );
@@ -913,7 +912,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
       wHeaders.optWidth( true );
     }
 
-    wAddFilenameToResult.setSelection( jobEntry.isAddFilenameToResult() );
+    wAddFilenameToResult.setSelection( action.isAddFilenameToResult() );
     setFlags();
 
     wName.selectAll();
@@ -921,8 +920,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -934,26 +933,26 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setUrl( wURL.getText() );
-    jobEntry.setRunForEveryRow( wRunEveryRow.getSelection() );
-    jobEntry.setUrlFieldname( wFieldURL.getText() );
-    jobEntry.setUploadFieldname( wFieldUpload.getText() );
-    jobEntry.setDestinationFieldname( wFieldTarget.getText() );
+    action.setName( wName.getText() );
+    action.setUrl( wURL.getText() );
+    action.setRunForEveryRow( wRunEveryRow.getSelection() );
+    action.setUrlFieldname( wFieldURL.getText() );
+    action.setUploadFieldname( wFieldUpload.getText() );
+    action.setDestinationFieldname( wFieldTarget.getText() );
 
-    jobEntry.setUsername( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setProxyHostname( wProxyServer.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setNonProxyHosts( wNonProxyHosts.getText() );
+    action.setUsername( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setProxyHostname( wProxyServer.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setNonProxyHosts( wNonProxyHosts.getText() );
 
-    jobEntry.setUploadFilename( wUploadFile.getText() );
+    action.setUploadFilename( wUploadFile.getText() );
 
-    jobEntry.setTargetFilename( wRunEveryRow.getSelection() ? "" : wTargetFile.getText() );
-    jobEntry.setFileAppended( wRunEveryRow.getSelection() ? false : wAppend.getSelection() );
-    jobEntry.setDateTimeAdded( wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection() );
-    jobEntry.setTargetFilenameExtension( wRunEveryRow.getSelection() ? "" : wTargetExt.getText() );
-    jobEntry.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
+    action.setTargetFilename( wRunEveryRow.getSelection() ? "" : wTargetFile.getText() );
+    action.setFileAppended( wRunEveryRow.getSelection() ? false : wAppend.getSelection() );
+    action.setDateTimeAdded( wRunEveryRow.getSelection() ? false : wDateTimeAdded.getSelection() );
+    action.setTargetFilenameExtension( wRunEveryRow.getSelection() ? "" : wTargetExt.getText() );
+    action.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
 
     int nritems = wHeaders.nrNonEmpty();
     int nr = 0;
@@ -977,8 +976,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
         nr++;
       }
     }
-    jobEntry.setHeaderName( headerNames );
-    jobEntry.setHeaderValue( headerValues );
+    action.setHeaderName( headerNames );
+    action.setHeaderValue( headerValues );
 
     dispose();
   }

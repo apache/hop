@@ -35,9 +35,9 @@ public interface IExecutionStartedListener<T> {
   /**
    * The execution started
    *
-   * @param engine
+   * @param subject The subject of the execution (workflow, pipeline, ...)
    * @throws HopException
    */
-  void started( IPipelineEngine<T> engine ) throws HopException;
+  void started( T subject ) throws HopException;
 
 }

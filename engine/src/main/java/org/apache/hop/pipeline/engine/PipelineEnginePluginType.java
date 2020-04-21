@@ -64,12 +64,12 @@ public class PipelineEnginePluginType extends BasePluginType implements IPluginT
 
   @Override
   protected String getMainTag() {
-    return "hop-engines";
+    return "hop-pipeline-engines";
   }
 
   @Override
   protected String getSubTag() {
-    return "hop-engine";
+    return "hop-pipeline-engine";
   }
 
   @Override

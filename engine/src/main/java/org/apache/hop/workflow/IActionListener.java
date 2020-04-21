@@ -25,9 +25,10 @@ package org.apache.hop.workflow;
 import org.apache.hop.core.Result;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
-public interface IActionListener {
-  void beforeExecution( Workflow workflow, ActionCopy actionCopy, IAction jobEntry );
+public interface IActionListener<T extends WorkflowMeta> {
+  void beforeExecution( IWorkflowEngine<T> workflow, ActionCopy actionCopy, IAction action );
 
-  void afterExecution( Workflow workflow, ActionCopy actionCopy, IAction jobEntry, Result result );
+  void afterExecution( IWorkflowEngine<T> workflow, ActionCopy actionCopy, IAction action, Result result );
 }

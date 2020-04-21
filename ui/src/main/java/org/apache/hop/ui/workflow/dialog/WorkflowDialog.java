@@ -723,10 +723,10 @@ public class WorkflowDialog extends Dialog {
     dispose();
   }
 
-  public static final Button setShellImage( Shell shell, IAction jobEntry ) {
+  public static final Button setShellImage( Shell shell, IAction action ) {
     Button helpButton = null;
     try {
-      final IPlugin plugin = getPlugin( jobEntry );
+      final IPlugin plugin = getPlugin( action );
 
       if ( plugin.getCategory().equals( BaseMessages.getString( PKGBASE, "ActionCategory.Category.Deprecated" ) ) ) {
 
@@ -765,8 +765,8 @@ public class WorkflowDialog extends Dialog {
     } );
   }
 
-  public static IPlugin getPlugin( IAction jobEntry ) {
-    return PluginRegistry.getInstance().getPlugin( ActionPluginType.class, jobEntry );
+  public static IPlugin getPlugin( IAction action ) {
+    return PluginRegistry.getInstance().getPlugin( ActionPluginType.class, action );
   }
 
   public static Image getImage( Shell shell, IPlugin plugin ) {

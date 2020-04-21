@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -34,6 +35,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -47,6 +49,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutor;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 import java.util.ArrayList;
 
@@ -85,7 +90,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
       if ( row == null ) {
         if ( !data.groupBuffer.isEmpty() ) {
-          executeJob();
+          executeWorkflow();
         }
         setOutputDone();
         return false;
@@ -138,14 +143,14 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           Object groupFieldData = row[ data.groupFieldIndex ];
           if ( data.prevGroupFieldData != null ) {
             if ( data.groupFieldMeta.compare( data.prevGroupFieldData, groupFieldData ) != 0 ) {
-              executeJob();
+              executeWorkflow();
             }
           }
           data.prevGroupFieldData = groupFieldData;
         } else if ( data.groupTime > 0 ) { // grouping by execution time
           long now = System.currentTimeMillis();
           if ( now - data.groupTimeStart >= data.groupTime ) {
-            executeJob();
+            executeWorkflow();
           }
         }
       }
@@ -159,7 +164,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       if ( data.groupSize > 0 ) {
         // Pass all input rows...
         if ( data.groupBuffer.size() >= data.groupSize ) {
-          executeJob();
+          executeWorkflow();
         }
       }
 
@@ -169,7 +174,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     }
   }
 
-  private void executeJob() throws HopException {
+  private void executeWorkflow() throws HopException {
 
     // If we got 0 rows on input we don't really want to execute the workflow
     //
@@ -183,7 +188,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       discardLogLines( data );
     }
 
-    data.executorWorkflow = createJob( data.executorWorkflowMeta, this );
+    data.executorWorkflow = createWorkflow( data.executorWorkflowMeta, this );
 
     data.executorWorkflow.shareVariablesWith( data.executorWorkflowMeta );
     data.executorWorkflow.setParentPipeline( getPipeline() );
@@ -213,28 +218,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, data.executorWorkflow );
 
-    data.executorWorkflow.beginProcessing();
-
-    Result result = new Result();
-
-    // Now go execute this workflow
-    //
-    try {
-      result = data.executorWorkflow.execute( 0, result );
-    } catch ( HopException e ) {
-      log.logError( "An error occurred executing the workflow: ", e );
-      result.setResult( false );
-      result.setNrErrors( 1 );
-    } finally {
-      try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, data.executorWorkflow );
-        data.executorWorkflow.fireJobFinishListeners();
-      } catch ( HopException e ) {
-        result.setNrErrors( 1 );
-        result.setResult( false );
-        log.logError( BaseMessages.getString( PKG, "JobExecutor.Log.ErrorExecWorkflow", e.getMessage() ), e );
-      }
-    }
+    Result result = data.executorWorkflow.startExecution();
 
     // First the natural output...
     //
@@ -327,8 +311,9 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   }
 
   @VisibleForTesting
-  Workflow createJob( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) {
-    return new Workflow( workflowMeta, parentLogging );
+  IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
+
+    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metaStore, workflowMeta );
   }
 
   @VisibleForTesting
@@ -423,42 +408,17 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
   public void stopRunning() throws HopException {
     if ( data.executorWorkflow != null ) {
-      data.executorWorkflow.stopAll();
+      data.executorWorkflow.stopExecution();
     }
   }
 
   public void stopAll() {
     // Stop the workflow execution.
     if ( data.executorWorkflow != null ) {
-      data.executorWorkflow.stopAll();
+      data.executorWorkflow.stopExecution();
     }
 
     // Also stop this transform
     super.stopAll();
-  }
-
-  /*
-   *
-   * @Override public long getLinesInput() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesInput(); else return 0; }
-   *
-   * @Override public long getLinesOutput() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesOutput(); else return 0; }
-   *
-   * @Override public long getLinesRead() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesRead(); else return 0; }
-   *
-   * @Override public long getLinesRejected() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesRejected(); else return 0; }
-   *
-   * @Override public long getLinesUpdated() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesUpdated(); else return 0; }
-   *
-   * @Override public long getLinesWritten() { if (data!=null && data.executorWorkflow != null &&
-   * data.executorWorkflow.getResult()!=null) return data.executorWorkflow.getResult().getNrLinesWritten(); else return 0; }
-   */
-
-  public Workflow getExecutorJob() {
-    return data.executorWorkflow;
   }
 }

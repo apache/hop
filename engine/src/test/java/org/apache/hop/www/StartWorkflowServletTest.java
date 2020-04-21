@@ -27,6 +27,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,10 +89,10 @@ public class StartWorkflowServletTest {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock( HttpServletRequest.class );
     HttpServletResponse mockHttpServletResponse = mock( HttpServletResponse.class );
-    Workflow mockWorkflow = mock( Workflow.class );
+    IWorkflowEngine<WorkflowMeta> mockWorkflow = mock( Workflow.class );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
     ILogChannel mockLogChannelInterface = mock( ILogChannel.class );
-    mockWorkflow.setName( ServletTestUtils.BAD_STRING_TO_TEST );
+    mockWorkflowMeta.setName( ServletTestUtils.BAD_STRING_TO_TEST );
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter( out );
 

@@ -104,7 +104,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
   private Listener lsOk, lsCancel;
 
-  private ActionSendNagiosPassiveICheck jobEntry;
+  private ActionSendNagiosPassiveICheck action;
 
   private Shell shell;
 
@@ -153,12 +153,12 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
   private CCombo wLevelMode;
   private FormData fdlLevelMode, fdLevelMode;
 
-  public ActionSendNagiosPassiveCheckDialog( Shell parent, IAction jobEntryInt,
+  public ActionSendNagiosPassiveCheckDialog( Shell parent, IAction action,
                                              WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSendNagiosPassiveICheck) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Name.Default" ) );
+    super( parent, action, workflowMeta );
+    this.action = (ActionSendNagiosPassiveICheck) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Name.Default" ) );
     }
   }
 
@@ -168,14 +168,14 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -526,7 +526,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void test() {
@@ -570,26 +570,26 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wPort.setText( Const.nullToEmpty( jobEntry.getPort() ) );
-    wConnectionTimeOut.setText( Const.NVL( jobEntry.getConnectionTimeOut(), "" ) );
-    wResponseTimeOut.setText( Const.nullToEmpty( jobEntry.getResponseTimeOut() ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wSenderServerName.setText( Const.NVL( jobEntry.getSenderServerName(), "" ) );
-    wSenderServiceName.setText( Const.NVL( jobEntry.getSenderServiceName(), "" ) );
-    wMessage.setText( Const.NVL( jobEntry.getMessage(), "" ) );
-    wEncryptionMode.setText( ActionSendNagiosPassiveICheck.getEncryptionModeDesc( jobEntry.getEncryptionMode() ) );
-    wLevelMode.setText( ActionSendNagiosPassiveICheck.getLevelDesc( jobEntry.getLevel() ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wPort.setText( Const.nullToEmpty( action.getPort() ) );
+    wConnectionTimeOut.setText( Const.NVL( action.getConnectionTimeOut(), "" ) );
+    wResponseTimeOut.setText( Const.nullToEmpty( action.getResponseTimeOut() ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wSenderServerName.setText( Const.NVL( action.getSenderServerName(), "" ) );
+    wSenderServiceName.setText( Const.NVL( action.getSenderServiceName(), "" ) );
+    wMessage.setText( Const.NVL( action.getMessage(), "" ) );
+    wEncryptionMode.setText( ActionSendNagiosPassiveICheck.getEncryptionModeDesc( action.getEncryptionMode() ) );
+    wLevelMode.setText( ActionSendNagiosPassiveICheck.getLevelDesc( action.getLevel() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -601,18 +601,17 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setConnectionTimeOut( wConnectionTimeOut.getText() );
-    jobEntry.setResponseTimeOut( wResponseTimeOut.getText() );
-    jobEntry.setSenderServerName( wSenderServerName.getText() );
-    jobEntry.setSenderServiceName( wSenderServiceName.getText() );
-    jobEntry.setMessage( wMessage.getText() );
-    jobEntry
-      .setEncryptionMode( ActionSendNagiosPassiveICheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
-    jobEntry.setLevel( ActionSendNagiosPassiveICheck.getLevelByDesc( wLevelMode.getText() ) );
-    jobEntry.setPassword( wPassword.getText() );
+    action.setName( wName.getText() );
+    action.setPort( wPort.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setConnectionTimeOut( wConnectionTimeOut.getText() );
+    action.setResponseTimeOut( wResponseTimeOut.getText() );
+    action.setSenderServerName( wSenderServerName.getText() );
+    action.setSenderServiceName( wSenderServiceName.getText() );
+    action.setMessage( wMessage.getText() );
+    action.setEncryptionMode( ActionSendNagiosPassiveICheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
+    action.setLevel( ActionSendNagiosPassiveICheck.getLevelByDesc( wLevelMode.getText() ) );
+    action.setPassword( wPassword.getText() );
 
     dispose();
   }

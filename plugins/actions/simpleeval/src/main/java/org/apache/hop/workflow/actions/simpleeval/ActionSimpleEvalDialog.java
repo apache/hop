@@ -83,7 +83,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionSimpleEval jobEntry;
+  private ActionSimpleEval action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -136,9 +136,9 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   private TextVar wFieldName;
   private FormData fdlFieldName, fdFieldName;
 
-  public ActionSimpleEvalDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSimpleEval) jobEntryInt;
+  public ActionSimpleEvalDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSimpleEval) action;
   }
 
   public IAction open() {
@@ -147,14 +147,14 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -376,7 +376,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wSuccessWhenSet.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         refresh();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -604,7 +604,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -617,33 +617,33 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wValueType.setText( ActionSimpleEval.getValueTypeDesc( jobEntry.valuetype ) );
-    if ( jobEntry.getFieldName() != null ) {
-      wFieldName.setText( jobEntry.getFieldName() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wValueType.setText( ActionSimpleEval.getValueTypeDesc( action.valuetype ) );
+    if ( action.getFieldName() != null ) {
+      wFieldName.setText( action.getFieldName() );
     }
-    if ( jobEntry.getVariableName() != null ) {
-      wVariableName.setText( jobEntry.getVariableName() );
+    if ( action.getVariableName() != null ) {
+      wVariableName.setText( action.getVariableName() );
     }
-    wSuccessWhenSet.setSelection( jobEntry.isSuccessWhenVarSet() );
-    wFieldType.setText( ActionSimpleEval.getFieldTypeDesc( jobEntry.fieldtype ) );
-    if ( jobEntry.getMask() != null ) {
-      wMask.setText( jobEntry.getMask() );
+    wSuccessWhenSet.setSelection( action.isSuccessWhenVarSet() );
+    wFieldType.setText( ActionSimpleEval.getFieldTypeDesc( action.fieldtype ) );
+    if ( action.getMask() != null ) {
+      wMask.setText( action.getMask() );
     }
-    if ( jobEntry.getCompareValue() != null ) {
-      wCompareValue.setText( jobEntry.getCompareValue() );
+    if ( action.getCompareValue() != null ) {
+      wCompareValue.setText( action.getCompareValue() );
     }
-    if ( jobEntry.getMinValue() != null ) {
-      wMinValue.setText( jobEntry.getMinValue() );
+    if ( action.getMinValue() != null ) {
+      wMinValue.setText( action.getMinValue() );
     }
-    if ( jobEntry.getMaxValue() != null ) {
-      wMaxValue.setText( jobEntry.getMaxValue() );
+    if ( action.getMaxValue() != null ) {
+      wMaxValue.setText( action.getMaxValue() );
     }
-    wSuccessCondition.setText( ActionSimpleEval.getSuccessConditionDesc( jobEntry.successcondition ) );
+    wSuccessCondition.setText( ActionSimpleEval.getSuccessConditionDesc( action.successcondition ) );
     wSuccessNumberCondition.setText( ActionSimpleEval
-      .getSuccessNumberConditionDesc( jobEntry.successnumbercondition ) );
+      .getSuccessNumberConditionDesc( action.successnumbercondition ) );
     wSuccessBooleanCondition.setText( ActionSimpleEval
-      .getSuccessBooleanConditionDesc( jobEntry.successbooleancondition ) );
+      .getSuccessBooleanConditionDesc( action.successbooleancondition ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -700,8 +700,8 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -714,23 +714,23 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
 
-    jobEntry.valuetype = ActionSimpleEval.getValueTypeByDesc( wValueType.getText() );
-    jobEntry.setFieldName( wFieldName.getText() );
-    jobEntry.setVariableName( wVariableName.getText() );
+    action.valuetype = ActionSimpleEval.getValueTypeByDesc( wValueType.getText() );
+    action.setFieldName( wFieldName.getText() );
+    action.setVariableName( wVariableName.getText() );
 
-    jobEntry.fieldtype = ActionSimpleEval.getFieldTypeByDesc( wFieldType.getText() );
-    jobEntry.setMask( wMask.getText() );
-    jobEntry.setCompareValue( wCompareValue.getText() );
-    jobEntry.setMinValue( wMinValue.getText() );
-    jobEntry.setMaxValue( wMaxValue.getText() );
-    jobEntry.successcondition = ActionSimpleEval.getSuccessConditionByDesc( wSuccessCondition.getText() );
-    jobEntry.successnumbercondition =
+    action.fieldtype = ActionSimpleEval.getFieldTypeByDesc( wFieldType.getText() );
+    action.setMask( wMask.getText() );
+    action.setCompareValue( wCompareValue.getText() );
+    action.setMinValue( wMinValue.getText() );
+    action.setMaxValue( wMaxValue.getText() );
+    action.successcondition = ActionSimpleEval.getSuccessConditionByDesc( wSuccessCondition.getText() );
+    action.successnumbercondition =
       ActionSimpleEval.getSuccessNumberConditionByDesc( wSuccessNumberCondition.getText() );
-    jobEntry.successbooleancondition =
+    action.successbooleancondition =
       ActionSimpleEval.getSuccessBooleanConditionByDesc( wSuccessBooleanCondition.getText() );
-    jobEntry.setSuccessWhenVarSet( wSuccessWhenSet.getSelection() );
+    action.setSuccessWhenVarSet( wSuccessWhenSet.getSelection() );
     dispose();
   }
 

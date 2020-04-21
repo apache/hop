@@ -92,7 +92,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionTelnet jobEntry;
+  private ActionTelnet action;
 
   private Shell shell;
 
@@ -100,11 +100,11 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionTelnetDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionTelnet) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobTelnet.Name.Default" ) );
+  public ActionTelnetDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionTelnet) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobTelnet.Name.Default" ) );
     }
   }
 
@@ -114,14 +114,14 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -261,7 +261,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -274,21 +274,21 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    if ( jobEntry.getHostname() != null ) {
-      wHostname.setText( jobEntry.getHostname() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    if ( action.getHostname() != null ) {
+      wHostname.setText( action.getHostname() );
     }
 
-    wPort.setText( Const.NVL( jobEntry.getPort(), String.valueOf( ActionTelnet.DEFAULT_PORT ) ) );
-    wTimeOut.setText( Const.NVL( jobEntry.getTimeOut(), String.valueOf( ActionTelnet.DEFAULT_TIME_OUT ) ) );
+    wPort.setText( Const.NVL( action.getPort(), String.valueOf( ActionTelnet.DEFAULT_PORT ) ) );
+    wTimeOut.setText( Const.NVL( action.getTimeOut(), String.valueOf( ActionTelnet.DEFAULT_TIME_OUT ) ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -300,10 +300,10 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setHostname( wHostname.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setTimeOut( wTimeOut.getText() );
+    action.setName( wName.getText() );
+    action.setHostname( wHostname.getText() );
+    action.setPort( wPort.getText() );
+    action.setTimeOut( wTimeOut.getText() );
 
     dispose();
   }

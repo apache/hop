@@ -42,6 +42,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -177,14 +178,14 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  private void addFilenameToResult( String targetFilename, Result result, Workflow parentWorkflow ) throws HopException {
+  private void addFilenameToResult( String targetFilename, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) throws HopException {
     FileObject targetFile = null;
     try {
       targetFile = HopVfs.getFileObject( targetFilename, this );
 
       // Add to the result files...
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getJobname(), toString() );
+        new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getWorkflowName(), toString() );
       resultFile.setComment( "" );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 

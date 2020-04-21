@@ -28,6 +28,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.utils.TestUtils;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -54,7 +56,7 @@ public class WorkflowEntryGetPOPTest {
   @Mock
   MailConnection mailConn;
   @Mock
-  Workflow parentWorkflow;
+  IWorkflowEngine<WorkflowMeta> parentWorkflow;
   @Mock
   Message message;
 

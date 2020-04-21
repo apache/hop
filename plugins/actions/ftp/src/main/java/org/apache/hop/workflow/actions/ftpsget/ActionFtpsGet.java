@@ -821,7 +821,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
         // Add to the result files...
         ResultFile resultFile =
-          new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getJobname(), toString() );
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getWorkflowName(), toString() );
         resultFile.setComment( BaseMessages.getString( PKG, "ActionFTPS.Downloaded", serverName ) );
         result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 

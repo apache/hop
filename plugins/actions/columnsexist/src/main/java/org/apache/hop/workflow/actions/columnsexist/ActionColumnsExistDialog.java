@@ -95,7 +95,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
   private Button wOk, wCancel;
 
-  private ActionColumnsExist jobEntry;
+  private ActionColumnsExist action;
 
   private Shell shell;
 
@@ -120,11 +120,11 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private FormData fdbSchema;
   private Button wbSchema;
 
-  public ActionColumnsExistDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionColumnsExist) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionColumnsExist.Name.Default" ) );
+  public ActionColumnsExistDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionColumnsExist) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionColumnsExist.Name.Default" ) );
     }
   }
 
@@ -135,12 +135,12 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = ( ModifyEvent e ) -> { 
-    	jobEntry.setChanged();   
+    	action.setChanged();
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -171,7 +171,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -268,8 +268,8 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdlFields.top = new FormAttachment( wTablename, 3 * margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.getArguments() == null ? 1
-      : ( jobEntry.getArguments().length == 0 ? 0 : jobEntry.getArguments().length );
+    int rows = action.getArguments() == null ? 1
+      : ( action.getArguments().length == 0 ? 0 : action.getArguments().length );
 
     final int FieldsRows = rows;
 
@@ -355,7 +355,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -388,26 +388,26 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getTablename() != null ) {
-      wTablename.setText( jobEntry.getTablename() );
-    }
-
-    if ( jobEntry.getSchemaname() != null ) {
-      wSchemaname.setText( jobEntry.getSchemaname() );
+    if ( action.getTablename() != null ) {
+      wTablename.setText( action.getTablename() );
     }
 
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    if ( action.getSchemaname() != null ) {
+      wSchemaname.setText( action.getSchemaname() );
     }
 
-    if ( jobEntry.getArguments() != null ) {
-      for ( int i = 0; i < jobEntry.getArguments().length; i++ ) {
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
+    }
+
+    if ( action.getArguments() != null ) {
+      for ( int i = 0; i < action.getArguments().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getArguments()[ i ] != null ) {
-          ti.setText( 1, jobEntry.getArguments()[ i ] );
+        if ( action.getArguments()[ i ] != null ) {
+          ti.setText( 1, action.getArguments()[ i ] );
         }
       }
       wFields.setRowNums();
@@ -419,8 +419,8 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -432,10 +432,10 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.setTablename( wTablename.getText() );
-    jobEntry.setSchemaname( wSchemaname.getText() );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setTablename( wTablename.getText() );
+    action.setSchemaname( wSchemaname.getText() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -454,7 +454,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
         nr++;
       }
     }
-    jobEntry.setArguments( args );
+    action.setArguments( args );
 
     dispose();
   }

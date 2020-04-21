@@ -196,7 +196,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
             // add filename to result filenames
             if ( addFilenameToResult && fileObject.getType() == FileType.FILE ) {
               ResultFile resultFile =
-                new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getJobname(), toString() );
+                new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getWorkflowName(), toString() );
               resultFile.setComment( BaseMessages.getString( PKG, "JobWaitForFile.FilenameAdded" ) );
               result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             }

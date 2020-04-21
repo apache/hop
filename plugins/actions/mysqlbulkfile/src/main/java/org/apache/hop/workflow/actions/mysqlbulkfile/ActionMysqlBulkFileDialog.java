@@ -108,7 +108,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
 
   private Listener lsOk, lsCancel;
 
-  private ActionMysqlBulkFile jobEntry;
+  private ActionMysqlBulkFile action;
 
   private Shell shell;
 
@@ -185,11 +185,11 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   private Button wAddFileToResult;
   private FormData fdlAddFileToResult, fdAddFileToResult;
 
-  public ActionMysqlBulkFileDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMysqlBulkFile) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobMysqlBulkFile.Name.Default" ) );
+  public ActionMysqlBulkFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMysqlBulkFile) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobMysqlBulkFile.Name.Default" ) );
     }
   }
 
@@ -199,14 +199,14 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -237,7 +237,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -360,7 +360,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wHighPriority.setLayoutData( fdHighPriority );
     wHighPriority.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -454,7 +454,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wOptionEnclosed.setLayoutData( fdOptionEnclosed );
     wOptionEnclosed.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -591,7 +591,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -662,12 +662,12 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void DumpFile() {
 
-    jobEntry.setChanged();
+    action.setChanged();
     if ( wOutDumpValue.getSelectionIndex() == 0 ) {
       wSeparator.setEnabled( true );
       wEnclosed.setEnabled( true );
@@ -692,67 +692,67 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-    if ( jobEntry.getSchemaname() != null ) {
-      wTablename.setText( jobEntry.getSchemaname() );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    if ( action.getSchemaname() != null ) {
+      wTablename.setText( action.getSchemaname() );
     }
-    if ( jobEntry.getTablename() != null ) {
-      wTablename.setText( jobEntry.getTablename() );
+    if ( action.getTablename() != null ) {
+      wTablename.setText( action.getTablename() );
     }
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
-    if ( jobEntry.getSeparator() != null ) {
-      wSeparator.setText( jobEntry.getSeparator() );
-    }
-
-    if ( jobEntry.getEnclosed() != null ) {
-      wEnclosed.setText( jobEntry.getEnclosed() );
-    }
-    wOptionEnclosed.setSelection( jobEntry.isOptionEnclosed() );
-
-    if ( jobEntry.getLineterminated() != null ) {
-      wLineterminated.setText( jobEntry.getLineterminated() );
+    if ( action.getSeparator() != null ) {
+      wSeparator.setText( action.getSeparator() );
     }
 
-    wHighPriority.setSelection( jobEntry.isHighPriority() );
-    wOptionEnclosed.setSelection( jobEntry.isOptionEnclosed() );
+    if ( action.getEnclosed() != null ) {
+      wEnclosed.setText( action.getEnclosed() );
+    }
+    wOptionEnclosed.setSelection( action.isOptionEnclosed() );
 
-    if ( jobEntry.getLimitlines() != null ) {
-      wLimitlines.setText( jobEntry.getLimitlines() );
+    if ( action.getLineterminated() != null ) {
+      wLineterminated.setText( action.getLineterminated() );
+    }
+
+    wHighPriority.setSelection( action.isHighPriority() );
+    wOptionEnclosed.setSelection( action.isOptionEnclosed() );
+
+    if ( action.getLimitlines() != null ) {
+      wLimitlines.setText( action.getLimitlines() );
     } else {
       wLimitlines.setText( "0" );
     }
 
-    if ( jobEntry.getListColumn() != null ) {
-      wListColumn.setText( jobEntry.getListColumn() );
+    if ( action.getListColumn() != null ) {
+      wListColumn.setText( action.getListColumn() );
     }
 
-    if ( jobEntry.outdumpvalue >= 0 ) {
-      wOutDumpValue.select( jobEntry.outdumpvalue );
+    if ( action.outdumpvalue >= 0 ) {
+      wOutDumpValue.select( action.outdumpvalue );
     } else {
       wOutDumpValue.select( 0 ); // NORMAL priority
     }
 
-    if ( jobEntry.iffileexists >= 0 ) {
-      wIfFileExists.select( jobEntry.iffileexists );
+    if ( action.iffileexists >= 0 ) {
+      wIfFileExists.select( action.iffileexists );
     } else {
       wIfFileExists.select( 2 ); // FAIL
     }
 
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
 
-    wAddFileToResult.setSelection( jobEntry.isAddFileToResult() );
+    wAddFileToResult.setSelection( action.isAddFileToResult() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -764,25 +764,25 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.setSchemaname( wSchemaname.getText() );
-    jobEntry.setTablename( wTablename.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setSeparator( wSeparator.getText() );
-    jobEntry.setEnclosed( wEnclosed.getText() );
-    jobEntry.setOptionEnclosed( wOptionEnclosed.getSelection() );
-    jobEntry.setLineterminated( wLineterminated.getText() );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setSchemaname( wSchemaname.getText() );
+    action.setTablename( wTablename.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setSeparator( wSeparator.getText() );
+    action.setEnclosed( wEnclosed.getText() );
+    action.setOptionEnclosed( wOptionEnclosed.getSelection() );
+    action.setLineterminated( wLineterminated.getText() );
 
-    jobEntry.setLimitlines( wLimitlines.getText() );
-    jobEntry.setListColumn( wListColumn.getText() );
+    action.setLimitlines( wLimitlines.getText() );
+    action.setListColumn( wListColumn.getText() );
 
-    jobEntry.outdumpvalue = wOutDumpValue.getSelectionIndex();
+    action.outdumpvalue = wOutDumpValue.getSelectionIndex();
 
-    jobEntry.setHighPriority( wHighPriority.getSelection() );
-    jobEntry.iffileexists = wIfFileExists.getSelectionIndex();
+    action.setHighPriority( wHighPriority.getSelection() );
+    action.iffileexists = wIfFileExists.getSelectionIndex();
 
-    jobEntry.setAddFileToResult( wAddFileToResult.getSelection() );
+    action.setAddFileToResult( wAddFileToResult.getSelection() );
 
     dispose();
   }

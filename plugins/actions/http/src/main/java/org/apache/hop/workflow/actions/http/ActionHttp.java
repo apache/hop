@@ -514,7 +514,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           ResultFile resultFile =
             new ResultFile(
               ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realTargetFile, this ), parentWorkflow
-              .getJobname(), toString() );
+              .getWorkflowName(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         }
 

@@ -30,6 +30,8 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -49,7 +51,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class WorkflowEntryFtpTest {
-  private Workflow workflow;
+  private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionFtp entry;
   private String existingDir;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -64,7 +66,7 @@ public class WorkflowEntryFtpTest {
 
   @Before
   public void setUp() throws Exception {
-    workflow = new Workflow( new WorkflowMeta() );
+    workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new MockedActionFtp();
 
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );

@@ -51,6 +51,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -360,7 +361,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   }
 
   boolean processFileFolder( String sourcefilefoldername, String destinationfilefoldername, String wildcard,
-                             Workflow parentWorkflow, Result result ) {
+                             IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -498,7 +499,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 // Add ONLY Files
                 if ( addFile.getType() == FileType.FILE ) {
                   ResultFile resultFile =
-                    new ResultFile( ResultFile.FILE_TYPE_GENERAL, addFile, parentWorkflow.getJobname(), toString() );
+                    new ResultFile( ResultFile.FILE_TYPE_GENERAL, addFile, parentWorkflow.getWorkflowName(), toString() );
                   result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                   if ( isDetailed() ) {
                     logDetailed( " ------ " );
@@ -662,7 +663,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     String fileWildcard = null;
     String sourceFolder = null;
     String destinationFolder = null;
-    Workflow parentjob;
+    IWorkflowEngine<WorkflowMeta> parentjob;
     Pattern pattern;
     private int traverseCount;
 
@@ -685,7 +686,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
 
     public TextFileSelector( FileObject sourcefolderin, FileObject destinationfolderin, String filewildcard,
-                             Workflow parentWorkflow ) {
+                             IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
 
       if ( sourcefolderin != null ) {
         sourceFolder = sourcefolderin.toString();

@@ -32,6 +32,8 @@ import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.empty.ActionEmpty;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -226,7 +228,7 @@ public class WorkflowMetaTest {
     WorkflowMeta meta = new WorkflowMeta();
 
     meta.loadXml( workflowNode, null, Mockito.mock( IMetaStore.class ) );
-    Workflow workflow = new Workflow( meta );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
     workflow.setInternalHopVariables( null );
   }
 
@@ -276,8 +278,8 @@ public class WorkflowMetaTest {
   }
 
   private ActionCopy createJobEntryCopy( String name ) {
-    IAction jobEntry = mock( IAction.class );
-    ActionCopy actionCopy = new ActionCopy( jobEntry );
+    IAction action = mock( IAction.class );
+    ActionCopy actionCopy = new ActionCopy( action );
     when( actionCopy.getName() ).thenReturn( name );
     actionCopy.setNr( 0 );
     return actionCopy;

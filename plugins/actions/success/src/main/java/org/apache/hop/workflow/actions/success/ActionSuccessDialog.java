@@ -77,7 +77,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionSuccess jobEntry;
+  private ActionSuccess action;
 
   private Shell shell;
 
@@ -85,11 +85,11 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionSuccessDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSuccess) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionSuccessDialog.Name.Default" ) );
+  public ActionSuccessDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSuccess) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionSuccessDialog.Name.Default" ) );
     }
   }
 
@@ -99,14 +99,14 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -186,7 +186,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -199,15 +199,15 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -219,7 +219,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
     dispose();
   }
 }

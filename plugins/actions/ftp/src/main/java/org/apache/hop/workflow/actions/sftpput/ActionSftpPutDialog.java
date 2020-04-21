@@ -119,7 +119,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionSftpPut jobEntry;
+  private ActionSftpPut action;
   private Shell shell;
 
   private Label wlCreateRemoteFolder;
@@ -242,11 +242,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   private SftpClient sftpclient = null;
 
-  public ActionSftpPutDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSftpPut) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobSFTPPUT.Title" ) );
+  public ActionSftpPutDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSftpPut) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobSFTPPUT.Title" ) );
     }
   }
 
@@ -256,15 +256,15 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         sftpclient = null;
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -417,7 +417,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wusePublicKey.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUseKey();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -657,7 +657,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
           wgetPreviousFiles.setSelection( false ); // only one is allowed
         }
         activeCopyFromPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -684,7 +684,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
           wgetPrevious.setSelection( false ); // only one is allowed
         }
         activeCopyFromPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -773,7 +773,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wSuccessWhenNoFile.setLayoutData( fdSuccessWhenNoFile );
     wSuccessWhenNoFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -967,7 +967,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wCreateRemoteFolder.setLayoutData( fdCreateRemoteFolder );
     wCreateRemoteFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1076,7 +1076,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeCopyFromPrevious() {
@@ -1186,41 +1186,41 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wServerPort.setText( jobEntry.getServerPort() );
-    wUserName.setText( Const.NVL( jobEntry.getUserName(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wScpDirectory.setText( Const.NVL( jobEntry.getScpDirectory(), "" ) );
-    wLocalDirectory.setText( Const.NVL( jobEntry.getLocalDirectory(), "" ) );
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wgetPrevious.setSelection( jobEntry.isCopyPrevious() );
-    wgetPreviousFiles.setSelection( jobEntry.isCopyPreviousFiles() );
-    wAddFilenameToResult.setSelection( jobEntry.isAddFilenameResut() );
-    wusePublicKey.setSelection( jobEntry.isUseKeyFile() );
-    wKeyFilename.setText( Const.NVL( jobEntry.getKeyFilename(), "" ) );
-    wkeyfilePass.setText( Const.NVL( jobEntry.getKeyPassPhrase(), "" ) );
-    wCompression.setText( Const.NVL( jobEntry.getCompression(), "none" ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wServerPort.setText( action.getServerPort() );
+    wUserName.setText( Const.NVL( action.getUserName(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wScpDirectory.setText( Const.NVL( action.getScpDirectory(), "" ) );
+    wLocalDirectory.setText( Const.NVL( action.getLocalDirectory(), "" ) );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wgetPrevious.setSelection( action.isCopyPrevious() );
+    wgetPreviousFiles.setSelection( action.isCopyPreviousFiles() );
+    wAddFilenameToResult.setSelection( action.isAddFilenameResut() );
+    wusePublicKey.setSelection( action.isUseKeyFile() );
+    wKeyFilename.setText( Const.NVL( action.getKeyFilename(), "" ) );
+    wkeyfilePass.setText( Const.NVL( action.getKeyPassPhrase(), "" ) );
+    wCompression.setText( Const.NVL( action.getCompression(), "none" ) );
 
-    wProxyType.setText( Const.NVL( jobEntry.getProxyType(), "" ) );
-    wProxyHost.setText( Const.NVL( jobEntry.getProxyHost(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wProxyUsername.setText( Const.NVL( jobEntry.getProxyUsername(), "" ) );
-    wProxyPassword.setText( Const.NVL( jobEntry.getProxyPassword(), "" ) );
-    wCreateRemoteFolder.setSelection( jobEntry.isCreateRemoteFolder() );
+    wProxyType.setText( Const.NVL( action.getProxyType(), "" ) );
+    wProxyHost.setText( Const.NVL( action.getProxyHost(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wProxyUsername.setText( Const.NVL( action.getProxyUsername(), "" ) );
+    wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
+    wCreateRemoteFolder.setSelection( action.isCreateRemoteFolder() );
 
-    wAfterFTPPut.setText( ActionSftpPut.getAfterSFTPPutDesc( jobEntry.getAfterFTPS() ) );
-    wDestinationFolder.setText( Const.NVL( jobEntry.getDestinationFolder(), "" ) );
-    wCreateDestinationFolder.setSelection( jobEntry.isCreateDestinationFolder() );
-    wSuccessWhenNoFile.setSelection( jobEntry.isSuccessWhenNoFile() );
+    wAfterFTPPut.setText( ActionSftpPut.getAfterSFTPPutDesc( action.getAfterFTPS() ) );
+    wDestinationFolder.setText( Const.NVL( action.getDestinationFolder(), "" ) );
+    wCreateDestinationFolder.setSelection( action.isCreateDestinationFolder() );
+    wSuccessWhenNoFile.setSelection( action.isSuccessWhenNoFile() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1232,32 +1232,32 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setServerPort( wServerPort.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setScpDirectory( wScpDirectory.getText() );
-    jobEntry.setLocalDirectory( wLocalDirectory.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setCopyPrevious( wgetPrevious.getSelection() );
-    jobEntry.setCopyPreviousFiles( wgetPreviousFiles.getSelection() );
-    jobEntry.setAddFilenameResut( wAddFilenameToResult.getSelection() );
-    jobEntry.setUseKeyFile( wusePublicKey.getSelection() );
-    jobEntry.setKeyFilename( wKeyFilename.getText() );
-    jobEntry.setKeyPassPhrase( wkeyfilePass.getText() );
-    jobEntry.setCompression( wCompression.getText() );
+    action.setName( wName.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setServerPort( wServerPort.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setScpDirectory( wScpDirectory.getText() );
+    action.setLocalDirectory( wLocalDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setCopyPrevious( wgetPrevious.getSelection() );
+    action.setCopyPreviousFiles( wgetPreviousFiles.getSelection() );
+    action.setAddFilenameResut( wAddFilenameToResult.getSelection() );
+    action.setUseKeyFile( wusePublicKey.getSelection() );
+    action.setKeyFilename( wKeyFilename.getText() );
+    action.setKeyPassPhrase( wkeyfilePass.getText() );
+    action.setCompression( wCompression.getText() );
 
-    jobEntry.setProxyType( wProxyType.getText() );
-    jobEntry.setProxyHost( wProxyHost.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
-    jobEntry.setProxyPassword( wProxyPassword.getText() );
-    jobEntry.setCreateRemoteFolder( wCreateRemoteFolder.getSelection() );
-    jobEntry.setAfterFTPS( ActionSftpPut.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) );
-    jobEntry.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
-    jobEntry.setDestinationFolder( wDestinationFolder.getText() );
-    jobEntry.setSuccessWhenNoFile( wSuccessWhenNoFile.getSelection() );
+    action.setProxyType( wProxyType.getText() );
+    action.setProxyHost( wProxyHost.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setProxyUsername( wProxyUsername.getText() );
+    action.setProxyPassword( wProxyPassword.getText() );
+    action.setCreateRemoteFolder( wCreateRemoteFolder.getSelection() );
+    action.setAfterFTPS( ActionSftpPut.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) );
+    action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
+    action.setDestinationFolder( wDestinationFolder.getText() );
+    action.setSuccessWhenNoFile( wSuccessWhenNoFile.getSelection() );
     dispose();
   }
 

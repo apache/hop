@@ -39,9 +39,11 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -480,7 +482,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  private boolean processFileFolder( String sourcefilefoldername, String wildcard, int convertion, Workflow parentWorkflow,
+  private boolean processFileFolder( String sourcefilefoldername, String wildcard, int convertion, IWorkflowEngine<WorkflowMeta> parentWorkflow,
                                      Result result ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
@@ -603,7 +605,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return entrystatus;
   }
 
-  private boolean convertOneFile( FileObject file, int convertion, Result result, Workflow parentWorkflow ) throws HopException {
+  private boolean convertOneFile( FileObject file, int convertion, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) throws HopException {
     boolean retval = false;
     try {
       // We deal with a file..
@@ -665,10 +667,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     updateAllErrors();
   }
 
-  private void addFileToResultFilenames( FileObject fileaddentry, Result result, Workflow parentWorkflow ) {
+  private void addFileToResultFilenames( FileObject fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileaddentry, parentWorkflow.getJobname(), toString() );
+        new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileaddentry, parentWorkflow.getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
       if ( isDetailed() ) {

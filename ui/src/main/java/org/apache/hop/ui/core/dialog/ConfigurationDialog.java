@@ -29,12 +29,10 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -43,7 +41,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -52,6 +49,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -76,17 +74,9 @@ public abstract class ConfigurationDialog extends Dialog {
   protected Group gDetails;
   protected CCombo wLogLevel;
   protected Button wClearLog;
-  protected Label wlRemoteHost;
-  protected CCombo wRemoteHost;
-  protected Button wPassExport;
-  protected Composite localOptionsComposite;
-  protected Composite serverOptionsComposite;
-  protected Label environmentSeparator;
-  protected StackLayout stackedLayout;
   protected int margin;
-  protected Group gLocal;
   protected Composite composite;
-  protected MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
+  protected Control wRunConfigurationControl;
 
   private TableView wParams;
   private Display display;
@@ -94,7 +84,7 @@ public abstract class ConfigurationDialog extends Dialog {
   private Button wOk;
   private Button wCancel;
   protected FormData fdDetails;
-  private FormData fd_tabFolder;
+  private FormData fdTabFolder;
   private CTabFolder tabFolder;
   private Button alwaysShowOption;
 
@@ -237,7 +227,7 @@ public abstract class ConfigurationDialog extends Dialog {
     // The layout
     gDetails.setLayout( new FormLayout() );
     fdDetails = new FormData();
-    fdDetails.top = new FormAttachment( wRunConfiguration, 15 );
+    fdDetails.top = new FormAttachment( wRunConfigurationControl, 15 );
     fdDetails.right = new FormAttachment( 100, -15 );
     fdDetails.left = new FormAttachment( 0, 15 );
     gDetails.setBackground( shell.getBackground() ); // the default looks ugly
@@ -250,12 +240,12 @@ public abstract class ConfigurationDialog extends Dialog {
 
     tabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
-    fd_tabFolder = new FormData();
-    fd_tabFolder.right = new FormAttachment( 100, -15 );
-    fd_tabFolder.left = new FormAttachment( 0, 15 );
-    fd_tabFolder.top = new FormAttachment( gDetails, 15 );
-    fd_tabFolder.bottom = new FormAttachment( alwaysShowOption, -15 );
-    tabFolder.setLayoutData( fd_tabFolder );
+    fdTabFolder = new FormData();
+    fdTabFolder.right = new FormAttachment( 100, -15 );
+    fdTabFolder.left = new FormAttachment( 0, 15 );
+    fdTabFolder.top = new FormAttachment( gDetails, 15 );
+    fdTabFolder.bottom = new FormAttachment( alwaysShowOption, -15 );
+    tabFolder.setLayoutData( fdTabFolder );
 
     // Parameters
     CTabItem tbtmParameters = new CTabItem( tabFolder, SWT.NONE );
@@ -279,8 +269,7 @@ public abstract class ConfigurationDialog extends Dialog {
 
     String[] namedParams = abstractMeta.listParameters();
     int nrParams = namedParams.length;
-    wParams =
-      new TableView( abstractMeta, parametersComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cParams,
+    wParams = new TableView( abstractMeta, parametersComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cParams,
         nrParams, false, null, props, false );
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment( 0, 10 );

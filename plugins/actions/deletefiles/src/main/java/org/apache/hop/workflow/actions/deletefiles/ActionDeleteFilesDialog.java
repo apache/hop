@@ -87,7 +87,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
   private Label wlIncludeSubfolders;
   private Button wIncludeSubfolders;
 
-  private ActionDeleteFiles jobEntry;
+  private ActionDeleteFiles action;
 
   private SelectionAdapter lsDef;
 
@@ -107,12 +107,12 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
   private Button wbeFilename; // Edit
   private Button wbaFilename; // Add or change
 
-  public ActionDeleteFilesDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionDeleteFiles) jobEntryInt;
+  public ActionDeleteFilesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionDeleteFiles) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobDeleteFiles.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobDeleteFiles.Name.Default" ) );
     }
   }
 
@@ -122,10 +122,10 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -187,7 +187,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -201,7 +201,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
+    wPrevious.setSelection( action.isArgFromPrevious() );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobDeleteFiles.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -211,7 +211,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     FormData fdSettings = new FormData();
@@ -356,7 +356,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdlFields.top = new FormAttachment( wFilemask, margin );
     wlFields.setLayoutData( fdlFields );
 
-    String[] jobArgs = jobEntry.getArguments();
+    String[] jobArgs = action.getArguments();
     final int fieldsRows = ( jobArgs == null ) ? 1 : jobArgs.length;
 
     ColumnInfo[] colinf =
@@ -384,8 +384,8 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdFields.bottom = new FormAttachment( 100, -50 );
     wFields.setLayoutData( fdFields );
 
-    wlFields.setEnabled( !jobEntry.isArgFromPrevious() );
-    wFields.setEnabled( !jobEntry.isArgFromPrevious() );
+    wlFields.setEnabled( !action.isArgFromPrevious() );
+    wFields.setEnabled( !action.isArgFromPrevious() );
 
     // Add the file to the list of files...
     SelectionAdapter selA = new SelectionAdapter() {
@@ -464,7 +464,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setPrevious() {
@@ -495,11 +495,11 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    String[] arguments = jobEntry.getArguments();
-    String[] fileMasks = jobEntry.getFilemasks();
+    String[] arguments = action.getArguments();
+    String[] fileMasks = action.getFilemasks();
 
     if ( arguments != null ) {
       for ( int i = 0; i < arguments.length; i++ ) {
@@ -518,16 +518,16 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
       wFields.optWidth( true );
     }
 
-    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
-    wIncludeSubfolders.setSelection( jobEntry.isIncludeSubfolders() );
+    wPrevious.setSelection( action.isArgFromPrevious() );
+    wIncludeSubfolders.setSelection( action.isIncludeSubfolders() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -540,9 +540,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
+    action.setName( wName.getText() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
 
     int numberOfItems = wFields.nrNonEmpty();
     int numberOfValidArgs = 0;
@@ -566,8 +566,8 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
       }
     }
 
-    jobEntry.setFilemasks( fileMasks );
-    jobEntry.setArguments( arguments );
+    action.setFilemasks( fileMasks );
+    action.setArguments( arguments );
 
     dispose();
   }

@@ -104,17 +104,17 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionWaitForFile jobEntry;
+  private ActionWaitForFile action;
   private Shell shell;
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionWaitForFileDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWaitForFile) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobWaitForFile.Name.Default" ) );
+  public ActionWaitForFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionWaitForFile) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobWaitForFile.Name.Default" ) );
     }
   }
 
@@ -124,14 +124,14 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -266,7 +266,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wSuccesOnTimeout.setLayoutData( fdSuccesOnTimeout );
     wSuccesOnTimeout.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -289,7 +289,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wFileSizeCheck.setLayoutData( fdFileSizeCheck );
     wFileSizeCheck.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // Add filename to result filenames
@@ -311,7 +311,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wAddFilenameResult.setLayoutData( fdAddFilenameResult );
     wAddFilenameResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     wOk = new Button( shell, SWT.PUSH );
@@ -364,7 +364,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -377,21 +377,21 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wFilename.setText( Const.NVL( jobEntry.getFilename(), "" ) );
-    wMaximumTimeout.setText( Const.NVL( jobEntry.getMaximumTimeout(), "" ) );
-    wCheckCycleTime.setText( Const.NVL( jobEntry.getCheckCycleTime(), "" ) );
-    wSuccesOnTimeout.setSelection( jobEntry.isSuccessOnTimeout() );
-    wFileSizeCheck.setSelection( jobEntry.isFileSizeCheck() );
-    wAddFilenameResult.setSelection( jobEntry.isAddFilenameToResult() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wFilename.setText( Const.NVL( action.getFilename(), "" ) );
+    wMaximumTimeout.setText( Const.NVL( action.getMaximumTimeout(), "" ) );
+    wCheckCycleTime.setText( Const.NVL( action.getCheckCycleTime(), "" ) );
+    wSuccesOnTimeout.setSelection( action.isSuccessOnTimeout() );
+    wFileSizeCheck.setSelection( action.isFileSizeCheck() );
+    wAddFilenameResult.setSelection( action.isAddFilenameToResult() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -403,13 +403,13 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setMaximumTimeout( wMaximumTimeout.getText() );
-    jobEntry.setCheckCycleTime( wCheckCycleTime.getText() );
-    jobEntry.setSuccessOnTimeout( wSuccesOnTimeout.getSelection() );
-    jobEntry.setFileSizeCheck( wFileSizeCheck.getSelection() );
-    jobEntry.setAddFilenameToResult( wAddFilenameResult.getSelection() );
+    action.setName( wName.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setMaximumTimeout( wMaximumTimeout.getText() );
+    action.setCheckCycleTime( wCheckCycleTime.getText() );
+    action.setSuccessOnTimeout( wSuccesOnTimeout.getSelection() );
+    action.setFileSizeCheck( wFileSizeCheck.getSelection() );
+    action.setAddFilenameToResult( wAddFilenameResult.getSelection() );
     dispose();
   }
 

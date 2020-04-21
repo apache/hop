@@ -26,6 +26,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 import org.apache.hop.www.SlaveServerConfig;
@@ -47,7 +49,7 @@ public class HopServerResource {
     return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getCarteObjectEntry( id ) );
   }
 
-  public static Workflow getWorkflow( String id ) {
+  public static IWorkflowEngine<WorkflowMeta> getWorkflow( String id ) {
     return HopServerSingleton.getInstance().getWorkflowMap().getWorkflow( getCarteObjectEntry( id ) );
   }
 

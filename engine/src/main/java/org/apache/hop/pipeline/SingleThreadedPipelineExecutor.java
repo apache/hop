@@ -51,12 +51,6 @@ public class SingleThreadedPipelineExecutor {
 
     transforms = pipeline.getTransforms();
 
-    // Always disable thread priority management, it will always slow us down...
-    //
-    for ( TransformMetaDataCombi combi : transforms ) {
-      combi.transform.setUsingThreadPriorityManagment( false );
-    }
-
     sortTransforms();
 
     done = new boolean[ transforms.size() ];

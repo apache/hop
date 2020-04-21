@@ -30,12 +30,12 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.workflow.Workflow;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -143,14 +143,14 @@ public interface IAction {
    *
    * @param workflow the parent workflow
    */
-  void setParentWorkflow( Workflow workflow );
+  void setParentWorkflow( IWorkflowEngine<WorkflowMeta> workflow );
 
   /**
    * Gets the parent workflow.
    *
    * @return the parent workflow
    */
-  Workflow getParentWorkflow();
+  IWorkflowEngine<WorkflowMeta> getParentWorkflow();
 
   /**
    * Gets the log channel.
@@ -345,7 +345,7 @@ public interface IAction {
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables.
    *
    * @param metaStore the MetaStore to use
-   * @param variables     a variable space object containing variable bindings
+   * @param variables a variable space object containing variable bindings
    * @return a list of SQL statements
    * @throws HopException if any errors occur during the generation of SQL statements
    */
@@ -378,10 +378,10 @@ public interface IAction {
   /**
    * Allows Action objects to check themselves for consistency
    *
-   * @param remarks   List of CheckResult objects indicating consistency status
-   * @param workflowMeta   the metadata object for the action
-   * @param variables     the variable space to resolve string expressions with variables with
-   * @param metaStore the MetaStore to load common elements from
+   * @param remarks      List of CheckResult objects indicating consistency status
+   * @param workflowMeta the metadata object for the action
+   * @param variables    the variable space to resolve string expressions with variables with
+   * @param metaStore    the MetaStore to load common elements from
    */
   void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IMetaStore metaStore );
 
@@ -397,7 +397,7 @@ public interface IAction {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables       The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
@@ -422,7 +422,7 @@ public interface IAction {
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore the metaStore
-   * @param variables     the variable space to use
+   * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */

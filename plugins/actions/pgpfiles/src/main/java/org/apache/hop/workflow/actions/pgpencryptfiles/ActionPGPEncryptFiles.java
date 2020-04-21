@@ -39,7 +39,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -48,6 +47,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -87,40 +87,40 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   private SimpleDateFormat daf;
   private GPG gpg;
 
-  public boolean arg_from_previous;
-  public boolean include_subfolders;
-  public boolean add_result_filesname;
-  public boolean destination_is_a_file;
-  public boolean create_destination_folder;
+  public boolean argFromPrevious;
+  public boolean includeSubfolders;
+  public boolean addResultFilesname;
+  public boolean destinationIsAFile;
+  public boolean createDestinationFolder;
 
-  public int[] action_type;
-  public String[] source_filefolder;
-  public String[] userid;
-  public String[] destination_filefolder;
+  public int[] actionType;
+  public String[] sourceFileFolder;
+  public String[] userId;
+  public String[] destinationFileFolder;
   public String[] wildcard;
-  private String nr_errors_less_than;
+  private String nrErrorsLessThan;
 
-  private String success_condition;
+  private String successCondition;
   public String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
   public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
-  private boolean add_date;
-  private boolean add_time;
-  private boolean SpecifyFormat;
-  private String date_time_format;
-  private boolean AddDateBeforeExtension;
-  private boolean DoNotKeepFolderStructure;
-  private String iffileexists;
+  private boolean addDate;
+  private boolean addTime;
+  private boolean specifyFormat;
+  private String dateTimeFormat;
+  private boolean addDateBeforeExtension;
+  private boolean doNotKeepFolderStructure;
+  private String ifFileExists;
   private String destinationFolder;
-  private String ifmovedfileexists;
-  private String moved_date_time_format;
-  private boolean AddMovedDateBeforeExtension;
-  private boolean add_moved_date;
-  private boolean add_moved_time;
-  private boolean SpecifyMoveFormat;
-  public boolean create_move_to_folder;
-  private String gpglocation;
+  private String ifMovedFileExists;
+  private String movedDateTimeFormat;
+  private boolean addMovedDateBeforeExtension;
+  private boolean addMovedDate;
+  private boolean addMovedTime;
+  private boolean specifyMoveFormat;
+  public boolean createMoveToFolder;
+  private String gpgLocation;
 
   private boolean asciiMode;
 
@@ -132,33 +132,33 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
   public ActionPGPEncryptFiles( String n ) {
     super( n, "" );
-    create_move_to_folder = false;
-    SpecifyMoveFormat = false;
-    add_moved_date = false;
-    add_moved_time = false;
-    AddMovedDateBeforeExtension = false;
-    moved_date_time_format = null;
-    gpglocation = null;
-    ifmovedfileexists = "do_nothing";
+    createMoveToFolder = false;
+    specifyMoveFormat = false;
+    addMovedDate = false;
+    addMovedTime = false;
+    addMovedDateBeforeExtension = false;
+    movedDateTimeFormat = null;
+    gpgLocation = null;
+    ifMovedFileExists = "do_nothing";
     destinationFolder = null;
-    DoNotKeepFolderStructure = false;
-    arg_from_previous = false;
-    source_filefolder = null;
-    userid = null;
-    destination_filefolder = null;
+    doNotKeepFolderStructure = false;
+    argFromPrevious = false;
+    sourceFileFolder = null;
+    userId = null;
+    destinationFileFolder = null;
     wildcard = null;
-    include_subfolders = false;
-    add_result_filesname = false;
-    destination_is_a_file = false;
-    create_destination_folder = false;
-    nr_errors_less_than = "10";
-    success_condition = SUCCESS_IF_NO_ERRORS;
-    add_date = false;
-    add_time = false;
-    SpecifyFormat = false;
-    date_time_format = null;
-    AddDateBeforeExtension = false;
-    iffileexists = "do_nothing";
+    includeSubfolders = false;
+    addResultFilesname = false;
+    destinationIsAFile = false;
+    createDestinationFolder = false;
+    nrErrorsLessThan = "10";
+    successCondition = SUCCESS_IF_NO_ERRORS;
+    addDate = false;
+    addTime = false;
+    specifyFormat = false;
+    dateTimeFormat = null;
+    addDateBeforeExtension = false;
+    ifFileExists = "do_nothing";
     asciiMode = false;
   }
 
@@ -167,22 +167,22 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   public void allocate( int nrFields ) {
-    action_type = new int[ nrFields ];
-    source_filefolder = new String[ nrFields ];
-    userid = new String[ nrFields ];
-    destination_filefolder = new String[ nrFields ];
+    actionType = new int[ nrFields ];
+    sourceFileFolder = new String[ nrFields ];
+    userId = new String[ nrFields ];
+    destinationFileFolder = new String[ nrFields ];
     wildcard = new String[ nrFields ];
   }
 
   public Object clone() {
     ActionPGPEncryptFiles je = (ActionPGPEncryptFiles) super.clone();
-    if ( action_type != null ) {
-      int nrFields = action_type.length;
+    if ( actionType != null ) {
+      int nrFields = actionType.length;
       je.allocate( nrFields );
-      System.arraycopy( action_type, 0, je.action_type, 0, nrFields );
-      System.arraycopy( source_filefolder, 0, je.source_filefolder, 0, nrFields );
-      System.arraycopy( userid, 0, je.userid, 0, nrFields );
-      System.arraycopy( destination_filefolder, 0, je.destination_filefolder, 0, nrFields );
+      System.arraycopy( actionType, 0, je.actionType, 0, nrFields );
+      System.arraycopy( sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields );
+      System.arraycopy( userId, 0, je.userId, 0, nrFields );
+      System.arraycopy( destinationFileFolder, 0, je.destinationFileFolder, 0, nrFields );
       System.arraycopy( wildcard, 0, je.wildcard, 0, nrFields );
     }
     return je;
@@ -192,44 +192,39 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     StringBuilder retval = new StringBuilder( 450 );
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpglocation ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", include_subfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", add_result_filesname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "destination_is_a_file", destination_is_a_file ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "create_destination_folder", create_destination_folder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", add_date ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", add_time ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "DoNotKeepFolderStructure", DoNotKeepFolderStructure ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", iffileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpgLocation ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", addResultFilesname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "destination_is_a_file", destinationIsAFile ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "create_destination_folder", createDestinationFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", addDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", addTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nrErrorsLessThan ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", addDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "DoNotKeepFolderStructure", doNotKeepFolderStructure ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "destinationFolder", destinationFolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "ifmovedfileexists", ifmovedfileexists ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "moved_date_time_format", moved_date_time_format ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "create_move_to_folder", create_move_to_folder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_date", add_moved_date ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_time", add_moved_time ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyMoveFormat", SpecifyMoveFormat ) );
-    retval.append( "      " ).append(
-      XmlHandler.addTagValue( "AddMovedDateBeforeExtension", AddMovedDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "ifmovedfileexists", ifMovedFileExists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "moved_date_time_format", movedDateTimeFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "create_move_to_folder", createMoveToFolder ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_date", addMovedDate ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_moved_time", addMovedTime ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyMoveFormat", specifyMoveFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddMovedDateBeforeExtension", addMovedDateBeforeExtension ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "asciiMode", asciiMode ) );
 
     retval.append( "      <fields>" ).append( Const.CR );
-    if ( source_filefolder != null ) {
-      for ( int i = 0; i < source_filefolder.length; i++ ) {
+    if ( sourceFileFolder != null ) {
+      for ( int i = 0; i < sourceFileFolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append(
-          XmlHandler.addTagValue( "action_type", getActionTypeCode( action_type[ i ] ) ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "userid", userid[ i ] ) );
-        retval.append( "          " ).append(
-          XmlHandler.addTagValue( "destination_filefolder", destination_filefolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "action_type", getActionTypeCode( actionType[ i ] ) ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "userid", userId[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "destination_filefolder", destinationFileFolder[ i ] ) );
         retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "        </field>" ).append( Const.CR );
       }
@@ -250,33 +245,33 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                        IMetaStore metaStore ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      gpglocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
-      arg_from_previous = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      include_subfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
-      add_result_filesname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
-      destination_is_a_file = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "destination_is_a_file" ) );
-      create_destination_folder =
+      gpgLocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
+      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      includeSubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      addResultFilesname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
+      destinationIsAFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "destination_is_a_file" ) );
+      createDestinationFolder =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_destination_folder" ) );
-      add_date = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
-      add_time = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      AddDateBeforeExtension =
+      addDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_date" ) );
+      addTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_time" ) );
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      addDateBeforeExtension =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
-      DoNotKeepFolderStructure =
+      doNotKeepFolderStructure =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "DoNotKeepFolderStructure" ) );
-      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
-      nr_errors_less_than = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
-      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
-      iffileexists = XmlHandler.getTagValue( entrynode, "iffileexists" );
+      dateTimeFormat = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      nrErrorsLessThan = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
+      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      ifFileExists = XmlHandler.getTagValue( entrynode, "iffileexists" );
       destinationFolder = XmlHandler.getTagValue( entrynode, "destinationFolder" );
-      ifmovedfileexists = XmlHandler.getTagValue( entrynode, "ifmovedfileexists" );
-      moved_date_time_format = XmlHandler.getTagValue( entrynode, "moved_date_time_format" );
-      AddMovedDateBeforeExtension =
+      ifMovedFileExists = XmlHandler.getTagValue( entrynode, "ifmovedfileexists" );
+      movedDateTimeFormat = XmlHandler.getTagValue( entrynode, "moved_date_time_format" );
+      addMovedDateBeforeExtension =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddMovedDateBeforeExtension" ) );
-      create_move_to_folder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_move_to_folder" ) );
-      add_moved_date = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_date" ) );
-      add_moved_time = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_time" ) );
-      SpecifyMoveFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyMoveFormat" ) );
+      createMoveToFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_move_to_folder" ) );
+      addMovedDate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_date" ) );
+      addMovedTime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_moved_time" ) );
+      specifyMoveFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyMoveFormat" ) );
       asciiMode = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "asciiMode" ) );
 
       Node fields = XmlHandler.getSubNode( entrynode, "fields" );
@@ -288,10 +283,10 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       // Read them all...
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
-        action_type[ i ] = getActionTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "action_type" ), "" ) );
-        source_filefolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
-        userid[ i ] = XmlHandler.getTagValue( fnode, "userid" );
-        destination_filefolder[ i ] = XmlHandler.getTagValue( fnode, "destination_filefolder" );
+        actionType[ i ] = getActionTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "action_type" ), "" ) );
+        sourceFileFolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
+        userId[ i ] = XmlHandler.getTagValue( fnode, "userid" );
+        destinationFileFolder[ i ] = XmlHandler.getTagValue( fnode, "destination_filefolder" );
         wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
       }
     } catch ( HopXmlException xe ) {
@@ -329,7 +324,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       successConditionBrokenExit = false;
       limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
 
-      if ( include_subfolders ) {
+      if ( includeSubfolders ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.IncludeSubFoldersOn" ) );
         }
@@ -337,12 +332,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
       String MoveToFolder = environmentSubstitute( destinationFolder );
       // Get source and destination files, also wildcard
-      String[] vsourcefilefolder = source_filefolder;
-      String[] vuserid = userid;
-      String[] vdestinationfilefolder = destination_filefolder;
+      String[] vsourcefilefolder = sourceFileFolder;
+      String[] vuserid = userId;
+      String[] vdestinationfilefolder = destinationFileFolder;
       String[] vwildcard = wildcard;
 
-      if ( iffileexists.equals( "move_file" ) ) {
+      if ( ifFileExists.equals( "move_file" ) ) {
         if ( Utils.isEmpty( MoveToFolder ) ) {
           logError( toString(), BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error.MoveToFolderMissing" ) );
           return result;
@@ -355,7 +350,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               logDetailed( BaseMessages
                 .getString( PKG, "JobPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
             }
-            if ( create_move_to_folder ) {
+            if ( createMoveToFolder ) {
               folder.createFolder();
             } else {
               logError( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.Error.FolderMissing", MoveToFolder ) );
@@ -380,16 +375,16 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      gpg = new GPG( environmentSubstitute( gpglocation ), log );
+      gpg = new GPG( environmentSubstitute( gpgLocation ), log );
 
-      if ( arg_from_previous ) {
+      if ( argFromPrevious ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.ArgFromPrevious.Found", ( rows != null
             ? rows.size() : 0 )
             + "" ) );
         }
       }
-      if ( arg_from_previous && rows != null ) {
+      if ( argFromPrevious && rows != null ) {
         for ( int iteration = 0; iteration < rows.size(); iteration++ ) {
           // Success condition broken?
           if ( successConditionBroken ) {
@@ -457,7 +452,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             }
 
             if ( !ProcessFileFolder(
-              action_type[ i ], vsourcefilefolder[ i ], vuserid[ i ], vdestinationfilefolder[ i ], vwildcard[ i ],
+              actionType[ i ], vsourcefilefolder[ i ], vuserid[ i ], vdestinationfilefolder[ i ], vwildcard[ i ],
               parentWorkflow, result, MoveToFolder ) ) {
               // Update Errors
               updateErrors();
@@ -476,11 +471,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       updateErrors();
       logError( BaseMessages.getString( "JobPGPEncryptFiles.Error", e.getMessage() ) );
     } finally {
-      if ( source_filefolder != null ) {
-        source_filefolder = null;
+      if ( sourceFileFolder != null ) {
+        sourceFileFolder = null;
       }
-      if ( destination_filefolder != null ) {
-        destination_filefolder = null;
+      if ( destinationFileFolder != null ) {
+        destinationFileFolder = null;
       }
     }
     // Success Condition
@@ -539,7 +534,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean ProcessFileFolder( int actionType, String sourcefilefoldername, String userID,
-                                     String destinationfilefoldername, String wildcard, Workflow parentWorkflow, Result result, String MoveToFolder ) {
+                                     String destinationfilefoldername, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result, String MoveToFolder ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -568,7 +563,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         if ( CreateDestinationFolder( destinationfilefolder ) ) {
 
           // Basic Tests
-          if ( sourcefilefolder.getType().equals( FileType.FOLDER ) && destination_is_a_file ) {
+          if ( sourcefilefolder.getType().equals( FileType.FOLDER ) && destinationIsAFile ) {
             // Source is a folder, destination is a file
             // WARNING !!! CAN NOT MOVE FOLDER TO FILE !!!
 
@@ -599,12 +594,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                 destinationfilefolder.toString() + Const.FILE_SEPARATOR + shortfilename;
               FileObject destinationfile = HopVfs.getFileObject( destinationfilenamefull );
 
-              entrystatus =
-                EncryptFile(
+              entrystatus = EncryptFile(
                   actionType, shortfilename, sourcefilefolder, realuserID, destinationfile,
                   movetofolderfolder, parentWorkflow, result );
 
-            } else if ( sourcefilefolder.getType().equals( FileType.FILE ) && destination_is_a_file ) {
+            } else if ( sourcefilefolder.getType().equals( FileType.FILE ) && destinationIsAFile ) {
 
               // Source is a file, destination is a file
 
@@ -640,7 +634,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               FileObject[] fileObjects = sourcefilefolder.findFiles( new AllFileSelector() {
                 public boolean traverseDescendents( FileSelectInfo info ) {
-                  return info.getDepth() == 0 || include_subfolders;
+                  return info.getDepth() == 0 || includeSubfolders;
                 }
 
                 public boolean includeFile( FileSelectInfo info ) {
@@ -736,7 +730,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean EncryptFile( int actionType, String shortfilename, FileObject sourcefilename, String userID,
-                               FileObject destinationfilename, FileObject movetofolderfolder, Workflow parentWorkflow, Result result ) {
+                               FileObject destinationfilename, FileObject movetofolderfolder, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
 
     FileObject destinationfile = null;
     boolean retval = false;
@@ -750,7 +744,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
 
         // add filename to result filename
-        if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+        if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
           addFileToResultFilenames( destinationfilename.toString(), result, parentWorkflow );
         }
 
@@ -761,7 +755,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileExists", destinationfilename
             .toString() ) );
         }
-        if ( iffileexists.equals( "overwrite_file" ) ) {
+        if ( ifFileExists.equals( "overwrite_file" ) ) {
           doJob( actionType, sourcefilename, userID, destinationfilename );
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileOverwrite", destinationfilename
@@ -769,13 +763,13 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           }
 
           // add filename to result filename
-          if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+          if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
             addFileToResultFilenames( destinationfilename.toString(), result, parentWorkflow );
           }
 
           updateSuccess();
 
-        } else if ( iffileexists.equals( "unique_name" ) ) {
+        } else if ( ifFileExists.equals( "unique_name" ) ) {
           String short_filename = shortfilename;
 
           // return destination short filename
@@ -798,18 +792,18 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           }
 
           // add filename to result filename
-          if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+          if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
             addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
           }
 
           updateSuccess();
-        } else if ( iffileexists.equals( "delete_file" ) ) {
+        } else if ( ifFileExists.equals( "delete_file" ) ) {
           destinationfilename.delete();
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileDeleted", destinationfilename
               .getName().toString() ) );
           }
-        } else if ( iffileexists.equals( "move_file" ) ) {
+        } else if ( ifFileExists.equals( "move_file" ) ) {
           String short_filename = shortfilename;
           // return destination short filename
           try {
@@ -829,12 +823,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             }
 
             // add filename to result filename
-            if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+            if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
               addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
             }
 
           } else {
-            if ( ifmovedfileexists.equals( "overwrite_file" ) ) {
+            if ( ifMovedFileExists.equals( "overwrite_file" ) ) {
               sourcefilename.moveTo( destinationfile );
               if ( isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FileOverwrite", destinationfile
@@ -842,12 +836,12 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               }
 
               // add filename to result filename
-              if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+              if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
                 addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
               }
 
               updateSuccess();
-            } else if ( ifmovedfileexists.equals( "unique_name" ) ) {
+            } else if ( ifMovedFileExists.equals( "unique_name" ) ) {
               SimpleDateFormat daf = new SimpleDateFormat();
               Date now = new Date();
               daf.applyPattern( "ddMMyyyy_HHmmssSSS" );
@@ -865,18 +859,18 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               }
 
               // add filename to result filename
-              if ( add_result_filesname && !iffileexists.equals( "fail" ) && !iffileexists.equals( "do_nothing" ) ) {
+              if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
                 addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
               }
 
               updateSuccess();
-            } else if ( ifmovedfileexists.equals( "fail" ) ) {
+            } else if ( ifMovedFileExists.equals( "fail" ) ) {
               // Update Errors
               updateErrors();
             }
           }
 
-        } else if ( iffileexists.equals( "fail" ) ) {
+        } else if ( ifFileExists.equals( "fail" ) ) {
           // Update Errors
           updateErrors();
         }
@@ -898,7 +892,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean EncryptOneFile( int actionType, FileObject Currentfile, FileObject sourcefilefolder,
-                                  String userID, String realDestinationFilefoldername, String realWildcard, Workflow parentWorkflow, Result result,
+                                  String userID, String realDestinationFilefoldername, String realWildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result,
                                   FileObject movetofolderfolder ) {
     boolean entrystatus = false;
     FileObject file_name = null;
@@ -937,7 +931,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         if ( !Currentfile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
 
           // Not in the Base Folder..Only if include sub folders
-          if ( include_subfolders ) {
+          if ( includeSubfolders ) {
             // Folders..only if include subfolders
             if ( Currentfile.getType() != FileType.FOLDER ) {
 
@@ -1004,11 +998,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     NrSuccess++;
   }
 
-  private void addFileToResultFilenames( String fileaddentry, Result result, Workflow parentWorkflow ) {
+  private void addFileToResultFilenames( String fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
       ResultFile resultFile =
         new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry ), parentWorkflow
-          .getJobname(), toString() );
+          .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
       if ( isDebug() ) {
@@ -1025,14 +1019,14 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   private boolean CreateDestinationFolder( FileObject filefolder ) {
     FileObject folder = null;
     try {
-      if ( destination_is_a_file ) {
+      if ( destinationIsAFile ) {
         folder = filefolder.getParent();
       } else {
         folder = filefolder;
       }
 
       if ( !folder.exists() ) {
-        if ( create_destination_folder ) {
+        if ( createDestinationFolder ) {
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.FolderNotExist", folder
               .getName().toString() ) );
@@ -1172,11 +1166,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   public void setAddDate( boolean adddate ) {
-    this.add_date = adddate;
+    this.addDate = adddate;
   }
 
   public boolean isAddDate() {
-    return add_date;
+    return addDate;
   }
 
   public void setAsciiMode( boolean asciiMode ) {
@@ -1188,95 +1182,95 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   public boolean isAddMovedDate() {
-    return add_moved_date;
+    return addMovedDate;
   }
 
   public void setAddMovedDate( boolean add_moved_date ) {
-    this.add_moved_date = add_moved_date;
+    this.addMovedDate = add_moved_date;
   }
 
   public boolean isAddMovedTime() {
-    return add_moved_time;
+    return addMovedTime;
   }
 
   public void setAddMovedTime( boolean add_moved_time ) {
-    this.add_moved_time = add_moved_time;
+    this.addMovedTime = add_moved_time;
   }
 
   public void setIfFileExists( String iffileexists ) {
-    this.iffileexists = iffileexists;
+    this.ifFileExists = iffileexists;
   }
 
   public String getIfFileExists() {
-    return iffileexists;
+    return ifFileExists;
   }
 
   public void setIfMovedFileExists( String ifmovedfileexists ) {
-    this.ifmovedfileexists = ifmovedfileexists;
+    this.ifMovedFileExists = ifmovedfileexists;
   }
 
   public String getIfMovedFileExists() {
-    return ifmovedfileexists;
+    return ifMovedFileExists;
   }
 
   public void setAddTime( boolean addtime ) {
-    this.add_time = addtime;
+    this.addTime = addtime;
   }
 
   public boolean isAddTime() {
-    return add_time;
+    return addTime;
   }
 
   public void setAddDateBeforeExtension( boolean AddDateBeforeExtension ) {
-    this.AddDateBeforeExtension = AddDateBeforeExtension;
+    this.addDateBeforeExtension = AddDateBeforeExtension;
   }
 
   public void setAddMovedDateBeforeExtension( boolean AddMovedDateBeforeExtension ) {
-    this.AddMovedDateBeforeExtension = AddMovedDateBeforeExtension;
+    this.addMovedDateBeforeExtension = AddMovedDateBeforeExtension;
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
   public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+    this.specifyFormat = SpecifyFormat;
   }
 
   public void setSpecifyMoveFormat( boolean SpecifyMoveFormat ) {
-    this.SpecifyMoveFormat = SpecifyMoveFormat;
+    this.specifyMoveFormat = SpecifyMoveFormat;
   }
 
   public boolean isSpecifyMoveFormat() {
-    return SpecifyMoveFormat;
+    return specifyMoveFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
   public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+    this.dateTimeFormat = date_time_format;
   }
 
   public String getMovedDateTimeFormat() {
-    return moved_date_time_format;
+    return movedDateTimeFormat;
   }
 
   public void setMovedDateTimeFormat( String moved_date_time_format ) {
-    this.moved_date_time_format = moved_date_time_format;
+    this.movedDateTimeFormat = moved_date_time_format;
   }
 
   public boolean isAddDateBeforeExtension() {
-    return AddDateBeforeExtension;
+    return addDateBeforeExtension;
   }
 
   public boolean isAddMovedDateBeforeExtension() {
-    return AddMovedDateBeforeExtension;
+    return addMovedDateBeforeExtension;
   }
 
   public boolean isDoNotKeepFolderStructure() {
-    return DoNotKeepFolderStructure;
+    return doNotKeepFolderStructure;
   }
 
   public void setDestinationFolder( String destinationFolder ) {
@@ -1293,59 +1287,59 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
    */
   @Deprecated
   public void setGPGPLocation( String gpglocation ) {
-    this.gpglocation = gpglocation;
+    this.gpgLocation = gpglocation;
   }
 
   public void setGPGLocation( String gpglocation ) {
-    this.gpglocation = gpglocation;
+    this.gpgLocation = gpglocation;
   }
 
   public String getGPGLocation() {
-    return gpglocation;
+    return gpgLocation;
   }
 
   public void setDoNotKeepFolderStructure( boolean DoNotKeepFolderStructure ) {
-    this.DoNotKeepFolderStructure = DoNotKeepFolderStructure;
+    this.doNotKeepFolderStructure = DoNotKeepFolderStructure;
   }
 
   public void setIncludeSubfolders( boolean include_subfoldersin ) {
-    this.include_subfolders = include_subfoldersin;
+    this.includeSubfolders = include_subfoldersin;
   }
 
   public void setAddresultfilesname( boolean add_result_filesnamein ) {
-    this.add_result_filesname = add_result_filesnamein;
+    this.addResultFilesname = add_result_filesnamein;
   }
 
   public void setArgFromPrevious( boolean argfrompreviousin ) {
-    this.arg_from_previous = argfrompreviousin;
+    this.argFromPrevious = argfrompreviousin;
   }
 
   public void setDestinationIsAFile( boolean destination_is_a_file ) {
-    this.destination_is_a_file = destination_is_a_file;
+    this.destinationIsAFile = destination_is_a_file;
   }
 
   public void setCreateDestinationFolder( boolean create_destination_folder ) {
-    this.create_destination_folder = create_destination_folder;
+    this.createDestinationFolder = create_destination_folder;
   }
 
   public void setCreateMoveToFolder( boolean create_move_to_folder ) {
-    this.create_move_to_folder = create_move_to_folder;
+    this.createMoveToFolder = create_move_to_folder;
   }
 
   public void setNrErrorsLessThan( String nr_errors_less_than ) {
-    this.nr_errors_less_than = nr_errors_less_than;
+    this.nrErrorsLessThan = nr_errors_less_than;
   }
 
   public String getNrErrorsLessThan() {
-    return nr_errors_less_than;
+    return nrErrorsLessThan;
   }
 
   public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+    this.successCondition = success_condition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   public void doJob( int actionType, FileObject sourcefile, String userID, FileObject destinationfile ) throws HopException {
@@ -1381,7 +1375,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     AndValidator.putValidators( ctx, ActionValidatorUtils.notNullValidator(),
       ActionValidatorUtils.fileExistsValidator() );
 
-    for ( int i = 0; i < source_filefolder.length; i++ ) {
+    for ( int i = 0; i < sourceFileFolder.length; i++ ) {
       ActionValidatorUtils.andValidator().validate( this, "arguments[" + i + "]", remarks, ctx );
     }
   }

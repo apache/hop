@@ -80,7 +80,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
 
   private Listener lsOk, lsCancel;
 
-  private ActionMailValidator jobEntry;
+  private ActionMailValidator action;
 
   private Shell shell;
 
@@ -114,12 +114,12 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
   private Button wSMTPCheck;
   private FormData fdSMTPCheck;
 
-  public ActionMailValidatorDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMailValidator) jobEntryInt;
+  public ActionMailValidatorDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMailValidator) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionMailValidatorDialog.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionMailValidatorDialog.Name.Default" ) );
     }
   }
 
@@ -129,14 +129,14 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -334,7 +334,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -356,20 +356,20 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-    wMailAddress.setText( Const.NVL( jobEntry.getEmailAddress(), "" ) );
-    wTimeOut.setText( Const.NVL( jobEntry.getTimeOut(), "0" ) );
-    wSMTPCheck.setSelection( jobEntry.isSMTPCheck() );
-    wDefaultSMTP.setText( Const.NVL( jobEntry.getDefaultSMTP(), "" ) );
-    weMailSender.setText( Const.NVL( jobEntry.geteMailSender(), "" ) );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    wMailAddress.setText( Const.NVL( action.getEmailAddress(), "" ) );
+    wTimeOut.setText( Const.NVL( action.getTimeOut(), "0" ) );
+    wSMTPCheck.setSelection( action.isSMTPCheck() );
+    wDefaultSMTP.setText( Const.NVL( action.getDefaultSMTP(), "" ) );
+    weMailSender.setText( Const.NVL( action.geteMailSender(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -381,12 +381,12 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setEmailAddress( wMailAddress.getText() );
-    jobEntry.setTimeOut( wTimeOut.getText() );
-    jobEntry.setDefaultSMTP( wDefaultSMTP.getText() );
-    jobEntry.seteMailSender( weMailSender.getText() );
-    jobEntry.setSMTPCheck( wSMTPCheck.getSelection() );
+    action.setName( wName.getText() );
+    action.setEmailAddress( wMailAddress.getText() );
+    action.setTimeOut( wTimeOut.getText() );
+    action.setDefaultSMTP( wDefaultSMTP.getText() );
+    action.seteMailSender( weMailSender.getText() );
+    action.setSMTPCheck( wSMTPCheck.getSelection() );
     dispose();
   }
 }

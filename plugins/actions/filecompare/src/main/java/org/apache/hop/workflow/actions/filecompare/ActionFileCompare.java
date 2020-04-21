@@ -203,10 +203,10 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
           // add filename to result filenames
           if ( addFilenameToResult && file1.getType() == FileType.FILE && file2.getType() == FileType.FILE ) {
             ResultFile resultFile =
-              new ResultFile( ResultFile.FILE_TYPE_GENERAL, file1, parentWorkflow.getJobname(), toString() );
+              new ResultFile( ResultFile.FILE_TYPE_GENERAL, file1, parentWorkflow.getWorkflowName(), toString() );
             resultFile.setComment( BaseMessages.getString( PKG, "JobWaitForFile.FilenameAdded" ) );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
-            resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, file2, parentWorkflow.getJobname(), toString() );
+            resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, file2, parentWorkflow.getWorkflowName(), toString() );
             resultFile.setComment( BaseMessages.getString( PKG, "JobWaitForFile.FilenameAdded" ) );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }

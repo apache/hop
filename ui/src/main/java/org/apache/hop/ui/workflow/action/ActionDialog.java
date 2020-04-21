@@ -68,7 +68,7 @@ public class ActionDialog extends Dialog {
   /**
    * A reference to the action interface
    */
-  protected IAction jobEntryInt;
+  protected IAction iAction;
 
   /**
    * the MetaStore
@@ -104,14 +104,14 @@ public class ActionDialog extends Dialog {
    * Instantiates a new action dialog.
    *
    * @param parent   the parent shell
-   * @param jobEntry the action interface
+   * @param action the action to edit
    * @param workflowMeta  the workflow metadata object
    */
-  public ActionDialog( Shell parent, IAction jobEntry, WorkflowMeta workflowMeta ) {
+  public ActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, SWT.NONE );
     props = PropsUi.getInstance();
 
-    this.jobEntryInt = jobEntry;
+    this.iAction = action;
     this.workflowMeta = workflowMeta;
     this.shell = parent;
   }

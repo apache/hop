@@ -56,9 +56,9 @@ import java.util.Map;
 
 public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
   IAttributes, IBaseMeta {
-  public static final String XML_TAG = "entry";
+  public static final String XML_TAG = "action";
 
-  private static final String XML_ATTRIBUTE_JOB_ENTRY_COPY = AttributesUtil.XML_TAG + "_kjc";
+  private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
 
   private IAction entry;
 
@@ -102,7 +102,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
     retval.append( "      " ).append( XmlHandler.addTagValue( "xloc", location.x ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "yloc", location.y ) );
 
-    retval.append( AttributesUtil.getAttributesXml( attributesMap, XML_ATTRIBUTE_JOB_ENTRY_COPY ) );
+    retval.append( AttributesUtil.getAttributesXml( attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY ) );
 
     retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     return retval.toString();
@@ -135,7 +135,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
         int y = Const.toInt( XmlHandler.getTagValue( entrynode, "yloc" ), 0 );
         setLocation( x, y );
 
-        Node jobEntryCopyAttributesNode = XmlHandler.getSubNode( entrynode, XML_ATTRIBUTE_JOB_ENTRY_COPY );
+        Node jobEntryCopyAttributesNode = XmlHandler.getSubNode( entrynode, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY );
         if ( jobEntryCopyAttributesNode != null ) {
           attributesMap = AttributesUtil.loadAttributes( jobEntryCopyAttributesNode );
         } else {
@@ -187,7 +187,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
     setChanged();
   }
 
-  public Object clone_deep() {
+  public Object cloneDeep() {
     ActionCopy ge = (ActionCopy) clone();
 
     // Copy underlying object as well...

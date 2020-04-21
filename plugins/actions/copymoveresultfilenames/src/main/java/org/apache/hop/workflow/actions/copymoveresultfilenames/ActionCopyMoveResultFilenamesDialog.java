@@ -94,7 +94,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private CCombo wAction;
   private FormData fdlAction, fdAction;
 
-  private ActionCopyMoveResultFilenamesI jobEntry;
+  private ActionCopyMoveResultFilenamesI action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -156,13 +156,13 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private Button wAddDestinationFilename;
   private FormData fdlAddDestinationFilename, fdAddDestinationFilename;
 
-  public ActionCopyMoveResultFilenamesDialog( Shell parent, IAction jobEntryInt,
+  public ActionCopyMoveResultFilenamesDialog( Shell parent, IAction action,
                                               WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionCopyMoveResultFilenamesI) jobEntryInt;
+    super( parent, action, workflowMeta );
+    this.action = (ActionCopyMoveResultFilenamesI) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );
     }
   }
 
@@ -172,14 +172,14 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -233,7 +233,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAction.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         enableAction();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -306,7 +306,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wCreateDestinationFolder.setLayoutData( fdCreateDestinationFolder );
     wCreateDestinationFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -330,7 +330,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wOverwriteFile.setLayoutData( fdOverwriteFile );
     wOverwriteFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -355,7 +355,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wRemovedSourceFilename.setLayoutData( fdRemovedSourceFilename );
     wRemovedSourceFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -380,7 +380,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDestinationFilename.setLayoutData( fdAddDestinationFilename );
     wAddDestinationFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -403,7 +403,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -426,7 +426,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -451,7 +451,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
         setAddDateBeforeExtension();
       }
@@ -504,7 +504,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wAddDateBeforeExtension.setLayoutData( fdAddDateBeforeExtension );
     wAddDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckLimit();
       }
     } );
@@ -544,7 +544,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wSpecifyWildcard.setLayoutData( fdSpecifyWildcard );
     wSpecifyWildcard.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckLimit();
       }
     } );
@@ -740,7 +740,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setAddDateBeforeExtension() {
@@ -790,31 +790,31 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    wSpecifyWildcard.setSelection( jobEntry.isSpecifyWildcard() );
-    if ( jobEntry.getWildcard() != null ) {
-      wWildcard.setText( jobEntry.getWildcard() );
+    wSpecifyWildcard.setSelection( action.isSpecifyWildcard() );
+    if ( action.getWildcard() != null ) {
+      wWildcard.setText( action.getWildcard() );
     }
-    if ( jobEntry.getWildcardExclude() != null ) {
-      wWildcardExclude.setText( jobEntry.getWildcardExclude() );
-    }
-
-    if ( jobEntry.getDestinationFolder() != null ) {
-      wFoldername.setText( jobEntry.getDestinationFolder() );
+    if ( action.getWildcardExclude() != null ) {
+      wWildcardExclude.setText( action.getWildcardExclude() );
     }
 
-    if ( jobEntry.getNrErrorsLessThan() != null ) {
-      wNrErrorsLessThan.setText( jobEntry.getNrErrorsLessThan() );
+    if ( action.getDestinationFolder() != null ) {
+      wFoldername.setText( action.getDestinationFolder() );
+    }
+
+    if ( action.getNrErrorsLessThan() != null ) {
+      wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
     } else {
       wNrErrorsLessThan.setText( "10" );
     }
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -823,10 +823,10 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
       wSuccessCondition.select( 0 );
     }
 
-    if ( jobEntry.getAction() != null ) {
-      if ( jobEntry.getAction().equals( "move" ) ) {
+    if ( action.getAction() != null ) {
+      if ( action.getAction().equals( "move" ) ) {
         wAction.select( 1 );
-      } else if ( jobEntry.getAction().equals( "delete" ) ) {
+      } else if ( action.getAction().equals( "delete" ) ) {
         wAction.select( 2 );
       } else {
         wAction.select( 0 );
@@ -835,26 +835,26 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
       wAction.select( 0 );
     }
 
-    if ( jobEntry.getDateTimeFormat() != null ) {
-      wDateTimeFormat.setText( jobEntry.getDateTimeFormat() );
+    if ( action.getDateTimeFormat() != null ) {
+      wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    wAddDate.setSelection( jobEntry.isAddDate() );
-    wAddTime.setSelection( jobEntry.isAddTime() );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
-    wAddDateBeforeExtension.setSelection( jobEntry.isAddDateBeforeExtension() );
-    wOverwriteFile.setSelection( jobEntry.isOverwriteFile() );
-    wCreateDestinationFolder.setSelection( jobEntry.isCreateDestinationFolder() );
-    wRemovedSourceFilename.setSelection( jobEntry.isRemovedSourceFilename() );
-    wAddDestinationFilename.setSelection( jobEntry.isAddDestinationFilename() );
+    wAddDate.setSelection( action.isAddDate() );
+    wAddTime.setSelection( action.isAddTime() );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
+    wAddDateBeforeExtension.setSelection( action.isAddDateBeforeExtension() );
+    wOverwriteFile.setSelection( action.isOverwriteFile() );
+    wCreateDestinationFolder.setSelection( action.isCreateDestinationFolder() );
+    wRemovedSourceFilename.setSelection( action.isRemovedSourceFilename() );
+    wAddDestinationFilename.setSelection( action.isAddDestinationFilename() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -866,40 +866,40 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setWildcardExclude( wWildcardExclude.getText() );
+    action.setName( wName.getText() );
+    action.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
+    action.setWildcard( wWildcard.getText() );
+    action.setWildcardExclude( wWildcardExclude.getText() );
 
-    jobEntry.setDestinationFolder( wFoldername.getText() );
-    jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
+    action.setDestinationFolder( wFoldername.getText() );
+    action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( action.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wAction.getSelectionIndex() == 1 ) {
-      jobEntry.setAction( "move" );
+      action.setAction( "move" );
     } else if ( wAction.getSelectionIndex() == 2 ) {
-      jobEntry.setAction( "delete" );
+      action.setAction( "delete" );
     } else {
-      jobEntry.setAction( "copy" );
+      action.setAction( "copy" );
     }
 
-    jobEntry.setAddDate( wAddDate.getSelection() );
-    jobEntry.setAddTime( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
-    jobEntry.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
-    jobEntry.setOverwriteFile( wOverwriteFile.getSelection() );
+    action.setAddDate( wAddDate.getSelection() );
+    action.setAddTime( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
+    action.setOverwriteFile( wOverwriteFile.getSelection() );
 
-    jobEntry.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
-    jobEntry.setRemovedSourceFilename( wRemovedSourceFilename.getSelection() );
-    jobEntry.setAddDestinationFilename( wAddDestinationFilename.getSelection() );
+    action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
+    action.setRemovedSourceFilename( wRemovedSourceFilename.getSelection() );
+    action.setAddDestinationFilename( wAddDestinationFilename.getSelection() );
 
     dispose();
   }

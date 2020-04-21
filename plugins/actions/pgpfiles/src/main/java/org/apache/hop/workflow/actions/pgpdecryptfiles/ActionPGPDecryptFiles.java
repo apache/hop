@@ -40,7 +40,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
@@ -50,6 +49,7 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -477,7 +477,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean ProcessFileFolder( String sourcefilefoldername, String passPhrase,
-                                     String destinationfilefoldername, String wildcard, Workflow parentWorkflow, Result result, String MoveToFolder ) {
+                                     String destinationfilefoldername, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result, String MoveToFolder ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -536,8 +536,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
                 destinationfilefolder.toString() + Const.FILE_SEPARATOR + shortfilename;
               FileObject destinationfile = HopVfs.getFileObject( destinationfilenamefull );
 
-              entrystatus =
-                DecryptFile(
+              entrystatus = DecryptFile(
                   shortfilename, sourcefilefolder, passPhrase, destinationfile, movetofolderfolder, parentWorkflow,
                   result );
 
@@ -672,7 +671,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean DecryptFile( String shortfilename, FileObject sourcefilename, String passPharse,
-                               FileObject destinationfilename, FileObject movetofolderfolder, Workflow parentWorkflow, Result result ) {
+                               FileObject destinationfilename, FileObject movetofolderfolder, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
 
     FileObject destinationfile = null;
     boolean retval = false;
@@ -835,7 +834,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   private boolean DecryptOneFile( FileObject Currentfile, FileObject sourcefilefolder, String passPhrase,
-                                  String realDestinationFilefoldername, String realWildcard, Workflow parentWorkflow, Result result,
+                                  String realDestinationFilefoldername, String realWildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result,
                                   FileObject movetofolderfolder ) {
     boolean entrystatus = false;
     FileObject file_name = null;
@@ -938,11 +937,11 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     NrSuccess++;
   }
 
-  private void addFileToResultFilenames( String fileaddentry, Result result, Workflow parentWorkflow ) {
+  private void addFileToResultFilenames( String fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
       ResultFile resultFile =
         new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry ), parentWorkflow
-          .getJobname(), toString() );
+          .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
       if ( isDebug() ) {

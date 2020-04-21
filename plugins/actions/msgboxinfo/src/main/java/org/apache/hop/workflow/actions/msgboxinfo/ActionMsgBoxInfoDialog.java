@@ -86,7 +86,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
 
   private Listener lsOk, lsCancel;
 
-  private ActionMsgBoxInfo jobEntry;
+  private ActionMsgBoxInfo action;
 
   private Shell shell;
 
@@ -101,11 +101,11 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
 
   private FormData fdlTitleMessage, fdTitleMessage;
 
-  public ActionMsgBoxInfoDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMsgBoxInfo) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "MsgBoxInfo.Name.Default" ) );
+  public ActionMsgBoxInfoDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMsgBoxInfo) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "MsgBoxInfo.Name.Default" ) );
     }
   }
 
@@ -115,14 +115,14 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -245,7 +245,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -258,17 +258,17 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-    wBodyMessage.setText( Const.NVL( jobEntry.getBodyMessage(), "" ) );
-    wTitleMessage.setText( Const.NVL( jobEntry.getTitleMessage(), "" ) );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    wBodyMessage.setText( Const.NVL( action.getBodyMessage(), "" ) );
+    wTitleMessage.setText( Const.NVL( action.getTitleMessage(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -280,9 +280,9 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setTitleMessage( wTitleMessage.getText() );
-    jobEntry.setBodyMessage( wBodyMessage.getText() );
+    action.setName( wName.getText() );
+    action.setTitleMessage( wTitleMessage.getText() );
+    action.setBodyMessage( wBodyMessage.getText() );
     dispose();
   }
 }

@@ -60,6 +60,7 @@ public class HopServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
+  @Ignore // This is not a stable test, fails on occasion
   public void test() throws Exception {
 
     CountDownLatch latch = new CountDownLatch( 1 );

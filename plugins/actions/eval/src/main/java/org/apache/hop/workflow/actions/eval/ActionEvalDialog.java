@@ -95,7 +95,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionEval jobEntry;
+  private ActionEval action;
 
   private Shell shell;
 
@@ -103,11 +103,11 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionEvalDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionEval) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionEval.Name.Default" ) );
+  public ActionEvalDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionEval) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionEval.Name.Default" ) );
     }
   }
 
@@ -117,14 +117,14 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -177,8 +177,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     fdlScript.left = new FormAttachment( 0, 0 );
     fdlScript.top = new FormAttachment( wName, margin );
     wlScript.setLayoutData( fdlScript );
-    wScript =
-      new StyledTextComp( jobEntry, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wScript = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wScript.setText( BaseMessages.getString( PKG, "ActionEval.Script.Default" ) );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
     wScript.addModifyListener( lsMod );
@@ -268,7 +267,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void setPosition() {
@@ -297,11 +296,11 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getScript() != null ) {
-      wScript.setText( jobEntry.getScript() );
+    if ( action.getScript() != null ) {
+      wScript.setText( action.getScript() );
     }
 
     wName.selectAll();
@@ -309,8 +308,8 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -322,8 +321,8 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setScript( wScript.getText() );
+    action.setName( wName.getText() );
+    action.setScript( wScript.getText() );
     dispose();
   }
 }

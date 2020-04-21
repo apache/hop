@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
 public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionAbortDialog.class; // for i18n purposes, needed by Translator!!
 
-  private ActionAbort jobEntry;
+  private ActionAbort action;
 
   private boolean changed;
 
@@ -75,11 +75,11 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   
   private TextVar wMessageAbort;
 
-  public ActionAbortDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionAbort) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionAbortDialog.Jobname.Label" ) );
+  public ActionAbortDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionAbort) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionAbortDialog.Jobname.Label" ) );
     }
   }
 
@@ -90,10 +90,10 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
 
     Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();    
-	changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
+	  changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -183,7 +183,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -196,11 +196,11 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getMessageAbort() != null ) {
-      wMessageAbort.setText( jobEntry.getMessageAbort() );
+    if ( action.getMessageAbort() != null ) {
+      wMessageAbort.setText( action.getMessageAbort() );
     }
 
     wName.selectAll();
@@ -208,8 +208,8 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -221,8 +221,8 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setMessageAbort( wMessageAbort.getText() );
+    action.setName( wName.getText() );
+    action.setMessageAbort( wMessageAbort.getText() );
     dispose();
   }
 }

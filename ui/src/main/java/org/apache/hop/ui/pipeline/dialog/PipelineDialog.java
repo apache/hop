@@ -25,32 +25,19 @@ package org.apache.hop.ui.pipeline.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.IFieldDisabledListener;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -68,16 +55,11 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
@@ -140,13 +122,9 @@ public class PipelineDialog extends Dialog {
 
   private int margin;
 
-  private Button wManageThreads;
-
   private Button wEnableTransformPerfMonitor;
 
   private Text wTransformPerfInterval;
-
-  private CCombo wPipelineType;
 
   private Tabs currentTab = null;
 
@@ -204,7 +182,6 @@ public class PipelineDialog extends Dialog {
 
     addPipelineTab();
     addParamTab();
-    addMiscTab();
     addMonitoringTab();
 
     // See if there are any other tabs to be added...
@@ -233,10 +210,10 @@ public class PipelineDialog extends Dialog {
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e->ok() );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e->cancel() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), null );
 
@@ -576,77 +553,6 @@ public class PipelineDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
   }
 
-  private void addMiscTab() {
-    // ////////////////////////
-    // START OF PERFORMANCE TAB///
-    // /
-    wMiscTab = new CTabItem( wTabFolder, SWT.NONE );
-    wMiscTab.setText( BaseMessages.getString( PKG, "PipelineDialog.MiscTab.Label" ) );
-
-    Composite wMiscComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wMiscComp );
-
-    FormLayout perfLayout = new FormLayout();
-    perfLayout.marginWidth = Const.FORM_MARGIN;
-    perfLayout.marginHeight = Const.FORM_MARGIN;
-    wMiscComp.setLayout( perfLayout );
-
-
-    // Show feedback in pipelines transforms?
-    Label wlManageThreads = new Label( wMiscComp, SWT.RIGHT );
-    wlManageThreads.setText( BaseMessages.getString( PKG, "PipelineDialog.ManageThreadPriorities.Label" ) );
-    props.setLook( wlManageThreads );
-    FormData fdlManageThreads = new FormData();
-    fdlManageThreads.left = new FormAttachment( 0, 0 );
-    fdlManageThreads.top = new FormAttachment( 0, margin );
-    fdlManageThreads.right = new FormAttachment( middle, -margin );
-    wlManageThreads.setLayoutData( fdlManageThreads );
-    wManageThreads = new Button( wMiscComp, SWT.CHECK );
-    wManageThreads.addSelectionListener( lsModSel );
-    props.setLook( wManageThreads );
-    FormData fdManageThreads = new FormData();
-    fdManageThreads.left = new FormAttachment( middle, 0 );
-    fdManageThreads.top = new FormAttachment( 0, margin );
-    fdManageThreads.right = new FormAttachment( 100, 0 );
-    wManageThreads.setLayoutData( fdManageThreads );
-
-    // Single threaded option ...
-    Label wlPipelineType = new Label( wMiscComp, SWT.RIGHT );
-    wlPipelineType.setText( BaseMessages.getString( PKG, "PipelineDialog.PipelineType.Label" ) );
-    wlPipelineType.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.PipelineType.Tooltip", Const.CR ) );
-    props.setLook( wlPipelineType );
-    FormData fdlPipelineType = new FormData();
-    fdlPipelineType.left = new FormAttachment( 0, 0 );
-    fdlPipelineType.right = new FormAttachment( middle, -margin );
-    fdlPipelineType.top = new FormAttachment( wManageThreads, margin );
-    wlPipelineType.setLayoutData( fdlPipelineType );
-    wPipelineType = new CCombo( wMiscComp, SWT.NORMAL );
-    wPipelineType.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.PipelineType.Tooltip", Const.CR ) );
-    wPipelineType.addSelectionListener( lsModSel );
-    props.setLook( wPipelineType );
-    FormData fdPipelineType = new FormData();
-    fdPipelineType.left = new FormAttachment( middle, 0 );
-    fdPipelineType.top = new FormAttachment( wManageThreads, margin );
-    fdPipelineType.right = new FormAttachment( 100, 0 );
-    wPipelineType.setLayoutData( fdPipelineType );
-    wPipelineType.setItems( PipelineType.getPipelineTypesDescriptions() );
-
-    FormData fdMiscComp = new FormData();
-    fdMiscComp.left = new FormAttachment( 0, 0 );
-    fdMiscComp.top = new FormAttachment( 0, 0 );
-    fdMiscComp.right = new FormAttachment( 100, 0 );
-    fdMiscComp.bottom = new FormAttachment( 100, 0 );
-    wMiscComp.setLayoutData( fdMiscComp );
-
-    wMiscComp.layout();
-    wMiscTab.setControl( wMiscComp );
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF PERF TAB
-    // ///////////////////////////////////////////////////////////
-
-  }
-
   private void addMonitoringTab() {
     // ////////////////////////
     // START OF MONITORING TAB///
@@ -792,9 +698,6 @@ public class PipelineDialog extends Dialog {
       item.setText( 3, Const.NVL( description, "" ) );
     }
 
-    wManageThreads.setSelection( pipelineMeta.isUsingThreadPriorityManagment() );
-    wPipelineType.setText( pipelineMeta.getPipelineType().getDescription() );
-
     wParamFields.setRowNums();
     wParamFields.optWidth( true );
 
@@ -848,10 +751,6 @@ public class PipelineDialog extends Dialog {
       }
     }
     pipelineMeta.activateParameters();
-
-    pipelineMeta.setUsingThreadPriorityManagment( wManageThreads.getSelection() );
-    pipelineMeta.setPipelineType( PipelineType.values()[ Const.indexOfString( wPipelineType
-      .getText(), PipelineType.getPipelineTypesDescriptions() ) ] );
 
     // Performance monitoring tab:
     //

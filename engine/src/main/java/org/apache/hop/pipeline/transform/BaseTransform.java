@@ -339,12 +339,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private int blockPointer;
 
-  /**
-   * A flag to determine whether or not we are doing local or clustered (remote) par
-   */
-
-  private boolean usingThreadPriorityManagment;
-
   private List<ITransformFinishedListener> transformFinishedListeners;
   private List<ITransformStartedListener> transformStartedListeners;
 
@@ -1208,7 +1202,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
-        //
+        /*
         if ( isUsingThreadPriorityManagment() && !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
           try {
             Thread.sleep( 0, 1 );
@@ -1216,6 +1210,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
             // Ignore sleep interruption exception
           }
         }
+        */
 
         // Loop until we find room in the target rowset
         //
@@ -1244,7 +1239,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
-        //
+        /*
         if ( isUsingThreadPriorityManagment() && !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
           try {
             Thread.sleep( 0, 1 );
@@ -1252,6 +1247,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
             // Ignore sleep interruption exception
           }
         }
+         */
 
         try {
           // Loop until we find room in the target rowset
@@ -1569,7 +1565,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // To reduce stress on the locking system we are going to allow
       // The buffer to grow beyond "a few" entries.
       // We'll only do that if the previous transform has not ended...
-      //
+      /*
       if ( isUsingThreadPriorityManagment()
         && !inputRowSet.isDone() && inputRowSet.size() <= lowerBufferBoundary && !isStopped() ) {
         try {
@@ -1578,6 +1574,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           // Ignore sleep interruption exception
         }
       }
+       */
 
       // See if this transform is receiving partitioned data...
       // In that case it might be the case that one input row set is receiving
@@ -1839,7 +1836,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // To reduce stress on the locking system we are going to allow
     // The buffer to grow beyond "a few" entries.
     // We'll only do that if the previous transform has not ended...
-    //
+    /*
     if ( isUsingThreadPriorityManagment()
       && !rowSet.isDone() && rowSet.size() <= lowerBufferBoundary && !isStopped() ) {
       try {
@@ -1848,6 +1845,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         // Ignore sleep interruption exception
       }
     }
+     */
 
     // Grab a row... If nothing received after a timeout, try again.
     //
@@ -3378,26 +3376,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   @Override
   public void injectVariables( Map<String, String> prop ) {
     variables.injectVariables( prop );
-  }
-
-  /**
-   * Set to true to actively manage priorities of transform threads.
-   *
-   * @param usingThreadPriorityManagment set to true to actively manage priorities of transform threads
-   */
-  @Override
-  public void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment ) {
-    this.usingThreadPriorityManagment = usingThreadPriorityManagment;
-  }
-
-  /**
-   * Retusn true if we are actively managing priorities of transform threads.
-   *
-   * @return true if we are actively managing priorities of transform threads
-   */
-  @Override
-  public boolean isUsingThreadPriorityManagment() {
-    return usingThreadPriorityManagment;
   }
 
   /**

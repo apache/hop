@@ -80,7 +80,13 @@ import java.util.Map;
 public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransformMeta<WorkflowExecutor, WorkflowExecutorData> {
 
   private static Class<?> PKG = WorkflowExecutorMeta.class; // for i18n purposes, needed by Translator!!
-  private String fileName;
+
+  /**
+   * The name of the workflow run configuration to execute with
+   */
+  private String runConfigurationName;
+
+  private String filename;
 
   /**
    * The number of input rows that are sent as result rows to the workflow in one go, defaults to "1"
@@ -212,7 +218,8 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
 
     // Export a little bit of extra information regarding the reference
     //
-    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", fileName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "run_configuration", runConfigurationName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "filename", filename ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "group_size", groupSize ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "group_field", groupField ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "group_time", groupTime ) );
@@ -276,7 +283,8 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   @Override
   public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
     try {
-      fileName = XmlHandler.getTagValue( transformNode, "filename" );
+      runConfigurationName = XmlHandler.getTagValue( transformNode, "run_configuration" );
+      filename = XmlHandler.getTagValue( transformNode, "filename" );
 
       groupSize = XmlHandler.getTagValue( transformNode, "group_size" );
       groupField = XmlHandler.getTagValue( transformNode, "group_field" );
@@ -476,9 +484,9 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     WorkflowMeta mappingWorkflowMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-    IVariables tmpSpace = r.resolveCurrentDirectory( variables, executorMeta.getParentTransformMeta(), executorMeta.getFileName() );
+    IVariables tmpSpace = r.resolveCurrentDirectory( variables, executorMeta.getParentTransformMeta(), executorMeta.getFilename() );
 
-    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
+    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFilename() );
 
     // OK, load the meta-data from file...
     //
@@ -544,7 +552,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   @Override
   public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    String realFilename = pipelineMeta.environmentSubstitute( fileName );
+    String realFilename = pipelineMeta.environmentSubstitute( filename );
     ResourceReference reference = new ResourceReference( transformInfo );
     references.add( reference );
 
@@ -605,12 +613,12 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
 
       // change it in the action
       //
-      fileName = newFilename;
+      filename = newFilename;
 
       return proposedNewFilename;
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString(
-        PKG, "JobExecutorMeta.Exception.UnableToLoadWorkflow", fileName ) );
+        PKG, "JobExecutorMeta.Exception.UnableToLoadWorkflow", filename ) );
     }
   }
 
@@ -688,15 +696,15 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   /**
    * @return the fileName
    */
-  public String getFileName() {
-    return fileName;
+  public String getFilename() {
+    return filename;
   }
 
   /**
-   * @param fileName the fileName to set
+   * @param filename the fileName to set
    */
-  public void setFileName( String fileName ) {
-    this.fileName = fileName;
+  public void setFilename( String filename ) {
+    this.filename = filename;
   }
 
   /**
@@ -1133,7 +1141,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   }
 
   private boolean isJobDefined() {
-    return StringUtils.isNotEmpty( fileName );
+    return StringUtils.isNotEmpty( filename );
   }
 
   @Override
@@ -1194,5 +1202,21 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       hasChanged = true;
     }
     return hasChanged;
+  }
+
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
+  }
+
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
+  public void setRunConfigurationName( String runConfigurationName ) {
+    this.runConfigurationName = runConfigurationName;
   }
 }

@@ -106,7 +106,7 @@ public class HopGuiWorkflowActionDelegate {
         }
 
         if ( openIt ) {
-          IActionDialog d = getJobEntryDialog( action, workflowMeta );
+          IActionDialog d = getActionDialog( action, workflowMeta );
           if ( d != null && d.open() != null ) {
             ActionCopy jge = new ActionCopy();
             jge.setEntry( action );
@@ -155,17 +155,17 @@ public class HopGuiWorkflowActionDelegate {
   }
 
 
-  public IActionDialog getJobEntryDialog( IAction jobEntry, WorkflowMeta workflowMeta ) {
+  public IActionDialog getActionDialog( IAction action, WorkflowMeta workflowMeta ) {
     Class<?>[] paramClasses = new Class<?>[] { Shell.class, IAction.class, WorkflowMeta.class };
-    Object[] paramArgs = new Object[] { hopUi.getShell(), jobEntry, workflowMeta };
+    Object[] paramArgs = new Object[] { hopUi.getShell(), action, workflowMeta };
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    IPlugin plugin = registry.getPlugin( ActionPluginType.class, jobEntry );
+    IPlugin plugin = registry.getPlugin( ActionPluginType.class, action );
     String dialogClassName = plugin.getClassMap().get( IActionDialog.class );
     if ( dialogClassName == null ) {
       // try the deprecated way
-      hopUi.getLog().logDebug( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
-      dialogClassName = jobEntry.getDialogClassName();
+      hopUi.getLog().logBasic( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
+      dialogClassName = action.getDialogClassName();
     }
 
     try {
@@ -178,31 +178,30 @@ public class HopGuiWorkflowActionDelegate {
       t.printStackTrace();
       String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingWorkflowDialog.Title" );
       String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingActionDialog.Message", dialogClassName );
-      hopUi.getLog().logError( hopUi.toString(), errorMsg );
+      hopUi.getLog().logError( errorMsg );
       new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, t );
       return null;
     }
   }
 
-  public void editJobEntry( WorkflowMeta workflowMeta, ActionCopy je ) {
+  public void editAction( WorkflowMeta workflowMeta, ActionCopy action ) {
     try {
-      hopUi.getLog().logBasic(
-        hopUi.toString(), BaseMessages.getString( PKG, "HopGui.Log.EditAction", je.getName() ) );
+      hopUi.getLog().logBasic( BaseMessages.getString( PKG, "HopGui.Log.EditAction", action.getName() ) );
 
-      ActionCopy before = (ActionCopy) je.clone_deep();
+      ActionCopy before = (ActionCopy) action.cloneDeep();
 
-      IAction jei = je.getEntry();
+      IAction jei = action.getEntry();
 
-      IActionDialog d = getJobEntryDialog( jei, workflowMeta );
+      IActionDialog d = getActionDialog( jei, workflowMeta );
       if ( d != null ) {
         if ( d.open() != null ) {
           // First see if the name changed.
           // If so, we need to verify that the name is not already used in the workflow.
           //
-          workflowMeta.renameActionIfNameCollides( je );
+          workflowMeta.renameActionIfNameCollides( action );
 
-          ActionCopy after = (ActionCopy) je.clone();
-          hopUi.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( je ) } );
+          ActionCopy after = (ActionCopy) action.clone();
+          hopUi.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
           jobGraph.updateGui();
         }
       } else {
@@ -257,30 +256,29 @@ public class HopGuiWorkflowActionDelegate {
     jobGraph.updateGui();
   }
 
-  public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy jobEntry ) {
-
+  public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
-      if ( hi.getFromEntry().equals( jobEntry ) || hi.getToEntry().equals( jobEntry ) ) {
+      if ( hi.getFromEntry().equals( action ) || hi.getToEntry().equals( action ) ) {
         int idx = workflowMeta.indexOfWorkflowHop( hi );
         hopUi.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hi.clone() }, new int[] { idx } );
         workflowMeta.removeWorkflowHop( idx );
       }
     }
 
-    int pos = workflowMeta.indexOfAction( jobEntry );
+    int pos = workflowMeta.indexOfAction( action );
     workflowMeta.removeAction( pos );
-    hopUi.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { jobEntry }, new int[] { pos } );
+    hopUi.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { action }, new int[] { pos } );
 
     jobGraph.updateGui();
   }
 
-  public void dupeJobEntry( WorkflowMeta workflowMeta, ActionCopy jobEntry ) {
-    if ( jobEntry == null ) {
+  public void dupeJobEntry( WorkflowMeta workflowMeta, ActionCopy action ) {
+    if ( action == null ) {
       return;
     }
 
-    if ( jobEntry.isStart() ) {
+    if ( action.isStart() ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Title" ) );
@@ -288,13 +286,13 @@ public class HopGuiWorkflowActionDelegate {
       return;
     }
 
-    ActionCopy dupejge = (ActionCopy) jobEntry.clone();
-    dupejge.setNr( workflowMeta.findUnusedNr( dupejge.getName() ) );
+    ActionCopy copyOfAction = action.clone();
+    copyOfAction.setNr( workflowMeta.findUnusedNr( copyOfAction.getName() ) );
 
-    Point p = jobEntry.getLocation();
-    dupejge.setLocation( p.x + 10, p.y + 10 );
+    Point p = action.getLocation();
+    copyOfAction.setLocation( p.x + 10, p.y + 10 );
 
-    workflowMeta.addAction( dupejge );
+    workflowMeta.addAction( copyOfAction );
 
     jobGraph.updateGui();
   }

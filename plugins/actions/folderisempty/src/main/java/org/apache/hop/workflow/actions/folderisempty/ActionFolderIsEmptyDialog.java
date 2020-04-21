@@ -94,18 +94,18 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionFolderIsEmpty jobEntry;
+  private ActionFolderIsEmpty action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionFolderIsEmptyDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFolderIsEmpty) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFolderIsEmpty.Name.Default" ) );
+  public ActionFolderIsEmptyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFolderIsEmpty) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFolderIsEmpty.Name.Default" ) );
     }
   }
 
@@ -115,14 +115,14 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -199,7 +199,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wIncludeSubFolders.setLayoutData( fdIncludeSubFolders );
     wIncludeSubFolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -222,7 +222,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wSpecifyWildcard.setLayoutData( fdSpecifyWildcard );
     wSpecifyWildcard.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckLimitSearch();
       }
     } );
@@ -321,7 +321,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -339,16 +339,16 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getFoldername() != null ) {
-      wFoldername.setText( jobEntry.getFoldername() );
+    if ( action.getFoldername() != null ) {
+      wFoldername.setText( action.getFoldername() );
     }
-    wIncludeSubFolders.setSelection( jobEntry.isIncludeSubFolders() );
-    wSpecifyWildcard.setSelection( jobEntry.isSpecifyWildcard() );
-    if ( jobEntry.getWildcard() != null ) {
-      wWildcard.setText( jobEntry.getWildcard() );
+    wIncludeSubFolders.setSelection( action.isIncludeSubFolders() );
+    wSpecifyWildcard.setSelection( action.isSpecifyWildcard() );
+    if ( action.getWildcard() != null ) {
+      wWildcard.setText( action.getWildcard() );
     }
 
     wName.selectAll();
@@ -356,8 +356,8 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -369,11 +369,11 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFoldername( wFoldername.getText() );
-    jobEntry.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
-    jobEntry.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
-    jobEntry.setWildcard( wWildcard.getText() );
+    action.setName( wName.getText() );
+    action.setFoldername( wFoldername.getText() );
+    action.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
+    action.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
+    action.setWildcard( wWildcard.getText() );
 
     dispose();
   }

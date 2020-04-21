@@ -26,6 +26,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,7 +60,7 @@ public class WorkflowEntryCopyFilesTest {
   @Before
   public void setUp() {
     entry = new ActionCopyFiles();
-    Workflow parentWorkflow = new Workflow();
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine();
     entry.setParentWorkflow( parentWorkflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
     entry.setParentWorkflowMeta( mockWorkflowMeta );

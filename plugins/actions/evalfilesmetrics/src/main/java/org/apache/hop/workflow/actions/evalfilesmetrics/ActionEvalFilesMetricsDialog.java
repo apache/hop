@@ -95,7 +95,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionEvalFilesMetrics jobEntry;
+  private ActionEvalFilesMetrics action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -174,12 +174,12 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
   private FormData fdbeSourceFileFolder, fdbaSourceFileFolder, fdbdSourceFileFolder;
 
-  public ActionEvalFilesMetricsDialog( Shell parent, IAction jobEntryInt,
+  public ActionEvalFilesMetricsDialog( Shell parent, IAction action,
                                        WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionEvalFilesMetrics) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Name.Default" ) );
+    super( parent, action, workflowMeta );
+    this.action = (ActionEvalFilesMetrics) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Name.Default" ) );
     }
   }
 
@@ -189,14 +189,14 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -280,7 +280,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSourceFiles.setLayoutData( fdSourceFiles );
     wSourceFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         RefreshSourceFiles();
       }
     } );
@@ -394,7 +394,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wEvaluationType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         RefreshSize();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -546,8 +546,8 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     fdlFields.top = new FormAttachment( wWildcard, margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.getSourceFileFolder() == null ? 1
-      : ( jobEntry.getSourceFileFolder().length == 0 ? 0 : jobEntry.getSourceFileFolder().length );
+    int rows = action.getSourceFileFolder() == null ? 1
+      : ( action.getSourceFileFolder().length == 0 ? 0 : action.getSourceFileFolder().length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -686,7 +686,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wScale.setLayoutData( fdScale );
     wScale.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -714,7 +714,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSuccessNumberCondition.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         refresh();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -862,7 +862,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void RefreshSourceFiles() {
@@ -917,54 +917,54 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.getSourceFileFolder() != null ) {
-      for ( int i = 0; i < jobEntry.getSourceFileFolder().length; i++ ) {
+    if ( action.getSourceFileFolder() != null ) {
+      for ( int i = 0; i < action.getSourceFileFolder().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getSourceFileFolder()[ i ] != null ) {
-          ti.setText( 1, jobEntry.getSourceFileFolder()[ i ] );
+        if ( action.getSourceFileFolder()[ i ] != null ) {
+          ti.setText( 1, action.getSourceFileFolder()[ i ] );
         }
 
-        if ( jobEntry.getSourceWildcard()[ i ] != null ) {
-          ti.setText( 2, jobEntry.getSourceWildcard()[ i ] );
+        if ( action.getSourceWildcard()[ i ] != null ) {
+          ti.setText( 2, action.getSourceWildcard()[ i ] );
         }
 
-        if ( jobEntry.getSourceIncludeSubfolders()[ i ] != null ) {
+        if ( action.getSourceIncludeSubfolders()[ i ] != null ) {
           ti.setText( 3,
-            ActionEvalFilesMetrics.getIncludeSubFoldersDesc( jobEntry.getSourceIncludeSubfolders()[ i ] ) );
+            ActionEvalFilesMetrics.getIncludeSubFoldersDesc( action.getSourceIncludeSubfolders()[ i ] ) );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    if ( jobEntry.getResultFilenamesWildcard() != null ) {
-      wResultFilenamesWildcard.setText( jobEntry.getResultFilenamesWildcard() );
+    if ( action.getResultFilenamesWildcard() != null ) {
+      wResultFilenamesWildcard.setText( action.getResultFilenamesWildcard() );
     }
-    if ( jobEntry.getResultFieldFile() != null ) {
-      wResultFieldFile.setText( jobEntry.getResultFieldFile() );
+    if ( action.getResultFieldFile() != null ) {
+      wResultFieldFile.setText( action.getResultFieldFile() );
     }
-    if ( jobEntry.getResultFieldWildcard() != null ) {
-      wResultFieldWildcard.setText( jobEntry.getResultFieldWildcard() );
+    if ( action.getResultFieldWildcard() != null ) {
+      wResultFieldWildcard.setText( action.getResultFieldWildcard() );
     }
-    if ( jobEntry.getResultFieldIncludeSubfolders() != null ) {
-      wResultFieldIncludeSubFolders.setText( jobEntry.getResultFieldIncludeSubfolders() );
+    if ( action.getResultFieldIncludeSubfolders() != null ) {
+      wResultFieldIncludeSubFolders.setText( action.getResultFieldIncludeSubfolders() );
     }
-    wSourceFiles.setText( ActionEvalFilesMetrics.getSourceFilesDesc( jobEntry.sourceFiles ) );
-    wEvaluationType.setText( ActionEvalFilesMetrics.getEvaluationTypeDesc( jobEntry.evaluationType ) );
-    wScale.setText( ActionEvalFilesMetrics.getScaleDesc( jobEntry.scale ) );
+    wSourceFiles.setText( ActionEvalFilesMetrics.getSourceFilesDesc( action.sourceFiles ) );
+    wEvaluationType.setText( ActionEvalFilesMetrics.getEvaluationTypeDesc( action.evaluationType ) );
+    wScale.setText( ActionEvalFilesMetrics.getScaleDesc( action.scale ) );
     wSuccessNumberCondition.setText( ActionEvalFilesMetrics
-      .getSuccessNumberConditionDesc( jobEntry.getSuccessConditionType() ) );
-    if ( jobEntry.getCompareValue() != null ) {
-      wCompareValue.setText( jobEntry.getCompareValue() );
+      .getSuccessNumberConditionDesc( action.getSuccessConditionType() ) );
+    if ( action.getCompareValue() != null ) {
+      wCompareValue.setText( action.getCompareValue() );
     }
-    if ( jobEntry.getMinValue() != null ) {
-      wMinValue.setText( jobEntry.getMinValue() );
+    if ( action.getMinValue() != null ) {
+      wMinValue.setText( action.getMinValue() );
     }
-    if ( jobEntry.getMaxValue() != null ) {
-      wMaxValue.setText( jobEntry.getMaxValue() );
+    if ( action.getMaxValue() != null ) {
+      wMaxValue.setText( action.getMaxValue() );
     }
 
     wName.selectAll();
@@ -972,8 +972,8 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -985,19 +985,19 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setResultFilenamesWildcard( wResultFilenamesWildcard.getText() );
-    jobEntry.setResultFieldFile( wResultFieldFile.getText() );
-    jobEntry.setResultFieldWildcard( wResultFieldWildcard.getText() );
-    jobEntry.setResultFieldIncludeSubfolders( wResultFieldIncludeSubFolders.getText() );
-    jobEntry.sourceFiles = ActionEvalFilesMetrics.getSourceFilesByDesc( wSourceFiles.getText() );
-    jobEntry.evaluationType = ActionEvalFilesMetrics.getEvaluationTypeByDesc( wEvaluationType.getText() );
-    jobEntry.scale = ActionEvalFilesMetrics.getScaleByDesc( wScale.getText() );
-    jobEntry.setSuccessConditionType(
+    action.setName( wName.getText() );
+    action.setResultFilenamesWildcard( wResultFilenamesWildcard.getText() );
+    action.setResultFieldFile( wResultFieldFile.getText() );
+    action.setResultFieldWildcard( wResultFieldWildcard.getText() );
+    action.setResultFieldIncludeSubfolders( wResultFieldIncludeSubFolders.getText() );
+    action.sourceFiles = ActionEvalFilesMetrics.getSourceFilesByDesc( wSourceFiles.getText() );
+    action.evaluationType = ActionEvalFilesMetrics.getEvaluationTypeByDesc( wEvaluationType.getText() );
+    action.scale = ActionEvalFilesMetrics.getScaleByDesc( wScale.getText() );
+    action.setSuccessConditionType(
     		ActionEvalFilesMetrics.getSuccessNumberConditionByDesc( wSuccessNumberCondition.getText() ) );
-    jobEntry.setCompareValue( wCompareValue.getText() );
-    jobEntry.setMinValue( wMinValue.getText() );
-    jobEntry.setMaxValue( wMaxValue.getText() );
+    action.setCompareValue( wCompareValue.getText() );
+    action.setMinValue( wMinValue.getText() );
+    action.setMaxValue( wMaxValue.getText() );
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
@@ -1021,9 +1021,9 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
         nr++;
       }
     }
-    jobEntry.setSourceFileFolder( sourceFileFolder );
-    jobEntry.setSourceWildcard( sourceWildcard );
-    jobEntry.setSourceIncludeSubfolders( sourceIncludeSubfolders );
+    action.setSourceFileFolder( sourceFileFolder );
+    action.setSourceWildcard( sourceWildcard );
+    action.setSourceIncludeSubfolders( sourceIncludeSubfolders );
     dispose();
   }
 

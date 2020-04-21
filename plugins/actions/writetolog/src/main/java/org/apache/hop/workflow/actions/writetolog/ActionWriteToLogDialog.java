@@ -88,7 +88,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
   private Listener lsOk, lsCancel;
 
-  private ActionWriteToLog jobEntry;
+  private ActionWriteToLog action;
 
   private Shell shell;
 
@@ -109,11 +109,11 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
   private FormData fdlLoglevel, fdLoglevel;
 
-  public ActionWriteToLogDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWriteToLog) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "WriteToLog.Name.Default" ) );
+  public ActionWriteToLogDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionWriteToLog) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "WriteToLog.Name.Default" ) );
     }
   }
 
@@ -123,14 +123,14 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -272,7 +272,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -285,11 +285,11 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wLogMessage.setText( Const.nullToEmpty( jobEntry.getLogMessage() ) );
-    wLogSubject.setText( Const.nullToEmpty( jobEntry.getLogSubject() ) );
-    if ( jobEntry.getEntryLogLevel() != null ) {
-      wLoglevel.select( jobEntry.getEntryLogLevel().getLevel() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wLogMessage.setText( Const.nullToEmpty( action.getLogMessage() ) );
+    wLogSubject.setText( Const.nullToEmpty( action.getLogSubject() ) );
+    if ( action.getEntryLogLevel() != null ) {
+      wLoglevel.select( action.getEntryLogLevel().getLevel() );
     }
 
     wName.selectAll();
@@ -297,8 +297,8 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -310,11 +310,11 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setLogMessage( wLogMessage.getText() );
-    jobEntry.setLogSubject( wLogSubject.getText() );
+    action.setName( wName.getText() );
+    action.setLogMessage( wLogMessage.getText() );
+    action.setLogSubject( wLogSubject.getText() );
     if ( wLoglevel.getSelectionIndex() != -1 ) {
-      jobEntry.setEntryLogLevel( LogLevel.values()[ wLoglevel.getSelectionIndex() ] );
+      action.setEntryLogLevel( LogLevel.values()[ wLoglevel.getSelectionIndex() ] );
     }
     dispose();
   }

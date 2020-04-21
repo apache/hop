@@ -97,7 +97,7 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
 
   private Listener lsOk, lsCancel;
 
-  private ActionFileExists jobEntry;
+  private ActionFileExists action;
 
   private Shell shell;
 
@@ -105,11 +105,11 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
 
   private boolean changed;
 
-  public ActionFileExistsDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFileExists) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFileExists.Name.Default" ) );
+  public ActionFileExistsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFileExists) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFileExists.Name.Default" ) );
     }
   }
 
@@ -119,14 +119,14 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -287,7 +287,7 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -300,11 +300,11 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
 
     wName.selectAll();
@@ -312,8 +312,8 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -325,8 +325,8 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename( wFilename.getText() );
+    action.setName( wName.getText() );
+    action.setFilename( wFilename.getText() );
     dispose();
   }
 

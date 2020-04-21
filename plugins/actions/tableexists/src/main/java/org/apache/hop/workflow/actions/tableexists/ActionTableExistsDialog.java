@@ -105,7 +105,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
   private Listener lsOk, lsCancel;
 
-  private ActionTableExists jobEntry;
+  private ActionTableExists action;
 
   private Shell shell;
 
@@ -113,11 +113,11 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
   private boolean changed;
 
-  public ActionTableExistsDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionTableExists) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobTableExists.Name.Default" ) );
+  public ActionTableExistsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionTableExists) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobTableExists.Name.Default" ) );
     }
   }
 
@@ -127,14 +127,14 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -165,7 +165,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -289,7 +289,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -302,11 +302,11 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wTablename.setText( Const.nullToEmpty( jobEntry.getTablename() ) );
-    wSchemaname.setText( Const.nullToEmpty( jobEntry.getSchemaname() ) );
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wTablename.setText( Const.nullToEmpty( action.getTablename() ) );
+    wSchemaname.setText( Const.nullToEmpty( action.getSchemaname() ) );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
 
     wName.selectAll();
@@ -314,8 +314,8 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -327,10 +327,10 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.setTablename( wTablename.getText() );
-    jobEntry.setSchemaname( wSchemaname.getText() );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setTablename( wTablename.getText() );
+    action.setSchemaname( wSchemaname.getText() );
 
     dispose();
   }

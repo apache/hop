@@ -403,7 +403,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     PropsUi.init( display );
     HopEnvironment.init();
     HopGuiEnvironment.init();
-    // LocalPipelineRunConfiguration localConfig = new LocalPipelineRunConfiguration( "Local", "Local pipeline engine", "5000" );
+    // LocalWorkflowRunConfiguration localConfig = new LocalWorkflowRunConfiguration( "Local", "Local pipeline engine", "5000" );
     PipelineRunConfiguration configuration = new PipelineRunConfiguration( "test", "A test run config", null );
     PipelineRunConfigurationDialog dialog = new PipelineRunConfigurationDialog( shell, null, configuration );
     String name = dialog.open();

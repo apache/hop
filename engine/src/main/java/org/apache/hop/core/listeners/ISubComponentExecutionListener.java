@@ -23,8 +23,12 @@
 package org.apache.hop.core.listeners;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public interface ISubComponentExecutionListener {
 
@@ -35,7 +39,7 @@ public interface ISubComponentExecutionListener {
    * @param pipeline The pipeline that is about to be executed.
    * @throws HopException In case something goes wrong
    */
-  void beforePipelineExecution( Pipeline pipeline ) throws HopException;
+  void beforePipelineExecution( IPipelineEngine<PipelineMeta> pipeline ) throws HopException;
 
   /**
    * This method is called right after a sub-pipeline, mapping, single threader template, ... was executed in a
@@ -44,7 +48,7 @@ public interface ISubComponentExecutionListener {
    * @param pipeline The pipeline that was just executed.
    * @throws HopException In case something goes wrong
    */
-  void afterPipelineExecution( Pipeline pipeline ) throws HopException;
+  void afterPipelineExecution( IPipelineEngine<PipelineMeta> pipeline ) throws HopException;
 
   /**
    * This method is called right before a workflow is to be executed in a parent workflow or pipeline (Workflow workflow-entry, Workflow
@@ -53,7 +57,7 @@ public interface ISubComponentExecutionListener {
    * @param workflow The workflow that is about to be executed.
    * @throws HopException In case something goes wrong
    */
-  void beforeJobExecution( Workflow workflow ) throws HopException;
+  void beforeJobExecution( IWorkflowEngine<WorkflowMeta> workflow ) throws HopException;
 
   /**
    * This method is called right after a workflow was executed in a parent workflow or pipeline (Workflow workflow-entry, Workflow Executor
@@ -62,5 +66,5 @@ public interface ISubComponentExecutionListener {
    * @param workflow The workflow that was executed.
    * @throws HopException In case something goes wrong
    */
-  void afterJobExecution( Workflow workflow ) throws HopException;
+  void afterJobExecution( IWorkflowEngine<WorkflowMeta> workflow ) throws HopException;
 }

@@ -495,7 +495,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                     ResultFile resultFile =
                       new ResultFile(
                         ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename, this ), parentWorkflow
-                        .getJobname(), toString() );
+                        .getWorkflowName(), toString() );
                     result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                   }
 

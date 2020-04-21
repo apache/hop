@@ -39,6 +39,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -183,7 +185,7 @@ public class HopServerSingleton {
               // And the workflows...
               //
               for ( HopServerObjectEntry entry : workflowMap.getWorkflowObjects() ) {
-                Workflow workflow = workflowMap.getWorkflow( entry );
+                IWorkflowEngine<WorkflowMeta> workflow = workflowMap.getWorkflow( entry );
 
                 // See if the workflow is finished or stopped.
                 //

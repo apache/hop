@@ -85,18 +85,18 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionCreateFolder jobEntry;
+  private ActionCreateFolder action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionCreateFolderDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionCreateFolder) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobCreateFolder.Name.Default" ) );
+  public ActionCreateFolderDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionCreateFolder) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobCreateFolder.Name.Default" ) );
     }
   }
 
@@ -106,14 +106,14 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -209,7 +209,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wAbortExists.setLayoutData( fdAbortExists );
     wAbortExists.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -261,7 +261,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -274,21 +274,21 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getFoldername() != null ) {
-      wFoldername.setText( jobEntry.getFoldername() );
+    if ( action.getFoldername() != null ) {
+      wFoldername.setText( action.getFoldername() );
     }
-    wAbortExists.setSelection( jobEntry.isFailOfFolderExists() );
+    wAbortExists.setSelection( action.isFailOfFolderExists() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -300,9 +300,9 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFoldername( wFoldername.getText() );
-    jobEntry.setFailOfFolderExists( wAbortExists.getSelection() );
+    action.setName( wName.getText() );
+    action.setFoldername( wFoldername.getText() );
+    action.setFailOfFolderExists( wAbortExists.getSelection() );
     dispose();
   }
 

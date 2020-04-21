@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.database.Catalog;
@@ -572,7 +573,7 @@ public class DatabaseExplorerDialog extends Dialog {
       }
 
       // Make sure the selected table is shown...
-      if ( !Const.isEmpty( selectedTable ) ) {
+      if ( !StringUtils.isEmpty( selectedTable ) ) {
         TreeItem ti = null;
         if ( ti == null && tiTab != null ) {
           ti = ConstUi.findTreeItem( tiTab, selectedSchema, selectedTable );

@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -68,22 +69,7 @@ public class ConstTest {
     return true;
   }
 
-  /**
-   * Test initCap. Regression test for PDI-1338: "javascript initcap() can't deal correctly with special non-ASCII
-   * chars".
-   */
-  @Test
-  public void testInitCap() {
-    assertEquals( "Sven", Const.initCap( "Sven" ) );
-    assertEquals( "Matt", Const.initCap( "MATT" ) );
-    assertEquals( "Sven Boden", Const.initCap( "sven boden" ) );
-    assertEquals( "Sven  Boden ", Const.initCap( "sven  boden " ) );
-    assertEquals( "Sven Boden Was Here", Const.initCap( "sven boden was here" ) );
 
-    // Here the original code failed as it saw the "o umlaut" as non-ASCII, and would
-    // assume it needed to start a new word here.
-    assertEquals( "K\u00F6nnen", Const.initCap( "k\u00F6nnen" ) );
-  }
 
   /**
    * Test sortString().
@@ -107,47 +93,6 @@ public class ConstTest {
     assertTrue( isArraySorted( results ) );
   }
 
-  @Test
-  public void testIsEmpty() {
-    assertTrue( Const.isEmpty( (String) null ) );
-    assertTrue( Const.isEmpty( "" ) );
-    assertFalse( Const.isEmpty( "test" ) );
-  }
-
-  @Test
-  public void testIsEmptyStringArray() {
-    assertTrue( Const.isEmpty( (String[]) null ) );
-    assertTrue( Const.isEmpty( new String[] {} ) );
-    assertFalse( Const.isEmpty( new String[] { "test" } ) );
-  }
-
-  @Test
-  public void testIsEmptyObjectArray() {
-    assertTrue( Const.isEmpty( (Object[]) null ) );
-    assertTrue( Const.isEmpty( new Object[] {} ) );
-    assertFalse( Const.isEmpty( new Object[] { "test" } ) );
-  }
-
-  @Test
-  public void testIsEmptyList() {
-    assertTrue( Const.isEmpty( (List) null ) );
-    assertTrue( Const.isEmpty( new ArrayList() ) );
-    assertFalse( Const.isEmpty( Arrays.asList( "test", 1 ) ) );
-  }
-
-  @Test
-  public void testIsEmptyStringBuffer() {
-    assertTrue( Const.isEmpty( (StringBuffer) null ) );
-    assertTrue( Const.isEmpty( new StringBuffer( "" ) ) );
-    assertFalse( Const.isEmpty( new StringBuffer( "test" ) ) );
-  }
-
-  @Test
-  public void testIsEmptyStringBuilder() {
-    assertTrue( Const.isEmpty( (StringBuilder) null ) );
-    assertTrue( Const.isEmpty( new StringBuilder( "" ) ) );
-    assertFalse( Const.isEmpty( new StringBuilder( "test" ) ) );
-  }
 
   @Test
   public void testNVL() {
@@ -2017,8 +1962,10 @@ public class ConstTest {
 
   @Test
   public void testStackTracker() {
-    assertTrue( Const.getStackTracker( new Exception() ).contains( getClass().getName() + ".testStackTracker("
-      + getClass().getSimpleName() + ".java:" ) );
+    String trace = Const.getClassicStackTrace( new Exception() );
+    assertTrue( trace.contains( getClass().getName() ) );
+    assertTrue( trace.contains( "testStackTracker" ) );
+    assertTrue( trace.contains( ".java:" ) );
   }
 
   @Test
@@ -2030,17 +1977,6 @@ public class ConstTest {
     assertTrue( simpleStackTrace.contains( "Cause1" ));
     assertTrue( simpleStackTrace.contains( "Cause2" ));
     assertTrue( simpleStackTrace.contains( "Cause3" ));
-  }
-
-  @Test
-  public void testCreateNewClassLoader() throws HopException {
-    ClassLoader cl = Const.createNewClassLoader();
-    assertTrue( cl instanceof URLClassLoader && ( (URLClassLoader) cl ).getURLs().length == 0 );
-  }
-
-  @Test
-  public void testCreateByteArray() {
-    assertTrue( Const.createByteArray( 5 ).length == 5 );
   }
 
   @Test

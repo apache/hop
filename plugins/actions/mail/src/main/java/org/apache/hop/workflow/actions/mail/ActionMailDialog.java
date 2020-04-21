@@ -222,7 +222,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
   private SelectionAdapter lsDef;
 
-  private ActionMail jobEntry;
+  private ActionMail action;
 
   private boolean backupDate, backupChanged;
 
@@ -248,9 +248,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
   private TextVar wImageFilename, wContentID;
   private TableView wFields;
 
-  public ActionMailDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMail) jobEntryInt;
+  public ActionMailDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMail) action;
   }
 
   public IAction open() {
@@ -259,15 +259,15 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    backupChanged = jobEntry.hasChanged();
-    backupDate = jobEntry.getIncludeDate();
+    backupChanged = action.hasChanged();
+    backupDate = action.getIncludeDate();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -544,7 +544,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseAuth.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setUseAuth();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -589,7 +589,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseSecAuth.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setSecureConnectiontype();
-        jobEntry.setChanged();
+        action.setChanged();
 
       }
     } );
@@ -617,7 +617,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wSecureConnectionType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setSecureConnectiontype();
-        jobEntry.setChanged();
+        action.setChanged();
 
       }
     } );
@@ -693,7 +693,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -715,7 +715,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wOnlyComment.setLayoutData( fdOnlyComment );
     wOnlyComment.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -738,7 +738,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUseHTML.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         SetEnabledEncoding();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -793,7 +793,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wUsePriority.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUsePriority();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -990,7 +990,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wIncludeFiles.setLayoutData( fdIncludeFiles );
     wIncludeFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setFlags();
       }
     } );
@@ -1034,7 +1034,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wZipFiles.setLayoutData( fdZipFiles );
     wZipFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setFlags();
       }
     } );
@@ -1184,8 +1184,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.embeddedimages == null ? 1 : ( jobEntry.embeddedimages.length == 0
-        ? 0 : jobEntry.embeddedimages.length );
+      action.embeddedimages == null ? 1 : ( action.embeddedimages.length == 0
+        ? 0 : action.embeddedimages.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -1352,7 +1352,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeUsePriority() {
@@ -1415,60 +1415,60 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
   }
 
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wDestination.setText( Const.nullToEmpty( jobEntry.getDestination() ) );
-    wDestinationCc.setText( Const.nullToEmpty( jobEntry.getDestinationCc() ) );
-    wDestinationBCc.setText( Const.nullToEmpty( jobEntry.getDestinationBCc() ) );
-    wServer.setText( Const.nullToEmpty( jobEntry.getServer() ) );
-    wPort.setText( Const.nullToEmpty( jobEntry.getPort() ) );
-    wReply.setText( Const.nullToEmpty( jobEntry.getReplyAddress() ) );
-    wReplyName.setText( Const.nullToEmpty( jobEntry.getReplyName() ) );
-    wSubject.setText( Const.nullToEmpty( jobEntry.getSubject() ) );
-    wPerson.setText( Const.nullToEmpty( jobEntry.getContactPerson() ) );
-    wPhone.setText( Const.nullToEmpty( jobEntry.getContactPhone() ) );
-    wComment.setText( Const.nullToEmpty( jobEntry.getComment() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wDestination.setText( Const.nullToEmpty( action.getDestination() ) );
+    wDestinationCc.setText( Const.nullToEmpty( action.getDestinationCc() ) );
+    wDestinationBCc.setText( Const.nullToEmpty( action.getDestinationBCc() ) );
+    wServer.setText( Const.nullToEmpty( action.getServer() ) );
+    wPort.setText( Const.nullToEmpty( action.getPort() ) );
+    wReply.setText( Const.nullToEmpty( action.getReplyAddress() ) );
+    wReplyName.setText( Const.nullToEmpty( action.getReplyName() ) );
+    wSubject.setText( Const.nullToEmpty( action.getSubject() ) );
+    wPerson.setText( Const.nullToEmpty( action.getContactPerson() ) );
+    wPhone.setText( Const.nullToEmpty( action.getContactPhone() ) );
+    wComment.setText( Const.nullToEmpty( action.getComment() ) );
 
-    wAddDate.setSelection( jobEntry.getIncludeDate() );
-    wIncludeFiles.setSelection( jobEntry.isIncludingFiles() );
+    wAddDate.setSelection( action.getIncludeDate() );
+    wIncludeFiles.setSelection( action.isIncludingFiles() );
 
-    if ( jobEntry.getFileType() != null ) {
-      int[] types = jobEntry.getFileType();
+    if ( action.getFileType() != null ) {
+      int[] types = action.getFileType();
       wTypes.setSelection( types );
     }
 
-    wZipFiles.setSelection( jobEntry.isZipFiles() );
-    wZipFilename.setText( Const.nullToEmpty( jobEntry.getZipFilename() ) );
+    wZipFiles.setSelection( action.isZipFiles() );
+    wZipFilename.setText( Const.nullToEmpty( action.getZipFilename() ) );
 
-    wUseAuth.setSelection( jobEntry.isUsingAuthentication() );
-    wUseSecAuth.setSelection( jobEntry.isUsingSecureAuthentication() );
-    wAuthUser.setText( Const.nullToEmpty( jobEntry.getAuthenticationUser() ) );
-    wAuthPass.setText( Const.nullToEmpty( jobEntry.getAuthenticationPassword() ) );
+    wUseAuth.setSelection( action.isUsingAuthentication() );
+    wUseSecAuth.setSelection( action.isUsingSecureAuthentication() );
+    wAuthUser.setText( Const.nullToEmpty( action.getAuthenticationUser() ) );
+    wAuthPass.setText( Const.nullToEmpty( action.getAuthenticationPassword() ) );
 
-    wOnlyComment.setSelection( jobEntry.isOnlySendComment() );
+    wOnlyComment.setSelection( action.isOnlySendComment() );
 
-    wUseHTML.setSelection( jobEntry.isUseHTML() );
+    wUseHTML.setSelection( action.isUseHTML() );
 
-    if ( jobEntry.getEncoding() != null ) {
-      wEncoding.setText( "" + jobEntry.getEncoding() );
+    if ( action.getEncoding() != null ) {
+      wEncoding.setText( "" + action.getEncoding() );
     } else {
 
       wEncoding.setText( "UTF-8" );
     }
 
     // Secure connection type
-    if ( jobEntry.getSecureConnectionType() != null ) {
-      wSecureConnectionType.setText( jobEntry.getSecureConnectionType() );
+    if ( action.getSecureConnectionType() != null ) {
+      wSecureConnectionType.setText( action.getSecureConnectionType() );
     } else {
       wSecureConnectionType.setText( "SSL" );
     }
-    wUsePriority.setSelection( jobEntry.isUsePriority() );
+    wUsePriority.setSelection( action.isUsePriority() );
 
     // Priority
 
-    if ( jobEntry.getPriority() != null ) {
-      if ( jobEntry.getPriority().equals( "low" ) ) {
+    if ( action.getPriority() != null ) {
+      if ( action.getPriority().equals( "low" ) ) {
         wPriority.select( 0 ); // Low
-      } else if ( jobEntry.getPriority().equals( "normal" ) ) {
+      } else if ( action.getPriority().equals( "normal" ) ) {
         wPriority.select( 1 ); // Normal
 
       } else {
@@ -1480,10 +1480,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     }
 
     // Importance
-    if ( jobEntry.getImportance() != null ) {
-      if ( jobEntry.getImportance().equals( "low" ) ) {
+    if ( action.getImportance() != null ) {
+      if ( action.getImportance().equals( "low" ) ) {
         wImportance.select( 0 ); // Low
-      } else if ( jobEntry.getImportance().equals( "normal" ) ) {
+      } else if ( action.getImportance().equals( "normal" ) ) {
         wImportance.select( 1 ); // Normal
 
       } else {
@@ -1494,17 +1494,17 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
       wImportance.select( 3 ); // Default High
     }
 
-    if ( jobEntry.getReplyToAddresses() != null ) {
-      wReplyToAddress.setText( jobEntry.getReplyToAddresses() );
+    if ( action.getReplyToAddresses() != null ) {
+      wReplyToAddress.setText( action.getReplyToAddresses() );
     }
 
     // Sensitivity
-    if ( jobEntry.getSensitivity() != null ) {
-      if ( jobEntry.getSensitivity().equals( "personal" ) ) {
+    if ( action.getSensitivity() != null ) {
+      if ( action.getSensitivity().equals( "personal" ) ) {
         wSensitivity.select( 1 );
-      } else if ( jobEntry.getSensitivity().equals( "private" ) ) {
+      } else if ( action.getSensitivity().equals( "private" ) ) {
         wSensitivity.select( 2 );
-      } else if ( jobEntry.getSensitivity().equals( "company-confidential" ) ) {
+      } else if ( action.getSensitivity().equals( "company-confidential" ) ) {
         wSensitivity.select( 3 );
       } else {
         wSensitivity.select( 0 );
@@ -1513,14 +1513,14 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
       wSensitivity.select( 0 ); // Default normal
     }
 
-    if ( jobEntry.embeddedimages != null ) {
-      for ( int i = 0; i < jobEntry.embeddedimages.length; i++ ) {
+    if ( action.embeddedimages != null ) {
+      for ( int i = 0; i < action.embeddedimages.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.embeddedimages[ i ] != null ) {
-          ti.setText( 1, jobEntry.embeddedimages[ i ] );
+        if ( action.embeddedimages[ i ] != null ) {
+          ti.setText( 1, action.embeddedimages[ i ] );
         }
-        if ( jobEntry.contentids[ i ] != null ) {
-          ti.setText( 2, jobEntry.contentids[ i ] );
+        if ( action.contentids[ i ] != null ) {
+          ti.setText( 2, action.contentids[ i ] );
         }
       }
       wFields.setRowNums();
@@ -1532,10 +1532,10 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( backupChanged );
-    jobEntry.setIncludeDate( backupDate );
+    action.setChanged( backupChanged );
+    action.setIncludeDate( backupDate );
 
-    jobEntry = null;
+    action = null;
     dispose();
   }
 
@@ -1547,68 +1547,68 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDestination( wDestination.getText() );
-    jobEntry.setDestinationCc( wDestinationCc.getText() );
-    jobEntry.setDestinationBCc( wDestinationBCc.getText() );
-    jobEntry.setServer( wServer.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setReplyAddress( wReply.getText() );
-    jobEntry.setReplyName( wReplyName.getText() );
-    jobEntry.setSubject( wSubject.getText() );
-    jobEntry.setContactPerson( wPerson.getText() );
-    jobEntry.setContactPhone( wPhone.getText() );
-    jobEntry.setComment( wComment.getText() );
+    action.setName( wName.getText() );
+    action.setDestination( wDestination.getText() );
+    action.setDestinationCc( wDestinationCc.getText() );
+    action.setDestinationBCc( wDestinationBCc.getText() );
+    action.setServer( wServer.getText() );
+    action.setPort( wPort.getText() );
+    action.setReplyAddress( wReply.getText() );
+    action.setReplyName( wReplyName.getText() );
+    action.setSubject( wSubject.getText() );
+    action.setContactPerson( wPerson.getText() );
+    action.setContactPhone( wPhone.getText() );
+    action.setComment( wComment.getText() );
 
-    jobEntry.setIncludeDate( wAddDate.getSelection() );
-    jobEntry.setIncludingFiles( wIncludeFiles.getSelection() );
-    jobEntry.setFileType( wTypes.getSelectionIndices() );
-    jobEntry.setZipFilename( wZipFilename.getText() );
-    jobEntry.setZipFiles( wZipFiles.getSelection() );
-    jobEntry.setAuthenticationUser( wAuthUser.getText() );
-    jobEntry.setAuthenticationPassword( wAuthPass.getText() );
-    jobEntry.setUsingAuthentication( wUseAuth.getSelection() );
-    jobEntry.setUsingSecureAuthentication( wUseSecAuth.getSelection() );
-    jobEntry.setOnlySendComment( wOnlyComment.getSelection() );
-    jobEntry.setUseHTML( wUseHTML.getSelection() );
-    jobEntry.setUsePriority( wUsePriority.getSelection() );
+    action.setIncludeDate( wAddDate.getSelection() );
+    action.setIncludingFiles( wIncludeFiles.getSelection() );
+    action.setFileType( wTypes.getSelectionIndices() );
+    action.setZipFilename( wZipFilename.getText() );
+    action.setZipFiles( wZipFiles.getSelection() );
+    action.setAuthenticationUser( wAuthUser.getText() );
+    action.setAuthenticationPassword( wAuthPass.getText() );
+    action.setUsingAuthentication( wUseAuth.getSelection() );
+    action.setUsingSecureAuthentication( wUseSecAuth.getSelection() );
+    action.setOnlySendComment( wOnlyComment.getSelection() );
+    action.setUseHTML( wUseHTML.getSelection() );
+    action.setUsePriority( wUsePriority.getSelection() );
 
-    jobEntry.setEncoding( wEncoding.getText() );
-    jobEntry.setPriority( wPriority.getText() );
+    action.setEncoding( wEncoding.getText() );
+    action.setPriority( wPriority.getText() );
 
     // Priority
     if ( wPriority.getSelectionIndex() == 0 ) {
-      jobEntry.setPriority( "low" );
+      action.setPriority( "low" );
     } else if ( wPriority.getSelectionIndex() == 1 ) {
-      jobEntry.setPriority( "normal" );
+      action.setPriority( "normal" );
     } else {
-      jobEntry.setPriority( "high" );
+      action.setPriority( "high" );
     }
 
     // Importance
     if ( wImportance.getSelectionIndex() == 0 ) {
-      jobEntry.setImportance( "low" );
+      action.setImportance( "low" );
     } else if ( wImportance.getSelectionIndex() == 1 ) {
-      jobEntry.setImportance( "normal" );
+      action.setImportance( "normal" );
     } else {
-      jobEntry.setImportance( "high" );
+      action.setImportance( "high" );
     }
 
     // Sensitivity
     if ( wSensitivity.getSelectionIndex() == 1 ) {
-      jobEntry.setSensitivity( "personal" );
+      action.setSensitivity( "personal" );
     } else if ( wSensitivity.getSelectionIndex() == 2 ) {
-      jobEntry.setSensitivity( "private" );
+      action.setSensitivity( "private" );
     } else if ( wSensitivity.getSelectionIndex() == 3 ) {
-      jobEntry.setSensitivity( "company-confidential" );
+      action.setSensitivity( "company-confidential" );
     } else {
-      jobEntry.setSensitivity( "normal" ); // default is normal
+      action.setSensitivity( "normal" ); // default is normal
     }
 
     // Secure Connection type
-    jobEntry.setSecureConnectionType( wSecureConnectionType.getText() );
+    action.setSecureConnectionType( wSecureConnectionType.getText() );
 
-    jobEntry.setReplyToAddresses( wReplyToAddress.getText() );
+    action.setReplyToAddresses( wReplyToAddress.getText() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -1618,15 +1618,15 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         nr++;
       }
     }
-    jobEntry.embeddedimages = new String[ nr ];
-    jobEntry.contentids = new String[ nr ];
+    action.embeddedimages = new String[ nr ];
+    action.contentids = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.embeddedimages[ nr ] = arg;
-        jobEntry.contentids[ nr ] = wild;
+        action.embeddedimages[ nr ] = arg;
+        action.contentids[ nr ] = wild;
         nr++;
       }
     }

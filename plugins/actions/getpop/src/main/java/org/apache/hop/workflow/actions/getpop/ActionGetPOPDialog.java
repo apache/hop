@@ -312,7 +312,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionGetPOP jobEntry;
+  private ActionGetPOP action;
 
   private Shell shell;
 
@@ -396,11 +396,11 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   private MailConnection mailConn = null;
 
-  public ActionGetPOPDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionGetPOP) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobGetPOP.Name.Default" ) );
+  public ActionGetPOPDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionGetPOP) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobGetPOP.Name.Default" ) );
     }
   }
 
@@ -410,22 +410,22 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         closeMailConnection();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
 
     SelectionListener lsSelection = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         closeMailConnection();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -603,7 +603,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wUseProxy.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setUserProxy();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -983,7 +983,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wActionType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setActionType();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1034,7 +1034,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
     wListmails.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         chooseListMails();
 
       }
@@ -1225,7 +1225,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wAfterGetIMAP.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setAfterIMAPRetrived();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1516,7 +1516,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wConditionOnReceivedDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         conditionReceivedDate();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1761,7 +1761,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setUserProxy() {
@@ -1779,7 +1779,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     if ( !retval ) {
       String realserver = workflowMeta.environmentSubstitute( wServerName.getText() );
       String realuser = workflowMeta.environmentSubstitute( wUserName.getText() );
-      String realpass = jobEntry.getRealPassword( workflowMeta.environmentSubstitute( wPassword.getText() ) );
+      String realpass = action.getRealPassword( workflowMeta.environmentSubstitute( wPassword.getText() ) );
       int realport = Const.toInt( workflowMeta.environmentSubstitute( wPort.getText() ), -1 );
       String realproxyuser = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
       try {
@@ -2042,45 +2042,45 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getServerName() != null ) {
-      wServerName.setText( jobEntry.getServerName() );
+    if ( action.getServerName() != null ) {
+      wServerName.setText( action.getServerName() );
     }
-    if ( jobEntry.getUserName() != null ) {
-      wUserName.setText( jobEntry.getUserName() );
+    if ( action.getUserName() != null ) {
+      wUserName.setText( action.getUserName() );
     }
-    if ( jobEntry.getPassword() != null ) {
-      wPassword.setText( jobEntry.getPassword() );
-    }
-
-    wUseSSL.setSelection( jobEntry.isUseSSL() );
-    wGetMessage.setSelection( jobEntry.isSaveMessage() );
-    wGetAttachment.setSelection( jobEntry.isSaveAttachment() );
-    wDifferentFolderForAttachment.setSelection( jobEntry.isDifferentFolderForAttachment() );
-    if ( jobEntry.getAttachmentFolder() != null ) {
-      wAttachmentFolder.setText( jobEntry.getAttachmentFolder() );
+    if ( action.getPassword() != null ) {
+      wPassword.setText( action.getPassword() );
     }
 
-    if ( jobEntry.getPort() != null ) {
-      wPort.setText( jobEntry.getPort() );
+    wUseSSL.setSelection( action.isUseSSL() );
+    wGetMessage.setSelection( action.isSaveMessage() );
+    wGetAttachment.setSelection( action.isSaveAttachment() );
+    wDifferentFolderForAttachment.setSelection( action.isDifferentFolderForAttachment() );
+    if ( action.getAttachmentFolder() != null ) {
+      wAttachmentFolder.setText( action.getAttachmentFolder() );
     }
 
-    if ( jobEntry.getOutputDirectory() != null ) {
-      wOutputDirectory.setText( jobEntry.getOutputDirectory() );
-    }
-    if ( jobEntry.getFilenamePattern() != null ) {
-      wFilenamePattern.setText( jobEntry.getFilenamePattern() );
-    }
-    if ( jobEntry.getAttachmentWildcard() != null ) {
-      wAttachmentWildcard.setText( jobEntry.getAttachmentWildcard() );
+    if ( action.getPort() != null ) {
+      wPort.setText( action.getPort() );
     }
 
-    String protocol = jobEntry.getProtocol();
+    if ( action.getOutputDirectory() != null ) {
+      wOutputDirectory.setText( action.getOutputDirectory() );
+    }
+    if ( action.getFilenamePattern() != null ) {
+      wFilenamePattern.setText( action.getFilenamePattern() );
+    }
+    if ( action.getAttachmentWildcard() != null ) {
+      wAttachmentWildcard.setText( action.getAttachmentWildcard() );
+    }
+
+    String protocol = action.getProtocol();
     boolean isPop3 = StringUtils.equals( protocol, MailConnectionMeta.PROTOCOL_STRING_POP3 );
     wProtocol.setText( protocol );
-    int i = jobEntry.getRetrievemails();
+    int i = action.getRetrievemails();
 
     if ( i > 0 ) {
       if ( isPop3 ) {
@@ -2092,55 +2092,54 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
       wListmails.select( 0 ); // Retrieve All Mails
     }
 
-    if ( jobEntry.getFirstMails() != null ) {
-      wFirstmails.setText( jobEntry.getFirstMails() );
+    if ( action.getFirstMails() != null ) {
+      wFirstmails.setText( action.getFirstMails() );
     }
 
-    wDelete.setSelection( jobEntry.getDelete() );
-    wIMAPListmails.setText( MailConnectionMeta.getValueImapListDesc( jobEntry.getValueImapList() ) );
-    if ( jobEntry.getIMAPFolder() != null ) {
-      wIMAPFolder.setText( jobEntry.getIMAPFolder() );
+    wDelete.setSelection( action.getDelete() );
+    wIMAPListmails.setText( MailConnectionMeta.getValueImapListDesc( action.getValueImapList() ) );
+    if ( action.getIMAPFolder() != null ) {
+      wIMAPFolder.setText( action.getIMAPFolder() );
     }
     // search term
-    if ( jobEntry.getSenderSearchTerm() != null ) {
-      wSender.setText( jobEntry.getSenderSearchTerm() );
+    if ( action.getSenderSearchTerm() != null ) {
+      wSender.setText( action.getSenderSearchTerm() );
     }
-    wNegateSender.setSelection( jobEntry.isNotTermSenderSearch() );
-    if ( jobEntry.getReceipientSearch() != null ) {
-      wReceipient.setText( jobEntry.getReceipientSearch() );
+    wNegateSender.setSelection( action.isNotTermSenderSearch() );
+    if ( action.getReceipientSearch() != null ) {
+      wReceipient.setText( action.getReceipientSearch() );
     }
-    wNegateReceipient.setSelection( jobEntry.isNotTermReceipientSearch() );
-    if ( jobEntry.getSubjectSearch() != null ) {
-      wSubject.setText( jobEntry.getSubjectSearch() );
+    wNegateReceipient.setSelection( action.isNotTermReceipientSearch() );
+    if ( action.getSubjectSearch() != null ) {
+      wSubject.setText( action.getSubjectSearch() );
     }
-    wNegateSubject.setSelection( jobEntry.isNotTermSubjectSearch() );
-    if ( jobEntry.getBodySearch() != null ) {
-      wBody.setText( jobEntry.getBodySearch() );
+    wNegateSubject.setSelection( action.isNotTermSubjectSearch() );
+    if ( action.getBodySearch() != null ) {
+      wBody.setText( action.getBodySearch() );
     }
-    wNegateBody.setSelection( jobEntry.isNotTermBodySearch() );
-    wConditionOnReceivedDate.setText( MailConnectionMeta.getConditionDateDesc( jobEntry
-      .getConditionOnReceivedDate() ) );
-    wNegateReceivedDate.setSelection( jobEntry.isNotTermReceivedDateSearch() );
-    if ( jobEntry.getReceivedDate1() != null ) {
-      wReadFrom.setText( jobEntry.getReceivedDate1() );
+    wNegateBody.setSelection( action.isNotTermBodySearch() );
+    wConditionOnReceivedDate.setText( MailConnectionMeta.getConditionDateDesc( action.getConditionOnReceivedDate() ) );
+    wNegateReceivedDate.setSelection( action.isNotTermReceivedDateSearch() );
+    if ( action.getReceivedDate1() != null ) {
+      wReadFrom.setText( action.getReceivedDate1() );
     }
-    if ( jobEntry.getReceivedDate2() != null ) {
-      wReadTo.setText( jobEntry.getReceivedDate2() );
+    if ( action.getReceivedDate2() != null ) {
+      wReadTo.setText( action.getReceivedDate2() );
     }
-    wActionType.setText( MailConnectionMeta.getActionTypeDesc( jobEntry.getActionType() ) );
-    wcreateMoveToFolder.setSelection( jobEntry.isCreateMoveToFolder() );
-    wcreateLocalFolder.setSelection( jobEntry.isCreateLocalFolder() );
-    if ( jobEntry.getMoveToIMAPFolder() != null ) {
-      wMoveToFolder.setText( jobEntry.getMoveToIMAPFolder() );
+    wActionType.setText( MailConnectionMeta.getActionTypeDesc( action.getActionType() ) );
+    wcreateMoveToFolder.setSelection( action.isCreateMoveToFolder() );
+    wcreateLocalFolder.setSelection( action.isCreateLocalFolder() );
+    if ( action.getMoveToIMAPFolder() != null ) {
+      wMoveToFolder.setText( action.getMoveToIMAPFolder() );
     }
-    wAfterGetIMAP.setText( MailConnectionMeta.getAfterGetIMAPDesc( jobEntry.getAfterGetIMAP() ) );
-    wIncludeSubFolders.setSelection( jobEntry.isIncludeSubFolders() );
-    wUseProxy.setSelection( jobEntry.isUseProxy() );
-    if ( jobEntry.getProxyUsername() != null ) {
-      wProxyUsername.setText( jobEntry.getProxyUsername() );
+    wAfterGetIMAP.setText( MailConnectionMeta.getAfterGetIMAPDesc( action.getAfterGetIMAP() ) );
+    wIncludeSubFolders.setSelection( action.isIncludeSubFolders() );
+    wUseProxy.setSelection( action.isUseProxy() );
+    if ( action.getProxyUsername() != null ) {
+      wProxyUsername.setText( action.getProxyUsername() );
     }
-    if ( jobEntry.getFirstIMAPMails() != null ) {
-      wIMAPFirstmails.setText( jobEntry.getFirstIMAPMails() );
+    if ( action.getFirstIMAPMails() != null ) {
+      wIMAPFirstmails.setText( action.getFirstIMAPMails() );
     }
 
     wName.selectAll();
@@ -2148,8 +2147,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -2161,54 +2160,54 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setUseSSL( wUseSSL.getSelection() );
-    jobEntry.setSaveAttachment( wGetAttachment.getSelection() );
-    jobEntry.setSaveMessage( wGetMessage.getSelection() );
-    jobEntry.setDifferentFolderForAttachment( wDifferentFolderForAttachment.getSelection() );
-    jobEntry.setAttachmentFolder( wAttachmentFolder.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setOutputDirectory( wOutputDirectory.getText() );
-    jobEntry.setFilenamePattern( wFilenamePattern.getText() );
+    action.setName( wName.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setUseSSL( wUseSSL.getSelection() );
+    action.setSaveAttachment( wGetAttachment.getSelection() );
+    action.setSaveMessage( wGetMessage.getSelection() );
+    action.setDifferentFolderForAttachment( wDifferentFolderForAttachment.getSelection() );
+    action.setAttachmentFolder( wAttachmentFolder.getText() );
+    action.setPort( wPort.getText() );
+    action.setOutputDirectory( wOutputDirectory.getText() );
+    action.setFilenamePattern( wFilenamePattern.getText() );
 
     // [PDI-7241] Option 'retrieve unread' is removed and there is only 2 options.
     // for backward compatibility: 0 is 'retrieve all', 1 is 'retrieve first...'
     int actualIndex = wListmails.getSelectionIndex();
-    jobEntry.setRetrievemails( actualIndex > 0 ? 2 : 0 );
+    action.setRetrievemails( actualIndex > 0 ? 2 : 0 );
 
-    jobEntry.setFirstMails( wFirstmails.getText() );
-    jobEntry.setDelete( wDelete.getSelection() );
-    jobEntry.setProtocol( wProtocol.getText() );
-    jobEntry.setAttachmentWildcard( wAttachmentWildcard.getText() );
-    jobEntry.setValueImapList( MailConnectionMeta.getValueImapListByDesc( wIMAPListmails.getText() ) );
-    jobEntry.setFirstIMAPMails( wIMAPFirstmails.getText() );
-    jobEntry.setIMAPFolder( wIMAPFolder.getText() );
+    action.setFirstMails( wFirstmails.getText() );
+    action.setDelete( wDelete.getSelection() );
+    action.setProtocol( wProtocol.getText() );
+    action.setAttachmentWildcard( wAttachmentWildcard.getText() );
+    action.setValueImapList( MailConnectionMeta.getValueImapListByDesc( wIMAPListmails.getText() ) );
+    action.setFirstIMAPMails( wIMAPFirstmails.getText() );
+    action.setIMAPFolder( wIMAPFolder.getText() );
     // search term
-    jobEntry.setSenderSearchTerm( wSender.getText() );
-    jobEntry.setNotTermSenderSearch( wNegateSender.getSelection() );
+    action.setSenderSearchTerm( wSender.getText() );
+    action.setNotTermSenderSearch( wNegateSender.getSelection() );
 
-    jobEntry.setReceipientSearch( wReceipient.getText() );
-    jobEntry.setNotTermReceipientSearch( wNegateReceipient.getSelection() );
-    jobEntry.setSubjectSearch( wSubject.getText() );
-    jobEntry.setNotTermSubjectSearch( wNegateSubject.getSelection() );
-    jobEntry.setBodySearch( wBody.getText() );
-    jobEntry.setNotTermBodySearch( wNegateBody.getSelection() );
-    jobEntry.setConditionOnReceivedDate( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate
+    action.setReceipientSearch( wReceipient.getText() );
+    action.setNotTermReceipientSearch( wNegateReceipient.getSelection() );
+    action.setSubjectSearch( wSubject.getText() );
+    action.setNotTermSubjectSearch( wNegateSubject.getSelection() );
+    action.setBodySearch( wBody.getText() );
+    action.setNotTermBodySearch( wNegateBody.getSelection() );
+    action.setConditionOnReceivedDate( MailConnectionMeta.getConditionDateByDesc( wConditionOnReceivedDate
       .getText() ) );
-    jobEntry.setNotTermReceivedDateSearch( wNegateReceivedDate.getSelection() );
-    jobEntry.setReceivedDate1( wReadFrom.getText() );
-    jobEntry.setReceivedDate2( wReadTo.getText() );
-    jobEntry.setActionType( MailConnectionMeta.getActionTypeByDesc( wActionType.getText() ) );
-    jobEntry.setMoveToIMAPFolder( wMoveToFolder.getText() );
-    jobEntry.setCreateMoveToFolder( wcreateMoveToFolder.getSelection() );
-    jobEntry.setCreateLocalFolder( wcreateLocalFolder.getSelection() );
-    jobEntry.setAfterGetIMAP( MailConnectionMeta.getAfterGetIMAPByDesc( wAfterGetIMAP.getText() ) );
-    jobEntry.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
-    jobEntry.setUseProxy( wUseProxy.getSelection() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
+    action.setNotTermReceivedDateSearch( wNegateReceivedDate.getSelection() );
+    action.setReceivedDate1( wReadFrom.getText() );
+    action.setReceivedDate2( wReadTo.getText() );
+    action.setActionType( MailConnectionMeta.getActionTypeByDesc( wActionType.getText() ) );
+    action.setMoveToIMAPFolder( wMoveToFolder.getText() );
+    action.setCreateMoveToFolder( wcreateMoveToFolder.getSelection() );
+    action.setCreateLocalFolder( wcreateLocalFolder.getSelection() );
+    action.setAfterGetIMAP( MailConnectionMeta.getAfterGetIMAPByDesc( wAfterGetIMAP.getText() ) );
+    action.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
+    action.setUseProxy( wUseProxy.getSelection() );
+    action.setProxyUsername( wProxyUsername.getText() );
     dispose();
   }
 

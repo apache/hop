@@ -24,9 +24,12 @@ package org.apache.hop.workflow;
 
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public interface IDelegationListener {
-  void jobDelegationStarted( Workflow delegatedWorkflow, WorkflowExecutionConfiguration workflowExecutionConfiguration );
+  void jobDelegationStarted( IWorkflowEngine<WorkflowMeta> delegatedWorkflow, WorkflowExecutionConfiguration workflowExecutionConfiguration );
 
-  void pipelineDelegationStarted( Pipeline delegatedPipeline, PipelineExecutionConfiguration pipelineExecutionConfiguration );
+  void pipelineDelegationStarted( IPipelineEngine<PipelineMeta> delegatedPipeline, PipelineExecutionConfiguration pipelineExecutionConfiguration );
 }

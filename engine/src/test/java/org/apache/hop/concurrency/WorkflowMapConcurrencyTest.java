@@ -23,8 +23,9 @@
 package org.apache.hop.concurrency;
 
 import org.apache.commons.collections.ListUtils;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.WorkflowMap;
 import org.junit.BeforeClass;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class WorkflowMapConcurrencyTest {
-  public static final String JOB_NAME_STRING = "workflow";
+  public static final String WORKFLOW_NAME_STRING = "workflow";
   public static final String JOB_ID_STRING = "workflow";
   public static final int INITIAL_JOB_MAP_SIZE = 100;
 
@@ -56,13 +57,13 @@ public class WorkflowMapConcurrencyTest {
   public static void init() {
     workflowMap = new WorkflowMap();
     for ( int i = 0; i < INITIAL_JOB_MAP_SIZE; i++ ) {
-      workflowMap.addWorkflow( JOB_NAME_STRING + i, JOB_ID_STRING + i, mockJob( i ), mock( WorkflowConfiguration.class ) );
+      workflowMap.addWorkflow( WORKFLOW_NAME_STRING + i, JOB_ID_STRING + i, mockJob( i ), mock( WorkflowConfiguration.class ) );
     }
   }
 
-  private static Workflow mockJob( int id ) {
-    Workflow workflow = mock( Workflow.class );
-    when( workflow.getContainerObjectId() ).thenReturn( JOB_NAME_STRING + id );
+  private static IWorkflowEngine<WorkflowMeta> mockJob( int id ) {
+    IWorkflowEngine<WorkflowMeta> workflow = mock( IWorkflowEngine.class );
+    when( workflow.getContainerObjectId() ).thenReturn( WORKFLOW_NAME_STRING + id );
     return workflow;
   }
 
@@ -113,9 +114,9 @@ public class WorkflowMapConcurrencyTest {
           throw new IllegalStateException(
             String.format( "Returned HopServerObjectEntry must not be null. EntryId = %d", i ) );
         }
-        final String workflowName = JOB_NAME_STRING + i;
+        final String workflowName = WORKFLOW_NAME_STRING + i;
 
-        Workflow workflow = workflowMap.getWorkflow( entry.getName() );
+        IWorkflowEngine<WorkflowMeta> workflow = workflowMap.getWorkflow( entry.getName() );
         if ( workflow == null ) {
           throw new IllegalStateException( String.format( "Returned workflow must not be null. Workflow name = %s", workflowName ) );
         }
@@ -149,7 +150,7 @@ public class WorkflowMapConcurrencyTest {
       try {
         for ( int i = 0; i < cycles; i++ ) {
           int id = generator.get();
-          workflowMap.addWorkflow( JOB_NAME_STRING + id, JOB_ID_STRING + id, mockJob( id ), mock( WorkflowConfiguration.class ) );
+          workflowMap.addWorkflow( WORKFLOW_NAME_STRING + id, JOB_ID_STRING + id, mockJob( id ), mock( WorkflowConfiguration.class ) );
         }
       } catch ( Exception e ) {
         exception = e;
@@ -173,7 +174,7 @@ public class WorkflowMapConcurrencyTest {
 
       int i = random.nextInt( INITIAL_JOB_MAP_SIZE );
 
-      final String workflowName = JOB_NAME_STRING + i;
+      final String workflowName = WORKFLOW_NAME_STRING + i;
       final String jobId = JOB_ID_STRING + i;
 
       HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, jobId );

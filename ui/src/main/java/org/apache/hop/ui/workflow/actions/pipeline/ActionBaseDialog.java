@@ -33,6 +33,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -85,6 +86,9 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Button wbBrowse;
 
+  protected Label wlRunConfiguration;
+  protected ComboVar wRunConfiguration;
+
   protected Group gLogFile;
 
   protected Composite wOptions;
@@ -101,9 +105,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected Button wbLogFilename;
   protected FormData fdbLogFilename;
 
-  protected Label wlCreateParentFolder;
   protected Button wCreateParentFolder;
-  protected FormData fdlCreateParentFolder, fdCreateParentFolder;
 
   protected Label wlLogext;
   protected TextVar wLogext;
@@ -154,12 +156,11 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected FormData fdgExecution;
 
   protected LogChannel log;
-  protected ComboVar wRunConfiguration;
 
   public ActionBaseDialog( Shell parent,
-                           IAction jobEntryInt,
+                           IAction action,
                            WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
+    super( parent, action, workflowMeta );
     log = new LogChannel( workflowMeta );
   }
 
@@ -167,7 +168,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        getJobEntry().setChanged();
+        getAction().setChanged();
       }
     };
 
@@ -187,7 +188,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wlName = new Label( shell, SWT.LEFT );
     props.setLook( wlName );
-    wlName.setText( BaseMessages.getString( PKG, "JobPipeline.JobTransform.Label" ) );
+    wlName.setText( BaseMessages.getString( PKG, "ActionPipeline.JobTransform.Label" ) );
     fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.top = new FormAttachment( 0, 0 );
@@ -226,18 +227,36 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wbBrowse = new Button( shell, SWT.PUSH );
     props.setLook( wbBrowse );
-    wbBrowse.setText( BaseMessages.getString( PKG, "JobPipeline.Browse.Label" ) );
+    wbBrowse.setText( BaseMessages.getString( PKG, "ActionPipeline.Browse.Label" ) );
     FormData fdBrowse = new FormData();
     fdBrowse.left = new FormAttachment( wPath, 5 );
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
+
+
+    wlRunConfiguration = new Label( shell, SWT.LEFT );
+    wlRunConfiguration.setText( "Run configuration" ); // TODO i18n
+    props.setLook( wlRunConfiguration );
+    FormData fdlRunConfiguration = new FormData();
+    fdlRunConfiguration.left = new FormAttachment( 0, 0 );
+    fdlRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
+    fdlRunConfiguration.right = new FormAttachment( 50, 0 );
+    wlRunConfiguration.setLayoutData( fdlRunConfiguration );
+
+    wRunConfiguration = new ComboVar( workflowMeta, shell, SWT.LEFT | SWT.BORDER );
+    props.setLook( wlRunConfiguration );
+    FormData fdRunConfiguration = new FormData();
+    fdRunConfiguration.left = new FormAttachment( wlRunConfiguration, 10 );
+    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, 0, SWT.CENTER );
+    fdRunConfiguration.right = new FormAttachment( 100, 0 );
+    wRunConfiguration.setLayoutData( fdRunConfiguration );
 
     CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // Options Tab Start
     CTabItem wOptionsTab = new CTabItem( wTabFolder, SWT.NONE );
-    wOptionsTab.setText( BaseMessages.getString( PKG, "JobPipeline.Options.Group.Label" ) );
+    wOptionsTab.setText( BaseMessages.getString( PKG, "ActionPipeline.Options.Group.Label" ) );
 
     wOptions = new Composite( wTabFolder, SWT.SHADOW_NONE );
     props.setLook( wOptions );
@@ -249,7 +268,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     gExecution = new Group( wOptions, SWT.SHADOW_ETCHED_IN );
     props.setLook( gExecution );
-    gExecution.setText( BaseMessages.getString( PKG, "JobPipeline.Execution.Group.Label" ) );
+    gExecution.setText( BaseMessages.getString( PKG, "ActionPipeline.Execution.Group.Label" ) );
     FormLayout gExecutionLayout = new FormLayout();
     gExecutionLayout.marginWidth = 15;
     gExecutionLayout.marginHeight = 15;
@@ -263,7 +282,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wEveryRow = new Button( gExecution, SWT.CHECK );
     props.setLook( wEveryRow );
-    wEveryRow.setText( BaseMessages.getString( PKG, "JobPipeline.ExecForEveryInputRow.Label" ) );
+    wEveryRow.setText( BaseMessages.getString( PKG, "ActionPipeline.ExecForEveryInputRow.Label" ) );
     FormData fdbExecute = new FormData();
     fdbExecute.left = new FormAttachment( 0, 0 );
     fdbExecute.top = new FormAttachment( 0, 0 );
@@ -281,7 +300,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     // Logging Tab Start
     CTabItem wLoggingTab = new CTabItem( wTabFolder, SWT.NONE );
-    wLoggingTab.setText( BaseMessages.getString( PKG, "JobPipeline.LogSettings.Group.Label" ) );
+    wLoggingTab.setText( BaseMessages.getString( PKG, "ActionPipeline.LogSettings.Group.Label" ) );
 
     Composite wLogging = new Composite( wTabFolder, SWT.SHADOW_NONE );
     props.setLook( wLogging );
@@ -293,7 +312,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wSetLogfile = new Button( wLogging, SWT.CHECK );
     props.setLook( wSetLogfile );
-    wSetLogfile.setText( BaseMessages.getString( PKG, "JobPipeline.Specify.Logfile.Label" ) );
+    wSetLogfile.setText( BaseMessages.getString( PKG, "ActionPipeline.Specify.Logfile.Label" ) );
     FormData fdSpecifyLogFile = new FormData();
     fdSpecifyLogFile.left = new FormAttachment( 0, 0 );
     fdSpecifyLogFile.top = new FormAttachment( 0, 0 );
@@ -301,7 +320,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     gLogFile = new Group( wLogging, SWT.SHADOW_ETCHED_IN );
     props.setLook( gLogFile );
-    gLogFile.setText( BaseMessages.getString( PKG, "JobPipeline.Logfile.Group.Label" ) );
+    gLogFile.setText( BaseMessages.getString( PKG, "ActionPipeline.Logfile.Group.Label" ) );
     FormLayout gLogFileLayout = new FormLayout();
     gLogFileLayout.marginWidth = 15;
     gLogFileLayout.marginHeight = 15;
@@ -315,7 +334,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wlLogfile = new Label( gLogFile, SWT.LEFT );
     props.setLook( wlLogfile );
-    wlLogfile.setText( BaseMessages.getString( PKG, "JobPipeline.NameOfLogfile.Label" ) );
+    wlLogfile.setText( BaseMessages.getString( PKG, "ActionPipeline.NameOfLogfile.Label" ) );
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.top = new FormAttachment( 0, 0 );
@@ -331,7 +350,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wbLogFilename = new Button( gLogFile, SWT.PUSH | SWT.CENTER );
     props.setLook( wbLogFilename );
-    wbLogFilename.setText( BaseMessages.getString( PKG, "JobPipeline.Browse.Label" ) );
+    wbLogFilename.setText( BaseMessages.getString( PKG, "ActionPipeline.Browse.Label" ) );
     fdbLogFilename = new FormData();
     fdbLogFilename.top = new FormAttachment( wlLogfile, Const.isOSX() ? 0 : 5 );
     fdbLogFilename.left = new FormAttachment( wLogfile, 5 );
@@ -339,7 +358,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wlLogext = new Label( gLogFile, SWT.LEFT );
     props.setLook( wlLogext );
-    wlLogext.setText( BaseMessages.getString( PKG, "JobPipeline.LogfileExtension.Label" ) );
+    wlLogext.setText( BaseMessages.getString( PKG, "ActionPipeline.LogfileExtension.Label" ) );
     FormData fdlExtension = new FormData();
     fdlExtension.left = new FormAttachment( 0, 0 );
     fdlExtension.top = new FormAttachment( wLogfile, 10 );
@@ -355,7 +374,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wlLoglevel = new Label( gLogFile, SWT.LEFT );
     props.setLook( wlLoglevel );
-    wlLoglevel.setText( BaseMessages.getString( PKG, "JobPipeline.Loglevel.Label" ) );
+    wlLoglevel.setText( BaseMessages.getString( PKG, "ActionPipeline.Loglevel.Label" ) );
     FormData fdlLogLevel = new FormData();
     fdlLogLevel.left = new FormAttachment( 0, 0 );
     fdlLogLevel.top = new FormAttachment( wLogext, 10 );
@@ -372,7 +391,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wAppendLogfile = new Button( gLogFile, SWT.CHECK );
     props.setLook( wAppendLogfile );
-    wAppendLogfile.setText( BaseMessages.getString( PKG, "JobPipeline.Append.Logfile.Label" ) );
+    wAppendLogfile.setText( BaseMessages.getString( PKG, "ActionPipeline.Append.Logfile.Label" ) );
     FormData fdLogFile = new FormData();
     fdLogFile.left = new FormAttachment( 0, 0 );
     fdLogFile.top = new FormAttachment( wLoglevel, 10 );
@@ -380,7 +399,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wCreateParentFolder = new Button( gLogFile, SWT.CHECK );
     props.setLook( wCreateParentFolder );
-    wCreateParentFolder.setText( BaseMessages.getString( PKG, "JobPipeline.Logfile.CreateParentFolder.Label" ) );
+    wCreateParentFolder.setText( BaseMessages.getString( PKG, "ActionPipeline.Logfile.CreateParentFolder.Label" ) );
     FormData fdCreateParent = new FormData();
     fdCreateParent.left = new FormAttachment( 0, 0 );
     fdCreateParent.top = new FormAttachment( wAppendLogfile, 10 );
@@ -388,7 +407,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wAddDate = new Button( gLogFile, SWT.CHECK );
     props.setLook( wAddDate );
-    wAddDate.setText( BaseMessages.getString( PKG, "JobPipeline.Logfile.IncludeDate.Label" ) );
+    wAddDate.setText( BaseMessages.getString( PKG, "ActionPipeline.Logfile.IncludeDate.Label" ) );
     FormData fdIncludeDate = new FormData();
     fdIncludeDate.left = new FormAttachment( 0, 0 );
     fdIncludeDate.top = new FormAttachment( wCreateParentFolder, 10 );
@@ -396,7 +415,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wAddTime = new Button( gLogFile, SWT.CHECK );
     props.setLook( wAddTime );
-    wAddTime.setText( BaseMessages.getString( PKG, "JobPipeline.Logfile.IncludeTime.Label" ) );
+    wAddTime.setText( BaseMessages.getString( PKG, "ActionPipeline.Logfile.IncludeTime.Label" ) );
     FormData fdIncludeTime = new FormData();
     fdIncludeTime.left = new FormAttachment( 0, 0 );
     fdIncludeTime.top = new FormAttachment( wAddDate, 10 );
@@ -420,7 +439,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
 
     CTabItem wParametersTab = new CTabItem( wTabFolder, SWT.NONE );
-    wParametersTab.setText( BaseMessages.getString( PKG, "JobPipeline.Fields.Parameters.Label" ) );
+    wParametersTab.setText( BaseMessages.getString( PKG, "ActionPipeline.Fields.Parameters.Label" ) );
 
     FormLayout fieldLayout = new FormLayout();
     fieldLayout.marginWidth = 15;
@@ -432,14 +451,14 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wPrevToParams = new Button( wParameterComp, SWT.CHECK );
     props.setLook( wPrevToParams );
-    wPrevToParams.setText( BaseMessages.getString( PKG, "JobPipeline.PrevToParams.Label" ) );
+    wPrevToParams.setText( BaseMessages.getString( PKG, "ActionPipeline.PrevToParams.Label" ) );
     FormData fdCopyResultsParams = new FormData();
     fdCopyResultsParams.left = new FormAttachment( 0, 0 );
     fdCopyResultsParams.top = new FormAttachment( 0, 0 );
     wPrevToParams.setLayoutData( fdCopyResultsParams );
     wPrevToParams.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        getJobEntry().setChanged();
+        getAction().setChanged();
       }
     } );
 
@@ -451,7 +470,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wPassParams.setLayoutData( fdPassParams );
 
     wbGetParams = new Button( wParameterComp, SWT.PUSH );
-    wbGetParams.setText( BaseMessages.getString( PKG, "JobPipeline.GetParameters.Button.Label" ) );
+    wbGetParams.setText( BaseMessages.getString( PKG, "ActionPipeline.GetParameters.Button.Label" ) );
     FormData fdGetParams = new FormData();
     fdGetParams.bottom = new FormAttachment( 100, 0 );
     fdGetParams.right = new FormAttachment( 100, 0 );
@@ -461,13 +480,13 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     ColumnInfo[] colinf = new ColumnInfo[] {
       new ColumnInfo(
-        BaseMessages.getString( PKG, "JobPipeline.Parameters.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
+        BaseMessages.getString( PKG, "ActionPipeline.Parameters.Parameter.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false ),
       new ColumnInfo(
-        BaseMessages.getString( PKG, "JobPipeline.Parameters.ColumnName.Label" ),
+        BaseMessages.getString( PKG, "ActionPipeline.Parameters.ColumnName.Label" ),
         ColumnInfo.COLUMN_TYPE_TEXT, false ),
       new ColumnInfo(
-        BaseMessages.getString( PKG, "JobPipeline.Parameters.Value.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
+        BaseMessages.getString( PKG, "ActionPipeline.Parameters.Value.Label" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false ), };
     colinf[ 2 ].setUsingVariables( true );
 
@@ -518,7 +537,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
-    fdTabFolder.top = new FormAttachment( wPath, 20 );
+    fdTabFolder.top = new FormAttachment( wRunConfiguration, 20 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( hSpacer, -15 );
     wTabFolder.setLayoutData( fdTabFolder );
@@ -608,36 +627,11 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wAppendLogfile.setEnabled( wSetLogfile.getSelection() );
   }
 
-  public class RunConfigurationModifyListener implements ModifyListener {
-    @Override
-    public void modifyText( ModifyEvent modifyEvent ) {
-      ExecutorService executorService = ExecutorUtil.getExecutor();
-      final String runConfiguration = workflowMeta.environmentSubstitute( wRunConfiguration.getText() );
-      executorService.submit( () -> {
-        List<Object> items = Arrays.asList( runConfiguration, false );
-        try {
-          ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint
-            .RunConfigurationSelection.id, items );
-        } catch ( HopException ignored ) {
-          // Ignore errors
-        }
-        display.asyncExec( () -> {
-          if ( (Boolean) items.get( IS_PENTAHO ) ) {
-            wWaitingToFinish.setSelection( false );
-            wWaitingToFinish.setEnabled( false );
-          } else {
-            wWaitingToFinish.setEnabled( true );
-          }
-        } );
-      } );
-    }
-  }
-
   protected abstract void ok();
 
   protected abstract void cancel();
 
-  protected abstract ActionBase getJobEntry();
+  protected abstract ActionBase getAction();
 
   protected abstract Image getImage();
 

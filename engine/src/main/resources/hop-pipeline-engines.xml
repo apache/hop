@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hop-engines>
+<hop-pipeline-engines>
 
-  <hop-engine id="Local">
+  <hop-pipeline-engine id="Local">
     <description>Local pipeline engine</description>
     <tooltip>Executes your pipeline locally in a multi-threaded fashion</tooltip>
     <classname>org.apache.hop.pipeline.engines.local.LocalPipelineEngine</classname>
-  </hop-engine>
+  </hop-pipeline-engine>
 
-  <hop-engine id="Remote">
+  <hop-pipeline-engine id="Remote">
     <description>Remote pipeline engine</description>
     <tooltip>Executes your pipeline on a remote Hop server</tooltip>
     <classname>org.apache.hop.pipeline.engines.remote.RemotePipelineEngine</classname>
-  </hop-engine>
+  </hop-pipeline-engine>
 
   <!--
-  <hop-engine id="LocalSingle">
+  <hop-pipeline-engine id="LocalSingle">
     <description>Local single threaded pipeline engine</description>
     <tooltip>Executes your pipeline locally in a single-threaded fashion</tooltip>
     <classname>org.apache.hop.pipeline.engines.localsingle.LocalSinglePipelineEngine</classname>
-  </hop-engine>
+  </hop-pipeline-engine>
   -->
 
-</hop-engines>
+</hop-pipeline-engines>

@@ -55,6 +55,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -1032,7 +1033,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  private void downloadFile( FTPClient ftpclient, String filename, String realMoveToFolder, Workflow parentWorkflow,
+  private void downloadFile( FTPClient ftpclient, String filename, String realMoveToFolder, IWorkflowEngine<WorkflowMeta> parentWorkflow,
                              Result result ) throws Exception {
     String localFilename = filename;
     targetFilename = HopVfs.getFilename( HopVfs.getFileObject( returnTargetFilename( localFilename ) ) );
@@ -1091,7 +1092,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     return normalizedPath;
   }
 
-  private void addFilenameToResultFilenames( Result result, Workflow parentWorkflow, String filename ) throws HopException {
+  private void addFilenameToResultFilenames( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, String filename ) throws HopException {
     if ( isaddresult ) {
       FileObject targetFile = null;
       try {
@@ -1099,7 +1100,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
         // Add to the result files...
         ResultFile resultFile =
-          new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getJobname(), toString() );
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow.getWorkflowName(), toString() );
         resultFile.setComment( BaseMessages.getString( PKG, "ActionFTP.Downloaded", serverName ) );
         result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 

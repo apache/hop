@@ -144,7 +144,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsCheckChangeFolder;
 
-  private ActionSftp jobEntry;
+  private ActionSftp action;
 
   private Shell shell;
 
@@ -241,11 +241,11 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   private LabelTextVar wProxyPassword;
   private FormData fdProxyPasswd;
 
-  public ActionSftpDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSftp) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobSFTP.Name.Default" ) );
+  public ActionSftpDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSftp) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobSFTP.Name.Default" ) );
     }
   }
 
@@ -255,15 +255,15 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         sftpclient = null;
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -415,7 +415,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wusePublicKey.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUseKey();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -654,7 +654,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wgetPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeCopyFromPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -929,7 +929,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void test() {
@@ -982,7 +982,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
             wProxyType.getText() );
         }
         // login to ftp host ...
-        sftpclient.login( jobEntry.getRealPassword( workflowMeta.environmentSubstitute( wPassword.getText() ) ) );
+        sftpclient.login( action.getRealPassword( workflowMeta.environmentSubstitute( wPassword.getText() ) ) );
 
         retval = true;
       }
@@ -1032,37 +1032,37 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wServerPort.setText( jobEntry.getServerPort() );
-    wUserName.setText( Const.NVL( jobEntry.getUserName(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wScpDirectory.setText( Const.NVL( jobEntry.getScpDirectory(), "" ) );
-    wTargetDirectory.setText( Const.NVL( jobEntry.getTargetDirectory(), "" ) );
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wRemove.setSelection( jobEntry.getRemove() );
-    wAddFilenameToResult.setSelection( jobEntry.isAddToResult() );
-    wCreateTargetFolder.setSelection( jobEntry.iscreateTargetFolder() );
-    wgetPrevious.setSelection( jobEntry.isCopyPrevious() );
-    wusePublicKey.setSelection( jobEntry.isUseKeyFile() );
-    wKeyFilename.setText( Const.NVL( jobEntry.getKeyFilename(), "" ) );
-    wkeyfilePass.setText( Const.NVL( jobEntry.getKeyPassPhrase(), "" ) );
-    wCompression.setText( Const.NVL( jobEntry.getCompression(), "none" ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wServerPort.setText( action.getServerPort() );
+    wUserName.setText( Const.NVL( action.getUserName(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wScpDirectory.setText( Const.NVL( action.getScpDirectory(), "" ) );
+    wTargetDirectory.setText( Const.NVL( action.getTargetDirectory(), "" ) );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wRemove.setSelection( action.getRemove() );
+    wAddFilenameToResult.setSelection( action.isAddToResult() );
+    wCreateTargetFolder.setSelection( action.iscreateTargetFolder() );
+    wgetPrevious.setSelection( action.isCopyPrevious() );
+    wusePublicKey.setSelection( action.isUseKeyFile() );
+    wKeyFilename.setText( Const.NVL( action.getKeyFilename(), "" ) );
+    wkeyfilePass.setText( Const.NVL( action.getKeyPassPhrase(), "" ) );
+    wCompression.setText( Const.NVL( action.getCompression(), "none" ) );
 
-    wProxyType.setText( Const.NVL( jobEntry.getProxyType(), "" ) );
-    wProxyHost.setText( Const.NVL( jobEntry.getProxyHost(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wProxyUsername.setText( Const.NVL( jobEntry.getProxyUsername(), "" ) );
-    wProxyPassword.setText( Const.NVL( jobEntry.getProxyPassword(), "" ) );
+    wProxyType.setText( Const.NVL( action.getProxyType(), "" ) );
+    wProxyHost.setText( Const.NVL( action.getProxyHost(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wProxyUsername.setText( Const.NVL( action.getProxyUsername(), "" ) );
+    wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1074,28 +1074,28 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setServerPort( wServerPort.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setScpDirectory( wScpDirectory.getText() );
-    jobEntry.setTargetDirectory( wTargetDirectory.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setRemove( wRemove.getSelection() );
-    jobEntry.setAddToResult( wAddFilenameToResult.getSelection() );
-    jobEntry.setcreateTargetFolder( wCreateTargetFolder.getSelection() );
-    jobEntry.setCopyPrevious( wgetPrevious.getSelection() );
-    jobEntry.setUseKeyFile( wusePublicKey.getSelection() );
-    jobEntry.setKeyFilename( wKeyFilename.getText() );
-    jobEntry.setKeyPassPhrase( wkeyfilePass.getText() );
-    jobEntry.setCompression( wCompression.getText() );
+    action.setName( wName.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setServerPort( wServerPort.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setScpDirectory( wScpDirectory.getText() );
+    action.setTargetDirectory( wTargetDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setRemove( wRemove.getSelection() );
+    action.setAddToResult( wAddFilenameToResult.getSelection() );
+    action.setcreateTargetFolder( wCreateTargetFolder.getSelection() );
+    action.setCopyPrevious( wgetPrevious.getSelection() );
+    action.setUseKeyFile( wusePublicKey.getSelection() );
+    action.setKeyFilename( wKeyFilename.getText() );
+    action.setKeyPassPhrase( wkeyfilePass.getText() );
+    action.setCompression( wCompression.getText() );
 
-    jobEntry.setProxyType( wProxyType.getText() );
-    jobEntry.setProxyHost( wProxyHost.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
-    jobEntry.setProxyPassword( wProxyPassword.getText() );
+    action.setProxyType( wProxyType.getText() );
+    action.setProxyHost( wProxyHost.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setProxyUsername( wProxyUsername.getText() );
+    action.setProxyPassword( wProxyPassword.getText() );
     dispose();
   }
 
