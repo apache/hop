@@ -105,7 +105,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
-	changed = action.hasChanged();
+	  changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
