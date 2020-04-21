@@ -14,17 +14,17 @@ OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=d
 
 
 case $( uname -s ) in
-	Linux) 
-		CLASSPATH="lib/*"
-		;;
-	Darwin) 
-		CLASSPATH="lib/*"
-		OPTIONS="${OPTIONS} -XstartOnFirstThread"
-		;;
+        Linux) 
+                CLASSPATH="lib/*:libswt/linux/$( uname -m )/*" 
+                ;;
+        Darwin) 
+                CLASSPATH="lib/*:libswt/osx64/*" 
+                OPTIONS="${OPTIONS} -XstartOnFirstThread"
+                ;;
 esac
 
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun $@
+java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun "$@"
 EXITCODE=$?
 
 cd ${ORIGINDIR}
