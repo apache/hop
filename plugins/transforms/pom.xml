@@ -23,6 +23,7 @@
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
     <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
     <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
+    <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
   </properties>
 
   <profiles>
@@ -109,6 +110,8 @@
         <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
+        <module>ifnull</module>
+        <module>nullif</module>
       </modules>
     </profile>
 
@@ -123,7 +126,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
-      <version>1.10.19</version>
+      <version>${mockito-all.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -149,7 +152,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
+      <version>${javax.servlet-api.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
