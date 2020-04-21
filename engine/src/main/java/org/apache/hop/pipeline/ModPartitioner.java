@@ -59,13 +59,17 @@ public class ModPartitioner extends BasePartitioner {
   }
 
   public int getPartition( IRowMeta rowMeta, Object[] row ) throws HopException {
+
+    if (rowMeta==null) {
+      throw new HopException( "No row metadata was provided and so a partition can't be calculated on field '"+fieldName+"' using a mod partitioner" );
+    }
+
     init( rowMeta );
 
     if ( partitionColumnIndex < 0 ) {
       partitionColumnIndex = rowMeta.indexOfValue( fieldName );
       if ( partitionColumnIndex < 0 ) {
-        throw new HopTransformException( "Unable to find partitioning field name ["
-          + fieldName + "] in the output row..." + rowMeta );
+        throw new HopTransformException( "Unable to find partitioning field name [" + fieldName + "] in the output row..." + rowMeta );
       }
     }
 

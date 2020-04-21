@@ -24,8 +24,8 @@ package org.apache.hop.workflow.actions.pipeline;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -47,6 +47,20 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.TransformWithMappingMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -55,17 +69,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionRunConfigurable;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.www.SlaveServerPipelineStatus;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -119,15 +122,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
 
   public boolean followingAbortRemotely;
 
-  private String remoteSlaveServerName;
-
   private boolean passingAllParameters = true;
 
   private boolean loggingRemoteWork;
 
   private String runConfiguration;
 
-  private Pipeline pipeline;
+  private IPipelineEngine<PipelineMeta> pipeline;
 
   public ActionPipeline( String name ) {
     super( name, "" );
@@ -227,7 +228,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", addTime ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "loglevel", logFileLevel != null ? logFileLevel.getCode() : null ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "set_append_logfile", setAppendLogfile ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
@@ -286,8 +286,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       loggingRemoteWork = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "logging_remote_work" ) );
       runConfiguration = XmlHandler.getTagValue( entrynode, "run_configuration" );
 
-      remoteSlaveServerName = XmlHandler.getTagValue( entrynode, "slave_server_name" );
-
       setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
       String wait = XmlHandler.getTagValue( entrynode, "wait_until_finished" );
       if ( Utils.isEmpty( wait ) ) {
@@ -344,7 +342,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
     setLogfile = false;
     clearResultRows = false;
     clearResultFiles = false;
-    remoteSlaveServerName = null;
     setAppendLogfile = false;
     waitingToFinish = true;
     followingAbortRemotely = false; // backward compatibility reasons
@@ -558,277 +555,152 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
 
         prepareFieldNamesParameters( parameters, parameterFieldNames, parameterValues, namedParam, this );
 
-        TransformWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames,
-          parameters, parameterValues, isPassingAllParameters() );
+        TransformWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames, parameters, parameterValues, isPassingAllParameters() );
         boolean doFallback = true;
         SlaveServer remoteSlaveServer = null;
         PipelineExecutionConfiguration executionConfiguration = new PipelineExecutionConfiguration();
-        if ( !Utils.isEmpty( runConfiguration ) ) {
-          runConfiguration = environmentSubstitute( runConfiguration );
-          log.logBasic( BaseMessages.getString( PKG, "JobPipeline.RunConfig.Message" ), runConfiguration );
-          executionConfiguration.setRunConfiguration( runConfiguration );
+
+        if ( StringUtils.isEmpty( runConfiguration ) ) {
+          throw new HopException( "This action needs a run configuration to use to execute the specified pipeline" );
+        }
+
+        runConfiguration = environmentSubstitute( runConfiguration );
+        log.logBasic( BaseMessages.getString( PKG, "JobPipeline.RunConfig.Message" ), runConfiguration );
+        executionConfiguration.setRunConfiguration( runConfiguration );
+        try {
+          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
+            executionConfiguration, parentWorkflow.getWorkflowMeta(), pipelineMeta } );
+          List<Object> items = Arrays.asList( runConfiguration, false );
           try {
-            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
-              executionConfiguration, parentWorkflow.getWorkflowMeta(), pipelineMeta } );
-            List<Object> items = Arrays.asList( runConfiguration, false );
-            try {
-              ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint
-                .RunConfigurationSelection.id, items );
-              if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
-                String workflowName = parentWorkflow.getWorkflowMeta().getName();
-                String name = pipelineMeta.getName();
-                logBasic( BaseMessages.getString( PKG, "JobPipeline.Log.InvalidRunConfigurationCombination", workflowName,
-                  name, workflowName ) );
-              }
-            } catch ( Exception ignored ) {
-              // Ignored
+            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.RunConfigurationSelection.id, items );
+            if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
+              String workflowName = parentWorkflow.getWorkflowMeta().getName();
+              String name = pipelineMeta.getName();
+              logBasic( BaseMessages.getString( PKG, "JobPipeline.Log.InvalidRunConfigurationCombination", workflowName,
+                name, workflowName ) );
             }
-            if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() ) {
-              result.setResult( true );
-              return result;
-            }
-            remoteSlaveServer = executionConfiguration.getRemoteServer();
-            doFallback = false;
-          } catch ( HopException e ) {
-            log.logError( e.getMessage(), getName() );
-            result.setNrErrors( 1 );
-            result.setResult( false );
-            return result;
-          }
-        }
-
-        if ( doFallback ) {
-          // Figure out the remote slave server...
-          //
-          if ( !Utils.isEmpty( remoteSlaveServerName ) ) {
-            String realRemoteSlaveServerName = environmentSubstitute( remoteSlaveServerName );
-            remoteSlaveServer = parentWorkflow.getWorkflowMeta().findSlaveServer( realRemoteSlaveServerName );
-            if ( remoteSlaveServer == null ) {
-              throw new HopException( BaseMessages.getString(
-                PKG, "JobPipeline.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
-            }
-          }
-        }
-
-        if ( remoteSlaveServer != null ) {
-          // Execute this pipeline remotely
-          //
-
-          // Make sure we can parameterize the slave server connection
-          //
-          remoteSlaveServer.shareVariablesWith( this );
-
-          // Remote execution...
-          //
-          executionConfiguration.setPreviousResult( previousResult.clone() );
-          executionConfiguration.setVariablesMap( this );
-          executionConfiguration.setRemoteServer( remoteSlaveServer );
-          executionConfiguration.setLogLevel( pipelineLogLevel );
-          executionConfiguration.setLogFileName( realLogFilename );
-          executionConfiguration.setSetAppendLogfile( setAppendLogfile );
-          executionConfiguration.setSetLogfile( setLogfile );
-
-          Map<String, String> params = executionConfiguration.getParametersMap();
-          for ( String param : pipelineMeta.listParameters() ) {
-            String value =
-              Const.NVL( pipelineMeta.getParameterValue( param ), Const.NVL(
-                pipelineMeta.getParameterDefault( param ), pipelineMeta.getVariable( param ) ) );
-            params.put( param, value );
+          } catch ( Exception ignored ) {
+            // Ignored
           }
 
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            executionConfiguration.setPassedBatchId( parentWorkflow.getPassedBatchId() );
-          }
-
-          // Send the XML over to the slave server
-          // Also start the pipeline over there...
-          //
-          String carteObjectId = Pipeline.sendToSlaveServer( pipelineMeta, executionConfiguration, metaStore );
-
-          // Now start the monitoring...
-          //
-          SlaveServerPipelineStatus pipelineStatus = null;
-          while ( !parentWorkflow.isStopped() && waitingToFinish ) {
-            try {
-              pipelineStatus = remoteSlaveServer.getPipelineStatus( pipelineMeta.getName(), carteObjectId, 0 );
-              if ( !pipelineStatus.isRunning() ) {
-                // The pipeline is finished, get the result...
-                //
-                //get the status with the result ( we don't do it above because of changing PDI-15781)
-                pipelineStatus = remoteSlaveServer.getPipelineStatus( pipelineMeta.getName(), carteObjectId, 0, true );
-                Result remoteResult = pipelineStatus.getResult();
-                result.clear();
-                result.add( remoteResult );
-
-                // In case you manually stop the remote pipeline (browser etc), make sure it's marked as an error
-                //
-                if ( remoteResult.isStopped() ) {
-                  result.setNrErrors( result.getNrErrors() + 1 ); //
-                }
-
-                // Make sure to clean up : write a log record etc, close any left-over sockets etc.
-                //
-                remoteSlaveServer.cleanupPipeline( pipelineMeta.getName(), carteObjectId );
-
-                break;
-              }
-            } catch ( Exception e1 ) {
-
-              logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnableContactSlaveServer", ""
-                + remoteSlaveServer, pipelineMeta.getName() ), e1 );
-              result.setNrErrors( result.getNrErrors() + 1L );
-              break; // Stop looking too, chances are too low the server will come back on-line
-            }
-
-            // sleep for 2 seconds
-            try {
-              Thread.sleep( 2000 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
-          }
-
-          if ( parentWorkflow.isStopped() ) {
-            // See if we have a status and if we need to stop the remote execution here...
-            //
-            if ( pipelineStatus == null || pipelineStatus.isRunning() ) {
-              // Try a remote abort ...
-              //
-              remoteSlaveServer.stopPipeline( pipelineMeta.getName(), pipelineStatus.getId() );
-
-              // And a cleanup...
-              //
-              remoteSlaveServer.cleanupPipeline( pipelineMeta.getName(), pipelineStatus.getId() );
-
-              // Set an error state!
-              //
-              result.setNrErrors( result.getNrErrors() + 1L );
-            }
-          }
-
-        } else {
-
-          // Execute this pipeline on the local machine
-          //
-
-          // Create the pipeline from meta-data
-          //
-          final PipelineMeta meta = pipelineMeta;
-          pipeline = new Pipeline( meta, this );
-          pipeline.setParent( this );
-
-          // Pass the socket repository as early as possible...
-          //
-          pipeline.setSocketRepository( parentWorkflow.getSocketRepository() );
-
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            pipeline.setPassedBatchId( parentWorkflow.getPassedBatchId() );
-          }
-
-          // set the parent workflow on the pipeline, variables are taken from here...
-          //
-          pipeline.setParentWorkflow( parentWorkflow );
-          pipeline.setParentVariableSpace( parentWorkflow );
-          pipeline.setLogLevel( pipelineLogLevel );
-          pipeline.setPreviousResult( previousResult );
-
-          // inject the metaStore
-          pipeline.setMetaStore( metaStore );
-
-          // First get the root workflow
-          //
-          Workflow rootWorkflow = parentWorkflow;
-          while ( rootWorkflow.getParentWorkflow() != null ) {
-            rootWorkflow = rootWorkflow.getParentWorkflow();
-          }
-
-          // Inform the parent workflow we started something here...
-          //
-          for ( IDelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-            // TODO: copy some settings in the workflow execution configuration, not strictly needed
-            // but the execution configuration information is useful in case of a workflow re-start
-            //
-            delegationListener.pipelineDelegationStarted( pipeline, new PipelineExecutionConfiguration() );
-          }
-
-          try {
-            // Start execution...
-            //
-            pipeline.execute();
-
-            // Wait until we're done with it...
-            //TODO is it possible to implement Observer pattern to avoid Thread.sleep here?
-            while ( !pipeline.isFinished() && pipeline.getErrors() == 0 ) {
-              if ( parentWorkflow.isStopped() ) {
-                pipeline.stopAll();
-                break;
-              } else {
-                try {
-                  Thread.sleep( 0, 500 );
-                } catch ( InterruptedException e ) {
-                  // Ignore errors
-                }
-              }
-            }
-            pipeline.waitUntilFinished();
-
-            if ( parentWorkflow.isStopped() || pipeline.getErrors() != 0 ) {
-              pipeline.stopAll();
-              result.setNrErrors( 1 );
-            }
-            updateResult( result );
-            if ( setLogfile ) {
-              ResultFile resultFile =
-                new ResultFile(
-                  ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename, this ), parentWorkflow
-                  .getJobname(), toString()
-                );
-              result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
-            }
-          } catch ( HopException e ) {
-
-            logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnablePrepareExec" ), e );
-            result.setNrErrors( 1 );
-          }
-        }
-      } catch ( Exception e ) {
-
-        logError( BaseMessages.getString( PKG, "JobPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
-        logError( Const.getStackTracker( e ) );
-        result.setNrErrors( 1 );
-      }
-      iteration++;
-    }
-
-    if ( setLogfile ) {
-      if ( logChannelFileWriter != null ) {
-        logChannelFileWriter.stopLogging();
-
-        ResultFile resultFile =
-          new ResultFile(
-            ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getJobname(), getName() );
-        result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
-
-        // See if anything went wrong during file writing...
-        //
-        if ( logChannelFileWriter.getException() != null ) {
-          logError( "Unable to open log file [" + getLogFilename() + "] : " );
-          logError( Const.getStackTracker( logChannelFileWriter.getException() ) );
+          doFallback = false;
+        } catch ( HopException e ) {
+          log.logError( e.getMessage(), getName() );
           result.setNrErrors( 1 );
           result.setResult( false );
           return result;
         }
+
+
+        // Execute this pipeline using the specified run configuration
+        //
+        PipelineRunConfiguration pipelineRunConfiguration = null;
+        try {
+          pipelineRunConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfiguration );
+        } catch ( MetaStoreException e ) {
+          throw new HopException( "Unable to load run configuration '"+runConfiguration+"", e );
+        }
+
+        if (pipelineRunConfiguration==null) {
+          throw new HopException( "Unable to find run configuration '"+runConfiguration+"" );
+        }
+
+        // Create the pipeline from meta-data
+        //
+        final PipelineMeta meta = pipelineMeta;
+        pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfiguration, meta);
+        pipeline.setParent( this );
+
+
+        // set the parent workflow on the pipeline, variables are taken from here...
+        //
+        pipeline.setParentWorkflow( parentWorkflow );
+        pipeline.setParentVariableSpace( parentWorkflow );
+        pipeline.setLogLevel( pipelineLogLevel );
+        pipeline.setPreviousResult( previousResult );
+
+        // inject the metaStore
+        pipeline.setMetaStore( metaStore );
+
+        // First get the root workflow
+        //
+        Workflow rootWorkflow = parentWorkflow;
+        while ( rootWorkflow.getParentWorkflow() != null ) {
+          rootWorkflow = rootWorkflow.getParentWorkflow();
+        }
+
+        try {
+          // Start execution...
+          //
+          pipeline.execute();
+
+          // Wait until we're done with this pipeline
+          //
+          pipeline.waitUntilFinished();
+
+          if ( parentWorkflow.isStopped() || pipeline.getErrors() != 0 ) {
+            pipeline.stopAll();
+            result.setNrErrors( 1 );
+          }
+          updateResult( result );
+          if ( setLogfile ) {
+            ResultFile resultFile =
+              new ResultFile(
+                ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename, this ), parentWorkflow
+                .getJobname(), toString()
+              );
+            result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+          }
+        } catch ( HopException e ) {
+
+          logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnablePrepareExec" ), e );
+          result.setNrErrors( 1 );
+        }
+
+    } catch( Exception e ){
+
+      logError( BaseMessages.getString( PKG, "JobPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
+      logError( Const.getStackTracker( e ) );
+      result.setNrErrors( 1 );
+    }
+    iteration++;
+  }
+
+    if(setLogfile )
+
+  {
+    if ( logChannelFileWriter != null ) {
+      logChannelFileWriter.stopLogging();
+
+      ResultFile resultFile =
+        new ResultFile(
+          ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getJobname(), getName() );
+      result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+
+      // See if anything went wrong during file writing...
+      //
+      if ( logChannelFileWriter.getException() != null ) {
+        logError( "Unable to open log file [" + getLogFilename() + "] : " );
+        logError( Const.getStackTracker( logChannelFileWriter.getException() ) );
+        result.setNrErrors( 1 );
+        result.setResult( false );
+        return result;
       }
     }
+  }
 
-    if ( result.getNrErrors() == 0 ) {
-      result.setResult( true );
-    } else {
-      result.setResult( false );
-    }
+    if(result.getNrErrors()==0)
+
+  {
+    result.setResult( true );
+  } else
+
+  {
+    result.setResult( false );
+  }
 
     return result;
-  }
+}
 
   protected void updateResult( Result result ) {
     Result newResult = pipeline.getResult();
@@ -932,7 +804,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables       The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
@@ -974,20 +846,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
 
   protected String getLogfile() {
     return logfile;
-  }
-
-  /**
-   * @return the remote slave server name
-   */
-  public String getRemoteSlaveServerName() {
-    return remoteSlaveServerName;
-  }
-
-  /**
-   * @param remoteSlaveServerName the remote slave server name to set
-   */
-  public void setRemoteSlaveServerName( String remoteSlaveServerName ) {
-    this.remoteSlaveServerName = remoteSlaveServerName;
   }
 
   /**
@@ -1048,7 +906,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
     this.runConfiguration = runConfiguration;
   }
 
-  public Pipeline getPipeline() {
+  public IPipelineEngine<PipelineMeta> getPipeline() {
     return pipeline;
   }
 
@@ -1074,7 +932,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore metaStore
-   * @param variables     the variable space to use
+   * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */

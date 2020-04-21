@@ -103,7 +103,7 @@ public class MySQLBulkLoaderTest {
     PluginRegistry plugReg = PluginRegistry.getInstance();
     String mblPid = plugReg.getPluginId( TransformPluginType.class, lmeta );
     smeta = new TransformMeta( mblPid, "MySqlBulkLoader", lmeta );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( smeta );
     lder = new MySQLBulkLoader( smeta, ldata, 1, pipelineMeta, pipeline );
     lder.copyVariablesFrom( pipelineMeta );
@@ -169,7 +169,7 @@ public class MySQLBulkLoaderTest {
 
     String loaderPid = plugReg.getPluginId( TransformPluginType.class, lm );
     TransformMeta transformMeta = new TransformMeta( loaderPid, "loader", lm );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     pipeline.setRunning( true );
 
@@ -221,7 +221,7 @@ public class MySQLBulkLoaderTest {
 
     String loaderPid = plugReg.getPluginId( TransformPluginType.class, lm );
     TransformMeta transformMeta = new TransformMeta( loaderPid, "loader", lm );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     pipeline.setRunning( true );
 

@@ -84,7 +84,7 @@ public class InsertUpdateMetaTest {
     String deletePid = plugReg.getPluginId( TransformPluginType.class, umi );
 
     transformMeta = new TransformMeta( deletePid, "delete", umi );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     upd = new InsertUpdate( transformMeta, umi, ud, 1, pipelineMeta, pipeline );
     upd.copyVariablesFrom( pipelineMeta );

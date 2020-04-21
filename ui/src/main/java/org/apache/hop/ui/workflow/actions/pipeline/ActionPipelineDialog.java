@@ -492,9 +492,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
       // Ignore errors
     }
 
-    if ( executionConfiguration.getRemoteServer() != null ) {
-      jet.setRemoteSlaveServerName( executionConfiguration.getRemoteServer().getName() );
-    }
     jet.setLoggingRemoteWork( executionConfiguration.isLogRemoteExecutionLocally() );
   }
 

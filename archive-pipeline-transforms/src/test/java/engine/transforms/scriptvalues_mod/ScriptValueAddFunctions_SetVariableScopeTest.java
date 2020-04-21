@@ -216,7 +216,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
   }
 
   private Pipeline createPipeline() {
-    Pipeline pipeline = new Pipeline();
+    Pipeline pipeline = new LocalPipelineEngine();
     pipeline.setLog( mock( LogChannelInterface.class ) );
 
     pipeline = spy( pipeline );

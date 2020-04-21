@@ -840,7 +840,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return SlaveServerPipelineStatus.fromXML( xml );
   }
 
-  public SlaveServerWorkflowStatus getJobStatus( String workflowName, String carteObjectId, int startLogLineNr )
+  public SlaveServerWorkflowStatus getWorkflowStatus( String workflowName, String carteObjectId, int startLogLineNr )
     throws Exception {
     String xml =
       execService( GetWorkflowStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
@@ -869,14 +869,14 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult removeJob( String workflowName, String carteObjectId ) throws Exception {
+  public WebResult removeWorkflow( String workflowName, String carteObjectId ) throws Exception {
     String xml =
       execService( RemoveWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
         + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult stopJob( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult stopWorkflow( String pipelineName, String carteObjectId ) throws Exception {
     String xml =
       execService( StopWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( carteObjectId, "" ) );
@@ -890,7 +890,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult startJob( String workflowName, String carteObjectId ) throws Exception {
+  public WebResult startWorkflow( String workflowName, String carteObjectId ) throws Exception {
     String xml =
       execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( carteObjectId, "" ) );
@@ -1041,6 +1041,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * Sniff rows on a the slave server, return xml containing the row metadata and data.
    *
    * @param pipelineName pipeline name
+   * @param id the id on the server
    * @param transformName  transform name
    * @param copyNr    transform copy number
    * @param lines     lines number
@@ -1048,9 +1049,12 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * @return xml with row metadata and data
    * @throws Exception
    */
-  public String sniffTransform( String pipelineName, String transformName, String copyNr, int lines, String type ) throws Exception {
-    return execService( SniffTransformServlet.CONTEXT_PATH + "/?pipeline=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&transform="
-      + URLEncoder.encode( transformName, "UTF-8" ) + "&copynr=" + copyNr + "&type=" + type + "&lines=" + lines + "&xml=Y" );
+  public String sniffTransform( String pipelineName, String transformName, String id, String copyNr, int lines, String type ) throws Exception {
+    return execService( SniffTransformServlet.CONTEXT_PATH +
+      "/?pipeline=" + URLEncoder.encode( pipelineName, "UTF-8" ) +
+      "&id=" + URLEncoder.encode( id, "UTF-8" ) +
+      "&transform=" + URLEncoder.encode( transformName, "UTF-8" ) +
+      "&copynr=" + copyNr + "&type=" + type + "&lines=" + lines + "&xml=Y" );
   }
 
   public long getNextSlaveSequenceValue( String slaveSequenceName, long incrementValue ) throws HopException {
@@ -1206,7 +1210,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       // Check the remote server
       if ( allFinished && errors == 0 ) {
         try {
-          SlaveServerWorkflowStatus jobStatus = getJobStatus( workflowName, carteObjectId, 0 );
+          SlaveServerWorkflowStatus jobStatus = getWorkflowStatus( workflowName, carteObjectId, 0 );
           if ( jobStatus.isRunning() ) {
             if ( log.isDetailed() ) {
               log.logDetailed( workflowName, "Remote workflow is still running." );
@@ -1272,6 +1276,13 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    */
   public SslConfiguration getSslConfig() {
     return sslConfig;
+  }
+
+  /**
+   * @param overrideExistingProperties The overrideExistingProperties to set
+   */
+  public void setOverrideExistingProperties( boolean overrideExistingProperties ) {
+    this.overrideExistingProperties = overrideExistingProperties;
   }
 
   /**

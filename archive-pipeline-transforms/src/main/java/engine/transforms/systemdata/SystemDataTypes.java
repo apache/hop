@@ -49,8 +49,6 @@ public enum SystemDataTypes {
   TYPE_SYSTEM_INFO_FILENAME( " pipeline file name", "PipelineFileName" ),
   TYPE_SYSTEM_INFO_MODIFIED_USER( "User modified", "UserModified" ),
   TYPE_SYSTEM_INFO_MODIFIED_DATE( "Date modified", "DateModified" ),
-  TYPE_SYSTEM_INFO_PIPELINE_BATCH_ID( "batch ID", "BatchID" ),
-  TYPE_SYSTEM_INFO_JOB_BATCH_ID( "workflow batch ID", "JobBatchID" ),
   TYPE_SYSTEM_INFO_HOSTNAME( "Hostname", "HostnameNetworkSetup" ),
   TYPE_SYSTEM_INFO_HOSTNAME_REAL( "Hostname real", "Hostname" ),
   TYPE_SYSTEM_INFO_IP_ADDRESS( "IP address", "IPAddress" ),

@@ -64,7 +64,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   //default value
   private static Class<?> PKG = TransformWithMappingMeta.class;
 
-  protected String fileName;
+  protected String filename;
 
   public static PipelineMeta loadMappingMeta( TransformWithMappingMeta mappingMeta, IMetaStore metaStore, IVariables variables ) throws HopException {
     return loadMappingMeta( mappingMeta, metaStore, variables, true );
@@ -97,9 +97,9 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     // send restricted parentVariables with several important options
     // Otherwise we destroy child variables and the option "Inherit all variables from the pipeline" is enabled always.
     IVariables tmpSpace = r.resolveCurrentDirectory( getVarSpaceOnlyWithRequiredParentVars( variables ),
-      executorMeta.getParentTransformMeta(), executorMeta.getFileName() );
+      executorMeta.getParentTransformMeta(), executorMeta.getFilename() );
 
-    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFileName() );
+    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFilename() );
     if ( variables != null ) {
       // This is a parent pipeline and parent variable should work here. A child file name can be resolved via parent space.
       realFilename = variables.environmentSubstitute( realFilename );
@@ -197,22 +197,22 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   /**
    * @return the fileName
    */
-  public String getFileName() {
-    return fileName;
+  public String getFilename() {
+    return filename;
   }
 
   /**
-   * @param fileName the fileName to set
+   * @param filename the fileName to set
    */
-  public void setFileName( String fileName ) {
-    this.fileName = fileName;
+  public void setFilename( String filename ) {
+    this.filename = filename;
   }
 
   /**
    * @param fileName the fileName to set
    */
   public void replaceFileName( String fileName ) {
-    this.fileName = fileName;
+    this.filename = fileName;
   }
 
   @Override
@@ -252,7 +252,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
 
       return proposedNewFilename;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "TransformWithMappingMeta.Exception.UnableToLoadPipeline", fileName ) );
+      throw new HopException( BaseMessages.getString( PKG, "TransformWithMappingMeta.Exception.UnableToLoadPipeline", filename ) );
     }
   }
 

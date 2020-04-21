@@ -207,12 +207,6 @@ public class SystemData extends BaseTransform implements ITransform {
         case TYPE_SYSTEM_INFO_MODIFIED_DATE:
           row[ index ] = getPipelineMeta().getModifiedDate();
           break;
-        case TYPE_SYSTEM_INFO_PIPELINE_BATCH_ID:
-          row[ index ] = new Long( getPipeline().getBatchId() );
-          break;
-        case TYPE_SYSTEM_INFO_JOB_BATCH_ID:
-          row[ index ] = new Long( getPipeline().getPassedBatchId() );
-          break;
         case TYPE_SYSTEM_INFO_HOSTNAME_REAL:
           row[ index ] = Const.getHostnameReal();
           break;

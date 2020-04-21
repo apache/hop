@@ -80,8 +80,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   private Map<String, String> extensionOptions;
 
-  private Long passedBatchId;
-
   private String runConfiguration;
 
   public WorkflowExecutionConfiguration() {
@@ -317,9 +315,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "gather_metrics", gatheringMetrics ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_job", expandingRemoteJob ) );
-    if ( passedBatchId != null ) {
-      xml.append( "    " ).append( XmlHandler.addTagValue( "passedBatchId", passedBatchId ) );
-    }
 
     // The source rows...
     //
@@ -378,11 +373,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     startCopyNr = Const.toInt( XmlHandler.getTagValue( trecNode, "start_copy_nr" ), 0 );
 
     gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "gather_metrics" ) );
-
-    String sPassedBatchId = XmlHandler.getTagValue( trecNode, "passedBatchId" );
-    if ( !StringUtils.isEmpty( sPassedBatchId ) ) {
-      passedBatchId = Long.parseLong( sPassedBatchId );
-    }
 
     Node resultNode = XmlHandler.getSubNode( trecNode, Result.XML_TAG );
     if ( resultNode != null ) {
@@ -486,12 +476,5 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public void setExtensionOptions( Map<String, String> extensionOptions ) {
     this.extensionOptions = extensionOptions;
   }
-
-  public Long getPassedBatchId() {
-    return passedBatchId;
-  }
-
-  public void setPassedBatchId( Long passedBatchId ) {
-    this.passedBatchId = passedBatchId;
-  }
+  
 }

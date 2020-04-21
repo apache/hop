@@ -27,7 +27,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 public class TransformInitThread implements Runnable {
   private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
@@ -70,7 +70,7 @@ public class TransformInitThread implements Runnable {
       combi.transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_INIT_START );
 
       if ( combi.transform.init() ) {
-        combi.data.setStatus( TransformExecutionStatus.STATUS_IDLE );
+        combi.data.setStatus( ComponentExecutionStatus.STATUS_IDLE );
         ok = true;
       } else {
         combi.transform.setErrors( 1 );

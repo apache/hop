@@ -32,8 +32,8 @@ import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
-import static org.apache.hop.core.logging.LoggingObjectType.JOB;
-import static org.apache.hop.core.logging.LoggingObjectType.JOBENTRY;
+import static org.apache.hop.core.logging.LoggingObjectType.WORKFLOW;
+import static org.apache.hop.core.logging.LoggingObjectType.ACTION;
 import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
 import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
 
@@ -68,7 +68,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
           message.getSubject() + " " + message.getMessage() );
       } else if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == TRANSFORM || loggingObject.getObjectType() == DATABASE ) {
         logToLogger( pipelineLogger, message.getLevel(), loggingObject, message );
-      } else if ( loggingObject.getObjectType() == JOB || loggingObject.getObjectType() == JOBENTRY ) {
+      } else if ( loggingObject.getObjectType() == WORKFLOW || loggingObject.getObjectType() == ACTION ) {
         logToLogger( jobLogger, message.getLevel(), loggingObject, message );
       }
     }
@@ -108,7 +108,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
   private String getDetailedSubject( ILoggingObject loggingObject ) {
     LinkedList<String> subjects = new LinkedList<>();
     while ( loggingObject != null ) {
-      if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == JOB ) {
+      if ( loggingObject.getObjectType() == PIPELINE || loggingObject.getObjectType() == WORKFLOW ) {
         String filename = loggingObject.getFilename();
         if ( filename != null && filename.length() > 0 ) {
           subjects.add( filename );

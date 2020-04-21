@@ -27,6 +27,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -51,99 +53,6 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
     super( pipelineMap );
   }
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/cleanupPipeline</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Cleans up pipeline on HopServer server.
-   * Method is used for cleaning previously uploaded pipeline by its name on HopServer server. There are
-   * two modes for this method: 1) Clean the server sockets only or 2) Clean everything, including the pipeline.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /hop/cleanupPipeline/?name=dummy-pipeline2&xml=Y
-   * </pre>
-   *
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>name</td>
-   * <td>Name of the pipeline to be cleaned.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>xml</td>
-   * <td>Boolean flag which sets the output format required. Use <code>Y</code> to receive XML response.</td>
-   * <td>boolean, optional</td>
-   * </tr>
-   * <tr>
-   * <td>id</td>
-   * <td>HopServer pipeline ID of the pipeline to be cleaned.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * <tr>
-   * <td>sockets</td>
-   * <td>Boolean flag which indicates if full clean up or sockets only is required.
-   * Use <code>Y</code> to clean just sockets.</td>
-   * <td>boolean, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">text:</td>
-   * <td>HTML</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>text/xml, text/html</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>Response XML or HTML containing operation result. When using xml=Y <code>result</code> field indicates whether
-   * operation was successful (<code>OK</code>) or not (<code>ERROR</code>).</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <?xml version="1.0" encoding="UTF-8"?>
-   * <webresult>
-   * <result>OK</result>
-   * <message>All server sockets ports for pipeline &#x5b;dummy-pipeline2&#x5d; were deallocated. &#xd;&#xa;Pipeline &#x5b;dummy-pipeline2&#x5d; was cleaned up.</message>
-   * <id/>
-   * </webresult>
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -189,12 +98,12 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
       if ( !onlySockets ) {
         // ID is optional...
         //
-        Pipeline pipeline;
+        IPipelineEngine<PipelineMeta> pipeline;
         HopServerObjectEntry entry;
         if ( Utils.isEmpty( id ) ) {
           // get the first pipeline that matches...
           //
-          entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+          entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
           if ( entry == null ) {
             pipeline = null;
           } else {

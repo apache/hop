@@ -26,6 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.pipeline.Pipeline;
 
@@ -215,10 +217,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       getSystemInfo( serverStatus );
 
       for ( HopServerObjectEntry entry : pipelineEntries ) {
-        Pipeline pipeline = getPipelineMap().getPipeline( entry );
-        String status = pipeline.getStatus();
+        IPipelineEngine<PipelineMeta> pipeline = getPipelineMap().getPipeline( entry );
+        String statusDescription = pipeline.getStatusDescription();
 
-        SlaveServerPipelineStatus sstatus = new SlaveServerPipelineStatus( entry.getName(), entry.getId(), status );
+        SlaveServerPipelineStatus sstatus = new SlaveServerPipelineStatus( entry.getName(), entry.getId(), statusDescription );
         sstatus.setLogDate( pipeline.getExecutionStartDate() );
         sstatus.setPaused( pipeline.isPaused() );
         serverStatus.getPipelineStatusList().add( sstatus );
@@ -335,22 +337,19 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
-        Comparator<HopServerObjectEntry> pipelineComparator = new Comparator<HopServerObjectEntry>() {
-          @Override
-          public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-            Pipeline t1 = getPipelineMap().getPipeline( o1 );
-            Pipeline t2 = getPipelineMap().getPipeline( o2 );
-            Date d1 = t1.getExecutionStartDate();
-            Date d2 = t2.getExecutionStartDate();
-            // if both pipelines have last log date, desc sort by log date
-            if ( d1 != null && d2 != null ) {
-              int logDateCompare = d2.compareTo( d1 );
-              if ( logDateCompare != 0 ) {
-                return logDateCompare;
-              }
+        Comparator<HopServerObjectEntry> pipelineComparator = ( o1, o2 ) -> {
+          IPipelineEngine<PipelineMeta> t1 = getPipelineMap().getPipeline( o1 );
+          IPipelineEngine<PipelineMeta> t2 = getPipelineMap().getPipeline( o2 );
+          Date d1 = t1.getExecutionStartDate();
+          Date d2 = t2.getExecutionStartDate();
+          // if both pipelines have last log date, desc sort by log date
+          if ( d1 != null && d2 != null ) {
+            int logDateCompare = d2.compareTo( d1 );
+            if ( logDateCompare != 0 ) {
+              return logDateCompare;
             }
-            return o1.compareTo( o2 );
           }
+          return o1.compareTo( o2 );
         };
 
         Collections.sort( pipelineEntries, pipelineComparator );
@@ -359,8 +358,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         for ( int i = 0; i < pipelineEntries.size(); i++ ) {
           String name = pipelineEntries.get( i ).getName();
           String id = pipelineEntries.get( i ).getId();
-          Pipeline pipeline = getPipelineMap().getPipeline( pipelineEntries.get( i ) );
-          String status = pipeline.getStatus();
+          IPipelineEngine<PipelineMeta> pipeline = getPipelineMap().getPipeline( pipelineEntries.get( i ) );
+          String statusDescription = pipeline.getStatusDescription();
           String trClass = evenRow ? "cellTableEvenRow" : "cellTableOddRow"; // alternating row color
           String tdClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
           evenRow = !evenRow; // flip
@@ -381,7 +380,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
-            + "id=\"cellTableCellStatus_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + status + "</td>" );
+            + "id=\"cellTableCellStatus_" + i + "\" class=\"cellTableCell " + tdClass + "\">" + statusDescription + "</td>" );
           String dateStr = XmlHandler.date2string( pipeline.getExecutionStartDate() );
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "

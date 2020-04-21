@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -35,6 +36,10 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutor;
 import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.pipeline.Pipeline;
@@ -202,7 +207,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       discardLogLines( pipelineExecutorData );
     }
 
-    Pipeline executorPipeline = createInternalPipeline();
+    IPipelineEngine<PipelineMeta> executorPipeline = createInternalPipeline();
     pipelineExecutorData.setExecutorPipeline( executorPipeline );
     if ( incomingFieldValues != null ) {
       // Pass parameter values
@@ -249,7 +254,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   void discardLogLines( PipelineExecutorData pipelineExecutorData ) {
     // Keep the strain on the logging back-end conservative.
     // TODO: make this optional/user-defined later
-    Pipeline executorPipeline = pipelineExecutorData.getExecutorPipeline();
+    IPipelineEngine<PipelineMeta> executorPipeline = pipelineExecutorData.getExecutorPipeline();
     if ( executorPipeline != null ) {
       HopLogStore.discardLines( executorPipeline.getLogChannelId(), false );
       LoggingRegistry.getInstance().removeIncludingChildren( executorPipeline.getLogChannelId() );
@@ -257,10 +262,22 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   @VisibleForTesting
-  Pipeline createInternalPipeline() throws HopException {
-    Pipeline executorPipeline = new Pipeline( getData().getExecutorPipelineMeta(), this );
+  IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
+    if ( StringUtils.isEmpty(meta.getRunConfigurationName())) {
+      throw new HopException( "You need to specify the pipeline run configuration with which you want to run the pipeline" );
+    }
+    String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
+    PipelineRunConfiguration runConfiguration;
+    try {
+      runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+    } catch ( MetaStoreException e ) {
+      throw new HopException( "Unable to load pipeline run configuration '"+runConfigurationName+"'", e );
+    }
+
+    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
+    executorPipeline.setParent(this);
     executorPipeline.setLogLevel( getLogLevel() );
     executorPipeline.setInternalHopVariables( this );
     executorPipeline.setPreview( getPipeline().isPreview() );
@@ -349,9 +366,16 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       inputFieldValues[ i ] = resolvingValuesMap.get( parameters.getVariable()[ i ] );
     }
 
-    Pipeline pipeline = getExecutorPipeline();
-    TransformWithMappingMeta
-      .activateParams( pipeline, pipeline, this, pipeline.listParameters(), parameters.getVariable(), inputFieldValues, meta.getParameters().isInheritingAllVariables() );
+    IPipelineEngine<PipelineMeta> pipeline = getExecutorPipeline();
+    TransformWithMappingMeta.activateParams(
+      pipeline,
+      pipeline,
+      this,
+      pipeline.listParameters(),
+      parameters.getVariable(),
+      inputFieldValues,
+      meta.getParameters().isInheritingAllVariables()
+    );
   }
 
   @VisibleForTesting
@@ -508,7 +532,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     super.stopAll();
   }
 
-  public Pipeline getExecutorPipeline() {
+  public IPipelineEngine<PipelineMeta> getExecutorPipeline() {
     return getData().getExecutorPipeline();
   }
 

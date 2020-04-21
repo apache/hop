@@ -25,6 +25,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -58,17 +59,17 @@ public class PipelineConfiguration {
     return xml.toString();
   }
 
-  public PipelineConfiguration( Node configNode ) throws HopException {
+  public PipelineConfiguration( Node configNode, IMetaStore metaStore ) throws HopException {
     Node trecNode = XmlHandler.getSubNode( configNode, PipelineExecutionConfiguration.XML_TAG );
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration( trecNode );
     Node pipelineNode = XmlHandler.getSubNode( configNode, PipelineMeta.XML_TAG );
-    pipelineMeta = new PipelineMeta( pipelineNode );
+    pipelineMeta = new PipelineMeta( pipelineNode, metaStore );
   }
 
-  public static final PipelineConfiguration fromXML( String xml ) throws HopException {
+  public static final PipelineConfiguration fromXML( String xml, IMetaStore metaStore ) throws HopException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
-    return new PipelineConfiguration( configNode );
+    return new PipelineConfiguration( configNode, metaStore );
   }
 
   /**

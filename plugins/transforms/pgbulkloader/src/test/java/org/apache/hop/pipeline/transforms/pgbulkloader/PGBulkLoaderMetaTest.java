@@ -30,6 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -142,7 +143,7 @@ public class PGBulkLoaderMetaTest {
     String loaderPid = plugReg.getPluginId( TransformPluginType.class, lm );
 
     transformMeta = new TransformMeta( loaderPid, "loader", lm );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
 
     loader = new PGBulkLoader( transformMeta, lm, ld, 1, pipelineMeta, pipeline );

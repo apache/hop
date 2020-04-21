@@ -93,7 +93,7 @@ public class JoinRowsTest {
   private JoinRows getJoinRows() throws Exception {
     TransformMeta transformMeta = new TransformMeta();
     PipelineMeta pipelineMeta = new PipelineMeta();
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
 
     pipelineMeta.clear();
     pipelineMeta.addTransform( transformMeta );

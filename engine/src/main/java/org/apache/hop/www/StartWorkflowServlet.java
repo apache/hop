@@ -223,7 +223,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
 
             String carteObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject servletLoggingObject =
-              new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.CARTE, null );
+              new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
             servletLoggingObject.setContainerObjectId( carteObjectId );
 
             Workflow newWorkflow = new Workflow( workflow.getWorkflowMeta(), servletLoggingObject );

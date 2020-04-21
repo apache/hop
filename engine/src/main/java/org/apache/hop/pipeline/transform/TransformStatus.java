@@ -23,10 +23,12 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -52,6 +54,8 @@ public class TransformStatus {
   private long linesOutput;
   private long linesUpdated;
   private long linesRejected;
+  private long inputBufferSize;
+  private long outputBufferSize;
   private long errors;
   private String statusDescription;
   private double seconds;
@@ -59,7 +63,7 @@ public class TransformStatus {
   private String priority;
   private boolean stopped;
   private boolean paused;
-  private long accumlatedRuntime;
+  private long accumulatedRuntime;
 
   private IRowMeta sampleRowMeta;
   private List<Object[]> sampleRows;
@@ -69,29 +73,29 @@ public class TransformStatus {
     sampleRows = Collections.synchronizedList( new LinkedList<Object[]>() );
   }
 
-  public TransformStatus( ITransform baseTransform ) {
-    updateAll( baseTransform );
+  public TransformStatus( IEngineComponent component ) {
+    updateAll( component );
   }
 
-  public synchronized void updateAll( ITransform baseTransform ) {
+  public synchronized void updateAll( IEngineComponent component ) {
     // Proc: nr of lines processed: input + output!
 
-    this.transformName = baseTransform.getTransformName();
-    this.copy = baseTransform.getCopy();
-    this.linesRead = linesRead + baseTransform.getLinesRead();
-    this.linesWritten = linesWritten + baseTransform.getLinesWritten();
-    this.linesInput = linesInput + baseTransform.getLinesInput();
-    this.linesOutput = linesOutput + baseTransform.getLinesOutput();
-    this.linesUpdated = linesUpdated + baseTransform.getLinesUpdated();
-    this.linesRejected = linesRejected + baseTransform.getLinesRejected();
-    this.errors = errors + baseTransform.getErrors();
-    this.accumlatedRuntime = accumlatedRuntime + baseTransform.getRuntime();
-    this.statusDescription = baseTransform.getStatus().getDescription();
+    this.transformName = component.getName();
+    this.copy = component.getCopyNr();
+    this.linesRead = linesRead + component.getLinesRead();
+    this.linesWritten = linesWritten + component.getLinesWritten();
+    this.linesInput = linesInput + component.getLinesInput();
+    this.linesOutput = linesOutput + component.getLinesOutput();
+    this.linesUpdated = linesUpdated + component.getLinesUpdated();
+    this.linesRejected = linesRejected + component.getLinesRejected();
+    this.errors = errors + component.getErrors();
+    this.accumulatedRuntime = accumulatedRuntime + component.getExecutionDuration();
+    this.statusDescription = component.getStatusDescription();
 
     long in_proc = Math.max( linesInput, linesRead );
     long out_proc = Math.max( linesOutput + linesUpdated, linesWritten + linesRejected );
 
-    float lapsed = ( (float) accumlatedRuntime ) / 1000;
+    float lapsed = ( (float) accumulatedRuntime ) / 1000;
     double in_speed = 0;
     double out_speed = 0;
 
@@ -104,10 +108,14 @@ public class TransformStatus {
 
     this.seconds = Math.floor( ( lapsed * 10 ) + 0.5 ) / 10;
     this.speed = lapsed == 0 ? "-" : " " + speedDf.format( speedNumber );
-    this.priority =
-      baseTransform.isRunning() ? "   " + baseTransform.rowsetInputSize() + "/" + baseTransform.rowsetOutputSize() : "-";
-    this.stopped = baseTransform.isStopped();
-    this.paused = baseTransform.isPaused();
+    this.priority = component.isRunning() ? "   " + component.getInputBufferSize() + "/" + component.getOutputBufferSize() : "-";
+    this.stopped = component.isStopped();
+    this.paused = component.isPaused();
+
+    // get the total input and output buffer size (if there are any)
+    //
+    this.inputBufferSize+=component.getInputBufferSize();
+    this.outputBufferSize+=component.getOutputBufferSize();
   }
 
   public String getHTMLTableRow( boolean urlInTransformName ) {
@@ -134,6 +142,8 @@ public class TransformStatus {
       xml.append( XmlHandler.addTagValue( "linesUpdated", linesUpdated, false ) );
       xml.append( XmlHandler.addTagValue( "linesRejected", linesRejected, false ) );
       xml.append( XmlHandler.addTagValue( "errors", errors, false ) );
+      xml.append( XmlHandler.addTagValue( "input_buffer_size", inputBufferSize, false ) );
+      xml.append( XmlHandler.addTagValue( "output_buffer_size", outputBufferSize, false ) );
       xml.append( XmlHandler.addTagValue( "statusDescription", statusDescription, false ) );
       xml.append( XmlHandler.addTagValue( "seconds", seconds, false ) );
       xml.append( XmlHandler.addTagValue( "speed", speed, false ) );
@@ -175,6 +185,8 @@ public class TransformStatus {
     linesUpdated = Long.parseLong( XmlHandler.getTagValue( node, "linesUpdated" ) );
     linesRejected = Long.parseLong( XmlHandler.getTagValue( node, "linesRejected" ) );
     errors = Long.parseLong( XmlHandler.getTagValue( node, "errors" ) );
+    inputBufferSize = Long.parseLong( XmlHandler.getTagValue( node, "input_buffer_size" ) );
+    outputBufferSize = Long.parseLong( XmlHandler.getTagValue( node, "output_buffer_size" ) );
     statusDescription = XmlHandler.getTagValue( node, "statusDescription" );
     seconds = Double.parseDouble( XmlHandler.getTagValue( node, "seconds" ) );
     speed = XmlHandler.getTagValue( node, "speed" );
@@ -483,4 +495,35 @@ public class TransformStatus {
     this.sampleRows = sampleRows;
   }
 
+  /**
+   * Gets inputBufferSize
+   *
+   * @return value of inputBufferSize
+   */
+  public long getInputBufferSize() {
+    return inputBufferSize;
+  }
+
+  /**
+   * @param inputBufferSize The inputBufferSize to set
+   */
+  public void setInputBufferSize( long inputBufferSize ) {
+    this.inputBufferSize = inputBufferSize;
+  }
+
+  /**
+   * Gets outputBufferSize
+   *
+   * @return value of outputBufferSize
+   */
+  public long getOutputBufferSize() {
+    return outputBufferSize;
+  }
+
+  /**
+   * @param outputBufferSize The outputBufferSize to set
+   */
+  public void setOutputBufferSize( long outputBufferSize ) {
+    this.outputBufferSize = outputBufferSize;
+  }
 }

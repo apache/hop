@@ -132,7 +132,7 @@ public class LogMessageTest {
   }
 
   private static ILoggingObject getTreeLoggingObject() {
-    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
+    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOP_GUI, null );
     ILoggingObject pipelineLogObject =
       new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
     ILoggingObject transformLogObject =
@@ -143,7 +143,7 @@ public class LogMessageTest {
   }
 
   private static ILoggingObject getLoggingObjectWithOneParent() {
-    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOPUI, null );
+    ILoggingObject rootLogObject = new SimpleLoggingObject( "ROOT_SUBJECT", LoggingObjectType.HOP_GUI, null );
     ILoggingObject pipelineLogObject =
       new SimpleLoggingObject( "PIPELINE_SUBJECT", LoggingObjectType.PIPELINE, rootLogObject );
     return pipelineLogObject;

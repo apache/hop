@@ -29,6 +29,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -123,7 +124,7 @@ public class DeleteMetaTest implements IInitializerInterface<ITransformMeta> {
     String deletePid = plugReg.getPluginId( TransformPluginType.class, meta );
 
     transformMeta = new TransformMeta( deletePid, "delete", meta );
-    Pipeline pipeline = new Pipeline( pipelineMeta );
+    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipelineMeta.addTransform( transformMeta );
     del = new Delete( transformMeta, meta, data, 1, pipelineMeta, pipeline );
     del.copyVariablesFrom( pipelineMeta );

@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -53,6 +54,8 @@ import java.util.List;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+
+  public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
 
   public PipelineExecutionConfigurationDialog( Shell parent, PipelineExecutionConfiguration configuration,
                                                PipelineMeta pipelineMeta ) {
@@ -79,7 +82,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wLogLevel );
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 180;
+    fdLogLevel.width = 350;
     fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
     wLogLevel.setLayoutData( fdLogLevel );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
@@ -122,12 +125,12 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigTooltip = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.PipelineRunConfiguration.Tooltip" );
 
     wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
-      shell, SWT.BORDER, runConfigLabel, runConfigTooltip);
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true);
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.right = new FormAttachment( 100, -15 );
-    fdRunConfiguration.top = new FormAttachment( 0, 15 );
-    fdRunConfiguration.left = new FormAttachment( 15, 0 );
+    fdRunConfiguration.right = new FormAttachment( 100, -10 );
+    fdRunConfiguration.top = new FormAttachment( 0, 10 );
+    fdRunConfiguration.left = new FormAttachment( 0, 10 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
@@ -161,6 +164,8 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       hopGui.getLog().logError( "Unable to get list of pipeline run configurations from the metastore", e );
     }
 
+    wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ));
+
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
@@ -177,13 +182,16 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     }
 
     wLogLevel.select( configuration.getLogLevel().getLevel() );
+
     getParamsData();
     getVariablesData();
   }
 
   public void getInfo() {
     try {
-      getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
+      String runConfigurationName = wRunConfiguration.getText();
+      getConfiguration().setRunConfiguration( runConfigurationName );
+      AuditManagerGuiUtil.addLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS, runConfigurationName );
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 

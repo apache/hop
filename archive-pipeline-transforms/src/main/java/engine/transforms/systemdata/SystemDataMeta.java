@@ -225,8 +225,6 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransform {
           v = new ValueMetaString( fieldName[ i ] );
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
-        case TYPE_SYSTEM_INFO_PIPELINE_BATCH_ID:
-        case TYPE_SYSTEM_INFO_JOB_BATCH_ID:
         case TYPE_SYSTEM_INFO_CURRENT_PID:
         case TYPE_SYSTEM_INFO_JVM_TOTAL_MEMORY:
         case TYPE_SYSTEM_INFO_JVM_FREE_MEMORY:

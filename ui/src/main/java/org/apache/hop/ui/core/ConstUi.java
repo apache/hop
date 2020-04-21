@@ -122,7 +122,7 @@ public class ConstUi {
   /**
    * the default canvas refresh interval for running pipelines
    */
-  public static final int INTERVAL_MS_PIPELINE_CANVAS_REFRESH = 1000;
+  public static final int INTERVAL_MS_PIPELINE_CANVAS_REFRESH = 500;
 
   /**
    * margin between points of controls

@@ -78,7 +78,7 @@ public class MissingPipelineTransformTest {
 
     transformMeta.setName( "TestMetaTransform" );
     ITransformData iTransformData = mock( ITransformData.class );
-    Pipeline pipeline = new Pipeline();
+    Pipeline pipeline = new LocalPipelineEngine();
     LogChannel log = mock( LogChannel.class );
     doAnswer( new Answer<Void>() {
       public Void answer( InvocationOnMock invocation ) {

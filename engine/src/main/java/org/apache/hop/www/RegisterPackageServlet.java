@@ -29,6 +29,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -101,7 +102,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
 
         PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration );
 
-        Pipeline pipeline = createPipeline( pipelineConfiguration );
+        IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
         resultId = pipeline.getContainerObjectId();
       }
 

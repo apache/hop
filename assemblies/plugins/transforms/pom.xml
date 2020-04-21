@@ -28,7 +28,7 @@
         <module>clonerow</module>
         <module>closure</module>
         <module>columnexists</module>
-        <module>combinationlookup</module>        
+        <module>combinationlookup</module>
         <module>constant</module>
         <module>creditcardvalidator</module>
         <module>cubeinput</module>
@@ -66,8 +66,10 @@
         <module>http</module>
         <module>httppost</module>
         <module>insertupdate</module>
+        <module>ifnull</module>
         <module>loadfileinput</module>
         <module>mergejoin</module>
+        <module>nullif</module>
         <module>pgbulkloader</module>
         <module>rest</module>
         <module>rowgenerator</module>

@@ -49,7 +49,6 @@ import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
-import org.apache.hop.www.SocketRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -256,10 +255,6 @@ public abstract class TransformClassBase {
 
   public int getSlaveNr() {
     return parent.getSlaveNrImpl();
-  }
-
-  public SocketRepository getSocketRepository() {
-    return parent.getSocketRepositoryImpl();
   }
 
   public TransformExecutionStatus getStatus() {

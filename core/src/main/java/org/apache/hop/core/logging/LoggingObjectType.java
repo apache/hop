@@ -25,19 +25,19 @@ package org.apache.hop.core.logging;
 public enum LoggingObjectType {
   // Runtime...
   //
-  PIPELINE, TRANSFORM, JOB, JOBENTRY, DATABASE,
+  PIPELINE, TRANSFORM, WORKFLOW, ACTION, DATABASE,
 
   // Metadata...
   //
-  PIPELINE_META, TRANSFORM_META, JOB_META,
+  PIPELINE_META, TRANSFORM_META, WORKFLOW_META,
 
   // User Interface...
   //
-  HOPUI, TRANSFORM_DIALOG, JOBENTRYDIALOG,
+  HOP_GUI, TRANSFORM_DIALOG, ACTION_DIALOG,
 
   // Web server + HttpServlet...
   //
-  CARTE, SERVLET,
+  HOP_SERVER, SERVLET,
 
   // General
   //

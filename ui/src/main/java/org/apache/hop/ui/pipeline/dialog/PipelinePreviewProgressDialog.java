@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.debug.IBreakPointListener;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -144,7 +145,7 @@ public class PipelinePreviewProgressDialog {
       BaseMessages.getString( PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title" ), 100 );
 
     // This pipeline is ready to run in preview!
-    pipeline = new Pipeline( pipelineMeta );
+    pipeline = new LocalPipelineEngine( pipelineMeta );
     pipeline.setPreview( true );
 
     // Prepare the execution...

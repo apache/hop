@@ -102,7 +102,7 @@ public class Slf4jLoggingEventListenerTest {
   public void testAddLogEventJob() {
     when( logObjProvider.apply( logChannelId ) ).thenReturn( loggingObject );
     when( loggingObject.getLogChannelId() ).thenReturn( logChannelId );
-    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.JOB );
+    when( loggingObject.getObjectType() ).thenReturn( LoggingObjectType.WORKFLOW );
     when( loggingObject.getFilename() ).thenReturn( "filename" );
     when( message.getLevel() ).thenReturn( LogLevel.BASIC );
     listener.eventAdded( logEvent );

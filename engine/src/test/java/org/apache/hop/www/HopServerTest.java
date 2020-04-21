@@ -59,8 +59,6 @@ import static org.powermock.reflect.Whitebox.getInternalState;
 public class HopServerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  // this test isn't consistent/doesn't work.
-  @Ignore
   @Test
   public void test() throws Exception {
 
@@ -100,7 +98,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void callStopCarteRestService() throws Exception {
+  public void callStopHopServerRestService() throws Exception {
     WebResource status = mock( WebResource.class );
     doReturn( "<serverstatus>" ).when( status ).get( String.class );
 

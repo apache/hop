@@ -83,7 +83,7 @@ public abstract class BaseParsingTest<Meta extends ITransform, Data extends ITra
     transformMeta = new TransformMeta();
     transformMeta.setName( "test" );
 
-    pipeline = new Pipeline();
+    pipeline = new LocalPipelineEngine();
     pipeline.setLog( log );
     pipeline.setRunning( true );
     pipelineMeta = new PipelineMeta() {

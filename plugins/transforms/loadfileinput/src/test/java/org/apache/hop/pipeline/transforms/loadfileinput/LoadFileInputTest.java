@@ -41,6 +41,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -127,7 +128,7 @@ public class LoadFileInputTest {
     pipelineName = "LoadFileInput";
     pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( pipelineName );
-    pipeline = new Pipeline( pipelineMeta );
+    pipeline = new LocalPipelineEngine( pipelineMeta );
 
     transformMetaInterface = spy( new LoadFileInputMeta() );
     transformInputFiles = new FileInputList();

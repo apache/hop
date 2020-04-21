@@ -62,7 +62,7 @@ public class PropertyOutputIT {
   @Test
   public void testExecute() throws HopException, IOException {
     PipelineMeta meta = new PipelineMeta( getClass().getResource( "propertyOutput.hpl" ).getPath() );
-    Pipeline pipeline = new Pipeline( meta );
+    Pipeline pipeline = new LocalPipelineEngine( meta );
     pipeline.execute();
     pipeline.waitUntilFinished();
 

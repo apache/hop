@@ -620,11 +620,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           if ( workflow.isInteractive() ) {
             workflow.getJobEntryListeners().addAll( parentWorkflow.getJobEntryListeners() );
           }
-
-          // Pass the socket repository all around.
-          //
-          workflow.setSocketRepository( parentWorkflow.getSocketRepository() );
-
+          
           // Set the parameters calculated above on this instance.
           //
           workflow.clearParameters();
@@ -665,9 +661,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           // Link both ways!
           workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
 
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            workflow.setPassedBatchId( parentWorkflow.getBatchId() );
-          }
 
           // Inform the parent workflow we started something here...
           //
@@ -727,9 +720,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
             String value = namedParam.getParameterValue( param );
             workflowExecutionConfiguration.getParametersMap().put( param, Const.NVL( value, defValue ) );
           }
-          if ( parentWorkflow.getWorkflowMeta().isBatchIdPassed() ) {
-            workflowExecutionConfiguration.setPassedBatchId( parentWorkflow.getBatchId() );
-          }
 
           // Send the XML over to the slave server
           // Also start the workflow over there...
@@ -755,7 +745,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           SlaveServerWorkflowStatus jobStatus = null;
           while ( !parentWorkflow.isStopped() && waitingToFinish ) {
             try {
-              jobStatus = remoteSlaveServer.getJobStatus( workflowMeta.getName(), carteObjectId, 0 );
+              jobStatus = remoteSlaveServer.getWorkflowStatus( workflowMeta.getName(), carteObjectId, 0 );
               if ( jobStatus.getResult() != null ) {
                 // The workflow is finished, get the result...
                 //
@@ -819,7 +809,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
               if ( jobStatus == null || jobStatus.isRunning() ) {
                 // Try a remote abort ...
                 //
-                remoteSlaveServer.stopJob( workflowMeta.getName(), carteObjectId );
+                remoteSlaveServer.stopWorkflow( workflowMeta.getName(), carteObjectId );
               }
             } catch ( Exception e1 ) {
               logError( "Unable to contact slave server ["

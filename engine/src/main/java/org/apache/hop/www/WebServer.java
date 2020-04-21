@@ -81,7 +81,6 @@ public class WebServer {
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;
   private List<SlaveServerDetection> detections;
-  private SocketRepository socketRepository;
 
   private String hostname;
   private int port;
@@ -95,18 +94,17 @@ public class WebServer {
   private SslConfiguration sslConfig;
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
+                    List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile ) throws Exception {
-    this( log, pipelineMap, workflowMap, socketRepository, detections, hostname, port, join, passwordFile, null );
+    this( log, pipelineMap, workflowMap, detections, hostname, port, join, passwordFile, null );
   }
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port, boolean join,
+                    List<SlaveServerDetection> detections, String hostname, int port, boolean join,
                     String passwordFile, SslConfiguration sslConfig ) throws Exception {
     this.log = log;
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.socketRepository = socketRepository;
     this.detections = detections;
     this.hostname = hostname;
     this.port = port;
@@ -136,15 +134,15 @@ public class WebServer {
   }
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    SocketRepository socketRepository, List<SlaveServerDetection> slaveServers, String hostname, int port )
+                    List<SlaveServerDetection> slaveServers, String hostname, int port )
     throws Exception {
-    this( log, pipelineMap, workflowMap, socketRepository, slaveServers, hostname, port, true );
+    this( log, pipelineMap, workflowMap, slaveServers, hostname, port, true );
   }
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    SocketRepository socketRepository, List<SlaveServerDetection> detections, String hostname, int port,
+                    List<SlaveServerDetection> detections, String hostname, int port,
                     boolean join ) throws Exception {
-    this( log, pipelineMap, workflowMap, socketRepository, detections, hostname, port, join, null, null );
+    this( log, pipelineMap, workflowMap, detections, hostname, port, join, null, null );
   }
 
   public Server getServer() {
@@ -222,7 +220,7 @@ public class WebServer {
     for ( IPlugin plugin : plugins ) {
 
       IHopServerPlugin servlet = pluginRegistry.loadClass( plugin, IHopServerPlugin.class );
-      servlet.setup( pipelineMap, workflowMap, socketRepository, detections );
+      servlet.setup( pipelineMap, workflowMap, detections );
       servlet.setJettyMode( true );
 
       ServletContextHandler servletContext =
@@ -305,10 +303,6 @@ public class WebServer {
           slaveMonitoringTimer.cancel();
           slaveMonitoringTimer = null;
         }
-
-        // Clean up all the server sockets...
-        //
-        socketRepository.closeAll();
 
         // Stop the server...
         //
@@ -452,20 +446,6 @@ public class WebServer {
     };
     int detectionTime = defaultDetectionTimer();
     slaveMonitoringTimer.schedule( timerTask, detectionTime, detectionTime );
-  }
-
-  /**
-   * @return the socketRepository
-   */
-  public SocketRepository getSocketRepository() {
-    return socketRepository;
-  }
-
-  /**
-   * @param socketRepository the socketRepository to set
-   */
-  public void setSocketRepository( SocketRepository socketRepository ) {
-    this.socketRepository = socketRepository;
   }
 
   public String getPasswordFile() {

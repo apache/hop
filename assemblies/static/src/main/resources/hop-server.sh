@@ -23,7 +23,7 @@ if [ ! "x$JAAS_LOGIN_MODULE_CONFIG" = "x" -a ! "x$JAAS_LOGIN_MODULE_NAME" = "x" 
 	OPTIONS=$OPTIONS" -Dloginmodulename=$JAAS_LOGIN_MODULE_NAME"
 fi
 
-OPTIONS="$OPTIONS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+# OPTIONS="$OPTIONS -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
 java ${OPTIONS} -classpath ${CLASSPATH} org.apache.hop.www.HopServer $@
 EXITCODE=$?

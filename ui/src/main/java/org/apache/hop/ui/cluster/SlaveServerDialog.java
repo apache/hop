@@ -531,31 +531,31 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
           dialog.open();
           return;
         }
-
-        originalServer.setName( slaveServer.getName() );
-        originalServer.setHostname( slaveServer.getHostname() );
-        originalServer.setPort( slaveServer.getPort() );
-        originalServer.setWebAppName( slaveServer.getWebAppName() );
-        originalServer.setUsername( slaveServer.getUsername() );
-        originalServer.setPassword( slaveServer.getPassword() );
-
-        originalServer.setProxyHostname( slaveServer.getProxyHostname() );
-        originalServer.setProxyPort( slaveServer.getProxyPort() );
-        originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
-
-        originalServer.setMaster( slaveServer.isMaster() );
-
-        originalServer.setSslMode( slaveServer.isSslMode() );
-
-        originalServer.setChanged();
-
-        result = slaveServer.getName();
-
-        dispose();
       } catch ( Exception e ) {
         new ErrorDialog( shell, "Error", "Error checking for name collisions after rename", e );
       }
     }
+
+    originalServer.setName( slaveServer.getName() );
+    originalServer.setHostname( slaveServer.getHostname() );
+    originalServer.setPort( slaveServer.getPort() );
+    originalServer.setWebAppName( slaveServer.getWebAppName() );
+    originalServer.setUsername( slaveServer.getUsername() );
+    originalServer.setPassword( slaveServer.getPassword() );
+
+    originalServer.setProxyHostname( slaveServer.getProxyHostname() );
+    originalServer.setProxyPort( slaveServer.getProxyPort() );
+    originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
+
+    originalServer.setMaster( slaveServer.isMaster() );
+
+    originalServer.setSslMode( slaveServer.isSslMode() );
+
+    originalServer.setChanged();
+
+    result = slaveServer.getName();
+
+    dispose();
   }
 
   // Get dialog info in securityService

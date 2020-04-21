@@ -33,7 +33,11 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
+import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -47,6 +51,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -230,12 +235,12 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 
     // ID is optional...
     //
-    Pipeline pipeline;
+    IPipelineEngine<PipelineMeta> pipeline;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
       //
-      entry = getPipelineMap().getFirstCarteObjectEntry( pipelineName );
+      entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
       if ( entry == null ) {
         pipeline = null;
       } else {
@@ -255,7 +260,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           OutputStream out = null;
           byte[] data = null;
           String logId = pipeline.getLogChannelId();
-          boolean finishedOrStopped = pipeline.isFinishedOrStopped();
+          boolean finishedOrStopped = pipeline.isFinished() || pipeline.isStopped();
           boolean sendResultXmlWithStatus = "Y".equalsIgnoreCase( request.getParameter( SEND_RESULT ) );
           boolean dontUseCache = sendResultXmlWithStatus;
           if ( finishedOrStopped && ( data = cache.get( logId, startLineNr ) ) != null && !dontUseCache ) {
@@ -272,16 +277,16 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             response.setContentType( "text/xml" );
             response.setCharacterEncoding( Const.XML_ENCODING );
 
-            SlaveServerPipelineStatus pipelineStatus =
-              new SlaveServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatus() );
+            SlaveServerPipelineStatus pipelineStatus = new SlaveServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatusDescription() );
             pipelineStatus.setFirstLoggingLineNr( startLineNr );
             pipelineStatus.setLastLoggingLineNr( lastLineNr );
-            pipelineStatus.setLogDate( pipeline.getExecutionStartDate() );
+            pipelineStatus.setLogDate( new Date() );
+            pipelineStatus.setExecutionStartDate( pipeline.getExecutionStartDate() );
+            pipelineStatus.setExecutionEndDate( pipeline.getExecutionEndDate() );
 
-            for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-              ITransform baseTransform = pipeline.getRunThread( i );
-              if ( ( baseTransform.isRunning() ) || baseTransform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
-                TransformStatus transformStatus = new TransformStatus( baseTransform );
+            for ( IEngineComponent component : pipeline.getComponents()) {
+              if ( ( component.isRunning() ) || ( component.getStatus() != ComponentExecutionStatus.STATUS_EMPTY ) ) {
+                TransformStatus transformStatus = new TransformStatus( component );
                 pipelineStatus.getTransformStatusList().add( transformStatus );
               }
             }
@@ -374,7 +379,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               + BaseMessages.getString( PKG, "PipelineStatusServlet.LastLogDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align: left;\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Encode.forHtml( id ) + "</td>" );
-          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatus() ) + "</td>" );
+          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatusDescription() ) + "</td>" );
           String dateStr = XmlHandler.date2string( pipeline.getExecutionStartDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
@@ -416,20 +421,19 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             + BaseMessages.getString( PKG, "PipelineStatusServlet.prinout" ) + "</th> </tr>" );
 
           boolean evenRow = true;
-          for ( int i = 0; i < pipeline.nrTransforms(); i++ ) {
-            ITransform transform = pipeline.getRunThread( i );
-            if ( ( transform.isRunning() ) || transform.getStatus() != TransformExecutionStatus.STATUS_EMPTY ) {
-              TransformStatus transformStatus = new TransformStatus( transform );
+          for ( IEngineComponent component : pipeline.getComponents() ) {
+            if ( ( component.isRunning() ) || component.getStatus() != ComponentExecutionStatus.STATUS_EMPTY ) {
+              TransformStatus transformStatus = new TransformStatus( component );
               boolean snif = false;
               String htmlString = "";
-              if ( transform.isRunning() && !transform.isStopped() && !transform.isPaused() ) {
+              if ( component.isRunning() && !component.isStopped() && !component.isPaused() ) {
                 snif = true;
                 String sniffLink =
                   " <a href=\""
                     + convertContextPath( SniffTransformServlet.CONTEXT_PATH ) + "?pipeline="
                     + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
-                    + "&lines=50" + "&copynr=" + transform.getCopy() + "&type=" + SniffTransformServlet.TYPE_OUTPUT
-                    + "&transform=" + URLEncoder.encode( transform.getTransformName(), "UTF-8" ) + "\">"
+                    + "&lines=50" + "&copynr=" + component.getCopyNr() + "&type=" + SniffTransformServlet.TYPE_OUTPUT
+                    + "&transform=" + URLEncoder.encode( component.getName(), "UTF-8" ) + "\">"
                     + Encode.forHtml( transformStatus.getTransformName() ) + "</a>";
                 transformStatus.setTransformName( sniffLink );
               }
@@ -463,7 +467,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           // out.print("<a href=\"" + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH) + "?name=" +
           // URLEncoder.encode(pipelineName, "UTF-8") + "&id="+id+"\">"
           // + BaseMessages.getString(PKG, "PipelineStatusServlet.GetPipelineImage") + "</a>");
-          Point max = pipeline.getPipelineMeta().getMaximum();
+          Point max = pipeline.getSubject().getMaximum();
           max.x += 20;
           max.y += 20;
           out.print( "<iframe height=\""
@@ -533,10 +537,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
     return CONTEXT_PATH;
   }
 
-  private String getLogText( Pipeline pipeline, int startLineNr, int lastLineNr ) throws HopException {
+  private String getLogText( IPipelineEngine pipeline, int startLineNr, int lastLineNr ) throws HopException {
     try {
-      return HopLogStore.getAppender().getBuffer(
-        pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();
+      return HopLogStore.getAppender().getBuffer( pipeline.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();
     } catch ( OutOfMemoryError error ) {
       throw new HopException( "Log string is too long", error );
     }

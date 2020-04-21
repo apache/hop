@@ -38,6 +38,9 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.junit.Before;
@@ -91,7 +94,7 @@ public class SubPipelineExecutorTest {
 
   @Test
   public void testRunningZeroRowsIsEmptyOptional() throws Exception {
-    SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", null, null, false, null, "" );
+    SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", null, null, false, null, "", null );
     Optional<Result> execute = subPipelineExecutor.execute( Collections.emptyList() );
     assertFalse( execute.isPresent() );
   }
@@ -104,9 +107,9 @@ public class SubPipelineExecutorTest {
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
-    Pipeline parentPipeline = spy( new Pipeline( parentMeta, loggingObject ) );
-    SubPipelineExecutor subPipelineExecutor =
-      new SubPipelineExecutor( "subpipelinename", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "Group By" );
+    Pipeline parentPipeline = spy( new LocalPipelineEngine( parentMeta, loggingObject ) );
+    SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "subpipelinename", parentPipeline,
+      subMeta, true, new PipelineExecutorParameters(), "Group By", new PipelineRunConfiguration() ); // TODO: pass in local stub run configuration
     IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
@@ -155,10 +158,10 @@ public class SubPipelineExecutorTest {
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
-    Pipeline parentPipeline = new Pipeline( parentMeta, loggingObject );
-    SubPipelineExecutor subPipelineExecutor =
-      new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
-    subPipelineExecutor.running = Mockito.spy( subPipelineExecutor.running );
+    IPipelineEngine<PipelineMeta> parentPipeline = new LocalPipelineEngine( parentMeta, loggingObject );
+    SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", parentPipeline,
+      subMeta, true, new PipelineExecutorParameters(), "", new PipelineRunConfiguration(  ) ); // TODO pass run cfg
+    subPipelineExecutor.setRunning( Mockito.spy( subPipelineExecutor.getRunning() ));
     IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
@@ -166,9 +169,9 @@ public class SubPipelineExecutorTest {
       new RowMetaAndData( rowMeta, "Hop", 3L ),
       new RowMetaAndData( rowMeta, "Hop", 4L ) );
     subPipelineExecutor.execute( rows );
-    verify( subPipelineExecutor.running ).add( any() );
+    verify( subPipelineExecutor.getRunning() ).add( any() );
     subPipelineExecutor.stop();
-    assertTrue( subPipelineExecutor.running.isEmpty() );
+    assertTrue( subPipelineExecutor.getRunning().isEmpty() );
   }
 
   @Test
@@ -180,9 +183,9 @@ public class SubPipelineExecutorTest {
     PipelineMeta subMeta =
       new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
-    Pipeline parentPipeline = new Pipeline( parentMeta, loggingObject );
-    SubPipelineExecutor subPipelineExecutor =
-      new SubPipelineExecutor( "sub-pipeline-name", parentPipeline, subMeta, true, new PipelineExecutorParameters(), "" );
+    IPipelineEngine<PipelineMeta> parentPipeline = new LocalPipelineEngine( parentMeta, loggingObject );
+    SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", parentPipeline,
+      subMeta, true, new PipelineExecutorParameters(), "", new PipelineRunConfiguration(  ) ); // TODO pass in run cfg
     IRowMeta rowMeta = parentMeta.getTransformFields( "Data Grid" );
     List<RowMetaAndData> rows = Arrays.asList(
       new RowMetaAndData( rowMeta, "Hop", 1L ),
