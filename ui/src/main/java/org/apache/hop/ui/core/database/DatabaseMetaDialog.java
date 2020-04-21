@@ -772,6 +772,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     meta.setAccessType( wODBC.getSelection() ? DatabaseMeta.TYPE_ACCESS_ODBC : DatabaseMeta.TYPE_ACCESS_NATIVE );
+    meta.setDatabaseType(wConnectionType.getText() );
     meta.setOdbcDsn( wOdbcDsn.getText() );
     meta.setManualUrl( wManualUrl.getText() );
     meta.setUsername( wUsername.getText() );
