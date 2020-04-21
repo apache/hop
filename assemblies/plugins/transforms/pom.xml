@@ -65,6 +65,7 @@
         <module>getvariable</module>
         <module>http</module>
         <module>httppost</module>
+        <module>insertupdate</module>
         <module>ifnull</module>
         <module>loadfileinput</module>
         <module>mergejoin</module>
@@ -76,8 +77,12 @@
         <module>sort</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>switchcase</module>
+        <module>tablecompare</module>
+        <module>tableexists</module>
         <module>terafast</module>
         <module>textfile</module>
+        <module>update</module>
     </modules>
 
 </project>
