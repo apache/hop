@@ -19,6 +19,9 @@ body {
   padding: 30px 0 0;
   position: relative;
   border-top: 6px solid #5cc0c4;
+
+  background: url(hop_logo.svg) no-repeat top right;
+  background-size: contain;
 }
 
 .workspaceHeading {
@@ -244,3 +247,4 @@ textarea {
   height: 33px;
   color: #333333;
 }
+
