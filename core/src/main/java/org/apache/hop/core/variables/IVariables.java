@@ -106,7 +106,6 @@ public interface IVariables {
    * @param variableName The variable to look up.
    * @param defaultValue The default value to return.
    * @return
-   * @see also static method ValueMeta.convertStringToBoolean()
    */
   boolean getBooleanValueOfVariable( String variableName, boolean defaultValue );
 

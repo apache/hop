@@ -24,7 +24,7 @@ package org.apache.hop.core.extension;
 
 public enum HopExtensionPoint {
 
-  HopUiStart( "HopUiStart", "HopUi has started" ),
+  HopGuiStart( "HopGuiStart", "HopGui has started" ),
   OpenRecent( "OpenRecent", "A recent file is opened" ),
 
   PipelinePrepareExecution( "PipelinePrepareExecution", "A Pipeline begins to prepare execution" ),
