@@ -3631,9 +3631,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           // Do we need to clear the log before running?
           //
-          // if ( executionConfiguration.isClearingLog() ) {
-          //  pipelineLogDelegate.clearLog();
-          // }
+          if ( executionConfiguration.isClearingLog() ) {
+            pipelineLogDelegate.clearLog();
+          }
 
           // Also make sure to clear the log entries in the central log store & registry
           //
