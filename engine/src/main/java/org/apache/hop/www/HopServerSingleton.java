@@ -38,7 +38,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -200,7 +199,7 @@ public class HopServerSingleton {
                     String id = workflowMap.getWorkflow( entry ).getLogChannelId();
                     LoggingRegistry.getInstance().removeLogChannelFileWriterBuffer( id );
 
-                    workflowMap.removeJob( entry );
+                    workflowMap.removeWorkflow( entry );
 
                     log.logMinimal( "Cleaned up workflow "
                       + entry.getName() + " with id " + entry.getId() + " from " + workflow.getExecutionStartDate() );

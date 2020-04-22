@@ -192,7 +192,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
 
       cache.remove( workflow.getLogChannelId() );
       HopLogStore.discardLines( workflow.getLogChannelId(), true );
-      getWorkflowMap().removeJob( entry );
+      getWorkflowMap().removeWorkflow( entry );
 
       if ( useXML ) {
         response.setContentType( "text/xml" );
