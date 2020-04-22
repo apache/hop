@@ -488,6 +488,7 @@ public class ContextDialog extends Dialog {
 		}
 				
 		// Update vertical bar
+		//
 		this.updateVerticalBar();
 		
 		wCanvas.redraw();
@@ -588,9 +589,11 @@ public class ContextDialog extends Dialog {
 		int canvasColumn = Math.min(Math.floorDiv(x, cellWidth), nrColumns) ;
 
 		int index = startRow * calculateNrColumns() + canvasRow * nrColumns + canvasColumn;			
-		Item item = ( index < filteredItems.size() ) ? item = filteredItems.get(index):null;
+		if ( index<0 || index >= filteredItems.size() ) {
+			return null;
+		}
 		
-		return item;
+		return filteredItems.get(index);
 	}
 	
 	public static void main(String[] args) throws Exception {
