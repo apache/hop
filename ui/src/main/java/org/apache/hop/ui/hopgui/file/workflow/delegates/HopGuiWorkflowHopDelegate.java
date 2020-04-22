@@ -99,8 +99,8 @@ public class HopGuiWorkflowHopDelegate {
 
     if ( workflowMeta.hasLoop( newHop.getToEntry() ) ) {
       MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "JobGraph.Dialog.HopCausesLoop.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "JobGraph.Dialog.HopCausesLoop.Title" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message" ) );
+      mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title" ) );
       mb.open();
       ok = false;
     }

@@ -169,7 +169,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
   private SelectionAdapter lsDef;
 
-  private ActionShell jobEntry;
+  private ActionShell action;
 
   private boolean backupChanged, backupLogfile, backupDate, backupTime;
 
@@ -195,9 +195,9 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdScript, fdInsertScript, fdlInsertScript;
 
-  public ActionShellDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionShell) jobEntryInt;
+  public ActionShellDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionShell) action;
   }
 
   public IAction open() {
@@ -206,17 +206,17 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    backupChanged = jobEntry.hasChanged();
-    backupLogfile = jobEntry.setLogfile;
-    backupDate = jobEntry.addDate;
-    backupTime = jobEntry.addTime;
+    backupChanged = action.hasChanged();
+    backupLogfile = action.setLogfile;
+    backupDate = action.addDate;
+    backupTime = action.addTime;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -285,7 +285,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wInsertScript.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ActiveInsertScript();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -370,8 +370,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wSetLogfile.setLayoutData( fdSetLogfile );
     wSetLogfile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setLogfile = !jobEntry.setLogfile;
-        jobEntry.setChanged();
+        action.setLogfile = !action.setLogfile;
+        action.setChanged();
         setActive();
       }
     } );
@@ -451,8 +451,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.addDate = !jobEntry.addDate;
-        jobEntry.setChanged();
+        action.addDate = !action.addDate;
+        action.setChanged();
       }
     } );
 
@@ -474,8 +474,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.addTime = !jobEntry.addTime;
-        jobEntry.setChanged();
+        action.addTime = !action.addTime;
+        action.setChanged();
       }
     } );
 
@@ -516,7 +516,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wGeneralComp, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.argFromPrevious );
+    wPrevious.setSelection( action.argFromPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobShell.Previous.Tooltip" ) );
     fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -525,10 +525,10 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wPrevious.setLayoutData( fdPrevious );
     wPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.argFromPrevious = !jobEntry.argFromPrevious;
-        jobEntry.setChanged();
-        wlFields.setEnabled( !jobEntry.argFromPrevious );
-        wFields.setEnabled( !jobEntry.argFromPrevious );
+        action.argFromPrevious = !action.argFromPrevious;
+        action.setChanged();
+        wlFields.setEnabled( !action.argFromPrevious );
+        wFields.setEnabled( !action.argFromPrevious );
       }
     } );
 
@@ -542,7 +542,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wlEveryRow.setLayoutData( fdlEveryRow );
     wEveryRow = new Button( wGeneralComp, SWT.CHECK );
     props.setLook( wEveryRow );
-    wEveryRow.setSelection( jobEntry.execPerRow );
+    wEveryRow.setSelection( action.execPerRow );
     wEveryRow.setToolTipText( BaseMessages.getString( PKG, "JobShell.ExecForEveryInputRow.Tooltip" ) );
     fdEveryRow = new FormData();
     fdEveryRow.left = new FormAttachment( middle, 0 );
@@ -551,8 +551,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wEveryRow.setLayoutData( fdEveryRow );
     wEveryRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.execPerRow = !jobEntry.execPerRow;
-        jobEntry.setChanged();
+        action.execPerRow = !action.execPerRow;
+        action.setChanged();
       }
     } );
 
@@ -565,7 +565,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wlFields.setLayoutData( fdlFields );
 
     final int FieldsCols = 1;
-    int rows = jobEntry.arguments == null ? 1 : ( jobEntry.arguments.length == 0 ? 0 : jobEntry.arguments.length );
+    int rows = action.arguments == null ? 1 : ( action.arguments.length == 0 ? 0 : action.arguments.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf = new ColumnInfo[ FieldsCols ];
@@ -585,8 +585,8 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdFields.bottom = new FormAttachment( 100, -margin );
     wFields.setLayoutData( fdFields );
 
-    wlFields.setEnabled( !jobEntry.argFromPrevious );
-    wFields.setEnabled( !jobEntry.argFromPrevious );
+    wlFields.setEnabled( !action.argFromPrevious );
+    wFields.setEnabled( !action.argFromPrevious );
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -720,7 +720,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void ActiveInsertScript() {
@@ -757,25 +757,25 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
   }
 
   public void setActive() {
-    wlLogfile.setEnabled( jobEntry.setLogfile );
-    wLogfile.setEnabled( jobEntry.setLogfile );
+    wlLogfile.setEnabled( action.setLogfile );
+    wLogfile.setEnabled( action.setLogfile );
 
-    wlLogext.setEnabled( jobEntry.setLogfile );
-    wLogext.setEnabled( jobEntry.setLogfile );
+    wlLogext.setEnabled( action.setLogfile );
+    wLogext.setEnabled( action.setLogfile );
 
-    wlAddDate.setEnabled( jobEntry.setLogfile );
-    wAddDate.setEnabled( jobEntry.setLogfile );
+    wlAddDate.setEnabled( action.setLogfile );
+    wAddDate.setEnabled( action.setLogfile );
 
-    wlAddTime.setEnabled( jobEntry.setLogfile );
-    wAddTime.setEnabled( jobEntry.setLogfile );
+    wlAddTime.setEnabled( action.setLogfile );
+    wAddTime.setEnabled( action.setLogfile );
 
-    wlLoglevel.setEnabled( jobEntry.setLogfile );
-    wLoglevel.setEnabled( jobEntry.setLogfile );
+    wlLoglevel.setEnabled( action.setLogfile );
+    wLoglevel.setEnabled( action.setLogfile );
 
-    wlAppendLogfile.setEnabled( jobEntry.setLogfile );
-    wAppendLogfile.setEnabled( jobEntry.setLogfile );
+    wlAppendLogfile.setEnabled( action.setLogfile );
+    wAppendLogfile.setEnabled( action.setLogfile );
 
-    if ( jobEntry.setLogfile ) {
+    if ( action.setLogfile ) {
       wLoglevel.setForeground( display.getSystemColor( SWT.COLOR_BLACK ) );
     } else {
       wLoglevel.setForeground( display.getSystemColor( SWT.COLOR_GRAY ) );
@@ -783,46 +783,46 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
   }
 
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wFilename.setText( Const.nullToEmpty( jobEntry.getFilename() ) );
-    wWorkDirectory.setText( Const.nullToEmpty( jobEntry.getWorkDirectory() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wFilename.setText( Const.nullToEmpty( action.getFilename() ) );
+    wWorkDirectory.setText( Const.nullToEmpty( action.getWorkDirectory() ) );
 
-    if ( jobEntry.arguments != null ) {
-      for ( int i = 0; i < jobEntry.arguments.length; i++ ) {
+    if ( action.arguments != null ) {
+      for ( int i = 0; i < action.arguments.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.arguments[ i ] != null ) {
-          ti.setText( 1, jobEntry.arguments[ i ] );
+        if ( action.arguments[ i ] != null ) {
+          ti.setText( 1, action.arguments[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.argFromPrevious );
-    wEveryRow.setSelection( jobEntry.execPerRow );
-    wSetLogfile.setSelection( jobEntry.setLogfile );
-    wLogfile.setText( Const.nullToEmpty( jobEntry.logfile ) );
-    wLogext.setText( Const.nullToEmpty( jobEntry.logext ) );
-    wAddDate.setSelection( jobEntry.addDate );
-    wAddTime.setSelection( jobEntry.addTime );
-    wAppendLogfile.setSelection( jobEntry.setAppendLogfile );
-    if ( jobEntry.logFileLevel != null ) {
-      wLoglevel.select( jobEntry.logFileLevel.getLevel() );
+    wPrevious.setSelection( action.argFromPrevious );
+    wEveryRow.setSelection( action.execPerRow );
+    wSetLogfile.setSelection( action.setLogfile );
+    wLogfile.setText( Const.nullToEmpty( action.logfile ) );
+    wLogext.setText( Const.nullToEmpty( action.logext ) );
+    wAddDate.setSelection( action.addDate );
+    wAddTime.setSelection( action.addTime );
+    wAppendLogfile.setSelection( action.setAppendLogfile );
+    if ( action.logFileLevel != null ) {
+      wLoglevel.select( action.logFileLevel.getLevel() );
     }
 
-    wInsertScript.setSelection( jobEntry.insertScript );
-    wScript.setText( Const.nullToEmpty( jobEntry.getScript() ) );
+    wInsertScript.setSelection( action.insertScript );
+    wScript.setText( Const.nullToEmpty( action.getScript() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( backupChanged );
-    jobEntry.setLogfile = backupLogfile;
-    jobEntry.addDate = backupDate;
-    jobEntry.addTime = backupTime;
+    action.setChanged( backupChanged );
+    action.setLogfile = backupLogfile;
+    action.addDate = backupDate;
+    action.addTime = backupTime;
 
-    jobEntry = null;
+    action = null;
     dispose();
   }
 
@@ -834,9 +834,9 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setFileName( wFilename.getText() );
-    jobEntry.setName( wName.getText() );
-    jobEntry.setWorkDirectory( wWorkDirectory.getText() );
+    action.setFileName( wFilename.getText() );
+    action.setName( wName.getText() );
+    action.setWorkDirectory( wWorkDirectory.getText() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -846,26 +846,26 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
         nr++;
       }
     }
-    jobEntry.arguments = new String[ nr ];
+    action.arguments = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
-        jobEntry.arguments[ nr ] = arg;
+        action.arguments[ nr ] = arg;
         nr++;
       }
     }
 
-    jobEntry.logfile = wLogfile.getText();
-    jobEntry.logext = wLogext.getText();
+    action.logfile = wLogfile.getText();
+    action.logext = wLogext.getText();
     if ( wLoglevel.getSelectionIndex() >= 0 ) {
-      jobEntry.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
+      action.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
     } else {
-      jobEntry.logFileLevel = LogLevel.BASIC;
+      action.logFileLevel = LogLevel.BASIC;
     }
-    jobEntry.setAppendLogfile = wAppendLogfile.getSelection();
-    jobEntry.setScript( wScript.getText() );
-    jobEntry.insertScript = wInsertScript.getSelection();
+    action.setAppendLogfile = wAppendLogfile.getSelection();
+    action.setScript( wScript.getText() );
+    action.insertScript = wInsertScript.getSelection();
     dispose();
   }
 }

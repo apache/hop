@@ -118,7 +118,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionSQL jobEntry;
+  private ActionSQL action;
 
   private Shell shell;
 
@@ -138,11 +138,11 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
   private TextVar wFilename;
   private FormData fdlFilename, fdbFilename, fdFilename;
 
-  public ActionSQLDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSQL) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobSQL.Name.Default" ) );
+  public ActionSQLDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSQL) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobSQL.Name.Default" ) );
     }
   }
 
@@ -152,14 +152,14 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -197,7 +197,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // SQL from file?
     wlSQLFromFile = new Label( shell, SWT.RIGHT );
@@ -219,7 +219,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wSqlFromFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeSQLFromFile();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -291,7 +291,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wSendOneStatement.setLayoutData( fdUseOneStatement );
     wSendOneStatement.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -314,8 +314,8 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wUseSubs.setLayoutData( fdUseSubs );
     wUseSubs.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setUseVariableSubstitution( !jobEntry.getUseVariableSubstitution() );
-        jobEntry.setChanged();
+        action.setUseVariableSubstitution( !action.getUseVariableSubstitution() );
+        action.setChanged();
       }
     } );
 
@@ -337,8 +337,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     fdlSQL.top = new FormAttachment( wUseSubs, margin );
     wlSQL.setLayoutData( fdlSQL );
 
-    wSql =
-      new StyledTextComp( jobEntry, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wSql = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
     fdSQL = new FormData();
@@ -433,7 +432,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void setPosition() {
@@ -462,20 +461,20 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wSql.setText( Const.nullToEmpty( jobEntry.getSql() ) );
-    DatabaseMeta dbinfo = jobEntry.getDatabase();
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wSql.setText( Const.nullToEmpty( action.getSql() ) );
+    DatabaseMeta dbinfo = action.getDatabase();
     if ( dbinfo != null && dbinfo.getName() != null ) {
       wConnection.setText( dbinfo.getName() );
     } else {
       wConnection.setText( "" );
     }
 
-    wUseSubs.setSelection( jobEntry.getUseVariableSubstitution() );
-    wSqlFromFile.setSelection( jobEntry.getSqlFromFile() );
-    wSendOneStatement.setSelection( jobEntry.isSendOneStatement() );
+    wUseSubs.setSelection( action.getUseVariableSubstitution() );
+    wSqlFromFile.setSelection( action.getSqlFromFile() );
+    wSendOneStatement.setSelection( action.isSendOneStatement() );
 
-    wFilename.setText( Const.nullToEmpty( jobEntry.getSqlFilename() ) );
+    wFilename.setText( Const.nullToEmpty( action.getSqlFilename() ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -492,8 +491,8 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -505,13 +504,13 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setSql( wSql.getText() );
-    jobEntry.setUseVariableSubstitution( wUseSubs.getSelection() );
-    jobEntry.setSqlFromFile( wSqlFromFile.getSelection() );
-    jobEntry.setSqlFilename( wFilename.getText() );
-    jobEntry.setSendOneStatement( wSendOneStatement.getSelection() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setName( wName.getText() );
+    action.setSql( wSql.getText() );
+    action.setUseVariableSubstitution( wUseSubs.getSelection() );
+    action.setSqlFromFile( wSqlFromFile.getSelection() );
+    action.setSqlFilename( wFilename.getText() );
+    action.setSendOneStatement( wSendOneStatement.getSelection() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
     dispose();
   }
 }

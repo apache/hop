@@ -27,11 +27,13 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -109,7 +111,9 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Create the transformation and store in the list...
       //
-      final Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
+      String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
+      IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
+      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
 
       // Setting variables
       //
@@ -141,17 +145,17 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
         workflow.setStartActionCopy( startActionCopy );
       }
 
-      getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
+      getWorkflowMap().addWorkflow( workflow.getWorkflowName(), carteObjectId, workflow, workflowConfiguration );
 
 
-      String message = "Workflow '" + workflow.getJobname() + "' was added to the list with id " + carteObjectId;
+      String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + carteObjectId;
 
       if ( useXML ) {
         out.println( new WebResult( WebResult.STRING_OK, message, carteObjectId ) );
       } else {
         out.println( "<H1>" + message + "</H1>" );
         out.println( "<p><a href=\""
-          + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name=" + workflow.getJobname() + "&id="
+          + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name=" + workflow.getWorkflowName() + "&id="
           + carteObjectId + "\">Go to the workflow status page</a><p>" );
       }
     } catch ( Exception ex ) {

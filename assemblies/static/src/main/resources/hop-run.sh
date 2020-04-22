@@ -10,21 +10,21 @@ OPTIONS='-Xmx1g'
 
 # optional line for attaching a debugger
 #
-OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+# OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
 
 case $( uname -s ) in
-	Linux) 
-		CLASSPATH="lib/*"
-		;;
-	Darwin) 
-		CLASSPATH="lib/*"
-		OPTIONS="${OPTIONS} -XstartOnFirstThread"
-		;;
+        Linux) 
+                CLASSPATH="lib/*:libswt/linux/$( uname -m )/*" 
+                ;;
+        Darwin) 
+                CLASSPATH="lib/*:libswt/osx64/*" 
+                OPTIONS="${OPTIONS} -XstartOnFirstThread"
+                ;;
 esac
 
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun $@
+java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun "$@"
 EXITCODE=$?
 
 cd ${ORIGINDIR}

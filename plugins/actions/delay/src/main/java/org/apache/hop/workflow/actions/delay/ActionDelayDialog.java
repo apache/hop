@@ -82,18 +82,18 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionDelay jobEntry;
+  private ActionDelay action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionDelayDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionDelay) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionDelay.Title" ) );
+  public ActionDelayDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionDelay) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionDelay.Title" ) );
     }
   }
 
@@ -103,14 +103,14 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -223,7 +223,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -236,22 +236,22 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getMaximumTimeout() != null ) {
-      wMaximumTimeout.setText( jobEntry.getMaximumTimeout() );
+    if ( action.getMaximumTimeout() != null ) {
+      wMaximumTimeout.setText( action.getMaximumTimeout() );
     }
 
-    wScaleTime.select( jobEntry.scaleTime );
+    wScaleTime.select( action.scaleTime );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -263,9 +263,9 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setMaximumTimeout( wMaximumTimeout.getText() );
-    jobEntry.scaleTime = wScaleTime.getSelectionIndex();
+    action.setName( wName.getText() );
+    action.setMaximumTimeout( wMaximumTimeout.getText() );
+    action.scaleTime = wScaleTime.getSelectionIndex();
     dispose();
   }
 

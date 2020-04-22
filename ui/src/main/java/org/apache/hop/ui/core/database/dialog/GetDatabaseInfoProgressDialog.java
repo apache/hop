@@ -59,14 +59,12 @@ public class GetDatabaseInfoProgressDialog {
 
   public DatabaseMetaInformation open() {
     final DatabaseMetaInformation dmi = new DatabaseMetaInformation( dbInfo );
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          dmi.getData( HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter( monitor ) );
-        } catch ( Exception e ) {
-          throw new InvocationTargetException( e, BaseMessages.getString(
-            PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        dmi.getData( HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter( monitor ) );
+      } catch ( Exception e ) {
+        throw new InvocationTargetException( e, BaseMessages.getString(
+          PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString() ) );
       }
     };
 

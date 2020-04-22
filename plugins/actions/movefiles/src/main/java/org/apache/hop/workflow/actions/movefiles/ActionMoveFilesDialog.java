@@ -102,7 +102,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionMoveFiles jobEntry;
+  private ActionMoveFiles action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -242,12 +242,12 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
   private Button wSimulate;
   private FormData fdlSimulate, fdSimulate;
 
-  public ActionMoveFilesDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionMoveFiles) jobEntryInt;
+  public ActionMoveFilesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionMoveFiles) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobMoveFiles.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobMoveFiles.Name.Default" ) );
     }
   }
 
@@ -257,14 +257,14 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -344,7 +344,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckIncludeSubFolders();
       }
     } );
@@ -368,7 +368,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wMoveEmptyFolders.setLayoutData( fdMoveEmptyFolders );
     wMoveEmptyFolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -391,7 +391,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSimulate.setLayoutData( fdSimulate );
     wSimulate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -406,7 +406,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.arg_from_previous );
+    wPrevious.setSelection( action.arg_from_previous );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobMoveFiles.Previous.Tooltip" ) );
     fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -640,8 +640,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.source_filefolder == null ? 1 : ( jobEntry.source_filefolder.length == 0
-        ? 0 : jobEntry.source_filefolder.length );
+      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
+        ? 0 : action.source_filefolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -783,7 +783,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateDestinationFolder.setLayoutData( fdCreateDestinationFolder );
     wCreateDestinationFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -807,7 +807,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDestinationIsAFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
 
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -832,7 +832,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDoNotKeepFolderStructure.setLayoutData( fdDoNotKeepFolderStructure );
     wDoNotKeepFolderStructure.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -855,7 +855,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -878,7 +878,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -902,7 +902,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
         setAddDateBeforeExtension();
       }
@@ -952,7 +952,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddDateBeforeExtension.setLayoutData( fdAddDateBeforeExtension );
     wAddDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1089,7 +1089,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wCreateMoveToFolder.setLayoutData( fdCreateMoveToFolder );
     wCreateMoveToFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1112,7 +1112,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedDate.setLayoutData( fdAddMovedDate );
     wAddMovedDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddMovedDateBeforeExtension();
       }
     } );
@@ -1135,7 +1135,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedTime.setLayoutData( fdAddMovedTime );
     wAddMovedTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddMovedDateBeforeExtension();
       }
     } );
@@ -1159,7 +1159,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSpecifyMoveFormat.setLayoutData( fdSpecifyMoveFormat );
     wSpecifyMoveFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setMovedDateTimeFormat();
         setAddMovedDateBeforeExtension();
       }
@@ -1209,7 +1209,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddMovedDateBeforeExtension.setLayoutData( fdAddMovedDateBeforeExtension );
     wAddMovedDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1388,7 +1388,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1479,7 +1479,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeDestinationFolder() {
@@ -1599,44 +1599,44 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-    wMoveEmptyFolders.setSelection( jobEntry.move_empty_folders );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    wMoveEmptyFolders.setSelection( action.move_empty_folders );
 
-    if ( jobEntry.source_filefolder != null ) {
-      for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
+    if ( action.source_filefolder != null ) {
+      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[ i ] != null ) {
-          ti.setText( 1, jobEntry.source_filefolder[ i ] );
+        if ( action.source_filefolder[ i ] != null ) {
+          ti.setText( 1, action.source_filefolder[ i ] );
         }
-        if ( jobEntry.destination_filefolder[ i ] != null ) {
-          ti.setText( 2, jobEntry.destination_filefolder[ i ] );
+        if ( action.destination_filefolder[ i ] != null ) {
+          ti.setText( 2, action.destination_filefolder[ i ] );
         }
-        if ( jobEntry.wildcard[ i ] != null ) {
-          ti.setText( 3, jobEntry.wildcard[ i ] );
+        if ( action.wildcard[ i ] != null ) {
+          ti.setText( 3, action.wildcard[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.arg_from_previous );
-    wIncludeSubfolders.setSelection( jobEntry.include_subfolders );
-    wDestinationIsAFile.setSelection( jobEntry.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( jobEntry.create_destination_folder );
+    wPrevious.setSelection( action.arg_from_previous );
+    wIncludeSubfolders.setSelection( action.include_subfolders );
+    wDestinationIsAFile.setSelection( action.destination_is_a_file );
+    wCreateDestinationFolder.setSelection( action.create_destination_folder );
 
-    wAddFileToResult.setSelection( jobEntry.add_result_filesname );
+    wAddFileToResult.setSelection( action.add_result_filesname );
 
-    wCreateMoveToFolder.setSelection( jobEntry.create_move_to_folder );
+    wCreateMoveToFolder.setSelection( action.create_move_to_folder );
 
-    if ( jobEntry.getNrErrorsLessThan() != null ) {
-      wNrErrorsLessThan.setText( jobEntry.getNrErrorsLessThan() );
+    if ( action.getNrErrorsLessThan() != null ) {
+      wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
     } else {
       wNrErrorsLessThan.setText( "10" );
     }
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -1645,16 +1645,16 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
       wSuccessCondition.select( 0 );
     }
 
-    if ( jobEntry.getIfFileExists() != null ) {
-      if ( jobEntry.getIfFileExists().equals( "overwrite_file" ) ) {
+    if ( action.getIfFileExists() != null ) {
+      if ( action.getIfFileExists().equals( "overwrite_file" ) ) {
         wIfFileExists.select( 1 );
-      } else if ( jobEntry.getIfFileExists().equals( "unique_name" ) ) {
+      } else if ( action.getIfFileExists().equals( "unique_name" ) ) {
         wIfFileExists.select( 2 );
-      } else if ( jobEntry.getIfFileExists().equals( "delete_file" ) ) {
+      } else if ( action.getIfFileExists().equals( "delete_file" ) ) {
         wIfFileExists.select( 3 );
-      } else if ( jobEntry.getIfFileExists().equals( "move_file" ) ) {
+      } else if ( action.getIfFileExists().equals( "move_file" ) ) {
         wIfFileExists.select( 4 );
-      } else if ( jobEntry.getIfFileExists().equals( "fail" ) ) {
+      } else if ( action.getIfFileExists().equals( "fail" ) ) {
         wIfFileExists.select( 5 );
       } else {
         wIfFileExists.select( 0 );
@@ -1664,16 +1664,16 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
       wIfFileExists.select( 0 );
     }
 
-    if ( jobEntry.getDestinationFolder() != null ) {
-      wDestinationFolder.setText( jobEntry.getDestinationFolder() );
+    if ( action.getDestinationFolder() != null ) {
+      wDestinationFolder.setText( action.getDestinationFolder() );
     }
 
-    if ( jobEntry.getIfMovedFileExists() != null ) {
-      if ( jobEntry.getIfMovedFileExists().equals( "overwrite_file" ) ) {
+    if ( action.getIfMovedFileExists() != null ) {
+      if ( action.getIfMovedFileExists().equals( "overwrite_file" ) ) {
         wIfMovedFileExists.select( 1 );
-      } else if ( jobEntry.getIfMovedFileExists().equals( "unique_name" ) ) {
+      } else if ( action.getIfMovedFileExists().equals( "unique_name" ) ) {
         wIfMovedFileExists.select( 2 );
-      } else if ( jobEntry.getIfMovedFileExists().equals( "fail" ) ) {
+      } else if ( action.getIfMovedFileExists().equals( "fail" ) ) {
         wIfMovedFileExists.select( 3 );
       } else {
         wIfMovedFileExists.select( 0 );
@@ -1682,32 +1682,32 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     } else {
       wIfMovedFileExists.select( 0 );
     }
-    wDoNotKeepFolderStructure.setSelection( jobEntry.isDoNotKeepFolderStructure() );
-    wAddDateBeforeExtension.setSelection( jobEntry.isAddDateBeforeExtension() );
-    wSimulate.setSelection( jobEntry.simulate );
+    wDoNotKeepFolderStructure.setSelection( action.isDoNotKeepFolderStructure() );
+    wAddDateBeforeExtension.setSelection( action.isAddDateBeforeExtension() );
+    wSimulate.setSelection( action.simulate );
 
-    wAddDate.setSelection( jobEntry.isAddDate() );
-    wAddTime.setSelection( jobEntry.isAddTime() );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
-    if ( jobEntry.getDateTimeFormat() != null ) {
-      wDateTimeFormat.setText( jobEntry.getDateTimeFormat() );
+    wAddDate.setSelection( action.isAddDate() );
+    wAddTime.setSelection( action.isAddTime() );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
+    if ( action.getDateTimeFormat() != null ) {
+      wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    wAddMovedDate.setSelection( jobEntry.isAddMovedDate() );
-    wAddMovedTime.setSelection( jobEntry.isAddMovedTime() );
-    wSpecifyMoveFormat.setSelection( jobEntry.isSpecifyMoveFormat() );
-    if ( jobEntry.getMovedDateTimeFormat() != null ) {
-      wMovedDateTimeFormat.setText( jobEntry.getMovedDateTimeFormat() );
+    wAddMovedDate.setSelection( action.isAddMovedDate() );
+    wAddMovedTime.setSelection( action.isAddMovedTime() );
+    wSpecifyMoveFormat.setSelection( action.isSpecifyMoveFormat() );
+    if ( action.getMovedDateTimeFormat() != null ) {
+      wMovedDateTimeFormat.setText( action.getMovedDateTimeFormat() );
     }
-    wAddMovedDateBeforeExtension.setSelection( jobEntry.isAddMovedDateBeforeExtension() );
+    wAddMovedDateBeforeExtension.setSelection( action.isAddMovedDateBeforeExtension() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1719,65 +1719,65 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setMoveEmptyFolders( wMoveEmptyFolders.getSelection() );
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
-    jobEntry.setAddresultfilesname( wAddFileToResult.getSelection() );
-    jobEntry.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
-    jobEntry.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
-    jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
+    action.setName( wName.getText() );
+    action.setMoveEmptyFolders( wMoveEmptyFolders.getSelection() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
+    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
+    action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
+    action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
-    jobEntry.setCreateMoveToFolder( wCreateMoveToFolder.getSelection() );
+    action.setCreateMoveToFolder( wCreateMoveToFolder.getSelection() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( action.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wIfFileExists.getSelectionIndex() == 1 ) {
-      jobEntry.setIfFileExists( "overwrite_file" );
+      action.setIfFileExists( "overwrite_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 2 ) {
-      jobEntry.setIfFileExists( "unique_name" );
+      action.setIfFileExists( "unique_name" );
     } else if ( wIfFileExists.getSelectionIndex() == 3 ) {
-      jobEntry.setIfFileExists( "delete_file" );
+      action.setIfFileExists( "delete_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 4 ) {
-      jobEntry.setIfFileExists( "move_file" );
+      action.setIfFileExists( "move_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 5 ) {
-      jobEntry.setIfFileExists( "fail" );
+      action.setIfFileExists( "fail" );
     } else {
-      jobEntry.setIfFileExists( "do_nothing" );
+      action.setIfFileExists( "do_nothing" );
     }
 
-    jobEntry.setDestinationFolder( wDestinationFolder.getText() );
+    action.setDestinationFolder( wDestinationFolder.getText() );
 
     if ( wIfMovedFileExists.getSelectionIndex() == 1 ) {
-      jobEntry.setIfMovedFileExists( "overwrite_file" );
+      action.setIfMovedFileExists( "overwrite_file" );
     } else if ( wIfMovedFileExists.getSelectionIndex() == 2 ) {
-      jobEntry.setIfMovedFileExists( "unique_name" );
+      action.setIfMovedFileExists( "unique_name" );
     } else if ( wIfMovedFileExists.getSelectionIndex() == 3 ) {
-      jobEntry.setIfMovedFileExists( "fail" );
+      action.setIfMovedFileExists( "fail" );
     } else {
-      jobEntry.setIfMovedFileExists( "do_nothing" );
+      action.setIfMovedFileExists( "do_nothing" );
     }
 
-    jobEntry.setDoNotKeepFolderStructure( wDoNotKeepFolderStructure.getSelection() );
-    jobEntry.setSimulate( wSimulate.getSelection() );
+    action.setDoNotKeepFolderStructure( wDoNotKeepFolderStructure.getSelection() );
+    action.setSimulate( wSimulate.getSelection() );
 
-    jobEntry.setAddDate( wAddDate.getSelection() );
-    jobEntry.setAddTime( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
-    jobEntry.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
+    action.setAddDate( wAddDate.getSelection() );
+    action.setAddTime( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
 
-    jobEntry.setAddMovedDate( wAddMovedDate.getSelection() );
-    jobEntry.setAddMovedTime( wAddMovedTime.getSelection() );
-    jobEntry.setSpecifyMoveFormat( wSpecifyMoveFormat.getSelection() );
-    jobEntry.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
-    jobEntry.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
+    action.setAddMovedDate( wAddMovedDate.getSelection() );
+    action.setAddMovedTime( wAddMovedTime.getSelection() );
+    action.setSpecifyMoveFormat( wSpecifyMoveFormat.getSelection() );
+    action.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
+    action.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -1787,18 +1787,18 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
         nr++;
       }
     }
-    jobEntry.source_filefolder = new String[ nr ];
-    jobEntry.destination_filefolder = new String[ nr ];
-    jobEntry.wildcard = new String[ nr ];
+    action.source_filefolder = new String[ nr ];
+    action.destination_filefolder = new String[ nr ];
+    action.wildcard = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String dest = wFields.getNonEmpty( i ).getText( 2 );
       String wild = wFields.getNonEmpty( i ).getText( 3 );
       if ( source != null && source.length() != 0 ) {
-        jobEntry.source_filefolder[ nr ] = source;
-        jobEntry.destination_filefolder[ nr ] = dest;
-        jobEntry.wildcard[ nr ] = wild;
+        action.source_filefolder[ nr ] = source;
+        action.destination_filefolder[ nr ] = dest;
+        action.wildcard[ nr ] = wild;
         nr++;
       }
     }

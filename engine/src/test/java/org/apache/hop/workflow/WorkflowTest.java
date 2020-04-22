@@ -32,6 +32,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +51,7 @@ import static org.mockito.Mockito.when;
 
 public class WorkflowTest {
   private static final String STRING_DEFAULT = "<def>";
-  private Workflow mockedWorkflow;
+  private IWorkflowEngine<WorkflowMeta> mockedWorkflow;
   private Database mockedDataBase;
   private IVariables mockedVariableSpace;
   private IMetaStore mockedMetaStore;
@@ -69,8 +71,6 @@ public class WorkflowTest {
     mockedActionCopy = mock( ActionCopy.class );
     mockedJobEntrySpecial = mock( ActionSpecial.class );
     mockedLogChannel = mock( LogChannel.class );
-
-    when( mockedWorkflow.createDataBase( any( DatabaseMeta.class ) ) ).thenReturn( mockedDataBase );
   }
 
   @Test
@@ -80,7 +80,7 @@ public class WorkflowTest {
     String carteId = UUID.randomUUID().toString();
     doReturn( carteId ).when( meta ).getContainerObjectId();
 
-    Workflow workflow = new Workflow( meta );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
 
     assertEquals( carteId, workflow.getContainerObjectId() );
   }
@@ -93,8 +93,8 @@ public class WorkflowTest {
   public void testTwoWorkflowsGetSameLogChannelId() {
     WorkflowMeta meta = mock( WorkflowMeta.class );
 
-    Workflow workflow1 = new Workflow( meta );
-    Workflow workflow2 = new Workflow( meta );
+    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine( meta );
+    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine( meta );
 
     assertEquals( workflow1.getLogChannelId(), workflow2.getLogChannelId() );
   }
@@ -114,37 +114,11 @@ public class WorkflowTest {
     doReturn( carteId1 ).when( meta1 ).getContainerObjectId();
     doReturn( carteId2 ).when( meta2 ).getContainerObjectId();
 
-    Workflow workflow1 = new Workflow( meta1 );
-    Workflow workflow2 = new Workflow( meta2 );
+    IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine( meta1 );
+    IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine( meta2 );
 
     assertNotEquals( workflow1.getContainerObjectId(), workflow2.getContainerObjectId() );
     assertNotEquals( workflow1.getLogChannelId(), workflow2.getLogChannelId() );
   }
-
-  @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename() {
-    Workflow workflowTest = new Workflow();
-    boolean hasFilename = true;
-    workflowTest.copyVariablesFrom( null );
-    workflowTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    workflowTest.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    workflowTest.setInternalEntryCurrentDirectory( hasFilename );
-
-    assertEquals( "file:///C:/SomeFilenameDirectory", workflowTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-
-  }
-
-  @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
-    Workflow workflowTest = new Workflow();
-    workflowTest.copyVariablesFrom( null );
-    boolean hasFilename = false;
-    workflowTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
-    workflowTest.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    workflowTest.setInternalEntryCurrentDirectory( hasFilename );
-
-    assertEquals( "Original value defined at run execution", workflowTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-  }
-
 
 }

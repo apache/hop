@@ -88,6 +88,11 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
   void pause();
 
   /**
+   * Resume execution
+   */
+  void resume();
+
+  /**
    * Preview this file
    */
   void preview();

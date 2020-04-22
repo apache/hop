@@ -89,7 +89,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionFileCompare jobEntry;
+  private ActionFileCompare action;
   private Shell shell;
   private Label wlAddFilenameResult;
   private Button wAddFilenameResult;
@@ -99,11 +99,11 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
   private boolean changed;
 
-  public ActionFileCompareDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFileCompare) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFileCompare.Name.Default" ) );
+  public ActionFileCompareDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFileCompare) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFileCompare.Name.Default" ) );
     }
   }
 
@@ -113,14 +113,14 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -260,7 +260,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wAddFilenameResult.setLayoutData( fdAddFilenameResult );
     wAddFilenameResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -313,7 +313,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -326,24 +326,24 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getFilename1() != null ) {
-      wFilename1.setText( jobEntry.getFilename1() );
+    if ( action.getFilename1() != null ) {
+      wFilename1.setText( action.getFilename1() );
     }
-    if ( jobEntry.getFilename2() != null ) {
-      wFilename2.setText( jobEntry.getFilename2() );
+    if ( action.getFilename2() != null ) {
+      wFilename2.setText( action.getFilename2() );
     }
-    wAddFilenameResult.setSelection( jobEntry.isAddFilenameToResult() );
+    wAddFilenameResult.setSelection( action.isAddFilenameToResult() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -355,10 +355,10 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename1( wFilename1.getText() );
-    jobEntry.setFilename2( wFilename2.getText() );
-    jobEntry.setAddFilenameToResult( wAddFilenameResult.getSelection() );
+    action.setName( wName.getText() );
+    action.setFilename1( wFilename1.getText() );
+    action.setFilename2( wFilename2.getText() );
+    action.setAddFilenameToResult( wAddFilenameResult.getSelection() );
     dispose();
   }
 

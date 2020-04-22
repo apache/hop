@@ -77,7 +77,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
 
   private SelectionAdapter lsDef;
 
-  private ActionSpecial jobEntry;
+  private ActionSpecial action;
 
   private boolean backupChanged;
 
@@ -103,9 +103,9 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdlName, fdName;
 
-  public ActionSpecialDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSpecial) jobEntryInt;
+  public ActionSpecialDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSpecial) action;
   }
 
   public IAction open() {
@@ -114,15 +114,15 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
     shell.setImage( GuiResource.getInstance().getImageStart() );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    backupChanged = jobEntry.hasChanged();
+    backupChanged = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -151,7 +151,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
     fdName.right = new FormAttachment( 100, 0 );
     wName.setLayoutData( fdName );
     BaseTransformDialog.setSize( shell, 350, 120, true );
-    if ( !this.jobEntry.isDummy() ) {
+    if ( !this.action.isDummy() ) {
       shell.setText( BaseMessages.getString( PKG, "JobSpecial.Scheduling.Label" ) );
       wRepeat = new Button( shell, SWT.CHECK );
       wRepeat.addListener( SWT.Selection, new Listener() {
@@ -268,7 +268,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -279,39 +279,39 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
   }
 
   public void getData() {
-    if ( !jobEntry.isDummy() ) {
-      wRepeat.setSelection( jobEntry.isRepeat() );
-      wType.select( jobEntry.getSchedulerType() );
-      wIntervalSeconds.setSelection( jobEntry.getIntervalSeconds() );
-      wIntervalMinutes.setSelection( jobEntry.getIntervalMinutes() );
-      wHour.setSelection( jobEntry.getHour() );
-      wMinutes.setSelection( jobEntry.getMinutes() );
-      wDayOfWeek.select( jobEntry.getWeekDay() );
-      wDayOfMonth.setSelection( jobEntry.getDayOfMonth() );
+    if ( !action.isDummy() ) {
+      wRepeat.setSelection( action.isRepeat() );
+      wType.select( action.getSchedulerType() );
+      wIntervalSeconds.setSelection( action.getIntervalSeconds() );
+      wIntervalMinutes.setSelection( action.getIntervalMinutes() );
+      wHour.setSelection( action.getHour() );
+      wMinutes.setSelection( action.getMinutes() );
+      wDayOfWeek.select( action.getWeekDay() );
+      wDayOfMonth.setSelection( action.getDayOfMonth() );
       wType.addSelectionListener( lsDef );
     }
-    wName.setText( jobEntry.getName() );
+    wName.setText( action.getName() );
   }
 
   private void cancel() {
-    jobEntry.setChanged( backupChanged );
+    action.setChanged( backupChanged );
 
-    jobEntry = null;
+    action = null;
     dispose();
   }
 
   private void ok() {
-    if ( !jobEntry.isDummy() ) {
-      jobEntry.setRepeat( wRepeat.getSelection() );
-      jobEntry.setSchedulerType( wType.getSelectionIndex() );
-      jobEntry.setIntervalSeconds( wIntervalSeconds.getSelection() );
-      jobEntry.setIntervalMinutes( wIntervalMinutes.getSelection() );
-      jobEntry.setHour( wHour.getSelection() );
-      jobEntry.setMinutes( wMinutes.getSelection() );
-      jobEntry.setWeekDay( wDayOfWeek.getSelectionIndex() );
-      jobEntry.setDayOfMonth( wDayOfMonth.getSelection() );
+    if ( !action.isDummy() ) {
+      action.setRepeat( wRepeat.getSelection() );
+      action.setSchedulerType( wType.getSelectionIndex() );
+      action.setIntervalSeconds( wIntervalSeconds.getSelection() );
+      action.setIntervalMinutes( wIntervalMinutes.getSelection() );
+      action.setHour( wHour.getSelection() );
+      action.setMinutes( wMinutes.getSelection() );
+      action.setWeekDay( wDayOfWeek.getSelectionIndex() );
+      action.setDayOfMonth( wDayOfMonth.getSelection() );
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
     dispose();
   }
 
@@ -344,7 +344,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
   }
 
   private void enableDisableControls() {
-    if ( !jobEntry.isDummy() ) {
+    if ( !action.isDummy() ) {
       // if(wRepeat.getSelection()) {
       wType.setEnabled( true );
       if ( NOSCHEDULING.equals( wType.getText() ) ) {

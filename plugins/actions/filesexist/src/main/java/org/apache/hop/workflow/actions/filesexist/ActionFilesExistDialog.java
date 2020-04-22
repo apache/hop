@@ -97,7 +97,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
   private Listener lsOk, lsCancel;
 
-  private ActionFilesExist jobEntry;
+  private ActionFilesExist action;
 
   private Shell shell;
 
@@ -117,11 +117,11 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
   private TableView wFields;
   private FormData fdlFields, fdFields;
 
-  public ActionFilesExistDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFilesExist) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFilesExist.Name.Default" ) );
+  public ActionFilesExistDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFilesExist) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFilesExist.Name.Default" ) );
     }
 
   }
@@ -132,14 +132,14 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -283,8 +283,8 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     fdlFields.top = new FormAttachment( wFilename, margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.getArguments() == null ? 1
-      : ( jobEntry.getArguments().length == 0 ? 0 : jobEntry.getArguments().length );
+    int rows = action.getArguments() == null ? 1
+      : ( action.getArguments().length == 0 ? 0 : action.getArguments().length );
 
     final int FieldsRows = rows;
 
@@ -404,7 +404,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -417,23 +417,23 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.getArguments() != null ) {
-      for ( int i = 0; i < jobEntry.getArguments().length; i++ ) {
+    if ( action.getArguments() != null ) {
+      for ( int i = 0; i < action.getArguments().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getArguments()[ i ] != null ) {
-          ti.setText( 1, jobEntry.getArguments()[ i ] );
+        if ( action.getArguments()[ i ] != null ) {
+          ti.setText( 1, action.getArguments()[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
 
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
 
     wName.selectAll();
@@ -441,8 +441,8 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -454,8 +454,8 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename( wFilename.getText() );
+    action.setName( wName.getText() );
+    action.setFilename( wFilename.getText() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -474,7 +474,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
         nr++;
       }
     }
-    jobEntry.setArguments( arguments );
+    action.setArguments( arguments );
 
     dispose();
   }

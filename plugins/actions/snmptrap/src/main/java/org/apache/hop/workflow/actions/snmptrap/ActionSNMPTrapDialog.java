@@ -115,7 +115,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
 
   private Listener lsOk, lsCancel;
 
-  private ActionSNMPTrap jobEntry;
+  private ActionSNMPTrap action;
 
   private Shell shell;
 
@@ -162,11 +162,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
   private CCombo wTargetType;
   private FormData fdlTargetType, fdTargetType;
 
-  public ActionSNMPTrapDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSNMPTrap) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobSNMPTrap.Name.Default" ) );
+  public ActionSNMPTrapDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSNMPTrap) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobSNMPTrap.Name.Default" ) );
     }
   }
 
@@ -176,14 +176,14 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -439,8 +439,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     fdlMessage.right = new FormAttachment( middle, -margin );
     wlMessage.setLayoutData( fdlMessage );
 
-    wMessage =
-      new StyledTextComp( jobEntry, wMessageGroup, SWT.MULTI
+    wMessage = new StyledTextComp( action, wMessageGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
@@ -540,7 +539,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void CheckuseUserTarget() {
@@ -596,26 +595,26 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wPort.setText( jobEntry.getPort() );
-    wOID.setText( Const.NVL( jobEntry.getOID(), "" ) );
-    wTimeout.setText( "" + jobEntry.getTimeout() );
-    wRetry.setText( "" + jobEntry.getRetry() );
-    wComString.setText( Const.NVL( jobEntry.getComString(), "" ) );
-    wMessage.setText( Const.NVL( jobEntry.getMessage(), "" ) );
-    wTargetType.setText( jobEntry.getTargetTypeDesc( jobEntry.getTargetType() ) );
-    wUser.setText( Const.NVL( jobEntry.getUser(), "" ) );
-    wPassphrase.setText( Const.NVL( jobEntry.getPassPhrase(), "" ) );
-    wEngineID.setText( Const.NVL( jobEntry.getEngineID(), "" ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wPort.setText( action.getPort() );
+    wOID.setText( Const.NVL( action.getOID(), "" ) );
+    wTimeout.setText( "" + action.getTimeout() );
+    wRetry.setText( "" + action.getRetry() );
+    wComString.setText( Const.NVL( action.getComString(), "" ) );
+    wMessage.setText( Const.NVL( action.getMessage(), "" ) );
+    wTargetType.setText( action.getTargetTypeDesc( action.getTargetType() ) );
+    wUser.setText( Const.NVL( action.getUser(), "" ) );
+    wPassphrase.setText( Const.NVL( action.getPassPhrase(), "" ) );
+    wEngineID.setText( Const.NVL( action.getEngineID(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -627,18 +626,18 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setOID( wOID.getText() );
-    jobEntry.setTimeout( wTimeout.getText() );
-    jobEntry.setRetry( wTimeout.getText() );
-    jobEntry.setComString( wComString.getText() );
-    jobEntry.setMessage( wMessage.getText() );
-    jobEntry.setTargetType( wTargetType.getText() );
-    jobEntry.setUser( wUser.getText() );
-    jobEntry.setPassPhrase( wPassphrase.getText() );
-    jobEntry.setEngineID( wEngineID.getText() );
+    action.setName( wName.getText() );
+    action.setPort( wPort.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setOID( wOID.getText() );
+    action.setTimeout( wTimeout.getText() );
+    action.setRetry( wTimeout.getText() );
+    action.setComString( wComString.getText() );
+    action.setMessage( wMessage.getText() );
+    action.setTargetType( wTargetType.getText() );
+    action.setUser( wUser.getText() );
+    action.setPassPhrase( wPassphrase.getText() );
+    action.setEngineID( wEngineID.getText() );
     dispose();
   }
 

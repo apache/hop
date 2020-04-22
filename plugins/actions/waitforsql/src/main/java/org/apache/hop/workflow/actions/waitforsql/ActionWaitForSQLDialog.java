@@ -101,7 +101,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
 
   private Listener lsOk, lsCancel, lsbSQLTable;
 
-  private ActionWaitForSQL jobEntry;
+  private ActionWaitForSQL action;
 
   private Shell shell;
 
@@ -176,11 +176,11 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
   private Button wClearResultList;
   private FormData fdlClearResultList, fdClearResultList;
 
-  public ActionWaitForSQLDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWaitForSQL) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionWaitForSQL.Name.Default" ) );
+  public ActionWaitForSQLDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionWaitForSQL) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionWaitForSQL.Name.Default" ) );
     }
   }
 
@@ -190,14 +190,14 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -246,7 +246,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // Schema name line
     wlSchemaname = new Label( shell, SWT.RIGHT );
@@ -417,7 +417,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wSuccesOnTimeout.setLayoutData( fdSuccesOnTimeout );
     wSuccesOnTimeout.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -463,7 +463,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
       public void widgetSelected( SelectionEvent e ) {
 
         setCustomerSQL();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // use Variable substitution?
@@ -485,7 +485,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wUseSubs.setLayoutData( fdUseSubs );
     wUseSubs.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -508,7 +508,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wClearResultList.setLayoutData( fdClearResultList );
     wClearResultList.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -531,7 +531,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     wAddRowsToResult.setLayoutData( fdAddRowsToResult );
     wAddRowsToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -561,8 +561,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
     fdbSQLTable.top = new FormAttachment( wAddRowsToResult, margin );
     wbSQLTable.setLayoutData( fdbSQLTable );
 
-    wSql =
-      new StyledTextComp( jobEntry, wCustomGroup, SWT.MULTI
+    wSql = new StyledTextComp( action, wCustomGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
@@ -673,7 +672,7 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void getSql() {
@@ -792,33 +791,33 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
 
-    wSchemaname.setText( Const.nullToEmpty( jobEntry.schemaname ) );
-    wTablename.setText( Const.nullToEmpty( jobEntry.tablename ) );
+    wSchemaname.setText( Const.nullToEmpty( action.schemaname ) );
+    wTablename.setText( Const.nullToEmpty( action.tablename ) );
 
-    wSuccessCondition.setText( ActionWaitForSQL.getSuccessConditionDesc( jobEntry.successCondition ) );
-    wRowsCountValue.setText( Const.NVL( jobEntry.rowsCountValue, "0" ) );
-    wcustomSQL.setSelection( jobEntry.iscustomSQL );
-    wUseSubs.setSelection( jobEntry.isUseVars );
-    wAddRowsToResult.setSelection( jobEntry.isAddRowsResult );
-    wClearResultList.setSelection( jobEntry.isClearResultList );
-    wSql.setText( Const.nullToEmpty( jobEntry.customSQL ) );
-    wMaximumTimeout.setText( Const.NVL( jobEntry.getMaximumTimeout(), "" ) );
-    wCheckCycleTime.setText( Const.NVL( jobEntry.getCheckCycleTime(), "" ) );
-    wSuccesOnTimeout.setSelection( jobEntry.isSuccessOnTimeout() );
+    wSuccessCondition.setText( ActionWaitForSQL.getSuccessConditionDesc( action.successCondition ) );
+    wRowsCountValue.setText( Const.NVL( action.rowsCountValue, "0" ) );
+    wcustomSQL.setSelection( action.iscustomSQL );
+    wUseSubs.setSelection( action.isUseVars );
+    wAddRowsToResult.setSelection( action.isAddRowsResult );
+    wClearResultList.setSelection( action.isClearResultList );
+    wSql.setText( Const.nullToEmpty( action.customSQL ) );
+    wMaximumTimeout.setText( Const.NVL( action.getMaximumTimeout(), "" ) );
+    wCheckCycleTime.setText( Const.NVL( action.getCheckCycleTime(), "" ) );
+    wSuccesOnTimeout.setSelection( action.isSuccessOnTimeout() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -830,21 +829,21 @@ public class ActionWaitForSQLDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
 
-    jobEntry.schemaname = wSchemaname.getText();
-    jobEntry.tablename = wTablename.getText();
-    jobEntry.successCondition = ActionWaitForSQL.getSuccessConditionByDesc( wSuccessCondition.getText() );
-    jobEntry.rowsCountValue = wRowsCountValue.getText();
-    jobEntry.iscustomSQL = wcustomSQL.getSelection();
-    jobEntry.isUseVars = wUseSubs.getSelection();
-    jobEntry.isAddRowsResult = wAddRowsToResult.getSelection();
-    jobEntry.isClearResultList = wClearResultList.getSelection();
-    jobEntry.customSQL = wSql.getText();
-    jobEntry.setMaximumTimeout( wMaximumTimeout.getText() );
-    jobEntry.setCheckCycleTime( wCheckCycleTime.getText() );
-    jobEntry.setSuccessOnTimeout( wSuccesOnTimeout.getSelection() );
+    action.schemaname = wSchemaname.getText();
+    action.tablename = wTablename.getText();
+    action.successCondition = ActionWaitForSQL.getSuccessConditionByDesc( wSuccessCondition.getText() );
+    action.rowsCountValue = wRowsCountValue.getText();
+    action.iscustomSQL = wcustomSQL.getSelection();
+    action.isUseVars = wUseSubs.getSelection();
+    action.isAddRowsResult = wAddRowsToResult.getSelection();
+    action.isClearResultList = wClearResultList.getSelection();
+    action.customSQL = wSql.getText();
+    action.setMaximumTimeout( wMaximumTimeout.getText() );
+    action.setCheckCycleTime( wCheckCycleTime.getText() );
+    action.setSuccessOnTimeout( wSuccesOnTimeout.getSelection() );
 
     dispose();
   }

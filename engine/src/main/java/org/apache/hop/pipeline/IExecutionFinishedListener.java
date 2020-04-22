@@ -26,17 +26,17 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /**
- * A finished listener for executions of a pipeline
+ * A finished listener for executions of a pipeline or workflow
  *
  * @param <T> The executing object/subject
  */
 public interface IExecutionFinishedListener<T> {
 
   /**
-   * The pipeline has finished.
+   * The engine has finished.
    *
    * @param engine
    * @throws HopException
    */
-  void finished( IPipelineEngine<T> engine ) throws HopException;
+  void finished( T engine ) throws HopException;
 }

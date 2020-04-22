@@ -42,6 +42,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
+import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -92,7 +93,8 @@ public class HopEnvironment {
       CompressionPluginType.getInstance(),
       AuthenticationProviderPluginType.getInstance(),
       AuthenticationConsumerPluginType.getInstance(),
-      PipelineEnginePluginType.getInstance()
+      PipelineEnginePluginType.getInstance(),
+      WorkflowEnginePluginType.getInstance()
     );
   }
 

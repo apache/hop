@@ -42,7 +42,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -53,6 +52,7 @@ import org.apache.hop.workflow.action.validator.FileDoesNotExistValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workarounds.BufferedOutputStreamWithCloseDetection;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -237,7 +237,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  public boolean processRowFile( Workflow parentWorkflow, Result result, String realZipfilename, String realWildcard,
+  public boolean processRowFile( IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result, String realZipfilename, String realWildcard,
                                  String realWildcardExclude, String realSourceDirectoryOrFile, String realMovetodirectory,
                                  boolean createparentfolder ) {
     boolean Fileexists = false;
@@ -302,7 +302,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           if ( addFileToResult ) {
             // Add file to result files name
             ResultFile resultFile =
-              new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getJobname(), toString() );
+              new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }
           resultat = true;
@@ -621,7 +621,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             if ( addFileToResult ) {
               // Add file to result files name
               ResultFile resultFile =
-                new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getJobname(), toString() );
+                new ResultFile( ResultFile.FILE_TYPE_GENERAL, fileObject, parentWorkflow.getWorkflowName(), toString() );
               result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             }
 
@@ -850,8 +850,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             // get destination zip file
             realZipfilename = resultRow.getString( 3, null );
             if ( !Utils.isEmpty( realZipfilename ) ) {
-              if ( !processRowFile(
-                parentWorkflow, result, realZipfilename, realWildcard, realWildcardExclude, realTargetdirectory,
+              if ( !processRowFile( parentWorkflow, result, realZipfilename, realWildcard, realWildcardExclude, realTargetdirectory,
                 realMovetodirectory, createParentFolder ) ) {
                 return errorResult( result );
               }

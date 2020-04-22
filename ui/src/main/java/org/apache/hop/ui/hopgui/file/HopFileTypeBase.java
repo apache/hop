@@ -77,6 +77,10 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
     if ( getCapabilities() == null ) {
       return false;
     }
-    return getCapabilities().get( capability ) != null;
+    Object available = getCapabilities().get( capability );
+    if (available==null) {
+      return false;
+    }
+    return "true".equalsIgnoreCase( available.toString() );
   }
 }

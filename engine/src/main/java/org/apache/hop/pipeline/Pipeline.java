@@ -96,7 +96,8 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -189,7 +190,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * The workflow that's launching this pipeline. This gives us access to the whole chain, including the parent
    * variables, etc.
    */
-  private Workflow parentWorkflow;
+  private IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
   /**
    * The pipeline that is executing this pipeline in case of mappings.
@@ -377,17 +378,17 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   /**
    * A list of started listeners attached to the pipeline.
    */
-  private List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners;
+  private List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners;
 
   /**
    * A list of finished listeners attached to the pipeline.
    */
-  private List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners;
+  private List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners;
 
   /**
    * A list of stop-event listeners attached to the pipeline.
    */
-  private List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners;
+  private List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners;
 
   /**
    * The number of finished transforms.
@@ -427,7 +428,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   /**
    * The active subjobs
    */
-  private Map<String, Workflow> activeSubWorkflows;
+  private Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows;
 
   /**
    * The transform performance snapshot size limit.
@@ -487,6 +488,9 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * Instantiates a new pipeline.
    */
   public Pipeline() {
+
+    log = LogChannel.GENERAL;
+
     status = new AtomicInteger();
 
     executionStartedListeners = Collections.synchronizedList( new ArrayList<>() );
@@ -553,22 +557,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    */
   public void setParent( ILoggingObject parent ) {
     this.parent = parent;
-
-    this.log = new LogChannel( this, parent );
-    this.logLevel = log.getLogLevel();
-
-    if ( this.containerObjectId == null ) {
-      this.containerObjectId = log.getContainerObjectId();
-    }
-
-    if ( log.isDetailed() ) {
-      log.logDetailed( BaseMessages.getString( PKG, "Pipeline.Log.PipelineIsPreloaded" ) );
-    }
-    if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfTransformsToRun", String.valueOf( pipelineMeta.nrTransforms() ),
-        String.valueOf( pipelineMeta.nrPipelineHops() ) ) );
-    }
-
   }
 
   /**
@@ -675,8 +663,25 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     executionStartDate = new Date();
     setRunning( false );
 
+    // We create the log channel when we're ready to rock and roll
+    // Before that it makes little sense. We default to GENERAL there.
+    //
+    this.log = new LogChannel( this, parent );
+    this.log.setLogLevel( logLevel );
+
+    if ( this.containerObjectId == null ) {
+      this.containerObjectId = log.getContainerObjectId();
+    }
+
+    if ( log.isDebug() ) {
+      log.logDebug( BaseMessages.getString( PKG, "Pipeline.Log.NumberOfTransformsToRun", String.valueOf( pipelineMeta.nrTransforms() ),
+        String.valueOf( pipelineMeta.nrPipelineHops() ) ) );
+    }
+
     log.snap( Metrics.METRIC_PIPELINE_EXECUTION_START );
     log.snap( Metrics.METRIC_PIPELINE_INIT_START );
+
+    log.logBasic("Executing this pipeline using the Local Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
     ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelinePrepareExecution.id, this );
 
@@ -917,7 +922,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
           // don't share. Each copy of the transform has its own variables.
           //
           transform.initializeVariablesFrom( this );
-          transform.setUsingThreadPriorityManagment( pipelineMeta.isUsingThreadPriorityManagment() );
 
           // Pass the metaStore to the transforms runtime
           //
@@ -1206,6 +1210,8 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
               log.logError( getName() + " : " + BaseMessages.getString( PKG, "Pipeline.Log.UnexpectedErrorAtPipelineEnd" ), e );
             }
 
+            log.logBasic("Execution finished on a local pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
+
             // We're really done now.
             //
             executionEndDate = new Date();
@@ -1269,7 +1275,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
     // Do all sorts of nifty things at the end of the pipeline execution
     ///
-    IExecutionFinishedListener<PipelineMeta> executionListener = pipeline -> {
+    IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> executionListener = pipeline -> {
 
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineFinish.id, pipeline );
@@ -2133,7 +2139,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return the parent workflow, or null if there is no parent
    */
-  public Workflow getParentWorkflow() {
+  public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
 
@@ -2142,9 +2148,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @param parentWorkflow The parent workflow to set
    */
-  public void setParentWorkflow( Workflow parentWorkflow ) {
-    this.logLevel = parentWorkflow.getLogLevel();
-    this.log.setLogLevel( logLevel );
+  public void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     this.parentWorkflow = parentWorkflow;
   }
 
@@ -2609,7 +2613,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @param executionStoppedListeners the list of stop-event listeners to set
    */
-  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners ) {
+  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners ) {
     this.executionStoppedListeners = Collections.synchronizedList( executionStoppedListeners );
   }
 
@@ -2619,7 +2623,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return the list of stop-event listeners
    */
-  public List<IExecutionStoppedListener<PipelineMeta>> getExecutionStoppedListeners() {
+  public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> getExecutionStoppedListeners() {
     return executionStoppedListeners;
   }
 
@@ -2628,7 +2632,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @param pipelineStoppedListener the stop-event listener to add
    */
-  public void addPipelineStoppedListener( IExecutionStoppedListener<PipelineMeta> pipelineStoppedListener ) {
+  public void addPipelineStoppedListener( IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> pipelineStoppedListener ) {
     executionStoppedListeners.add( pipelineStoppedListener );
   }
 
@@ -2829,8 +2833,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * @param parentPipeline the parentPipeline to set
    */
   public void setParentPipeline( IPipelineEngine parentPipeline ) {
-    this.logLevel = parentPipeline.getLogLevel();
-    this.log.setLogLevel( logLevel );
     this.parentPipeline = parentPipeline;
   }
 
@@ -2922,7 +2924,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    */
   public void setLogLevel( LogLevel logLevel ) {
     this.logLevel = logLevel;
-    log.setLogLevel( logLevel );
   }
 
   /**
@@ -2952,11 +2953,11 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   }
 
 
-  public void addActiveSubWorkflow( final String subWorkflowName, Workflow subWorkflow ) {
+  public void addActiveSubWorkflow( final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow ) {
     activeSubWorkflows.put( subWorkflowName, subWorkflow );
   }
 
-  public Workflow getActiveSubWorkflow( final String subWorkflowName ) {
+  public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow( final String subWorkflowName ) {
     return activeSubWorkflows.get( subWorkflowName );
   }
 
@@ -2965,7 +2966,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return a map (by name) of the active sub-workflows
    */
-  public Map<String, Workflow> getActiveSubWorkflows() {
+  public Map<String, IWorkflowEngine<WorkflowMeta>> getActiveSubWorkflows() {
     return activeSubWorkflows;
   }
 
@@ -3524,11 +3525,11 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     } );
   }
 
-  public void addStartedListener( IExecutionStartedListener<PipelineMeta> listener ) throws HopException {
+  public void addStartedListener( IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener ) throws HopException {
     executionStartedListeners.add( listener );
   }
 
-  public void addFinishedListener( IExecutionFinishedListener<PipelineMeta> listener ) throws HopException {
+  public void addFinishedListener( IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener ) throws HopException {
     executionFinishedListeners.add( listener );
   }
 
@@ -3585,14 +3586,14 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return value of executionStartedListeners
    */
-  public List<IExecutionStartedListener<PipelineMeta>> getExecutionStartedListeners() {
+  public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> getExecutionStartedListeners() {
     return executionStartedListeners;
   }
 
   /**
    * @param executionStartedListeners The executionStartedListeners to set
    */
-  public void setExecutionStartedListeners( List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners ) {
+  public void setExecutionStartedListeners( List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners ) {
     this.executionStartedListeners = executionStartedListeners;
   }
 
@@ -3601,14 +3602,14 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return value of executionFinishedListeners
    */
-  public List<IExecutionFinishedListener<PipelineMeta>> getExecutionFinishedListeners() {
+  public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> getExecutionFinishedListeners() {
     return executionFinishedListeners;
   }
 
   /**
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
-  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners ) {
+  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners ) {
     this.executionFinishedListeners = executionFinishedListeners;
   }
 

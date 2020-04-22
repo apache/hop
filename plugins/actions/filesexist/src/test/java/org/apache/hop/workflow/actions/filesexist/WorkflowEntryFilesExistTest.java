@@ -29,6 +29,8 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class WorkflowEntryFilesExistTest {
-  private Workflow workflow;
+  private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionFilesExist entry;
 
   private String existingFile1;
@@ -50,7 +52,7 @@ public class WorkflowEntryFilesExistTest {
 
   @Before
   public void setUp() throws Exception {
-    workflow = new Workflow( new WorkflowMeta() );
+    workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionFilesExist();
 
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );

@@ -35,6 +35,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -90,7 +91,7 @@ public class ActionHttp_PDI208_Test {
     previousResult.setRows( rows );
 
     ActionHttp http = new ActionHttp();
-    http.setParentWorkflow( new Workflow() );
+    http.setParentWorkflow( new LocalWorkflowEngine() );
     http.setRunForEveryRow( true );
     http.setAddFilenameToResult( false );
     http.execute( previousResult, 0 );
@@ -116,7 +117,7 @@ public class ActionHttp_PDI208_Test {
     previousResult.setRows( rows );
 
     ActionHttp http = new ActionHttp();
-    http.setParentWorkflow( new Workflow() );
+    http.setParentWorkflow( new LocalWorkflowEngine() );
     http.setRunForEveryRow( true );
     http.setAddFilenameToResult( false );
     http.setUrlFieldname( "MyURL" );

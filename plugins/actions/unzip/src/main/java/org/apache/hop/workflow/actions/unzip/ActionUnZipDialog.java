@@ -93,7 +93,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionUnZip jobEntry;
+  private ActionUnZip action;
   private Shell shell;
 
   private Label wlTargetDirectory;
@@ -207,11 +207,11 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionUnZipDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionUnZip) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobUnZip.Name.Default" ) );
+  public ActionUnZipDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionUnZip) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobUnZip.Name.Default" ) );
     }
   }
 
@@ -221,14 +221,14 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -310,7 +310,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wArgsPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setArgdPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -454,7 +454,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wRootZip.setLayoutData( fdRootZip );
     wRootZip.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -507,7 +507,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wCreateFolder.setLayoutData( fdCreateFolder );
     wCreateFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -570,7 +570,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTime();
       }
     } );
@@ -593,7 +593,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTime();
       }
     } );
@@ -617,7 +617,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
       }
     } );
@@ -665,7 +665,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddOriginalTimestamp.setLayoutData( fdAddOriginalTimestamp );
     wAddOriginalTimestamp.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -690,7 +690,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wSetModificationDateToOriginal.setLayoutData( fdSetModificationDateToOriginal );
     wSetModificationDateToOriginal.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // If File Exists
@@ -798,7 +798,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wcreateMoveToDirectory.setLayoutData( fdcreateMoveToDirectory );
     wcreateMoveToDirectory.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -873,7 +873,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1070,7 +1070,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setDateTimeFormat() {
@@ -1096,7 +1096,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
 
   public void AfterUnZipActivate() {
 
-    jobEntry.setChanged();
+    action.setChanged();
     if ( wAfterUnZip.getSelectionIndex() == 2 ) {
       wMovetoDirectory.setEnabled( true );
       wlMovetoDirectory.setEnabled( true );
@@ -1136,38 +1136,38 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wZipFilename.setText( Const.nullToEmpty( jobEntry.getZipFilename() ) );
-    wWildcardSource.setText( Const.nullToEmpty( jobEntry.getWildcardSource() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wZipFilename.setText( Const.nullToEmpty( action.getZipFilename() ) );
+    wWildcardSource.setText( Const.nullToEmpty( action.getWildcardSource() ) );
 
-    wWildcard.setText( Const.nullToEmpty( jobEntry.getWildcard() ) );
-    wWildcardExclude.setText( Const.nullToEmpty( jobEntry.getWildcardExclude() ) );
-    wTargetDirectory.setText( Const.nullToEmpty( jobEntry.getSourceDirectory() ) );
-    wMovetoDirectory.setText( Const.nullToEmpty( jobEntry.getMoveToDirectory() ) );
+    wWildcard.setText( Const.nullToEmpty( action.getWildcard() ) );
+    wWildcardExclude.setText( Const.nullToEmpty( action.getWildcardExclude() ) );
+    wTargetDirectory.setText( Const.nullToEmpty( action.getSourceDirectory() ) );
+    wMovetoDirectory.setText( Const.nullToEmpty( action.getMoveToDirectory() ) );
 
-    if ( jobEntry.afterunzip >= 0 ) {
-      wAfterUnZip.select( jobEntry.afterunzip );
+    if ( action.afterunzip >= 0 ) {
+      wAfterUnZip.select( action.afterunzip );
     } else {
       wAfterUnZip.select( 0 ); // NOTHING
     }
 
-    wAddFileToResult.setSelection( jobEntry.isAddFileToResult() );
-    wArgsPrevious.setSelection( jobEntry.getDatafromprevious() );
-    wAddDate.setSelection( jobEntry.isDateInFilename() );
-    wAddTime.setSelection( jobEntry.isTimeInFilename() );
+    wAddFileToResult.setSelection( action.isAddFileToResult() );
+    wArgsPrevious.setSelection( action.getDatafromprevious() );
+    wAddDate.setSelection( action.isDateInFilename() );
+    wAddTime.setSelection( action.isTimeInFilename() );
 
-    wDateTimeFormat.setText( Const.nullToEmpty( jobEntry.getDateTimeFormat() ) );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
+    wDateTimeFormat.setText( Const.nullToEmpty( action.getDateTimeFormat() ) );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
 
-    wRootZip.setSelection( jobEntry.isCreateRootFolder() );
-    wCreateFolder.setSelection( jobEntry.isCreateFolder() );
+    wRootZip.setSelection( action.isCreateRootFolder() );
+    wCreateFolder.setSelection( action.isCreateFolder() );
 
-    wNrErrorsLessThan.setText( Const.NVL( jobEntry.getLimit(), "10" ) );
+    wNrErrorsLessThan.setText( Const.NVL( action.getLimit(), "10" ) );
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -1176,18 +1176,18 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
       wSuccessCondition.select( 0 );
     }
 
-    wAddOriginalTimestamp.setSelection( jobEntry.isOriginalTimestamp() );
-    wSetModificationDateToOriginal.setSelection( jobEntry.isOriginalModificationDate() );
-    wIfFileExists.select( jobEntry.getIfFileExist() );
-    wcreateMoveToDirectory.setSelection( jobEntry.isCreateMoveToDirectory() );
+    wAddOriginalTimestamp.setSelection( action.isOriginalTimestamp() );
+    wSetModificationDateToOriginal.setSelection( action.isOriginalModificationDate() );
+    wIfFileExists.select( action.getIfFileExist() );
+    wcreateMoveToDirectory.setSelection( action.isCreateMoveToDirectory() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1199,42 +1199,42 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setZipFilename( wZipFilename.getText() );
-    jobEntry.setWildcardSource( wWildcardSource.getText() );
+    action.setName( wName.getText() );
+    action.setZipFilename( wZipFilename.getText() );
+    action.setWildcardSource( wWildcardSource.getText() );
 
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setWildcardExclude( wWildcardExclude.getText() );
-    jobEntry.setSourceDirectory( wTargetDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setWildcardExclude( wWildcardExclude.getText() );
+    action.setSourceDirectory( wTargetDirectory.getText() );
 
-    jobEntry.setMoveToDirectory( wMovetoDirectory.getText() );
+    action.setMoveToDirectory( wMovetoDirectory.getText() );
 
-    jobEntry.afterunzip = wAfterUnZip.getSelectionIndex();
+    action.afterunzip = wAfterUnZip.getSelectionIndex();
 
-    jobEntry.setAddFileToResult( wAddFileToResult.getSelection() );
+    action.setAddFileToResult( wAddFileToResult.getSelection() );
 
-    jobEntry.setDatafromprevious( wArgsPrevious.getSelection() );
-    jobEntry.setDateInFilename( wAddDate.getSelection() );
-    jobEntry.setTimeInFilename( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setDatafromprevious( wArgsPrevious.getSelection() );
+    action.setDateInFilename( wAddDate.getSelection() );
+    action.setTimeInFilename( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
 
-    jobEntry.setCreateRootFolder( wRootZip.getSelection() );
-    jobEntry.setCreateFolder( wCreateFolder.getSelection() );
-    jobEntry.setLimit( wNrErrorsLessThan.getText() );
+    action.setCreateRootFolder( wRootZip.getSelection() );
+    action.setCreateFolder( wCreateFolder.getSelection() );
+    action.setLimit( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( action.SUCCESS_IF_NO_ERRORS );
     }
 
-    jobEntry.setIfFileExists( wIfFileExists.getSelectionIndex() );
-    jobEntry.setCreateMoveToDirectory( wcreateMoveToDirectory.getSelection() );
-    jobEntry.setAddOriginalTimestamp( wAddOriginalTimestamp.getSelection() );
-    jobEntry.setOriginalModificationDate( wSetModificationDateToOriginal.getSelection() );
+    action.setIfFileExists( wIfFileExists.getSelectionIndex() );
+    action.setCreateMoveToDirectory( wcreateMoveToDirectory.getSelection() );
+    action.setAddOriginalTimestamp( wAddOriginalTimestamp.getSelection() );
+    action.setOriginalModificationDate( wSetModificationDateToOriginal.getSelection() );
     dispose();
   }
 

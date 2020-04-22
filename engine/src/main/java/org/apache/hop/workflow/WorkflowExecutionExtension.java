@@ -24,15 +24,16 @@ package org.apache.hop.workflow;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class WorkflowExecutionExtension {
 
-  public Workflow workflow;
+  public IWorkflowEngine<WorkflowMeta> workflow;
   public Result result;
   public ActionCopy actionCopy;
   public boolean executeEntry;
 
-  public WorkflowExecutionExtension( Workflow workflow, Result result, ActionCopy actionCopy, boolean executeEntry ) {
+  public WorkflowExecutionExtension( IWorkflowEngine<WorkflowMeta> workflow, Result result, ActionCopy actionCopy, boolean executeEntry ) {
     super();
     this.workflow = workflow;
     this.result = result;

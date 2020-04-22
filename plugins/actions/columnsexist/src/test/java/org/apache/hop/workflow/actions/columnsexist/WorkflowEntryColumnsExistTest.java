@@ -32,6 +32,8 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,7 +66,7 @@ public class WorkflowEntryColumnsExistTest {
   private static final String TABLENAME = "TABLE";
   private static final String SCHEMANAME = "SCHEMA";
   private static final String[] COLUMNS = new String[] { "COLUMN1", "COLUMN2" };
-  private ActionColumnsExist jobEntry;
+  private ActionColumnsExist action;
   private Database db;
 
 
@@ -80,52 +82,52 @@ public class WorkflowEntryColumnsExistTest {
 
   @Before
   public void setUp() {
-    Workflow parentWorkflow = new Workflow( new WorkflowMeta() );
-    jobEntry = spy( new ActionColumnsExist( "" ) );
-    parentWorkflow.getWorkflowMeta().addAction( new ActionCopy( jobEntry ) );
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine( new WorkflowMeta() );
+    action = spy( new ActionColumnsExist( "" ) );
+    parentWorkflow.getWorkflowMeta().addAction( new ActionCopy( action ) );
     parentWorkflow.setStopped( false );
-    jobEntry.setParentWorkflow( parentWorkflow );
+    action.setParentWorkflow( parentWorkflow );
     parentWorkflow.setLogLevel( LogLevel.NOTHING );
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    jobEntry.setDatabase( dbMeta );
-    db = spy( new Database( jobEntry, dbMeta ) );
-    jobEntry.setParentWorkflow( parentWorkflow );
-    jobEntry.setTablename( TABLENAME );
-    jobEntry.setArguments( COLUMNS );
-    jobEntry.setSchemaname( SCHEMANAME );
+    action.setDatabase( dbMeta );
+    db = spy( new Database( action, dbMeta ) );
+    action.setParentWorkflow( parentWorkflow );
+    action.setTablename( TABLENAME );
+    action.setArguments( COLUMNS );
+    action.setSchemaname( SCHEMANAME );
   }
 
   @Test
   public void jobFail_tableNameIsEmpty() throws HopException {
-    jobEntry.setTablename( null );
-    final Result result = jobEntry.execute( new Result(), 0 );
+    action.setTablename( null );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
     assertFalse( "Result should be false", result.getResult() );
   }
 
   @Test
   public void jobFail_columnsArrayIsEmpty() throws HopException {
-    jobEntry.setArguments( null );
-    final Result result = jobEntry.execute( new Result(), 0 );
+    action.setArguments( null );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
     assertFalse( "Result should be false", result.getResult() );
   }
 
   @Test
   public void jobFail_connectionIsNull() throws HopException {
-    jobEntry.setDatabase( null );
-    final Result result = jobEntry.execute( new Result(), 0 );
+    action.setDatabase( null );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
     assertFalse( "Result should be false", result.getResult() );
   }
 
   @Test
   public void jobFail_tableNotExist() throws HopException {
-    when( jobEntry.getNewDatabaseFromMeta() ).thenReturn( db );
+    when( action.getNewDatabaseFromMeta() ).thenReturn( db );
     doNothing().when( db ).connect( anyString(), any() );
     doReturn( false ).when( db ).checkTableExists( anyString(), anyString() );
 
-    final Result result = jobEntry.execute( new Result(), 0 );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
     assertFalse( "Result should be false", result.getResult() );
     verify( db, atLeastOnce() ).disconnect();
@@ -133,11 +135,11 @@ public class WorkflowEntryColumnsExistTest {
 
   @Test
   public void jobFail_columnNotExist() throws HopException {
-    doReturn( db ).when( jobEntry ).getNewDatabaseFromMeta();
+    doReturn( db ).when( action ).getNewDatabaseFromMeta();
     doNothing().when( db ).connect( anyString(), anyString() );
     doReturn( true ).when( db ).checkTableExists( anyString(), anyString() );
     doReturn( false ).when( db ).checkColumnExists( anyString(), anyString(), anyString() );
-    final Result result = jobEntry.execute( new Result(), 0 );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be some errors", 1, result.getNrErrors() );
     assertFalse( "Result should be false", result.getResult() );
     verify( db, atLeastOnce() ).disconnect();
@@ -145,11 +147,11 @@ public class WorkflowEntryColumnsExistTest {
 
   @Test
   public void jobSuccess() throws HopException {
-    doReturn( db ).when( jobEntry ).getNewDatabaseFromMeta();
+    doReturn( db ).when( action ).getNewDatabaseFromMeta();
     doNothing().when( db ).connect( anyString(), anyString() );
     doReturn( true ).when( db ).checkColumnExists( anyString(), anyString(), anyString() );
     doReturn( true ).when( db ).checkTableExists( anyString(), anyString() );
-    final Result result = jobEntry.execute( new Result(), 0 );
+    final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be no error", 0, result.getNrErrors() );
     assertTrue( "Result should be true", result.getResult() );
     assertEquals( "Lines written", COLUMNS.length, result.getNrLinesWritten() );

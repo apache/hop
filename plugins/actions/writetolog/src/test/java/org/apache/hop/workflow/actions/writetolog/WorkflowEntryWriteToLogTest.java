@@ -27,6 +27,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,8 +46,8 @@ import static org.mockito.Mockito.verify;
  */
 public class WorkflowEntryWriteToLogTest {
 
-  private Workflow parentWorkflow;
-  private ActionWriteToLog jobEntry;
+  private IWorkflowEngine<WorkflowMeta> parentWorkflow;
+  private ActionWriteToLog action;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -57,8 +59,8 @@ public class WorkflowEntryWriteToLogTest {
     parentWorkflow = mock( Workflow.class );
     doReturn( false ).when( parentWorkflow ).isStopped();
 
-    jobEntry = new ActionWriteToLog();
-    jobEntry = spy( jobEntry );
+    action = new ActionWriteToLog();
+    action = spy( action );
   }
 
   @Test
@@ -77,16 +79,16 @@ public class WorkflowEntryWriteToLogTest {
   }
 
   private void verifyErrorMessageForParentJobLogLevel( LogLevel parentJobLogLevel, VerificationMode mode ) {
-    jobEntry.setLogMessage( "TEST" );
-    jobEntry.setEntryLogLevel( LogLevel.ERROR );
+    action.setLogMessage( "TEST" );
+    action.setEntryLogLevel( LogLevel.ERROR );
 
     doReturn( parentJobLogLevel ).when( parentWorkflow ).getLogLevel();
-    jobEntry.setParentWorkflow( parentWorkflow );
+    action.setParentWorkflow( parentWorkflow );
 
-    ILogChannel logChannel = spy( jobEntry.createLogChannel() );
-    doReturn( logChannel ).when( jobEntry ).createLogChannel();
+    ILogChannel logChannel = spy( action.createLogChannel() );
+    doReturn( logChannel ).when( action ).createLogChannel();
 
-    jobEntry.evaluate( new Result() );
+    action.evaluate( new Result() );
     verify( logChannel, mode ).logError( "TEST" + Const.CR );
   }
 }

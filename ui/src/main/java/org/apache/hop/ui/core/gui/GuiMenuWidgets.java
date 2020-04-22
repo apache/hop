@@ -286,12 +286,26 @@ public class GuiMenuWidgets {
    * @return The menu item or null if nothing is found
    */
   public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission ) {
+    return enableMenuItem( fileType, id, permission, true );
+  }
+  /**
+   * Find the menu item with the given ID.
+   * Check the capability in the given file type
+   * Enable or disable accordingly.
+   *
+   * @param fileType
+   * @param id         The ID of the widget to look for
+   * @param permission
+   * @param active The state if the permission is available
+   * @return The menu item or null if nothing is found
+   */
+  public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission, boolean active ) {
     MenuItem menuItem = menuItemMap.get( id );
     if ( menuItem == null ) {
       return null;
     }
     boolean hasCapability = fileType.hasCapability( permission );
-    menuItem.setEnabled( hasCapability );
+    menuItem.setEnabled( hasCapability && active );
     return menuItem;
   }
 

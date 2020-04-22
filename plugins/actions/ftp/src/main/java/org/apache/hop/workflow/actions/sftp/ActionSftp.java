@@ -620,7 +620,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
             ResultFile resultFile =
               new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL, targetFile, parentWorkflow
-                .getJobname(), toString() );
+                .getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             if ( log.isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "JobSFTP.Log.FilenameAddedToResultFilenames", filelist[ i ] ) );

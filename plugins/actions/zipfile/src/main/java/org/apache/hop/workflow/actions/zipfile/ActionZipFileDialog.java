@@ -106,7 +106,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionZipFile jobEntry;
+  private ActionZipFile action;
 
   private Shell shell;
 
@@ -238,11 +238,11 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  public ActionZipFileDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionZipFile) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobZipFiles.Name.Default" ) );
+  public ActionZipFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionZipFile) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobZipFiles.Name.Default" ) );
     }
 
   }
@@ -253,14 +253,14 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -341,7 +341,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wgetFromPrevious.setLayoutData( fdgetFromPrevious );
     wgetFromPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setGetFromPrevious();
       }
     } );
@@ -445,7 +445,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -538,7 +538,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wCreateParentFolder.setLayoutData( fdCreateParentFolder );
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -561,7 +561,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
     // Create multi-part file?
@@ -583,7 +583,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -606,7 +606,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
       }
     } );
@@ -646,12 +646,10 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wbShowFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         if ( !Utils.isEmpty( wZipFilename.getText() ) ) {
-          ActionZipFile jobEntry = new ActionZipFile();
+          ActionZipFile actionZipFile = new ActionZipFile();
           String[] filename = new String[ 1 ];
-          filename[ 0 ] =
-            jobEntry.getFullFilename(
-              wZipFilename.getText(), wAddDate.getSelection(), wAddTime.getSelection(), wSpecifyFormat
-                .getSelection(), wDateTimeFormat.getText() );
+          filename[ 0 ] = ActionZipFileDialog.this.action.getFullFilename(
+              wZipFilename.getText(), wAddDate.getSelection(), wAddTime.getSelection(), wSpecifyFormat.getSelection(), wDateTimeFormat.getText() );
           if ( filename != null && filename.length > 0 ) {
             EnterSelectionDialog esd = new EnterSelectionDialog( shell, filename,
               BaseMessages.getString( PKG, "JobZipFiles.SelectOutputFiles.DialogTitle" ),
@@ -846,7 +844,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wCreateMoveToDirectory.setLayoutData( fdCreateMoveToDirectory );
     wCreateMoveToDirectory.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -915,7 +913,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1054,7 +1052,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void setGetFromPrevious() {
@@ -1094,7 +1092,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
 
   public void AfterZipActivate() {
 
-    jobEntry.setChanged();
+    action.setChanged();
     if ( wAfterZip.getSelectionIndex() == 2 ) {
       wMovetoDirectory.setEnabled( true );
       wlMovetoDirectory.setEnabled( true );
@@ -1120,51 +1118,51 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wZipFilename.setText( Const.nullToEmpty( jobEntry.getZipFilename() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wZipFilename.setText( Const.nullToEmpty( action.getZipFilename() ) );
 
-    if ( jobEntry.compressionRate >= 0 ) {
-      wCompressionRate.select( jobEntry.compressionRate );
+    if ( action.compressionRate >= 0 ) {
+      wCompressionRate.select( action.compressionRate );
     } else {
       wCompressionRate.select( 1 ); // DEFAULT
     }
 
-    if ( jobEntry.ifZipFileExists >= 0 ) {
-      wIfFileExists.select( jobEntry.ifZipFileExists );
+    if ( action.ifZipFileExists >= 0 ) {
+      wIfFileExists.select( action.ifZipFileExists );
     } else {
       wIfFileExists.select( 2 ); // NOTHING
     }
 
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wWildcardExclude.setText( Const.NVL( jobEntry.getWildcardExclude(), "" ) );
-    wSourceDirectory.setText( Const.NVL( jobEntry.getSourceDirectory(), "" ) );
-    wMovetoDirectory.setText( Const.NVL( jobEntry.getMoveToDirectory(), "" ) );
-    if ( jobEntry.afterZip >= 0 ) {
-      wAfterZip.select( jobEntry.afterZip );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wWildcardExclude.setText( Const.NVL( action.getWildcardExclude(), "" ) );
+    wSourceDirectory.setText( Const.NVL( action.getSourceDirectory(), "" ) );
+    wMovetoDirectory.setText( Const.NVL( action.getMoveToDirectory(), "" ) );
+    if ( action.afterZip >= 0 ) {
+      wAfterZip.select( action.afterZip );
     } else {
       wAfterZip.select( 0 ); // NOTHING
     }
 
-    wAddFileToResult.setSelection( jobEntry.isAddFileToResult() );
-    wgetFromPrevious.setSelection( jobEntry.getDatafromprevious() );
-    wCreateParentFolder.setSelection( jobEntry.getcreateparentfolder() );
-    wAddDate.setSelection( jobEntry.isDateInFilename() );
-    wAddTime.setSelection( jobEntry.isTimeInFilename() );
+    wAddFileToResult.setSelection( action.isAddFileToResult() );
+    wgetFromPrevious.setSelection( action.getDatafromprevious() );
+    wCreateParentFolder.setSelection( action.getcreateparentfolder() );
+    wAddDate.setSelection( action.isDateInFilename() );
+    wAddTime.setSelection( action.isTimeInFilename() );
 
-    wDateTimeFormat.setText( Const.NVL( jobEntry.getDateTimeFormat(), "" ) );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
-    wCreateMoveToDirectory.setSelection( jobEntry.isCreateMoveToDirectory() );
-    wIncludeSubfolders.setSelection( jobEntry.isIncludingSubFolders() );
+    wDateTimeFormat.setText( Const.NVL( action.getDateTimeFormat(), "" ) );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
+    wCreateMoveToDirectory.setSelection( action.isCreateMoveToDirectory() );
+    wIncludeSubfolders.setSelection( action.isIncludingSubFolders() );
 
-    wStoredSourcePathDepth.setText( Const.NVL( jobEntry.getStoredSourcePathDepth(), "" ) );
+    wStoredSourcePathDepth.setText( Const.NVL( action.getStoredSourcePathDepth(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1176,31 +1174,31 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setZipFilename( wZipFilename.getText() );
+    action.setName( wName.getText() );
+    action.setZipFilename( wZipFilename.getText() );
 
-    jobEntry.compressionRate = wCompressionRate.getSelectionIndex();
-    jobEntry.ifZipFileExists = wIfFileExists.getSelectionIndex();
+    action.compressionRate = wCompressionRate.getSelectionIndex();
+    action.ifZipFileExists = wIfFileExists.getSelectionIndex();
 
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setWildcardExclude( wWildcardExclude.getText() );
-    jobEntry.setSourceDirectory( wSourceDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setWildcardExclude( wWildcardExclude.getText() );
+    action.setSourceDirectory( wSourceDirectory.getText() );
 
-    jobEntry.setMoveToDirectory( wMovetoDirectory.getText() );
+    action.setMoveToDirectory( wMovetoDirectory.getText() );
 
-    jobEntry.afterZip = wAfterZip.getSelectionIndex();
+    action.afterZip = wAfterZip.getSelectionIndex();
 
-    jobEntry.setAddFileToResult( wAddFileToResult.getSelection() );
-    jobEntry.setDatafromprevious( wgetFromPrevious.getSelection() );
-    jobEntry.setcreateparentfolder( wCreateParentFolder.getSelection() );
-    jobEntry.setDateInFilename( wAddDate.getSelection() );
-    jobEntry.setTimeInFilename( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
-    jobEntry.setCreateMoveToDirectory( wCreateMoveToDirectory.getSelection() );
-    jobEntry.setIncludingSubFolders( wIncludeSubfolders.getSelection() );
+    action.setAddFileToResult( wAddFileToResult.getSelection() );
+    action.setDatafromprevious( wgetFromPrevious.getSelection() );
+    action.setcreateparentfolder( wCreateParentFolder.getSelection() );
+    action.setDateInFilename( wAddDate.getSelection() );
+    action.setTimeInFilename( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setCreateMoveToDirectory( wCreateMoveToDirectory.getSelection() );
+    action.setIncludingSubFolders( wIncludeSubfolders.getSelection() );
 
-    jobEntry.setStoredSourcePathDepth( wStoredSourcePathDepth.getText() );
+    action.setStoredSourcePathDepth( wStoredSourcePathDepth.getText() );
 
     dispose();
   }

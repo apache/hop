@@ -25,6 +25,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,9 +50,9 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
     // Parse the XML, create a workflow configuration
     WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXML( xml );
 
-    Workflow workflow = createJob( workflowConfiguration );
+    IWorkflowEngine<WorkflowMeta> workflow = createJob( workflowConfiguration );
 
-    String message = "Workflow '" + workflow.getJobname() + "' was added to the list with id " + workflow.getContainerObjectId();
+    String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + workflow.getContainerObjectId();
     return new WebResult( WebResult.STRING_OK, message, workflow.getContainerObjectId() );
   }
 }

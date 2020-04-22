@@ -98,7 +98,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionPGPDecryptFiles jobEntry;
+  private ActionPGPDecryptFiles action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -240,13 +240,13 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
   private Button wSpecifyMoveFormat;
   private FormData fdlSpecifyMoveFormat, fdSpecifyMoveFormat;
 
-  public ActionPGPDecryptFilesDialog( Shell parent, IAction jobEntryInt,
+  public ActionPGPDecryptFilesDialog( Shell parent, IAction action,
                                       WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionPGPDecryptFiles) jobEntryInt;
+    super( parent, action, workflowMeta );
+    this.action = (ActionPGPDecryptFiles) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionPGPDecryptFiles.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionPGPDecryptFiles.Name.Default" ) );
     }
   }
 
@@ -256,14 +256,14 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -387,7 +387,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckIncludeSubFolders();
       }
     } );
@@ -403,7 +403,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.arg_from_previous );
+    wPrevious.setSelection( action.arg_from_previous );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "ActionPGPDecryptFiles.Previous.Tooltip" ) );
     fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -640,8 +640,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.source_filefolder == null ? 1 : ( jobEntry.source_filefolder.length == 0
-        ? 0 : jobEntry.source_filefolder.length );
+      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
+        ? 0 : action.source_filefolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -791,7 +791,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wCreateDestinationFolder.setLayoutData( fdCreateDestinationFolder );
     wCreateDestinationFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -816,7 +816,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wDestinationIsAFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
 
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -841,7 +841,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wDoNotKeepFolderStructure.setLayoutData( fdDoNotKeepFolderStructure );
     wDoNotKeepFolderStructure.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -864,7 +864,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddDate.setLayoutData( fdAddDate );
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -887,7 +887,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddTime.setLayoutData( fdAddTime );
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddDateBeforeExtension();
       }
     } );
@@ -911,7 +911,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wSpecifyFormat.setLayoutData( fdSpecifyFormat );
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setDateTimeFormat();
         setAddDateBeforeExtension();
       }
@@ -962,7 +962,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddDateBeforeExtension.setLayoutData( fdAddDateBeforeExtension );
     wAddDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1094,7 +1094,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wCreateMoveToFolder.setLayoutData( fdCreateMoveToFolder );
     wCreateMoveToFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1117,7 +1117,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedDate.setLayoutData( fdAddMovedDate );
     wAddMovedDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddMovedDateBeforeExtension();
       }
     } );
@@ -1140,7 +1140,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedTime.setLayoutData( fdAddMovedTime );
     wAddMovedTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setAddMovedDateBeforeExtension();
       }
     } );
@@ -1165,7 +1165,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wSpecifyMoveFormat.setLayoutData( fdSpecifyMoveFormat );
     wSpecifyMoveFormat.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         setMovedDateTimeFormat();
         setAddMovedDateBeforeExtension();
       }
@@ -1215,7 +1215,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddMovedDateBeforeExtension.setLayoutData( fdAddMovedDateBeforeExtension );
     wAddMovedDateBeforeExtension.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1396,7 +1396,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wAddFileToResult.setLayoutData( fdAddFileToResult );
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1487,7 +1487,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeDestinationFolder() {
@@ -1604,48 +1604,48 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    if ( jobEntry.source_filefolder != null ) {
-      for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
+    if ( action.source_filefolder != null ) {
+      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[ i ] != null ) {
-          ti.setText( 1, jobEntry.source_filefolder[ i ] );
+        if ( action.source_filefolder[ i ] != null ) {
+          ti.setText( 1, action.source_filefolder[ i ] );
         }
-        if ( jobEntry.wildcard[ i ] != null ) {
-          ti.setText( 2, jobEntry.wildcard[ i ] );
+        if ( action.wildcard[ i ] != null ) {
+          ti.setText( 2, action.wildcard[ i ] );
         }
-        if ( jobEntry.passphrase[ i ] != null ) {
-          ti.setText( 3, jobEntry.passphrase[ i ] );
+        if ( action.passphrase[ i ] != null ) {
+          ti.setText( 3, action.passphrase[ i ] );
         }
 
-        if ( jobEntry.destination_filefolder[ i ] != null ) {
-          ti.setText( 4, jobEntry.destination_filefolder[ i ] );
+        if ( action.destination_filefolder[ i ] != null ) {
+          ti.setText( 4, action.destination_filefolder[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
 
     }
-    wPrevious.setSelection( jobEntry.arg_from_previous );
-    wIncludeSubfolders.setSelection( jobEntry.include_subfolders );
-    wDestinationIsAFile.setSelection( jobEntry.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( jobEntry.create_destination_folder );
+    wPrevious.setSelection( action.arg_from_previous );
+    wIncludeSubfolders.setSelection( action.include_subfolders );
+    wDestinationIsAFile.setSelection( action.destination_is_a_file );
+    wCreateDestinationFolder.setSelection( action.create_destination_folder );
 
-    wAddFileToResult.setSelection( jobEntry.add_result_filesname );
+    wAddFileToResult.setSelection( action.add_result_filesname );
 
-    wCreateMoveToFolder.setSelection( jobEntry.create_move_to_folder );
+    wCreateMoveToFolder.setSelection( action.create_move_to_folder );
 
-    if ( jobEntry.getNrErrorsLessThan() != null ) {
-      wNrErrorsLessThan.setText( jobEntry.getNrErrorsLessThan() );
+    if ( action.getNrErrorsLessThan() != null ) {
+      wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
     } else {
       wNrErrorsLessThan.setText( "10" );
     }
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -1654,16 +1654,16 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       wSuccessCondition.select( 0 );
     }
 
-    if ( jobEntry.getIfFileExists() != null ) {
-      if ( jobEntry.getIfFileExists().equals( "overwrite_file" ) ) {
+    if ( action.getIfFileExists() != null ) {
+      if ( action.getIfFileExists().equals( "overwrite_file" ) ) {
         wIfFileExists.select( 1 );
-      } else if ( jobEntry.getIfFileExists().equals( "unique_name" ) ) {
+      } else if ( action.getIfFileExists().equals( "unique_name" ) ) {
         wIfFileExists.select( 2 );
-      } else if ( jobEntry.getIfFileExists().equals( "delete_file" ) ) {
+      } else if ( action.getIfFileExists().equals( "delete_file" ) ) {
         wIfFileExists.select( 3 );
-      } else if ( jobEntry.getIfFileExists().equals( "move_file" ) ) {
+      } else if ( action.getIfFileExists().equals( "move_file" ) ) {
         wIfFileExists.select( 4 );
-      } else if ( jobEntry.getIfFileExists().equals( "fail" ) ) {
+      } else if ( action.getIfFileExists().equals( "fail" ) ) {
         wIfFileExists.select( 5 );
       } else {
         wIfFileExists.select( 0 );
@@ -1673,16 +1673,16 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       wIfFileExists.select( 0 );
     }
 
-    if ( jobEntry.getDestinationFolder() != null ) {
-      wDestinationFolder.setText( jobEntry.getDestinationFolder() );
+    if ( action.getDestinationFolder() != null ) {
+      wDestinationFolder.setText( action.getDestinationFolder() );
     }
 
-    if ( jobEntry.getIfMovedFileExists() != null ) {
-      if ( jobEntry.getIfMovedFileExists().equals( "overwrite_file" ) ) {
+    if ( action.getIfMovedFileExists() != null ) {
+      if ( action.getIfMovedFileExists().equals( "overwrite_file" ) ) {
         wIfMovedFileExists.select( 1 );
-      } else if ( jobEntry.getIfMovedFileExists().equals( "unique_name" ) ) {
+      } else if ( action.getIfMovedFileExists().equals( "unique_name" ) ) {
         wIfMovedFileExists.select( 2 );
-      } else if ( jobEntry.getIfMovedFileExists().equals( "fail" ) ) {
+      } else if ( action.getIfMovedFileExists().equals( "fail" ) ) {
         wIfMovedFileExists.select( 3 );
       } else {
         wIfMovedFileExists.select( 0 );
@@ -1691,35 +1691,35 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     } else {
       wIfMovedFileExists.select( 0 );
     }
-    wDoNotKeepFolderStructure.setSelection( jobEntry.isDoNotKeepFolderStructure() );
-    wAddDateBeforeExtension.setSelection( jobEntry.isAddDateBeforeExtension() );
+    wDoNotKeepFolderStructure.setSelection( action.isDoNotKeepFolderStructure() );
+    wAddDateBeforeExtension.setSelection( action.isAddDateBeforeExtension() );
 
-    wAddDate.setSelection( jobEntry.isAddDate() );
-    wAddTime.setSelection( jobEntry.isAddTime() );
-    wSpecifyFormat.setSelection( jobEntry.isSpecifyFormat() );
-    if ( jobEntry.getDateTimeFormat() != null ) {
-      wDateTimeFormat.setText( jobEntry.getDateTimeFormat() );
+    wAddDate.setSelection( action.isAddDate() );
+    wAddTime.setSelection( action.isAddTime() );
+    wSpecifyFormat.setSelection( action.isSpecifyFormat() );
+    if ( action.getDateTimeFormat() != null ) {
+      wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    if ( jobEntry.getGPGLocation() != null ) {
-      wGpgExe.setText( jobEntry.getGPGLocation() );
+    if ( action.getGPGLocation() != null ) {
+      wGpgExe.setText( action.getGPGLocation() );
     }
 
-    wAddMovedDate.setSelection( jobEntry.isAddMovedDate() );
-    wAddMovedTime.setSelection( jobEntry.isAddMovedTime() );
-    wSpecifyMoveFormat.setSelection( jobEntry.isSpecifyMoveFormat() );
-    if ( jobEntry.getMovedDateTimeFormat() != null ) {
-      wMovedDateTimeFormat.setText( jobEntry.getMovedDateTimeFormat() );
+    wAddMovedDate.setSelection( action.isAddMovedDate() );
+    wAddMovedTime.setSelection( action.isAddMovedTime() );
+    wSpecifyMoveFormat.setSelection( action.isSpecifyMoveFormat() );
+    if ( action.getMovedDateTimeFormat() != null ) {
+      wMovedDateTimeFormat.setText( action.getMovedDateTimeFormat() );
     }
-    wAddMovedDateBeforeExtension.setSelection( jobEntry.isAddMovedDateBeforeExtension() );
+    wAddMovedDateBeforeExtension.setSelection( action.isAddMovedDateBeforeExtension() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1731,65 +1731,65 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
-    jobEntry.setAddresultfilesname( wAddFileToResult.getSelection() );
-    jobEntry.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
-    jobEntry.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
-    jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
+    action.setName( wName.getText() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
+    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
+    action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
+    action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
-    jobEntry.setCreateMoveToFolder( wCreateMoveToFolder.getSelection() );
+    action.setCreateMoveToFolder( wCreateMoveToFolder.getSelection() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( action.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wIfFileExists.getSelectionIndex() == 1 ) {
-      jobEntry.setIfFileExists( "overwrite_file" );
+      action.setIfFileExists( "overwrite_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 2 ) {
-      jobEntry.setIfFileExists( "unique_name" );
+      action.setIfFileExists( "unique_name" );
     } else if ( wIfFileExists.getSelectionIndex() == 3 ) {
-      jobEntry.setIfFileExists( "delete_file" );
+      action.setIfFileExists( "delete_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 4 ) {
-      jobEntry.setIfFileExists( "move_file" );
+      action.setIfFileExists( "move_file" );
     } else if ( wIfFileExists.getSelectionIndex() == 5 ) {
-      jobEntry.setIfFileExists( "fail" );
+      action.setIfFileExists( "fail" );
     } else {
-      jobEntry.setIfFileExists( "do_nothing" );
+      action.setIfFileExists( "do_nothing" );
     }
 
-    jobEntry.setDestinationFolder( wDestinationFolder.getText() );
+    action.setDestinationFolder( wDestinationFolder.getText() );
 
-    jobEntry.setGPGPLocation( wGpgExe.getText() );
+    action.setGPGPLocation( wGpgExe.getText() );
 
     if ( wIfMovedFileExists.getSelectionIndex() == 1 ) {
-      jobEntry.setIfMovedFileExists( "overwrite_file" );
+      action.setIfMovedFileExists( "overwrite_file" );
     } else if ( wIfMovedFileExists.getSelectionIndex() == 2 ) {
-      jobEntry.setIfMovedFileExists( "unique_name" );
+      action.setIfMovedFileExists( "unique_name" );
     } else if ( wIfMovedFileExists.getSelectionIndex() == 3 ) {
-      jobEntry.setIfMovedFileExists( "fail" );
+      action.setIfMovedFileExists( "fail" );
     } else {
-      jobEntry.setIfMovedFileExists( "do_nothing" );
+      action.setIfMovedFileExists( "do_nothing" );
     }
 
-    jobEntry.setDoNotKeepFolderStructure( wDoNotKeepFolderStructure.getSelection() );
+    action.setDoNotKeepFolderStructure( wDoNotKeepFolderStructure.getSelection() );
 
-    jobEntry.setAddDate( wAddDate.getSelection() );
-    jobEntry.setAddTime( wAddTime.getSelection() );
-    jobEntry.setSpecifyFormat( wSpecifyFormat.getSelection() );
-    jobEntry.setDateTimeFormat( wDateTimeFormat.getText() );
-    jobEntry.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
+    action.setAddDate( wAddDate.getSelection() );
+    action.setAddTime( wAddTime.getSelection() );
+    action.setSpecifyFormat( wSpecifyFormat.getSelection() );
+    action.setDateTimeFormat( wDateTimeFormat.getText() );
+    action.setAddDateBeforeExtension( wAddDateBeforeExtension.getSelection() );
 
-    jobEntry.setAddMovedDate( wAddMovedDate.getSelection() );
-    jobEntry.setAddMovedTime( wAddMovedTime.getSelection() );
-    jobEntry.setSpecifyMoveFormat( wSpecifyMoveFormat.getSelection() );
-    jobEntry.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
-    jobEntry.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
+    action.setAddMovedDate( wAddMovedDate.getSelection() );
+    action.setAddMovedTime( wAddMovedTime.getSelection() );
+    action.setSpecifyMoveFormat( wSpecifyMoveFormat.getSelection() );
+    action.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
+    action.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -1799,10 +1799,10 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
         nr++;
       }
     }
-    jobEntry.source_filefolder = new String[ nr ];
-    jobEntry.passphrase = new String[ nr ];
-    jobEntry.destination_filefolder = new String[ nr ];
-    jobEntry.wildcard = new String[ nr ];
+    action.source_filefolder = new String[ nr ];
+    action.passphrase = new String[ nr ];
+    action.destination_filefolder = new String[ nr ];
+    action.wildcard = new String[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
@@ -1811,10 +1811,10 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       String dest = wFields.getNonEmpty( i ).getText( 4 );
 
       if ( source != null && source.length() != 0 ) {
-        jobEntry.source_filefolder[ nr ] = source;
-        jobEntry.wildcard[ nr ] = wild;
-        jobEntry.passphrase[ nr ] = passphrase;
-        jobEntry.destination_filefolder[ nr ] = dest;
+        action.source_filefolder[ nr ] = source;
+        action.wildcard[ nr ] = wild;
+        action.passphrase[ nr ] = passphrase;
+        action.destination_filefolder[ nr ] = dest;
         nr++;
       }
     }

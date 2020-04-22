@@ -825,7 +825,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                 if ( addFilenameResut ) {
                   // Add to the result files...
                   ResultFile resultFile =
-                    new ResultFile( ResultFile.FILE_TYPE_GENERAL, myFile, parentWorkflow.getJobname(), toString() );
+                    new ResultFile( ResultFile.FILE_TYPE_GENERAL, myFile, parentWorkflow.getWorkflowName(), toString() );
                   result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                   if ( log.isDetailed() ) {
                     logDetailed( BaseMessages.getString(

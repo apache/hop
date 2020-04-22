@@ -182,8 +182,8 @@ public class HopGuiWorkflowRunDelegate {
 
   private static void showSaveJobBeforeRunningDialog( Shell shell ) {
     MessageBox m = new MessageBox( shell, SWT.OK | SWT.ICON_WARNING );
-    m.setText( BaseMessages.getString( PKG, "JobLog.Dialog.SaveJobBeforeRunning.Title" ) );
-    m.setMessage( BaseMessages.getString( PKG, "JobLog.Dialog.SaveJobBeforeRunning.Message" ) );
+    m.setText( BaseMessages.getString( PKG, "WorkflowLog.Dialog.SaveJobBeforeRunning.Title" ) );
+    m.setMessage( BaseMessages.getString( PKG, "WorkflowLog.Dialog.SaveJobBeforeRunning.Message" ) );
     m.open();
   }
 

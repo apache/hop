@@ -24,8 +24,8 @@ package org.apache.hop.workflow.actions.workflow;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -35,8 +35,6 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
-import org.apache.hop.core.listeners.impl.EntryCurrentDirectoryChangedListener;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
@@ -48,7 +46,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.IDelegationListener;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.resource.ResourceEntry;
+import org.apache.hop.resource.ResourceEntry.ResourceType;
+import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -57,12 +60,8 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionRunConfigurable;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceEntry;
-import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.apache.hop.www.SlaveServerWorkflowStatus;
 import org.w3c.dom.Node;
 
@@ -77,7 +76,7 @@ import java.util.UUID;
 
 /**
  * Recursive definition of a Workflow. This transform means that an entire Workflow has to be executed. It can be the same Workflow, but
- * just make sure that you don't get an endless loop. Provide an escape routine using JobEval.
+ * just make sure that you don't get an endless loop. Provide an escape routine using Eval.
  *
  * @author Matt
  * @since 01-10-2003, Rewritten on 18-06-2004
@@ -86,9 +85,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
   private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
   public static final int IS_PENTAHO = 1;
 
+  private String runConfigurationName;
+
   private String filename;
-  private String workflowName;
-  private String directory;
 
   public boolean paramsFromPrevious;
   public boolean execPerRow;
@@ -109,7 +108,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
   public boolean waitingToFinish = true;
   public boolean followingAbortRemotely;
 
-  public boolean expandingRemoteJob;
+  public boolean expandingRemoteWorkflow;
 
   private String remoteSlaveServerName;
   public boolean passingAllParameters = true;
@@ -120,11 +119,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
   public static final LogLevel DEFAULT_LOG_LEVEL = LogLevel.NOTHING;
 
-  private Workflow workflow;
-
-  private ICurrentDirectoryChangedListener dirListener = new EntryCurrentDirectoryChangedListener(
-    this::getDirectory,
-    this::setDirectory );
+  private IWorkflowEngine<WorkflowMeta> workflow;
 
   public ActionWorkflow( String name ) {
     super( name, "" );
@@ -180,26 +175,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     return environmentSubstitute( getFilename() );
   }
 
-  public void setWorkflowName( String workflowName ) {
-    this.workflowName = workflowName;
-  }
-
-  public String getWorkflowName() {
-    return workflowName;
-  }
-
-  public String getDirectory() {
-    return directory;
-  }
-
-  public void setDirectory( String directory ) {
-    this.directory = directory;
-  }
-
-  public void setDirectories( String[] directories ) {
-    this.directory = directories[ 0 ];
-  }
-
   public boolean isPassingExport() {
     return passingExport;
   }
@@ -243,9 +218,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
     retval.append( super.getXml() );
 
+    retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfigurationName ) );
+
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "workflowname", workflowName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "directory", directory ) );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "params_from_previous", paramsFromPrevious ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "exec_per_row", execPerRow ) );
@@ -260,7 +235,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     retval.append( "      " ).append( XmlHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "expand_remote_job", expandingRemoteJob ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "expand_remote_job", expandingRemoteWorkflow ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "pass_export", passingExport ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
@@ -294,8 +269,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       super.loadXml( entrynode );
 
       filename = XmlHandler.getTagValue( entrynode, "filename" );
-      workflowName = XmlHandler.getTagValue( entrynode, "workflowname" );
-      directory = XmlHandler.getTagValue( entrynode, "directory" );
 
       paramsFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "params_from_previous" ) );
       execPerRow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "exec_per_row" ) );
@@ -319,7 +292,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       }
 
       followingAbortRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "follow_abort_remote" ) );
-      expandingRemoteJob = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "expand_remote_job" ) );
+      expandingRemoteWorkflow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "expand_remote_job" ) );
 
       // How many arguments?
       int argnr = 0;
@@ -360,7 +333,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       // We need to check here the log filename
       // if we do not have one, we must fail
       if ( Utils.isEmpty( realLogFilename ) ) {
-        logError( BaseMessages.getString( PKG, "JobJob.Exception.LogFilenameMissing" ) );
+        logError( BaseMessages.getString( PKG, "ActionWorkflow.Exception.LogFilenameMissing" ) );
         result.setNrErrors( 1 );
         result.setResult( false );
         return result;
@@ -558,7 +531,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
         WorkflowExecutionConfiguration executionConfiguration = new WorkflowExecutionConfiguration();
         if ( !Utils.isEmpty( runConfiguration ) ) {
           runConfiguration = environmentSubstitute( runConfiguration );
-          log.logBasic( BaseMessages.getString( PKG, "JobJob.RunConfig.Message" ), runConfiguration );
+          log.logBasic( BaseMessages.getString( PKG, "ActionWorkflow.RunConfig.Message" ), runConfiguration );
           executionConfiguration.setRunConfiguration( runConfiguration );
           try {
             ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
@@ -571,7 +544,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
               if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
                 String workflowName = parentWorkflow.getWorkflowMeta().getName();
                 String name = workflowMeta.getName();
-                logBasic( BaseMessages.getString( PKG, "JobJob.Log.InvalidRunConfigurationCombination", workflowName,
+                logBasic( BaseMessages.getString( PKG, "ActionWorkflow.Log.InvalidRunConfigurationCombination", workflowName,
                   name, workflowName ) );
               }
             } catch ( Exception ignored ) {
@@ -599,7 +572,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
             remoteSlaveServer = parentWorkflow.getWorkflowMeta().findSlaveServer( realRemoteSlaveServerName );
             if ( remoteSlaveServer == null ) {
               throw new HopException( BaseMessages.getString(
-                PKG, "JobPipeline.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
+                PKG, "ActionPipeline.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
             }
           }
         }
@@ -610,7 +583,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
           // Create a new workflow
           //
-          workflow = new Workflow( workflowMeta, this );
+          workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfigurationName ), metaStore, workflowMeta );
           workflow.setParentWorkflow( parentWorkflow );
           workflow.setLogLevel( jobLogLevel );
           workflow.shareVariablesWith( this );
@@ -618,9 +591,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           workflow.copyParametersFrom( workflowMeta );
           workflow.setInteractive( parentWorkflow.isInteractive() );
           if ( workflow.isInteractive() ) {
-            workflow.getJobEntryListeners().addAll( parentWorkflow.getJobEntryListeners() );
+            workflow.getActionListeners().addAll( parentWorkflow.getActionListeners() );
           }
-          
+
           // Set the parameters calculated above on this instance.
           //
           workflow.clearParameters();
@@ -652,24 +625,12 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           //
           workflow.setSourceRows( sourceRows );
 
-          // Don't forget the logging...
-          workflow.beginProcessing();
-
           // Link the workflow with the sub-workflow
           parentWorkflow.getWorkflowTracker().addWorkflowTracker( workflow.getWorkflowTracker() );
 
           // Link both ways!
           workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
 
-
-          // Inform the parent workflow we started something here...
-          //
-          for ( IDelegationListener delegationListener : parentWorkflow.getDelegationListeners() ) {
-            // TODO: copy some settings in the workflow execution configuration, not strictly needed
-            // but the execution configuration information is useful in case of a workflow re-start
-            //
-            delegationListener.jobDelegationStarted( workflow, new WorkflowExecutionConfiguration() );
-          }
 
           ActionWorkflowRunner runner = new ActionWorkflowRunner( workflow, result, nr, log );
           Thread jobRunnerThread = new Thread( runner );
@@ -693,7 +654,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
           // if the parent-workflow was stopped, stop the sub-workflow too...
           if ( parentWorkflow.isStopped() ) {
-            workflow.stopAll();
+            workflow.stopExecution();
             runner.waitUntilFinished(); // Wait until finished!
           }
 
@@ -733,7 +694,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
             // We want this in case we are running in parallel. The other workflow
             // entries can stop running now.
             //
-            parentWorkflow.stopAll();
+            parentWorkflow.stopExecution();
 
             // Pass the exception along
             //
@@ -852,7 +813,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getJobname(), getName() );
+            ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getWorkflowName(), getName() );
         result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
         // See if anything went wrong during file writing...
@@ -886,29 +847,29 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       if ( !parentfolder.exists() ) {
         if ( createParentFolder ) {
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "JobJob.Log.ParentLogFolderNotExist", parentfolder
+            log.logDebug( BaseMessages.getString( PKG, "ActionWorkflow.Log.ParentLogFolderNotExist", parentfolder
               .getName().toString() ) );
           }
           parentfolder.createFolder();
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "JobJob.Log.ParentLogFolderCreated", parentfolder
+            log.logDebug( BaseMessages.getString( PKG, "ActionWorkflow.Log.ParentLogFolderCreated", parentfolder
               .getName().toString() ) );
           }
         } else {
-          log.logError( BaseMessages.getString( PKG, "JobJob.Log.ParentLogFolderNotExist", parentfolder
+          log.logError( BaseMessages.getString( PKG, "ActionWorkflow.Log.ParentLogFolderNotExist", parentfolder
             .getName().toString() ) );
           resultat = false;
         }
       } else {
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "JobJob.Log.ParentLogFolderExists", parentfolder
+          log.logDebug( BaseMessages.getString( PKG, "ActionWorkflow.Log.ParentLogFolderExists", parentfolder
             .getName().toString() ) );
         }
       }
     } catch ( Exception e ) {
       resultat = false;
-      log.logError( BaseMessages.getString( PKG, "JobJob.Error.ChekingParentLogFolderTitle" ), BaseMessages
-        .getString( PKG, "JobJob.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
+      log.logError( BaseMessages.getString( PKG, "ActionWorkflow.Error.ChekingParentLogFolderTitle" ), BaseMessages
+        .getString( PKG, "ActionWorkflow.Error.ChekingParentLogFolder", parentfolder.getName().toString() ), e );
     } finally {
       if ( parentfolder != null ) {
         try {
@@ -930,7 +891,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
    * @param workflowMeta   the workflow metadata
    * @throws HopException in case both workflows are loaded from the same source
    */
-  private void verifyRecursiveExecution( Workflow parentWorkflow, WorkflowMeta workflowMeta ) throws HopException {
+  private void verifyRecursiveExecution( IWorkflowEngine<WorkflowMeta> parentWorkflow, WorkflowMeta workflowMeta ) throws HopException {
 
     if ( parentWorkflow == null ) {
       return; // OK!
@@ -948,7 +909,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     // Verify the filename for recursive execution
     //
     if ( workflowMeta.getFilename() != null && workflowMeta.getFilename().equals( parentWorkflowMeta.getFilename() ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobJobError.Recursive", workflowMeta.getFilename() ) );
+      throw new HopException( BaseMessages.getString( PKG, "ActionWorkflowError.Recursive", workflowMeta.getFilename() ) );
     }
 
     // Also compare with the grand-parent (if there is any)
@@ -959,9 +920,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
   public void clear() {
     super.clear();
 
-    workflowName = null;
     filename = null;
-    directory = null;
     addDate = false;
     addTime = false;
     logfile = null;
@@ -1037,7 +996,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables       The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metaStore       the metaStore to load external metadata from
@@ -1085,18 +1044,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
                      IMetaStore metaStore ) {
     if ( setLogfile ) {
       ActionValidatorUtils.andValidator().validate( this, "logfile", remarks,
-        AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    }
-
-    if ( null != directory ) {
-      // if from repo
-      ActionValidatorUtils.andValidator().validate( this, "directory", remarks,
-        AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
-      ActionValidatorUtils.andValidator().validate( this, "workflowName", remarks,
-        AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
-    } else {
-      // else from xml file
-      ActionValidatorUtils.andValidator().validate( this, "filename", remarks,
         AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
     }
   }
@@ -1165,18 +1112,18 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     this.passingAllParameters = passingAllParameters;
   }
 
-  public Workflow getWorkflow() {
+  public IWorkflowEngine<WorkflowMeta> getWorkflow() {
     return workflow;
   }
 
 
-  private boolean isJobDefined() {
-    return !Utils.isEmpty( filename ) || ( !Utils.isEmpty( this.directory ) && !Utils.isEmpty( workflowName ) );
+  private boolean isWorkflowDefined() {
+    return !Utils.isEmpty( filename );
   }
 
   @Override
   public boolean[] isReferencedObjectEnabled() {
-    return new boolean[] { isJobDefined(), };
+    return new boolean[] { isWorkflowDefined(), };
   }
 
   /**
@@ -1192,7 +1139,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metaStore the metaStore
-   * @param variables     the variable space to use
+   * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -1201,24 +1148,12 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     return getWorkflowMeta( metaStore, variables );
   }
 
-  public boolean isExpandingRemoteJob() {
-    return expandingRemoteJob;
+  public boolean isExpandingRemoteWorkflow() {
+    return expandingRemoteWorkflow;
   }
 
-  public void setExpandingRemoteJob( boolean expandingRemoteJob ) {
-    this.expandingRemoteJob = expandingRemoteJob;
-  }
-
-  @Override
-  public void setParentWorkflowMeta( WorkflowMeta parentWorkflowMeta ) {
-    WorkflowMeta previous = getParentWorkflowMeta();
-    super.setParentWorkflowMeta( parentWorkflowMeta );
-    if ( previous != null ) {
-      previous.removeCurrentDirectoryChangedListener( this.dirListener );
-    }
-    if ( parentWorkflowMeta != null ) {
-      parentWorkflowMeta.addCurrentDirectoryChangedListener( this.dirListener );
-    }
+  public void setExpandingRemoteWorkflow( boolean expandingRemoteWorkflow ) {
+    this.expandingRemoteWorkflow = expandingRemoteWorkflow;
   }
 
 }

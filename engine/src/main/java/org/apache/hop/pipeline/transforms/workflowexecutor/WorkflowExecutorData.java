@@ -30,6 +30,7 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ import java.util.List;
  * @since 24-jan-2005
  */
 public class WorkflowExecutorData extends BaseTransformData implements ITransformData {
-  public Workflow executorWorkflow;
+  public IWorkflowEngine<WorkflowMeta> executorWorkflow;
   public WorkflowMeta executorWorkflowMeta;
   public IRowMeta inputRowMeta;
   public IRowMeta executionResultsOutputRowMeta;

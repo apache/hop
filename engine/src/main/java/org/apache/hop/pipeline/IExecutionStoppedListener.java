@@ -22,8 +22,6 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-
 public interface IExecutionStoppedListener<T> {
-  void stopped( IPipelineEngine<T> pipeline );
+  void stopped( T engine );
 }

@@ -53,6 +53,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -106,14 +107,14 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   }
 
   public Object clone() {
-    ActionDeleteFiles jobEntry = (ActionDeleteFiles) super.clone();
+    ActionDeleteFiles action = (ActionDeleteFiles) super.clone();
     if ( arguments != null ) {
       int nrFields = arguments.length;
-      jobEntry.allocate( nrFields );
-      System.arraycopy( arguments, 0, jobEntry.arguments, 0, nrFields );
-      System.arraycopy( filemasks, 0, jobEntry.filemasks, 0, nrFields );
+      action.allocate( nrFields );
+      System.arraycopy( arguments, 0, action.arguments, 0, nrFields );
+      System.arraycopy( filemasks, 0, action.filemasks, 0, nrFields );
     }
-    return jobEntry;
+    return action;
   }
 
   @Override
@@ -253,7 +254,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     return pathToMaskMap;
   }
 
-  boolean processFile( String path, String wildcard, Workflow parentWorkflow ) {
+  boolean processFile( String path, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     boolean isDeleted = false;
     FileObject fileFolder = null;
 
@@ -314,9 +315,9 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   private class TextFileSelector implements FileSelector {
     String fileWildcard = null;
     String sourceFolder = null;
-    Workflow parentjob;
+    IWorkflowEngine<WorkflowMeta> parentjob;
 
-    public TextFileSelector( String sourcefolderin, String filewildcard, Workflow parentWorkflow ) {
+    public TextFileSelector( String sourcefolderin, String filewildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
 
       if ( !Utils.isEmpty( sourcefolderin ) ) {
         sourceFolder = sourcefolderin;

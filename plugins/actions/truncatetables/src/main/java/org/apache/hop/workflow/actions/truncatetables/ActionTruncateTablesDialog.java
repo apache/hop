@@ -86,7 +86,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private ActionTruncateTables jobEntry;
+  private ActionTruncateTables action;
 
   private boolean changed;
 
@@ -96,11 +96,11 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   private Button wbdTablename;
   private Button wPrevious;
 
-  public ActionTruncateTablesDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionTruncateTables) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionTruncateTables.Name.Default" ) );
+  public ActionTruncateTablesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionTruncateTables) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionTruncateTables.Name.Default" ) );
     }
   }
 
@@ -111,10 +111,10 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = ( ModifyEvent e ) -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    ModifyListener lsMod = ( ModifyEvent e ) -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -145,7 +145,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     wName.setLayoutData( fdName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wName, jobEntry.getDatabase(), lsMod );
+    wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     Label wlPrevious = new Label( shell, SWT.RIGHT );
     wlPrevious.setText( BaseMessages.getString( PKG, "ActionTruncateTables.Previous.Label" ) );
@@ -168,7 +168,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       public void widgetSelected( SelectionEvent e ) {
 
         setPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -206,7 +206,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     fdlFields.top = new FormAttachment( wbTable, 2 * margin );
     wlFields.setLayoutData( fdlFields );
 
-    int rows = jobEntry.getTableNames() == null ? 1 : jobEntry.getTableNames().length;
+    int rows = action.getTableNames() == null ? 1 : action.getTableNames().length;
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -292,7 +292,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setPrevious() {
@@ -312,13 +312,13 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    if ( jobEntry.getDatabase() != null ) {
-      wConnection.setText( jobEntry.getDatabase().getName() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    if ( action.getDatabase() != null ) {
+      wConnection.setText( action.getDatabase().getName() );
     }
     
-    String[] tableNames = jobEntry.getTableNames();
-    String[] schemaNames = jobEntry.getSchemaNames();
+    String[] tableNames = action.getTableNames();
+    String[] schemaNames = action.getSchemaNames();
     
     if ( tableNames != null ) {
       for ( int i = 0; i < tableNames.length; i++ ) {
@@ -335,15 +335,15 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
+    wPrevious.setSelection( action.isArgFromPrevious() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -355,9 +355,9 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
-    jobEntry.setArgFromPrevious(wPrevious.getSelection());
+    action.setName( wName.getText() );
+    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setArgFromPrevious(wPrevious.getSelection());
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -380,8 +380,8 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       }
     }
 
-    jobEntry.setTableNames(tables);
-    jobEntry.setSchemaNames(schemas);
+    action.setTableNames(tables);
+    action.setSchemaNames(schemas);
     
     dispose();
   }

@@ -36,8 +36,6 @@ public class LogChannel implements ILogChannel {
 
   public static ILogChannel GENERAL = new LogChannel( "General" );
 
-  public static ILogChannel METADATA = new LogChannel( "Metadata" );
-
   public static ILogChannel UI = new LogChannel( "GUI" );
 
   private String logChannelId;

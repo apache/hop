@@ -49,7 +49,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -61,7 +60,6 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -69,6 +67,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionRunConfigurable;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -374,7 +373,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       // We need to check here the log filename
       // if we do not have one, we must fail
       if ( Utils.isEmpty( realLogFilename ) ) {
-        logError( BaseMessages.getString( PKG, "JobPipeline.Exception.LogFilenameMissing" ) );
+        logError( BaseMessages.getString( PKG, "ActionPipeline.Exception.LogFilenameMissing" ) );
         result.setNrErrors( 1 );
         result.setResult( false );
         return result;
@@ -391,7 +390,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
             this.getLogChannelId(), HopVfs.getFileObject( realLogFilename, this ), setAppendLogfile );
         logChannelFileWriter.startLogging();
       } catch ( HopException e ) {
-        logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnableOpenAppender", realLogFilename, e.toString() ) );
+        logError( BaseMessages.getString( PKG, "ActionPipeline.Error.UnableOpenAppender", realLogFilename, e.toString() ) );
 
         logError( Const.getStackTracker( e ) );
         result.setNrErrors( 1 );
@@ -400,7 +399,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       }
     }
 
-    logDetailed( BaseMessages.getString( PKG, "JobPipeline.Log.OpeningPipeline", environmentSubstitute( getFilename() ) ) );
+    logDetailed( BaseMessages.getString( PKG, "ActionPipeline.Log.OpeningPipeline", environmentSubstitute( getFilename() ) ) );
 
     // Load the pipeline only once for the complete loop!
     // Throws an exception if it was not possible to load the pipeline, for example if the XML file doesn't exist.
@@ -410,7 +409,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
     try {
       pipelineMeta = getPipelineMeta( metaStore, this );
     } catch ( HopException e ) {
-      logError( BaseMessages.getString( PKG, "JobPipeline.Exception.UnableToRunWorkflow", parentWorkflowMeta.getName(),
+      logError( BaseMessages.getString( PKG, "ActionPipeline.Exception.UnableToRunWorkflow", parentWorkflowMeta.getName(),
         getName(), StringUtils.trim( e.getMessage() ) ), e );
       result.setNrErrors( 1 );
       result.setResult( false );
@@ -470,7 +469,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       try {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobPipeline.StartingPipeline", getFilename(), getName(), getDescription() ) );
+            PKG, "ActionPipeline.StartingPipeline", getFilename(), getName(), getDescription() ) );
         }
 
         if ( clearResultRows ) {
@@ -565,7 +564,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
         }
 
         runConfiguration = environmentSubstitute( runConfiguration );
-        log.logBasic( BaseMessages.getString( PKG, "JobPipeline.RunConfig.Message" ), runConfiguration );
+        log.logBasic( BaseMessages.getString( PKG, "ActionPipeline.RunConfig.Message" ), runConfiguration );
         executionConfiguration.setRunConfiguration( runConfiguration );
         try {
           ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
@@ -576,7 +575,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
             if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
               String workflowName = parentWorkflow.getWorkflowMeta().getName();
               String name = pipelineMeta.getName();
-              logBasic( BaseMessages.getString( PKG, "JobPipeline.Log.InvalidRunConfigurationCombination", workflowName,
+              logBasic( BaseMessages.getString( PKG, "ActionPipeline.Log.InvalidRunConfigurationCombination", workflowName,
                 name, workflowName ) );
             }
           } catch ( Exception ignored ) {
@@ -624,7 +623,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
 
         // First get the root workflow
         //
-        Workflow rootWorkflow = parentWorkflow;
+        IWorkflowEngine<WorkflowMeta> rootWorkflow = parentWorkflow;
         while ( rootWorkflow.getParentWorkflow() != null ) {
           rootWorkflow = rootWorkflow.getParentWorkflow();
         }
@@ -647,19 +646,19 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
             ResultFile resultFile =
               new ResultFile(
                 ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename, this ), parentWorkflow
-                .getJobname(), toString()
+                .getWorkflowName(), toString()
               );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }
         } catch ( HopException e ) {
 
-          logError( BaseMessages.getString( PKG, "JobPipeline.Error.UnablePrepareExec" ), e );
+          logError( BaseMessages.getString( PKG, "ActionPipeline.Error.UnablePrepareExec" ), e );
           result.setNrErrors( 1 );
         }
 
     } catch( Exception e ){
 
-      logError( BaseMessages.getString( PKG, "JobPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
+      logError( BaseMessages.getString( PKG, "ActionPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
       logError( Const.getStackTracker( e ) );
       result.setNrErrors( 1 );
     }
@@ -674,7 +673,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
 
       ResultFile resultFile =
         new ResultFile(
-          ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getJobname(), getName() );
+          ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getWorkflowName(), getName() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
       // See if anything went wrong during file writing...
@@ -741,7 +740,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       // if we get a HopException, simply re-throw it
       throw ke;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "JobPipeline.Exception.MetaDataLoad" ), e );
+      throw new HopException( BaseMessages.getString( PKG, "ActionPipeline.Exception.MetaDataLoad" ), e );
     }
   }
 

@@ -384,7 +384,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_LOG, loggingEventListener.getFile(), parentWorkflow.getJobname(), getName() );
+            ResultFile.FILE_TYPE_LOG, loggingEventListener.getFile(), parentWorkflow.getWorkflowName(), getName() );
         result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
       }
     }

@@ -32,6 +32,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * This class resolve and update system variables
@@ -95,7 +96,7 @@ public class CurrentDirectoryResolver {
     return resolveCurrentDirectory( parentVariables, filename );
   }
 
-  public IVariables resolveCurrentDirectory( IVariables parentVariables, Workflow workflow, String filename ) {
+  public IVariables resolveCurrentDirectory( IVariables parentVariables, IWorkflowEngine<WorkflowMeta> workflow, String filename ) {
     if ( workflow != null && filename == null ) {
       filename = workflow.getFilename();
     } else if ( WorkflowMeta.class.isAssignableFrom( parentVariables.getClass() ) ) {

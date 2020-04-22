@@ -3415,6 +3415,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pauseResume();
   }
 
+  @Override public void resume() {
+    pauseResume();
+  }
+
   /* TODO: re-introduce
   public void checkPipeline() {
     hopUi.checkPipeline();
@@ -4443,7 +4447,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PAUSE, running && !paused );
 
         hopUi.setUndoMenu( pipelineMeta );
-        hopUi.handleFileCapabilities( fileType );
+        hopUi.handleFileCapabilities( fileType, running, paused );
 
         HopGuiPipelineGraph.super.redraw();
       }

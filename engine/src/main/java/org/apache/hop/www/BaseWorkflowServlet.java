@@ -33,19 +33,18 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 import java.util.Map;
 import java.util.UUID;
@@ -54,7 +53,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 8523062215275251356L;
 
-  protected Workflow createJob( WorkflowConfiguration workflowConfiguration ) throws UnknownParamException {
+  protected IWorkflowEngine<WorkflowMeta> createJob( WorkflowConfiguration workflowConfiguration ) throws HopException {
     WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
@@ -66,8 +65,12 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     SimpleLoggingObject servletLoggingObject =
       getServletLogging( carteObjectId, workflowExecutionConfiguration.getLogLevel() );
 
-    // Create the pipeline and store in the list...
-    final Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
+    // Create the workflow and store in the list...
+    //
+    String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
+    IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
+    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
+
     // Setting variables
     workflow.initializeVariablesFrom( null );
     workflow.getWorkflowMeta().setMetaStore( workflowMap.getSlaveServerConfig().getMetaStore() );
@@ -84,7 +87,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       workflow.setStartActionCopy( startActionCopy );
     }
 
-    getWorkflowMap().addWorkflow( workflow.getJobname(), carteObjectId, workflow, workflowConfiguration );
+    getWorkflowMap().addWorkflow( workflow.getWorkflowName(), carteObjectId, workflow, workflowConfiguration );
 
     return workflow;
   }
@@ -135,7 +138,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
             HopVfs.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
         logChannelFileWriter.startLogging();
 
-        pipeline.addExecutionFinishedListener((IExecutionFinishedListener<PipelineMeta>) pipelineEngine -> {
+        pipeline.addExecutionFinishedListener( pipelineEngine -> {
             if ( logChannelFileWriter != null ) {
               logChannelFileWriter.stopLogging();
             }
@@ -161,7 +164,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     }
   }
 
-  private void copyJobParameters( Workflow workflow, Map<String, String> params ) throws UnknownParamException {
+  private void copyJobParameters( IWorkflowEngine<WorkflowMeta> workflow, Map<String, String> params ) throws UnknownParamException {
     WorkflowMeta workflowMeta = workflow.getWorkflowMeta();
     // Also copy the parameters over...
     workflow.copyParametersFrom( workflowMeta );

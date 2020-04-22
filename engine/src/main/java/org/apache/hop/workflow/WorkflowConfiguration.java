@@ -31,7 +31,7 @@ import org.w3c.dom.Node;
 import java.io.IOException;
 
 public class WorkflowConfiguration {
-  public static final String XML_TAG = "job_configuration";
+  public static final String XML_TAG = "workflow_configuration";
 
   private WorkflowMeta workflowMeta;
   private WorkflowExecutionConfiguration workflowExecutionConfiguration;

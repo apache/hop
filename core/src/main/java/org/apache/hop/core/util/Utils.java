@@ -110,8 +110,8 @@ public class Utils {
   /**
    * Check if the CharSequence supplied is empty. A CharSequence is empty when it is null or when the length is 0
    *
-   * @param val The stringBuffer to check
-   * @return true if the stringBuffer supplied is empty
+   * @param val The string to check
+   * @return true if the string supplied is empty
    */
   public static boolean isEmpty( CharSequence val ) {
     return val == null || val.length() == 0;

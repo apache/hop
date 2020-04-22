@@ -49,6 +49,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.File;
@@ -440,7 +441,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  private boolean processOneFile( Result result, Workflow parentWorkflow, FileObject fileObject, String realTargetdirectory,
+  private boolean processOneFile( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, FileObject fileObject, String realTargetdirectory,
                                   String realWildcard, String realWildcardExclude, FileObject movetodir, String realMovetodirectory,
                                   String realWildcardSource ) {
     boolean retval = false;
@@ -511,7 +512,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean unzipFile( FileObject sourceFileObject, String realTargetdirectory, String realWildcard,
-                             String realWildcardExclude, Result result, Workflow parentWorkflow, FileObject movetodir, String realMovetodirectory ) {
+                             String realWildcardExclude, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, FileObject movetodir, String realMovetodirectory ) {
     boolean retval = false;
     String unzipToFolder = realTargetdirectory;
     try {
@@ -783,12 +784,12 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  private void addFilenameToResultFilenames( Result result, Workflow parentWorkflow, String newfile ) throws Exception {
+  private void addFilenameToResultFilenames( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, String newfile ) throws Exception {
     if ( addfiletoresult ) {
       // Add file to result files name
       ResultFile resultFile =
         new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( newfile, this ), parentWorkflow
-          .getJobname(), toString() );
+          .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
     }
   }
@@ -992,9 +993,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return iffileexist;
   }
 
-  /**
-   * @param setIfFileExist The iffileexist to set.
-   */
   public void setIfFileExists( int iffileexist ) {
     this.iffileexist = iffileexist;
   }
@@ -1151,10 +1149,6 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return success_condition;
   }
 
-  /**
-   * @param string the filename from
-   * @return the calculated target filename
-   */
   protected String getTargetFilename( FileObject file ) throws FileSystemException {
 
     String retval = "";

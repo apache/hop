@@ -74,7 +74,6 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     if (!(pipelineRunConfiguration.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration)) {
       throw new HopException( "A local pipeline execution expects a local pipeline configuration, not an instance of class "+pipelineRunConfiguration.getEngineRunConfiguration().getClass().getName() );
     }
-    log.logBasic("Executing this pipeline using the Local Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
     LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 

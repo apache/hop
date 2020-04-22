@@ -27,11 +27,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -50,6 +53,7 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -80,20 +84,20 @@ import java.util.List;
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
   private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
 
-  protected ActionWorkflow jobEntry;
+  protected ActionWorkflow action;
 
   protected Button wPassExport;
 
   protected Button wExpandRemote;
 
   private static final String[] FILE_FILTERLOGNAMES = new String[] {
-    BaseMessages.getString( PKG, "JobJob.Fileformat.TXT" ),
-    BaseMessages.getString( PKG, "JobJob.Fileformat.LOG" ),
-    BaseMessages.getString( PKG, "JobJob.Fileformat.All" ) };
+    BaseMessages.getString( PKG, "ActionWorkflow.Fileformat.TXT" ),
+    BaseMessages.getString( PKG, "ActionWorkflow.Fileformat.LOG" ),
+    BaseMessages.getString( PKG, "ActionWorkflow.Fileformat.All" ) };
 
-  public ActionWorkflowDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWorkflow) jobEntryInt;
+  public ActionWorkflowDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionWorkflow) action;
   }
 
   public IAction open() {
@@ -102,9 +106,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    backupChanged = jobEntry.hasChanged();
+    backupChanged = action.hasChanged();
 
     createElements();
 
@@ -130,20 +134,19 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   protected void createElements() {
     super.createElements();
-    shell.setText( BaseMessages.getString( PKG, "JobJob.Header" ) );
+    shell.setText( BaseMessages.getString( PKG, "ActionWorkflow.Header" ) );
 
-    wlPath.setText( BaseMessages.getString( PKG, "JobJob.JobTransform.Job.Label" ) );
-    //wlDescription.setText( BaseMessages.getString( PKG, "JobJob.Local.Label" ) );
-    wPassParams.setText( BaseMessages.getString( PKG, "JobJob.PassAllParameters.Label" ) );
+    wlPath.setText( BaseMessages.getString( PKG, "ActionWorkflow.Filename.Label" ) );
+    wPassParams.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassAllParameters.Label" ) );
 
     // Start Server Section
     wPassExport = new Button( gExecution, SWT.CHECK );
-    wPassExport.setText( BaseMessages.getString( PKG, "JobJob.PassExportToSlave.Label" ) );
+    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToSlave.Label" ) );
     props.setLook( wPassExport );
     FormData fdPassExport = new FormData();
     fdPassExport.left = new FormAttachment( 0, 0 );
@@ -161,7 +164,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     wWaitingToFinish = new Button( gExecution, SWT.CHECK );
     props.setLook( wWaitingToFinish );
-    wWaitingToFinish.setText( BaseMessages.getString( PKG, "JobJob.WaitToFinish.Label" ) );
+    wWaitingToFinish.setText( BaseMessages.getString( PKG, "ActionWorkflow.WaitToFinish.Label" ) );
     FormData fdWait = new FormData();
     fdWait.top = new FormAttachment( wExpandRemote, 10 );
     fdWait.left = new FormAttachment( 0, 0 );
@@ -169,7 +172,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     wFollowingAbortRemotely = new Button( gExecution, SWT.CHECK );
     props.setLook( wFollowingAbortRemotely );
-    wFollowingAbortRemotely.setText( BaseMessages.getString( PKG, "JobJob.AbortRemote.Label" ) );
+    wFollowingAbortRemotely.setText( BaseMessages.getString( PKG, "ActionWorkflow.AbortRemote.Label" ) );
     FormData fdFollow = new FormData();
     fdFollow.top = new FormAttachment( wWaitingToFinish, 10 );
     fdFollow.left = new FormAttachment( 0, 0 );
@@ -183,28 +186,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     fdLocal.top = new FormAttachment( 0 );
     fdLocal.right = new FormAttachment( 100 );
     fdLocal.left = new FormAttachment( 0 );
-
-    cRunConfiguration.setBackground( shell.getBackground() ); // the default looks ugly
-    cRunConfiguration.setLayoutData( fdLocal );
-
-    Label wlRunConfiguration = new Label( cRunConfiguration, SWT.LEFT );
-    props.setLook( wlRunConfiguration );
-    wlRunConfiguration.setText( "Run configuration:" );
-    FormData fdlRunConfiguration = new FormData();
-    fdlRunConfiguration.top = new FormAttachment( 0 );
-    fdlRunConfiguration.left = new FormAttachment( 0 );
-    wlRunConfiguration.setLayoutData( fdlRunConfiguration );
-
-    wRunConfiguration = new ComboVar( workflowMeta, cRunConfiguration, SWT.BORDER );
-    props.setLook( wRunConfiguration );
-    FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.width = 200;
-    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, 5 );
-    fdRunConfiguration.left = new FormAttachment( 0 );
-    wRunConfiguration.setLayoutData( fdRunConfiguration );
-    wRunConfiguration.addModifyListener( new RunConfigurationModifyListener() );
-
-    fdgExecution.top = new FormAttachment( cRunConfiguration, 10 );
 
     wbGetParams.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -226,8 +207,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     } );
   }
 
-  protected ActionBase getJobEntry() {
-    return jobEntry;
+  protected ActionBase getAction() {
+    return action;
   }
 
   protected Image getImage() {
@@ -235,7 +216,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected String[] getParameters() {
-    return jobEntry.parameters;
+    return action.parameters;
   }
 
   protected void getParameters( WorkflowMeta inputWorkflowMeta ) {
@@ -297,8 +278,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
             // File specified doesn't exist. Ask if we should create the file...
             //
             MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-            mb.setMessage( BaseMessages.getString( PKG, "JobJob.Dialog.CreateJobQuestion.Message" ) );
-            mb.setText( BaseMessages.getString( PKG, "JobJob.Dialog.CreateJobQuestion.Title" ) ); // Sorry!
+            mb.setMessage( BaseMessages.getString( PKG, "ActionWorkflow.Dialog.CreateJobQuestion.Message" ) );
+            mb.setText( BaseMessages.getString( PKG, "ActionWorkflow.Dialog.CreateJobQuestion.Title" ) ); // Sorry!
             int answer = mb.open();
             if ( answer == SWT.YES ) {
 
@@ -349,65 +330,69 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   public void getData() {
-    wName.setText( Const.NVL( jobEntry.getName(), "" ) );
-
-    wPath.setText( Const.NVL( jobEntry.getFilename(), "" ) );
+    wName.setText( Const.NVL( action.getName(), "" ) );
+    wPath.setText( Const.NVL( action.getFilename(), "" ) );
 
     // Parameters
-    if ( jobEntry.parameters != null ) {
-      for ( int i = 0; i < jobEntry.parameters.length; i++ ) {
+    if ( action.parameters != null ) {
+      for ( int i = 0; i < action.parameters.length; i++ ) {
         TableItem ti = wParameters.table.getItem( i );
-        if ( !Utils.isEmpty( jobEntry.parameters[ i ] ) ) {
-          ti.setText( 1, Const.NVL( jobEntry.parameters[ i ], "" ) );
-          ti.setText( 2, Const.NVL( jobEntry.parameterFieldNames[ i ], "" ) );
-          ti.setText( 3, Const.NVL( jobEntry.parameterValues[ i ], "" ) );
+        if ( !Utils.isEmpty( action.parameters[ i ] ) ) {
+          ti.setText( 1, Const.NVL( action.parameters[ i ], "" ) );
+          ti.setText( 2, Const.NVL( action.parameterFieldNames[ i ], "" ) );
+          ti.setText( 3, Const.NVL( action.parameterValues[ i ], "" ) );
         }
       }
       wParameters.setRowNums();
       wParameters.optWidth( true );
     }
 
-    wPassParams.setSelection( jobEntry.isPassingAllParameters() );
+    wPassParams.setSelection( action.isPassingAllParameters() );
 
-    wPrevToParams.setSelection( jobEntry.paramsFromPrevious );
-    wEveryRow.setSelection( jobEntry.execPerRow );
-    wSetLogfile.setSelection( jobEntry.setLogfile );
-    if ( jobEntry.logfile != null ) {
-      wLogfile.setText( jobEntry.logfile );
+    wPrevToParams.setSelection( action.paramsFromPrevious );
+    wEveryRow.setSelection( action.execPerRow );
+    wSetLogfile.setSelection( action.setLogfile );
+    if ( action.logfile != null ) {
+      wLogfile.setText( action.logfile );
     }
-    if ( jobEntry.logext != null ) {
-      wLogext.setText( jobEntry.logext );
+    if ( action.logext != null ) {
+      wLogext.setText( action.logext );
     }
-    wAddDate.setSelection( jobEntry.addDate );
-    wAddTime.setSelection( jobEntry.addTime );
-    wPassExport.setSelection( jobEntry.isPassingExport() );
+    wAddDate.setSelection( action.addDate );
+    wAddTime.setSelection( action.addTime );
+    wPassExport.setSelection( action.isPassingExport() );
 
-    if ( jobEntry.logFileLevel != null ) {
-      wLoglevel.select( jobEntry.logFileLevel.getLevel() );
+    if ( action.logFileLevel != null ) {
+      wLoglevel.select( action.logFileLevel.getLevel() );
     } else {
       // Set the default log level
       wLoglevel.select( ActionWorkflow.DEFAULT_LOG_LEVEL.getLevel() );
     }
-    wAppendLogfile.setSelection( jobEntry.setAppendLogfile );
-    wCreateParentFolder.setSelection( jobEntry.createParentFolder );
-    wWaitingToFinish.setSelection( jobEntry.isWaitingToFinish() );
-    wFollowingAbortRemotely.setSelection( jobEntry.isFollowingAbortRemotely() );
-    wExpandRemote.setSelection( jobEntry.isExpandingRemoteJob() );
+    wAppendLogfile.setSelection( action.setAppendLogfile );
+    wCreateParentFolder.setSelection( action.createParentFolder );
+    wWaitingToFinish.setSelection( action.isWaitingToFinish() );
+    wFollowingAbortRemotely.setSelection( action.isFollowingAbortRemotely() );
+    wExpandRemote.setSelection( action.isExpandingRemoteWorkflow() );
 
-    List<String> runConfigurations = new ArrayList<>();
     try {
-      ExtensionPointHandler
-        .callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
-          new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
-    } catch ( HopException e ) {
-      // Ignore errors
-    }
+      List<String> runConfigurations = WorkflowRunConfiguration.createFactory( metaStore).getElementNames();
 
-    wRunConfiguration.setItems( runConfigurations.toArray( new String[ 0 ] ) );
-    if ( Utils.isEmpty( jobEntry.getRunConfiguration() ) ) {
-      wRunConfiguration.select( 0 );
-    } else {
-      wRunConfiguration.setText( jobEntry.getRunConfiguration() );
+      try {
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
+      } catch ( HopException e ) {
+        // Ignore errors
+      }
+
+      wRunConfiguration.setItems(runConfigurations.toArray( new String[0] ));
+      wRunConfiguration.setText( Const.NVL(action.getRunConfiguration(), "") );
+
+      if ( Utils.isEmpty( action.getRunConfiguration() ) ) {
+        wRunConfiguration.select( 0 );
+      } else {
+        wRunConfiguration.setText( action.getRunConfiguration() );
+      }
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Error getting workflow run configurations", e );
     }
 
     wName.selectAll();
@@ -415,94 +400,93 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected void cancel() {
-    jobEntry.setChanged( backupChanged );
+    action.setChanged( backupChanged );
 
-    jobEntry = null;
+    action = null;
     dispose();
   }
 
   @VisibleForTesting
-  protected void getInfo( ActionWorkflow jej ) {
+  protected void getInfo( ActionWorkflow aw ) {
     String jobPath = getPath();
-    jej.setName( getName() );
-    jej.setFileName( jobPath );
-    jej.setDirectory( null );
-    jej.setWorkflowName( null );
+    aw.setName( getName() );
+    aw.setFileName( jobPath );
+    aw.setRunConfiguration( wRunConfiguration.getText() );
 
     // Do the parameters
-    int nritems = wParameters.nrNonEmpty();
+    int nrItems = wParameters.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       if ( param != null && param.length() != 0 ) {
         nr++;
       }
     }
-    jej.parameters = new String[ nr ];
-    jej.parameterFieldNames = new String[ nr ];
-    jej.parameterValues = new String[ nr ];
+    aw.parameters = new String[ nr ];
+    aw.parameterFieldNames = new String[ nr ];
+    aw.parameterValues = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       String fieldName = wParameters.getNonEmpty( i ).getText( 2 );
       String value = wParameters.getNonEmpty( i ).getText( 3 );
 
-      jej.parameters[ nr ] = param;
+      aw.parameters[ nr ] = param;
 
       if ( !Utils.isEmpty( Const.trim( fieldName ) ) ) {
-        jej.parameterFieldNames[ nr ] = fieldName;
+        aw.parameterFieldNames[ nr ] = fieldName;
       } else {
-        jej.parameterFieldNames[ nr ] = "";
+        aw.parameterFieldNames[ nr ] = "";
       }
 
       if ( !Utils.isEmpty( Const.trim( value ) ) ) {
-        jej.parameterValues[ nr ] = value;
+        aw.parameterValues[ nr ] = value;
       } else {
-        jej.parameterValues[ nr ] = "";
+        aw.parameterValues[ nr ] = "";
       }
 
       nr++;
     }
-    jej.setPassingAllParameters( wPassParams.getSelection() );
+    aw.setPassingAllParameters( wPassParams.getSelection() );
 
-    jej.setLogfile = wSetLogfile.getSelection();
-    jej.addDate = wAddDate.getSelection();
-    jej.addTime = wAddTime.getSelection();
-    jej.logfile = wLogfile.getText();
-    jej.logext = wLogext.getText();
+    aw.setLogfile = wSetLogfile.getSelection();
+    aw.addDate = wAddDate.getSelection();
+    aw.addTime = wAddTime.getSelection();
+    aw.logfile = wLogfile.getText();
+    aw.logext = wLogext.getText();
     if ( wLoglevel.getSelectionIndex() >= 0 ) {
-      jej.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
+      aw.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
     } else {
-      jej.logFileLevel = LogLevel.BASIC;
+      aw.logFileLevel = LogLevel.BASIC;
     }
-    jej.paramsFromPrevious = wPrevToParams.getSelection();
-    jej.execPerRow = wEveryRow.getSelection();
-    jej.setPassingExport( wPassExport.getSelection() );
-    jej.setAppendLogfile = wAppendLogfile.getSelection();
-    jej.setWaitingToFinish( wWaitingToFinish.getSelection() );
-    jej.createParentFolder = wCreateParentFolder.getSelection();
-    jej.setFollowingAbortRemotely( wFollowingAbortRemotely.getSelection() );
-    jej.setExpandingRemoteJob( wExpandRemote.getSelection() );
-    jej.setRunConfiguration( wRunConfiguration.getText() );
+    aw.paramsFromPrevious = wPrevToParams.getSelection();
+    aw.execPerRow = wEveryRow.getSelection();
+    aw.setPassingExport( wPassExport.getSelection() );
+    aw.setAppendLogfile = wAppendLogfile.getSelection();
+    aw.setWaitingToFinish( wWaitingToFinish.getSelection() );
+    aw.createParentFolder = wCreateParentFolder.getSelection();
+    aw.setFollowingAbortRemotely( wFollowingAbortRemotely.getSelection() );
+    aw.setExpandingRemoteWorkflow( wExpandRemote.getSelection() );
+    aw.setRunConfiguration( wRunConfiguration.getText() );
 
     WorkflowExecutionConfiguration executionConfiguration = new WorkflowExecutionConfiguration();
-    executionConfiguration.setRunConfiguration( jej.getRunConfiguration() );
+    executionConfiguration.setRunConfiguration( aw.getRunConfiguration() );
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.HopUiPipelineBeforeStart.id,
+      ExtensionPointHandler.callExtensionPoint( action.getLogChannel(), HopExtensionPoint.HopUiPipelineBeforeStart.id,
         new Object[] { executionConfiguration, workflowMeta, workflowMeta, null } );
     } catch ( HopException e ) {
       // Ignore errors
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( jobEntry.getLogChannel(), HopExtensionPoint.JobEntryPipelineSave.id,
-        new Object[] { workflowMeta, jej.getRunConfiguration() } );
+      ExtensionPointHandler.callExtensionPoint( action.getLogChannel(), HopExtensionPoint.JobEntryPipelineSave.id,
+        new Object[] { workflowMeta, aw.getRunConfiguration() } );
     } catch ( HopException e ) {
       // Ignore errors
     }
 
     if ( executionConfiguration.getRemoteServer() != null ) {
-      jej.setRemoteSlaveServerName( executionConfiguration.getRemoteServer().getName() );
+      aw.setRemoteSlaveServerName( executionConfiguration.getRemoteServer().getName() );
     }
   }
 
@@ -514,8 +498,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       mb.open();
       return;
     }
-    getInfo( jobEntry );
-    jobEntry.setChanged();
+    getInfo( action );
+    action.setChanged();
     dispose();
   }
 

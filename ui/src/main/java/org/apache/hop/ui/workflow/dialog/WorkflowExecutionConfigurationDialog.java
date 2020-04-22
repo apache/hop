@@ -30,15 +30,16 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowExecutionConfiguration;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.FormAttachment;
@@ -55,7 +56,10 @@ import java.util.List;
 public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
-  private CCombo wStartCopy;
+  public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-workflow-run-configurations";
+
+  private CCombo wStartAction;
+  private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
 
   public WorkflowExecutionConfigurationDialog( Shell parent, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
     super( parent, configuration, workflowMeta );
@@ -91,23 +95,23 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     fdClearLog.left = new FormAttachment( 0, 10 );
     wClearLog.setLayoutData( fdClearLog );
 
-    Label lblStartJob = new Label( gDetails, SWT.RIGHT );
-    lblStartJob.setText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Label" ) );
-    lblStartJob.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip" ) );
-    props.setLook( lblStartJob );
-    FormData fd_lblStartJob = new FormData();
-    fd_lblStartJob.top = new FormAttachment( wlLogLevel, 18 );
-    fd_lblStartJob.right = new FormAttachment( wlLogLevel, 0, SWT.RIGHT );
-    lblStartJob.setLayoutData( fd_lblStartJob );
+    Label wlStartAction = new Label( gDetails, SWT.RIGHT );
+    wlStartAction.setText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Label" ) );
+    wlStartAction.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip" ) );
+    props.setLook( wlStartAction );
+    FormData fdlStartAction = new FormData();
+    fdlStartAction.top = new FormAttachment( wClearLog, props.getMargin() );
+    fdlStartAction.left = new FormAttachment( 0, 10 );
+    wlStartAction.setLayoutData( fdlStartAction );
 
-    wStartCopy = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
-    wStartCopy.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip" ) );
-    props.setLook( wStartCopy );
+    wStartAction = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
+    wStartAction.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip" ) );
+    props.setLook( wStartAction );
     FormData fd_startJobCombo = new FormData();
-    fd_startJobCombo.top = new FormAttachment( lblStartJob, -2, SWT.TOP );
-    fd_startJobCombo.width = 180;
-    fd_startJobCombo.left = new FormAttachment( lblStartJob, 6 );
-    wStartCopy.setLayoutData( fd_startJobCombo );
+    fd_startJobCombo.top = new FormAttachment( wlStartAction, 0, SWT.CENTER );
+    fd_startJobCombo.left = new FormAttachment( wlStartAction, props.getMargin() );
+    fd_startJobCombo.right = new FormAttachment( 100, 0 );
+    wStartAction.setLayoutData( fd_startJobCombo );
 
     WorkflowMeta workflowMeta = (WorkflowMeta) super.abstractMeta;
 
@@ -116,7 +120,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       ActionCopy copy = workflowMeta.getJobCopies().get( i );
       names[ i ] = getActionCopyName( copy );
     }
-    wStartCopy.setItems( names );
+    wStartAction.setItems( names );
   }
 
   public boolean open() {
@@ -126,15 +130,15 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     addRunConfigurationSectionLayout();
 
-    optionsSectionLayout( PKG, "WorkflowExecutionConfigurationDialog" );
-    parametersSectionLayout( PKG, "WorkflowExecutionConfigurationDialog" );
-
     String alwaysShowOptionLabel = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.AlwaysOption.Value" );
     String alwaysShowOptionTooltip = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.alwaysShowOption" );
     String docUrl = Const.getDocUrl( BaseMessages.getString( HopGui.class, "HopGui.WorkflowExecutionConfigurationDialog.Help" ) );
     String docTitle = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.docTitle" );
     String docHeader = BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.docHeader" );
-    buttonsSectionLayout(alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader );
+    buttonsSectionLayout( alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader );
+
+    optionsSectionLayout( PKG, "WorkflowExecutionConfigurationDialog" );
+    parametersSectionLayout( PKG, "WorkflowExecutionConfigurationDialog" );
 
     getData();
     openDialog();
@@ -145,8 +149,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigLabel = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Label" );
     String runConfigTooltip = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Tooltip" );
 
-    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
-      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true);
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), WorkflowRunConfiguration.class,
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true );
+    wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment( 100, 0 );
@@ -188,19 +193,21 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wClearLog.setSelection( configuration.isClearingLog() );
     wLogLevel.select( DefaultLogLevel.getLogLevel().getLevel() );
 
-    List<String> runConfigurations = new ArrayList<>();
     try {
-      ExtensionPointHandler
-        .callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id,
-          new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
+      wRunConfiguration.fillItems();
+    } catch(Exception e) {
+      hopGui.getLog().logError( "Unable to obtain a list of workflow run configurations", e );
+    }
+
+    wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ));
+
+    try {
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
       // Ignore errors
     }
 
-    wRunConfiguration.setItems( runConfigurations.toArray( new String[ 0 ] ) );
-    if ( !runConfigurations.contains( getConfiguration().getRunConfiguration() ) ) {
-      getConfiguration().setRunConfiguration( null );
-    }
+
     if ( Utils.isEmpty( getConfiguration().getRunConfiguration() ) ) {
       wRunConfiguration.select( 0 );
     } else {
@@ -215,7 +222,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
         startCopy = getActionCopyName( copy );
       }
     }
-    wStartCopy.setText( startCopy );
+    wStartAction.setText( startCopy );
 
     getParamsData();
     getVariablesData();
@@ -232,9 +239,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
       String startCopyName = null;
       int startCopyNr = 0;
-      if ( !Utils.isEmpty( wStartCopy.getText() ) ) {
-        if ( wStartCopy.getSelectionIndex() >= 0 ) {
-          ActionCopy copy = ( (WorkflowMeta) abstractMeta ).getJobCopies().get( wStartCopy.getSelectionIndex() );
+      if ( !Utils.isEmpty( wStartAction.getText() ) ) {
+        if ( wStartAction.getSelectionIndex() >= 0 ) {
+          ActionCopy copy = ( (WorkflowMeta) abstractMeta ).getJobCopies().get( wStartAction.getSelectionIndex() );
           startCopyName = copy.getName();
           startCopyNr = copy.getNr();
         }

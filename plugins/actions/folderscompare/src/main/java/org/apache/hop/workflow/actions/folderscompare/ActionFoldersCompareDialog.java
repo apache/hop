@@ -93,7 +93,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionFoldersCompare jobEntry;
+  private ActionFoldersCompare action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -123,11 +123,11 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
   private Button wCompareFileSize;
   private FormData fdlCompareFileSize, fdCompareFileSize;
 
-  public ActionFoldersCompareDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFoldersCompare) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFoldersCompare.Name.Default" ) );
+  public ActionFoldersCompareDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFoldersCompare) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFoldersCompare.Name.Default" ) );
     }
   }
 
@@ -137,14 +137,14 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -207,7 +207,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -280,7 +280,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wCompareFileSize.setLayoutData( fdCompareFileSize );
     wCompareFileSize.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -303,7 +303,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wCompareFileContent.setLayoutData( fdCompareFileContent );
     wCompareFileContent.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -521,7 +521,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void SpecifyCompareOnlyActivate() {
@@ -546,15 +546,15 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getCompareOnly() != null ) {
-      if ( jobEntry.getCompareOnly().equals( "only_files" ) ) {
+    if ( action.getCompareOnly() != null ) {
+      if ( action.getCompareOnly().equals( "only_files" ) ) {
         wCompareOnly.select( 1 );
-      } else if ( jobEntry.getCompareOnly().equals( "only_folders" ) ) {
+      } else if ( action.getCompareOnly().equals( "only_folders" ) ) {
         wCompareOnly.select( 2 );
-      } else if ( jobEntry.getCompareOnly().equals( "specify" ) ) {
+      } else if ( action.getCompareOnly().equals( "specify" ) ) {
         wCompareOnly.select( 3 );
       } else {
         wCompareOnly.select( 0 );
@@ -563,27 +563,27 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
       wCompareOnly.select( 0 );
     }
 
-    if ( jobEntry.getWildcard() != null ) {
-      wWildcard.setText( jobEntry.getWildcard() );
+    if ( action.getWildcard() != null ) {
+      wWildcard.setText( action.getWildcard() );
     }
-    if ( jobEntry.getFilename1() != null ) {
-      wFilename1.setText( jobEntry.getFilename1() );
+    if ( action.getFilename1() != null ) {
+      wFilename1.setText( action.getFilename1() );
     }
-    if ( jobEntry.getFilename2() != null ) {
-      wFilename2.setText( jobEntry.getFilename2() );
+    if ( action.getFilename2() != null ) {
+      wFilename2.setText( action.getFilename2() );
     }
 
-    wIncludeSubfolders.setSelection( jobEntry.isIncludeSubfolders() );
-    wCompareFileContent.setSelection( jobEntry.isCompareFileContent() );
-    wCompareFileSize.setSelection( jobEntry.isCompareFileSize() );
+    wIncludeSubfolders.setSelection( action.isIncludeSubfolders() );
+    wCompareFileContent.setSelection( action.isCompareFileContent() );
+    wCompareFileSize.setSelection( action.isCompareFileSize() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -595,24 +595,24 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
       mb.open();
       return;
     }
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setCompareFileContent( wCompareFileContent.getSelection() );
-    jobEntry.setCompareFileSize( wCompareFileSize.getSelection() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setCompareFileContent( wCompareFileContent.getSelection() );
+    action.setCompareFileSize( wCompareFileSize.getSelection() );
 
     if ( wCompareOnly.getSelectionIndex() == 1 ) {
-      jobEntry.setCompareOnly( "only_files" );
+      action.setCompareOnly( "only_files" );
     } else if ( wCompareOnly.getSelectionIndex() == 2 ) {
-      jobEntry.setCompareOnly( "only_folders" );
+      action.setCompareOnly( "only_folders" );
     } else if ( wCompareOnly.getSelectionIndex() == 3 ) {
-      jobEntry.setCompareOnly( "specify" );
+      action.setCompareOnly( "specify" );
     } else {
-      jobEntry.setCompareOnly( "all" );
+      action.setCompareOnly( "all" );
     }
 
-    jobEntry.setName( wName.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setFilename1( wFilename1.getText() );
-    jobEntry.setFilename2( wFilename2.getText() );
+    action.setName( wName.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setFilename1( wFilename1.getText() );
+    action.setFilename2( wFilename2.getText() );
     dispose();
   }
 

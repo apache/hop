@@ -34,9 +34,11 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.Date;
 import java.util.List;
@@ -46,7 +48,7 @@ import java.util.List;
  *
  * @param <T> The subject class to execute
  */
-public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedParams {
+public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILoggingObject, INamedParams {
 
   T getSubject();
 
@@ -195,7 +197,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    * @param listener
    * @throws HopException
    */
-  void addExecutionStartedListener( IExecutionStartedListener<T> listener ) throws HopException;
+  void addExecutionStartedListener( IExecutionStartedListener<IPipelineEngine<T>> listener ) throws HopException;
 
   void firePipelineExecutionStartedListeners() throws HopException;
 
@@ -205,7 +207,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    * @param listener
    * @throws HopException
    */
-  void addExecutionFinishedListener( IExecutionFinishedListener<T> listener ) throws HopException;
+  void addExecutionFinishedListener( IExecutionFinishedListener<IPipelineEngine<T>> listener ) throws HopException;
 
   void firePipelineExecutionFinishedListeners() throws HopException;
 
@@ -216,7 +218,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    * @param listener
    * @throws HopException
    */
-  void addExecutionStoppedListener( IExecutionStoppedListener<T> listener ) throws HopException;
+  void addExecutionStoppedListener( IExecutionStoppedListener<IPipelineEngine<T>> listener ) throws HopException;
 
   void firePipelineExecutionStoppedListeners() throws HopException;
 
@@ -286,7 +288,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    *
    * @param parentWorkflow
    */
-  void setParentWorkflow( Workflow parentWorkflow );
+  void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow );
 
   /**
    * Inform the pipeline that it's being executed as part of another pipeline
@@ -358,7 +360,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    *
    * @return The executing workflow of null if none is known.
    */
-  Workflow getParentWorkflow();
+  IWorkflowEngine<WorkflowMeta> getParentWorkflow();
 
   /**
    * True if the engine is doing extra validations at runtime to detect possible issues with data types and so on.
@@ -434,7 +436,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    * @param subWorkflowName
    * @param subWorkflow
    */
-  void addActiveSubWorkflow( final String subWorkflowName, Workflow subWorkflow );
+  void addActiveSubWorkflow( final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow );
 
   /**
    * Get the active sub-workflow with the given name
@@ -442,7 +444,7 @@ public interface IPipelineEngine<T> extends IVariables, ILoggingObject, INamedPa
    * @param subWorkflowName
    * @return The active workflow or null if nothing was found
    */
-  Workflow getActiveSubWorkflow( final String subWorkflowName );
+  IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow( final String subWorkflowName );
 
 
   /**

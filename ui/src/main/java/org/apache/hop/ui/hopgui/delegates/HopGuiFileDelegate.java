@@ -106,7 +106,7 @@ public class HopGuiFileDelegate {
     }
 
     hopFile.openFile( hopGui, filename, hopGui.getVariables() );
-    hopGui.handleFileCapabilities( hopFile );
+    hopGui.handleFileCapabilities( hopFile, false, false );
 
     // Keep track of this...
     //

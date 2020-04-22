@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hop-workflow-engines>
+
+  <hop-workflow-engine id="Local">
+    <description>Local workflow engine</description>
+    <tooltip>Executes your workflow locally</tooltip>
+    <classname>org.apache.hop.workflow.engines.local.LocalWorkflowEngine</classname>
+  </hop-workflow-engine>
+
+
+
+</hop-workflow-engines>

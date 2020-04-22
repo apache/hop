@@ -46,6 +46,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.BufferedReader;
@@ -252,7 +253,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
               System.clearProperty( varname ); // PDI-17536
             }
             setVariable( varname, value );
-            Workflow parentWorkflowTraverse = parentWorkflow;
+            IWorkflowEngine<WorkflowMeta> parentWorkflowTraverse = parentWorkflow;
             while ( parentWorkflowTraverse != null ) {
               parentWorkflowTraverse.setVariable( varname, value );
               parentWorkflowTraverse = parentWorkflowTraverse.getParentWorkflow();
@@ -262,7 +263,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
           case VARIABLE_TYPE_ROOT_WORKFLOW:
             // set variable in this action
             setVariable( varname, value );
-            Workflow rootWorkflow = parentWorkflow;
+            IWorkflowEngine<WorkflowMeta> rootWorkflow = parentWorkflow;
             while ( rootWorkflow != null ) {
               rootWorkflow.setVariable( varname, value );
               rootWorkflow = rootWorkflow.getParentWorkflow();
@@ -296,7 +297,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
             if ( parentWorkflow != null ) {
               parentWorkflow.setVariable( varname, value );
-              Workflow gpWorkflow = parentWorkflow.getParentWorkflow();
+              IWorkflowEngine<WorkflowMeta> gpWorkflow = parentWorkflow.getParentWorkflow();
               if ( gpWorkflow != null ) {
                 gpWorkflow.setVariable( varname, value );
               } else {

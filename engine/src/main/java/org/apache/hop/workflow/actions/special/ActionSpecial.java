@@ -133,7 +133,7 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
         long sleepTime = getNextExecutionTime();
         if ( sleepTime > 0 ) {
           parentWorkflow.getLogChannel().logBasic(
-            parentWorkflow.getJobname(),
+            parentWorkflow.getWorkflowName(),
             "Sleeping: " + ( sleepTime / 1000 / 60 ) + " minutes (sleep time=" + sleepTime + ")" );
           long totalSleep = 0L;
           while ( totalSleep < sleepTime && !parentWorkflow.isStopped() ) {

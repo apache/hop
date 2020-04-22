@@ -100,7 +100,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionDosToUnix jobEntry;
+  private ActionDosToUnix action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -154,12 +154,12 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   private TextVar wNrErrorsLessThan;
   private FormData fdlNrErrorsLessThan, fdNrErrorsLessThan;
 
-  public ActionDosToUnixDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionDosToUnix) jobEntryInt;
+  public ActionDosToUnixDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionDosToUnix) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobDosToUnix.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobDosToUnix.Name.Default" ) );
     }
   }
 
@@ -170,14 +170,14 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -257,7 +257,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wIncludeSubfolders.setLayoutData( fdIncludeSubfolders );
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -272,7 +272,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlPrevious.setLayoutData( fdlPrevious );
     wPrevious = new Button( wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.arg_from_previous );
+    wPrevious.setSelection( action.arg_from_previous );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobDosToUnix.Previous.Tooltip" ) );
     fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -434,8 +434,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.source_filefolder == null ? 1 : ( jobEntry.source_filefolder.length == 0
-        ? 0 : jobEntry.source_filefolder.length );
+      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
+        ? 0 : action.source_filefolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -732,7 +732,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeSuccessCondition() {
@@ -766,38 +766,38 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    if ( jobEntry.source_filefolder != null ) {
-      for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
+    if ( action.source_filefolder != null ) {
+      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[ i ] != null ) {
-          ti.setText( 1, jobEntry.source_filefolder[ i ] );
+        if ( action.source_filefolder[ i ] != null ) {
+          ti.setText( 1, action.source_filefolder[ i ] );
         }
 
-        if ( jobEntry.wildcard[ i ] != null ) {
-          ti.setText( 2, jobEntry.wildcard[ i ] );
+        if ( action.wildcard[ i ] != null ) {
+          ti.setText( 2, action.wildcard[ i ] );
         }
-        ti.setText( 3, ActionDosToUnix.getConversionTypeDesc( jobEntry.conversionTypes[ i ] ) );
+        ti.setText( 3, ActionDosToUnix.getConversionTypeDesc( action.conversionTypes[ i ] ) );
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.arg_from_previous );
-    wIncludeSubfolders.setSelection( jobEntry.include_subfolders );
+    wPrevious.setSelection( action.arg_from_previous );
+    wIncludeSubfolders.setSelection( action.include_subfolders );
 
-    if ( jobEntry.getNrErrorsLessThan() != null ) {
-      wNrErrorsLessThan.setText( jobEntry.getNrErrorsLessThan() );
+    if ( action.getNrErrorsLessThan() != null ) {
+      wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
     } else {
       wNrErrorsLessThan.setText( "10" );
     }
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( ActionDosToUnix.SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( ActionDosToUnix.SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( ActionDosToUnix.SUCCESS_IF_ERROR_FILES_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( ActionDosToUnix.SUCCESS_IF_ERROR_FILES_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -806,10 +806,10 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
       wSuccessCondition.select( 0 );
     }
 
-    if ( jobEntry.getResultFilenames() != null ) {
-      if ( jobEntry.getResultFilenames().equals( ActionDosToUnix.ADD_PROCESSED_FILES_ONLY ) ) {
+    if ( action.getResultFilenames() != null ) {
+      if ( action.getResultFilenames().equals( ActionDosToUnix.ADD_PROCESSED_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 1 );
-      } else if ( jobEntry.getResultFilenames().equals( ActionDosToUnix.ADD_ERROR_FILES_ONLY ) ) {
+      } else if ( action.getResultFilenames().equals( ActionDosToUnix.ADD_ERROR_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 2 );
       } else {
         wAddFilenameToResult.select( 0 );
@@ -823,8 +823,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -837,29 +837,29 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
 
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
 
-    jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
+    action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED );
+      action.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_ERROR_FILES_LESS );
+      action.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_ERROR_FILES_LESS );
     } else {
-      jobEntry.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( ActionDosToUnix.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wAddFilenameToResult.getSelectionIndex() == 1 ) {
-      jobEntry.setResultFilenames( ActionDosToUnix.ADD_PROCESSED_FILES_ONLY );
+      action.setResultFilenames( ActionDosToUnix.ADD_PROCESSED_FILES_ONLY );
     } else if ( wAddFilenameToResult.getSelectionIndex() == 2 ) {
-      jobEntry.setResultFilenames( ActionDosToUnix.ADD_ERROR_FILES_ONLY );
+      action.setResultFilenames( ActionDosToUnix.ADD_ERROR_FILES_ONLY );
     } else if ( wAddFilenameToResult.getSelectionIndex() == 3 ) {
-      jobEntry.setResultFilenames( ActionDosToUnix.ADD_ALL_FILENAMES );
+      action.setResultFilenames( ActionDosToUnix.ADD_ALL_FILENAMES );
     } else {
-      jobEntry.setResultFilenames( ActionDosToUnix.ADD_NOTHING );
+      action.setResultFilenames( ActionDosToUnix.ADD_NOTHING );
     }
 
     int nritems = wFields.nrNonEmpty();
@@ -870,17 +870,17 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
         nr++;
       }
     }
-    jobEntry.source_filefolder = new String[ nr ];
-    jobEntry.wildcard = new String[ nr ];
-    jobEntry.conversionTypes = new int[ nr ];
+    action.source_filefolder = new String[ nr ];
+    action.wildcard = new String[ nr ];
+    action.conversionTypes = new int[ nr ];
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( source != null && source.length() != 0 ) {
-        jobEntry.source_filefolder[ nr ] = source;
-        jobEntry.wildcard[ nr ] = wild;
-        jobEntry.conversionTypes[ nr ] =
+        action.source_filefolder[ nr ] = source;
+        action.wildcard[ nr ] = wild;
+        action.conversionTypes[ nr ] =
           ActionDosToUnix.getConversionTypeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );
         nr++;
       }

@@ -44,6 +44,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Document;
 
 import javax.servlet.ServletException;
@@ -68,7 +70,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
 
-  public static final String TYPE_JOB = "workflow";
+  public static final String TYPE_WORKFLOW = "workflow";
   public static final String TYPE_PIPELINE = "pipeline";
 
   private static final long serialVersionUID = -6850701762586992604L;
@@ -97,7 +99,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
       logDetailed( "Encoding: " + request.getCharacterEncoding() );
     }
 
-    boolean isJob = TYPE_JOB.equalsIgnoreCase( request.getParameter( PARAMETER_TYPE ) );
+    boolean isWorkflow = TYPE_WORKFLOW.equalsIgnoreCase( request.getParameter( PARAMETER_TYPE ) );
     String load = request.getParameter( PARAMETER_LOAD ); // the resource to load
 
     response.setContentType( "text/xml" );
@@ -136,7 +138,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
         fileUrl = "zip:" + archiveUrl + "!" + load;
 
-        if ( isJob ) {
+        if ( isWorkflow ) {
           // Open the workflow from inside the ZIP archive
           //
           HopVfs.getFileObject( fileUrl );
@@ -153,11 +155,13 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           servletLoggingObject.setContainerObjectId( serverObjectId );
           servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
-          Workflow workflow = new Workflow( workflowMeta, servletLoggingObject );
+          String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
+          IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
+          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
 
           // store it all in the map...
           //
-          getWorkflowMap().addWorkflow( workflow.getJobname(), serverObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration ) );
+          getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration ) );
 
           // Apply the execution configuration...
           //

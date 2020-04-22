@@ -33,6 +33,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
@@ -211,7 +213,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
 
     // ID is optional...
     //
-    Workflow workflow;
+    IWorkflowEngine<WorkflowMeta> workflow;
     HopServerObjectEntry entry;
     if ( Utils.isEmpty( id ) ) {
       // get the first workflow that matches...
@@ -234,7 +236,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         entry = new HopServerObjectEntry( workflowName, id );
         workflow = getWorkflowMap().getWorkflow( entry );
         if ( workflow != null ) {
-          workflowName = workflow.getJobname();
+          workflowName = workflow.getWorkflowName();
         }
       }
     }
@@ -260,7 +262,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
             response.setContentType( "text/xml" );
             response.setCharacterEncoding( Const.XML_ENCODING );
 
-            SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( workflowName, id, workflow.getStatus() );
+            SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( workflowName, id, workflow.getStatusDescription() );
             jobStatus.setFirstLoggingLineNr( startLineNr );
             jobStatus.setLastLoggingLineNr( lastLineNr );
             jobStatus.setLogDate( workflow.getExecutionStartDate() );
@@ -347,7 +349,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               + BaseMessages.getString( PKG, "PipelineStatusServlet.LastLogDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
-          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + workflow.getStatus() + "</td>" );
+          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + workflow.getStatusDescription() + "</td>" );
           String dateStr = XmlHandler.date2string( workflow.getExecutionStartDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
@@ -384,11 +386,6 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
               + "\"></iframe>" );
           out.print( "</div>" );
-
-          // out.print("<a href=\"" + convertContextPath(GetWorkflowImageServlet.CONTEXT_PATH) + "?name=" +
-          // URLEncoder.encode(Const.NVL(workflowName, ""), "UTF-8") + "&id="+id+"\">"
-          // + BaseMessages.getString(PKG, "GetWorkflowImageServlet.GetJobImage") + "</a>");
-          // out.print("<p>");
 
           // Put the logging below that.
 
@@ -448,7 +445,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     return CONTEXT_PATH;
   }
 
-  private String getLogText( Workflow workflow, int startLineNr, int lastLineNr ) throws HopException {
+  private String getLogText( IWorkflowEngine<WorkflowMeta> workflow, int startLineNr, int lastLineNr ) throws HopException {
     try {
       return HopLogStore.getAppender().getBuffer(
         workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr ).toString();

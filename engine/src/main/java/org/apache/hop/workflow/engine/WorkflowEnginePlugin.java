@@ -20,28 +20,21 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.workflow;
+package org.apache.hop.workflow.engine;
 
-import org.apache.hop.core.exception.HopException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * Utility class to allow only certain methods of IWorkflowListener to be overridden.
- *
- * @author Marc
- */
+@Documented
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
+public @interface WorkflowEnginePlugin {
+  String id();
 
-public class WorkflowAdapter implements IWorkflowListener {
+  String name() default "";
 
-  @Override
-  public void jobFinished( Workflow workflow ) throws HopException {
-    // NoOp
-
-  }
-
-  @Override
-  public void jobStarted( Workflow workflow ) throws HopException {
-    // NoOp
-
-  }
-
+  String description() default "";
 }

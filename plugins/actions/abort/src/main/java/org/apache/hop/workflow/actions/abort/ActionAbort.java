@@ -122,7 +122,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
     }  
     
     // we fail so stop workflow execution
-    parentWorkflow.stopAll();
+    parentWorkflow.stopExecution();
     return result;
   }
 

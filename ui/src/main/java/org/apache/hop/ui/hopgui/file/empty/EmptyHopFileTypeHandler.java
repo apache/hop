@@ -71,6 +71,9 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
   @Override public void pause() {
   }
 
+  @Override public void resume() {
+  }
+
   @Override public void preview() {
   }
 

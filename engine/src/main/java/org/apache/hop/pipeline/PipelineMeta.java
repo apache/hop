@@ -152,11 +152,6 @@ public class PipelineMeta extends AbstractMeta
   protected int pipelineStatus;
 
   /**
-   * The size of the current rowset.
-   */
-  protected int sizeRowSet;
-
-  /**
    * A table of named counters.
    *
    * @deprecated Moved to Pipeline
@@ -170,25 +165,9 @@ public class PipelineMeta extends AbstractMeta
   protected boolean changedTransforms, changedHops;
 
   /**
-   * The time (in nanoseconds) to wait when the input buffer is empty.
-   */
-  protected int sleepTimeEmpty;
-
-  /**
-   * The time (in nanoseconds) to wait when the input buffer is full.
-   */
-  protected int sleepTimeFull;
-
-  /**
    * The previous result.
    */
   protected Result previousResult;
-
-  /**
-   * Flag to indicate thread management usage. Set to default to false from version 2.5.0 on. Before that it was enabled
-   * by default.
-   */
-  protected boolean usingThreadPriorityManagment;
 
   /**
    * Whether the pipeline is capturing transform performance snap shots.
@@ -506,7 +485,7 @@ public class PipelineMeta extends AbstractMeta
         pipelineMeta.addPipelineHop( (PipelineHopMeta) hop.clone() );
       }
       for ( NotePadMeta note : notes ) {
-        pipelineMeta.addNote( (NotePadMeta) note.clone() );
+        pipelineMeta.addNote( note.clone() );
       }
       for ( PartitionSchema schema : partitionSchemas ) {
         pipelineMeta.getPartitionSchemas().add( (PartitionSchema) schema.clone() );
@@ -538,21 +517,11 @@ public class PipelineMeta extends AbstractMeta
     pipelineStatus = -1;
     pipelineVersion = null;
 
-    sizeRowSet = Const.ROWS_IN_ROWSET;
-    sleepTimeEmpty = Const.TIMEOUT_GET_MILLIS;
-    sleepTimeFull = Const.TIMEOUT_PUT_MILLIS;
-
     undo = new ArrayList<>();
     max_undo = Const.MAX_UNDO;
     undo_position = -1;
 
     super.clear();
-
-    // Thread priority:
-    // - set to false in version 2.5.0
-    // - re-enabling in version 3.0.1 to prevent excessive locking (PDI-491)
-    //
-    usingThreadPriorityManagment = true;
 
     // The performance monitoring options
     //
@@ -1912,13 +1881,6 @@ public class PipelineMeta extends AbstractMeta
       retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     }
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "size_rowset", sizeRowSet ) );
-
-    retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_empty", sleepTimeEmpty ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "sleep_time_full", sleepTimeFull ) );
-
-    retval.append( "    " ).append( XmlHandler.addTagValue( "using_thread_priorities", usingThreadPriorityManagment ) );
-
     // Performance monitoring
     //
     retval.append( "    " )
@@ -2093,12 +2055,6 @@ public class PipelineMeta extends AbstractMeta
     this.metaStore = metaStore; // Remember this as the primary meta store.
 
     try {
-
-      Props props = null;
-      if ( Props.isInitialized() ) {
-        props = Props.getInstance();
-      }
-
       initializeVariablesFrom( parentVariableSpace );
 
       try {
@@ -2110,27 +2066,21 @@ public class PipelineMeta extends AbstractMeta
         setFilename( filename );
 
         // Read the notes...
-        Node notepadsnode = XmlHandler.getSubNode( pipelineNode, XML_TAG_NOTEPADS );
-        int nrnotes = XmlHandler.countNodes( notepadsnode, NotePadMeta.XML_TAG );
-        for ( int i = 0; i < nrnotes; i++ ) {
-          Node notepadnode = XmlHandler.getSubNodeByNr( notepadsnode, NotePadMeta.XML_TAG, i );
-          NotePadMeta ni = new NotePadMeta( notepadnode );
+        Node notepadsNode = XmlHandler.getSubNode( pipelineNode, XML_TAG_NOTEPADS );
+        List<Node> notepadNodes = XmlHandler.getNodes( notepadsNode, NotePadMeta.XML_TAG );
+        for ( Node notepadNode : notepadNodes ) {
+          NotePadMeta ni = new NotePadMeta( notepadNode );
           notes.add( ni );
         }
 
         // Handle Transforms
-        int s = XmlHandler.countNodes( pipelineNode, TransformMeta.XML_TAG );
+        //
+        List<Node> transformNodes = XmlHandler.getNodes( pipelineNode, TransformMeta.XML_TAG );
 
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.ReadingTransforms" ) + s + " transforms..." );
+          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.ReadingTransforms" ) + transformNodes.size() + " transforms..." );
         }
-        for ( int i = 0; i < s; i++ ) {
-          Node transformNode = XmlHandler.getSubNodeByNr( pipelineNode, TransformMeta.XML_TAG, i );
-
-          if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtTransform" ) + i );
-          }
-
+        for ( Node transformNode : transformNodes ) {
           TransformMeta transformMeta = new TransformMeta( transformNode, metaStore );
           transformMeta.setParentPipelineMeta( this ); // for tracing, retain hierarchy
 
@@ -2164,53 +2114,49 @@ public class PipelineMeta extends AbstractMeta
 
         // Handle Hops
         //
-        Node ordernode = XmlHandler.getSubNode( pipelineNode, XML_TAG_ORDER );
-        int n = XmlHandler.countNodes( ordernode, PipelineHopMeta.XML_HOP_TAG );
+        Node orderNode = XmlHandler.getSubNode( pipelineNode, XML_TAG_ORDER );
+        List<Node> hopNodes = XmlHandler.getNodes( orderNode, PipelineHopMeta.XML_HOP_TAG );
 
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.WeHaveHops" ) + n + " hops..." );
+          log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.WeHaveHops" ) + hopNodes.size() + " hops..." );
         }
-        for ( int i = 0; i < n; i++ ) {
-          if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "PipelineMeta.Log.LookingAtHop" ) + i );
-          }
-          Node hopnode = XmlHandler.getSubNodeByNr( ordernode, PipelineHopMeta.XML_HOP_TAG, i );
 
-          PipelineHopMeta hopinf = new PipelineHopMeta( hopnode, transforms );
-          hopinf.setErrorHop( isErrorNode( errorHandlingNode, hopnode ) );
+        for ( Node hopNode: hopNodes ) {
+          PipelineHopMeta hopinf = new PipelineHopMeta( hopNode, transforms );
+          hopinf.setErrorHop( isErrorNode( errorHandlingNode, hopNode ) );
           addPipelineHop( hopinf );
         }
 
         //
         // get pipeline info:
         //
-        Node infonode = XmlHandler.getSubNode( pipelineNode, XML_TAG_INFO );
+        Node infoNode = XmlHandler.getSubNode( pipelineNode, XML_TAG_INFO );
 
         // Name
         //
-        setName( XmlHandler.getTagValue( infonode, "name" ) );
+        setName( XmlHandler.getTagValue( infoNode, "name" ) );
 
         // description
         //
-        description = XmlHandler.getTagValue( infonode, "description" );
+        description = XmlHandler.getTagValue( infoNode, "description" );
 
         // extended description
         //
-        extendedDescription = XmlHandler.getTagValue( infonode, "extended_description" );
+        extendedDescription = XmlHandler.getTagValue( infoNode, "extended_description" );
 
         // pipeline version
         //
-        pipelineVersion = XmlHandler.getTagValue( infonode, "pipeline_version" );
+        pipelineVersion = XmlHandler.getTagValue( infoNode, "pipeline_version" );
 
         // pipeline status
         //
-        pipelineStatus = Const.toInt( XmlHandler.getTagValue( infonode, "pipeline_status" ), -1 );
+        pipelineStatus = Const.toInt( XmlHandler.getTagValue( infoNode, "pipeline_status" ), -1 );
 
-        String pipelineTypeCode = XmlHandler.getTagValue( infonode, "pipeline_type" );
+        String pipelineTypeCode = XmlHandler.getTagValue( infoNode, "pipeline_type" );
         pipelineType = PipelineType.getPipelineTypeByCode( pipelineTypeCode );
 
         // Read the named parameters.
-        Node paramsNode = XmlHandler.getSubNode( infonode, XML_TAG_PARAMETERS );
+        Node paramsNode = XmlHandler.getSubNode( infoNode, XML_TAG_PARAMETERS );
         int nrParams = XmlHandler.countNodes( paramsNode, "parameter" );
 
         for ( int i = 0; i < nrParams; i++ ) {
@@ -2225,41 +2171,31 @@ public class PipelineMeta extends AbstractMeta
 
         // Read the partitioning schemas
         //
-        Node partSchemasNode = XmlHandler.getSubNode( infonode, XML_TAG_PARTITIONSCHEMAS );
-        int nrPartSchemas = XmlHandler.countNodes( partSchemasNode, PartitionSchema.XML_TAG );
-        for ( int i = 0; i < nrPartSchemas; i++ ) {
-          Node partSchemaNode = XmlHandler.getSubNodeByNr( partSchemasNode, PartitionSchema.XML_TAG, i );
+        Node partSchemasNode = XmlHandler.getSubNode( infoNode, XML_TAG_PARTITIONSCHEMAS );
+        List<Node> partSchemaNodes = XmlHandler.getNodes( partSchemasNode, PartitionSchema.XML_TAG );
+        for ( Node partSchemaNode : partSchemaNodes) {
           PartitionSchema partitionSchema = new PartitionSchema( partSchemaNode );
-
           partitionSchemas.add( partitionSchema );
         }
-
-        String srowset = XmlHandler.getTagValue( infonode, "size_rowset" );
-        sizeRowSet = Const.toInt( srowset, Const.ROWS_IN_ROWSET );
-        sleepTimeEmpty =
-          Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_empty" ), Const.TIMEOUT_GET_MILLIS );
-        sleepTimeFull = Const.toInt( XmlHandler.getTagValue( infonode, "sleep_time_full" ), Const.TIMEOUT_PUT_MILLIS );
-
-        usingThreadPriorityManagment = !"N".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "using_thread_priorities" ) );
 
         // Performance monitoring for transforms...
         //
         capturingTransformPerformanceSnapShots =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( infonode, "capture_transform_performance" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( infoNode, "capture_transform_performance" ) );
         transformPerformanceCapturingDelay =
-          Const.toLong( XmlHandler.getTagValue( infonode, "transform_performance_capturing_delay" ), 1000 );
-        transformPerformanceCapturingSizeLimit = XmlHandler.getTagValue( infonode, "transform_performance_capturing_size_limit" );
+          Const.toLong( XmlHandler.getTagValue( infoNode, "transform_performance_capturing_delay" ), 1000 );
+        transformPerformanceCapturingSizeLimit = XmlHandler.getTagValue( infoNode, "transform_performance_capturing_size_limit" );
 
         // Created user/date
-        createdUser = XmlHandler.getTagValue( infonode, "created_user" );
-        String createDate = XmlHandler.getTagValue( infonode, "created_date" );
+        createdUser = XmlHandler.getTagValue( infoNode, "created_user" );
+        String createDate = XmlHandler.getTagValue( infoNode, "created_date" );
         if ( createDate != null ) {
           createdDate = XmlHandler.stringToDate( createDate );
         }
 
         // Changed user/date
-        modifiedUser = XmlHandler.getTagValue( infonode, "modified_user" );
-        String modDate = XmlHandler.getTagValue( infonode, "modified_date" );
+        modifiedUser = XmlHandler.getTagValue( infoNode, "modified_user" );
+        String modDate = XmlHandler.getTagValue( infoNode, "modified_date" );
         if ( modDate != null ) {
           modifiedDate = XmlHandler.stringToDate( modDate );
         }
@@ -2274,8 +2210,8 @@ public class PipelineMeta extends AbstractMeta
         //
         attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( pipelineNode, AttributesUtil.XML_TAG ) );
 
-        keyForSessionKey = XmlHandler.stringToBinary( XmlHandler.getTagValue( infonode, "key_for_session_key" ) );
-        isKeyPrivate = "Y".equals( XmlHandler.getTagValue( infonode, "is_key_private" ) );
+        keyForSessionKey = XmlHandler.stringToBinary( XmlHandler.getTagValue( infoNode, "key_for_session_key" ) );
+        isKeyPrivate = "Y".equals( XmlHandler.getTagValue( infoNode, "is_key_private" ) );
 
       } catch ( HopXmlException xe ) {
         throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.ErrorReadingPipeline" ),
@@ -3435,43 +3371,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the amount of time (in nano-seconds) to wait while the input buffer is empty.
-   *
-   * @return the number of nano-seconds to wait while the input buffer is empty.
-   */
-  public int getSleepTimeEmpty() {
-    return sleepTimeEmpty;
-  }
-
-  /**
-   * Gets the amount of time (in nano-seconds) to wait while the input buffer is full.
-   *
-   * @return the number of nano-seconds to wait while the input buffer is full.
-   */
-  public int getSleepTimeFull() {
-    return sleepTimeFull;
-  }
-
-  /**
-   * Sets the amount of time (in nano-seconds) to wait while the input buffer is empty.
-   *
-   * @param sleepTimeEmpty the number of nano-seconds to wait while the input buffer is empty.
-   */
-  public void setSleepTimeEmpty( int sleepTimeEmpty ) {
-    this.sleepTimeEmpty = sleepTimeEmpty;
-  }
-
-  /**
-   * Sets the amount of time (in nano-seconds) to wait while the input buffer is full.
-   *
-   * @param sleepTimeFull the number of nano-seconds to wait while the input buffer is full.
-   */
-  public void setSleepTimeFull( int sleepTimeFull ) {
-    this.sleepTimeFull = sleepTimeFull;
-  }
-
-
-  /**
    * Gets a list of all the strings used in this pipeline. The parameters indicate which collections to search and
    * which to exclude.
    *
@@ -3624,24 +3523,6 @@ public class PipelineMeta extends AbstractMeta
       previous.replaceMeta( partitionSchema );
     }
     setChanged();
-  }
-
-  /**
-   * Checks whether the pipeline is using thread priority management.
-   *
-   * @return true if the pipeline is using thread priority management, false otherwise
-   */
-  public boolean isUsingThreadPriorityManagment() {
-    return usingThreadPriorityManagment;
-  }
-
-  /**
-   * Sets whether the pipeline is using thread priority management.
-   *
-   * @param usingThreadPriorityManagment true if the pipeline is using thread priority management, false otherwise
-   */
-  public void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment ) {
-    this.usingThreadPriorityManagment = usingThreadPriorityManagment;
   }
 
   /**

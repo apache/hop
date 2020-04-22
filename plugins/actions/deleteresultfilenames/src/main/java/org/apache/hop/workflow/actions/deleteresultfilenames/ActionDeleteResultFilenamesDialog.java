@@ -88,20 +88,20 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionDeleteResultFilenamesI jobEntry;
+  private ActionDeleteResultFilenamesI action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionDeleteResultFilenamesDialog( Shell parent, IAction jobEntryInt,
+  public ActionDeleteResultFilenamesDialog( Shell parent, IAction action,
                                             WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionDeleteResultFilenamesI) jobEntryInt;
+    super( parent, action, workflowMeta );
+    this.action = (ActionDeleteResultFilenamesI) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );
     }
   }
 
@@ -111,14 +111,14 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -169,7 +169,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wSpecifyWildcard.setLayoutData( fdSpecifyWildcard );
     wSpecifyWildcard.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
         CheckLimit();
       }
     } );
@@ -275,7 +275,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -295,15 +295,15 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    wSpecifyWildcard.setSelection( jobEntry.isSpecifyWildcard() );
-    if ( jobEntry.getWildcard() != null ) {
-      wWildcard.setText( jobEntry.getWildcard() );
+    wSpecifyWildcard.setSelection( action.isSpecifyWildcard() );
+    if ( action.getWildcard() != null ) {
+      wWildcard.setText( action.getWildcard() );
     }
-    if ( jobEntry.getWildcardExclude() != null ) {
-      wWildcardExclude.setText( jobEntry.getWildcardExclude() );
+    if ( action.getWildcardExclude() != null ) {
+      wWildcardExclude.setText( action.getWildcardExclude() );
     }
 
     wName.selectAll();
@@ -311,8 +311,8 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -324,10 +324,10 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setWildcardExclude( wWildcardExclude.getText() );
+    action.setName( wName.getText() );
+    action.setSpecifyWildcard( wSpecifyWildcard.getSelection() );
+    action.setWildcard( wWildcard.getText() );
+    action.setWildcardExclude( wWildcardExclude.getText() );
 
     dispose();
   }

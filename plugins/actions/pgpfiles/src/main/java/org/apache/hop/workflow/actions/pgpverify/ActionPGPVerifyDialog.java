@@ -118,7 +118,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
   private Listener lsOk, lsCancel;
 
-  private ActionPGPVerify jobEntry;
+  private ActionPGPVerify action;
 
   private Shell shell;
 
@@ -129,11 +129,11 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
   private Group wSettings;
   private FormData fdSettings;
 
-  public ActionPGPVerifyDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionPGPVerify) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobPGPVerify.Name.Default" ) );
+  public ActionPGPVerifyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionPGPVerify) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobPGPVerify.Name.Default" ) );
     }
   }
 
@@ -143,14 +143,14 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -499,7 +499,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -512,25 +512,25 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    if ( jobEntry.getGPGLocation() != null ) {
-      wGPGLocation.setText( jobEntry.getGPGLocation() );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    if ( action.getGPGLocation() != null ) {
+      wGPGLocation.setText( action.getGPGLocation() );
     }
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
-    if ( jobEntry.getDetachedfilename() != null ) {
-      wDetachedFilename.setText( jobEntry.getDetachedfilename() );
+    if ( action.getDetachedfilename() != null ) {
+      wDetachedFilename.setText( action.getDetachedfilename() );
     }
-    wuseDetachedSignature.setSelection( jobEntry.useDetachedfilename() );
+    wuseDetachedSignature.setSelection( action.useDetachedfilename() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -542,11 +542,11 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setGPGLocation( wGPGLocation.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setDetachedfilename( wDetachedFilename.getText() );
-    jobEntry.setUseDetachedfilename( wuseDetachedSignature.getSelection() );
+    action.setName( wName.getText() );
+    action.setGPGLocation( wGPGLocation.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setDetachedfilename( wDetachedFilename.getText() );
+    action.setUseDetachedfilename( wuseDetachedSignature.getSelection() );
     dispose();
   }
 

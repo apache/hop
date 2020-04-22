@@ -22,16 +22,6 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
@@ -48,6 +38,8 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -55,6 +47,16 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /*
  * tests fix for PDI-1044
@@ -145,7 +147,7 @@ public class WorkflowActionEvalTableContentTest {
   @Before
   public void setUp() throws Exception {
     MockDriver.registerInstance();
-    Workflow workflow = new Workflow( new WorkflowMeta() );
+    IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionEvalTableContent();
 
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );

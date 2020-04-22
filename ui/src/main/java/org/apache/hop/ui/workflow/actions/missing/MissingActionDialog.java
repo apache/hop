@@ -65,8 +65,8 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     this.mode = MISSING_ACTIONS;
   }
 
-  public MissingActionDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
+  public MissingActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
     this.shellParent = parent;
     this.mode = MISSING_ACTION_ID;
   }
@@ -87,8 +87,8 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
     if ( mode == MISSING_ACTION_ID ) {
       message =
-        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", jobEntryInt.getName() + " - "
-          + ( (MissingAction) jobEntryInt ).getMissingPluginId() );
+        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", iAction.getName() + " - "
+          + ( (MissingAction) iAction ).getMissingPluginId() );
     }
     return message;
   }

@@ -292,8 +292,8 @@ public class HopGuiPipelineLogDelegate {
   @GuiToolbarElement(
     id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
     type = GuiElementType.TOOLBAR_BUTTON,
-    label = "JobLog.Button.Pause",
-    toolTip = "JobLog.Button.Pause",
+    label = "WorkflowLog.Button.Pause",
+    toolTip = "WorkflowLog.Button.Pause",
     i18nPackageClass = HopGui.class,
     image = "ui/images/pause-log.svg",
     parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,

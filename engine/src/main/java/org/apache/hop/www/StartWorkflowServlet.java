@@ -31,8 +31,11 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workflow.WorkflowConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
 
@@ -64,91 +67,6 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     super( workflowMap );
   }
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/startWorkflow</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Starts the workflow. If the workflow cannot be started, an error is returned.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /hop/startWorkflow/?name=dummy_job&xml=Y
-   * </pre>
-   *
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>name</td>
-   * <td>Name of the workflow to be executed.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>xml</td>
-   * <td>Boolean flag which sets the output format required. Use <code>Y</code> to receive XML response.</td>
-   * <td>boolean, optional</td>
-   * </tr>
-   * <tr>
-   * <td>id</td>
-   * <td>HopServer workflow ID of the workflow to be executed. This parameter is optional when xml=Y is used.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">text:</td>
-   * <td>HTML</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>text/xml, text/html</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>Response XML or HTML containing operation result. When using xml=Y <code>result</code> field indicates whether
-   * operation was successful (<code>OK</code>) or not (<code>ERROR</code>).</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <?xml version="1.0" encoding="UTF-8"?>
-   * <webresult>
-   * <result>OK</result>
-   * <message>Workflow &#x5b;dummy_job&#x5d; was started.</message>
-   * <id>abd61143-8174-4f27-9037-6b22fbd3e229</id>
-   * </webresult>
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -186,7 +104,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     try {
       // ID is optional...
       //
-      Workflow workflow;
+      IWorkflowEngine<WorkflowMeta> workflow;
       HopServerObjectEntry entry;
       if ( Utils.isEmpty( id ) ) {
         // get the first workflow that matches...
@@ -226,7 +144,9 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
               new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
             servletLoggingObject.setContainerObjectId( carteObjectId );
 
-            Workflow newWorkflow = new Workflow( workflow.getWorkflowMeta(), servletLoggingObject );
+            String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
+            IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
+            IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflow.getWorkflowMeta() );
             newWorkflow.setLogLevel( workflow.getLogLevel() );
 
             // Discard old log lines from the old workflow
@@ -238,7 +158,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           }
         }
 
-        runJob( workflow );
+        runWorkflow( workflow );
 
         String message = BaseMessages.getString( PKG, "StartWorkflowServlet.Log.JobStarted", workflowName );
         if ( useXML ) {
@@ -291,8 +211,8 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     return CONTEXT_PATH + " (" + toString() + ")";
   }
 
-  protected void runJob( Workflow workflow ) throws HopException {
-    workflow.start(); // runs the thread in the background...
+  protected void runWorkflow( final IWorkflowEngine workflow ) throws HopException {
+    new Thread( () -> workflow.startExecution() ).start();
   }
 
   public String getContextPath() {

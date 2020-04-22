@@ -48,6 +48,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -667,7 +668,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
   }
 
   private void ProcessFileFolder( String sourcefilefoldername, String wildcard, String includeSubfolders,
-                                  Workflow parentWorkflow, Result result ) {
+                                  IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
 
     FileObject sourcefilefolder = null;
     FileObject CurrentFile = null;
@@ -783,7 +784,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     }
   }
 
-  private void getFileSize( FileObject file, Result result, Workflow parentWorkflow ) {
+  private void getFileSize( FileObject file, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
 
       incrementFilesCount();

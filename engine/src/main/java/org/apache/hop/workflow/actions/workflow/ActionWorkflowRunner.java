@@ -29,6 +29,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * @author Matt
@@ -37,7 +39,7 @@ import org.apache.hop.workflow.Workflow;
 public class ActionWorkflowRunner implements Runnable {
   private static Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator!!
 
-  private Workflow workflow;
+  private IWorkflowEngine<WorkflowMeta> workflow;
   private Result result;
   private ILogChannel log;
   private int entryNr;
@@ -46,7 +48,7 @@ public class ActionWorkflowRunner implements Runnable {
   /**
    *
    */
-  public ActionWorkflowRunner( Workflow workflow, Result result, int entryNr, ILogChannel log ) {
+  public ActionWorkflowRunner( IWorkflowEngine<WorkflowMeta> workflow, Result result, int entryNr, ILogChannel log ) {
     this.workflow = workflow;
     this.result = result;
     this.log = log;
@@ -65,8 +67,7 @@ public class ActionWorkflowRunner implements Runnable {
       //
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, getWorkflow() );
 
-      workflow.fireJobStartListeners(); // Fire the start listeners
-      result = workflow.execute( entryNr + 1, result );
+      result = workflow.startExecution();
     } catch ( HopException e ) {
       e.printStackTrace();
       log.logError( "An error occurred executing this action : ", e );
@@ -77,7 +78,7 @@ public class ActionWorkflowRunner implements Runnable {
       workflow.setResult( result );
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, getWorkflow() );
-        workflow.fireJobFinishListeners();
+        workflow.fireWorkflowFinishListeners();
 
         //catch more general exception to prevent thread hanging
       } catch ( Exception e ) {
@@ -119,16 +120,18 @@ public class ActionWorkflowRunner implements Runnable {
   }
 
   /**
-   * @return Returns the workflow.
+   * Gets workflow
+   *
+   * @return value of workflow
    */
-  public Workflow getWorkflow() {
+  public IWorkflowEngine<WorkflowMeta> getWorkflow() {
     return workflow;
   }
 
   /**
-   * @param workflow The workflow to set.
+   * @param workflow The workflow to set
    */
-  public void setWorkflow( Workflow workflow ) {
+  public void setWorkflow( IWorkflowEngine<WorkflowMeta> workflow ) {
     this.workflow = workflow;
   }
 

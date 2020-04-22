@@ -40,7 +40,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Matt
  * @since 30-mar-2006
  */
-public class WorkflowTracker {
+public class WorkflowTracker<T extends WorkflowMeta> {
   /**
    * The trackers for each individual action.
    * Since we invoke LinkedList.removeFirst() there is no sense in lurking the field behind the interface
@@ -68,7 +68,7 @@ public class WorkflowTracker {
   /**
    * @param workflowMeta the workflow metadata to keep track of (with maximum 5000 children)
    */
-  public WorkflowTracker( WorkflowMeta workflowMeta ) {
+  public WorkflowTracker( T workflowMeta ) {
     this( workflowMeta, Const.toInt( EnvUtil.getSystemProperty( Const.HOP_MAX_WORKFLOW_TRACKER_SIZE ), 5000 ) );
   }
 
@@ -76,13 +76,13 @@ public class WorkflowTracker {
    * @param workflowMeta     The workflow metadata to track
    * @param maxChildren The maximum number of children to keep track of (1000 is the default)
    */
-  public WorkflowTracker( WorkflowMeta workflowMeta, int maxChildren ) {
+  public WorkflowTracker( T workflowMeta, int maxChildren ) {
     if ( workflowMeta != null ) {
       this.workflowName = workflowMeta.getName();
       this.workflowFilename = workflowMeta.getFilename();
     }
 
-    this.workflowTrackers = new LinkedList<WorkflowTracker>();
+    this.workflowTrackers = new LinkedList<>();
     this.maxChildren = maxChildren;
     this.lock = new ReentrantReadWriteLock();
   }
@@ -93,7 +93,7 @@ public class WorkflowTracker {
    * @param workflowMeta the workflow metadata to keep track of
    * @param result  the action result to track.
    */
-  public WorkflowTracker( WorkflowMeta workflowMeta, ActionResult result ) {
+  public WorkflowTracker( T workflowMeta, ActionResult result ) {
     this( workflowMeta );
     this.result = result;
   }
@@ -105,7 +105,7 @@ public class WorkflowTracker {
    * @param maxChildren The maximum number of children to keep track of
    * @param result      the action result to track.
    */
-  public WorkflowTracker( WorkflowMeta workflowMeta, int maxChildren, ActionResult result ) {
+  public WorkflowTracker( T workflowMeta, int maxChildren, ActionResult result ) {
     this( workflowMeta, maxChildren );
     this.result = result;
   }
@@ -255,14 +255,14 @@ public class WorkflowTracker {
   /**
    * @return the workflowFilename
    */
-  public String getJobFilename() {
+  public String getWorfkflowFilename() {
     return workflowFilename;
   }
 
   /**
    * @param workflowFilename the workflowFilename to set
    */
-  public void setJobFilename( String workflowFilename ) {
+  public void setWorkflowFilename( String workflowFilename ) {
     this.workflowFilename = workflowFilename;
   }
 

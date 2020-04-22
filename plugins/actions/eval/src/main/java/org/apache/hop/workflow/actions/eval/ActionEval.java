@@ -37,6 +37,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
@@ -113,7 +114,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * @param parentWorkflow   the parent workflow
    * @return The boolean result of the evaluation script.
    */
-  public boolean evaluate( Result result, Workflow parentWorkflow, Result prev_result ) {
+  public boolean evaluate( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result prev_result ) {
     Context cx;
     Scriptable scope;
 

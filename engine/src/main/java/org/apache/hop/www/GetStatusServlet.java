@@ -29,7 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
-import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -227,8 +228,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       }
 
       for ( HopServerObjectEntry entry : actions ) {
-        Workflow workflow = getWorkflowMap().getWorkflow( entry );
-        String status = workflow.getStatus();
+        IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow( entry );
+        String status = workflow.getStatusDescription();
         SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( entry.getName(), entry.getId(), status );
         jobStatus.setLogDate( workflow.getExecutionStartDate() );
         serverStatus.getJobStatusList().add( jobStatus );
@@ -436,8 +437,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         Comparator<HopServerObjectEntry> jobComparator = new Comparator<HopServerObjectEntry>() {
           @Override
           public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-            Workflow t1 = getWorkflowMap().getWorkflow( o1 );
-            Workflow t2 = getWorkflowMap().getWorkflow( o2 );
+            IWorkflowEngine<WorkflowMeta> t1 = getWorkflowMap().getWorkflow( o1 );
+            IWorkflowEngine<WorkflowMeta> t2 = getWorkflowMap().getWorkflow( o2 );
             Date d1 = t1.getExecutionStartDate();
             Date d2 = t2.getExecutionStartDate();
             // if both workflows have last log date, desc sort by log date
@@ -457,8 +458,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         for ( int i = 0; i < actions.size(); i++ ) {
           String name = actions.get( i ).getName();
           String id = actions.get( i ).getId();
-          Workflow workflow = getWorkflowMap().getWorkflow( actions.get( i ) );
-          String status = workflow.getStatus();
+          IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow( actions.get( i ) );
+          String status = workflow.getStatusDescription();
           String trClass = evenRow ? "cellTableEvenRow" : "cellTableOddRow"; // alternating row color
           String tdClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
           evenRow = !evenRow; // flip

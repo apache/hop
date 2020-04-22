@@ -28,6 +28,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,7 +46,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class WorkflowEntryFolderIsEmptyTest {
-  private Workflow workflow;
+  private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionFolderIsEmpty entry;
 
   private String emptyDir;
@@ -61,7 +63,7 @@ public class WorkflowEntryFolderIsEmptyTest {
 
   @Before
   public void setUp() throws Exception {
-    workflow = new Workflow( new WorkflowMeta() );
+    workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionFolderIsEmpty();
 
     workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );

@@ -104,7 +104,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   protected Button wDestinationIsAFile;
   protected Button wCreateDestinationFolder;
 
-  protected ActionCopyFiles jobEntry;
+  protected ActionCopyFiles action;
   protected Shell shell;
 
   protected boolean changed;
@@ -115,12 +115,12 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
   private ToolItem deleteToolItem; // Delete
 
-  public ActionCopyFilesDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionCopyFiles) jobEntryInt;
+  public ActionCopyFilesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionCopyFiles) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobCopyFiles.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobCopyFiles.Name.Default" ) );
     }
   }
 
@@ -129,14 +129,14 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    Button helpButton = WorkflowDialog.setShellImage( shell, jobEntry );
+    Button helpButton = WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -237,7 +237,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     SelectionAdapter listener = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
 
@@ -326,8 +326,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.source_filefolder == null ? 1 : ( jobEntry.source_filefolder.length == 0
-        ? 0 : jobEntry.source_filefolder.length );
+      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
+        ? 0 : action.source_filefolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -437,7 +437,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   protected Button createSettingsButton( Composite p, String text, String title, Control top, SelectionAdapter sa ) {
@@ -528,17 +528,17 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    wCopyEmptyFolders.setSelection( jobEntry.copy_empty_folders );
+    wCopyEmptyFolders.setSelection( action.copy_empty_folders );
 
-    if ( jobEntry.source_filefolder != null ) {
-      for ( int i = 0; i < jobEntry.source_filefolder.length; i++ ) {
+    if ( action.source_filefolder != null ) {
+      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.source_filefolder[ i ] != null ) {
-          String sourceUrl = jobEntry.source_filefolder[ i ];
-          String clusterName = jobEntry.getConfigurationBy( sourceUrl );
+        if ( action.source_filefolder[ i ] != null ) {
+          String sourceUrl = action.source_filefolder[ i ];
+          String clusterName = action.getConfigurationBy( sourceUrl );
           if ( clusterName != null ) {
             clusterName =
               clusterName.startsWith( ActionCopyFiles.LOCAL_SOURCE_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
@@ -548,7 +548,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
             ti.setText( 1, clusterName );
             sourceUrl =
               clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? sourceUrl
-                : jobEntry.getUrlPath( sourceUrl );
+                : action.getUrlPath( sourceUrl );
           }
           if ( sourceUrl != null ) {
             sourceUrl = sourceUrl.replace( ActionCopyFiles.SOURCE_URL + i + "-", "" );
@@ -557,12 +557,12 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
           }
           ti.setText( 2, sourceUrl );
         }
-        if ( jobEntry.wildcard[ i ] != null ) {
-          ti.setText( 3, jobEntry.wildcard[ i ] );
+        if ( action.wildcard[ i ] != null ) {
+          ti.setText( 3, action.wildcard[ i ] );
         }
-        if ( jobEntry.destination_filefolder[ i ] != null ) {
-          String destinationURL = jobEntry.destination_filefolder[ i ];
-          String clusterName = jobEntry.getConfigurationBy( destinationURL );
+        if ( action.destination_filefolder[ i ] != null ) {
+          String destinationURL = action.destination_filefolder[ i ];
+          String clusterName = action.getConfigurationBy( destinationURL );
           if ( clusterName != null ) {
             clusterName = clusterName.startsWith( ActionCopyFiles.LOCAL_DEST_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
             clusterName =
@@ -570,7 +570,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
             ti.setText( 4, clusterName );
             destinationURL =
               clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT ) ? destinationURL
-                : jobEntry.getUrlPath( destinationURL );
+                : action.getUrlPath( destinationURL );
           }
           if ( destinationURL != null ) {
             destinationURL = destinationURL.replace( ActionCopyFiles.DEST_URL + i + "-", "" );
@@ -584,22 +584,22 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.arg_from_previous );
-    wOverwriteFiles.setSelection( jobEntry.overwrite_files );
-    wIncludeSubfolders.setSelection( jobEntry.include_subfolders );
-    wRemoveSourceFiles.setSelection( jobEntry.remove_source_files );
-    wDestinationIsAFile.setSelection( jobEntry.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( jobEntry.create_destination_folder );
+    wPrevious.setSelection( action.arg_from_previous );
+    wOverwriteFiles.setSelection( action.overwrite_files );
+    wIncludeSubfolders.setSelection( action.include_subfolders );
+    wRemoveSourceFiles.setSelection( action.remove_source_files );
+    wDestinationIsAFile.setSelection( action.destination_is_a_file );
+    wCreateDestinationFolder.setSelection( action.create_destination_folder );
 
-    wAddFileToResult.setSelection( jobEntry.add_result_filesname );
+    wAddFileToResult.setSelection( action.add_result_filesname );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -612,23 +612,23 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       return;
     }
 
-    jobEntry.setName( wName.getText() );
-    jobEntry.setCopyEmptyFolders( wCopyEmptyFolders.getSelection() );
-    jobEntry.setoverwrite_files( wOverwriteFiles.getSelection() );
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
-    jobEntry.setRemoveSourceFiles( wRemoveSourceFiles.getSelection() );
-    jobEntry.setAddresultfilesname( wAddFileToResult.getSelection() );
-    jobEntry.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
-    jobEntry.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
+    action.setName( wName.getText() );
+    action.setCopyEmptyFolders( wCopyEmptyFolders.getSelection() );
+    action.setoverwrite_files( wOverwriteFiles.getSelection() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
+    action.setRemoveSourceFiles( wRemoveSourceFiles.getSelection() );
+    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
+    action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
 
     int nritems = wFields.nrNonEmpty();
 
 
     Map<String, String> sourceDestinationMappings = new HashMap<>();
-    jobEntry.source_filefolder = new String[ nritems ];
-    jobEntry.destination_filefolder = new String[ nritems ];
-    jobEntry.wildcard = new String[ nritems ];
+    action.source_filefolder = new String[ nritems ];
+    action.destination_filefolder = new String[ nritems ];
+    action.wildcard = new String[ nritems ];
 
     for ( int i = 0; i < nritems; i++ ) {
       String sourceNc = wFields.getNonEmpty( i ).getText( 1 );
@@ -642,11 +642,11 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       String dest = wFields.getNonEmpty( i ).getText( 5 );
       source = ActionCopyFiles.SOURCE_URL + i + "-" + source;
       dest = ActionCopyFiles.DEST_URL + i + "-" + dest;
-      jobEntry.source_filefolder[ i ] = jobEntry.loadURL( source, sourceNc, getMetaStore(), sourceDestinationMappings );
-      jobEntry.destination_filefolder[ i ] = jobEntry.loadURL( dest, destNc, getMetaStore(), sourceDestinationMappings );
-      jobEntry.wildcard[ i ] = wild;
+      action.source_filefolder[ i ] = action.loadURL( source, sourceNc, getMetaStore(), sourceDestinationMappings );
+      action.destination_filefolder[ i ] = action.loadURL( dest, destNc, getMetaStore(), sourceDestinationMappings );
+      action.wildcard[ i ] = wild;
     }
-    jobEntry.setConfigurationMappings( sourceDestinationMappings );
+    action.setConfigurationMappings( sourceDestinationMappings );
 
     dispose();
   }

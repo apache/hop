@@ -331,16 +331,6 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   @Override ILogChannel getLogChannel();
 
   /**
-   * @param usingThreadPriorityManagment set to true to actively manage priorities of transform threads
-   */
-  void setUsingThreadPriorityManagment( boolean usingThreadPriorityManagment );
-
-  /**
-   * @return true if we are actively managing priorities of transform threads
-   */
-  boolean isUsingThreadPriorityManagment();
-
-  /**
    * @return The total amount of rows in the input buffers
    */
   int rowsetInputSize();

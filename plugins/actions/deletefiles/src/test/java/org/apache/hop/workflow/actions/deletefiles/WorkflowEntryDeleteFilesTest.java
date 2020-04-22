@@ -29,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,47 +50,47 @@ public class WorkflowEntryDeleteFilesTest {
   private final String PATH_TO_FILE = "path/to/file";
   private final String STRING_SPACES_ONLY = "   ";
 
-  private ActionDeleteFiles jobEntry;
+  private ActionDeleteFiles action;
 
   @Before
   public void setUp() throws Exception {
-    jobEntry = new ActionDeleteFiles();
-    Workflow parentWorkflow = mock( Workflow.class );
+    action = new ActionDeleteFiles();
+    IWorkflowEngine<WorkflowMeta> parentWorkflow = mock( Workflow.class );
     doReturn( false ).when( parentWorkflow ).isStopped();
 
-    jobEntry.setParentWorkflow( parentWorkflow );
+    action.setParentWorkflow( parentWorkflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    jobEntry.setParentWorkflowMeta( mockWorkflowMeta );
-    jobEntry = spy( jobEntry );
-    doReturn( true ).when( jobEntry ).processFile( anyString(), anyString(), eq( parentWorkflow ) );
+    action.setParentWorkflowMeta( mockWorkflowMeta );
+    action = spy( action );
+    doReturn( true ).when( action ).processFile( anyString(), anyString(), eq( parentWorkflow ) );
   }
 
   @Test
   public void filesWithNoPath_AreNotProcessed_ArgsOfCurrentJob() throws Exception {
-    jobEntry.setArguments( new String[] { Const.EMPTY_STRING, STRING_SPACES_ONLY } );
-    jobEntry.setFilemasks( new String[] { null, null } );
-    jobEntry.setArgFromPrevious( false );
+    action.setArguments( new String[] { Const.EMPTY_STRING, STRING_SPACES_ONLY } );
+    action.setFilemasks( new String[] { null, null } );
+    action.setArgFromPrevious( false );
 
-    jobEntry.execute( new Result(), 0 );
-    verify( jobEntry, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute( new Result(), 0 );
+    verify( action, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
   }
 
 
   @Test
   public void filesWithPath_AreProcessed_ArgsOfCurrentJob() throws Exception {
     String[] args = new String[] { PATH_TO_FILE };
-    jobEntry.setArguments( args );
-    jobEntry.setFilemasks( new String[] { null, null } );
-    jobEntry.setArgFromPrevious( false );
+    action.setArguments( args );
+    action.setFilemasks( new String[] { null, null } );
+    action.setArgFromPrevious( false );
 
-    jobEntry.execute( new Result(), 0 );
-    verify( jobEntry, times( args.length ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute( new Result(), 0 );
+    verify( action, times( args.length ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
   }
 
 
   @Test
   public void filesWithNoPath_AreNotProcessed_ArgsOfPreviousMeta() throws Exception {
-    jobEntry.setArgFromPrevious( true );
+    action.setArgFromPrevious( true );
 
     Result prevMetaResult = new Result();
     List<RowMetaAndData> metaAndDataList = new ArrayList<>();
@@ -99,13 +100,13 @@ public class WorkflowEntryDeleteFilesTest {
 
     prevMetaResult.setRows( metaAndDataList );
 
-    jobEntry.execute( prevMetaResult, 0 );
-    verify( jobEntry, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute( prevMetaResult, 0 );
+    verify( action, never() ).processFile( anyString(), anyString(), any( Workflow.class ) );
   }
 
   @Test
   public void filesPath_AreProcessed_ArgsOfPreviousMeta() throws Exception {
-    jobEntry.setArgFromPrevious( true );
+    action.setArgFromPrevious( true );
 
     Result prevMetaResult = new Result();
     List<RowMetaAndData> metaAndDataList = new ArrayList<>();
@@ -113,8 +114,8 @@ public class WorkflowEntryDeleteFilesTest {
     metaAndDataList.add( constructRowMetaAndData( PATH_TO_FILE, null ) );
     prevMetaResult.setRows( metaAndDataList );
 
-    jobEntry.execute( prevMetaResult, 0 );
-    verify( jobEntry, times( metaAndDataList.size() ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
+    action.execute( prevMetaResult, 0 );
+    verify( action, times( metaAndDataList.size() ) ).processFile( anyString(), anyString(), any( Workflow.class ) );
   }
 
   @Test
@@ -122,16 +123,16 @@ public class WorkflowEntryDeleteFilesTest {
     final String pathToFileBlankValue = "pathToFileBlankValue";
     final String pathToFileValidValue = "pathToFileValidValue";
 
-    jobEntry.setVariable( pathToFileBlankValue, Const.EMPTY_STRING );
-    jobEntry.setVariable( pathToFileValidValue, PATH_TO_FILE );
+    action.setVariable( pathToFileBlankValue, Const.EMPTY_STRING );
+    action.setVariable( pathToFileValidValue, PATH_TO_FILE );
 
-    jobEntry.setArguments( new String[] { asVariable( pathToFileBlankValue ), asVariable( pathToFileValidValue ) } );
-    jobEntry.setFilemasks( new String[] { null, null } );
-    jobEntry.setArgFromPrevious( false );
+    action.setArguments( new String[] { asVariable( pathToFileBlankValue ), asVariable( pathToFileValidValue ) } );
+    action.setFilemasks( new String[] { null, null } );
+    action.setArgFromPrevious( false );
 
-    jobEntry.execute( new Result(), 0 );
+    action.execute( new Result(), 0 );
 
-    verify( jobEntry ).processFile( eq( PATH_TO_FILE ), anyString(), any( Workflow.class ) );
+    verify( action ).processFile( eq( PATH_TO_FILE ), anyString(), any( Workflow.class ) );
   }
 
   @Test
@@ -140,14 +141,14 @@ public class WorkflowEntryDeleteFilesTest {
     final String fileExtensionXml = ".xml";
 
     String[] args = new String[] { PATH_TO_FILE, PATH_TO_FILE };
-    jobEntry.setArguments( args );
-    jobEntry.setFilemasks( new String[] { fileExtensionTxt, fileExtensionXml } );
-    jobEntry.setArgFromPrevious( false );
+    action.setArguments( args );
+    action.setFilemasks( new String[] { fileExtensionTxt, fileExtensionXml } );
+    action.setArgFromPrevious( false );
 
-    jobEntry.execute( new Result(), 0 );
+    action.execute( new Result(), 0 );
 
-    verify( jobEntry ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionTxt ), any( Workflow.class ) );
-    verify( jobEntry ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionXml ), any( Workflow.class ) );
+    verify( action ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionTxt ), any( Workflow.class ) );
+    verify( action ).processFile( eq( PATH_TO_FILE ), eq( fileExtensionXml ), any( Workflow.class ) );
   }
 
   private RowMetaAndData constructRowMetaAndData( Object... data ) {

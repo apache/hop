@@ -45,6 +45,8 @@ import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterPipelineServlet;
@@ -96,7 +98,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   protected ILoggingObject parent;
   protected IPipelineEngine parentPipeline;
-  protected Workflow parentWorkflow;
+  protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
   protected LogLevel logLevel;
   protected boolean feedbackShown; // TODO factor out
   protected int feedbackSize; // TODO factor out
@@ -106,17 +108,17 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * A list of started listeners attached to the pipeline.
    */
-  protected List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners;
+  protected List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners;
 
   /**
    * A list of finished listeners attached to the pipeline.
    */
-  protected List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners;
+  protected List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners;
 
   /**
    * A list of stop-event listeners attached to the pipeline.
    */
-  protected List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners;
+  protected List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners;
 
   /**
    * The active sub-pipelines.
@@ -126,7 +128,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * The active subjobs
    */
-  protected Map<String, Workflow> activeSubWorkflows;
+  protected Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows;
 
   protected int lastLogLineNr;
   protected Timer refreshTimer;
@@ -187,7 +189,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       //
       this.logChannel = new LogChannel( this, subject );
       loggingObject = new LoggingObject( this );
-      logLevel = logChannel.getLogLevel();
+      this.logChannel.setLogLevel( logLevel );
 
       logChannel.logBasic("Executing this pipeline using the Remote Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
@@ -330,6 +332,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         refreshTimer = new Timer();
         refreshTimer.schedule( refreshTask, serverPollDelay, serverPollInterval );
 
+        readyToStart = false;
+        running = true;
       } else {
         throw new HopException( "Error starting pipeline on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "' : " + webResult.getMessage() );
       }
@@ -397,6 +401,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         if ( finished ) {
           firePipelineExecutionFinishedListeners();
           refreshTimer.cancel();
+          logChannel.logBasic("Execution finished on a remote pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
         }
       }
     } catch ( Exception e ) {
@@ -445,9 +450,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override public void waitUntilFinished() {
-    while ( running && !stopped ) {
+    while ( ( running || paused || readyToStart ) && !( stopped || finished ) ) {
       try {
-        Thread.sleep( 100 );
+        Thread.sleep( 1000 );
       } catch ( Exception e ) {
         // ignore
       }
@@ -661,11 +666,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
 
-  public void addActiveSubWorkflow( final String subWorkflowName, Workflow subWorkflow ) {
+  public void addActiveSubWorkflow( final String subWorkflowName, IWorkflowEngine<WorkflowMeta> subWorkflow ) {
     activeSubWorkflows.put( subWorkflowName, subWorkflow );
   }
 
-  public Workflow getActiveSubWorkflow( final String subWorkflowName ) {
+  public IWorkflowEngine<WorkflowMeta> getActiveSubWorkflow( final String subWorkflowName ) {
     return activeSubWorkflows.get( subWorkflowName );
   }
 
@@ -695,14 +700,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of parentWorkflow
    */
-  @Override public Workflow getParentWorkflow() {
+  @Override public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
     return parentWorkflow;
   }
 
   /**
    * @param parentWorkflow The parentWorkflow to set
    */
-  public void setParentWorkflow( Workflow parentWorkflow ) {
+  @Override public void setParentWorkflow( IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     this.parentWorkflow = parentWorkflow;
   }
 
@@ -711,20 +716,20 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionStartedListeners
    */
-  public List<IExecutionStartedListener<PipelineMeta>> getExecutionStartedListeners() {
+  public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> getExecutionStartedListeners() {
     return executionStartedListeners;
   }
 
   /**
    * @param executionStartedListeners The executionStartedListeners to set
    */
-  public void setExecutionStartedListeners( List<IExecutionStartedListener<PipelineMeta>> executionStartedListeners ) {
+  public void setExecutionStartedListeners( List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners ) {
     this.executionStartedListeners = executionStartedListeners;
   }
 
   private void fireExecutionStartedListeners() throws HopException {
     synchronized ( executionStartedListeners ) {
-      for ( IExecutionStartedListener<PipelineMeta> listener : executionStartedListeners ) {
+      for ( IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener : executionStartedListeners ) {
         listener.started( this );
       }
     }
@@ -735,19 +740,19 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionFinishedListeners
    */
-  public List<IExecutionFinishedListener<PipelineMeta>> getExecutionFinishedListeners() {
+  public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> getExecutionFinishedListeners() {
     return executionFinishedListeners;
   }
 
   /**
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
-  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<PipelineMeta>> executionFinishedListeners ) {
+  public void setExecutionFinishedListeners( List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners ) {
     this.executionFinishedListeners = executionFinishedListeners;
   }
 
 
-  @Override public void addExecutionStoppedListener( IExecutionStoppedListener<PipelineMeta> listener ) throws HopException {
+  @Override public void addExecutionStoppedListener( IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener ) throws HopException {
     synchronized ( executionStoppedListeners ) {
       executionStoppedListeners.add( listener );
     }
@@ -755,7 +760,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void firePipelineExecutionStartedListeners() throws HopException {
     synchronized ( executionStartedListeners ) {
-      for ( IExecutionStartedListener<PipelineMeta> listener : executionStartedListeners ) {
+      for ( IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener : executionStartedListeners ) {
         listener.started( this );
       }
     }
@@ -763,7 +768,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void firePipelineExecutionFinishedListeners() throws HopException {
     synchronized ( executionFinishedListeners ) {
-      for ( IExecutionFinishedListener<PipelineMeta> listener : executionFinishedListeners ) {
+      for ( IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener : executionFinishedListeners ) {
         listener.finished( this );
       }
     }
@@ -771,7 +776,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void firePipelineExecutionStoppedListeners() throws HopException {
     synchronized ( executionStoppedListeners ) {
-      for ( IExecutionStoppedListener<PipelineMeta> listener : executionStoppedListeners ) {
+      for ( IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener : executionStoppedListeners ) {
         listener.stopped( this );
       }
     }
@@ -782,14 +787,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionStoppedListeners
    */
-  public List<IExecutionStoppedListener<PipelineMeta>> getExecutionStoppedListeners() {
+  public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> getExecutionStoppedListeners() {
     return executionStoppedListeners;
   }
 
   /**
    * @param executionStoppedListeners The executionStoppedListeners to set
    */
-  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<PipelineMeta>> executionStoppedListeners ) {
+  public void setExecutionStoppedListeners( List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners ) {
     this.executionStoppedListeners = executionStoppedListeners;
   }
 
@@ -1217,14 +1222,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of activeSubWorkflows
    */
-  public Map<String, Workflow> getActiveSubWorkflows() {
+  public Map<String, IWorkflowEngine<WorkflowMeta>> getActiveSubWorkflows() {
     return activeSubWorkflows;
   }
 
   /**
    * @param activeSubWorkflows The activeSubWorkflows to set
    */
-  public void setActiveSubWorkflows( Map<String, Workflow> activeSubWorkflows ) {
+  public void setActiveSubWorkflows( Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows ) {
     this.activeSubWorkflows = activeSubWorkflows;
   }
 

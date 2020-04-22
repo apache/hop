@@ -47,13 +47,13 @@ public class WorkflowActionPGPEncryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "GPGLocation", "arg_from_previous", "include_subfolders",
-      "add_result_filesname", "destination_is_a_file", "create_destination_folder", "add_date",
-      "add_time", "SpecifyFormat", "date_time_format", "nr_errors_less_than", "success_condition",
-      "AddDateBeforeExtension", "DoNotKeepFolderStructure", "ifFileExists", "destinationFolder",
-      "ifMovedFileExists", "moved_date_time_format", "create_move_to_folder", "add_moved_date",
-      "add_moved_time", "SpecifyMoveFormat", "AddMovedDateBeforeExtension", "asciiMode",
-      "action_type", "source_filefolder", "userid", "destination_filefolder", "wildcard" } );
+    return Arrays.asList( new String[] { "GPGLocation", "argFromPrevious", "includeSubfolders",
+      "addResultFilesname", "destinationIsAFile", "createDestinationFolder", "addDate",
+      "addTime", "specifyFormat", "dateTimeFormat", "nrErrorsLessThan", "successCondition",
+      "addDateBeforeExtension", "doNotKeepFolderStructure", "ifFileExists", "destinationFolder",
+      "ifMovedFileExists", "movedDateTimeFormat", "createMoveToFolder", "addMovedDate",
+      "addMovedTime", "specifyMoveFormat", "addMovedDateBeforeExtension", "asciiMode",
+      "actionType", "sourceFileFolder", "userId", "destinationFileFolder", "wildcard" } );
   }
 
   @Override
@@ -61,13 +61,11 @@ public class WorkflowActionPGPEncryptFilesLoadSaveTest extends WorkflowActionLoa
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     int count = new Random().nextInt( 50 ) + 1;
 
-    validators.put( "action_type", new PrimitiveIntArrayLoadSaveValidator(
-      new IntLoadSaveValidator( ActionPGPEncryptFiles.actionTypeCodes.length ), count ) );
-    validators.put( "source_filefolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "userid", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "destination_filefolder",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "wildcard", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
+    validators.put( "actionType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( ActionPGPEncryptFiles.actionTypeCodes.length ), count ) );
+    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "userId", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "destinationFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "wildcard", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
 
     return validators;
   }

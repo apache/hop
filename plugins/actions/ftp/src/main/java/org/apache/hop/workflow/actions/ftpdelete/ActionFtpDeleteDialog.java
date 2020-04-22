@@ -137,7 +137,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
   private Listener lsOk, lsCancel;
 
-  private ActionFtpDelete jobEntry;
+  private ActionFtpDelete action;
 
   private Shell shell;
 
@@ -245,11 +245,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.Pem" ),
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.All" ) };
 
-  public ActionFtpDeleteDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFtpDelete) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPDelete.Name.Default" ) );
+  public ActionFtpDeleteDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFtpDelete) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFTPDelete.Name.Default" ) );
     }
   }
 
@@ -259,7 +259,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
@@ -268,10 +268,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         ftpsclient = null;
         sftpclient = null;
         conn = null;
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -349,7 +349,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wProtocol.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeFTPProtocol();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -443,7 +443,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wuseProxy.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeProxy();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -519,7 +519,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wusePublicKey.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUsePublicKey();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -722,7 +722,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wgetPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeCopyFromPrevious();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -1048,7 +1048,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeCopyFromPrevious() {
@@ -1411,34 +1411,34 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    wProtocol.setText( Const.NVL( jobEntry.getProtocol(), "FTP" ) );
-    wPort.setText( Const.NVL( jobEntry.getPort(), "" ) );
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wUserName.setText( Const.NVL( jobEntry.getUserName(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wFtpDirectory.setText( Const.NVL( jobEntry.getFtpDirectory(), "" ) );
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wTimeout.setText( "" + jobEntry.getTimeout() );
-    wActive.setSelection( jobEntry.isActiveConnection() );
+    wProtocol.setText( Const.NVL( action.getProtocol(), "FTP" ) );
+    wPort.setText( Const.NVL( action.getPort(), "" ) );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wUserName.setText( Const.NVL( action.getUserName(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wFtpDirectory.setText( Const.NVL( action.getFtpDirectory(), "" ) );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wTimeout.setText( "" + action.getTimeout() );
+    wActive.setSelection( action.isActiveConnection() );
 
-    wuseProxy.setSelection( jobEntry.isUseProxy() );
-    wProxyHost.setText( Const.NVL( jobEntry.getProxyHost(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wProxyUsername.setText( Const.NVL( jobEntry.getProxyUsername(), "" ) );
-    wProxyPassword.setText( Const.NVL( jobEntry.getProxyPassword(), "" ) );
-    wSocksProxyHost.setText( Const.NVL( jobEntry.getSocksProxyHost(), "" ) );
-    wSocksProxyPort.setText( Const.NVL( jobEntry.getSocksProxyPort(), "" ) );
-    wSocksProxyUsername.setText( Const.NVL( jobEntry.getSocksProxyUsername(), "" ) );
-    wSocksProxyPassword.setText( Const.NVL( jobEntry.getSocksProxyPassword(), "" ) );
+    wuseProxy.setSelection( action.isUseProxy() );
+    wProxyHost.setText( Const.NVL( action.getProxyHost(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wProxyUsername.setText( Const.NVL( action.getProxyUsername(), "" ) );
+    wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
+    wSocksProxyHost.setText( Const.NVL( action.getSocksProxyHost(), "" ) );
+    wSocksProxyPort.setText( Const.NVL( action.getSocksProxyPort(), "" ) );
+    wSocksProxyUsername.setText( Const.NVL( action.getSocksProxyUsername(), "" ) );
+    wSocksProxyPassword.setText( Const.NVL( action.getSocksProxyPassword(), "" ) );
 
-    wNrErrorsLessThan.setText( Const.NVL( jobEntry.getLimitSuccess(), "10" ) );
+    wNrErrorsLessThan.setText( Const.NVL( action.getLimitSuccess(), "10" ) );
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( jobEntry.SUCCESS_IF_ERRORS_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( action.SUCCESS_IF_ERRORS_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -1447,20 +1447,20 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       wSuccessCondition.select( 0 );
     }
 
-    wusePublicKey.setSelection( jobEntry.isUsePublicKey() );
-    wKeyFilename.setText( Const.nullToEmpty( jobEntry.getKeyFilename() ) );
-    wkeyfilePass.setText( Const.nullToEmpty( jobEntry.getKeyFilePass() ) );
+    wusePublicKey.setSelection( action.isUsePublicKey() );
+    wKeyFilename.setText( Const.nullToEmpty( action.getKeyFilename() ) );
+    wkeyfilePass.setText( Const.nullToEmpty( action.getKeyFilePass() ) );
 
-    wgetPrevious.setSelection( jobEntry.isCopyPrevious() );
-    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( jobEntry.getFTPSConnectionType() ) );
+    wgetPrevious.setSelection( action.isCopyPrevious() );
+    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( action.getFTPSConnectionType() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1472,43 +1472,43 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setProtocol( wProtocol.getText() );
-    jobEntry.setPort( wPort.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setFtpDirectory( wFtpDirectory.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
-    jobEntry.setActiveConnection( wActive.getSelection() );
+    action.setName( wName.getText() );
+    action.setProtocol( wProtocol.getText() );
+    action.setPort( wPort.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setFtpDirectory( wFtpDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
+    action.setActiveConnection( wActive.getSelection() );
 
-    jobEntry.setUseProxy( wuseProxy.getSelection() );
-    jobEntry.setProxyHost( wProxyHost.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
-    jobEntry.setProxyPassword( wProxyPassword.getText() );
-    jobEntry.setSocksProxyHost( wSocksProxyHost.getText() );
-    jobEntry.setSocksProxyPort( wSocksProxyPort.getText() );
-    jobEntry.setSocksProxyUsername( wSocksProxyUsername.getText() );
-    jobEntry.setSocksProxyPassword( wSocksProxyPassword.getText() );
+    action.setUseProxy( wuseProxy.getSelection() );
+    action.setProxyHost( wProxyHost.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setProxyUsername( wProxyUsername.getText() );
+    action.setProxyPassword( wProxyPassword.getText() );
+    action.setSocksProxyHost( wSocksProxyHost.getText() );
+    action.setSocksProxyPort( wSocksProxyPort.getText() );
+    action.setSocksProxyUsername( wSocksProxyUsername.getText() );
+    action.setSocksProxyPassword( wSocksProxyPassword.getText() );
 
-    jobEntry.setLimitSuccess( wNrErrorsLessThan.getText() );
+    action.setLimitSuccess( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED );
+      action.setSuccessCondition( action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ERRORS_LESS );
+      action.setSuccessCondition( action.SUCCESS_IF_ERRORS_LESS );
     } else {
-      jobEntry.setSuccessCondition( jobEntry.SUCCESS_IF_ALL_FILES_DOWNLOADED );
+      action.setSuccessCondition( action.SUCCESS_IF_ALL_FILES_DOWNLOADED );
     }
 
-    jobEntry.setUsePublicKey( wusePublicKey.getSelection() );
-    jobEntry.setKeyFilename( wKeyFilename.getText() );
-    jobEntry.setKeyFilePass( wkeyfilePass.getText() );
+    action.setUsePublicKey( wusePublicKey.getSelection() );
+    action.setKeyFilename( wKeyFilename.getText() );
+    action.setKeyFilePass( wkeyfilePass.getText() );
 
-    jobEntry.setCopyPrevious( wgetPrevious.getSelection() );
-    jobEntry.setFTPSConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
+    action.setCopyPrevious( wgetPrevious.getSelection() );
+    action.setFTPSConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
     dispose();
   }
 

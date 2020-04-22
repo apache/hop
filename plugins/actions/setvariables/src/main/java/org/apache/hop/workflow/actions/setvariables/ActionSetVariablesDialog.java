@@ -84,7 +84,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionSetVariables jobEntry;
+  private ActionSetVariables action;
   private Shell shell;
 
   private Label wlFields;
@@ -106,12 +106,12 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
   private Group gSettings, gFilename;
   private FormData fdgSettings, fdgFilename;
 
-  public ActionSetVariablesDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionSetVariables) jobEntryInt;
+  public ActionSetVariablesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionSetVariables) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "ActionSetVariables.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "ActionSetVariables.Name.Default" ) );
     }
   }
 
@@ -121,14 +121,14 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -240,7 +240,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wVarSubs.setLayoutData( fdVarSubs );
     wVarSubs.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -263,8 +263,8 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      jobEntry.variableName == null
-        ? 1 : ( jobEntry.variableName.length == 0 ? 0 : jobEntry.variableName.length );
+      action.variableName == null
+        ? 1 : ( action.variableName.length == 0 ? 0 : action.variableName.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -339,7 +339,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -352,24 +352,24 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    wFilename.setText( Const.NVL( jobEntry.getFilename(), "" ) );
-    wFileVariableType.setText( ActionSetVariables.getVariableTypeDescription( jobEntry.getFileVariableType() ) );
+    wFilename.setText( Const.NVL( action.getFilename(), "" ) );
+    wFileVariableType.setText( ActionSetVariables.getVariableTypeDescription( action.getFileVariableType() ) );
 
-    wVarSubs.setSelection( jobEntry.isReplaceVars() );
+    wVarSubs.setSelection( action.isReplaceVars() );
 
-    if ( jobEntry.variableName != null ) {
-      for ( int i = 0; i < jobEntry.variableName.length; i++ ) {
+    if ( action.variableName != null ) {
+      for ( int i = 0; i < action.variableName.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.variableName[ i ] != null ) {
-          ti.setText( 1, jobEntry.variableName[ i ] );
+        if ( action.variableName[ i ] != null ) {
+          ti.setText( 1, action.variableName[ i ] );
         }
-        if ( jobEntry.getVariableValue()[ i ] != null ) {
-          ti.setText( 2, jobEntry.getVariableValue()[ i ] );
+        if ( action.getVariableValue()[ i ] != null ) {
+          ti.setText( 2, action.getVariableValue()[ i ] );
         }
 
-        ti.setText( 3, ActionSetVariables.getVariableTypeDescription( jobEntry.getVariableType()[ i ] ) );
+        ti.setText( 3, ActionSetVariables.getVariableTypeDescription( action.getVariableType()[ i ] ) );
 
       }
       wFields.setRowNums();
@@ -381,8 +381,8 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -394,11 +394,11 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
 
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setFileVariableType( ActionSetVariables.getVariableType( wFileVariableType.getText() ) );
-    jobEntry.setReplaceVars( wVarSubs.getSelection() );
+    action.setFilename( wFilename.getText() );
+    action.setFileVariableType( ActionSetVariables.getVariableType( wFileVariableType.getText() ) );
+    action.setReplaceVars( wVarSubs.getSelection() );
 
     int nritems = wFields.nrNonEmpty();
     int nr = 0;
@@ -408,9 +408,9 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
         nr++;
       }
     }
-    jobEntry.variableName = new String[ nr ];
-    jobEntry.variableValue = new String[ nr ];
-    jobEntry.variableType = new int[ nr ];
+    action.variableName = new String[ nr ];
+    action.variableValue = new String[ nr ];
+    action.variableType = new int[ nr ];
 
     nr = 0;
     for ( int i = 0; i < nritems; i++ ) {
@@ -419,9 +419,9 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
       String vartype = wFields.getNonEmpty( i ).getText( 3 );
 
       if ( varname != null && varname.length() != 0 ) {
-        jobEntry.variableName[ nr ] = varname;
-        jobEntry.variableValue[ nr ] = varvalue;
-        jobEntry.variableType[ nr ] = ActionSetVariables.getVariableType( vartype );
+        action.variableName[ nr ] = varname;
+        action.variableValue[ nr ] = varvalue;
+        action.variableType[ nr ] = ActionSetVariables.getVariableType( vartype );
         nr++;
       }
     }

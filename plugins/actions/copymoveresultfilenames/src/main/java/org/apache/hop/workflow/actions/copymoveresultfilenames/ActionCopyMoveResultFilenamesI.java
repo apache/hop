@@ -44,6 +44,7 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -494,7 +495,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
     return false;
   }
 
-  private boolean processFile( FileObject sourcefile, String destinationFolder, Result result, Workflow parentWorkflow,
+  private boolean processFile( FileObject sourcefile, String destinationFolder, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow,
                                boolean deleteFile ) {
     boolean retval = false;
 
@@ -559,7 +560,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
             // Add destination filename to Resultfilenames ...
             ResultFile resultFile =
               new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(
-                destinationfile.toString(), this ), parentWorkflow.getJobname(), toString() );
+                destinationfile.toString(), this ), parentWorkflow.getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             if ( log.isDetailed() ) {
               logDetailed( BaseMessages.getString(

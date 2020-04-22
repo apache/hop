@@ -96,7 +96,7 @@ public class WorkflowActionCopyTest {
   @Test
   public void testDeepCloneClonesAttributesMap() throws Exception {
 
-    ActionCopy deepClonedJobEntry = (ActionCopy) originJobEntry.clone_deep();
+    ActionCopy deepClonedJobEntry = (ActionCopy) originJobEntry.cloneDeep();
     assertNotNull( deepClonedJobEntry.getAttributesMap() );
     assertEquals( originJobEntry.getAttribute( ATTRIBUTE_GROUP, ATTRIBUTE_KEY ),
       deepClonedJobEntry.getAttribute( ATTRIBUTE_GROUP, ATTRIBUTE_KEY ) );

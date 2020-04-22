@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.plugins;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginClassMapException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -161,7 +162,7 @@ public class PluginRegistry {
         classLoaders.remove( plugin );
       }
 
-      if ( !Utils.isEmpty( plugin.getClassLoaderGroup() ) ) {
+      if ( !StringUtils.isEmpty( plugin.getClassLoaderGroup() ) ) {
         // Straight away remove the class loader for the whole group...
         //
         ucl = classLoaderGroupsMap.remove( plugin.getClassLoaderGroup() );

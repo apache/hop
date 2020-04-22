@@ -208,11 +208,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public static final ActionCopy createStartAction() {
     ActionSpecial jobEntrySpecial = new ActionSpecial( BaseMessages.getString( PKG, "WorkflowMeta.StartAction.Name" ), true, false );
-    ActionCopy jobEntry = new ActionCopy();
-    jobEntry.setEntry( jobEntrySpecial );
-    jobEntry.setLocation( 50, 50 );
-    jobEntry.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.StartAction.Description" ) );
-    return jobEntry;
+    ActionCopy action = new ActionCopy();
+    action.setEntry( jobEntrySpecial );
+    action.setLocation( 50, 50 );
+    action.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.StartAction.Description" ) );
+    return action;
 
   }
 
@@ -223,11 +223,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public static final ActionCopy createDummyEntry() {
     ActionSpecial jobEntrySpecial = new ActionSpecial( BaseMessages.getString( PKG, "WorkflowMeta.DummyAction.Name" ), false, true );
-    ActionCopy jobEntry = new ActionCopy();
-    jobEntry.setEntry( jobEntrySpecial );
-    jobEntry.setLocation( 50, 50 );
-    jobEntry.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.DummyAction.Description" ) );
-    return jobEntry;
+    ActionCopy action = new ActionCopy();
+    action.setEntry( jobEntrySpecial );
+    action.setLocation( 50, 50 );
+    action.setDescription( BaseMessages.getString( PKG, "WorkflowMeta.DummyAction.Description" ) );
+    return action;
   }
 
   /**
@@ -341,7 +341,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       }
 
       for ( ActionCopy action : actionCopies ) {
-        workflowMeta.actionCopies.add( (ActionCopy) action.clone_deep() );
+        workflowMeta.actionCopies.add( (ActionCopy) action.cloneDeep() );
       }
       for ( WorkflowHopMeta action : workflowHops ) {
         workflowMeta.workflowHops.add( (WorkflowHopMeta) action.clone() );
@@ -515,7 +515,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       }
     } catch ( Exception e ) {
       throw new HopXmlException(
-        BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadJobFromXMLFile" ) + fname + "]", e );
+        BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadWorkflowFromXMLFile" ) + fname + "]", e );
     }
   }
 
@@ -559,101 +559,93 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Load a block of XML from an DOM node.
    *
-   * @param jobnode   The node to load from
-   * @param fname     The filename
+   * @param workflowNode   The node to load from
+   * @param filename     The filename
    * @param metaStore the MetaStore to use
    * @throws HopXmlException
    */
-  public void loadXml( Node jobnode, String fname, IMetaStore metaStore ) throws HopXmlException {
-    Props props = null;
-    if ( Props.isInitialized() ) {
-      props = Props.getInstance();
-    }
-
+  public void loadXml( Node workflowNode, String filename, IMetaStore metaStore ) throws HopXmlException {
     try {
       // clear the workflows;
       clear();
 
-      setFilename( fname );
+      setFilename( filename );
 
       // get workflow info:
       //
-      setName( XmlHandler.getTagValue( jobnode, "name" ) );
+      setName( XmlHandler.getTagValue( workflowNode, "name" ) );
 
       // description
-      description = XmlHandler.getTagValue( jobnode, "description" );
+      description = XmlHandler.getTagValue( workflowNode, "description" );
 
       // extended description
-      extendedDescription = XmlHandler.getTagValue( jobnode, "extended_description" );
+      extendedDescription = XmlHandler.getTagValue( workflowNode, "extended_description" );
 
       // workflow version
-      workflowVersion = XmlHandler.getTagValue( jobnode, "workflow_version" );
+      workflowVersion = XmlHandler.getTagValue( workflowNode, "workflow_version" );
 
       // workflow status
-      workflowStatus = Const.toInt( XmlHandler.getTagValue( jobnode, "workflow_status" ), -1 );
+      workflowStatus = Const.toInt( XmlHandler.getTagValue( workflowNode, "workflow_status" ), -1 );
 
       // Created user/date
-      createdUser = XmlHandler.getTagValue( jobnode, "created_user" );
-      String createDate = XmlHandler.getTagValue( jobnode, "created_date" );
+      createdUser = XmlHandler.getTagValue( workflowNode, "created_user" );
+      String createDate = XmlHandler.getTagValue( workflowNode, "created_date" );
 
       if ( createDate != null ) {
         createdDate = XmlHandler.stringToDate( createDate );
       }
 
       // Changed user/date
-      modifiedUser = XmlHandler.getTagValue( jobnode, "modified_user" );
-      String modDate = XmlHandler.getTagValue( jobnode, "modified_date" );
+      modifiedUser = XmlHandler.getTagValue( workflowNode, "modified_user" );
+      String modDate = XmlHandler.getTagValue( workflowNode, "modified_date" );
       if ( modDate != null ) {
         modifiedDate = XmlHandler.stringToDate( modDate );
       }
 
       // Read the named parameters.
-      Node paramsNode = XmlHandler.getSubNode( jobnode, XML_TAG_PARAMETERS );
-      int nrParams = XmlHandler.countNodes( paramsNode, "parameter" );
+      //
+      Node paramsNode = XmlHandler.getSubNode( workflowNode, XML_TAG_PARAMETERS );
+      List<Node> paramNodes = XmlHandler.getNodes( paramsNode, "parameter" );
+      for ( Node paramNode : paramNodes ) {
+        String parameterName = XmlHandler.getTagValue( paramNode, "name" );
+        String defaultValue = XmlHandler.getTagValue( paramNode, "default_value" );
+        String description = XmlHandler.getTagValue( paramNode, "description" );
 
-      for ( int i = 0; i < nrParams; i++ ) {
-        Node paramNode = XmlHandler.getSubNodeByNr( paramsNode, "parameter", i );
-
-        String paramName = XmlHandler.getTagValue( paramNode, "name" );
-        String defValue = XmlHandler.getTagValue( paramNode, "default_value" );
-        String descr = XmlHandler.getTagValue( paramNode, "description" );
-
-        addParameterDefinition( paramName, defValue, descr );
+        addParameterDefinition( parameterName, defaultValue, description );
       }
 
-      batchIdPassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( jobnode, "pass_batchid" ) );
+      batchIdPassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( workflowNode, "pass_batchid" ) );
 
       /*
        * read the actions...
        */
-      Node entriesnode = XmlHandler.getSubNode( jobnode, "actions" );
-      int tr = XmlHandler.countNodes( entriesnode, "action" );
-      for ( int i = 0; i < tr; i++ ) {
-        Node entrynode = XmlHandler.getSubNodeByNr( entriesnode, "action", i );
-        ActionCopy je = new ActionCopy( entrynode, metaStore );
+      Node actionsNode = XmlHandler.getSubNode( workflowNode, "actions" );
+      List<Node> actionNodes = XmlHandler.getNodes( actionsNode, ActionCopy.XML_TAG );
+      for ( Node actionNode : actionNodes ) {
+        ActionCopy ac = new ActionCopy( actionNode, metaStore );
 
-        if ( je.isSpecial() && je.isMissing() ) {
-          addMissingAction( (MissingAction) je.getEntry() );
+        if ( ac.isSpecial() && ac.isMissing() ) {
+          addMissingAction( (MissingAction) ac.getEntry() );
         }
-        ActionCopy prev = findAction( je.getName(), 0 );
+        ActionCopy prev = findAction( ac.getName(), 0 );
         if ( prev != null ) {
           // See if the #0 (root action) already exists!
           //
-          if ( je.getNr() == 0 ) {
+          if ( ac.getNr() == 0 ) {
 
             // Replace previous version with this one: remove it first
             //
             int idx = indexOfAction( prev );
             removeAction( idx );
 
-          } else if ( je.getNr() > 0 ) {
+          } else if ( ac.getNr() > 0 ) {
 
             // Use previously defined Action info!
             //
-            je.setEntry( prev.getEntry() );
+            ac.setEntry( prev.getEntry() );
 
             // See if action already exists...
-            prev = findAction( je.getName(), je.getNr() );
+            prev = findAction( ac.getName(), ac.getNr() );
             if ( prev != null ) {
               // remove the old one!
               //
@@ -663,35 +655,34 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
           }
         }
         // Add the ActionCopy...
-        addAction( je );
+        addAction( ac );
       }
 
-      Node hopsnode = XmlHandler.getSubNode( jobnode, "hops" );
-      int ho = XmlHandler.countNodes( hopsnode, "hop" );
-      for ( int i = 0; i < ho; i++ ) {
-        Node hopnode = XmlHandler.getSubNodeByNr( hopsnode, "hop", i );
-        WorkflowHopMeta hi = new WorkflowHopMeta( hopnode, this );
+      Node hopsNode = XmlHandler.getSubNode( workflowNode, "hops" );
+      List<Node> hopNodes = XmlHandler.getNodes( hopsNode, "hop" );
+      for ( Node hopNode : hopNodes ) {
+        WorkflowHopMeta hi = new WorkflowHopMeta( hopNode, this );
         workflowHops.add( hi );
       }
 
       // Read the notes...
-      Node notepadsnode = XmlHandler.getSubNode( jobnode, "notepads" );
-      int nrnotes = XmlHandler.countNodes( notepadsnode, "notepad" );
-      for ( int i = 0; i < nrnotes; i++ ) {
-        Node notepadnode = XmlHandler.getSubNodeByNr( notepadsnode, "notepad", i );
-        NotePadMeta ni = new NotePadMeta( notepadnode );
+      //
+      Node notepadsNode = XmlHandler.getSubNode( workflowNode, "notepads" );
+      List<Node> nodepadNodes = XmlHandler.getNodes( notepadsNode, NotePadMeta.XML_TAG );
+      for ( Node notepadNode : nodepadNodes ) {
+        NotePadMeta ni = new NotePadMeta( notepadNode );
         notes.add( ni );
       }
 
       // Load the attribute groups map
       //
-      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( jobnode, AttributesUtil.XML_TAG ) );
+      attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( workflowNode, AttributesUtil.XML_TAG ) );
 
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowMetaLoaded.id, this );
 
       clearChanged();
     } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadJobFromXMLNode" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadWorkflowFromXMLNode" ), e );
     } finally {
       setInternalHopVariables();
     }
@@ -1957,8 +1948,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
           // loop over transforms, databases will be exported to XML anyway.
           //
-          for ( ActionCopy jobEntry : workflowMeta.actionCopies ) {
-            jobEntry.getEntry().exportResources( workflowMeta, definitions, namingInterface, metaStore );
+          for ( ActionCopy action : workflowMeta.actionCopies ) {
+            action.getEntry().exportResources( workflowMeta, definitions, namingInterface, metaStore );
           }
 
           // Set a number of parameters for all the data files referenced so far...

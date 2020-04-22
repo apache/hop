@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -89,7 +90,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
         WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
         WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration );
 
-        Workflow workflow = createJob( workflowConfiguration );
+        IWorkflowEngine<WorkflowMeta> workflow = createJob( workflowConfiguration );
         resultId = workflow.getContainerObjectId();
       } else {
         Node node =

@@ -190,7 +190,7 @@ public class HopGuiWorkflowMetricsDelegate {
 
       public void paintControl( PaintEvent event ) {
 
-        if ( jobGraph.workflow != null && ( jobGraph.workflow.isFinished() || jobGraph.workflow.isStopped() ) ) {
+        if ( jobGraph.getWorkflow() != null && ( jobGraph.getWorkflow().isFinished() || jobGraph.getWorkflow().isStopped() ) ) {
           refreshImage( event.gc );
 
           if ( image != null && !image.isDisposed() ) {
@@ -299,7 +299,7 @@ public class HopGuiWorkflowMetricsDelegate {
   }
 
   private void refreshImage( GC canvasGc ) {
-    List<MetricsDuration> durations = MetricsUtil.getAllDurations( jobGraph.workflow.getLogChannelId() );
+    List<MetricsDuration> durations = MetricsUtil.getAllDurations( jobGraph.getWorkflow().getLogChannelId() );
     if ( Utils.isEmpty( durations ) ) {
       // In case of an empty durations or null there is nothing to draw
       return;
@@ -318,7 +318,7 @@ public class HopGuiWorkflowMetricsDelegate {
       return;
     }
 
-    if ( jobGraph.workflow == null ) {
+    if ( jobGraph.getWorkflow() == null ) {
       image = null;
       return;
     }

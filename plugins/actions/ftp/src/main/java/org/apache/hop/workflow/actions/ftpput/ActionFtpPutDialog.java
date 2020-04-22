@@ -140,7 +140,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsCheckRemoteFolder;
 
-  private ActionFtpPut jobEntry;
+  private ActionFtpPut action;
 
   private Shell shell;
 
@@ -246,11 +246,11 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private FTPClient ftpclient = null;
   private String pwdFolder = null;
 
-  public ActionFtpPutDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionFtpPut) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobFTPPUT.Name.Default" ) );
+  public ActionFtpPutDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionFtpPut) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobFTPPUT.Name.Default" ) );
     }
   }
 
@@ -260,16 +260,16 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
         ftpclient = null;
         pwdFolder = null;
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -960,7 +960,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void closeFTPConnection() {
@@ -1077,40 +1077,40 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
 
-    wServerName.setText( Const.NVL( jobEntry.getServerName(), "" ) );
-    wServerPort.setText( Const.NVL( jobEntry.getServerPort(), "" ) );
-    wUserName.setText( Const.NVL( jobEntry.getUserName(), "" ) );
-    wPassword.setText( Const.NVL( jobEntry.getPassword(), "" ) );
-    wRemoteDirectory.setText( Const.NVL( jobEntry.getRemoteDirectory(), "" ) );
-    wLocalDirectory.setText( Const.NVL( jobEntry.getLocalDirectory(), "" ) );
-    wWildcard.setText( Const.NVL( jobEntry.getWildcard(), "" ) );
-    wRemove.setSelection( jobEntry.getRemove() );
-    wBinaryMode.setSelection( jobEntry.isBinaryMode() );
-    wTimeout.setText( "" + jobEntry.getTimeout() );
-    wOnlyNew.setSelection( jobEntry.isOnlyPuttingNewFiles() );
-    wActive.setSelection( jobEntry.isActiveConnection() );
-    wControlEncoding.setText( jobEntry.getControlEncoding() );
+    wServerName.setText( Const.NVL( action.getServerName(), "" ) );
+    wServerPort.setText( Const.NVL( action.getServerPort(), "" ) );
+    wUserName.setText( Const.NVL( action.getUserName(), "" ) );
+    wPassword.setText( Const.NVL( action.getPassword(), "" ) );
+    wRemoteDirectory.setText( Const.NVL( action.getRemoteDirectory(), "" ) );
+    wLocalDirectory.setText( Const.NVL( action.getLocalDirectory(), "" ) );
+    wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
+    wRemove.setSelection( action.getRemove() );
+    wBinaryMode.setSelection( action.isBinaryMode() );
+    wTimeout.setText( "" + action.getTimeout() );
+    wOnlyNew.setSelection( action.isOnlyPuttingNewFiles() );
+    wActive.setSelection( action.isActiveConnection() );
+    wControlEncoding.setText( action.getControlEncoding() );
 
-    wProxyHost.setText( Const.NVL( jobEntry.getProxyHost(), "" ) );
-    wProxyPort.setText( Const.NVL( jobEntry.getProxyPort(), "" ) );
-    wProxyUsername.setText( Const.NVL( jobEntry.getProxyUsername(), "" ) );
-    wProxyPassword.setText( Const.NVL( jobEntry.getProxyPassword(), "" ) );
-    wSocksProxyHost.setText( Const.NVL( jobEntry.getSocksProxyHost(), "" ) );
-    wSocksProxyPort.setText( Const.NVL( jobEntry.getSocksProxyPort(), "1080" ) );
-    wSocksProxyUsername.setText( Const.NVL( jobEntry.getSocksProxyUsername(), "" ) );
-    wSocksProxyPassword.setText( Const.NVL( jobEntry.getSocksProxyPassword(), "" ) );
+    wProxyHost.setText( Const.NVL( action.getProxyHost(), "" ) );
+    wProxyPort.setText( Const.NVL( action.getProxyPort(), "" ) );
+    wProxyUsername.setText( Const.NVL( action.getProxyUsername(), "" ) );
+    wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
+    wSocksProxyHost.setText( Const.NVL( action.getSocksProxyHost(), "" ) );
+    wSocksProxyPort.setText( Const.NVL( action.getSocksProxyPort(), "1080" ) );
+    wSocksProxyUsername.setText( Const.NVL( action.getSocksProxyUsername(), "" ) );
+    wSocksProxyPassword.setText( Const.NVL( action.getSocksProxyPassword(), "" ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -1122,29 +1122,29 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setServerName( wServerName.getText() );
-    jobEntry.setServerPort( wServerPort.getText() );
-    jobEntry.setUserName( wUserName.getText() );
-    jobEntry.setPassword( wPassword.getText() );
-    jobEntry.setRemoteDirectory( wRemoteDirectory.getText() );
-    jobEntry.setLocalDirectory( wLocalDirectory.getText() );
-    jobEntry.setWildcard( wWildcard.getText() );
-    jobEntry.setRemove( wRemove.getSelection() );
-    jobEntry.setBinaryMode( wBinaryMode.getSelection() );
-    jobEntry.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
-    jobEntry.setOnlyPuttingNewFiles( wOnlyNew.getSelection() );
-    jobEntry.setActiveConnection( wActive.getSelection() );
-    jobEntry.setControlEncoding( wControlEncoding.getText() );
+    action.setName( wName.getText() );
+    action.setServerName( wServerName.getText() );
+    action.setServerPort( wServerPort.getText() );
+    action.setUserName( wUserName.getText() );
+    action.setPassword( wPassword.getText() );
+    action.setRemoteDirectory( wRemoteDirectory.getText() );
+    action.setLocalDirectory( wLocalDirectory.getText() );
+    action.setWildcard( wWildcard.getText() );
+    action.setRemove( wRemove.getSelection() );
+    action.setBinaryMode( wBinaryMode.getSelection() );
+    action.setTimeout( Const.toInt( wTimeout.getText(), 10000 ) );
+    action.setOnlyPuttingNewFiles( wOnlyNew.getSelection() );
+    action.setActiveConnection( wActive.getSelection() );
+    action.setControlEncoding( wControlEncoding.getText() );
 
-    jobEntry.setProxyHost( wProxyHost.getText() );
-    jobEntry.setProxyPort( wProxyPort.getText() );
-    jobEntry.setProxyUsername( wProxyUsername.getText() );
-    jobEntry.setProxyPassword( wProxyPassword.getText() );
-    jobEntry.setSocksProxyHost( wSocksProxyHost.getText() );
-    jobEntry.setSocksProxyPort( wSocksProxyPort.getText() );
-    jobEntry.setSocksProxyUsername( wSocksProxyUsername.getText() );
-    jobEntry.setSocksProxyPassword( wSocksProxyPassword.getText() );
+    action.setProxyHost( wProxyHost.getText() );
+    action.setProxyPort( wProxyPort.getText() );
+    action.setProxyUsername( wProxyUsername.getText() );
+    action.setProxyPassword( wProxyPassword.getText() );
+    action.setSocksProxyHost( wSocksProxyHost.getText() );
+    action.setSocksProxyPort( wSocksProxyPort.getText() );
+    action.setSocksProxyUsername( wSocksProxyUsername.getText() );
+    action.setSocksProxyPassword( wSocksProxyPassword.getText() );
     dispose();
   }
 

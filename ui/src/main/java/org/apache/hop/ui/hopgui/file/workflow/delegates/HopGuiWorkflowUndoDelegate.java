@@ -169,8 +169,8 @@ public class HopGuiWorkflowUndoDelegate {
       case PositionAction:
         // Find the location of the transform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
-          ActionCopy jobEntry = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
-          jobEntry.setLocation( changeAction.getPreviousLocation()[ i ] );
+          ActionCopy action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
+          action.setLocation( changeAction.getPreviousLocation()[ i ] );
         }
         break;
 
@@ -303,8 +303,8 @@ public class HopGuiWorkflowUndoDelegate {
       case PositionTransform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
           // Find & change the location of the transform:
-          ActionCopy jobEntry = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
-          jobEntry.setLocation( changeAction.getCurrentLocation()[ i ] );
+          ActionCopy action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
+          action.setLocation( changeAction.getCurrentLocation()[ i ] );
         }
         break;
       case PositionNote:

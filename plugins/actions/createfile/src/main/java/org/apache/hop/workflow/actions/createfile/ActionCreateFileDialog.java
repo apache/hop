@@ -92,18 +92,18 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionCreateFile jobEntry;
+  private ActionCreateFile action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public ActionCreateFileDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionCreateFile) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobCreateFile.Name.Default" ) );
+  public ActionCreateFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionCreateFile) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobCreateFile.Name.Default" ) );
     }
   }
 
@@ -113,14 +113,14 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -216,7 +216,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wAbortExists.setLayoutData( fdAbortExists );
     wAbortExists.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -287,7 +287,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -300,22 +300,22 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getFilename() != null ) {
-      wFilename.setText( jobEntry.getFilename() );
+    if ( action.getFilename() != null ) {
+      wFilename.setText( action.getFilename() );
     }
-    wAbortExists.setSelection( jobEntry.isFailIfFileExists() );
-    wAddFilenameToResult.setSelection( jobEntry.isAddFilenameToResult() );
+    wAbortExists.setSelection( action.isFailIfFileExists() );
+    wAddFilenameToResult.setSelection( action.isAddFilenameToResult() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -328,10 +328,10 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setFailIfFileExists( wAbortExists.getSelection() );
-    jobEntry.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
+    action.setName( wName.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setFailIfFileExists( wAbortExists.getSelection() );
+    action.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
     dispose();
   }
 

@@ -56,6 +56,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
   private static Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
+  private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
   public PipelineExecutionConfigurationDialog( Shell parent, PipelineExecutionConfiguration configuration,
                                                PipelineMeta pipelineMeta ) {
@@ -114,7 +115,6 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     optionsSectionLayout( PKG, "PipelineExecutionConfigurationDialog" );
     parametersSectionLayout( PKG, "PipelineExecutionConfigurationDialog" );
 
-
     getData();
     openDialog();
     return retval;
@@ -126,10 +126,11 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
     wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
       shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true);
+    wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment( 100, -10 );
-    fdRunConfiguration.top = new FormAttachment( 0, 10 );
+    fdRunConfiguration.top = new FormAttachment( 0, props.getMargin() );
     fdRunConfiguration.left = new FormAttachment( 0, 10 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
@@ -161,7 +162,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     try {
       wRunConfiguration.fillItems();
     } catch(Exception e) {
-      hopGui.getLog().logError( "Unable to get list of pipeline run configurations from the metastore", e );
+      hopGui.getLog().logError( "Unable to obtain a list of pipeline run configurations", e );
     }
 
     wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ));

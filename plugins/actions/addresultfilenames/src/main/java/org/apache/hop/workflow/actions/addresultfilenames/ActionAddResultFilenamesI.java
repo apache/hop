@@ -48,6 +48,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -220,7 +221,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
     return result;
   }
 
-  private boolean processFile( String filename, String wildcard, Workflow parentWorkflow, Result result ) {
+  private boolean processFile( String filename, String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
 
     boolean rcode = true;
     FileObject filefolder = null;
@@ -241,7 +242,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
           ResultFile resultFile =
             new ResultFile(
               ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filefolder.toString(), this ), parentWorkflow
-              .getJobname(), toString() );
+              .getWorkflowName(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         } else {
           FileObject[] list = filefolder.findFiles( new TextFileSelector( filefolder.toString(), realwildcard ) );
@@ -255,7 +256,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
             ResultFile resultFile =
               new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( list[ i ].toString(), this ), parentWorkflow
-                .getJobname(), toString() );
+                .getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }
         }

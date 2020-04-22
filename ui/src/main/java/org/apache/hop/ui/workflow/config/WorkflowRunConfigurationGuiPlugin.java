@@ -20,12 +20,23 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.workflow;
+package org.apache.hop.ui.workflow.config;
 
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
-public interface IWorkflowListener {
-  void jobFinished( Workflow workflow ) throws HopException;
+@GuiPlugin
+@GuiMetaStoreElement(
+  name = "Workflow Run Configuration",
+  description = "Describes how and with which engine a workflow is to be executed",
+  iconImage = "ui/images/run.svg"
+)
+  public class WorkflowRunConfigurationGuiPlugin implements IGuiMetaStorePlugin<WorkflowRunConfiguration> {
 
-  void jobStarted( Workflow workflow ) throws HopException;
+  @Override public Class<WorkflowRunConfiguration> getMetastoreElementClass() {
+    return WorkflowRunConfiguration.class;
+  }
 }

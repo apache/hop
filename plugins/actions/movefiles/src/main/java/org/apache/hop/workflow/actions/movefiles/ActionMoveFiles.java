@@ -39,7 +39,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
@@ -48,6 +47,7 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -454,7 +454,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean ProcessFileFolder( String sourcefilefoldername, String destinationfilefoldername,
-                                     String wildcard, Workflow parentWorkflow, Result result, String MoveToFolder ) {
+                                     String wildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result, String MoveToFolder ) {
     boolean entrystatus = false;
     FileObject sourcefilefolder = null;
     FileObject destinationfilefolder = null;
@@ -512,9 +512,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 HopVfs.getFilename( destinationfilefolder ) + Const.FILE_SEPARATOR + shortfilename;
               FileObject destinationfile = HopVfs.getFileObject( destinationfilenamefull, this );
 
-              entrystatus =
-                MoveFile(
-                  shortfilename, sourcefilefolder, destinationfile, movetofolderfolder, parentWorkflow, result );
+              entrystatus = MoveFile( shortfilename, sourcefilefolder, destinationfile, movetofolderfolder, parentWorkflow, result );
               return entrystatus;
             } else if ( sourcefilefolder.getType().equals( FileType.FILE ) && destination_is_a_file ) {
               // Source is a file, destination is a file
@@ -647,7 +645,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean MoveFile( String shortfilename, FileObject sourcefilename, FileObject destinationfilename,
-                            FileObject movetofolderfolder, Workflow parentWorkflow, Result result ) {
+                            FileObject movetofolderfolder, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result ) {
 
     FileObject destinationfile = null;
     boolean retval = false;
@@ -828,7 +826,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean MoveOneFile( FileObject Currentfile, FileObject sourcefilefolder,
-                               String realDestinationFilefoldername, String realWildcard, Workflow parentWorkflow, Result result,
+                               String realDestinationFilefoldername, String realWildcard, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result result,
                                FileObject movetofolderfolder ) {
     boolean entrystatus = false;
     FileObject file_name = null;
@@ -941,11 +939,11 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     NrSuccess++;
   }
 
-  private void addFileToResultFilenames( String fileaddentry, Result result, Workflow parentWorkflow ) {
+  private void addFileToResultFilenames( String fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
       ResultFile resultFile =
         new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry, this ), parentWorkflow
-          .getJobname(), toString() );
+          .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 
       if ( log.isDebug() ) {

@@ -113,7 +113,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionWriteToFile jobEntry;
+  private ActionWriteToFile action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -122,11 +122,11 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
   private boolean gotEncodings = false;
 
-  public ActionWriteToFileDialog( Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (ActionWriteToFile) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobWriteToFile.Name.Default" ) );
+  public ActionWriteToFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, action, workflowMeta );
+    this.action = (ActionWriteToFile) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobWriteToFile.Name.Default" ) );
     }
   }
 
@@ -136,14 +136,14 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
     shell = new Shell( parent, props.getWorkflowsDialogStyle() );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
     ModifyListener lsMod = new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     };
-    changed = jobEntry.hasChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -260,7 +260,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wCreateParentFolder.setLayoutData( fdCreateParentFolder );
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -282,7 +282,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wAppendFile.setLayoutData( fdAppendFile );
     wAppendFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -407,7 +407,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void setEncodings() {
@@ -439,20 +439,20 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wFilename.setText( Const.nullToEmpty( jobEntry.getFilename() ) );
-    wCreateParentFolder.setSelection( jobEntry.isCreateParentFolder() );
-    wAppendFile.setSelection( jobEntry.isAppendFile() );
-    wContent.setText( Const.nullToEmpty( jobEntry.getContent() ) );
-    wEncoding.setText( Const.nullToEmpty( jobEntry.getEncoding() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wFilename.setText( Const.nullToEmpty( action.getFilename() ) );
+    wCreateParentFolder.setSelection( action.isCreateParentFolder() );
+    wAppendFile.setSelection( action.isAppendFile() );
+    wContent.setText( Const.nullToEmpty( action.getContent() ) );
+    wEncoding.setText( Const.nullToEmpty( action.getEncoding() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -464,12 +464,12 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setFilename( wFilename.getText() );
-    jobEntry.setCreateParentFolder( wCreateParentFolder.getSelection() );
-    jobEntry.setAppendFile( wAppendFile.getSelection() );
-    jobEntry.setContent( wContent.getText() );
-    jobEntry.setEncoding( wEncoding.getText() );
+    action.setName( wName.getText() );
+    action.setFilename( wFilename.getText() );
+    action.setCreateParentFolder( wCreateParentFolder.getSelection() );
+    action.setAppendFile( wAppendFile.getSelection() );
+    action.setContent( wContent.getText() );
+    action.setEncoding( wEncoding.getText() );
 
     dispose();
   }
