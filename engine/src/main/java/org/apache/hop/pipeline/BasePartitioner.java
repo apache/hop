@@ -77,7 +77,7 @@ public abstract class BasePartitioner implements IPartitioner {
    * Inits the partitioner.
    *
    * @param rowMeta the row meta
-   * @throws HopException the kettle exception
+   * @throws HopException the hop exception
    */
   public void init( IRowMeta rowMeta ) throws HopException {
 

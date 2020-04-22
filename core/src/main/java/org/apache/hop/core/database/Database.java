@@ -4893,7 +4893,7 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   /**
-   * @return the carteObjectId
+   * @return the serverObjectId
    */
   @Override
   public String getContainerObjectId() {

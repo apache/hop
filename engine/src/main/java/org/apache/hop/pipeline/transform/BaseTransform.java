@@ -1351,7 +1351,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @param errorDescriptions the error descriptions
    * @param fieldNames        the field names
    * @param errorCodes        the error codes
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
@@ -1700,7 +1700,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * Safe mode checking.
    *
    * @param row the row
-   * @throws HopRowException the kettle row exception
+   * @throws HopRowException the hop row exception
    */
   protected void safeModeChecking( IRowMeta row ) throws HopRowException {
     if ( row == null ) {
@@ -1757,7 +1757,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @param referenceRowMeta the reference row meta
    * @param rowMeta          the row meta
-   * @throws HopRowException the kettle row exception
+   * @throws HopRowException the hop row exception
    */
   public static void safeModeChecking( IRowMeta referenceRowMeta, IRowMeta rowMeta )
     throws HopRowException {
@@ -1801,7 +1801,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @param rowSet the row set
    * @return the row from
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
     return getRowHandler().getRowFrom( rowSet );
@@ -1927,7 +1927,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @param sourceTransformName the source transform
    * @return the row set
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowSet findInputRowSet( String sourceTransformName ) throws HopTransformException {
     // Check to see that "sourceTransform" only runs in a single copy
@@ -1979,7 +1979,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    *
    * @param targetTransform the target transform
    * @return the row set
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
 

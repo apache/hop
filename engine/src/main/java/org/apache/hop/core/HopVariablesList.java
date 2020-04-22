@@ -98,14 +98,14 @@ public class HopVariablesList {
   }
 
   /**
-   * @return A mapping between the name of a standard kettle variable and its description.
+   * @return A mapping between the name of a standard hop variable and its description.
    */
   public Map<String, String> getDescriptionMap() {
     return descriptionMap;
   }
 
   /**
-   * @return A mapping between the name of a standard kettle variable and its default value.
+   * @return A mapping between the name of a standard hop variable and its default value.
    */
   public Map<String, String> getDefaultValueMap() {
     return defaultValueMap;

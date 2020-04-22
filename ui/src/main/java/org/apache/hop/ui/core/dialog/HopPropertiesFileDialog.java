@@ -64,7 +64,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Allows the user to edit the kettle.properties file.
+ * Allows the user to edit the hop.properties file.
  *
  * @author Matt
  */

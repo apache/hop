@@ -43,7 +43,7 @@ public interface IResourceExport {
    * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to name appropriately
-   * @param metaStore       the central metastore to load non-kettle specific metadata from
+   * @param metaStore       the central metastore to load non-hop specific metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */

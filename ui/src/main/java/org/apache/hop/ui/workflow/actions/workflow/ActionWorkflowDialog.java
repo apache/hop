@@ -484,10 +484,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     } catch ( HopException e ) {
       // Ignore errors
     }
-
-    if ( executionConfiguration.getRemoteServer() != null ) {
-      aw.setRemoteSlaveServerName( executionConfiguration.getRemoteServer().getName() );
-    }
   }
 
   public void ok() {

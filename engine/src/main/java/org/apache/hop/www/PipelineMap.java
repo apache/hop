@@ -277,15 +277,15 @@ public class PipelineMap {
    * Deallocate all the ports for the given pipeline name, across all hosts.
    *
    * @param pipelineName     the pipeline name to release
-   * @param carteObjectId the carte object ID to reference
+   * @param serverObjectId the carte object ID to reference
    */
-  public void deallocateServerSocketPorts( String pipelineName, String carteObjectId ) {
+  public void deallocateServerSocketPorts( String pipelineName, String serverObjectId ) {
     for ( String hostname : hostServerSocketPortsMap.keySet() ) {
       List<SocketPortAllocation> spas = hostServerSocketPortsMap.get( hostname );
       for ( SocketPortAllocation spa : spas ) {
         synchronized ( spa ) {
           if ( spa.getPipelineName().equalsIgnoreCase( pipelineName )
-            && ( Utils.isEmpty( carteObjectId ) || spa.getClusterRunId().equals( carteObjectId ) ) ) {
+            && ( Utils.isEmpty( serverObjectId ) || spa.getClusterRunId().equals( serverObjectId ) ) ) {
             spa.setAllocated( false );
           }
         }

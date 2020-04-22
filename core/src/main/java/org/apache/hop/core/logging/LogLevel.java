@@ -71,7 +71,7 @@ public enum LogLevel {
    */
   public static LogLevel getLogLevelForCode( String code ) {
     for ( LogLevel logLevel : values() ) {
-      if ( logLevel.getCode().equals( code ) ) {
+      if ( logLevel.getCode().equalsIgnoreCase( code ) ) {
         return logLevel;
       }
     }

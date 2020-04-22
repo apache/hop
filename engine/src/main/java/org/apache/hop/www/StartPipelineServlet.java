@@ -132,10 +132,10 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
         //
         HopLogStore.discardLines( pipeline.getLogChannelId(), true );
 
-        String carteObjectId = UUID.randomUUID().toString();
+        String serverObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
           new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
-        servletLoggingObject.setContainerObjectId( carteObjectId );
+        servletLoggingObject.setContainerObjectId( serverObjectId );
         servletLoggingObject.setLogLevel( pipeline.getLogLevel() );
         pipeline.setParent( servletLoggingObject );
 

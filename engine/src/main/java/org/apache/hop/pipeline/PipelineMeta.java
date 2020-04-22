@@ -1176,7 +1176,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformName The name of the transform
    * @return A row containing fields with origin.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getPrevInfoFields( String transformName ) throws HopTransformException {
     return getPrevInfoFields( findTransform( transformName ) );
@@ -1187,7 +1187,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta The receiving transform
    * @return A row containing fields with origin.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getPrevInfoFields( TransformMeta transformMeta ) throws HopTransformException {
     for ( int i = 0; i < nrPipelineHops(); i++ ) { // Look at all the hops;
@@ -1402,7 +1402,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformName The transformName of the transform to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getTransformFields( String transformName ) throws HopTransformException {
     TransformMeta transformMeta = findTransform( transformName );
@@ -1418,7 +1418,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta The transform to be queried.
    * @return A row containing the fields emitted.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getTransformFields( TransformMeta transformMeta ) throws HopTransformException {
     return getTransformFields( transformMeta, null );
@@ -1429,7 +1429,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta the transform meta
    * @return an interface to the transform fields
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getTransformFields( TransformMeta[] transformMeta ) throws HopTransformException {
     IRowMeta fields = new RowMeta();
@@ -1449,7 +1449,7 @@ public class PipelineMeta extends AbstractMeta
    * @param transformMeta The transform to be queried.
    * @param monitor       The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getTransformFields( TransformMeta transformMeta, IProgressMonitor monitor ) throws HopTransformException {
     setMetaStoreOnMappingTransforms();
@@ -1463,7 +1463,7 @@ public class PipelineMeta extends AbstractMeta
    * @param targetTransform the target transform
    * @param monitor         The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields emitted.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getTransformFields( TransformMeta transformMeta, TransformMeta targetTransform, IProgressMonitor monitor ) throws HopTransformException {
     IRowMeta row = new RowMeta();
@@ -1550,7 +1550,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformName The name of the transform queried
    * @return A row containing the fields (w/ origin) entering the transform
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getPrevTransformFields( String transformName ) throws HopTransformException {
     return getPrevTransformFields( findTransform( transformName ) );
@@ -1561,7 +1561,7 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param transformMeta The transform queried
    * @return A row containing the fields (w/ origin) entering the transform
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getPrevTransformFields( TransformMeta transformMeta ) throws HopTransformException {
     return getPrevTransformFields( transformMeta, null );
@@ -1573,7 +1573,7 @@ public class PipelineMeta extends AbstractMeta
    * @param transformMeta The transform queried
    * @param monitor       The progress monitor for progress dialog. (null if not used!)
    * @return A row containing the fields (w/ origin) entering the transform
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
 
 
@@ -1637,7 +1637,7 @@ public class PipelineMeta extends AbstractMeta
    * @param transformName The name of the transform that's being queried.
    * @param row           A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getThisTransformFields( String transformName, IRowMeta row ) throws HopTransformException {
     return getThisTransformFields( findTransform( transformName ), null, row );
@@ -1650,7 +1650,7 @@ public class PipelineMeta extends AbstractMeta
    * @param nextTransform : if non-null this is the next transform that's call back to ask what's being sent
    * @param row           : A row containing the input fields or an empty row if no input is required.
    * @return A Row containing the output fields.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getThisTransformFields( TransformMeta transformMeta, TransformMeta nextTransform, IRowMeta row ) throws HopTransformException {
     return getThisTransformFields( transformMeta, nextTransform, row, null );
@@ -1664,7 +1664,7 @@ public class PipelineMeta extends AbstractMeta
    * @param row           : A row containing the input fields or an empty row if no input is required.
    * @param monitor       the monitor
    * @return A Row containing the output fields.
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public IRowMeta getThisTransformFields( TransformMeta transformMeta, TransformMeta nextTransform, IRowMeta row,
                                           IProgressMonitor monitor ) throws HopTransformException {
@@ -3557,9 +3557,9 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Sets the internal kettle variables.
+   * Sets the internal hop variables.
    *
-   * @param var the new internal kettle variables
+   * @param var the new internal hop variables
    */
   @Override
   public void setInternalHopVariables( IVariables var ) {
@@ -3583,9 +3583,9 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Sets the internal name kettle variable.
+   * Sets the internal name hop variable.
    *
-   * @param var the new internal name kettle variable
+   * @param var the new internal name hop variable
    */
   @Override
   protected void setInternalNameHopVariable( IVariables var ) {
@@ -3595,9 +3595,9 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Sets the internal filename kettle variables.
+   * Sets the internal filename hop variables.
    *
-   * @param var the new internal filename kettle variables
+   * @param var the new internal filename hop variables
    */
   @Override
   protected void setInternalFilenameHopVariables( IVariables var ) {
@@ -3728,7 +3728,7 @@ public class PipelineMeta extends AbstractMeta
    * @param variables       the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore       the metaStore in which non-kettle metadata could reside.
+   * @param metaStore       the metaStore in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override

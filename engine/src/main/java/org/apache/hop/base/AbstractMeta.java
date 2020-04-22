@@ -160,7 +160,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   /**
    * Gets the container object id.
    *
-   * @return the carteObjectId
+   * @return the serverObjectId
    */
   @Override
   public String getContainerObjectId() {
@@ -275,14 +275,14 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   }
 
   /**
-   * This method sets various internal kettle variables.
+   * This method sets various internal hop variables.
    */
   public abstract void setInternalHopVariables( IVariables var );
 
   /**
-   * Sets the internal filename kettle variables.
+   * Sets the internal filename hop variables.
    *
-   * @param var the new internal filename kettle variables
+   * @param var the new internal filename hop variables
    */
   protected abstract void setInternalFilenameHopVariables( IVariables var );
 
@@ -1224,9 +1224,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
 
 
   /**
-   * Sets the internal name kettle variable.
+   * Sets the internal name hop variable.
    *
-   * @param var the new internal name kettle variable
+   * @param var the new internal name hop variable
    */
   protected abstract void setInternalNameHopVariable( IVariables var );
 

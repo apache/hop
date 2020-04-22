@@ -31,7 +31,7 @@ public class UuidResourceNaming extends SimpleResourceNaming {
   //
   // Inputs:
   // Prefix : Marc Sample Pipeline
-  // Original Path: D:\japps\pentaho\kettle\samples
+  // Original Path: D:\japps\pentaho\hop\samples
   // Extension : .hpl
   //
   // Output Example 1 (no file system prefix, no path used)
@@ -39,7 +39,7 @@ public class UuidResourceNaming extends SimpleResourceNaming {
   // Output Example 2 (file system prefix: ${HOP_FILE_BASE}!, no path used)
   // ${HOP_FILE_BASE}!Marc_Sample_Pipeline_03a32f25-1538-11dc-ae07-5dbf1395f3fd.hpl
   // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
-  // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/
+  // ${HOP_FILE_BASE}!japps/pentaho/hop/samples/
   //   Marc_Sample_Pipeline_03a32f25-1538-11dc-ae07-5dbf1395f3fd.hpl
 
   protected String getFileNameUniqueIdentifier() {

@@ -484,7 +484,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Instantiates a new workflow meta.
    *
    * @param fname the fname
-   * @throws HopXmlException the kettle xml exception
+   * @throws HopXmlException the hop xml exception
    */
   public WorkflowMeta( String fname ) throws HopXmlException {
     this( null, fname, null );
@@ -523,7 +523,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Instantiates a new workflow meta.
    *
    * @param inputStream the input stream
-   * @throws HopXmlException the kettle xml exception
+   * @throws HopXmlException the hop xml exception
    */
   public WorkflowMeta( InputStream inputStream ) throws HopXmlException {
     this();
@@ -549,7 +549,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @param jobnode the jobnode
    * @param fname   The filename
-   * @throws HopXmlException the kettle xml exception
+   * @throws HopXmlException the hop xml exception
    */
   public void loadXml( Node jobnode, String fname )
     throws HopXmlException {
@@ -1778,7 +1778,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * This method sets various internal kettle variables that can be used by the pipeline.
+   * This method sets various internal hop variables that can be used by the pipeline.
    */
   @Override
   public void setInternalHopVariables( IVariables var ) {
@@ -1802,9 +1802,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Sets the internal name kettle variable.
+   * Sets the internal name hop variable.
    *
-   * @param var the new internal name kettle variable
+   * @param var the new internal name hop variable
    */
   @Override
   protected void setInternalNameHopVariable( IVariables var ) {
@@ -1813,9 +1813,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   /**
-   * Sets the internal filename kettle variables.
+   * Sets the internal filename hop variables.
    *
-   * @param var the new internal filename kettle variables
+   * @param var the new internal filename hop variables
    */
   @Override
   protected void setInternalFilenameHopVariables( IVariables var ) {

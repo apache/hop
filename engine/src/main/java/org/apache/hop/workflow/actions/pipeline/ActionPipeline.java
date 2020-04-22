@@ -590,24 +590,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
           return result;
         }
 
-
-        // Execute this pipeline using the specified run configuration
-        //
-        PipelineRunConfiguration pipelineRunConfiguration = null;
-        try {
-          pipelineRunConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfiguration );
-        } catch ( MetaStoreException e ) {
-          throw new HopException( "Unable to load run configuration '"+runConfiguration+"", e );
-        }
-
-        if (pipelineRunConfiguration==null) {
-          throw new HopException( "Unable to find run configuration '"+runConfiguration+"" );
-        }
-
         // Create the pipeline from meta-data
         //
         final PipelineMeta meta = pipelineMeta;
-        pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfiguration, meta);
+        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, meta);
         pipeline.setParent( this );
 
 

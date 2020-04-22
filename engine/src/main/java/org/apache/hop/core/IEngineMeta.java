@@ -141,7 +141,7 @@ public interface IEngineMeta {
   String getFilename();
 
   /**
-   * Sets the internal kettle variables.
+   * Sets the internal hop variables.
    */
   void setInternalHopVariables();
 

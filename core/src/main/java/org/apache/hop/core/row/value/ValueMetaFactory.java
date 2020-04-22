@@ -172,7 +172,7 @@ public class ValueMetaFactory {
   }
 
   /**
-   * <p>This method makes attempt to guess kettle value meta interface based on Object class.
+   * <p>This method makes attempt to guess hop value meta interface based on Object class.
    * This may be the case when we somehow obtain an Object as a result of any calculation,
    * and we are trying to assign some ValueMeta for it.</p>
    *
@@ -193,7 +193,7 @@ public class ValueMetaFactory {
    *
    * @param object object to guess applicable IValueMeta.
    * @return
-   * @see IValueMeta if the kettle value meta is recognized, null otherwise.
+   * @see IValueMeta if the hop value meta is recognized, null otherwise.
    */
   public static IValueMeta guessValueMetaInterface( Object object ) {
     if ( object instanceof Number ) {

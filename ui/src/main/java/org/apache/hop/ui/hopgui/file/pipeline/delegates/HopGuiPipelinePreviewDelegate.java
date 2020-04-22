@@ -71,7 +71,7 @@ public class HopGuiPipelinePreviewDelegate {
 
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelinePreviewDelegate-ToolBar";
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
 
   private CTabItem pipelinePreviewTab;
@@ -90,11 +90,11 @@ public class HopGuiPipelinePreviewDelegate {
   protected TransformMeta lastSelectedTransform;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param pipelineGraph
    */
-  public HopGuiPipelinePreviewDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelinePreviewDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
 
     previewDataMap = new HashMap<>();
@@ -162,9 +162,9 @@ public class HopGuiPipelinePreviewDelegate {
     HopGuiPipelinePreviewExtension extension = new HopGuiPipelinePreviewExtension(
       pipelinePreviewComposite, toolbar, previewComposite );
     try {
-      ExtensionPointHandler.callExtensionPoint( hopUi.getLog(), "PipelinePreviewCreated", extension );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "PipelinePreviewCreated", extension );
     } catch ( HopException ex ) {
-      hopUi.getLog().logError( "Extension point call failed.", ex );
+      hopGui.getLog().logError( "Extension point call failed.", ex );
     }
   }
 
@@ -175,9 +175,9 @@ public class HopGuiPipelinePreviewDelegate {
     fdToolBar.top = new FormAttachment( 0, 0 );
     fdToolBar.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fdToolBar );
-    hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
+    hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopUi.getVariables() );
+    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopGui.getVariables() );
     widgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

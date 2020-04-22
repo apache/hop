@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 public interface ITwoWayPasswordEncoder {
 
   /**
-   * Initialize the password encoder by loading key details from the environment (kettle.properties or system settings).
+   * Initialize the password encoder by loading key details from the environment (hop.properties or system settings).
    *
    * @throws HopException
    */

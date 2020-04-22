@@ -213,14 +213,14 @@ public class SocketPortAllocation {
   }
 
   /**
-   * @return the carteObjectId
+   * @return the serverObjectId
    */
   public String getClusterRunId() {
     return clusterRunId;
   }
 
   /**
-   * @param clusterRunId the carteObjectId to set
+   * @param clusterRunId the serverObjectId to set
    */
   public void setClusterRunId( String clusterRunId ) {
     this.clusterRunId = clusterRunId;

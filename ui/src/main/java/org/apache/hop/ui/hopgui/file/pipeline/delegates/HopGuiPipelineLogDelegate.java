@@ -65,7 +65,7 @@ public class HopGuiPipelineLogDelegate {
 
   private HopGuiPipelineGraph pipelineGraph;
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private CTabItem pipelineLogTab;
 
   private StyledText pipelineLogText;
@@ -78,10 +78,10 @@ public class HopGuiPipelineLogDelegate {
   private HopGuiLogBrowser logBrowser;
 
   /**
-   * @param hopUi
+   * @param hopGui
    */
-  public HopGuiPipelineLogDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelineLogDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -117,7 +117,7 @@ public class HopGuiPipelineLogDelegate {
     toolbar.setLayoutData( fd );
 
     pipelineLogText = new StyledText( pipelineLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
-    hopUi.getProps().setLook( pipelineLogText );
+    hopGui.getProps().setLook( pipelineLogText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( 0, 0 );
     fdText.right = new FormAttachment( 100, 0 );
@@ -151,9 +151,9 @@ public class HopGuiPipelineLogDelegate {
     fdToolBar.top = new FormAttachment( 0, 0 );
     fdToolBar.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fdToolBar );
-    hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
+    hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolBarWidgets = new GuiCompositeWidgets( hopUi.getVariables() );
+    toolBarWidgets = new GuiCompositeWidgets( hopGui.getVariables() );
     toolBarWidgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

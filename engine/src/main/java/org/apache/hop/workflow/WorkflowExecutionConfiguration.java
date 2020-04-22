@@ -49,17 +49,9 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   private final ILogChannel log = LogChannel.GENERAL;
 
-  private boolean executingLocally;
-
-  private boolean executingRemotely;
-
-  private SlaveServer remoteServer;
-
   private Map<String, String> parametersMap;
 
   private Map<String, String> variablesMap;
-
-  private boolean safeModeEnabled;
 
   private LogLevel logLevel;
 
@@ -82,8 +74,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   private String runConfiguration;
 
   public WorkflowExecutionConfiguration() {
-    executingLocally = true;
-    executingRemotely = false;
     passingExport = false;
 
     parametersMap = new HashMap<>();
@@ -152,48 +142,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     }
   }
 
-  /**
-   * @return the remoteExecution
-   */
-  public boolean isExecutingRemotely() {
-    return executingRemotely;
-  }
-
-  /**
-   * @param remoteExecution the remoteExecution to set
-   */
-  public void setExecutingRemotely( boolean remoteExecution ) {
-    this.executingRemotely = remoteExecution;
-  }
-
-  /**
-   * @return the localExecution
-   */
-  public boolean isExecutingLocally() {
-    return executingLocally;
-  }
-
-  /**
-   * @param localExecution the localExecution to set
-   */
-  public void setExecutingLocally( boolean localExecution ) {
-    this.executingLocally = localExecution;
-  }
-
-  /**
-   * @return the remoteServer
-   */
-  public SlaveServer getRemoteServer() {
-    return remoteServer;
-  }
-
-  /**
-   * @param remoteServer the remoteServer to set
-   */
-  public void setRemoteServer( SlaveServer remoteServer ) {
-    this.remoteServer = remoteServer;
-  }
-
   public void getUsedVariables( WorkflowMeta workflowMeta ) {
     Properties sp = new Properties();
     IVariables variables = Variables.getADefaultVariableSpace();
@@ -228,20 +176,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     }
   }
 
-  /**
-   * @return the usingSafeMode
-   */
-  public boolean isSafeModeEnabled() {
-    return safeModeEnabled;
-  }
-
-  /**
-   * @param usingSafeMode the usingSafeMode to set
-   */
-  public void setSafeModeEnabled( boolean usingSafeMode ) {
-    this.safeModeEnabled = usingSafeMode;
-  }
-
   @Override public String getRunConfiguration() {
     return runConfiguration;
   }
@@ -269,12 +203,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     xml.append( "  <" + XML_TAG + ">" ).append( Const.CR );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_local", executingLocally ) );
-
-    xml.append( "    " ).append( XmlHandler.addTagValue( "exec_remote", executingRemotely ) );
-    if ( remoteServer != null ) {
-      xml.append( "    " ).append( remoteServer.getXml() ).append( Const.CR );
-    }
     xml.append( "    " ).append( XmlHandler.addTagValue( "pass_export", passingExport ) );
 
     // Serialize the parameters...
@@ -305,7 +233,6 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     }
     xml.append( "    </variables>" ).append( Const.CR );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "safe_mode", safeModeEnabled ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "log_level", logLevel.getCode() ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "clear_log", clearingLog ) );
 
@@ -314,6 +241,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "gather_metrics", gatheringMetrics ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_workflow", expandingRemoteWorkflow ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     // The source rows...
     //
@@ -325,22 +253,15 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     return xml.toString();
   }
 
-  public WorkflowExecutionConfiguration( Node trecNode ) throws HopException {
+  public WorkflowExecutionConfiguration( Node configNode ) throws HopException {
     this();
 
-    executingLocally = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_local" ) );
-
-    executingRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "exec_remote" ) );
-    Node remoteHostNode = XmlHandler.getSubNode( trecNode, SlaveServer.XML_TAG );
-    if ( remoteHostNode != null ) {
-      remoteServer = new SlaveServer( remoteHostNode );
-    }
-    passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "pass_export" ) );
-    expandingRemoteWorkflow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "expand_remote_workflow" ) );
+    passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "pass_export" ) );
+    expandingRemoteWorkflow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "expand_remote_workflow" ) );
 
     // Read the variables...
     //
-    Node varsNode = XmlHandler.getSubNode( trecNode, "variables" );
+    Node varsNode = XmlHandler.getSubNode( configNode, "variables" );
     int nrVariables = XmlHandler.countNodes( varsNode, "variable" );
     for ( int i = 0; i < nrVariables; i++ ) {
       Node argNode = XmlHandler.getSubNodeByNr( varsNode, "variable", i );
@@ -353,7 +274,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     // Read the parameters...
     //
-    Node parmsNode = XmlHandler.getSubNode( trecNode, "parameters" );
+    Node parmsNode = XmlHandler.getSubNode( configNode, "parameters" );
     int nrParams = XmlHandler.countNodes( parmsNode, "parameter" );
     for ( int i = 0; i < nrParams; i++ ) {
       Node parmNode = XmlHandler.getSubNodeByNr( parmsNode, "parameter", i );
@@ -364,16 +285,17 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
       }
     }
 
-    safeModeEnabled = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "safe_mode" ) );
-    logLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( trecNode, "log_level" ) );
-    clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "clear_log" ) );
+    logLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( configNode, "log_level" ) );
+    clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "clear_log" ) );
 
-    startCopyName = XmlHandler.getTagValue( trecNode, "start_copy_name" );
-    startCopyNr = Const.toInt( XmlHandler.getTagValue( trecNode, "start_copy_nr" ), 0 );
+    startCopyName = XmlHandler.getTagValue( configNode, "start_copy_name" );
+    startCopyNr = Const.toInt( XmlHandler.getTagValue( configNode, "start_copy_nr" ), 0 );
 
-    gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( trecNode, "gather_metrics" ) );
+    gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "gather_metrics" ) );
 
-    Node resultNode = XmlHandler.getSubNode( trecNode, Result.XML_TAG );
+    runConfiguration = XmlHandler.getTagValue( configNode, "run_configuration");
+
+    Node resultNode = XmlHandler.getSubNode( configNode, Result.XML_TAG );
     if ( resultNode != null ) {
       try {
         previousResult = new Result( resultNode );

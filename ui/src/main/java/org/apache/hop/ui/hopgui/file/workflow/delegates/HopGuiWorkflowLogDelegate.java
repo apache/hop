@@ -64,7 +64,7 @@ public class HopGuiWorkflowLogDelegate {
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiWorkflowGraph jobGraph;
 
   private CTabItem jobLogTab;
@@ -83,10 +83,10 @@ public class HopGuiWorkflowLogDelegate {
   private HopGuiLogBrowser logBrowser;
 
   /**
-   * @param hopUi
+   * @param hopGui
    */
-  public HopGuiWorkflowLogDelegate( HopGui hopUi, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiWorkflowLogDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
   }
 
@@ -122,7 +122,7 @@ public class HopGuiWorkflowLogDelegate {
     toolbar.setLayoutData( fd );
 
     jobLogText = new StyledText( jobLogComposite, SWT.READ_ONLY | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
-    hopUi.getProps().setLook( jobLogText );
+    hopGui.getProps().setLook( jobLogText );
     FormData fdText = new FormData();
     fdText.left = new FormAttachment( 0, 0 );
     fdText.right = new FormAttachment( 100, 0 );
@@ -153,9 +153,9 @@ public class HopGuiWorkflowLogDelegate {
     fdToolBar.top = new FormAttachment( 0, 0 );
     fdToolBar.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fdToolBar );
-    hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
+    hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolBarWidgets = new GuiCompositeWidgets( hopUi.getVariables() );
+    toolBarWidgets = new GuiCompositeWidgets( hopGui.getVariables() );
     toolBarWidgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

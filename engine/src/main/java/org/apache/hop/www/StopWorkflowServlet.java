@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.owasp.encoder.Encode;
@@ -59,7 +58,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "StopJobServlet.log.StopJobRequested" ) );
+      logDebug( BaseMessages.getString( PKG, "StopWorkflowServlet.log.StopWorkflowRequested" ) );
     }
 
     String workflowName = request.getParameter( "name" );
@@ -92,7 +91,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       if ( Utils.isEmpty( id ) ) {
         // get the first workflow that matches...
         //
-        entry = getWorkflowMap().getFirstCarteObjectEntry( workflowName );
+        entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
         if ( entry == null ) {
           workflow = null;
         } else {
@@ -109,7 +108,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       if ( workflow != null ) {
         workflow.stopExecution();
 
-        String message = BaseMessages.getString( PKG, "JobStatusServlet.Log.JobStopRequested", workflowName );
+        String message = BaseMessages.getString( PKG, "WorkflowStatusServlet.Log.WorkflowStopRequested", workflowName );
         if ( useXML ) {
           out.println( new WebResult( WebResult.STRING_OK, message ).getXml() );
         } else {
@@ -117,10 +116,10 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
           out.println( "<a href=\""
             + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
-            + BaseMessages.getString( PKG, "JobStatusServlet.BackToJobStatusPage" ) + "</a><p>" );
+            + BaseMessages.getString( PKG, "WorkflowStatusServlet.BackToWorkflowStatusPage" ) + "</a><p>" );
         }
       } else {
-        String message = BaseMessages.getString( PKG, "StopJobServlet.Log.CoundNotFindWorkflow", workflowName );
+        String message = BaseMessages.getString( PKG, "StopWorkflowServlet.Log.CoundNotFindWorkflow", workflowName );
         if ( useXML ) {
           out.println( new WebResult( WebResult.STRING_ERROR, message ).getXml() );
         } else {

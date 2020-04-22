@@ -48,9 +48,9 @@ public class EnvUtil {
   }
 
   /**
-   * Returns the properties from the users kettle home directory.
+   * Returns the properties from the users hop home directory.
    *
-   * @param fileName the relative name of the properties file in the users kettle directory.
+   * @param fileName the relative name of the properties file in the users hop directory.
    * @return the map of properties.
    */
   public static Properties readProperties( final String fileName ) throws HopException {
@@ -71,7 +71,7 @@ public class EnvUtil {
   }
 
   /**
-   * Adds the kettle properties the the global system properties.
+   * Adds the hop properties the the global system properties.
    *
    * @throws HopException in case the properties file can't be read.
    */
@@ -126,8 +126,8 @@ public class EnvUtil {
     for ( String variable : variables.listVariables() ) {
       String value = variables.getVariable( variable );
 
-      // Too many developers bump into the issue of the kettle.properties editor setting
-      // an empty string in the kettle.properties file...
+      // Too many developers bump into the issue of the hop.properties editor setting
+      // an empty string in the hop.properties file...
       //
       if ( variable.equals( Const.HOP_PLUGIN_CLASSES ) || variable.equals( Const.HOP_PLUGIN_PACKAGES ) ) {
         String jvmValue = System.getProperty( variable );

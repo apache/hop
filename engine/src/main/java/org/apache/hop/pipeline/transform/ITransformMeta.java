@@ -155,7 +155,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param nextTransform     the next transform that is targeted
    * @param variables        the space The variable space to use to replace variables
    * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                   IVariables variables, IMetaStore metaStore ) throws HopTransformException;
@@ -296,7 +296,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-kettle metadata could reside.
+   * @param metaStore               the metaStore in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,

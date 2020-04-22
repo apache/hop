@@ -795,7 +795,7 @@ public interface IValueMeta extends Cloneable {
    *
    * @param object the object
    * @return the object
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   Object cloneValueData( Object object ) throws HopValueException;
 

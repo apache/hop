@@ -28,10 +28,10 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 
 public class HopGuiContextDelegate {
-  private HopGui hopUi;
+  private HopGui hopGui;
 
   public HopGuiContextDelegate( HopGui hopGui ) {
-    this.hopUi = hopGui;
+    this.hopGui = hopGui;
   }
 
   /**
@@ -40,10 +40,10 @@ public class HopGuiContextDelegate {
   public void fileNew() {
     // Click : shell location + 50, 50
     //
-    int x = 50 + hopUi.getShell().getLocation().x;
-    int y = 50 + hopUi.getShell().getLocation().y;
+    int x = 50 + hopGui.getShell().getLocation().x;
+    int y = 50 + hopGui.getShell().getLocation().y;
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the action...", new Point( x, y ), hopUi, GuiActionType.Create );
+    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the action...", new Point( x, y ), hopGui, GuiActionType.Create );
   }
 
   /**
@@ -51,7 +51,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetaStoreEdit() {
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopUi, GuiActionType.Modify );
+    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopGui, GuiActionType.Modify );
   }
 
   /**
@@ -59,7 +59,7 @@ public class HopGuiContextDelegate {
    */
   public void fileMetaStoreDelete() {
 
-    GuiContextUtil.handleActionSelection( hopUi.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopUi, GuiActionType.Delete );
+    GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopGui, GuiActionType.Delete );
   }
 
   /**
@@ -67,15 +67,15 @@ public class HopGuiContextDelegate {
    *
    * @return value of hopGui
    */
-  public HopGui getHopUi() {
-    return hopUi;
+  public HopGui getHopGui() {
+    return hopGui;
   }
 
   /**
-   * @param hopUi The hopGui to set
+   * @param hopGui The hopGui to set
    */
-  public void setHopUi( HopGui hopUi ) {
-    this.hopUi = hopUi;
+  public void setHopGui( HopGui hopGui ) {
+    this.hopGui = hopGui;
   }
 
 }

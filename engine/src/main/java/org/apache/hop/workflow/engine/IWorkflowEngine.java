@@ -9,6 +9,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -102,7 +103,7 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   IPipelineEngine<PipelineMeta> getParentPipeline();
 
-  void setInternalHopVariables( IVariables variables );
+  void setInternalHopVariables();
 
   void setSourceRows( List<RowMetaAndData> sourceRows );
 
@@ -115,4 +116,8 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
   String getContainerObjectId();
 
   String getStatusDescription();
+
+  void setMetaStore( IMetaStore metaStore );
+
+  IMetaStore getMetaStore();
 }

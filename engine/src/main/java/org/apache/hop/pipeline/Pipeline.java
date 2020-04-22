@@ -1754,7 +1754,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   /**
    * Begin processing. Also handle logging operations related to the start of the pipeline
    *
-   * @throws HopPipelineException the kettle pipeline exception
+   * @throws HopPipelineException the hop pipeline exception
    */
   public void beginProcessing() throws HopPipelineException {
     // TODO: inform the active audit manager that the pipeline started processing

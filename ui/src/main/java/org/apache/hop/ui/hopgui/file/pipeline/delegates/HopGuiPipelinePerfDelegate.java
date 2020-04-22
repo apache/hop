@@ -97,7 +97,7 @@ public class HopGuiPipelinePerfDelegate {
     BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.InputBufferSize" ),
     BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.OutputBufferSize" ), };
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
 
   private CTabItem pipelinePerfTab;
@@ -114,11 +114,11 @@ public class HopGuiPipelinePerfDelegate {
   private boolean emptyGraph;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param pipelineGraph
    */
-  public HopGuiPipelinePerfDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelinePerfDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -148,7 +148,7 @@ public class HopGuiPipelinePerfDelegate {
     perfComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     perfComposite.setLayout( new FormLayout() );
 
-    hopUi.getProps().setLook( perfComposite );
+    hopGui.getProps().setLook( perfComposite );
 
     pipelineGraph.getDisplay().asyncExec( new Runnable() {
 
@@ -229,17 +229,17 @@ public class HopGuiPipelinePerfDelegate {
     //
     Label dataListLabel = new Label( perfComposite, SWT.NONE );
     dataListLabel.setText( BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Metrics.Label" ) );
-    hopUi.getProps().setLook( dataListLabel );
+    hopGui.getProps().setLook( dataListLabel );
     FormData fdDataListLabel = new FormData();
 
     fdDataListLabel.left = new FormAttachment( 0, 0 );
-    fdDataListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdDataListLabel.right = new FormAttachment( hopGui.getProps().getMiddlePct() / 2, props.getMargin() );
     fdDataListLabel.top = new FormAttachment( 0, props.getMargin() + 5 );
     dataListLabel.setLayoutData( fdDataListLabel );
 
     dataList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
         | SWT.H_SCROLL | SWT.V_SCROLL | SWT.LEFT | SWT.BORDER );
-    hopUi.getProps().setLook( dataList );
+    hopGui.getProps().setLook( dataList );
     dataList.setItems( dataChoices );
     dataList.addSelectionListener( new SelectionAdapter() {
 
@@ -258,7 +258,7 @@ public class HopGuiPipelinePerfDelegate {
 
     FormData fdDataList = new FormData();
     fdDataList.left = new FormAttachment( 0, 0 );
-    fdDataList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdDataList.right = new FormAttachment( hopGui.getProps().getMiddlePct() / 2, props.getMargin() );
     fdDataList.top = new FormAttachment( dataListLabel, props.getMargin() );
     fdDataList.bottom = new FormAttachment( 40, props.getMargin() );
     dataList.setLayoutData( fdDataList );
@@ -266,17 +266,17 @@ public class HopGuiPipelinePerfDelegate {
     Label transformsListLabel = new Label( perfComposite, SWT.NONE );
     transformsListLabel.setText( BaseMessages.getString( PKG, "TransformPerformanceSnapShotDialog.Transforms.Label" ) );
 
-    hopUi.getProps().setLook( transformsListLabel );
+    hopGui.getProps().setLook( transformsListLabel );
 
     FormData fdTransformsListLabel = new FormData();
     fdTransformsListLabel.left = new FormAttachment( 0, 0 );
-    fdTransformsListLabel.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdTransformsListLabel.right = new FormAttachment( hopGui.getProps().getMiddlePct() / 2, props.getMargin() );
     fdTransformsListLabel.top = new FormAttachment( dataList, props.getMargin() );
     transformsListLabel.setLayoutData( fdTransformsListLabel );
 
     transformsList = new org.eclipse.swt.widgets.List( perfComposite, SWT.MULTI
         | SWT.H_SCROLL | SWT.V_SCROLL | SWT.LEFT | SWT.BORDER );
-    hopUi.getProps().setLook( transformsList );
+    hopGui.getProps().setLook( transformsList );
     transformsList.setItems( transformNames );
     transformsList.addSelectionListener( new SelectionAdapter() {
 
@@ -294,15 +294,15 @@ public class HopGuiPipelinePerfDelegate {
     } );
     FormData fdTransformsList = new FormData();
     fdTransformsList.left = new FormAttachment( 0, 0 );
-    fdTransformsList.right = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdTransformsList.right = new FormAttachment( hopGui.getProps().getMiddlePct() / 2, props.getMargin() );
     fdTransformsList.top = new FormAttachment( transformsListLabel, props.getMargin() );
     fdTransformsList.bottom = new FormAttachment( 100, props.getMargin() );
     transformsList.setLayoutData( fdTransformsList );
 
     canvas = new Canvas( perfComposite, SWT.NONE );
-    hopUi.getProps().setLook( canvas );
+    hopGui.getProps().setLook( canvas );
     FormData fdCanvas = new FormData();
-    fdCanvas.left = new FormAttachment( hopUi.getProps().getMiddlePct() / 2, props.getMargin() );
+    fdCanvas.left = new FormAttachment( hopGui.getProps().getMiddlePct() / 2, props.getMargin() );
     fdCanvas.right = new FormAttachment( 100, 0 );
     fdCanvas.top = new FormAttachment( 0, props.getMargin() );
     fdCanvas.bottom = new FormAttachment( 100, 0 );
@@ -377,7 +377,7 @@ public class HopGuiPipelinePerfDelegate {
 
     button.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent event ) {
-        pipelineGraph.editProperties( pipelineGraph.getPipelineMeta(), hopUi, true, PipelineDialog.Tabs.MONITOR_TAB );
+        pipelineGraph.editProperties( pipelineGraph.getPipelineMeta(), hopGui, true, PipelineDialog.Tabs.MONITOR_TAB );
       }
     } );
 

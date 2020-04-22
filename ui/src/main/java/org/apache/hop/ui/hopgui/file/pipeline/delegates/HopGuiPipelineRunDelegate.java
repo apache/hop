@@ -53,7 +53,7 @@ public class HopGuiPipelineRunDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGuiPipelineGraph pipelineGraph;
-  private HopGui hopUi;
+  private HopGui hopGui;
 
   private PipelineExecutionConfiguration pipelineExecutionConfiguration;
   private PipelineExecutionConfiguration pipelinePreviewExecutionConfiguration;
@@ -77,10 +77,10 @@ public class HopGuiPipelineRunDelegate {
 
 
   /**
-   * @param hopUi
+   * @param hopGui
    */
-  public HopGuiPipelineRunDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelineRunDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
 
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration();
@@ -113,7 +113,7 @@ public class HopGuiPipelineRunDelegate {
 
     // Set MetaStore and safe mode information in both the exec config and the metadata
     //
-    pipelineMeta.setMetaStore( hopUi.getMetaStore() );
+    pipelineMeta.setMetaStore( hopGui.getMetaStore() );
 
     if ( debug ) {
       // See if we have debugging information stored somewhere?
@@ -166,7 +166,7 @@ public class HopGuiPipelineRunDelegate {
     int debugAnswer = PipelineDebugDialog.DEBUG_CONFIG;
 
     if ( debug || preview ) {
-      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopUi.getShell(), pipelineDebugMeta );
+      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineDebugMeta );
       debugAnswer = pipelineDebugDialog.open();
       if ( debugAnswer == PipelineDebugDialog.DEBUG_CANCEL ) {
         // If we cancel the debug dialog, we don't go further with the execution either.
@@ -187,7 +187,7 @@ public class HopGuiPipelineRunDelegate {
 
     if ( debugAnswer == PipelineDebugDialog.DEBUG_CONFIG && pipelineMeta.isShowDialog() ) {
       PipelineExecutionConfigurationDialog dialog =
-        new PipelineExecutionConfigurationDialog( hopUi.getShell(), executionConfiguration, pipelineMeta );
+        new PipelineExecutionConfigurationDialog( hopGui.getShell(), executionConfiguration, pipelineMeta );
       execConfigAnswer = dialog.open();
     }
 
@@ -234,7 +234,7 @@ public class HopGuiPipelineRunDelegate {
       //
       if ( debug || preview ) {
         if ( pipelineDebugMeta.getNrOfUsedTransforms() == 0 ) {
-          MessageBox box = new MessageBox( hopUi.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
+          MessageBox box = new MessageBox( hopGui.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
           box.setText( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Title" ) );
           box.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.Warning.NoPreviewOrDebugTransforms.Message" ) );
           int answer = box.open();
@@ -272,19 +272,19 @@ public class HopGuiPipelineRunDelegate {
   }
 
   /**
-   * Gets hopUi
+   * Gets hopGui
    *
-   * @return value of hopUi
+   * @return value of hopGui
    */
-  public HopGui getHopUi() {
-    return hopUi;
+  public HopGui getHopGui() {
+    return hopGui;
   }
 
   /**
-   * @param hopUi The hopUi to set
+   * @param hopGui The hopGui to set
    */
-  public void setHopUi( HopGui hopUi ) {
-    this.hopUi = hopUi;
+  public void setHopGui( HopGui hopGui ) {
+    this.hopGui = hopGui;
   }
 
   /**

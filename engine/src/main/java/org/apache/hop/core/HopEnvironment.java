@@ -108,7 +108,7 @@ public class HopEnvironment {
       System.setProperties( ConcurrentMapProperties.convertProperties( System.getProperties() ) );
 
       try {
-        // This creates .kettle and kettle.properties...
+        // This creates .hop and hop.properties...
         //
         if ( !HopClientEnvironment.isInitialized() ) {
           HopClientEnvironment.init();

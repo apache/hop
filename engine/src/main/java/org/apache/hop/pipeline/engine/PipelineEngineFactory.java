@@ -22,15 +22,39 @@
 
 package org.apache.hop.pipeline.engine;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 
 public class PipelineEngineFactory {
+
+  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( String runConfigurationName, IMetaStore metaStore, T pipelineMeta ) throws HopException {
+
+    if ( StringUtils.isEmpty(runConfigurationName)) {
+      throw new HopException( "Please specify a run configuration to execute the pipeline with" );
+    }
+    PipelineRunConfiguration pipelineRunConfiguration = null;
+    try {
+      pipelineRunConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+    } catch ( MetaStoreException e ) {
+      throw new HopException( "Error loading the pipeline run configuration '"+runConfigurationName+"'", e);
+    }
+    if (pipelineRunConfiguration==null) {
+      throw new HopException( "Unable to find the specified pipeline run configuration '"+runConfigurationName+"'" );
+    }
+
+    IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
+    pipelineEngine.setMetaStore( metaStore );
+    pipelineMeta.setMetaStore( metaStore );
+    return pipelineEngine;
+  }
 
   public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( PipelineRunConfiguration pipelineRunConfiguration, T pipelineMeta ) throws HopException {
     IPipelineEngineRunConfiguration engineRunConfiguration = pipelineRunConfiguration.getEngineRunConfiguration();

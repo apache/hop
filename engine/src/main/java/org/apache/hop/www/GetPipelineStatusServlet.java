@@ -32,13 +32,10 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.cache.HopServerStatusCache;
 import org.owasp.encoder.Encode;
@@ -216,7 +213,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 
     String pipelineName = request.getParameter( "name" );
     String id = request.getParameter( "id" );
-    String root = request.getRequestURI() == null ? StatusServletUtils.PENTAHO_ROOT
+    String root = request.getRequestURI() == null ? "/hop"
       : request.getRequestURI().substring( 0, request.getRequestURI().indexOf( CONTEXT_PATH ) );
     String prefix = isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
     boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
@@ -344,9 +341,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
         out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 
         if ( isJettyMode() ) {
-          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/carte.css\" />" );
-        } else {
-          out.print( StatusServletUtils.getPentahoStyles( root ) );
+          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />" );
         }
 
         out.println( "</HEAD>" );
@@ -362,7 +357,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.println( "<div class=\"row\" style=\"padding-top: 30px;\">" );
           out.print( "<a href=\"" + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">" );
           out.print( "<img src=\"" + prefix + "/images/back.svg\" style=\"margin-right: 5px; width: 16px; height: 16px; vertical-align: middle;\">" );
-          out.print( BaseMessages.getString( PKG, "CarteStatusServlet.BackToCarteStatus" ) + "</a>" );
+          out.print( BaseMessages.getString( PKG, "HopServerStatusServlet.BackToHopServerStatus" ) + "</a>" );
           out.println( "</div>" );
           out.println( "<div class=\"row\" style=\"padding: 30px 0px 75px 0px; display: table;\">" );
           out.println( "<div style=\"display: table-row;\">" );
@@ -374,9 +369,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
             "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-top: none; border-color: #E3E3E3; font-size: 12; text-align: left;\"> <th style=\"font-weight: normal; "
               + "padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "PipelineStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.ServerObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
               + BaseMessages.getString( PKG, "PipelineStatusServlet.PipelineStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "PipelineStatusServlet.LastLogDate" ) + "</th> </tr>" );
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.StartDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align: left;\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Encode.forHtml( id ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatusDescription() ) + "</td>" );
@@ -404,7 +399,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 
           out.print( "<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">" );
           out.print( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Transform detail</div>" );
-          out.println( "<table class=\"pentaho-table\" border=\"" + tableBorder + "\">" );
+          out.println( "<table class=\"hop-table\" border=\"" + tableBorder + "\">" );
           out.print( "<tr class=\"cellTableRow\"> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "PipelineStatusServlet.TransformName" ) + "</th> <th class=\"cellTableHeader\">"
             + BaseMessages.getString( PKG, "PipelineStatusServlet.CopyNr" ) + "</th> <th class=\"cellTableHeader\">"

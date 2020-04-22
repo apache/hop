@@ -47,10 +47,13 @@ public class WorkflowEngineFactory {
     } catch(Exception e) {
       throw new HopException( "Error loading workflow run configuration '"+runConfigurationName+"'", e );
     }
-    return createWorkflowEngine( runConfiguration, workflowMeta );
+    IWorkflowEngine<T> workflowEngine = createWorkflowEngine( runConfiguration, workflowMeta );
+    workflowEngine.setMetaStore( metaStore );
+    workflowMeta.setMetaStore( metaStore );
+    return workflowEngine;
   }
 
-    public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( WorkflowRunConfiguration workflowRunConfiguration, T workflowMeta ) throws HopException {
+  private static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( WorkflowRunConfiguration workflowRunConfiguration, T workflowMeta ) throws HopException {
     IWorkflowEngineRunConfiguration engineRunConfiguration = workflowRunConfiguration.getEngineRunConfiguration();
     if (engineRunConfiguration==null) {
       throw new HopException( "There is no pipeline execution engine specified in run configuration '"+workflowRunConfiguration.getName()+"'" );

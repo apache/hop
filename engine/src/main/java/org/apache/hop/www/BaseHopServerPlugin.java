@@ -59,10 +59,10 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements IHo
       logDebug( getService() );
     }
 
-    handleRequest( new CarteRequestImpl( req, resp ) );
+    handleRequest( new HopServerRequestImpl( req, resp ) );
   }
 
-  @Override public abstract void handleRequest( ICarteRequest request ) throws IOException;
+  @Override public abstract void handleRequest( IHopServerRequest request ) throws IOException;
 
   @Override public abstract String getContextPath();
 
@@ -80,11 +80,11 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements IHo
     return FluentIterable.from( list ).filter( String.class );
   }
 
-  private class CarteRequestImpl implements ICarteRequest {
+  private class HopServerRequestImpl implements IHopServerRequest {
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
 
-    public CarteRequestImpl( HttpServletRequest req, HttpServletResponse resp ) {
+    public HopServerRequestImpl( HttpServletRequest req, HttpServletResponse resp ) {
       this.req = req;
       this.resp = resp;
     }
@@ -121,7 +121,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements IHo
       return req.getInputStream();
     }
 
-    @Override public ICarteResponse respond( int status ) {
+    @Override public IHopServerResponse respond( int status ) {
       if ( status >= 400 ) {
         try {
           resp.sendError( status );
@@ -132,7 +132,7 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet implements IHo
         resp.setStatus( status );
       }
 
-      return new ICarteResponse() {
+      return new IHopServerResponse() {
         @Override public void with( String contentType, IWriterResponse response ) throws IOException {
           resp.setContentType( contentType );
           response.write( resp.getWriter() );

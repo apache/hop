@@ -580,7 +580,7 @@ public class WebService extends BaseTransform implements ITransform {
       /*
        * as of BACKLOG-4068, explicit xalan factory references have been deprecated; we use the javax.xml factory
        * and let java's SPI determine the proper transformer implementation. In addition, tests has been made to
-       * safeguard that https://github.com/pentaho/pentaho-kettle/commit/3b57f7a9aac657fe77cc4f08e8d4287fcccbc073
+       * safeguard that https://github.com/pentaho/pentaho-hop/commit/3b57f7a9aac657fe77cc4f08e8d4287fcccbc073
        * continues working as intended
        */
 

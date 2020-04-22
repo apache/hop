@@ -37,12 +37,12 @@ public class HopGuiWorkflowHopDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiWorkflowGraph jobGraph;
   private PropsUi props;
 
   public HopGuiWorkflowHopDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopGui;
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
     this.props = PropsUi.getInstance();
   }
@@ -64,7 +64,7 @@ public class HopGuiWorkflowHopDelegate {
         workflowMeta.removeWorkflowHop( idx );
       } else {
         // TODO: Create a new Undo/Redo system
-        hopUi.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hopMeta }, new int[] { workflowMeta.indexOfWorkflowHop( hopMeta ) } );
+        hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hopMeta }, new int[] { workflowMeta.indexOfWorkflowHop( hopMeta ) } );
       }
 
       jobGraph.updateGui();
@@ -79,7 +79,7 @@ public class HopGuiWorkflowHopDelegate {
   public boolean checkIfHopAlreadyExists( WorkflowMeta workflowMeta, WorkflowHopMeta newHop ) {
     boolean ok = true;
     if ( workflowMeta.findWorkflowHop( newHop.getFromEntry(), newHop.getToEntry() ) != null ) {
-      MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
+      MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Message" ) ); // "This hop already exists!"
       mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.HopExists.Title" ) ); // Error!
       mb.open();
@@ -98,7 +98,7 @@ public class HopGuiWorkflowHopDelegate {
     boolean ok = true;
 
     if ( workflowMeta.hasLoop( newHop.getToEntry() ) ) {
-      MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
+      MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title" ) );
       mb.open();
@@ -112,7 +112,7 @@ public class HopGuiWorkflowHopDelegate {
     int index = workflowMeta.indexOfWorkflowHop( hopMeta );
 
     // TODO: Create new Undo/Redo system
-    hopUi.undoDelegate.addUndoDelete( workflowMeta, new Object[] { hopMeta.clone() }, new int[] { index } );
+    hopGui.undoDelegate.addUndoDelete( workflowMeta, new Object[] { hopMeta.clone() }, new int[] { index } );
     workflowMeta.removeWorkflowHop( index );
 
     jobGraph.redraw();

@@ -28,7 +28,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -192,7 +191,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       logDebug( BaseMessages.getString( PKG, "GetStatusServlet.StatusRequested" ) );
     }
     response.setStatus( HttpServletResponse.SC_OK );
-    String root = request.getRequestURI() == null ? StatusServletUtils.PENTAHO_ROOT
+    String root = request.getRequestURI() == null ? StatusServletUtils.HOP_ROOT
       : request.getRequestURI().substring( 0, request.getRequestURI().indexOf( CONTEXT_PATH ) );
     String prefix = isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
     boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
@@ -249,11 +248,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       int tableBorder = 1;
       if ( !useLightTheme ) {
         if ( isJettyMode() ) {
-          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/carte.css\" />" );
+          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />" );
         } else {
-          out.print( StatusServletUtils.getPentahoStyles( root ) );
           out.println( "<style>" );
-          out.println( ".pentaho-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {" );
+          out.println( ".hop-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {" );
           out.println( "  cursor: pointer;" );
           out.println( "}" );
           out.println( ".toolbar-button-disabled {" );
@@ -268,7 +266,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       }
 
       out.println( "</HEAD>" );
-      out.println( "<BODY class=\"pentaho-page-background dragdrop-dropTarget dragdrop-boundary\" style=\"overflow: auto;\">" );
+      out.println( "<BODY class=\"hop-page-background dragdrop-dropTarget dragdrop-boundary\" style=\"overflow: auto;\">" );
 
       // Empty div for containing currently selected item
       out.println( "<div id=\"selectedTableItem\">" );
@@ -283,11 +281,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
       try {
         // Tooltips
-        String run = BaseMessages.getString( PKG, "CarteStatusServlet.Run" );
-        String stop = BaseMessages.getString( PKG, "CarteStatusServlet.StopPipeline" );
-        String cleanup = BaseMessages.getString( PKG, "CarteStatusServlet.CleanupPipeline" );
-        String view = BaseMessages.getString( PKG, "CarteStatusServlet.ViewPipelineDetails" );
-        String remove = BaseMessages.getString( PKG, "CarteStatusServlet.RemovePipeline" );
+        String run = BaseMessages.getString( PKG, "HopServerStatusServlet.Run" );
+        String stop = BaseMessages.getString( PKG, "HopServerStatusServlet.StopPipeline" );
+        String cleanup = BaseMessages.getString( PKG, "HopServerStatusServlet.CleanupPipeline" );
+        String view = BaseMessages.getString( PKG, "HopServerStatusServlet.ViewPipelineDetails" );
+        String remove = BaseMessages.getString( PKG, "HopServerStatusServlet.RemovePipeline" );
         out.println( "<div class=\"row\" style=\"padding: 0px 0px 0px 30px\">" );
         htmlClass = useLightTheme ? "h2" : "div";
         out.println( "<div class=\"row\" style=\"padding: 25px 30px 75px 0px;\">" );
@@ -330,12 +328,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + "onMouseLeave=\"this.className='gwt-MenuItem'\">Stop pipeline</td></tr><tr><td class=\"gwt-MenuItem\" onClick=\"stopPipelineSelector( this )\" onMouseEnter=\"this"
             + ".className='gwt-MenuItem gwt-MenuItem-selected'\" onMouseLeave=\"this.className='gwt-MenuItem'\">Stop input processing</td></tr></tbody></table></div></div></div>" );
         out.println( messageDialog() );
-        out.println( "<table class=\"pentaho-table\" border=\"" + tableBorder + "\">" );
+        out.println( "<table class=\"hop-table\" border=\"" + tableBorder + "\">" );
         out.print( "<tr> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.PipelineName" ) + "</th> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.CarteId" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.ServerId" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.Status" ) + "</th> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.StartDate" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
         Comparator<HopServerObjectEntry> pipelineComparator = ( o1, o2 ) -> {
@@ -398,10 +396,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         out.print( "</div>" ); // end div
 
         // Tooltips
-        String runJ = BaseMessages.getString( PKG, "CarteStatusServlet.Run" );
-        String stopJ = BaseMessages.getString( PKG, "CarteStatusServlet.StopWorkflow" );
-        String viewJ = BaseMessages.getString( PKG, "CarteStatusServlet.ViewJobDetails" );
-        String removeJ = BaseMessages.getString( PKG, "CarteStatusServlet.RemoveWorkflow" );
+        String runJ = BaseMessages.getString( PKG, "HopServerStatusServlet.Run" );
+        String stopJ = BaseMessages.getString( PKG, "HopServerStatusServlet.StopWorkflow" );
+        String viewJ = BaseMessages.getString( PKG, "HopServerStatusServlet.ViewWorkflowDetails" );
+        String removeJ = BaseMessages.getString( PKG, "HopServerStatusServlet.RemoveWorkflow" );
 
         out.println( "<div class=\"row\" style=\"padding: 0px 30px 75px 0px;\">" );
         out.println( "<" + htmlClass + " class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 0px;\">Workflows</" + htmlClass + ">" );
@@ -426,12 +424,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           + "id=\"j-close\"><img style=\"width: 22px; height: 22px\" src=\""
           + prefix + "/images/close.svg\" title=\"" + removeJ + "\"/></div></td>" );
         out.println( "</tr></tbody></table>" );
-        out.println( "<table class=\"pentaho-table\" border=\"" + tableBorder + "\">" );
+        out.println( "<table class=\"hop-table\" border=\"" + tableBorder + "\">" );
         out.print( "<tr> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.JobName" ) + "</th> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.CarteId" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.WorkflowName" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.ServerId" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.Status" ) + "</th> <th class=\"cellTableHeader\">"
-          + BaseMessages.getString( PKG, "GetStatusServlet.LastLogDate" ) + "</th> <th class=\"cellTableHeader\">"
+          + BaseMessages.getString( PKG, "GetStatusServlet.StartDate" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
         Comparator<HopServerObjectEntry> jobComparator = new Comparator<HopServerObjectEntry>() {
@@ -488,7 +486,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           out.print( "<td onMouseEnter=\"mouseEnterFunction( this, '" + tdClass + "' )\" "
             + "onMouseLeave=\"mouseLeaveFunction( this, '" + tdClass + "' )\" "
             + "onClick=\"clickFunction( this, '" + tdClass + "' )\" "
-            + "id=\"j-cellTableLastCell_" + i + "\" class=\"cellTableCell cellTableLastColumn " + tdClass + "\">" + dateStr.substring( dateStr.indexOf( ' ' ), dateStr.length() ) + "</td>" );
+            + "id=\"j-cellTableLastCell_" + i + "\" class=\"cellTableCell cellTableLastColumn " + tdClass + "\">" +
+              ( dateStr!=null ? dateStr.substring( dateStr.indexOf( ' ' ) ) : "")
+            + "</td>" );
           out.print( "</tr>" );
         }
         out.print( "</table></table>" );
@@ -580,10 +580,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "  };" );
       out.println( "}" );
       out.println( "var selectedPipelineRowIndex = -1;" ); // currently selected table item
-      out.println( "var selectedJobRowIndex = -1;" ); // currently selected table item
+      out.println( "var selectedWorkflowRowIndex = -1;" ); // currently selected table item
       out.println( "var removeElement = null;" ); // element of remove button clicked
       out.println( "var selectedPipelineName = \"\";" );
-      out.println( "var selectedJobName = \"\";" );
+      out.println( "var selectedWorkflowName = \"\";" );
 
       // Click function for stop button
       out.println( "function repositionActions( element, elementFrom ) {" );
@@ -594,11 +594,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for resume button
       out.println( "function resumeFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
-      out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
+      out.println( "if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {" );
       out.println( setupAjaxCall( setupJobURI( convertContextPath( StartWorkflowServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Success.Body" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartJob.Failure.Body" ) + "'" ) );
+        BaseMessages.getString( PKG, "GetStatusServlet.StartWorkflow.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartWorkflow.Success.Body" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StartWorkflow.Failure.Body" ) + "'" ) );
       out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Running') {" );
       out.println( setupAjaxCall( setupPipelineURI( convertContextPath( PausePipelineServlet.CONTEXT_PATH ) ),
         BaseMessages.getString( PKG, "GetStatusServlet.PausePipeline.Title" ),
@@ -623,12 +623,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for stop button
       out.println( "function stopFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
-      out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
+      out.println( "if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {" );
       out.println( setupAjaxCall( setupJobURI( convertContextPath( StopWorkflowServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' "
-          + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Success.Body2" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopJob.Failure.Body" ) + "'" ) );
+        BaseMessages.getString( PKG, "GetStatusServlet.StopWorkflow.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.StopWorkflow.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' "
+          + BaseMessages.getString( PKG, "GetStatusServlet.StopWorkflow.Success.Body2" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.StopWorkflow.Failure.Body" ) + "'" ) );
       out.println( "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 ) {" );
       out.println( "repositionActions( document.getElementById( 'stopActions' ), element );" );
       out.println( "document.getElementById( 'stopActions' ).style.visibility = 'visible';" );
@@ -691,11 +691,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for view button
       out.println( "function viewFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
-      out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
+      out.println( "if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {" );
       out.println( "window.location.replace( '"
         + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "'"
-        + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedJobRowIndex ).innerHTML"
-        + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedJobRowIndex ).innerHTML );" );
+        + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedWorkflowRowIndex ).innerHTML"
+        + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedWorkflowRowIndex ).innerHTML );" );
       out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
       out.println( "window.location.replace( '"
         + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "'"
@@ -709,9 +709,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "function removeFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
       out.println( "removeElement = element;" );
-      out.println( "if( element.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
-      out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Title" ) + "',"
-        + "'" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Confirm.Body" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + '?" + "'"
+      out.println( "if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {" );
+      out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveWorkflow.Title" ) + "',"
+        + "'" + BaseMessages.getString( PKG, "GetStatusServlet.RemoveWorkflow.Confirm.Body" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + '?" + "'"
         + ", false );" );
       out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
       out.println( "openMessageDialog( '" + BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Title" ) + "',"
@@ -736,13 +736,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "document.getElementById( \"j-stop\" ).classList.remove( \"toolbar-button-disabled\" )" );
       out.println( "document.getElementById( \"j-view\" ).classList.remove( \"toolbar-button-disabled\" )" );
       out.println( "document.getElementById( \"j-close\" ).classList.remove( \"toolbar-button-disabled\" )" );
-      out.println( "if( selectedJobRowIndex != -1 && rowNum != selectedJobRowIndex ) {" );
-      out.println( "document.getElementById( prefix + 'cellTableRow_' + selectedJobRowIndex ).className='cellTableRow ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableFirstCell_' + selectedJobRowIndex ).className='cellTableCell cellTableFirstColumn ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableCell_' + selectedJobRowIndex ).className='cellTableCell ' + tableClass;" );
-      out.println( "document.getElementById( prefix + 'cellTableLastCell_' + selectedJobRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;" );
+      out.println( "if( selectedWorkflowRowIndex != -1 && rowNum != selectedWorkflowRowIndex ) {" );
+      out.println( "document.getElementById( prefix + 'cellTableRow_' + selectedWorkflowRowIndex ).className='cellTableRow ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableFirstCell_' + selectedWorkflowRowIndex ).className='cellTableCell cellTableFirstColumn ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableCell_' + selectedWorkflowRowIndex ).className='cellTableCell ' + tableClass;" );
+      out.println( "document.getElementById( prefix + 'cellTableLastCell_' + selectedWorkflowRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;" );
       out.println( "}" );
-      out.println( "selectedJobRowIndex = rowNum;" );
+      out.println( "selectedWorkflowRowIndex = rowNum;" );
       out.println( "} else {" );
       out.println( "document.getElementById( \"pause\" ).classList.remove( \"toolbar-button-disabled\" )" );
       out.println( "document.getElementById( \"stop\" ).classList.remove( \"toolbar-button-disabled\" )" );
@@ -767,12 +767,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
       // Function to set the pipeline or workflow name of the selected pipeline or workflow
       out.println( "function setSelectedNames() {" );
-      out.println( "  selectedJobName = selectedPipelineName = \"\";" );
+      out.println( "  selectedWorkflowName = selectedPipelineName = \"\";" );
       out.println( "  var selectedElementNames = document.getElementsByClassName( \"cellTableFirstColumn cellTableSelectedRowCell\" );" );
       out.println( "  if( selectedElementNames ) {" );
       out.println( "    for(var i = 0; i < selectedElementNames.length; i++) {" );
       out.println( "      if(selectedElementNames[i].id.startsWith(\"j-\")) {" );
-      out.println( "        selectedJobName = selectedElementNames[i].innerHTML;" );
+      out.println( "        selectedWorkflowName = selectedElementNames[i].innerHTML;" );
       out.println( "      } else {" );
       out.println( "        selectedPipelineName = selectedElementNames[i].innerHTML;" );
       out.println( "      }" );
@@ -787,7 +787,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "var selectedIndex = selectedPipelineRowIndex;" );
       out.println( "if( element.id.startsWith( 'j-' ) ) {" );
       out.println( "prefix = 'j-';" );
-      out.println( "selectedIndex = selectedJobRowIndex;" );
+      out.println( "selectedIndex = selectedWorkflowRowIndex;" );
       out.println( "}" );
       out.println( "if( rowNum != selectedIndex ) {" );
       out.println( "if( tableClass.endsWith( 'Row' ) ) {" );
@@ -811,7 +811,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "var selectedIndex = selectedPipelineRowIndex;" );
       out.println( "if( element.id.startsWith( 'j-' ) ) {" );
       out.println( "prefix = 'j-';" );
-      out.println( "selectedIndex = selectedJobRowIndex;" );
+      out.println( "selectedIndex = selectedWorkflowRowIndex;" );
       out.println( "}" );
       out.println( "if( rowNum != selectedIndex ) {" );
       out.println( "if( tableClass.endsWith( 'Row' ) ) {" );
@@ -851,11 +851,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Function to remove selected pipeline/workflow after user confirms
       out.println( "function removeSelection() {" );
       out.println( "  if( removeElement !== null ) {" );
-      out.println( "    if( removeElement.id.startsWith( 'j-' ) && selectedJobRowIndex != -1 ) {" );
+      out.println( "    if( removeElement.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {" );
       out.println( setupAjaxCall( setupJobURI( convertContextPath( RemoveWorkflowServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Success.Body" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheJob.Label" ) + " ' + selectedJobName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveJob.Failure.Body" ) + "'" ) );
+        BaseMessages.getString( PKG, "GetStatusServlet.RemoveWorkflow.Title" ),
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveWorkflow.Success.Body" ) + "'",
+        "'" + BaseMessages.getString( PKG, "GetStatusServlet.TheWorkflow.Label" ) + " ' + selectedWorkflowName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.RemoveWorkflow.Failure.Body" ) + "'" ) );
       out.println( "} else if ( selectedPipelineRowIndex != -1 ) {" );
       out.println( setupAjaxCall( setupPipelineURI( convertContextPath( RemovePipelineServlet.CONTEXT_PATH ) ),
         BaseMessages.getString( PKG, "GetStatusServlet.RemovePipeline.Title" ),
@@ -938,17 +938,17 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     String retVal =
       "<div id=\"messageDialogBackdrop\" style=\"visibility: hidden; position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0.5; background-color: #000; z-index: 1000;\"></div>\n";
     retVal +=
-      "<div class=\"pentaho-dialog\" id=\"messageDialog\" style=\"visibility: hidden; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -ms-transform: translate"
+      "<div class=\"hop-dialog\" id=\"messageDialog\" style=\"visibility: hidden; margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -ms-transform: translate"
         + "(-50%, -50%);"
         + "-webkit-transform: translate(-50%, -50%); padding: 30px; height: auto; width: 423px; border: 1px solid #CCC; -webkit-box-shadow: none; -moz-box-shadow: none;"
         + "box-shadow: none; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; overflow: hidden; line-height: 20px; background-color: #FFF; z-index: 10000;\">\n";
     retVal += "<div id=\"messageDialogTitle\" class=\"Caption\"></div>\n";
     retVal += "<div id=\"messageDialogBody\" class=\"dialog-content\"></div>\n";
-    retVal += "<div id=\"singleButton\" style=\"margin-top: 30px;\">\n<button class=\"pentaho-button\" style=\"float: right;\" onclick=\"closeMessageDialog( true );\">\n<span>" + BaseMessages
+    retVal += "<div id=\"singleButton\" style=\"margin-top: 30px;\">\n<button class=\"hop-button\" style=\"float: right;\" onclick=\"closeMessageDialog( true );\">\n<span>" + BaseMessages
       .getString( PKG, "GetStatusServlet.Button.OK" ) + "</span>\n</button>\n</div>\n";
-    retVal += "<div id=\"doubleButton\" style=\"margin-top: 30px;\">\n<button class=\"pentaho-button\" style=\"float: right; margin-left: 10px;\" onclick=\"closeMessageDialog( false );\">\n<span>"
+    retVal += "<div id=\"doubleButton\" style=\"margin-top: 30px;\">\n<button class=\"hop-button\" style=\"float: right; margin-left: 10px;\" onclick=\"closeMessageDialog( false );\">\n<span>"
       + BaseMessages.getString( PKG, "GetStatusServlet.Button.No" )
-      + "</span>\n</button>\n<button class=\"pentaho-button\" style=\"float: right;\" onclick=\"closeMessageDialog( false ); removeSelection();\">\n<span>" + BaseMessages
+      + "</span>\n</button>\n<button class=\"hop-button\" style=\"float: right;\" onclick=\"closeMessageDialog( false ); removeSelection();\">\n<span>" + BaseMessages
       .getString( PKG, "GetStatusServlet.Button.YesRemove" ) + "</span>\n</button>\n</div>\n";
     retVal += "</div>\n";
     return retVal;
@@ -980,7 +980,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
   private String setupJobURI( String context ) {
     return "'" + context + "'"
-      + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedJobRowIndex ).innerHTML"
-      + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedJobRowIndex ).innerHTML";
+      + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedWorkflowRowIndex ).innerHTML"
+      + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedWorkflowRowIndex ).innerHTML";
   }
 }

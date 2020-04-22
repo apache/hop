@@ -27,7 +27,6 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SwingGc;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -70,7 +69,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
       //
-      entry = getWorkflowMap().getFirstCarteObjectEntry( workflowName );
+      entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
       if ( entry == null ) {
         workflow = null;
       } else {

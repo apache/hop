@@ -92,7 +92,7 @@ public interface IPartitioner {
    * @param rowMeta the row meta
    * @param r       the r
    * @return the partition
-   * @throws HopException the kettle exception
+   * @throws HopException the hop exception
    */
   public int getPartition( IRowMeta rowMeta, Object[] r ) throws HopException;
 
@@ -156,7 +156,7 @@ public interface IPartitioner {
    * Load xml.
    *
    * @param partitioningMethodNode the partitioning method node
-   * @throws HopXmlException the kettle xml exception
+   * @throws HopXmlException the hop xml exception
    */
   public void loadXml( Node partitioningMethodNode ) throws HopXmlException;
 

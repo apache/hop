@@ -30,10 +30,10 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 
 public class HopGuiUndoDelegate implements IAddUndoPosition {
-  private HopGui hopUi;
+  private HopGui hopGui;
 
   public HopGuiUndoDelegate( HopGui hopGui ) {
-    this.hopUi = hopGui;
+    this.hopGui = hopGui;
   }
 
   public void addUndoNew( IUndo undoInterface, Object[] obj, int[] position ) {
@@ -42,7 +42,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
 
   public void addUndoNew( IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso ) {
     undoInterface.addUndo( obj, null, position, null, null, PipelineMeta.TYPE_UNDO_NEW, nextAlso );
-    hopUi.setUndoMenu( undoInterface );
+    hopGui.setUndoMenu( undoInterface );
   }
 
   // Undo delete object
@@ -53,7 +53,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   // Undo delete object
   public void addUndoDelete( IUndo undoInterface, Object[] obj, int[] position, boolean nextAlso ) {
     undoInterface.addUndo( obj, null, position, null, null, PipelineMeta.TYPE_UNDO_DELETE, nextAlso );
-    hopUi.setUndoMenu( undoInterface );
+    hopGui.setUndoMenu( undoInterface );
   }
 
   // Change of transform, connection, hop or note...
@@ -66,7 +66,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
     // It's better to store the indexes of the objects, not the objects
     // itself!
     undoInterface.addUndo( obj, null, pos, prev, curr, WorkflowMeta.TYPE_UNDO_POSITION, false );
-    hopUi.setUndoMenu( undoInterface );
+    hopGui.setUndoMenu( undoInterface );
   }
 
   // Change of transform, connection, hop or note...
@@ -77,7 +77,7 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
   // Change of transform, connection, hop or note...
   public void addUndoChange( IUndo undoInterface, Object[] from, Object[] to, int[] pos, boolean nextAlso ) {
     undoInterface.addUndo( from, to, pos, null, null, WorkflowMeta.TYPE_UNDO_CHANGE, nextAlso );
-    hopUi.setUndoMenu( undoInterface );
+    hopGui.setUndoMenu( undoInterface );
   }
 
   /**
@@ -85,14 +85,14 @@ public class HopGuiUndoDelegate implements IAddUndoPosition {
    *
    * @return value of hopGui
    */
-  public HopGui getHopUi() {
-    return hopUi;
+  public HopGui getHopGui() {
+    return hopGui;
   }
 
   /**
-   * @param hopUi The hopGui to set
+   * @param hopGui The hopGui to set
    */
-  public void setHopUi( HopGui hopUi ) {
-    this.hopUi = hopUi;
+  public void setHopGui( HopGui hopGui ) {
+    this.hopGui = hopGui;
   }
 }

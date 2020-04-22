@@ -473,7 +473,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-kettle metadata could reside.
+   * @param metaStore               the metaStore in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,

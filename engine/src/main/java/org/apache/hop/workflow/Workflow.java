@@ -25,7 +25,6 @@ package org.apache.hop.workflow;
 
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IExecutor;
@@ -64,8 +63,6 @@ import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.resource.ResourceUtil;
-import org.apache.hop.resource.TopLevelResource;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
@@ -73,12 +70,7 @@ import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.www.RegisterPackageServlet;
-import org.apache.hop.www.RegisterWorkflowServlet;
-import org.apache.hop.www.StartWorkflowServlet;
-import org.apache.hop.www.WebResult;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -89,13 +81,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class executes a workflow as defined by a WorkflowMeta object.
  * <p>
- * The definition of a PDI workflow is represented by a WorkflowMeta object. It is typically loaded from a .hwf file,
+ * The definition of a Hop workflow is represented by a WorkflowMeta object. It is typically loaded from a .hwf file,
  * or it is generated dynamically. The declared parameters of the workflow definition are then queried using
  * listParameters() and assigned values using calls to setParameterValue(..).
  *
@@ -104,21 +95,21 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Workflow extends Variables implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IWorkflowEngine<WorkflowMeta> {
-  private static Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator!!
+  protected static Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator!!
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__workflow_execution_configuration__.xml";
 
-  private ILogChannel log;
+  protected ILogChannel log;
 
-  private WorkflowRunConfiguration workflowRunConfiguration;
+  protected WorkflowRunConfiguration workflowRunConfiguration;
 
-  private LogLevel logLevel = DefaultLogLevel.getLogLevel();
+  protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
-  private String containerObjectId;
+  protected String containerObjectId;
 
-  private WorkflowMeta workflowMeta;
+  protected WorkflowMeta workflowMeta;
 
-  private AtomicInteger errors;
+  protected AtomicInteger errors;
 
   /**
    * The workflow that's launching this (sub-) workflow. This gives us access to the whole chain, including the parent variables,
@@ -134,66 +125,66 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /**
    * The parent logging interface to reference
    */
-  private ILoggingObject parentLoggingObject;
+  protected ILoggingObject parentLoggingObject;
 
   /**
    * Keep a list of the actions that were executed. org.apache.hop.core.logging.CentralLogStore.getInstance()
    */
-  private WorkflowTracker workflowTracker;
+  protected WorkflowTracker workflowTracker;
 
   /**
    * A flat list of results in THIS workflow, in the order of execution of actions
    */
-  private final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
+  protected final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
 
-  private Date executionStartDate;
+  protected Date executionStartDate;
 
-  private Date executionEndDate;
+  protected Date executionEndDate;
 
   /**
    * The rows that were passed onto this workflow by a previous pipeline. These rows are passed onto the first workflow
    * entry in this workflow (on the result object)
    */
-  private List<RowMetaAndData> sourceRows;
+  protected List<RowMetaAndData> sourceRows;
 
   /**
    * The result of the workflow, after execution.
    */
-  private Result result;
+  protected Result result;
 
-  private boolean interactive;
+  protected boolean interactive;
 
-  private List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners;
-  private List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners;
+  protected List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners;
+  protected List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners;
 
-  private List<IActionListener> actionListeners;
+  protected List<IActionListener> actionListeners;
 
-  private List<IDelegationListener> delegationListeners;
+  protected Map<ActionCopy, ActionPipeline> activeActionPipeline;
 
-  private Map<ActionCopy, ActionPipeline> activeActionPipeline;
-
-  private Map<ActionCopy, ActionWorkflow> activeActionWorkflows;
+  protected Map<ActionCopy, ActionWorkflow> activeActionWorkflows;
 
   /**
    * Parameters of the workflow.
    */
-  private INamedParams namedParams = new NamedParamsDefault();
+  protected INamedParams namedParams = new NamedParamsDefault();
 
-  private int maxJobEntriesLogged;
+  protected int maxJobEntriesLogged;
 
-  private ActionCopy startActionCopy;
-  private Result startActionResult;
+  protected ActionCopy startActionCopy;
+  protected Result startActionResult;
 
-  private String executingServer;
+  protected String executingServer;
 
-  private String executingUser;
+  protected String executingUser;
 
-  private Map<String, Object> extensionDataMap;
+  protected Map<String, Object> extensionDataMap;
 
   /**
    * Int value for storage workflow statuses
    */
-  private AtomicInteger status;
+  protected AtomicInteger status;
+
+  protected IMetaStore metaStore;
 
   /**
    * <p>
@@ -217,7 +208,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     workflowStartedListeners = Collections.synchronizedList( new ArrayList<>() );
     workflowFinishedListeners = Collections.synchronizedList( new ArrayList<>() );
     actionListeners = new ArrayList<>();
-    delegationListeners = new ArrayList<>();
 
     // these 2 maps are being modified concurrently and must be thread-safe
     activeActionPipeline = new ConcurrentHashMap<>();
@@ -290,9 +280,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
 
   public Result startExecution() {
 
-    ExecutorService heartbeat = null; // this workflow's heartbeat scheduled executor
-
     try {
+      executionStartDate = new Date();
       setStopped( false );
       setFinished( false );
       setInitialized( true );
@@ -301,13 +290,15 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // initialize from parentWorkflow or null
       //
       initializeVariablesFrom( parentWorkflow );
-      setInternalHopVariables( this );
+      setInternalHopVariables();
       copyParametersFrom( workflowMeta );
       activateParameters();
 
       // Run the workflow
       //
       fireWorkflowStartedListeners();
+
+      executionEndDate = new Date();
 
       result = executeFromStart();
     } catch ( Throwable je ) {
@@ -564,9 +555,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       action.getLogChannel().setLogLevel( logLevel );
 
       // Track the fact that we are going to launch the next action...
-      ActionResult jerBefore =
-        new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), reason, actionCopy
-          .getName(), actionCopy.getNr(), environmentSubstitute( actionCopy.getEntry().getFilename() ) );
+      ActionResult jerBefore = new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), reason,
+        actionCopy.getName(), actionCopy.getNr(), environmentSubstitute( actionCopy.getEntry().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerBefore ) );
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -574,7 +564,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // Execute this entry...
       IAction cloneJei = (IAction) action.clone();
       ( (IVariables) cloneJei ).copyVariablesFrom( this );
-      cloneJei.setMetaStore( getWorkflowMeta().getMetaStore() );
+      cloneJei.setMetaStore( metaStore );
       cloneJei.setParentWorkflow( this );
       cloneJei.setParentWorkflowMeta( this.getWorkflowMeta() );
       final long start = System.currentTimeMillis();
@@ -686,8 +676,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // If the start point was an evaluation and the link color is correct:
       // green or red, execute the next action...
       //
-      if ( hi.isUnconditional() || ( actionCopy.evaluates() && ( !( hi.getEvaluation() ^ newResult
-        .getResult() ) ) ) ) {
+      if ( hi.isUnconditional() || ( actionCopy.evaluates() && ( !( hi.getEvaluation() ^ newResult.getResult() ) ) ) ) {
         // Start this next transform!
         if ( log.isBasic() ) {
           log.logBasic( BaseMessages.getString( PKG, "Workflow.Log.StartingEntry", nextEntry.getName() ) );
@@ -965,35 +954,45 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     this.result = result;
   }
 
-  /**
-   * Sets the internal kettle variables.
-   *
-   * @param var the new internal kettle variables.
-   */
-  public void setInternalHopVariables( IVariables var ) {
-    boolean hasFilename = workflowMeta != null && !Utils.isEmpty( workflowMeta.getFilename() );
-    if ( hasFilename ) { // we have a finename that's defined.
+  public void setInternalHopVariables() {
+    if (workflowMeta==null) {
+      setInternalHopVariables( this, null, null );
+    } else {
+      setInternalHopVariables( this, workflowMeta.getFilename(), workflowMeta.getName() );
+    }
+  }
+
+    /**
+     * Sets the internal hop variables.
+     *
+     * @param space the space in which we want to set the internal variables
+     * @param filename the filename if there is any
+     * @param name the name of the workflow
+     */
+  public static final void setInternalHopVariables( IVariables space, String filename, String name ) {
+    boolean hasFilename = !Utils.isEmpty( filename );
+    if ( hasFilename ) { // we have a filename that's defined.
       try {
-        FileObject fileObject = HopVfs.getFileObject( workflowMeta.getFilename(), this );
+        FileObject fileObject = HopVfs.getFileObject( filename, space );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
-        setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
+        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
 
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
-        setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, fileDir.getURI() );
+        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, fileDir.getURI() );
       } catch ( Exception e ) {
-        setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
-        setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
+        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
+        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
       }
     } else {
-      setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
-      setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
+      space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
+      space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
     }
 
     // The name of the workflow
-    setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL( workflowMeta.getName(), "" ) );
+    space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL( name, "" ) );
   }
 
 
@@ -1021,89 +1020,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
 
     return message;
-  }
-
-  /**
-   * Send to slave server.
-   *
-   * @param workflowMeta           the workflow meta
-   * @param executionConfiguration the execution configuration
-   * @param metaStore              the metaStore
-   * @return the string
-   * @throws HopException the kettle exception
-   */
-  public static String sendToSlaveServer( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration, IMetaStore metaStore ) throws HopException {
-    String carteObjectId;
-    SlaveServer slaveServer = executionConfiguration.getRemoteServer();
-
-    if ( slaveServer == null ) {
-      throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.NoSlaveServerSpecified" ) );
-    }
-    if ( Utils.isEmpty( workflowMeta.getName() ) ) {
-      throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.UniqueWorkflowName" ) );
-    }
-
-    // Align logging levels between execution configuration and remote server
-    slaveServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
-
-    try {
-      // Inject certain internal variables to make it more intuitive.
-      //
-      for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
-      }
-      for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
-      }
-
-      if ( executionConfiguration.isPassingExport() ) {
-        // First export the workflow... slaveServer.getVariable("MASTER_HOST")
-        //
-        FileObject tempFile =
-          HopVfs.createTempFile( "jobExport", ".zip", System.getProperty( "java.io.tmpdir" ), workflowMeta );
-
-        TopLevelResource topLevelResource =
-          ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
-            metaStore, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
-
-        // Send the zip file over to the slave server...
-        String result =
-          slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_JOB, topLevelResource
-            .getBaseResourceName() );
-        WebResult webResult = WebResult.fromXMLString( result );
-        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-          throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR
-            + webResult.getMessage() );
-        }
-        carteObjectId = webResult.getId();
-      } else {
-        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration ).getXml();
-
-        String reply = slaveServer.sendXML( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
-        WebResult webResult = WebResult.fromXMLString( reply );
-        if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-          throw new HopException( "There was an error posting the workflow on the remote server: " + Const.CR + webResult
-            .getMessage() );
-        }
-        carteObjectId = webResult.getId();
-      }
-
-      // Start the workflow
-      //
-      String reply =
-        slaveServer.execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowMeta.getName(),
-          "UTF-8" ) + "&xml=Y&id=" + carteObjectId );
-      WebResult webResult = WebResult.fromXMLString( reply );
-      if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-        throw new HopException( "There was an error starting the workflow on the remote server: " + Const.CR + webResult
-          .getMessage() );
-      }
-      return carteObjectId;
-    } catch ( HopException ke ) {
-      throw ke;
-    } catch ( Exception e ) {
-      throw new HopException( e );
-    }
   }
 
   public void addActionListener( IActionListener actionListener ) {
@@ -1373,9 +1289,9 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   }
 
   /**
-   * Gets the carteObjectId.
+   * Gets the serverObjectId.
    *
-   * @return the carteObjectId
+   * @return the serverObjectId
    */
   public String getContainerObjectId() {
     return containerObjectId;
@@ -1489,18 +1405,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
   }
 
-  public List<IDelegationListener> getDelegationListeners() {
-    return delegationListeners;
-  }
-
-  public void setDelegationListeners( List<IDelegationListener> delegationListeners ) {
-    this.delegationListeners = delegationListeners;
-  }
-
-  public void addDelegationListener( IDelegationListener delegationListener ) {
-    delegationListeners.add( delegationListener );
-  }
-
   public IPipelineEngine getParentPipeline() {
     return parentPipeline;
   }
@@ -1601,5 +1505,21 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   @Override public void setWorkflowRunConfiguration( WorkflowRunConfiguration workflowRunConfiguration ) {
     this.workflowRunConfiguration = workflowRunConfiguration;
+  }
+
+  /**
+   * Gets metaStore
+   *
+   * @return value of metaStore
+   */
+  @Override public IMetaStore getMetaStore() {
+    return metaStore;
+  }
+
+  /**
+   * @param metaStore The metaStore to set
+   */
+  @Override public void setMetaStore( IMetaStore metaStore ) {
+    this.metaStore = metaStore;
   }
 }

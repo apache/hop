@@ -1555,10 +1555,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static String Alert( Context actualContext, Scriptable actualObject, Object[] ArgList,
                               Function FunctionContext ) {
 
-    HopUiInterface spoon = HopUiFactory.getInstance();
-    if ( ArgList.length == 1 && spoon != null ) {
+    HopUiInterface hopGui = HopUiFactory.getInstance();
+    if ( ArgList.length == 1 && hopGui != null ) {
       String strMessage = Context.toString( ArgList[ 0 ] );
-      boolean ok = spoon.messageBox( strMessage, "Alert", true, Const.INFO );
+      boolean ok = hopGui.messageBox( strMessage, "Alert", true, Const.INFO );
       if ( !ok ) {
         throw new RuntimeException( "Alert dialog cancelled by user." );
       }

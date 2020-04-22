@@ -36,13 +36,13 @@ public class HopGuiWorkflowUndoDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private HopGuiWorkflowGraph jobGraph;
-  private HopGui hopUi;
+  private HopGui hopGui;
 
   /**
-   * @param hopUi
+   * @param hopGui
    */
-  public HopGuiWorkflowUndoDelegate( HopGui hopUi, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiWorkflowUndoDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
   }
 
@@ -344,18 +344,18 @@ public class HopGuiWorkflowUndoDelegate {
   }
 
   /**
-   * Gets hopUi
+   * Gets hopGui
    *
-   * @return value of hopUi
+   * @return value of hopGui
    */
-  public HopGui getHopUi() {
-    return hopUi;
+  public HopGui getHopGui() {
+    return hopGui;
   }
 
   /**
-   * @param hopUi The hopUi to set
+   * @param hopGui The hopGui to set
    */
-  public void setHopUi( HopGui hopUi ) {
-    this.hopUi = hopUi;
+  public void setHopGui( HopGui hopGui ) {
+    this.hopGui = hopGui;
   }
 }

@@ -99,7 +99,7 @@ public class FuzzyMatchTest {
      *
      * @param sourceTransform the source transform
      * @return the row set
-     * @throws org.apache.hop.core.exception.HopTransformException the kettle transform exception
+     * @throws org.apache.hop.core.exception.HopTransformException the hop transform exception
      */
     @Override
     public RowSet findInputRowSet( String sourceTransform ) throws HopTransformException {

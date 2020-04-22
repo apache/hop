@@ -359,7 +359,7 @@ public class SelectValuesTest {
      *
      * @param sourceTransformName the source transform
      * @return the row set
-     * @throws HopTransformException the kettle transform exception
+     * @throws HopTransformException the hop transform exception
      */
     @Override
     public IRowSet findInputRowSet( String sourceTransformName ) throws HopTransformException {

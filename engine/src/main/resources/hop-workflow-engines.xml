@@ -7,6 +7,10 @@
     <classname>org.apache.hop.workflow.engines.local.LocalWorkflowEngine</classname>
   </hop-workflow-engine>
 
-
+  <hop-workflow-engine id="Remote">
+    <description>Remote workflow engine</description>
+    <tooltip>Executes your workflow on a remote hop server</tooltip>
+    <classname>org.apache.hop.workflow.engines.remote.RemoteWorkflowEngine</classname>
+  </hop-workflow-engine>
 
 </hop-workflow-engines>

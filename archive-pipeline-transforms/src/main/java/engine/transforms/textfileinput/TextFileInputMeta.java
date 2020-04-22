@@ -1833,7 +1833,7 @@ public class TextFileInputMeta extends BaseTransformMeta implements ITransform, 
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-kettle metadata could reside.
+   * @param metaStore               the metaStore in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override

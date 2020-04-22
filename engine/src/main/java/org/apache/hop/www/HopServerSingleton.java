@@ -232,10 +232,10 @@ public class HopServerSingleton {
 
         hopServerSingleton = new HopServerSingleton( slaveServerConfig );
 
-        String carteObjectId = UUID.randomUUID().toString();
+        String serverObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
           new SimpleLoggingObject( "HopServerSingleton", LoggingObjectType.HOP_SERVER, null );
-        servletLoggingObject.setContainerObjectId( carteObjectId );
+        servletLoggingObject.setContainerObjectId( serverObjectId );
         servletLoggingObject.setLogLevel( LogLevel.BASIC );
 
         return hopServerSingleton;

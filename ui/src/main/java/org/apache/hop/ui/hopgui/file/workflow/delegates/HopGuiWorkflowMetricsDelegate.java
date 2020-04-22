@@ -72,7 +72,7 @@ public class HopGuiWorkflowMetricsDelegate {
 
   // private static final LogWriter log = LogWriter.getInstance();
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiWorkflowGraph jobGraph;
 
   private CTabItem jobMetricsTab;
@@ -87,11 +87,11 @@ public class HopGuiWorkflowMetricsDelegate {
   private List<MetricsDrawArea> drawAreas;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param jobGraph
    */
-  public HopGuiWorkflowMetricsDelegate( HopGui hopUi, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiWorkflowMetricsDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
   }
 
@@ -124,7 +124,7 @@ public class HopGuiWorkflowMetricsDelegate {
     metricsComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     metricsComposite.setLayout( new FormLayout() );
 
-    hopUi.getProps().setLook( metricsComposite );
+    hopGui.getProps().setLook( metricsComposite );
 
     setupContent();
 
@@ -164,7 +164,7 @@ public class HopGuiWorkflowMetricsDelegate {
     emptyGraph = false;
 
     canvas = new Canvas( metricsComposite, SWT.NONE );
-    hopUi.getProps().setLook( canvas );
+    hopGui.getProps().setLook( canvas );
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
     fdCanvas.right = new FormAttachment( 100, 0 );

@@ -88,7 +88,7 @@ public class TransformWithMappingMetaTest {
     StringBuilder expected = new StringBuilder( parentFolder.toUri().toString() );
     /**
      * we need to remove "/" at the end of expected string because during load the pipeline from file
-     * internal variables will be replaced by uri from kettle vfs
+     * internal variables will be replaced by uri from hop vfs
      * check the follow points
      * {@link PipelineMeta#setInternalFilenameHopVariables(IVariables)}
      *

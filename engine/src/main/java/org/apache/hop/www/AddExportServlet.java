@@ -193,19 +193,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
           String runConfigurationName = executionConfiguration.getRunConfiguration();
-          if ( StringUtils.isEmpty(runConfigurationName)) {
-            throw new HopException( "We need to know which pipeline run configuration to use to execute the pipeline");
-          }
-          PipelineRunConfiguration runConfiguration;
-          try {
-            runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
-          } catch(Exception e) {
-            throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
-          }
-          if (runConfiguration==null) {
-            throw new HopException( "Pipeline run configuration '"+runConfigurationName+"' could not be found" );
-          }
-          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta );
+          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
           pipeline.setParent( servletLoggingObject );
 
           // store it all in the map...
