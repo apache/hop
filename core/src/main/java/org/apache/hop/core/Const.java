@@ -273,7 +273,7 @@ public class Const {
   // 5.0 versions
 
   /**
-   * The default locale for the kettle environment (system defined)
+   * The default locale for the hop environment (system defined)
    */
   public static final Locale DEFAULT_LOCALE = Locale.getDefault();
 
@@ -373,12 +373,12 @@ public class Const {
   public static final String XML_ENCODING = "UTF-8";
 
   /**
-   * Name of the kettle parameters file
+   * Name of the hop parameters file
    */
   public static final String HOP_PROPERTIES = "hop.properties";
 
   /**
-   * The prefix that all internal kettle variables should have
+   * The prefix that all internal hop variables should have
    */
   public static final String INTERNAL_VARIABLE_PREFIX = "Internal";
 
@@ -665,12 +665,12 @@ public class Const {
   public static final String HOP_MAX_LOGGING_REGISTRY_SIZE = "HOP_MAX_LOGGING_REGISTRY_SIZE";
 
   /**
-   * A variable to configure the kettle log tab refresh delay.
+   * A variable to configure the hop log tab refresh delay.
    */
   public static final String HOP_LOG_TAB_REFRESH_DELAY = "HOP_LOG_TAB_REFRESH_DELAY";
 
   /**
-   * A variable to configure the kettle log tab refresh period.
+   * A variable to configure the hop log tab refresh period.
    */
   public static final String HOP_LOG_TAB_REFRESH_PERIOD = "HOP_LOG_TAB_REFRESH_PERIOD";
 
@@ -1853,20 +1853,20 @@ public class Const {
    * <p>
    * ./pwd/hop.pwd<br>
    *
-   * @return The local Carte password file.
+   * @return The local hop server password file.
    */
-  public static String getHopLocalCartePasswordFile() {
+  public static String getHopLocalServerPasswordFile() {
     return "pwd/hop.pwd";
   }
 
   /**
-   * Returns the path to the Hop Carte password file in the home directory:
+   * Returns the path to the Hop server password file in the home directory:
    * <p>
-   * $HOP_HOME/.kettle/kettle.pwd<br>
+   * $HOP_HOME/.hop/hop.pwd<br>
    *
-   * @return The Carte password file in the home directory.
+   * @return The hop server password file in the home directory.
    */
-  public static String getHopCartePasswordFile() {
+  public static String getHopServerPasswordFile() {
     return getHopDirectory() + FILE_SEPARATOR + "hop.pwd";
   }
 

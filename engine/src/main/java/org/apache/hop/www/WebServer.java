@@ -125,7 +125,7 @@ public class WebServer {
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer continues to run properly
       //
-      log.logError( "Error calling extension point CarteStartup", e );
+      log.logError( "Error calling extension point HopServerStartup", e );
     }
 
     if ( join ) {
@@ -176,11 +176,11 @@ public class WebServer {
       } else {
         // See if there is a hop.pwd file in the HOP_HOME directory:
         if ( Utils.isEmpty( passwordFile ) ) {
-          File homePwdFile = new File( Const.getHopCartePasswordFile() );
+          File homePwdFile = new File( Const.getHopServerPasswordFile() );
           if ( homePwdFile.exists() ) {
-            passwordFile = Const.getHopCartePasswordFile();
+            passwordFile = Const.getHopServerPasswordFile();
           } else {
-            passwordFile = Const.getHopLocalCartePasswordFile();
+            passwordFile = Const.getHopLocalServerPasswordFile();
           }
         }
         hashLoginService = new HashLoginService( "Hop" );
@@ -202,7 +202,7 @@ public class WebServer {
 
     securityHandler.setConstraintMappings( new ConstraintMapping[] { constraintMapping } );
 
-    // Add all the servlets defined in kettle-servlets.xml ...
+    // Add all the servlets defined in hop-servlets.xml ...
     //
     ContextHandlerCollection contexts = new ContextHandlerCollection();
 
@@ -291,7 +291,7 @@ public class WebServer {
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer can be shut down properly.
       //
-      log.logError( "Error calling extension point CarteStartup", e );
+      log.logError( "Error calling extension point HopServerStartup", e );
     }
 
     try {

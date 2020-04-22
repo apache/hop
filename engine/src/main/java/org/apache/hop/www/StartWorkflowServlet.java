@@ -74,7 +74,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "StartWorkflowServlet.Log.StartJobRequested" ) );
+      logDebug( BaseMessages.getString( PKG, "StartWorkflowServlet.Log.StartWorkflowRequested" ) );
     }
 
     String workflowName = request.getParameter( "name" );
@@ -104,24 +104,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     try {
       // ID is optional...
       //
-      IWorkflowEngine<WorkflowMeta> workflow;
-      HopServerObjectEntry entry;
-      if ( Utils.isEmpty( id ) ) {
-        // get the first workflow that matches...
-        //
-        entry = getWorkflowMap().getFirstCarteObjectEntry( workflowName );
-        if ( entry == null ) {
-          workflow = null;
-        } else {
-          id = entry.getId();
-          workflow = getWorkflowMap().getWorkflow( entry );
-        }
-      } else {
-        // Take the ID into account!
-        //
-        entry = new HopServerObjectEntry( workflowName, id );
-        workflow = getWorkflowMap().getWorkflow( entry );
-      }
+      IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().findWorkflow(workflowName, id);
 
       if ( workflow != null ) {
         // First see if this workflow already ran to completion.
@@ -139,10 +122,9 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           synchronized ( this ) {
             WorkflowConfiguration workflowConfiguration = getWorkflowMap().getConfiguration( workflowName );
 
-            String carteObjectId = UUID.randomUUID().toString();
-            SimpleLoggingObject servletLoggingObject =
-              new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
-            servletLoggingObject.setContainerObjectId( carteObjectId );
+            String serverObjectId = UUID.randomUUID().toString();
+            SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
+            servletLoggingObject.setContainerObjectId( serverObjectId );
 
             String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
             IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
@@ -153,14 +135,14 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
             //
             HopLogStore.discardLines( workflow.getLogChannelId(), true );
 
-            getWorkflowMap().replaceWorkflow( entry, newWorkflow, workflowConfiguration );
+            getWorkflowMap().replaceWorkflow( workflow, newWorkflow, workflowConfiguration );
             workflow = newWorkflow;
           }
         }
 
         runWorkflow( workflow );
 
-        String message = BaseMessages.getString( PKG, "StartWorkflowServlet.Log.JobStarted", workflowName );
+        String message = BaseMessages.getString( PKG, "StartWorkflowServlet.Log.WorkflowStarted", workflowName );
         if ( useXML ) {
           out.println( new WebResult( WebResult.STRING_OK, message, id ).getXml() );
         } else {
@@ -169,10 +151,10 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           out.println( "<a href=\""
             + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" ) + "\">"
-            + BaseMessages.getString( PKG, "JobStatusServlet.BackToJobStatusPage" ) + "</a><p>" );
+            + BaseMessages.getString( PKG, "WorkflowStatusServlet.BackToWorkflowStatusPage" ) + "</a><p>" );
         }
       } else {
-        String message = BaseMessages.getString( PKG, "StartWorkflowServlet.Log.SpecifiedJobNotFound", workflowName );
+        String message = BaseMessages.getString( PKG, "StartWorkflowServlet.Log.SpecifiedWorkflowNotFound", workflowName );
         if ( useXML ) {
           out.println( new WebResult( WebResult.STRING_ERROR, message ) );
         } else {

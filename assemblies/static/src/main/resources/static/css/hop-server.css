@@ -4,25 +4,25 @@ body {
   font-family: Helvetica, Arial, Sans serif;
 }
 
-.pentaho-page-background {
+.hop-page-background {
   background: #FFF;
 }
 
 #pucHeader {
   display: block;
   height: 50px;
-  background: #f8f8f6;
+  background: #c9e8fb;
   filter: none;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   padding: 30px 0 0;
   position: relative;
-  border-top: 4px solid #cc0000;
+  border-top: 6px solid #5cc0c4;
 }
 
 .workspaceHeading {
-  color: #5C5C5C;
+  color:  #0e3a5a;
   font-size: 24px;
   padding: 0 0 20px 0;
   cursor: default;
@@ -32,12 +32,12 @@ body {
   width: 100%;
   height: 100%;
   vertical-align: middle;
-  background-color: #fff;
+  background-color: #c9e8fb;
   border-top: none;
   border-left: none;
   border-bottom-width: 1px;
   border-bottom-style: solid;
-  border-bottom-color: #CCC;
+  border-bottom-color: #0E3A5A;
 }
 
 .toolbar-button {
@@ -52,7 +52,7 @@ body {
 }
 
 .toolbar-button.toolbar-button-hovering {
-  border: 1px solid #CC0000;
+  border: 1px solid #5cc0c4;
   background: none;
   margin: 0;
   width: 22px;
@@ -76,9 +76,9 @@ body {
 
 .custom-dropdown-popup .gwt-MenuBar-vertical {
   padding: 10px 0 0 0;
-  border-left: 1px solid #CCC;
-  border-right: 1px solid #CCC;
-  border-bottom: 1px solid #CCC;
+  border-left: 1px solid #0E3A5A;
+  border-right: 1px solid #0E3A5A;
+  border-bottom: 1px solid #0E3A5A;
   border-top: 0 solid transparent;
   background-color: #FFF;
   margin-top: 0;
@@ -99,19 +99,19 @@ td.gwt-MenuItem {
 
 .gwt-MenuBar-vertical tr:hover .gwt-MenuItem-selected,
 .gwt-MenuBar-vertical .gwt-MenuItem-selected {
-  background-color: #CC0000;
+  background-color: #c9e8fb;
   color: #FFF;
 }
 
-.pentaho-dialog {
+.hop-dialog {
   -webkit-user-select: none;
   -khtml-user-select: none;
-  -moz-user-select: -moz-none;
+  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-.pentaho-dialog .Caption {
+.hop-dialog .Caption {
   background: none;
   font-size: 24px;
   line-height: 30px;
@@ -119,11 +119,11 @@ td.gwt-MenuItem {
   padding-bottom: 20px;
 }
 
-.pentaho-dialog .dialog-content {
+.hop-dialog .dialog-content {
   color: #333;
 }
 
-button.pentaho-button {
+button.hop-button {
   background: white;
   filter: none;
   font-size: 14px;
@@ -143,74 +143,75 @@ button.pentaho-button {
   border: 1px solid #cc0000;
 }
 
-button.pentaho-button:hover {
-  background: #CC0000;
-  border-color: #CC0000;
+button.hop-button:hover {
+  background: #5cc0c4;
+  border-color: #5cc0c4;
   color: #FFF;
 }
 
-.pentaho-table {
+.hop-table {
   border-spacing: 0;
-  background-color: #FAFAFA;
+  background-color: #c9e8fb;
 }
 
-.pentaho-table .cellTableHeader {
+.hop-table .cellTableHeader {
   padding: 3px 15px;
   text-align: left;
-  color: white;
+  color: #0e3a5a
+;
   overflow: hidden;
 }
 
-.pentaho-table th {
+.hop-table th {
   font-size: 12px;
   border-spacing: 0;
   padding: 11px 8px 12px 8px;
   font-weight: normal;
-  background-color: #999999;
-  color: #FFF;
+  background-color: #c9e8fb;
+  color:  #0e3a5a;
   border: 1px solid #cccccc;
   border-right: 0 none;
 }
 
-.pentaho-table th:last-child {
+.hop-table th:last-child {
   border-right: 1px solid #99BEDB;
 }
 
-.pentaho-table .cellTableEvenRow {
+.hop-table .cellTableEvenRow {
   background: #ffffff;
 }
 
-.pentaho-table .cellTableOddRow {
+.hop-table .cellTableOddRow {
   background: #fafafa;
 }
 
-.pentaho-table .cellTableEvenRowCell, .pentaho-table .cellTableOddRowCell {
+.hop-table .cellTableEvenRowCell, .hop-table .cellTableOddRowCell {
   border: 1px solid #dedede;
   border-right: 0 none;
   border-top: 0 none;
 }
 
-.pentaho-table .cellTableCell {
+.hop-table .cellTableCell {
   padding: 8px 10px 10px 10px;
   overflow: hidden;
   text-align: left;
   font-size: 12px;
 }
 
-.pentaho-table .cellTableEvenRow.cellTableHoveredRow, .pentaho-table .cellTableOddRow.cellTableHoveredRow {
+.hop-table .cellTableEvenRow.cellTableHoveredRow, .hop-table .cellTableOddRow.cellTableHoveredRow {
   background-color: #E0E0E0;
 }
 
-.pentaho-table .cellTableEvenRowCell.cellTableLastColumn, .pentaho-table .cellTableOddRowCell.cellTableLastColumn {
+.hop-table .cellTableEvenRowCell.cellTableLastColumn, .hop-table .cellTableOddRowCell.cellTableLastColumn {
   border-right: 1px solid #dedede;
 }
 
-.pentaho-table .cellTableSelectedRow {
+.hop-table .cellTableSelectedRow {
   background-color: rgba(204, 0, 0, 0.2);
   color: #000;
 }
 
-.pentaho-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {
+.hop-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {
   cursor: pointer;
 }
 
@@ -232,7 +233,7 @@ a, a:link {
 }
 
 textarea {
-  border: 1px solid #CCC;
+  border: 1px solid #0E3A5A;
   padding: 0 10px;
   font-size: 14px;
   line-height: 17px;

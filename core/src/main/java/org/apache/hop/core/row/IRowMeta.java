@@ -257,7 +257,7 @@ public interface IRowMeta extends Cloneable {
    * @param valueName    the value name
    * @param defaultValue the default value
    * @return the string
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   String getString( Object[] dataRow, String valueName, String defaultValue ) throws HopValueException;
 
@@ -268,7 +268,7 @@ public interface IRowMeta extends Cloneable {
    * @param valueName    the value name
    * @param defaultValue the default value
    * @return the integer
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   Long getInteger( Object[] dataRow, String valueName, Long defaultValue ) throws HopValueException;
 
@@ -279,7 +279,7 @@ public interface IRowMeta extends Cloneable {
    * @param valueName    the value name
    * @param defaultValue the default value
    * @return the date
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   Date getDate( Object[] dataRow, String valueName, Date defaultValue ) throws HopValueException;
 
@@ -403,7 +403,7 @@ public interface IRowMeta extends Cloneable {
    * @param rowData2 The second row of data
    * @param fieldnrs the fields to compare on (in that order)
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   int compare( Object[] rowData1, Object[] rowData2, int[] fieldnrs ) throws HopValueException;
 
@@ -415,7 +415,7 @@ public interface IRowMeta extends Cloneable {
    * @param rowData2 The second row of data
    * @param fieldnrs the fields to compare on (in that order)
    * @return true if the rows are considered equal, false if they are not.
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   boolean equals( Object[] rowData1, Object[] rowData2, int[] fieldnrs ) throws HopValueException;
 
@@ -428,7 +428,7 @@ public interface IRowMeta extends Cloneable {
    * @param fieldnrs1 The indexes of the values to compare in the first row
    * @param fieldnrs2 The indexes of the values to compare with in the second row
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   int compare( Object[] rowData1, Object[] rowData2, int[] fieldnrs1, int[] fieldnrs2 ) throws HopValueException;
 
@@ -442,7 +442,7 @@ public interface IRowMeta extends Cloneable {
    * @param fieldnrs1 The indexes of the values to compare in the first row
    * @param fieldnrs2 The indexes of the values to compare with in the second row
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   int compare( Object[] rowData1, IRowMeta rowMeta2, Object[] rowData2, int[] fieldnrs1,
                       int[] fieldnrs2 ) throws HopValueException;
@@ -454,7 +454,7 @@ public interface IRowMeta extends Cloneable {
    * @param rowData1 The first row of data
    * @param rowData2 The second row of data
    * @return 0 if the rows are considered equal, -1 is data1 is smaller, 1 if data2 is smaller.
-   * @throws HopValueException the kettle value exception
+   * @throws HopValueException the hop value exception
    */
   int compare( Object[] rowData1, Object[] rowData2 ) throws HopValueException;
 

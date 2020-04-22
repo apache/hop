@@ -72,7 +72,7 @@ public class HopGuiPipelineMetricsDelegate {
 
   // private static final LogWriter log = LogWriter.getInstance();
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
 
   private CTabItem pipelineMetricsTab;
@@ -87,11 +87,11 @@ public class HopGuiPipelineMetricsDelegate {
   private List<MetricsDrawArea> drawAreas;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param pipelineGraph
    */
-  public HopGuiPipelineMetricsDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelineMetricsDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -124,7 +124,7 @@ public class HopGuiPipelineMetricsDelegate {
     metricsComposite.setBackground( GuiResource.getInstance().getColorBackground() );
     metricsComposite.setLayout( new FormLayout() );
 
-    hopUi.getProps().setLook( metricsComposite );
+    hopGui.getProps().setLook( metricsComposite );
 
     setupContent();
 
@@ -164,7 +164,7 @@ public class HopGuiPipelineMetricsDelegate {
     emptyGraph = false;
 
     canvas = new Canvas( metricsComposite, SWT.NONE );
-    hopUi.getProps().setLook( canvas );
+    hopGui.getProps().setLook( canvas );
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
     fdCanvas.right = new FormAttachment( 100, 0 );

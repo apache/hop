@@ -46,14 +46,14 @@ public class HopServerResource {
   }
 
   public static IPipelineEngine<PipelineMeta> getPipeline( String id ) {
-    return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getCarteObjectEntry( id ) );
+    return HopServerSingleton.getInstance().getPipelineMap().getPipeline( getHopServerObjectEntry( id ) );
   }
 
   public static IWorkflowEngine<WorkflowMeta> getWorkflow( String id ) {
-    return HopServerSingleton.getInstance().getWorkflowMap().getWorkflow( getCarteObjectEntry( id ) );
+    return HopServerSingleton.getInstance().getWorkflowMap().getWorkflow( getHopServerObjectEntry( id ) );
   }
 
-  public static HopServerObjectEntry getCarteObjectEntry( String id ) {
+  public static HopServerObjectEntry getHopServerObjectEntry( String id ) {
     List<HopServerObjectEntry> pipelineList =
       HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
     for ( HopServerObjectEntry entry : pipelineList ) {

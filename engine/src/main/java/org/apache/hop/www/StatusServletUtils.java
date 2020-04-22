@@ -32,67 +32,6 @@ public class StatusServletUtils {
 
   public static final String RESOURCES_PATH = "/content/common-ui/resources/themes";
   public static final String STATIC_PATH = "/static";
-  public static final String PENTAHO_ROOT = "/pentaho";
+  public static final String HOP_ROOT = "/hop";
 
-  public static String getPentahoStyles( String root ) {
-    StringBuilder sb = new StringBuilder();
-    String themeName = "ruby"; // default pentaho theme
-    String themeCss = "globalRuby.css";
-    String mantleThemeCss = "mantleRuby.css";
-
-    try {
-      String relativePathSeparator = ".." + File.separator + ".." + File.separator;
-
-      // Read in currently set theme from pentaho.xml file
-      String themeSetting = relativePathSeparator
-        + "pentaho-solutions" + File.separator + "system" + File.separator + "pentaho.xml";
-      File f = new File( themeSetting );
-
-      // Check if file exists (may be different location depending on how server was started)
-      if ( !f.exists() ) {
-        relativePathSeparator = ".." + File.separator;
-      }
-
-      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder db = dbFactory.newDocumentBuilder();
-      Document doc = db.parse( f );
-      themeName = doc.getElementsByTagName( "default-theme" ).item( 0 ).getTextContent();
-
-      // Get theme CSS file
-      String themeDirStr = relativePathSeparator
-        + "pentaho-solutions" + File.separator + "system" + File.separator
-        + "common-ui" + File.separator + "resources" + File.separator
-        + "themes" + File.separator + themeName + File.separator;
-      File themeDir = new File( themeDirStr );
-      for ( File fName : themeDir.listFiles() ) {
-        if ( fName.getName().contains( ".css" ) ) {
-          themeCss = fName.getName();
-          break;
-        }
-      }
-
-      // webapps folder will always be one directory closer to default directory, need to update relative path string
-      relativePathSeparator = relativePathSeparator.replaceFirst( "(\\.\\.\\\\)", "" );
-
-      // Get mantle theme CSS file
-      String mantleThemeDirStr = relativePathSeparator + "webapps" + root + File.separator + "mantle" + File.separator
-        + "themes" + File.separator + themeName + File.separator;
-      File mantleThemeDir = new File( mantleThemeDirStr );
-      for ( File fName : mantleThemeDir.listFiles() ) {
-        if ( fName.getName().contains( ".css" ) ) {
-          mantleThemeCss = fName.getName();
-          break;
-        }
-      }
-    } catch ( Exception ex ) {
-      // log here
-    }
-
-    sb.append( "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + root
-      + "/content/common-ui/resources/themes/" + themeName + "/" + themeCss + "\"/>" );
-    sb.append( "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + root
-      + "/mantle/themes/" + themeName + "/" + mantleThemeCss + "\"/>" );
-    sb.append( "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + root + "/mantle/MantleStyle.css\"/>" );
-    return sb.toString();
-  }
 }

@@ -115,7 +115,7 @@ public class SlaveServerConfig {
         throw new RuntimeException( "Unable to add a default memory metastore to the delegating store", e );
       }
     }
-    passwordFile = null; // force lookup by server in ~/.kettle or local folder
+    passwordFile = null; // force lookup by server in ~/.hop or local folder
   }
 
   public SlaveServerConfig( SlaveServer slaveServer ) {

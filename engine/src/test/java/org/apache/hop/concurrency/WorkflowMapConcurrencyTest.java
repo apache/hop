@@ -43,8 +43,8 @@ import static org.mockito.Mockito.when;
 
 public class WorkflowMapConcurrencyTest {
   public static final String WORKFLOW_NAME_STRING = "workflow";
-  public static final String JOB_ID_STRING = "workflow";
-  public static final int INITIAL_JOB_MAP_SIZE = 100;
+  public static final String WORKFLOW_ID_STRING = "workflow";
+  public static final int INITIAL_WORKFLOW_MAP_SIZE = 100;
 
   private static final int gettersAmount = 20;
   private static final int replaceAmount = 20;
@@ -56,12 +56,12 @@ public class WorkflowMapConcurrencyTest {
   @BeforeClass
   public static void init() {
     workflowMap = new WorkflowMap();
-    for ( int i = 0; i < INITIAL_JOB_MAP_SIZE; i++ ) {
-      workflowMap.addWorkflow( WORKFLOW_NAME_STRING + i, JOB_ID_STRING + i, mockJob( i ), mock( WorkflowConfiguration.class ) );
+    for ( int i = 0; i < INITIAL_WORKFLOW_MAP_SIZE; i++ ) {
+      workflowMap.addWorkflow( WORKFLOW_NAME_STRING + i, WORKFLOW_ID_STRING + i, mockWorkflow( i ), mock( WorkflowConfiguration.class ) );
     }
   }
 
-  private static IWorkflowEngine<WorkflowMeta> mockJob( int id ) {
+  private static IWorkflowEngine<WorkflowMeta> mockWorkflow( int id ) {
     IWorkflowEngine<WorkflowMeta> workflow = mock( IWorkflowEngine.class );
     when( workflow.getContainerObjectId() ).thenReturn( WORKFLOW_NAME_STRING + id );
     return workflow;
@@ -107,7 +107,7 @@ public class WorkflowMapConcurrencyTest {
     public Object doCall() throws Exception {
       while ( condition.get() ) {
 
-        int i = random.nextInt( INITIAL_JOB_MAP_SIZE );
+        int i = random.nextInt( INITIAL_WORKFLOW_MAP_SIZE );
         HopServerObjectEntry entry = workflowMap.getWorkflowObjects().get( i );
 
         if ( entry == null ) {
@@ -150,7 +150,7 @@ public class WorkflowMapConcurrencyTest {
       try {
         for ( int i = 0; i < cycles; i++ ) {
           int id = generator.get();
-          workflowMap.addWorkflow( WORKFLOW_NAME_STRING + id, JOB_ID_STRING + id, mockJob( id ), mock( WorkflowConfiguration.class ) );
+          workflowMap.addWorkflow( WORKFLOW_NAME_STRING + id, WORKFLOW_ID_STRING + id, mockWorkflow( id ), mock( WorkflowConfiguration.class ) );
         }
       } catch ( Exception e ) {
         exception = e;
@@ -172,14 +172,14 @@ public class WorkflowMapConcurrencyTest {
     @Override
     public Object doCall() throws Exception {
 
-      int i = random.nextInt( INITIAL_JOB_MAP_SIZE );
+      int i = random.nextInt( INITIAL_WORKFLOW_MAP_SIZE );
 
       final String workflowName = WORKFLOW_NAME_STRING + i;
-      final String jobId = JOB_ID_STRING + i;
+      final String workflowId = WORKFLOW_ID_STRING + i;
 
-      HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, jobId );
+      HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, workflowId );
 
-      workflowMap.replaceWorkflow( entry, mockJob( i + 1 ), mock( WorkflowConfiguration.class ) );
+      workflowMap.replaceWorkflow( mockWorkflow( i + 1 ), mockWorkflow( i + 1 ), mock( WorkflowConfiguration.class ) );
 
       return null;
     }

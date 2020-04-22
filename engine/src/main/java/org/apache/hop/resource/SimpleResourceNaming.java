@@ -88,7 +88,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     //
     // Inputs:
     // Prefix : Marc Sample Pipeline
-    // Original Path: D:\japps\pentaho\kettle\samples
+    // Original Path: D:\japps\pentaho\hop\samples
     // Extension : .hpl
     //
     // Output Example 1 (no file system prefix, no path used)
@@ -96,7 +96,7 @@ public class SimpleResourceNaming implements IResourceNaming {
     // Output Example 2 (file system prefix: ${HOP_FILE_BASE}!, no path used)
     // ${HOP_FILE_BASE}!Marc_Sample_Pipeline.hpl
     // Output Example 3 (file system prefix: ${HOP_FILE_BASE}!, path is used)
-    // ${HOP_FILE_BASE}!japps/pentaho/kettle/samples/Marc_Sample_Pipeline.hpl
+    // ${HOP_FILE_BASE}!japps/pentaho/hop/samples/Marc_Sample_Pipeline.hpl
     //
     //
     assert prefix != null;

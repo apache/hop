@@ -32,7 +32,6 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -191,12 +190,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "GetJobStatusServlet.Log.JobStatusRequested" ) );
+      logDebug( BaseMessages.getString( PKG, "GetWorkflowStatusServlet.Log.WorkflowStatusRequested" ) );
     }
 
     String workflowName = request.getParameter( "name" );
     String id = request.getParameter( "id" );
-    String root = request.getRequestURI() == null ? StatusServletUtils.PENTAHO_ROOT
+    String root = request.getRequestURI() == null ? StatusServletUtils.HOP_ROOT
       : request.getRequestURI().substring( 0, request.getRequestURI().indexOf( CONTEXT_PATH ) );
     String prefix = isJettyMode() ? StatusServletUtils.STATIC_PATH : root + StatusServletUtils.RESOURCES_PATH;
     boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
@@ -218,7 +217,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
     if ( Utils.isEmpty( id ) ) {
       // get the first workflow that matches...
       //
-      entry = getWorkflowMap().getFirstCarteObjectEntry( workflowName );
+      entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
       if ( entry == null ) {
         workflow = null;
       } else {
@@ -308,7 +307,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         out.println( "<HEAD>" );
         out
           .println( "<TITLE>"
-            + BaseMessages.getString( PKG, "GetJobStatusServlet.HopJobStatus" ) + "</TITLE>" );
+            + BaseMessages.getString( PKG, "GetWorkflowStatusServlet.HopWorkflowStatus" ) + "</TITLE>" );
         if ( EnvUtil.getSystemProperty( Const.HOP_CARTE_REFRESH_STATUS, "N" ).equalsIgnoreCase( "Y" ) ) {
           out.println( "<META http-equiv=\"Refresh\" content=\"10;url="
             + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name="
@@ -317,14 +316,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         }
         out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
         if ( isJettyMode() ) {
-          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/carte.css\" />" );
-        } else {
-          out.print( StatusServletUtils.getPentahoStyles( root ) );
+          out.println( "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />" );
         }
         out.println( "</HEAD>" );
         out.println( "<BODY style=\"overflow: auto;\">" );
         out.println( "<div class=\"row\" id=\"pucHeader\">" );
-        out.println( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 10px;\">" + Encode.forHtml( BaseMessages.getString( PKG, "GetJobStatusServlet.JobStatus", workflowName ) ) + "</div>" );
+        out.println( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 0px 10px;\">" + Encode.forHtml( BaseMessages.getString( PKG, "GetWorkflowStatusServlet.WorkflowStatus", workflowName ) ) + "</div>" );
         out.println( "</div>" );
 
         try {
@@ -332,7 +329,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.println( "<div class=\"row\" style=\"padding-top: 30px;\">" );
           out.print( "<a href=\"" + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">" );
           out.print( "<img src=\"" + prefix + "/images/back.svg\" style=\"margin-right: 5px; width: 16px; height: 16px; vertical-align: middle;\">" );
-          out.print( BaseMessages.getString( PKG, "CarteStatusServlet.BackToCarteStatus" ) + "</a>" );
+          out.print( BaseMessages.getString( PKG, "HopServerStatusServlet.BackToHopServerStatus" ) + "</a>" );
           out.println( "</div>" );
           out.println( "<div class=\"row\" style=\"padding: 30px 0px 75px 0px; display: table;\">" );
           out.println( "<div style=\"display: table-row;\">" );
@@ -344,14 +341,15 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
             "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-top: none; border-color: #E3E3E3; font-size: 12; text-align: left;\"> <th style=\"font-weight: normal; "
               + "padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "PipelineStatusServlet.CarteObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.ServerObjectId" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
               + BaseMessages.getString( PKG, "PipelineStatusServlet.PipelineStatus" ) + "</th> <th style=\"font-weight: normal; padding: 8px 10px 10px 10px\" class=\"cellTableHeader\">"
-              + BaseMessages.getString( PKG, "PipelineStatusServlet.LastLogDate" ) + "</th> </tr>" );
+              + BaseMessages.getString( PKG, "PipelineStatusServlet.StartDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align:left\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Const.NVL( Encode.forHtml( id ), "" ) + "</td>" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + workflow.getStatusDescription() + "</td>" );
           String dateStr = XmlHandler.date2string( workflow.getExecutionStartDate() );
-          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
+          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" +
+            ( dateStr!=null ? dateStr.substring( 0, dateStr.indexOf( ' ' ) ) : "" ) + "</td>" );
           out.print( "</tr>" );
           out.print( "</table>" );
           out.print( "</div>" );
@@ -423,12 +421,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
       PrintWriter out = response.getWriter();
       if ( useXML ) {
         out.println( new WebResult( WebResult.STRING_ERROR, BaseMessages.getString(
-          PKG, "StartWorkflowServlet.Log.SpecifiedJobNotFound", workflowName, id ) ) );
+          PKG, "StartWorkflowServlet.Log.SpecifiedWorkflowNotFound", workflowName, id ) ) );
       } else {
         out.println( "<H1>Workflow " + Encode.forHtml( "\'" + workflowName + "\'" ) + " could not be found.</H1>" );
         out.println( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
-          + BaseMessages.getString( PKG, "JobStatusServlet.BackToStatusPage" ) + "</a><p>" );
+          + BaseMessages.getString( PKG, "WorkflowStatusServlet.BackToStatusPage" ) + "</a><p>" );
       }
     }
   }

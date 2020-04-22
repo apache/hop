@@ -1530,10 +1530,10 @@ public class ScriptAddedFunctions {
   public static String Alert( ScriptEngine actualContext, Bindings actualObject, Object[] ArgList,
                               Object FunctionContext ) {
 
-    HopUiInterface spoon = HopUiFactory.getInstance();
-    if ( ArgList.length == 1 && spoon != null ) {
+    HopUiInterface hopGui = HopUiFactory.getInstance();
+    if ( ArgList.length == 1 && hopGui != null ) {
       String strMessage = (String) ArgList[ 0 ];
-      spoon.messageBox( strMessage, "Alert", false, Const.INFO );
+      hopGui.messageBox( strMessage, "Alert", false, Const.INFO );
     }
 
     return "";

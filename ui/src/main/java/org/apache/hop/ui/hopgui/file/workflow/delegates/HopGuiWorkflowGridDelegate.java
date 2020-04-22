@@ -52,7 +52,7 @@ public class HopGuiWorkflowGridDelegate {
 
   private static Class<?> PKG = HopGuiWorkflowGraph.class; // for i18n purposes, needed by Translator!!
 
-  private HopGui hopUi;
+  private HopGui hopGui;
 
   public static final long REFRESH_TIME = 100L;
   public static final long UPDATE_TIME_VIEW = 1000L;
@@ -68,11 +68,11 @@ public class HopGuiWorkflowGridDelegate {
   private int nrRow = 0;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param jobGraph
    */
-  public HopGuiWorkflowGridDelegate( HopGui hopUi, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiWorkflowGridDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
   }
 

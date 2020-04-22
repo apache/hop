@@ -124,26 +124,14 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
         pipelineMeta.setParameterValue( param, value );
       }
 
-      String carteObjectId = UUID.randomUUID().toString();
+      String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
         new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
-      servletLoggingObject.setContainerObjectId( carteObjectId );
+      servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
-      if ( StringUtils.isEmpty(runConfigurationName)) {
-        throw new HopException( "We need to know which pipeline run configuration to use to execute the pipeline");
-      }
-      PipelineRunConfiguration runConfiguration;
-      try {
-        runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
-      } catch(Exception e) {
-        throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
-      }
-      if (runConfiguration==null) {
-        throw new HopException( "Pipeline run configuration '"+runConfigurationName+"' could not be found" );
-      }
-      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta );
+      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
       pipeline.setParent( servletLoggingObject );
 
       if ( pipelineExecutionConfiguration.isSetLogfile() ) {
@@ -168,20 +156,20 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
       }
 
-      getPipelineMap().addPipeline( pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
-      pipeline.setContainerId( carteObjectId );
+      getPipelineMap().addPipeline( pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );
+      pipeline.setContainerId( serverObjectId );
 
-      String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + carteObjectId;
+      String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + serverObjectId;
 
       if ( useXML ) {
         // Return the log channel id as well
         //
-        out.println( new WebResult( WebResult.STRING_OK, message, carteObjectId ) );
+        out.println( new WebResult( WebResult.STRING_OK, message, serverObjectId ) );
       } else {
         out.println( "<H1>" + message + "</H1>" );
         out.println( "<p><a href=\""
           + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name=" + pipeline.getSubject().getName() + "&id="
-          + carteObjectId + "\">Go to the transformation status page</a><p>" );
+          + serverObjectId + "\">Go to the transformation status page</a><p>" );
       }
     } catch ( Exception ex ) {
       if ( useXML ) {

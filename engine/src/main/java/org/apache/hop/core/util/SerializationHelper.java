@@ -43,7 +43,7 @@ public class SerializationHelper {
   private static final String INDENT_STRING = "    ";
 
   /**
-   * This method will perform the work that used to be done by hand in each kettle input meta for: readData(Node
+   * This method will perform the work that used to be done by hand in each hop input meta for: readData(Node
    * transformNode). We handle all primitive types, complex user types, arrays, lists and any number of nested object levels,
    * via recursion of this method.
    *
@@ -249,7 +249,7 @@ public class SerializationHelper {
   }
 
   /**
-   * This method will perform the work that used to be done by hand in each kettle input meta for: getXml(). We handle
+   * This method will perform the work that used to be done by hand in each hop input meta for: getXml(). We handle
    * all primitive types, complex user types, arrays, lists and any number of nested object levels, via recursion of
    * this method.
    *

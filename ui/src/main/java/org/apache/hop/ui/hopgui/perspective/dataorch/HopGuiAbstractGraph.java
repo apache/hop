@@ -44,7 +44,7 @@ import java.util.UUID;
  */
 public abstract class HopGuiAbstractGraph extends Composite {
 
-  protected HopGui hopUi;
+  protected HopGui hopGui;
 
   protected Composite parentComposite;
 
@@ -63,11 +63,11 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected final String id;
 
-  public HopGuiAbstractGraph( HopGui hopUi, Composite parent, int style, CTabItem parentTabItem ) {
+  public HopGuiAbstractGraph( HopGui hopGui, Composite parent, int style, CTabItem parentTabItem ) {
     super( parent, style );
     this.parentComposite = parent;
 
-    this.hopUi = hopUi;
+    this.hopGui = hopGui;
     this.parentTabItem = parentTabItem;
     defaultFont = parentTabItem.getFont();
     changedState = false;
@@ -75,11 +75,11 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
   protected Shell hopShell() {
-    return hopUi.getShell();
+    return hopGui.getShell();
   }
 
   protected Display hopDisplay() {
-    return hopUi.getDisplay();
+    return hopGui.getDisplay();
   }
 
   protected abstract Point getOffset();

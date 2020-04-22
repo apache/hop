@@ -95,6 +95,10 @@
     <description>Local workflow run configuration widgets</description>
   </gui-plugin>
 
+  <gui-plugin>
+    <classname>org.apache.hop.workflow.engines.remote.RemoteWorkflowRunConfiguration</classname>
+    <description>Remote workflow run configuration widgets</description>
+  </gui-plugin>
 
   <!--
   <gui-plugin>

@@ -60,10 +60,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
     workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
-    String carteObjectId = UUID.randomUUID().toString();
+    String serverObjectId = UUID.randomUUID().toString();
 
     SimpleLoggingObject servletLoggingObject =
-      getServletLogging( carteObjectId, workflowExecutionConfiguration.getLogLevel() );
+      getServletLogging( serverObjectId, workflowExecutionConfiguration.getLogLevel() );
 
     // Create the workflow and store in the list...
     //
@@ -87,7 +87,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       workflow.setStartActionCopy( startActionCopy );
     }
 
-    getWorkflowMap().addWorkflow( workflow.getWorkflowName(), carteObjectId, workflow, workflowConfiguration );
+    getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
 
     return workflow;
   }
@@ -101,8 +101,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Also copy the parameters over...
     copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParametersMap() );
 
-    String carteObjectId = UUID.randomUUID().toString();
-    SimpleLoggingObject servletLoggingObject = getServletLogging( carteObjectId, pipelineExecutionConfiguration.getLogLevel() );
+    String serverObjectId = UUID.randomUUID().toString();
+    SimpleLoggingObject servletLoggingObject = getServletLogging( serverObjectId, pipelineExecutionConfiguration.getLogLevel() );
 
     // Get the metastore from the server
     //
@@ -111,20 +111,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the pipeline and store in the list...
     //
     String runConfigurationName = pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
-    if ( StringUtils.isEmpty(runConfigurationName)) {
-      throw new HopException( "We need to know which pipeline run configuration to use to execute the pipeline");
-    }
-    PipelineRunConfiguration runConfiguration;
-    try {
-      runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
-    } catch(Exception e) {
-      throw new HopException( "Error loading pipeline run configuration '"+runConfigurationName+"'", e );
-    }
-    if (runConfiguration==null) {
-      throw new HopException( "Pipeline run configuration '"+runConfigurationName+"' could not be found" );
-    }
-
-    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, pipelineMeta );
+    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
     pipeline.setParent( servletLoggingObject );
     pipeline.setMetaStore( pipelineMap.getSlaveServerConfig().getMetaStore() );
 
@@ -149,8 +136,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     }
 
-    pipeline.setContainerId( carteObjectId );
-    getPipelineMap().addPipeline( pipelineMeta.getName(), carteObjectId, pipeline, pipelineConfiguration );
+    pipeline.setContainerId( serverObjectId );
+    getPipelineMap().addPipeline( pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );
 
     return pipeline;
   }
@@ -181,10 +168,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     workflowMeta.activateParameters();
   }
 
-  private SimpleLoggingObject getServletLogging( final String carteObjectId, final LogLevel level ) {
+  private SimpleLoggingObject getServletLogging( final String serverObjectId, final LogLevel level ) {
     SimpleLoggingObject servletLoggingObject =
       new SimpleLoggingObject( getContextPath(), LoggingObjectType.HOP_SERVER, null );
-    servletLoggingObject.setContainerObjectId( carteObjectId );
+    servletLoggingObject.setContainerObjectId( serverObjectId );
     servletLoggingObject.setLogLevel( level );
     return servletLoggingObject;
   }

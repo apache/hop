@@ -29,6 +29,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -125,7 +126,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigTooltip = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.PipelineRunConfiguration.Tooltip" );
 
     wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
-      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true);
+      shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true );
     wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
@@ -161,25 +162,30 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
 
     try {
       wRunConfiguration.fillItems();
-    } catch(Exception e) {
+      if ( Const.indexOfString( configuration.getRunConfiguration(), wRunConfiguration.getItems() ) < 0 ) {
+        getConfiguration().setRunConfiguration( null );
+      }
+    } catch ( Exception e ) {
       hopGui.getLog().logError( "Unable to obtain a list of pipeline run configurations", e );
     }
 
-    wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ));
+    wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ) );
 
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
-      hopGui.getLog().logError( "Error calling extension point with ID '"+HopExtensionPoint.HopUiRunConfiguration.id+"'", e );
+      hopGui.getLog().logError( "Error calling extension point with ID '" + HopExtensionPoint.HopUiRunConfiguration.id + "'", e );
     }
 
-    if (Const.indexOfString( configuration.getRunConfiguration(), wRunConfiguration.getItems())<0) {
-      getConfiguration().setRunConfiguration( null );
-    }
-    if ( StringUtils.isNotEmpty( getConfiguration().getRunConfiguration() ) ) {
-      wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
-    } else if (wRunConfiguration.getItemCount()==1) {
-      wRunConfiguration.select( 0 );
+    // If we don't have a run configuration from history or from a plugin,
+    // set it from last execution or if there's only one, just pick that
+    //
+    if ( StringUtil.isEmpty( wRunConfiguration.getText() ) ) {
+      if ( StringUtils.isNotEmpty( getConfiguration().getRunConfiguration() ) ) {
+        wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
+      } else if ( wRunConfiguration.getItemCount() == 1 ) {
+        wRunConfiguration.select( 0 );
+      }
     }
 
     wLogLevel.select( configuration.getLogLevel().getLevel() );

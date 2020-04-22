@@ -292,7 +292,7 @@ public class LoggingObject implements ILoggingObject {
   }
 
   /**
-   * @return the carteObjectId
+   * @return the serverObjectId
    */
   @Override
   public String getContainerObjectId() {
@@ -300,10 +300,10 @@ public class LoggingObject implements ILoggingObject {
   }
 
   /**
-   * @param carteObjectId the carteObjectId to set
+   * @param serverObjectId the serverObjectId to set
    */
-  public void setCarteObjectId( String carteObjectId ) {
-    this.containerObjectId = carteObjectId;
+  public void setCarteObjectId( String serverObjectId ) {
+    this.containerObjectId = serverObjectId;
   }
 
   /**

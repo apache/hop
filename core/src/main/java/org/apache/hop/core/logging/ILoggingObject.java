@@ -93,14 +93,14 @@ public interface ILoggingObject {
   Date getRegistrationDate();
 
   /**
-   * Gets the boolean value of whether or not this object is gathering kettle metrics during execution.
+   * Gets the boolean value of whether or not this object is gathering hop metrics during execution.
    *
-   * @return true if this logging object is gathering kettle metrics during execution
+   * @return true if this logging object is gathering hop metrics during execution
    */
   boolean isGatheringMetrics();
 
   /**
-   * Enable of disable kettle metrics gathering during execution
+   * Enable of disable hop metrics gathering during execution
    *
    * @param gatheringMetrics set to true to enable metrics gathering during execution.
    */

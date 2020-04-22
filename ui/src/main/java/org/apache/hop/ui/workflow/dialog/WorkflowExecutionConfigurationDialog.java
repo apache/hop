@@ -22,12 +22,14 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
@@ -195,6 +197,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     try {
       wRunConfiguration.fillItems();
+      if (Const.indexOfString( configuration.getRunConfiguration(), wRunConfiguration.getItems())<0) {
+        getConfiguration().setRunConfiguration( null );
+      }
     } catch(Exception e) {
       hopGui.getLog().logError( "Unable to obtain a list of workflow run configurations", e );
     }
@@ -207,11 +212,15 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       // Ignore errors
     }
 
-
-    if ( Utils.isEmpty( getConfiguration().getRunConfiguration() ) ) {
-      wRunConfiguration.select( 0 );
-    } else {
-      wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
+    // If we don't have a run configuration from history or from a plugin,
+    // set it from last execution or if there's only one, just pick that
+    //
+    if ( StringUtil.isEmpty(wRunConfiguration.getText())) {
+      if ( StringUtils.isNotEmpty( getConfiguration().getRunConfiguration() ) ) {
+        wRunConfiguration.setText( getConfiguration().getRunConfiguration() );
+      } else if ( wRunConfiguration.getItemCount() == 1 ) {
+        wRunConfiguration.select( 0 );
+      }
     }
 
     String startCopy = "";
@@ -230,7 +239,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
   public void getInfo() {
     try {
-      getConfiguration().setRunConfiguration( wRunConfiguration.getText() );
+      String runConfigurationName = wRunConfiguration.getText();
+      getConfiguration().setRunConfiguration( runConfigurationName );
+      AuditManagerGuiUtil.addLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS, runConfigurationName );
 
       // various settings
       //

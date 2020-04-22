@@ -264,18 +264,8 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   @VisibleForTesting
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
-    if ( StringUtils.isEmpty(meta.getRunConfigurationName())) {
-      throw new HopException( "You need to specify the pipeline run configuration with which you want to run the pipeline" );
-    }
     String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
-    PipelineRunConfiguration runConfiguration;
-    try {
-      runConfiguration = PipelineRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
-    } catch ( MetaStoreException e ) {
-      throw new HopException( "Unable to load pipeline run configuration '"+runConfigurationName+"'", e );
-    }
-
-    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, getData().getExecutorPipelineMeta() );
+    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel( getLogLevel() );

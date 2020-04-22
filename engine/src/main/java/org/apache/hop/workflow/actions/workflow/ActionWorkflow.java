@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -32,8 +31,6 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
@@ -52,8 +49,6 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.workflow.Workflow;
-import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -62,13 +57,10 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
-import org.apache.hop.www.SlaveServerWorkflowStatus;
 import org.w3c.dom.Node;
 
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -526,262 +518,84 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
           }
         }
 
-        boolean doFallback = true;
-        SlaveServer remoteSlaveServer = null;
-        WorkflowExecutionConfiguration executionConfiguration = new WorkflowExecutionConfiguration();
-        if ( !Utils.isEmpty( runConfiguration ) ) {
-          runConfiguration = environmentSubstitute( runConfiguration );
-          log.logBasic( BaseMessages.getString( PKG, "ActionWorkflow.RunConfig.Message" ), runConfiguration );
-          executionConfiguration.setRunConfiguration( runConfiguration );
+
+        // Create a new workflow
+        //
+        workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfigurationName ), metaStore, workflowMeta );
+        workflow.setParentWorkflow( parentWorkflow );
+        workflow.setLogLevel( jobLogLevel );
+        workflow.shareVariablesWith( this );
+        workflow.setInternalHopVariables();
+        workflow.copyParametersFrom( workflowMeta );
+        workflow.setInteractive( parentWorkflow.isInteractive() );
+        if ( workflow.isInteractive() ) {
+          workflow.getActionListeners().addAll( parentWorkflow.getActionListeners() );
+        }
+
+        // Set the parameters calculated above on this instance.
+        //
+        workflow.clearParameters();
+        String[] parameterNames = workflow.listParameters();
+        for ( int idx = 0; idx < parameterNames.length; idx++ ) {
+          // Grab the parameter value set in the action
+          //
+          String thisValue = namedParam.getParameterValue( parameterNames[ idx ] );
+          if ( !Utils.isEmpty( thisValue ) ) {
+            // Set the value as specified by the user in the action
+            //
+            workflow.setParameterValue( parameterNames[ idx ], thisValue );
+          } else {
+            // See if the parameter had a value set in the parent workflow...
+            // This value should pass down to the sub-workflow if that's what we
+            // opted to do.
+            //
+            if ( isPassingAllParameters() ) {
+              String parentValue = parentWorkflow.getParameterValue( parameterNames[ idx ] );
+              if ( !Utils.isEmpty( parentValue ) ) {
+                workflow.setParameterValue( parameterNames[ idx ], parentValue );
+              }
+            }
+          }
+        }
+        workflow.activateParameters();
+
+        // Set the source rows we calculated above...
+        //
+        workflow.setSourceRows( sourceRows );
+
+        // Link the workflow with the sub-workflow
+        parentWorkflow.getWorkflowTracker().addWorkflowTracker( workflow.getWorkflowTracker() );
+
+        // Link both ways!
+        workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
+
+
+        ActionWorkflowRunner runner = new ActionWorkflowRunner( workflow, result, nr, log );
+        Thread jobRunnerThread = new Thread( runner );
+        // PDI-6518
+        // added UUID to thread name, otherwise threads do share names if workflows entries are executed in parallel in a
+        // parent workflow
+        // if that happens, contained pipelines start closing each other's connections
+        jobRunnerThread.setName( Const.NVL( workflow.getWorkflowMeta().getName(), workflow.getWorkflowMeta().getFilename() ) + " UUID: " + UUID.randomUUID().toString() );
+        jobRunnerThread.start();
+
+        // Keep running until we're done.
+        //
+        while ( !runner.isFinished() && !parentWorkflow.isStopped() ) {
           try {
-            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
-              executionConfiguration, parentWorkflow.getWorkflowMeta(), workflowMeta
-            } );
-            List<Object> items = Arrays.asList( runConfiguration, false );
-            try {
-              ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint
-                .RunConfigurationSelection.id, items );
-              if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
-                String workflowName = parentWorkflow.getWorkflowMeta().getName();
-                String name = workflowMeta.getName();
-                logBasic( BaseMessages.getString( PKG, "ActionWorkflow.Log.InvalidRunConfigurationCombination", workflowName,
-                  name, workflowName ) );
-              }
-            } catch ( Exception ignored ) {
-              // Ignored
-            }
-            if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() ) {
-              result.setResult( true );
-              return result;
-            }
-            remoteSlaveServer = executionConfiguration.getRemoteServer();
-            doFallback = false;
-          } catch ( HopException e ) {
-            log.logError( e.getMessage(), getName() );
-            result.setNrErrors( 1 );
-            result.setResult( false );
-            return result;
+            Thread.sleep( 0, 1 );
+          } catch ( InterruptedException e ) {
+            // Ignore
           }
         }
 
-        if ( doFallback ) {
-          // Figure out the remote slave server...
-          //
-          if ( !Utils.isEmpty( remoteSlaveServerName ) ) {
-            String realRemoteSlaveServerName = environmentSubstitute( remoteSlaveServerName );
-            remoteSlaveServer = parentWorkflow.getWorkflowMeta().findSlaveServer( realRemoteSlaveServerName );
-            if ( remoteSlaveServer == null ) {
-              throw new HopException( BaseMessages.getString(
-                PKG, "ActionPipeline.Exception.UnableToFindRemoteSlaveServer", realRemoteSlaveServerName ) );
-            }
-          }
+        // if the parent-workflow was stopped, stop the sub-workflow too...
+        if ( parentWorkflow.isStopped() ) {
+          workflow.stopExecution();
+          runner.waitUntilFinished(); // Wait until finished!
         }
 
-        if ( remoteSlaveServer == null ) {
-          // Local execution...
-          //
-
-          // Create a new workflow
-          //
-          workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfigurationName ), metaStore, workflowMeta );
-          workflow.setParentWorkflow( parentWorkflow );
-          workflow.setLogLevel( jobLogLevel );
-          workflow.shareVariablesWith( this );
-          workflow.setInternalHopVariables( this );
-          workflow.copyParametersFrom( workflowMeta );
-          workflow.setInteractive( parentWorkflow.isInteractive() );
-          if ( workflow.isInteractive() ) {
-            workflow.getActionListeners().addAll( parentWorkflow.getActionListeners() );
-          }
-
-          // Set the parameters calculated above on this instance.
-          //
-          workflow.clearParameters();
-          String[] parameterNames = workflow.listParameters();
-          for ( int idx = 0; idx < parameterNames.length; idx++ ) {
-            // Grab the parameter value set in the action
-            //
-            String thisValue = namedParam.getParameterValue( parameterNames[ idx ] );
-            if ( !Utils.isEmpty( thisValue ) ) {
-              // Set the value as specified by the user in the action
-              //
-              workflow.setParameterValue( parameterNames[ idx ], thisValue );
-            } else {
-              // See if the parameter had a value set in the parent workflow...
-              // This value should pass down to the sub-workflow if that's what we
-              // opted to do.
-              //
-              if ( isPassingAllParameters() ) {
-                String parentValue = parentWorkflow.getParameterValue( parameterNames[ idx ] );
-                if ( !Utils.isEmpty( parentValue ) ) {
-                  workflow.setParameterValue( parameterNames[ idx ], parentValue );
-                }
-              }
-            }
-          }
-          workflow.activateParameters();
-
-          // Set the source rows we calculated above...
-          //
-          workflow.setSourceRows( sourceRows );
-
-          // Link the workflow with the sub-workflow
-          parentWorkflow.getWorkflowTracker().addWorkflowTracker( workflow.getWorkflowTracker() );
-
-          // Link both ways!
-          workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
-
-
-          ActionWorkflowRunner runner = new ActionWorkflowRunner( workflow, result, nr, log );
-          Thread jobRunnerThread = new Thread( runner );
-          // PDI-6518
-          // added UUID to thread name, otherwise threads do share names if workflows entries are executed in parallel in a
-          // parent workflow
-          // if that happens, contained pipelines start closing each other's connections
-          jobRunnerThread.setName( Const.NVL( workflow.getWorkflowMeta().getName(), workflow.getWorkflowMeta().getFilename() )
-            + " UUID: " + UUID.randomUUID().toString() );
-          jobRunnerThread.start();
-
-          // Keep running until we're done.
-          //
-          while ( !runner.isFinished() && !parentWorkflow.isStopped() ) {
-            try {
-              Thread.sleep( 0, 1 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
-          }
-
-          // if the parent-workflow was stopped, stop the sub-workflow too...
-          if ( parentWorkflow.isStopped() ) {
-            workflow.stopExecution();
-            runner.waitUntilFinished(); // Wait until finished!
-          }
-
-          oneResult = runner.getResult();
-
-        } else {
-
-          // Make sure we can parameterize the slave server connection
-          //
-          remoteSlaveServer.shareVariablesWith( this );
-
-          // Remote execution...
-          //
-          WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration();
-          workflowExecutionConfiguration.setPreviousResult( result.lightClone() ); // lightClone() because rows are
-          // overwritten in next line.
-          workflowExecutionConfiguration.getPreviousResult().setRows( sourceRows );
-          workflowExecutionConfiguration.setVariablesMap( this );
-          workflowExecutionConfiguration.setRemoteServer( remoteSlaveServer );
-          workflowExecutionConfiguration.setLogLevel( jobLogLevel );
-          workflowExecutionConfiguration.setPassingExport( passingExport );
-          for ( String param : namedParam.listParameters() ) {
-            String defValue = namedParam.getParameterDefault( param );
-            String value = namedParam.getParameterValue( param );
-            workflowExecutionConfiguration.getParametersMap().put( param, Const.NVL( value, defValue ) );
-          }
-
-          // Send the XML over to the slave server
-          // Also start the workflow over there...
-          //
-          String carteObjectId = null;
-          try {
-            carteObjectId = Workflow.sendToSlaveServer( workflowMeta, workflowExecutionConfiguration, metaStore );
-          } catch ( HopException e ) {
-            // Perhaps the workflow exists on the remote server, carte is down, etc.
-            // This is an abort situation, stop the parent workflow...
-            // We want this in case we are running in parallel. The other workflow
-            // entries can stop running now.
-            //
-            parentWorkflow.stopExecution();
-
-            // Pass the exception along
-            //
-            throw e;
-          }
-
-          // Now start the monitoring...
-          //
-          SlaveServerWorkflowStatus jobStatus = null;
-          while ( !parentWorkflow.isStopped() && waitingToFinish ) {
-            try {
-              jobStatus = remoteSlaveServer.getWorkflowStatus( workflowMeta.getName(), carteObjectId, 0 );
-              if ( jobStatus.getResult() != null ) {
-                // The workflow is finished, get the result...
-                //
-                oneResult = jobStatus.getResult();
-                break;
-              }
-            } catch ( Exception e1 ) {
-              logError( "Unable to contact slave server ["
-                + remoteSlaveServer + "] to verify the status of workflow [" + workflowMeta.getName() + "]", e1 );
-              oneResult.setNrErrors( 1L );
-              break; // Stop looking too, chances are too low the server will
-              // come back on-line
-            }
-
-            // sleep for 1 second
-            try {
-              Thread.sleep( 1000 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
-          }
-
-          // PDI-14781
-          // Write log from carte to file
-          if ( setLogfile && jobStatus != null ) {
-            String logFromCarte = jobStatus.getLoggingString();
-            if ( !Utils.isEmpty( logFromCarte ) ) {
-              FileObject logfile = logChannelFileWriter.getLogFile();
-              OutputStream logFileOutputStream = null;
-              try {
-                logFileOutputStream = HopVfs.getOutputStream( logfile, setAppendLogfile );
-                logFileOutputStream.write( logFromCarte.getBytes() );
-                logFileOutputStream.flush();
-              } catch ( Exception e ) {
-                logError( "There was an error logging to file '" + logfile + "'", e );
-              } finally {
-                try {
-                  if ( logFileOutputStream != null ) {
-                    logFileOutputStream.close();
-                    logFileOutputStream = null;
-                  }
-                } catch ( Exception e ) {
-                  logError( "There was an error closing log file file '" + logfile + "'", e );
-                }
-              }
-            }
-          }
-
-          if ( !waitingToFinish ) {
-            // Since the workflow was posted successfully, the result is true...
-            //
-            oneResult = new Result();
-            oneResult.setResult( true );
-          }
-
-          if ( parentWorkflow.isStopped() ) {
-            try {
-              // See if we have a status and if we need to stop the remote
-              // execution here...
-              //
-              if ( jobStatus == null || jobStatus.isRunning() ) {
-                // Try a remote abort ...
-                //
-                remoteSlaveServer.stopWorkflow( workflowMeta.getName(), carteObjectId );
-              }
-            } catch ( Exception e1 ) {
-              logError( "Unable to contact slave server ["
-                + remoteSlaveServer + "] to stop workflow [" + workflowMeta.getName() + "]", e1 );
-              oneResult.setNrErrors( 1L );
-              break; // Stop looking too, chances are too low the server will
-              // come back on-line
-            }
-          }
-
-        }
+        oneResult = runner.getResult();
 
         result.clear(); // clear only the numbers, NOT the files or rows.
         result.add( oneResult );
@@ -799,7 +613,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
 
         iteration++;
       }
-
     } catch ( HopException ke ) {
       logError( "Error running action 'workflow' : ", ke );
 

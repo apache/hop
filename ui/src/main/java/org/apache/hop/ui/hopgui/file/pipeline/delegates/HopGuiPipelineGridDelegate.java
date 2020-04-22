@@ -73,7 +73,7 @@ public class HopGuiPipelineGridDelegate {
 
   public static final long UPDATE_TIME_VIEW = 2000L;
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
 
   private CTabItem pipelineGridTab;
@@ -92,11 +92,11 @@ public class HopGuiPipelineGridDelegate {
   private final ReentrantLock refreshViewLock;
 
   /**
-   * @param hopUi
+   * @param hopGui
    * @param pipelineGraph
    */
-  public HopGuiPipelineGridDelegate( HopGui hopUi, HopGuiPipelineGraph pipelineGraph ) {
-    this.hopUi = hopUi;
+  public HopGuiPipelineGridDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+    this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
     this.refreshViewLock = new ReentrantLock();
     hideInactiveTransforms = false;
@@ -196,7 +196,7 @@ public class HopGuiPipelineGridDelegate {
       | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1,
       true, // readonly!
       null, // Listener
-      hopUi.getProps() );
+      hopGui.getProps() );
     FormData fdView = new FormData();
     fdView.left = new FormAttachment( 0, 0 );
     fdView.right = new FormAttachment( 100, 0 );
@@ -213,8 +213,8 @@ public class HopGuiPipelineGridDelegate {
 
     TimerTask timtask = new TimerTask() {
       public void run() {
-        if ( !hopUi.getDisplay().isDisposed() ) {
-          hopUi.getDisplay().asyncExec( HopGuiPipelineGridDelegate.this::refreshView );
+        if ( !hopGui.getDisplay().isDisposed() ) {
+          hopGui.getDisplay().asyncExec( HopGuiPipelineGridDelegate.this::refreshView );
         }
       }
     };
@@ -240,9 +240,9 @@ public class HopGuiPipelineGridDelegate {
     fdToolBar.top = new FormAttachment( 0, 0 );
     fdToolBar.right = new FormAttachment( 100, 0 );
     toolbar.setLayoutData( fdToolBar );
-    hopUi.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
+    hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolbarWidget = new GuiCompositeWidgets( hopUi.getVariables() );
+    toolbarWidget = new GuiCompositeWidgets( hopGui.getVariables() );
     toolbarWidget.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
     toolbar.pack();
   }

@@ -823,16 +823,16 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return detections;
   }
 
-  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String carteObjectId, int startLogLineNr )
+  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String serverObjectId, int startLogLineNr )
     throws Exception {
-    return getPipelineStatus( pipelineName, carteObjectId, startLogLineNr, false );
+    return getPipelineStatus( pipelineName, serverObjectId, startLogLineNr, false );
   }
 
-  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String carteObjectId, int startLogLineNr,
+  public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String serverObjectId, int startLogLineNr,
                                                       boolean sendResultXmlWithStatus )
     throws Exception {
     String query = GetPipelineStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-      + Const.NVL( carteObjectId, "" ) + "&xml=Y&from=" + startLogLineNr;
+      + Const.NVL( serverObjectId, "" ) + "&xml=Y&from=" + startLogLineNr;
     if ( sendResultXmlWithStatus ) {
       query = query + "&" + GetPipelineStatusServlet.SEND_RESULT + "=Y";
     }
@@ -840,67 +840,67 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return SlaveServerPipelineStatus.fromXML( xml );
   }
 
-  public SlaveServerWorkflowStatus getWorkflowStatus( String workflowName, String carteObjectId, int startLogLineNr )
+  public SlaveServerWorkflowStatus getWorkflowStatus( String workflowName, String serverObjectId, int startLogLineNr )
     throws Exception {
     String xml =
       execService( GetWorkflowStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y&from=" + startLogLineNr, true );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y&from=" + startLogLineNr, true );
     return SlaveServerWorkflowStatus.fromXML( xml );
   }
 
-  public WebResult stopPipeline( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult stopPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StopPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult pauseResumePipeline( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult pauseResumePipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( PausePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult removePipeline( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult removePipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( RemovePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult removeWorkflow( String workflowName, String carteObjectId ) throws Exception {
+  public WebResult removeWorkflow( String workflowName, String serverObjectId ) throws Exception {
     String xml =
       execService( RemoveWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult stopWorkflow( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult stopWorkflow( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StopWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
-        + Const.NVL( carteObjectId, "" ) );
+        + Const.NVL( serverObjectId, "" ) );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult startPipeline( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult startPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StartPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult startWorkflow( String workflowName, String carteObjectId ) throws Exception {
+  public WebResult startWorkflow( String workflowName, String serverObjectId ) throws Exception {
     String xml =
       execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&xml=Y&id="
-        + Const.NVL( carteObjectId, "" ) );
+        + Const.NVL( serverObjectId, "" ) );
     return WebResult.fromXMLString( xml );
   }
 
-  public WebResult cleanupPipeline( String pipelineName, String carteObjectId ) throws Exception {
+  public WebResult cleanupPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( carteObjectId, "" ) + "&xml=Y" );
+        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
     return WebResult.fromXMLString( xml );
   }
 
@@ -1102,22 +1102,22 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * Monitors a remote pipeline every 5 seconds.
    *
    * @param log           the log channel interface
-   * @param carteObjectId the HopServer object ID
+   * @param serverObjectId the HopServer object ID
    * @param pipelineName     the pipeline name
    */
-  public void monitorRemotePipeline( ILogChannel log, String carteObjectId, String pipelineName ) {
-    monitorRemotePipeline( log, carteObjectId, pipelineName, 5 );
+  public void monitorRemotePipeline( ILogChannel log, String serverObjectId, String pipelineName ) {
+    monitorRemotePipeline( log, serverObjectId, pipelineName, 5 );
   }
 
   /**
    * Monitors a remote pipeline at the specified interval.
    *
    * @param log              the log channel interface
-   * @param carteObjectId    the HopServer object ID
+   * @param serverObjectId    the HopServer object ID
    * @param pipelineName        the pipeline name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemotePipeline( ILogChannel log, String carteObjectId, String pipelineName, int sleepTimeSeconds ) {
+  public void monitorRemotePipeline( ILogChannel log, String serverObjectId, String pipelineName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {
@@ -1127,7 +1127,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       // Check the remote server
       if ( allFinished && errors == 0 ) {
         try {
-          SlaveServerPipelineStatus pipelineStatus = getPipelineStatus( pipelineName, carteObjectId, 0 );
+          SlaveServerPipelineStatus pipelineStatus = getPipelineStatus( pipelineName, serverObjectId, 0 );
           if ( pipelineStatus.isRunning() ) {
             if ( log.isDetailed() ) {
               log.logDetailed( pipelineName, "Remote pipeline is still running." );
@@ -1168,7 +1168,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     // Clean up the remote pipeline
     //
     try {
-      WebResult webResult = cleanupPipeline( pipelineName, carteObjectId );
+      WebResult webResult = cleanupPipeline( pipelineName, serverObjectId );
       if ( !WebResult.STRING_OK.equals( webResult.getResult() ) ) {
         log.logError( pipelineName, "Unable to run clean-up on remote pipeline '" + pipelineName + "' : " + webResult
           .getMessage() );
@@ -1185,22 +1185,22 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * Monitors a remote workflow every 5 seconds.
    *
    * @param log           the log channel interface
-   * @param carteObjectId the HopServer object ID
+   * @param serverObjectId the HopServer object ID
    * @param workflowName       the workflow name
    */
-  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String workflowName ) {
-    monitorRemoteJob( log, carteObjectId, workflowName, 5 );
+  public void monitorRemoteJob( ILogChannel log, String serverObjectId, String workflowName ) {
+    monitorRemoteJob( log, serverObjectId, workflowName, 5 );
   }
 
   /**
    * Monitors a remote workflow at the specified interval.
    *
    * @param log              the log channel interface
-   * @param carteObjectId    the HopServer object ID
+   * @param serverObjectId    the HopServer object ID
    * @param workflowName          the workflow name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
-  public void monitorRemoteJob( ILogChannel log, String carteObjectId, String workflowName, int sleepTimeSeconds ) {
+  public void monitorRemoteJob( ILogChannel log, String serverObjectId, String workflowName, int sleepTimeSeconds ) {
     long errors = 0;
     boolean allFinished = false;
     while ( !allFinished && errors == 0 ) {
@@ -1210,7 +1210,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       // Check the remote server
       if ( allFinished && errors == 0 ) {
         try {
-          SlaveServerWorkflowStatus jobStatus = getWorkflowStatus( workflowName, carteObjectId, 0 );
+          SlaveServerWorkflowStatus jobStatus = getWorkflowStatus( workflowName, serverObjectId, 0 );
           if ( jobStatus.isRunning() ) {
             if ( log.isDetailed() ) {
               log.logDetailed( workflowName, "Remote workflow is still running." );

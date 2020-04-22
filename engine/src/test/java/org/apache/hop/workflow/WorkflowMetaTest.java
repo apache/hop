@@ -229,7 +229,7 @@ public class WorkflowMetaTest {
 
     meta.loadXml( workflowNode, null, Mockito.mock( IMetaStore.class ) );
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
-    workflow.setInternalHopVariables( null );
+    workflow.setInternalHopVariables();
   }
 
   @Test

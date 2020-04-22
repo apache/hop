@@ -285,8 +285,8 @@ public class HopServer {
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter( stringWriter );
-    formatter.printHelp( printWriter, 80, "CarteDummy", header, options, 5, 5, "", false );
-    System.err.println( stripOff( stringWriter.toString(), "usage: CarteDummy" ) );
+    formatter.printHelp( printWriter, 80, "HopServerDummy", header, options, 5, 5, "", false );
+    System.err.println( stripOff( stringWriter.toString(), "usage: HopServerDummy" ) );
 
     System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": hop-server.sh 127.0.0.1 8080" );
     System.err.println( BaseMessages.getString( PKG, "HopServer.Usage.Example" ) + ": hop-server.sh 192.168.1.221 8081" );

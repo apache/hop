@@ -22,12 +22,13 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,26 +48,28 @@ public class WorkflowMap {
   private SlaveServerConfig slaveServerConfig;
 
   public WorkflowMap() {
-    workflowMap = new HashMap<>();
-    configurationMap = new HashMap<>();
+    workflowMap = Collections.synchronizedMap(new HashMap<>());
+    configurationMap = Collections.synchronizedMap(new HashMap<>());
   }
 
-  public synchronized void addWorkflow( String workflowName, String carteObjectId, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
-    HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, carteObjectId );
+  public synchronized void addWorkflow( String workflowName, String serverObjectId, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
+    HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, serverObjectId );
     workflowMap.put( entry, workflow );
     configurationMap.put( entry, workflowConfiguration );
   }
 
-  public synchronized void registerWorkflow( IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
-    workflow.setContainerObjectId( UUID.randomUUID().toString() );
-    HopServerObjectEntry entry = new HopServerObjectEntry( workflow.getWorkflowMeta().getName(), workflow.getContainerObjectId() );
-    workflowMap.put( entry, workflow );
-    configurationMap.put( entry, workflowConfiguration );
+  public synchronized void replaceWorkflow( IWorkflowEngine<WorkflowMeta> oldWorkflow, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
+    HopServerObjectEntry entry = getEntry(oldWorkflow);
+    if (entry!=null) {
+      workflowMap.put( entry, workflow );
+      configurationMap.put( entry, workflowConfiguration );
+    } else {
+      addWorkflow( workflow.getWorkflowName(), workflow.getContainerObjectId(), workflow, workflowConfiguration );
+    }
   }
 
-  public synchronized void replaceWorkflow( HopServerObjectEntry entry, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
-    workflowMap.put( entry, workflow );
-    configurationMap.put( entry, workflowConfiguration );
+  private HopServerObjectEntry getEntry(IWorkflowEngine<WorkflowMeta> workflow) {
+    return new HopServerObjectEntry( workflow.getWorkflowName(), workflow.getContainerObjectId() );
   }
 
   /**
@@ -76,9 +79,11 @@ public class WorkflowMap {
    * @return the first pipeline with the specified name
    */
   public synchronized IWorkflowEngine<WorkflowMeta> getWorkflow( String workflowName ) {
-    for ( HopServerObjectEntry entry : workflowMap.keySet() ) {
-      if ( entry.getName().equals( workflowName ) ) {
-        return getWorkflow( entry );
+    synchronized ( workflowMap ) {
+      for ( HopServerObjectEntry entry : workflowMap.keySet() ) {
+        if ( entry.getName().equals( workflowName ) ) {
+          return getWorkflow( entry );
+        }
       }
     }
     return null;
@@ -118,7 +123,7 @@ public class WorkflowMap {
     return new ArrayList<>( workflowMap.keySet() );
   }
 
-  public synchronized HopServerObjectEntry getFirstCarteObjectEntry( String workflowName ) {
+  public synchronized HopServerObjectEntry getFirstHopServerObjectEntry( String workflowName ) {
     for ( HopServerObjectEntry key : workflowMap.keySet() ) {
       if ( key.getName().equals( workflowName ) ) {
         return key;
@@ -148,12 +153,40 @@ public class WorkflowMap {
    * @return The workflow if it's found, null if the ID couldn't be found in the workflow map.
    */
   public synchronized IWorkflowEngine<WorkflowMeta> findWorkflow( String id ) {
-    for ( IWorkflowEngine<WorkflowMeta> workflow : workflowMap.values() ) {
-      if ( workflow.getContainerObjectId().equals( id ) ) {
-        return workflow;
+    synchronized ( workflowMap ) {
+      for ( IWorkflowEngine<WorkflowMeta> workflow : workflowMap.values() ) {
+        if ( workflow.getContainerObjectId().equals( id ) ) {
+          return workflow;
+        }
       }
     }
     return null;
   }
 
+  /**
+   * Find a workflow with an optional ID
+   * @param workflowName The name of the workflow
+   * @param id The ID of the workflow or null if it's not provided
+   * @return The workflow or null if it couldn't be found.
+   */
+  public IWorkflowEngine<WorkflowMeta> findWorkflow( String workflowName, String id ) {
+    IWorkflowEngine<WorkflowMeta> workflow;
+    HopServerObjectEntry entry;
+    if ( Utils.isEmpty( id ) ) {
+      // get the first workflow that matches...
+      //
+      entry = getFirstHopServerObjectEntry( workflowName );
+      if ( entry == null ) {
+        workflow = null;
+      } else {
+        workflow = getWorkflow( entry );
+      }
+    } else {
+      // Take the ID into account!
+      //
+      entry = new HopServerObjectEntry( workflowName, id );
+      workflow = getWorkflow( entry );
+    }
+    return workflow;
+  }
 }

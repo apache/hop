@@ -264,7 +264,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /*
    * (non-Javadoc)
    *
-   * @see com.ibridge.kettle.core.database.IDatabase#getReservedWords()
+   * @see com.ibridge.hop.core.database.IDatabase#getReservedWords()
    */
   @Override
   public String[] getReservedWords() {

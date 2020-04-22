@@ -105,7 +105,7 @@ public class HopClientEnvironment {
 
     createHopHome();
 
-    // Read the kettle.properties file before anything else
+    // Read the hop.properties file before anything else
     //
     EnvUtil.environmentInit();
 
@@ -189,7 +189,7 @@ public class HopClientEnvironment {
   }
 
   /**
-   * Creates the kettle home area, which is a directory containing a default kettle.properties file
+   * Creates the hop home area, which is a directory containing a default hop.properties file
    */
   public static void createHopHome() {
 
@@ -200,7 +200,7 @@ public class HopClientEnvironment {
     try {
       dir.mkdirs();
 
-      // Also create a file called kettle.properties
+      // Also create a file called hop.properties
       //
       createDefaultHopProperties( directory );
     } catch ( Exception e ) {
@@ -217,7 +217,7 @@ public class HopClientEnvironment {
   }
 
   /**
-   * Creates the default kettle properties file, containing the standard header.
+   * Creates the default hop properties file, containing the standard header.
    *
    * @param directory the directory
    */

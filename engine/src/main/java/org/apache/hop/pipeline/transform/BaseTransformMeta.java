@@ -189,7 +189,7 @@ public class BaseTransformMeta implements Cloneable {
    * @param nextTransform     the next transform that is targeted
    * @param variables        the space The variable space to use to replace variables
    * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
-   * @throws HopTransformException the kettle transform exception
+   * @throws HopTransformException the hop transform exception
    */
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IMetaStore metaStore ) throws HopTransformException {
@@ -316,7 +316,7 @@ public class BaseTransformMeta implements Cloneable {
    * @param iResourceNaming the resource naming interface
    * @param metaStore               The place to load additional information
    * @return the string
-   * @throws HopException the kettle exception
+   * @throws HopException the hop exception
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {

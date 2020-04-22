@@ -103,10 +103,10 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
       workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
-      String carteObjectId = UUID.randomUUID().toString();
+      String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
         new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
-      servletLoggingObject.setContainerObjectId( carteObjectId );
+      servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
       // Create the transformation and store in the list...
@@ -145,18 +145,18 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
         workflow.setStartActionCopy( startActionCopy );
       }
 
-      getWorkflowMap().addWorkflow( workflow.getWorkflowName(), carteObjectId, workflow, workflowConfiguration );
+      getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
 
 
-      String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + carteObjectId;
+      String message = "Workflow '" + workflow.getWorkflowName() + "' was added to the list with id " + serverObjectId;
 
       if ( useXML ) {
-        out.println( new WebResult( WebResult.STRING_OK, message, carteObjectId ) );
+        out.println( new WebResult( WebResult.STRING_OK, message, serverObjectId ) );
       } else {
         out.println( "<H1>" + message + "</H1>" );
         out.println( "<p><a href=\""
           + convertContextPath( GetWorkflowStatusServlet.CONTEXT_PATH ) + "?name=" + workflow.getWorkflowName() + "&id="
-          + carteObjectId + "\">Go to the workflow status page</a><p>" );
+          + serverObjectId + "\">Go to the workflow status page</a><p>" );
       }
     } catch ( Exception ex ) {
       if ( useXML ) {

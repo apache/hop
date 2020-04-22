@@ -32,7 +32,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.dialog.WorkflowExecutionConfigurationDialog;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -48,8 +47,8 @@ import java.util.Map;
 public class HopGuiWorkflowRunDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
-  private HopGuiWorkflowGraph jobGraph;
-  private HopGui hopUi;
+  private HopGuiWorkflowGraph workflowGraph;
+  private HopGui hopGui;
 
   private WorkflowExecutionConfiguration workflowExecutionConfiguration;
 
@@ -60,11 +59,11 @@ public class HopGuiWorkflowRunDelegate {
   private List<WorkflowMeta> jobMap;
 
   /**
-   * @param hopUi
+   * @param hopGui
    */
-  public HopGuiWorkflowRunDelegate( HopGui hopUi, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopUi;
-    this.jobGraph = jobGraph;
+  public HopGuiWorkflowRunDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
+    this.hopGui = hopGui;
+    this.workflowGraph = workflowGraph;
 
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration();
     workflowExecutionConfiguration.setGatheringMetrics( true );
@@ -72,7 +71,7 @@ public class HopGuiWorkflowRunDelegate {
     jobMap = new ArrayList<>();
   }
 
-  public void executeJob( WorkflowMeta workflowMeta, boolean local, boolean remote, boolean safe, String startCopyName, int startCopyNr ) throws HopException {
+  public void executeWorkflow( WorkflowMeta workflowMeta, boolean local, boolean remote, boolean safe, String startCopyName, int startCopyNr ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -86,7 +85,6 @@ public class HopGuiWorkflowRunDelegate {
     variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
     executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( workflowMeta );
-    executionConfiguration.setSafeModeEnabled( safe );
     executionConfiguration.setStartCopyName( startCopyName );
     executionConfiguration.setStartCopyNr( startCopyNr );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
@@ -95,7 +93,7 @@ public class HopGuiWorkflowRunDelegate {
 
     if ( !workflowMeta.isShowDialog() || dialog.open() ) {
 
-      jobGraph.jobLogDelegate.addJobLog();
+      workflowGraph.jobLogDelegate.addJobLog();
 
       // Set the variables that where specified...
       //
@@ -127,9 +125,8 @@ public class HopGuiWorkflowRunDelegate {
       // Set the run options
       //
       workflowMeta.setClearingLog( executionConfiguration.isClearingLog() );
-      workflowMeta.setSafeModeEnabled( executionConfiguration.isSafeModeEnabled() );
 
-      ILogChannel log = jobGraph.getWorkflowMeta().getLogChannel();
+      ILogChannel log = workflowGraph.getWorkflowMeta().getLogChannel();
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowMetaExecutionStart.id, workflowMeta );
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobExecutionConfiguration.id, executionConfiguration );
 
@@ -140,43 +137,17 @@ public class HopGuiWorkflowRunDelegate {
         return;
       }
 
-      if ( !executionConfiguration.isExecutingLocally() && !executionConfiguration.isExecutingRemotely() ) {
-        if ( workflowMeta.hasChanged() ) {
-          jobGraph.showSaveFileMessage();
-        }
+      if ( workflowMeta.hasChanged() ) {
+        workflowGraph.showSaveFileMessage();
       }
 
-      // Is this a local execution?
-      //
-      if ( executionConfiguration.isExecutingLocally() ) {
-        jobGraph.startJob( executionConfiguration );
-      } else if ( executionConfiguration.isExecutingRemotely() ) {
-        // Executing remotely
-        // Check if workflowMeta has changed
-        jobGraph.handleWorkflowMetaChanges( workflowMeta );
-
-        // Activate the parameters, turn them into variables...
-        // workflowMeta.hasChanged()
-        workflowMeta.activateParameters();
-
-        if ( executionConfiguration.getRemoteServer() != null ) {
-          Workflow.sendToSlaveServer( workflowMeta, executionConfiguration, hopUi.getMetaStore() );
-          // TODO: bring back the slave server monitor?
-          // TODO: remove difference between local and remote execution
-          //     hopUi.delegates.slaves.addHopGuiSlave( executionConfiguration.getRemoteServer() );
-        } else {
-          MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Message" ) );
-          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.NoRemoteServerSpecified.Title" ) );
-          mb.open();
-        }
-      }
+      workflowGraph.startJob( executionConfiguration );
     }
   }
 
   @VisibleForTesting
   WorkflowExecutionConfigurationDialog newWorkflowExecutionConfigurationDialog( WorkflowExecutionConfiguration executionConfiguration, WorkflowMeta workflowMeta ) {
-    return new WorkflowExecutionConfigurationDialog( hopUi.getShell(), executionConfiguration, workflowMeta );
+    return new WorkflowExecutionConfigurationDialog( hopGui.getShell(), executionConfiguration, workflowMeta );
   }
 
 
@@ -187,17 +158,17 @@ public class HopGuiWorkflowRunDelegate {
     m.open();
   }
 
-  private void monitorRemoteJob( final WorkflowMeta workflowMeta, final String carteObjectId, final SlaveServer remoteSlaveServer ) {
+  private void monitorRemoteJob( final WorkflowMeta workflowMeta, final String serverObjectId, final SlaveServer remoteSlaveServer ) {
     // There is a workflow running in the background. When it finishes log the result on the console.
     // Launch in a separate thread to prevent GUI blocking...
     //
     Thread thread = new Thread( new Runnable() {
       public void run() {
-        remoteSlaveServer.monitorRemoteJob( hopUi.getLog(), carteObjectId, workflowMeta.toString() );
+        remoteSlaveServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() );
       }
     } );
 
-    thread.setName( "Monitor remote workflow '" + workflowMeta.getName() + "', carte object id=" + carteObjectId
+    thread.setName( "Monitor remote workflow '" + workflowMeta.getName() + "', carte object id=" + serverObjectId
       + ", slave server: " + remoteSlaveServer.getName() );
     thread.start();
 
@@ -209,31 +180,31 @@ public class HopGuiWorkflowRunDelegate {
    *
    * @return value of jobGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+  public HopGuiWorkflowGraph getWorkflowGraph() {
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The jobGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**
-   * Gets hopUi
+   * Gets hopGui
    *
-   * @return value of hopUi
+   * @return value of hopGui
    */
-  public HopGui getHopUi() {
-    return hopUi;
+  public HopGui getHopGui() {
+    return hopGui;
   }
 
   /**
-   * @param hopUi The hopUi to set
+   * @param hopGui The hopGui to set
    */
-  public void setHopUi( HopGui hopUi ) {
-    this.hopUi = hopUi;
+  public void setHopGui( HopGui hopGui ) {
+    this.hopGui = hopGui;
   }
 
   /**

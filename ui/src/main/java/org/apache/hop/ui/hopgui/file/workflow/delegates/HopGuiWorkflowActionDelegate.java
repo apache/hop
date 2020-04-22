@@ -48,11 +48,11 @@ public class HopGuiWorkflowActionDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private HopGuiWorkflowGraph jobGraph;
 
   public HopGuiWorkflowActionDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
-    this.hopUi = hopGui;
+    this.hopGui = hopGui;
     this.jobGraph = jobGraph;
   }
 
@@ -95,7 +95,7 @@ public class HopGuiWorkflowActionDelegate {
           if ( WorkflowMeta.STRING_SPECIAL_START.equalsIgnoreCase( pluginName ) ) {
             // Check if start is already on the canvas...
             if ( workflowMeta.findStart() != null ) {
-              HopGuiWorkflowGraph.showOnlyStartOnceMessage( hopUi.getShell() );
+              HopGuiWorkflowGraph.showOnlyStartOnceMessage( hopGui.getShell() );
               return null;
             }
             ( (ActionSpecial) action ).setStart( true );
@@ -122,7 +122,7 @@ public class HopGuiWorkflowActionDelegate {
             //
             workflowMeta.renameActionIfNameCollides( jge );
 
-            hopUi.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
+            hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
             jobGraph.updateGui();
             return jge;
           } else {
@@ -138,7 +138,7 @@ public class HopGuiWorkflowActionDelegate {
           }
           jge.setNr( 0 );
           workflowMeta.addAction( jge );
-          hopUi.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
+          hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
           jobGraph.updateGui();
           return jge;
         }
@@ -146,7 +146,7 @@ public class HopGuiWorkflowActionDelegate {
         return null;
       }
     } catch ( Throwable e ) {
-      new ErrorDialog( hopUi.getShell(),
+      new ErrorDialog( hopGui.getShell(),
         BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title" ),
         BaseMessages.getString( PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Message" ),
         new Exception( e ) );
@@ -157,14 +157,14 @@ public class HopGuiWorkflowActionDelegate {
 
   public IActionDialog getActionDialog( IAction action, WorkflowMeta workflowMeta ) {
     Class<?>[] paramClasses = new Class<?>[] { Shell.class, IAction.class, WorkflowMeta.class };
-    Object[] paramArgs = new Object[] { hopUi.getShell(), action, workflowMeta };
+    Object[] paramArgs = new Object[] { hopGui.getShell(), action, workflowMeta };
 
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin( ActionPluginType.class, action );
     String dialogClassName = plugin.getClassMap().get( IActionDialog.class );
     if ( dialogClassName == null ) {
       // try the deprecated way
-      hopUi.getLog().logBasic( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
+      hopGui.getLog().logBasic( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
       dialogClassName = action.getDialogClassName();
     }
 
@@ -172,21 +172,21 @@ public class HopGuiWorkflowActionDelegate {
       Class<IActionDialog> dialogClass = registry.getClass( plugin, dialogClassName );
       Constructor<IActionDialog> dialogConstructor = dialogClass.getConstructor( paramClasses );
       IActionDialog entryDialogInterface = dialogConstructor.newInstance( paramArgs );
-      entryDialogInterface.setMetaStore( hopUi.getMetaStore() );
+      entryDialogInterface.setMetaStore( hopGui.getMetaStore() );
       return entryDialogInterface;
     } catch ( Throwable t ) {
       t.printStackTrace();
       String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingWorkflowDialog.Title" );
       String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingActionDialog.Message", dialogClassName );
-      hopUi.getLog().logError( errorMsg );
-      new ErrorDialog( hopUi.getShell(), errorTitle, errorMsg, t );
+      hopGui.getLog().logError( errorMsg );
+      new ErrorDialog( hopGui.getShell(), errorTitle, errorMsg, t );
       return null;
     }
   }
 
   public void editAction( WorkflowMeta workflowMeta, ActionCopy action ) {
     try {
-      hopUi.getLog().logBasic( BaseMessages.getString( PKG, "HopGui.Log.EditAction", action.getName() ) );
+      hopGui.getLog().logBasic( BaseMessages.getString( PKG, "HopGui.Log.EditAction", action.getName() ) );
 
       ActionCopy before = (ActionCopy) action.cloneDeep();
 
@@ -201,19 +201,19 @@ public class HopGuiWorkflowActionDelegate {
           workflowMeta.renameActionIfNameCollides( action );
 
           ActionCopy after = (ActionCopy) action.clone();
-          hopUi.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
+          hopGui.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
           jobGraph.updateGui();
         }
       } else {
-        MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
+        MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
         mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ActionCanNotBeChanged.Message" ) );
         mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ActionCanNotBeChanged.Title" ) );
         mb.open();
       }
 
     } catch ( Exception e ) {
-      if ( !hopUi.getShell().isDisposed() ) {
-        new ErrorDialog( hopUi.getShell(),
+      if ( !hopGui.getShell().isDisposed() ) {
+        new ErrorDialog( hopGui.getShell(),
           BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingAction.Title" ),
           BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorEditingAction.Message" ), e );
       }
@@ -241,7 +241,7 @@ public class HopGuiWorkflowActionDelegate {
     }
     if ( !jobHops.isEmpty() ) {
       WorkflowHopMeta[] hops = jobHops.toArray( new WorkflowHopMeta[ jobHops.size() ] );
-      hopUi.undoDelegate.addUndoDelete( workflow, hops, hopIndexes );
+      hopGui.undoDelegate.addUndoDelete( workflow, hops, hopIndexes );
     }
 
     // Deleting actions are placed all in a single transaction and removed.
@@ -251,7 +251,7 @@ public class HopGuiWorkflowActionDelegate {
       workflow.removeAction( pos );
       positions[ i ] = pos;
     }
-    hopUi.undoDelegate.addUndoDelete( workflow, actions.toArray( new ActionCopy[ 0 ] ), positions );
+    hopGui.undoDelegate.addUndoDelete( workflow, actions.toArray( new ActionCopy[ 0 ] ), positions );
 
     jobGraph.updateGui();
   }
@@ -261,14 +261,14 @@ public class HopGuiWorkflowActionDelegate {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
       if ( hi.getFromEntry().equals( action ) || hi.getToEntry().equals( action ) ) {
         int idx = workflowMeta.indexOfWorkflowHop( hi );
-        hopUi.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hi.clone() }, new int[] { idx } );
+        hopGui.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hi.clone() }, new int[] { idx } );
         workflowMeta.removeWorkflowHop( idx );
       }
     }
 
     int pos = workflowMeta.indexOfAction( action );
     workflowMeta.removeAction( pos );
-    hopUi.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { action }, new int[] { pos } );
+    hopGui.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { action }, new int[] { pos } );
 
     jobGraph.updateGui();
   }
@@ -279,7 +279,7 @@ public class HopGuiWorkflowActionDelegate {
     }
 
     if ( action.isStart() ) {
-      MessageBox mb = new MessageBox( hopUi.getShell(), SWT.OK | SWT.ICON_INFORMATION );
+      MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.OnlyUseStartOnce.Title" ) );
       mb.open();

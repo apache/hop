@@ -38,12 +38,12 @@ public class HopGuiNotePadDelegate {
   // TODO: move i18n package to HopGui
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
-  private HopGui hopUi;
+  private HopGui hopGui;
   private IHopFileTypeHandler handler;
   private PropsUi props;
 
   public HopGuiNotePadDelegate( HopGui hopGui, IHopFileTypeHandler handler ) {
-    this.hopUi = hopGui;
+    this.hopGui = hopGui;
     this.handler = handler;
     this.props = PropsUi.getInstance();
   }
@@ -61,7 +61,7 @@ public class HopGuiNotePadDelegate {
     for ( int idx : idxs ) {
       meta.removeNote( idx );
     }
-    hopUi.undoDelegate.addUndoDelete( meta, noteCopies, idxs );
+    hopGui.undoDelegate.addUndoDelete( meta, noteCopies, idxs );
     handler.updateGui();
   }
 
@@ -69,14 +69,14 @@ public class HopGuiNotePadDelegate {
     int idx = meta.indexOfNote( notePadMeta );
     if ( idx >= 0 ) {
       meta.removeNote( idx );
-      hopUi.undoDelegate.addUndoDelete( meta, new NotePadMeta[] { (NotePadMeta) notePadMeta.clone() }, new int[] { idx } );
+      hopGui.undoDelegate.addUndoDelete( meta, new NotePadMeta[] { (NotePadMeta) notePadMeta.clone() }, new int[] { idx } );
     }
     handler.updateGui();
   }
 
   public void newNote( AbstractMeta meta, int x, int y ) {
     String title = BaseMessages.getString( PKG, "PipelineGraph.Dialog.NoteEditor.Title" );
-    NotePadDialog dd = new NotePadDialog( meta, hopUi.getShell(), title );
+    NotePadDialog dd = new NotePadDialog( meta, hopGui.getShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =
@@ -85,7 +85,7 @@ public class HopGuiNotePadDelegate {
           .getFontColorGreen(), n.getFontColorBlue(), n.getBackGroundColorRed(), n.getBackGroundColorGreen(), n
           .getBackGroundColorBlue(), n.getBorderColorRed(), n.getBorderColorGreen(), n.getBorderColorBlue() );
       meta.addNote( npi );
-      hopUi.undoDelegate.addUndoNew( meta, new NotePadMeta[] { npi }, new int[] { meta.indexOfNote( npi ) } );
+      hopGui.undoDelegate.addUndoNew( meta, new NotePadMeta[] { npi }, new int[] { meta.indexOfNote( npi ) } );
       handler.updateGui();
     }
   }

@@ -71,7 +71,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * Constant specifying a filename containing XML to inject into a ZIP file created during resource export.
    */
-  public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__job_execution_configuration__.xml";
+  public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__pipeline_execution_configuration__.xml";
   private final PipelineEngineCapabilities engineCapabilities;
 
   protected PipelineMeta subject;
@@ -181,7 +181,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         throw new HopException( "No run configuration was specified to the remote pipeline with" );
       }
       if ( metaStore == null ) {
-        throw new HopException( "The remote pipeline engine didn't receive a metastore to slave server '" + slaveServerName + "' from" );
+        throw new HopException( "The remote pipeline engine didn't receive a metastore to load slave server '" + slaveServerName + "'" );
       }
 
       // Create a new log channel when we start the action

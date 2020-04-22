@@ -34,9 +34,9 @@ import java.util.Map;
  * @see BaseHopServerPlugin
  */
 public interface IHopServerRequestHandler {
-  void handleRequest( ICarteRequest request ) throws IOException;
+  void handleRequest( IHopServerRequest request ) throws IOException;
 
-  interface ICarteRequest {
+  interface IHopServerRequest {
     String getMethod();
 
     Map<String, Collection<String>> getHeaders();
@@ -49,10 +49,10 @@ public interface IHopServerRequestHandler {
 
     InputStream getInputStream() throws IOException;
 
-    ICarteResponse respond( int status );
+    IHopServerResponse respond( int status );
   }
 
-  interface ICarteResponse {
+  interface IHopServerResponse {
     void with( String contentType, IWriterResponse response ) throws IOException;
 
     void with( String contentType, IOutputStreamResponse response ) throws IOException;

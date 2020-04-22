@@ -61,7 +61,7 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
   private static Class<?> PKG = StopHopServerServlet.class;
 
   private static final long serialVersionUID = -5459379367791045161L;
-  public static final String CONTEXT_PATH = "/hop/stopCarte";
+  public static final String CONTEXT_PATH = "/hop/stopHopServer";
   public static final String REQUEST_ACCEPTED = "request_accepted";
   private final DelayedExecutor delayedExecutor;
 
@@ -85,7 +85,7 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest" ) );
+      logDebug( BaseMessages.getString( PKG, "StopHopServerServlet.shutdownRequest" ) );
     }
 
     response.setStatus( HttpServletResponse.SC_OK );
@@ -107,12 +107,12 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
     } else {
       out.println( "<HTML>" );
       out.println(
-        "<HEAD><TITLE>" + BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest" ) + "</TITLE></HEAD>" );
+        "<HEAD><TITLE>" + BaseMessages.getString( PKG, "StopHopServerServlet.shutdownRequest" ) + "</TITLE></HEAD>" );
       out.println( "<BODY>" );
-      out.println( "<H1>" + BaseMessages.getString( PKG, "StopCarteServlet.status.label" ) + "</H1>" );
+      out.println( "<H1>" + BaseMessages.getString( PKG, "StopHopServerServlet.status.label" ) + "</H1>" );
       out.println( "<p>" );
       if ( hopServer != null ) {
-        out.println( BaseMessages.getString( PKG, "StopCarteServlet.shutdownRequest.status.ok" ) );
+        out.println( BaseMessages.getString( PKG, "StopHopServerServlet.shutdownRequest.status.ok" ) );
       } else {
         out.println( BaseMessages.getString( PKG, "StopHopServerServlet.shutdownRequest.status.notFound" ) );
       }
@@ -134,7 +134,7 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
 
   @Override
   public String toString() {
-    return BaseMessages.getString( PKG, "StopCarteServlet.description" );
+    return BaseMessages.getString( PKG, "StopHopServerServlet.description" );
   }
 
   @Override

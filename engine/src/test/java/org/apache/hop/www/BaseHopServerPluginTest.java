@@ -55,7 +55,7 @@ public class BaseHopServerPluginTest {
   PrintWriter printWriter = mock( PrintWriter.class );
   javax.servlet.ServletOutputStream outputStream = mock( javax.servlet.ServletOutputStream.class );
 
-  ArgumentCaptor<IHopServerRequestHandler.ICarteRequest> carteReqCaptor = ArgumentCaptor.forClass( IHopServerRequestHandler.ICarteRequest.class );
+  ArgumentCaptor<IHopServerRequestHandler.IHopServerRequest> carteReqCaptor = ArgumentCaptor.forClass( IHopServerRequestHandler.IHopServerRequest.class );
 
   BaseHopServerPlugin baseHopServerPlugin;
 
@@ -63,7 +63,7 @@ public class BaseHopServerPluginTest {
   public void before() {
     baseHopServerPlugin = spy( new BaseHopServerPlugin() {
       @Override
-      public void handleRequest( ICarteRequest request ) throws IOException {
+      public void handleRequest( IHopServerRequest request ) throws IOException {
       }
 
       @Override
@@ -93,13 +93,13 @@ public class BaseHopServerPluginTest {
     verify( log ).logDebug( baseHopServerPlugin.getService() );
     verify( baseHopServerPlugin ).handleRequest( carteReqCaptor.capture() );
 
-    IHopServerRequestHandler.ICarteRequest carteRequest = carteReqCaptor.getValue();
+    IHopServerRequestHandler.IHopServerRequest carteRequest = carteReqCaptor.getValue();
 
-    testCarteRequest( carteRequest );
-    testCarteResponse( carteRequest.respond( 200 ) );
+    testHopServerRequest( carteRequest );
+    testHopServerResponse( carteRequest.respond( 200 ) );
   }
 
-  private void testCarteResponse( IHopServerRequestHandler.ICarteResponse response ) throws IOException {
+  private void testHopServerResponse( IHopServerRequestHandler.IHopServerResponse response ) throws IOException {
     when( resp.getWriter() ).thenReturn( printWriter );
     when( resp.getOutputStream() ).thenReturn( outputStream );
 
@@ -118,7 +118,7 @@ public class BaseHopServerPluginTest {
     verify( printWriter ).println( "Message" );
   }
 
-  private void testCarteRequest( IHopServerRequestHandler.ICarteRequest carteRequest ) {
+  private void testHopServerRequest( IHopServerRequestHandler.IHopServerRequest carteRequest ) {
     when( req.getMethod() ).thenReturn( "POST" );
     when( req.getHeader( "Connection" ) ).thenReturn( "Keep-Alive" );
     when( req.getParameter( "param1" ) ).thenReturn( "val1" );

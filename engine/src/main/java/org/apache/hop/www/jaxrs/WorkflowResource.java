@@ -78,7 +78,7 @@ public class WorkflowResource {
     WorkflowStatus status = new WorkflowStatus();
     // find workflow
     IWorkflowEngine<WorkflowMeta> workflow = HopServerResource.getWorkflow( id );
-    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
+    HopServerObjectEntry entry = HopServerResource.getHopServerObjectEntry( id );
 
     status.setId( entry.getId() );
     status.setName( entry.getName() );
@@ -93,7 +93,7 @@ public class WorkflowResource {
   @Produces( { MediaType.APPLICATION_JSON } )
   public WorkflowStatus startJob( @PathParam( "id" ) String id ) {
     IWorkflowEngine<WorkflowMeta> workflow = HopServerResource.getWorkflow( id );
-    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
+    HopServerObjectEntry entry = HopServerResource.getHopServerObjectEntry( id );
     if ( workflow.isInitialized() && !workflow.isActive() ) {
       // Re-create the workflow from the workflowMeta
       //
@@ -104,10 +104,10 @@ public class WorkflowResource {
       synchronized ( this ) {
         WorkflowConfiguration workflowConfiguration = HopServerSingleton.getInstance().getWorkflowMap().getConfiguration( entry );
 
-        String carteObjectId = UUID.randomUUID().toString();
+        String serverObjectId = UUID.randomUUID().toString();
         SimpleLoggingObject servletLoggingObject =
           new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
-        servletLoggingObject.setContainerObjectId( carteObjectId );
+        servletLoggingObject.setContainerObjectId( serverObjectId );
         String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
         IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
         try {
@@ -118,7 +118,7 @@ public class WorkflowResource {
           //
           HopLogStore.discardLines( workflow.getLogChannelId(), true );
 
-          HopServerSingleton.getInstance().getWorkflowMap().replaceWorkflow( entry, newWorkflow, workflowConfiguration );
+          HopServerSingleton.getInstance().getWorkflowMap().replaceWorkflow( workflow, newWorkflow, workflowConfiguration );
           workflow = newWorkflow;
         } catch(Exception e) {
           throw new RuntimeException( "Unable to instantiate new workflow", e );
@@ -148,7 +148,7 @@ public class WorkflowResource {
   @Path( "/remove/{id : .+}" )
   public Response removeJob( @PathParam( "id" ) String id ) {
     IWorkflowEngine<WorkflowMeta> workflow = HopServerResource.getWorkflow( id );
-    HopServerObjectEntry entry = HopServerResource.getCarteObjectEntry( id );
+    HopServerObjectEntry entry = HopServerResource.getHopServerObjectEntry( id );
     HopLogStore.discardLines( workflow.getLogChannelId(), true );
     HopServerSingleton.getInstance().getWorkflowMap().removeJob( entry );
     return Response.ok().build();
@@ -169,9 +169,9 @@ public class WorkflowResource {
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
       workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
-      String carteObjectId = UUID.randomUUID().toString();
+      String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
-      servletLoggingObject.setContainerObjectId( carteObjectId );
+      servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
       // Create the workflow and store in the list...
@@ -203,9 +203,9 @@ public class WorkflowResource {
       }
       workflowMeta.activateParameters();
 
-      HopServerSingleton.getInstance().getWorkflowMap().addWorkflow( workflow.getWorkflowName(), carteObjectId, workflow, workflowConfiguration );
+      HopServerSingleton.getInstance().getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
 
-      return getWorkflowStatus( carteObjectId );
+      return getWorkflowStatus( serverObjectId );
     } catch ( HopException e ) {
       e.printStackTrace();
     }

@@ -28,7 +28,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.cache.HopServerStatusCache;
@@ -150,7 +149,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
     }
 
     if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "RemoveWorkflowServlet.Log.RemoveJobRequested" ) );
+      logDebug( BaseMessages.getString( PKG, "RemoveWorkflowServlet.Log.RemoveWorkflowRequested" ) );
     }
 
     String workflowName = request.getParameter( "name" );
@@ -175,7 +174,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
     if ( Utils.isEmpty( id ) ) {
       // get the first pipeline that matches...
       //
-      entry = getWorkflowMap().getFirstCarteObjectEntry( workflowName );
+      entry = getWorkflowMap().getFirstHopServerObjectEntry( workflowName );
       if ( entry == null ) {
         workflow = null;
       } else {
@@ -205,13 +204,13 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
 
         out.println( "<HTML>" );
         out.println( "<HEAD>" );
-        out.println( "<TITLE>" + BaseMessages.getString( PKG, "RemoveWorkflowServlet.JobRemoved" ) + "</TITLE>" );
+        out.println( "<TITLE>" + BaseMessages.getString( PKG, "RemoveWorkflowServlet.WorkflowRemoved" ) + "</TITLE>" );
         out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
         out.println( "</HEAD>" );
         out.println( "<BODY>" );
         out.println( "<H3>"
           + Encode.forHtml( BaseMessages
-          .getString( PKG, "RemoveWorkflowServlet.TheJobWasRemoved", workflowName, id ) ) + "</H3>" );
+          .getString( PKG, "RemoveWorkflowServlet.TheWorkflowWasRemoved", workflowName, id ) ) + "</H3>" );
         out.print( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
           + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><br>" );
@@ -226,7 +225,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
       } else {
         out.println( "<H1>"
           + Encode.forHtml( BaseMessages.getString(
-          PKG, "RemoveWorkflowServlet.JobRemoved.Log.CoundNotFindWorkflow", workflowName, id ) ) + "</H1>" );
+          PKG, "RemoveWorkflowServlet.WorkflowRemoved.Log.CoundNotFindWorkflow", workflowName, id ) ) + "</H1>" );
         out.println( "<a href=\""
           + convertContextPath( GetStatusServlet.CONTEXT_PATH ) + "\">"
           + BaseMessages.getString( PKG, "PipelineStatusServlet.BackToStatusPage" ) + "</a><p>" );

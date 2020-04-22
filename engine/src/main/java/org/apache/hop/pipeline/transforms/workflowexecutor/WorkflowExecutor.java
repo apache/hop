@@ -193,7 +193,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     data.executorWorkflow.shareVariablesWith( data.executorWorkflowMeta );
     data.executorWorkflow.setParentPipeline( getPipeline() );
     data.executorWorkflow.setLogLevel( getLogLevel() );
-    data.executorWorkflow.setInternalHopVariables( this );
+    data.executorWorkflow.setInternalHopVariables();
     data.executorWorkflow.copyParametersFrom( data.executorWorkflowMeta );
 
     // data.executorWorkflow.setInteractive(); TODO: pass interactivity through the pipeline too for drill-down.
