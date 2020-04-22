@@ -1,0 +1,28 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/mergejoin/src/main/doc/mergejoin.adoc
+= Merge Join
+
+== Description
+
+The Merge Join transform performs a classic merge join between data sets with data coming from two different input transforms. Join options include INNER, LEFT OUTER, RIGHT OUTER, and FULL OUTER.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Commit size|The number of rows to change (insert / update) before running a commit.
+|Connection|The database connection to which data is written.
+|Don't perform any updates|If enabled, the values in the database are never updated;only inserts are performed.
+|Key Lookup table|Allows you to specify a list of field values and comparators. You can use the following comparators: =, = ~NULL, <>, <, <=, >, >=, LIKE, BETWEEN, IS NULL, IS NOT NULL
+|SQL button|Click SQL to generate the SQL to create the table and indexes for correct operation.
+|Transform name|Name of the transform; this name has to be unique in a single pipeline.
+|Target schema|The name of the Schema for the table to which data is written. This is important for data sources that allow for table names with periods in them.
+|Target table|Name of the table in which you want to do the insert or update.
+|Update Fields|Allows you to specify all fields in the table you want to insert/update including the keys. Avoid updates on certain fields by specifying N in the update column.
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

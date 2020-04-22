@@ -1,0 +1,20 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/tableexists/src/main/doc/tableexists.adoc
+= Table Exists
+
+== Description
+
+You can use the Table Exists transform to verify if a certain table exists in a database.  The result of this transform is a boolean flag field.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|The name of the transform. This name has to be unique in a single pipeline.
+|Connection|The database connection to use
+|Schema name|The schema of the table to look for
+|Table name field|The name of the field that will contain the database table name to look for.
+|Result fieldname|The name of the field that will contain the boolean result flag in the output of this transform.
+|===
