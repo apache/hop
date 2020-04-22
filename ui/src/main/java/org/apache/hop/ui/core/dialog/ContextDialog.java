@@ -588,7 +588,7 @@ public class ContextDialog extends Dialog {
 		int canvasColumn = Math.min(Math.floorDiv(x, cellWidth), nrColumns) ;
 
 		int index = startRow * calculateNrColumns() + canvasRow * nrColumns + canvasColumn;			
-		Item item = ( index < filteredItems.size() ) ? item = filteredItems.get(index):null;
+		Item item = ( index>=0 && index < filteredItems.size() ) ? item = filteredItems.get(index):null;
 		
 		return item;
 	}
