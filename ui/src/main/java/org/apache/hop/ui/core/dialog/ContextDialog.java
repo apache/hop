@@ -488,6 +488,7 @@ public class ContextDialog extends Dialog {
 		}
 				
 		// Update vertical bar
+		//
 		this.updateVerticalBar();
 		
 		wCanvas.redraw();
