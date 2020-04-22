@@ -28,7 +28,6 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -150,7 +149,7 @@ public class WorkflowResource {
     IWorkflowEngine<WorkflowMeta> workflow = HopServerResource.getWorkflow( id );
     HopServerObjectEntry entry = HopServerResource.getHopServerObjectEntry( id );
     HopLogStore.discardLines( workflow.getLogChannelId(), true );
-    HopServerSingleton.getInstance().getWorkflowMap().removeJob( entry );
+    HopServerSingleton.getInstance().getWorkflowMap().removeWorkflow( entry );
     return Response.ok().build();
   }
 

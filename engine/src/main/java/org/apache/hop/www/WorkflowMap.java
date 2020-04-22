@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is a map between the workflow name and the (running/waiting/finished) workflow.
@@ -48,23 +49,27 @@ public class WorkflowMap {
   private SlaveServerConfig slaveServerConfig;
 
   public WorkflowMap() {
-    workflowMap = Collections.synchronizedMap(new HashMap<>());
-    configurationMap = Collections.synchronizedMap(new HashMap<>());
+    workflowMap = new ConcurrentHashMap<>(  );
+    configurationMap = new ConcurrentHashMap<>(  );
   }
 
   public synchronized void addWorkflow( String workflowName, String serverObjectId, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
-    HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, serverObjectId );
-    workflowMap.put( entry, workflow );
-    configurationMap.put( entry, workflowConfiguration );
+    synchronized ( workflowMap ) {
+      HopServerObjectEntry entry = new HopServerObjectEntry( workflowName, serverObjectId );
+      workflowMap.put( entry, workflow );
+      configurationMap.put( entry, workflowConfiguration );
+    }
   }
 
   public synchronized void replaceWorkflow( IWorkflowEngine<WorkflowMeta> oldWorkflow, IWorkflowEngine<WorkflowMeta> workflow, WorkflowConfiguration workflowConfiguration ) {
-    HopServerObjectEntry entry = getEntry(oldWorkflow);
-    if (entry!=null) {
-      workflowMap.put( entry, workflow );
-      configurationMap.put( entry, workflowConfiguration );
-    } else {
-      addWorkflow( workflow.getWorkflowName(), workflow.getContainerObjectId(), workflow, workflowConfiguration );
+    synchronized ( workflowMap ) {
+      HopServerObjectEntry entry = getEntry( oldWorkflow );
+      if ( entry != null ) {
+        workflowMap.put( entry, workflow );
+        configurationMap.put( entry, workflowConfiguration );
+      } else {
+        addWorkflow( workflow.getWorkflowName(), workflow.getContainerObjectId(), workflow, workflowConfiguration );
+      }
     }
   }
 
@@ -94,16 +99,20 @@ public class WorkflowMap {
    * @return the workflow with the specified entry
    */
   public synchronized IWorkflowEngine<WorkflowMeta> getWorkflow( HopServerObjectEntry entry ) {
-    return workflowMap.get( entry );
+    synchronized ( workflowMap ) {
+      return workflowMap.get( entry );
+    }
   }
 
   public synchronized WorkflowConfiguration getConfiguration( String workflowName ) {
-    for ( HopServerObjectEntry entry : configurationMap.keySet() ) {
-      if ( entry.getName().equals( workflowName ) ) {
-        return getConfiguration( entry );
+    synchronized ( configurationMap ) {
+      for ( HopServerObjectEntry entry : configurationMap.keySet() ) {
+        if ( entry.getName().equals( workflowName ) ) {
+          return getConfiguration( entry );
+        }
       }
+      return null;
     }
-    return null;
   }
 
   /**
@@ -111,25 +120,33 @@ public class WorkflowMap {
    * @return the workflow configuration with the specified entry
    */
   public synchronized WorkflowConfiguration getConfiguration( HopServerObjectEntry entry ) {
-    return configurationMap.get( entry );
+    synchronized ( configurationMap ) {
+      return configurationMap.get( entry );
+    }
   }
 
-  public synchronized void removeJob( HopServerObjectEntry entry ) {
-    workflowMap.remove( entry );
-    configurationMap.remove( entry );
+  public synchronized void removeWorkflow( HopServerObjectEntry entry ) {
+    synchronized ( workflowMap ) {
+      workflowMap.remove( entry );
+      configurationMap.remove( entry );
+    }
   }
 
   public synchronized List<HopServerObjectEntry> getWorkflowObjects() {
-    return new ArrayList<>( workflowMap.keySet() );
+    synchronized ( workflowMap ) {
+      return new ArrayList<>( workflowMap.keySet() );
+    }
   }
 
   public synchronized HopServerObjectEntry getFirstHopServerObjectEntry( String workflowName ) {
-    for ( HopServerObjectEntry key : workflowMap.keySet() ) {
-      if ( key.getName().equals( workflowName ) ) {
-        return key;
+    synchronized ( workflowMap ) {
+      for ( HopServerObjectEntry key : workflowMap.keySet() ) {
+        if ( key.getName().equals( workflowName ) ) {
+          return key;
+        }
       }
+      return null;
     }
-    return null;
   }
 
   /**

@@ -26,6 +26,7 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.WorkflowMap;
 import org.junit.BeforeClass;
@@ -48,8 +49,8 @@ public class WorkflowMapConcurrencyTest {
 
   private static final int gettersAmount = 20;
   private static final int replaceAmount = 20;
-  private static final int updatersAmount = 5;
-  private static final int updatersCycles = 10;
+  private static final int updatersAmount = 20;
+  private static final int updatersCycles = 100;
 
   private static WorkflowMap workflowMap;
 
@@ -62,7 +63,8 @@ public class WorkflowMapConcurrencyTest {
   }
 
   private static IWorkflowEngine<WorkflowMeta> mockWorkflow( int id ) {
-    IWorkflowEngine<WorkflowMeta> workflow = mock( IWorkflowEngine.class );
+    IWorkflowEngine<WorkflowMeta> workflow = mock( LocalWorkflowEngine.class );
+    when (workflow.getWorkflowName()).thenReturn( WORKFLOW_NAME_STRING );
     when( workflow.getContainerObjectId() ).thenReturn( WORKFLOW_NAME_STRING + id );
     return workflow;
   }
