@@ -15,9 +15,6 @@ public class EnvironmentConfig {
   private String name;
 
   @MetaStoreAttribute
-  private String lastUsedEnvironment;
-
-  @MetaStoreAttribute
   private boolean enabled;
 
   @MetaStoreAttribute
@@ -25,14 +22,12 @@ public class EnvironmentConfig {
 
   public EnvironmentConfig() {
     name = SYSTEM_CONFIG_NAME;
-    lastUsedEnvironment = null;
     enabled = true;
-    openingLastEnvironmentAtStartup = false;
+    openingLastEnvironmentAtStartup = true;
   }
 
   public EnvironmentConfig(EnvironmentConfig c) {
     name = c.name;
-    lastUsedEnvironment = c.lastUsedEnvironment;
     enabled = c.enabled;
     openingLastEnvironmentAtStartup = c.openingLastEnvironmentAtStartup;
   }
@@ -51,22 +46,6 @@ public class EnvironmentConfig {
    */
   public void setName( String name ) {
     this.name = name;
-  }
-
-  /**
-   * Gets lastUsedEnvironment
-   *
-   * @return value of lastUsedEnvironment
-   */
-  public String getLastUsedEnvironment() {
-    return lastUsedEnvironment;
-  }
-
-  /**
-   * @param lastUsedEnvironment The lastUsedEnvironment to set
-   */
-  public void setLastUsedEnvironment( String lastUsedEnvironment ) {
-    this.lastUsedEnvironment = lastUsedEnvironment;
   }
 
   /**

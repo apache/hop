@@ -24,6 +24,9 @@ package org.apache.hop.ui.core.metastore;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -168,7 +171,10 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
 
       // delete the metadata element from the metastore
       //
-      factory.deleteElement( elementName );
+      T element = factory.deleteElement( elementName );
+
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementDeleted.id, element );
+
       return true;
 
     } catch ( Exception e ) {
@@ -234,6 +240,8 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       // Save it in the MetaStore
       factory.saveElement( element );
 
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementUpdated.id, element );
+
       return true;
     } else {
       return false;
@@ -245,7 +253,11 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       // Create a new instance of the managed class
       //
       T element = managedClass.newInstance();
-      return openMetaDialog( element, element.getFactory( metaStore ) );
+      boolean created = openMetaDialog( element, element.getFactory( metaStore ) );
+      if (created) {
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementCreated.id, element );
+      }
+      return created;
     } catch ( Exception e ) {
       new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e );
       return false;

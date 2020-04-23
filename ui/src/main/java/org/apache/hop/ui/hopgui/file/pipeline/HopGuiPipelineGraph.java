@@ -46,11 +46,10 @@ import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
 import org.apache.hop.core.gui.plugin.GuiActionType;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
@@ -71,15 +70,11 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.PipelineDataLineage;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -105,7 +100,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -256,7 +251,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private CheckBoxToolTip helpTip;
 
   private ToolBar toolBar;
-  private GuiCompositeWidgets toolBarWidgets;
+  private GuiToolbarWidgets toolBarWidgets;
 
   private int iconsize;
 
@@ -729,6 +724,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
+  // In case anyone asks...
+  //
+  public static HopGuiPipelineGraph getInstance() {
+    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
+    if (fileTypeHandler instanceof HopGuiPipelineGraph) {
+      return (HopGuiPipelineGraph) fileTypeHandler;
+    }
+    return null;
+  }
 
   @Override
   public void mouseDoubleClick( MouseEvent e ) {
@@ -1528,6 +1532,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     TransformMeta fromTransform = candidate.getFromTransform();
     TransformMeta toTransform = candidate.getToTransform();
+    if (fromTransform.equals( toTransform )) {
+      return; // Don't add
+    }
 
     // See what the options are.
     // - Does the source transform has multiple stream options?
@@ -1713,8 +1720,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Create a new toolbar at the top of the main composite...
       //
       toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
-      toolBarWidgets = new GuiCompositeWidgets( HopGui.getInstance().getVariables() );
-      toolBarWidgets.createCompositeWidgets( this, null, toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+      toolBarWidgets = new GuiToolbarWidgets();
+      toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
       layoutData.top = new FormAttachment( 0, 0 );
@@ -3024,13 +3031,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_SNAP_TO_GRID,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Snap to grid",
+    // label = "Snap to grid",
     toolTip = "Align the selected transforms to the specified grid size",
     image = "ui/images/toolbar/snap-to-grid.svg",
-    disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg"
   )
   public void snapToGrid() {
     snapToGrid( ConstUi.GRID_SIZE );
@@ -3041,78 +3047,72 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_LEFT,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Left-align selected transforms",
+    // label = "Left-align selected transforms",
     toolTip = "Align the transforms with the left-most transform in your selection",
     image = "ui/images/toolbar/align-left.svg",
-    disabledImage = "ui/images/toolbar/align-left-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_RIGHT,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Right-align selected transforms",
+    // label = "Right-align selected transforms",
     toolTip = "Align the transforms with the right-most transform in your selection",
     image = "ui/images/toolbar/align-right.svg",
-    disabledImage = "ui/images/toolbar/align-right-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_TOP,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Top-align selected transforms",
+    // label = "Top-align selected transforms",
     toolTip = "Align the transforms with the top-most transform in your selection",
     image = "ui/images/toolbar/align-top.svg",
-    disabledImage = "ui/images/toolbar/align-top-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Bottom-align selected transforms",
+    // label = "Bottom-align selected transforms",
     toolTip = "Align the transforms with the bottom-most transform in your selection",
     image = "ui/images/toolbar/align-bottom.svg",
-    disabledImage = "ui/images/toolbar/align-bottom-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Horizontally distribute selected transforms",
+    // label = "Horizontally distribute selected transforms",
     toolTip = "Distribute the selected transforms evenly between the left-most and right-most transform in your selection",
     image = "ui/images/toolbar/distribute-horizontally.svg",
-    disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Vertically distribute selected transforms",
+    // label = "Vertically distribute selected transforms",
     toolTip = "Distribute the selected transforms evenly between the top-most and bottom-most transform in your selection",
     image = "ui/images/toolbar/distribute-vertically.svg",
-    disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
@@ -3134,12 +3134,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_PREVIEW,
-    label = "Preview",
+    // label = "Preview",
     toolTip = "Preview the pipeline",
-    image = "ui/images/preview.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    image = "ui/images/preview.svg"
   )
   @Override
   public void preview() {
@@ -3173,12 +3172,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_DEBUG,
-    label = "Debug",
+    // label = "Debug",
     toolTip = "Debug the pipeline",
-    image = "ui/images/debug.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    image = "ui/images/debug.svg"
   )
   @Override
   public void debug() {
@@ -3375,28 +3373,24 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_START,
-    label = "Start",
+    // label = "Start",
     toolTip = "Start the execution of the pipeline",
-    image = "ui/images/toolbar/run.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    image = "ui/images/toolbar/run.svg"
   )
   @Override
   public void start() {
     pipelineMeta.setShowDialog( pipelineMeta.isAlwaysShowRunOptions() );
-    Thread thread = new Thread( () -> getDisplay().asyncExec( new Runnable() {
-      @Override
-      public void run() {
-        try {
-          if ( isRunning() && pipeline.isPaused() ) {
-            pauseResume();
-          } else {
-            pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
-          }
-        } catch ( Throwable e ) {
-          new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
+    Thread thread = new Thread( () -> getDisplay().asyncExec( () -> {
+      try {
+        if ( isRunning() && pipeline.isPaused() ) {
+          pauseResume();
+        } else {
+          pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
         }
+      } catch ( Throwable e ) {
+        new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
       }
     } ) );
     thread.start();
@@ -3404,12 +3398,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_PAUSE,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Pause",
+    // label = "Pause",
     toolTip = "Pause the execution of the pipeline",
-    image = "ui/images/toolbar/pause.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    image = "ui/images/toolbar/pause.svg"
   )
   public void pause() {
     pauseResume();
@@ -3448,13 +3441,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "HopGui.Menu.ShowExecutionResults",
+    // label = "HopGui.Menu.ShowExecutionResults",
     toolTip = "HopGui.Tooltip.ShowExecutionResults",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-results.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
   )
   public void showExecutionResults() {
@@ -3862,12 +3854,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_STOP,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "Stop",
+    // label = "Stop",
     toolTip = "Stop the execution of the pipeline",
-    image = "ui/images/toolbar/stop.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    image = "ui/images/toolbar/stop.svg"
   )
   @Override
   public void stop() {
@@ -4367,13 +4358,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_UNDO_ID,
-    label = "Undo",
+    // label = "Undo",
     toolTip = "Undo an operation",
     image = "ui/images/toolbar/Antu_edit-undo.svg",
     disabledImage = "ui/images/toolbar/Antu_edit-undo-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
   )
   @GuiKeyboardShortcut( control = true, key = 'z' )
@@ -4383,13 +4373,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiToolbarElement(
-    type = GuiElementType.TOOLBAR_BUTTON,
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_REDO_ID,
-    label = "Redo",
+    // label = "Redo",
     toolTip = "Redo an operation",
     image = "ui/images/toolbar/Antu_edit-redo.svg",
-    disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID
+    disabledImage = "ui/images/toolbar/Antu_edit-redo-disabled.svg"
   )
   @GuiKeyboardShortcut( control = true, shift = true, key = 'z' )
   @Override public void redo() {
@@ -4448,7 +4437,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut( control = true, key = 'a' )
-  @GuiOSXKeyboardShortcut( command = true, key = 'a' )
+  @GuiOsxKeyboardShortcut( command = true, key = 'a' )
   @Override public void selectAll() {
     pipelineMeta.selectAll();
     updateGui();
@@ -4461,7 +4450,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut( control = true, key = 'c' )
-  @GuiOSXKeyboardShortcut( command = true, key = 'c' )
+  @GuiOsxKeyboardShortcut( command = true, key = 'c' )
   @Override public void copySelectedToClipboard() {
     if ( pipelineLogDelegate.hasSelectedText() ) {
       pipelineLogDelegate.copySelected();
@@ -4471,7 +4460,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut( control = true, key = 'x' )
-  @GuiOSXKeyboardShortcut( command = true, key = 'x' )
+  @GuiOsxKeyboardShortcut( command = true, key = 'x' )
   @Override public void cutSelectedToClipboard() {
     pipelineClipboardDelegate.copySelected( pipelineMeta, pipelineMeta.getSelectedTransforms(), pipelineMeta.getSelectedNotes() );
     pipelineTransformDelegate.delTransforms( pipelineMeta, pipelineMeta.getSelectedTransforms() );
@@ -4485,7 +4474,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut( control = true, key = 'v' )
-  @GuiOSXKeyboardShortcut( command = true, key = 'v' )
+  @GuiOsxKeyboardShortcut( command = true, key = 'v' )
   @Override public void pasteFromClipboard() {
     pasteFromClipboard( new Point( currentMouseX, currentMouseY ) );
   }

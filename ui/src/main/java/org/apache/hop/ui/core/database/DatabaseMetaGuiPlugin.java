@@ -36,7 +36,7 @@ import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 )
 public class DatabaseMetaGuiPlugin implements IGuiMetaStorePlugin<DatabaseMeta> {
 
-  @Override public Class<DatabaseMeta> getMetastoreElementClass() {
+  @Override public Class<DatabaseMeta> getMetaStoreElementClass() {
     return DatabaseMeta.class;
   }
 }

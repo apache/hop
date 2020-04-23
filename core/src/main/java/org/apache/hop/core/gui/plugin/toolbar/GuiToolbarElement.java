@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.toolbar;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -37,6 +37,11 @@ import java.lang.annotation.Target;
 public @interface GuiToolbarElement {
 
   /**
+   * @return The ID of the toolbar to which this element belongs
+   */
+  String root();
+
+  /**
    * Every GUI Element has a unique ID so it can be replaced by other plugins at any given time.
    *
    * @return The unique ID of the GUI Element
@@ -48,14 +53,7 @@ public @interface GuiToolbarElement {
    *
    * @return
    */
-  GuiElementType type();
-
-  /**
-   * The parent in which this annotation resides. Normally simply the class name is taken but plugins can pick a specific parent.
-   *
-   * @return
-   */
-  String parent() default "";
+  GuiToolbarElementType type() default GuiToolbarElementType.TOOLBAR_BUTTON;
 
   /**
    * The label of the GUI element: the menu item text and so on.
@@ -97,13 +95,6 @@ public @interface GuiToolbarElement {
   String disabledImage() default "";
 
   /**
-   * The ID of the parent GUI element. This is usually the parent menu or toolbar, ...
-   *
-   * @return The ID of the parent GUI element
-   */
-  String parentId() default "";
-
-  /**
    * @return True if the text element you define is a password with an asterisk mask
    */
   boolean password() default false;
@@ -127,13 +118,6 @@ public @interface GuiToolbarElement {
    * @return The method which returns a String[] to populate a combo box widget GUI element
    */
   String comboValuesMethod() default "";
-
-  /**
-   * You can use this to order the GUI Elements for a given scenario
-   *
-   * @return The value on which the system will sort alphabetically
-   */
-  String order() default "";
 
   /**
    * Set this flag to true if you want to ignore the field as a GUI Element.

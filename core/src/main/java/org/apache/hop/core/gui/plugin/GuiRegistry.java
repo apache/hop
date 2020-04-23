@@ -23,15 +23,18 @@
 package org.apache.hop.core.gui.plugin;
 
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
+import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,18 +48,25 @@ public class GuiRegistry {
 
   private static GuiRegistry guiRegistry;
 
+  /**
+   * this map links the GUI class to the menu elements information.
+   * For example, it would contain the root ID of the HopGui class at the top of the map.
+   * For the HopGui main menu we would have a menu elements stored per ID.
+   */
+  private Map<String, Map<String, GuiMenuItem>> guiMenuMap;
+  private Map<String, Map<String, GuiToolbarItem>> guiToolbarMap;
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
-  private Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap;
-  private Map<Class<? extends IHopMetaStoreElement>, ClassLoader> metaStoreClassLoaderMap;
+  private Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> metaStoreTypeMap;
 
   private GuiRegistry() {
+    guiMenuMap = new HashMap<>();
+    guiToolbarMap = new HashMap<>();
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
-    metaStoreTypeMap = new HashMap<>(  );
-    metaStoreClassLoaderMap = new HashMap<>(  );
+    metaStoreTypeMap = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -65,6 +75,111 @@ public class GuiRegistry {
     }
     return guiRegistry;
   }
+
+  /**
+   * Add GUI Menu elements under a particular gui root (example: HopGui-MainMenu)
+   * under a particular parent element ID
+   *
+   * @param root
+   * @param guiMenuItem
+   */
+  public void addGuiMenuItem( String root, GuiMenuItem guiMenuItem ) {
+    Map<String, GuiMenuItem> menuMap = guiMenuMap.get( root );
+    if ( menuMap == null ) {
+      menuMap = new HashMap<>();
+      guiMenuMap.put( root, menuMap );
+    }
+    menuMap.put( guiMenuItem.getId(), guiMenuItem );
+  }
+
+  /**
+   * Get the GUI Menu Item for the given root and the given ID.
+   *
+   * @param root
+   * @param id
+   * @return The GUI Menu elements or null if the gui class name or ID can not be found.
+   */
+  public GuiMenuItem findGuiMenuItem( String root, String id ) {
+    Map<String, GuiMenuItem> menuMap = guiMenuMap.get( root );
+    if ( menuMap == null ) {
+      return null;
+    }
+    return menuMap.get( id );
+  }
+
+  /**
+   * Find the root menu item for a certain GUI root (HopGui for example).
+   *
+   * @param root The menu root ID
+   * @return An empty list if the root could not be found. The parent menu items or an empty list if nothing was found.
+   */
+  public List<GuiMenuItem> findChildGuiMenuItems( String root, String parentId ) {
+    Map<String, GuiMenuItem> menuMap = guiMenuMap.get( root );
+    if ( menuMap == null ) {
+      return Collections.emptyList();
+    }
+    List<GuiMenuItem> items = new ArrayList<>();
+    for ( GuiMenuItem item : menuMap.values() ) {
+      if ( item.getParentId().equals( parentId ) ) {
+        items.add( item );
+      }
+    }
+    return items;
+  }
+
+
+  /**
+   * Add a GUI Toolbar element under a particular gui root (example: HopGui-MainMenu)
+   * under a particular parent element ID
+   *
+   * @param root
+   * @param guiToolbarItem
+   */
+  public void addGuiToolbarItem( String root, GuiToolbarItem guiToolbarItem ) {
+    Map<String, GuiToolbarItem> toolbarMap = guiToolbarMap.get( root );
+    if ( toolbarMap == null ) {
+      toolbarMap = new HashMap<>();
+      guiToolbarMap.put( root, toolbarMap );
+    }
+    toolbarMap.put( guiToolbarItem.getId(), guiToolbarItem );
+  }
+
+  /**
+   * Get the GUI Menu Item for the given root and the given ID.
+   *
+   * @param root
+   * @param id
+   * @return The GUI Menu elements or null if the gui class name or ID can not be found.
+   */
+  public GuiToolbarItem findGuiToolbarItem( String root, String id ) {
+    Map<String, GuiToolbarItem> toolbarMap = guiToolbarMap.get( root );
+    if ( toolbarMap == null ) {
+      return null;
+    }
+    return toolbarMap.get( id );
+  }
+
+  /**
+   * Find the root menu item for a certain GUI Toolbar root.
+   *
+   * @param root The toolbar root ID
+   * @return Returns either: an empty list if the root could not be found, the toolbar items or an empty list if nothing was found.
+   */
+  public List<GuiToolbarItem> findGuiToolbarItems( String root ) {
+    Map<String, GuiToolbarItem> menuMap = guiToolbarMap.get( root );
+    if ( menuMap == null ) {
+      return Collections.emptyList();
+    }
+    List<GuiToolbarItem> items = new ArrayList<>();
+    for ( GuiToolbarItem item : menuMap.values() ) {
+      items.add( item );
+    }
+    return items;
+  }
+
+
+
+
 
   /**
    * Add a bunch of GUI elements under a particular data class name (example: PostgresDatabaseMeta)
@@ -107,6 +222,7 @@ public class GuiRegistry {
     return guiElements;
   }
 
+
   /**
    * Look at the given {@link GuiElements} object its children and see if the element with the given ID is found.
    *
@@ -135,7 +251,7 @@ public class GuiRegistry {
    * @param guiElement
    * @param field
    */
-  public void addGuiElement( String dataClassName, GuiWidgetElement guiElement, Field field ) {
+  public void addGuiWidgetElement( String dataClassName, GuiWidgetElement guiElement, Field field ) {
     GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
     if ( guiElements == null ) {
       guiElements = new GuiElements();
@@ -162,63 +278,40 @@ public class GuiRegistry {
    * Add a GUI menu element to the registry.
    * If there is no elements objects for the parent ID under which the element belongs, one will be added.
    *
-   * @param dataClassName
+   * @param guiPluginClassName   Class in which we paint the GUI element
    * @param guiElement
-   * @param method
+   * @param guiPluginClassMethod
    */
-  public void addMethodElement( String dataClassName, GuiMenuElement guiElement, Method method ) {
-    GuiElements guiElements = findGuiElements( dataClassName, guiElement.parentId() );
-    if ( guiElements == null ) {
-      guiElements = new GuiElements();
-      putGuiElements( dataClassName, guiElement.parentId(), guiElements );
-    }
-    GuiElements child = new GuiElements( guiElement, method );
+  public void addGuiWidgetElement( String guiPluginClassName, GuiMenuElement guiElement, Method guiPluginClassMethod, ClassLoader classLoader ) {
 
-    // See if we need to disable something of if something is disabled already...
-    // In those scenarios we ignore the GuiWidgetElement
+    // Extract all the information we need from the available data at boot time
     //
-    GuiElements existing = guiElements.findChild( guiElement.id() );
-    if ( existing != null && existing.isIgnored() ) {
-      return;
-    }
-    if ( existing != null && child.isIgnored() ) {
-      existing.setIgnored( true );
-      return;
-    }
+    GuiMenuItem guiMenuItem = new GuiMenuItem( guiElement, guiPluginClassMethod, guiPluginClassName, classLoader );
 
-    guiElements.getChildren().add( child );
+    // Store the element under the specified root
+    // This holds together a menu
+    //
+    addGuiMenuItem( guiElement.root(), guiMenuItem );
   }
 
   /**
    * Add a GUI element to the registry.
    * If there is no elements objects for the parent ID under which the element belongs, one will be added.
    *
-   * @param parentClassName The parent under which the widgets are stored
-   * @param dataClass       The data class (singleton) of the method
-   * @param guiElement
+   * @param guiPluginClassName The parent under which the widgets are stored
+   * @param toolbarElement
    * @param method
+   * @param classLoader
    */
-  public void addMethodElement( String parentClassName, Class<?> dataClass, GuiToolbarElement guiElement, Method method ) {
-    GuiElements guiElements = findGuiElements( parentClassName, guiElement.parentId() );
-    if ( guiElements == null ) {
-      guiElements = new GuiElements();
-      putGuiElements( parentClassName, guiElement.parentId(), guiElements );
-    }
-    GuiElements child = new GuiElements( guiElement, dataClass, method );
+  public void addGuiToolbarElement( String guiPluginClassName, GuiToolbarElement toolbarElement, Method method, ClassLoader classLoader ) {
 
-    // See if we need to disable something of if something is disabled already...
-    // In those scenarios we ignore the GuiWidgetElement
+    // Convert it to a class so we can work with it more easily compared to an annotation
     //
-    GuiElements existing = guiElements.findChild( guiElement.id() );
-    if ( existing != null && existing.isIgnored() ) {
-      return;
-    }
-    if ( existing != null && child.isIgnored() ) {
-      existing.setIgnored( true );
-      return;
-    }
+    GuiToolbarItem toolbarItem = new GuiToolbarItem( toolbarElement, guiPluginClassName, method, classLoader );
 
-    guiElements.getChildren().add( child );
+    // Store the toolbar item under its root
+    //
+    addGuiToolbarItem( toolbarElement.root(), toolbarItem );
   }
 
   /**
@@ -237,16 +330,17 @@ public class GuiRegistry {
     }
   }
 
-  public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiKeyboardShortcut shortcut ) {
-    List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
+  public void addKeyboardShortcut( String guiPluginClassName, Method method, GuiKeyboardShortcut shortcut ) {
+    List<KeyboardShortcut> shortcuts = shortCutsMap.get( guiPluginClassName );
     if ( shortcuts == null ) {
       shortcuts = new ArrayList<>();
-      shortCutsMap.put( parentClassName, shortcuts );
+      shortCutsMap.put( guiPluginClassName, shortcuts );
     }
-    shortcuts.add( new KeyboardShortcut( shortcut, parentMethod ) );
+    KeyboardShortcut keyboardShortCut = new KeyboardShortcut( shortcut, method );
+    shortcuts.add( keyboardShortCut );
   }
 
-  public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiOSXKeyboardShortcut shortcut ) {
+  public void addKeyboardShortcut( String parentClassName, Method parentMethod, GuiOsxKeyboardShortcut shortcut ) {
     List<KeyboardShortcut> shortcuts = shortCutsMap.get( parentClassName );
     if ( shortcuts == null ) {
       shortcuts = new ArrayList<>();
@@ -260,6 +354,8 @@ public class GuiRegistry {
     return shortcuts;
   }
 
+  // Shortcuts are pretty much global so we'll look everywhere...
+  //
   public KeyboardShortcut findKeyboardShortcut( String parentClassName, String methodName, boolean osx ) {
     List<KeyboardShortcut> shortcuts = getKeyboardShortcuts( parentClassName );
     if ( shortcuts != null ) {
@@ -299,9 +395,13 @@ public class GuiRegistry {
   }
 
   public void addMetaStoreElementType( Class<? extends IHopMetaStoreElement> elementClass, GuiMetaStoreElement guiMetaStoreElement, ClassLoader classLoader ) {
-    metaStoreTypeMap.put( elementClass, guiMetaStoreElement );
-    metaStoreClassLoaderMap.put( elementClass, classLoader );
-
+    HopMetaStoreGuiPluginDetails details = new HopMetaStoreGuiPluginDetails(
+      guiMetaStoreElement.name(),
+      guiMetaStoreElement.description(),
+      guiMetaStoreElement.iconImage(),
+      classLoader
+    );
+    metaStoreTypeMap.put( elementClass, details );
   }
 
 
@@ -354,34 +454,51 @@ public class GuiRegistry {
   }
 
   /**
+   * Gets guiMenuMap
+   *
+   * @return value of guiMenuMap
+   */
+  public Map<String, Map<String, GuiMenuItem>> getGuiMenuMap() {
+    return guiMenuMap;
+  }
+
+  /**
+   * @param guiMenuMap The guiMenuMap to set
+   */
+  public void setGuiMenuMap( Map<String, Map<String, GuiMenuItem>> guiMenuMap ) {
+    this.guiMenuMap = guiMenuMap;
+  }
+
+  /**
+   * Gets guiToolbarMap
+   *
+   * @return value of guiToolbarMap
+   */
+  public Map<String, Map<String, GuiToolbarItem>> getGuiToolbarMap() {
+    return guiToolbarMap;
+  }
+
+  /**
+   * @param guiToolbarMap The guiToolbarMap to set
+   */
+  public void setGuiToolbarMap( Map<String, Map<String, GuiToolbarItem>> guiToolbarMap ) {
+    this.guiToolbarMap = guiToolbarMap;
+  }
+
+  /**
    * Gets metaStoreTypeMap
    *
    * @return value of metaStoreTypeMap
    */
-  public Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> getMetaStoreTypeMap() {
+  public Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> getMetaStoreTypeMap() {
     return metaStoreTypeMap;
   }
 
   /**
    * @param metaStoreTypeMap The metaStoreTypeMap to set
    */
-  public void setMetaStoreTypeMap( Map<Class<? extends IHopMetaStoreElement>, GuiMetaStoreElement> metaStoreTypeMap ) {
+  public void setMetaStoreTypeMap(
+    Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> metaStoreTypeMap ) {
     this.metaStoreTypeMap = metaStoreTypeMap;
-  }
-
-  /**
-   * Gets metaStoreClassLoaderMap
-   *
-   * @return value of metaStoreClassLoaderMap
-   */
-  public Map<Class<? extends IHopMetaStoreElement>, ClassLoader> getMetaStoreClassLoaderMap() {
-    return metaStoreClassLoaderMap;
-  }
-
-  /**
-   * @param metaStoreClassLoaderMap The metaStoreClassLoaderMap to set
-   */
-  public void setMetaStoreClassLoaderMap( Map<Class<? extends IHopMetaStoreElement>, ClassLoader> metaStoreClassLoaderMap ) {
-    this.metaStoreClassLoaderMap = metaStoreClassLoaderMap;
   }
 }

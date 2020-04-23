@@ -24,6 +24,8 @@ package org.apache.hop.ui.hopgui.context.metastore;
 
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
@@ -50,12 +52,12 @@ public class MetaStoreContext implements IActionContextHandlersProvider {
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     Set<Class<? extends IHopMetaStoreElement>> metaClasses = guiRegistry.getMetaStoreTypeMap().keySet();
     for (Class<? extends IHopMetaStoreElement> metaClass : metaClasses) {
-      GuiMetaStoreElement guiMetaStoreElement = GuiRegistry.getInstance().getMetaStoreTypeMap().get( metaClass );
+      HopMetaStoreGuiPluginDetails details = GuiRegistry.getInstance().getMetaStoreTypeMap().get( metaClass );
       try {
         IHopMetaStoreElement storeElement = metaClass.newInstance();
         MetaStoreFactory<IHopMetaStoreElement> factory = storeElement.getFactory( metaStore );
 
-        handlers.add( new MetaStoreContextHandler( hopGui, metaStore, factory, metaClass, guiMetaStoreElement ));
+        handlers.add( new MetaStoreContextHandler( hopGui, metaStore, factory, metaClass, details ));
 
       } catch(Exception e) {
         hopGui.getLog().logError( "Error getting metastore context information from class: "+metaClass.getName(), e );

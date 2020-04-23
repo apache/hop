@@ -1,9 +1,14 @@
-package org.apache.hop.env.environment;
+package org.apache.hop.ui.env.environment;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.env.environment.Environment;
+import org.apache.hop.env.environment.EnvironmentSingleton;
+import org.apache.hop.env.environment.EnvironmentVariable;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.ui.core.PropsUi;
@@ -27,13 +32,11 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.apache.hop.env.util.EnvironmentUtil;
 
-public class EnvironmentDialog extends Dialog {
-  private static Class<?> PKG = EnvironmentsDialog.class; // for i18n purposes, needed by Translator2!!
-
-  public static final String LAST_USED_ENVIRONMENT = "LAST_USED_ENVIRONMENT";
+public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
+  private static Class<?> PKG = EnvironmentDialog.class; // for i18n purposes, needed by Translator2!!
 
   private Environment environment;
-  private boolean ok;
+  private String returnValue;
 
   private Shell shell;
   private final PropsUi props;
@@ -46,13 +49,11 @@ public class EnvironmentDialog extends Dialog {
   private Text wVersion;
 
   private TextVar wEnvironmentHome;
-  private TextVar wKettleHomeFolder;
+  private TextVar wHopHomeFolder;
   private TextVar wMetaStoreBaseFolder;
   private TextVar wUnitTestsBasePath;
   private TextVar wDataSetCsvFolder;
   private Button wEnforceHomeExecution;
-  private Button wAutoSaveSpoonSession;
-  private Button wAutoRestoreSpoonSession;
   private TableView wVariables;
 
   private int margin;
@@ -61,7 +62,7 @@ public class EnvironmentDialog extends Dialog {
 
   private IVariables space;
 
-  public EnvironmentDialog( Shell parent, Environment environment ) throws MetaStoreException {
+  public EnvironmentDialog( Shell parent, IMetaStore metaStore, Environment environment, IVariables variables ) throws MetaStoreException {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
     this.environment = environment;
@@ -72,11 +73,11 @@ public class EnvironmentDialog extends Dialog {
 
     space = new Variables();
     space.initializeVariablesFrom( null );
-    environment.modifyIVariables( space );
+    environment.modifyVariables( space );
 
   }
 
-  public boolean open() {
+  public String open() {
 
     Shell parent = getParent();
     Display display = parent.getDisplay();
@@ -226,23 +227,23 @@ public class EnvironmentDialog extends Dialog {
     wEnvironmentHome.addModifyListener( e -> updateIVariables() );
     lastControl = wEnvironmentHome;
 
-    Label wlKettleHomeFolder = new Label( shell, SWT.RIGHT );
-    props.setLook( wlKettleHomeFolder );
-    wlKettleHomeFolder.setText( "Kettle Home folder (KETTLE_HOME) " );
-    FormData fdlKettleHomeFolder = new FormData();
-    fdlKettleHomeFolder.left = new FormAttachment( 0, 0 );
-    fdlKettleHomeFolder.right = new FormAttachment( middle, 0 );
-    fdlKettleHomeFolder.top = new FormAttachment( lastControl, margin );
-    wlKettleHomeFolder.setLayoutData( fdlKettleHomeFolder );
-    wKettleHomeFolder = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wKettleHomeFolder );
-    FormData fdKettleHomeFolder = new FormData();
-    fdKettleHomeFolder.left = new FormAttachment( middle, margin );
-    fdKettleHomeFolder.right = new FormAttachment( 100, 0 );
-    fdKettleHomeFolder.top = new FormAttachment( wlKettleHomeFolder, 0, SWT.CENTER );
-    wKettleHomeFolder.setLayoutData( fdKettleHomeFolder );
-    wKettleHomeFolder.addModifyListener( e -> updateIVariables() );
-    lastControl = wKettleHomeFolder;
+    Label wlHopHomeFolder = new Label( shell, SWT.RIGHT );
+    props.setLook( wlHopHomeFolder );
+    wlHopHomeFolder.setText( "Hop home folder (HOP_HOME) " );
+    FormData fdlHopHomeFolder = new FormData();
+    fdlHopHomeFolder.left = new FormAttachment( 0, 0 );
+    fdlHopHomeFolder.right = new FormAttachment( middle, 0 );
+    fdlHopHomeFolder.top = new FormAttachment( lastControl, margin );
+    wlHopHomeFolder.setLayoutData( fdlHopHomeFolder );
+    wHopHomeFolder = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
+    props.setLook( wHopHomeFolder );
+    FormData fdHopHomeFolder = new FormData();
+    fdHopHomeFolder.left = new FormAttachment( middle, margin );
+    fdHopHomeFolder.right = new FormAttachment( 100, 0 );
+    fdHopHomeFolder.top = new FormAttachment( wlHopHomeFolder, 0, SWT.CENTER );
+    wHopHomeFolder.setLayoutData( fdHopHomeFolder );
+    wHopHomeFolder.addModifyListener( e -> updateIVariables() );
+    lastControl = wHopHomeFolder;
 
     Label wlMetaStoreBaseFolder = new Label( shell, SWT.RIGHT );
     props.setLook( wlMetaStoreBaseFolder );
@@ -315,40 +316,6 @@ public class EnvironmentDialog extends Dialog {
     wEnforceHomeExecution.setLayoutData( fdEnforceHomeExecution );
     lastControl = wEnforceHomeExecution;
 
-    Label wlAutoSaveSpoonSession = new Label( shell, SWT.RIGHT );
-    props.setLook( wlAutoSaveSpoonSession );
-    wlAutoSaveSpoonSession.setText( "Automatically save spoon session? " );
-    FormData fdlAutoSaveSpoonSession = new FormData();
-    fdlAutoSaveSpoonSession.left = new FormAttachment( 0, 0 );
-    fdlAutoSaveSpoonSession.right = new FormAttachment( middle, 0 );
-    fdlAutoSaveSpoonSession.top = new FormAttachment( lastControl, margin );
-    wlAutoSaveSpoonSession.setLayoutData( fdlAutoSaveSpoonSession );
-    wAutoSaveSpoonSession = new Button( shell, SWT.CHECK | SWT.LEFT );
-    props.setLook( wAutoSaveSpoonSession );
-    FormData fdAutoSaveSpoonSession = new FormData();
-    fdAutoSaveSpoonSession.left = new FormAttachment( middle, margin );
-    fdAutoSaveSpoonSession.right = new FormAttachment( 100, 0 );
-    fdAutoSaveSpoonSession.top = new FormAttachment( wlAutoSaveSpoonSession, 0, SWT.CENTER );
-    wAutoSaveSpoonSession.setLayoutData( fdAutoSaveSpoonSession );
-    lastControl = wAutoSaveSpoonSession;
-
-    Label wlAutoRestoreSpoonSession = new Label( shell, SWT.RIGHT );
-    props.setLook( wlAutoRestoreSpoonSession );
-    wlAutoRestoreSpoonSession.setText( "Automatically load spoon session? " );
-    FormData fdlAutoRestoreSpoonSession = new FormData();
-    fdlAutoRestoreSpoonSession.left = new FormAttachment( 0, 0 );
-    fdlAutoRestoreSpoonSession.right = new FormAttachment( middle, 0 );
-    fdlAutoRestoreSpoonSession.top = new FormAttachment( lastControl, margin );
-    wlAutoRestoreSpoonSession.setLayoutData( fdlAutoRestoreSpoonSession );
-    wAutoRestoreSpoonSession = new Button( shell, SWT.CHECK | SWT.LEFT );
-    props.setLook( wAutoRestoreSpoonSession );
-    FormData fdAutoRestoreSpoonSession = new FormData();
-    fdAutoRestoreSpoonSession.left = new FormAttachment( middle, margin );
-    fdAutoRestoreSpoonSession.right = new FormAttachment( 100, 0 );
-    fdAutoRestoreSpoonSession.top = new FormAttachment( wlAutoRestoreSpoonSession, 0, SWT.CENTER );
-    wAutoRestoreSpoonSession.setLayoutData( fdAutoRestoreSpoonSession );
-    lastControl = wAutoRestoreSpoonSession;
-
     Label wlVariables = new Label( shell, SWT.RIGHT );
     props.setLook( wlVariables );
     wlVariables.setText( "System variables to set : " );
@@ -385,7 +352,7 @@ public class EnvironmentDialog extends Dialog {
     wProject.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wVersion.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wEnvironmentHome.addListener( SWT.DefaultSelection, ( e ) -> ok() );
-    wKettleHomeFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
+    wHopHomeFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wMetaStoreBaseFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wUnitTestsBasePath.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wDataSetCsvFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
@@ -403,24 +370,24 @@ public class EnvironmentDialog extends Dialog {
       }
     }
 
-    return ok;
+    return returnValue;
   }
 
   private void updateIVariables() {
     Environment env = new Environment();
     getInfo( env );
-    env.modifyIVariables( space );
+    env.modifyVariables( space );
   }
 
   private void ok() {
     getInfo( environment );
-    ok = true;
+    returnValue = environment.getName();
 
     dispose();
   }
 
   private void cancel() {
-    ok = false;
+    returnValue = null;
 
     dispose();
   }
@@ -438,13 +405,11 @@ public class EnvironmentDialog extends Dialog {
     wProject.setText( Const.NVL( environment.getProject(), "" ) );
     wVersion.setText( Const.NVL( environment.getVersion(), "" ) );
     wEnvironmentHome.setText( Const.NVL( environment.getEnvironmentHomeFolder(), "" ) );
-    wKettleHomeFolder.setText( Const.NVL( environment.getKettleHomeFolder(), "" ) );
+    wHopHomeFolder.setText( Const.NVL( environment.getHopHomeFolder(), "" ) );
     wMetaStoreBaseFolder.setText( Const.NVL( environment.getMetaStoreBaseFolder(), "" ) );
     wUnitTestsBasePath.setText( Const.NVL( environment.getUnitTestsBasePath(), "" ) );
     wDataSetCsvFolder.setText( Const.NVL( environment.getDataSetsCsvFolder(), "" ) );
     wEnforceHomeExecution.setSelection( environment.isEnforcingExecutionInHome() );
-    wAutoSaveSpoonSession.setSelection( environment.isAutoSavingSpoonSession() );
-    wAutoRestoreSpoonSession.setSelection( environment.isAutoRestoringHopGuiSession() );
     for ( int i = 0; i < environment.getVariables().size(); i++ ) {
       EnvironmentVariable environmentVariable = environment.getVariables().get( i );
       TableItem item = wVariables.table.getItem( i );
@@ -464,13 +429,11 @@ public class EnvironmentDialog extends Dialog {
     env.setProject( wProject.getText() );
     env.setVersion( wVersion.getText() );
     env.setEnvironmentHomeFolder( wEnvironmentHome.getText() );
-    env.setKettleHomeFolder( wKettleHomeFolder.getText() );
+    env.setHopHomeFolder( wHopHomeFolder.getText() );
     env.setMetaStoreBaseFolder( wMetaStoreBaseFolder.getText() );
     env.setUnitTestsBasePath( wUnitTestsBasePath.getText() );
     env.setDataSetsCsvFolder( wDataSetCsvFolder.getText() );
     env.setEnforcingExecutionInHome( wEnforceHomeExecution.getSelection() );
-    env.setAutoSavingSpoonSession( wAutoSaveSpoonSession.getSelection() );
-    env.setAutoRestoringSpoonSession( wAutoRestoreSpoonSession.getSelection() );
     env.getVariables().clear();
     for ( int i = 0; i < wVariables.nrNonEmpty(); i++ ) {
       TableItem item = wVariables.getNonEmpty( i );

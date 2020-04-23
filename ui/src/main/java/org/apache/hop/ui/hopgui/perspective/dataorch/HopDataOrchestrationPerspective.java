@@ -26,9 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -113,12 +112,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   @GuiToolbarElement(
+    root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
     id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-    type = GuiElementType.TOOLBAR_BUTTON,
     image = "ui/images/pipeline.svg",
-    toolTip = "Data Orchestration",
-    parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-    parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
+    toolTip = "Data Orchestration"
   )
   public void activate() {
     hopGui.getPerspectiveManager().showPerspective( this.getClass() );

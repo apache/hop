@@ -36,7 +36,7 @@ import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 )
   public class PipelineRunConfigurationGuiPlugin implements IGuiMetaStorePlugin<PipelineRunConfiguration> {
 
-  @Override public Class<PipelineRunConfiguration> getMetastoreElementClass() {
+  @Override public Class<PipelineRunConfiguration> getMetaStoreElementClass() {
     return PipelineRunConfiguration.class;
   }
 }

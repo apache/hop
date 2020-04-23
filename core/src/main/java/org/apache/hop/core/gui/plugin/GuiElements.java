@@ -37,7 +37,7 @@ import java.util.Objects;
 /**
  * This represents a list of GUI elements under a certain heading or ID
  */
-public class GuiElements {
+public class GuiElements extends BaseGuiElements {
 
   private String id;
 
@@ -70,11 +70,11 @@ public class GuiElements {
 
   private List<GuiElements> children;
 
-  private String order;
-
   private boolean ignored;
 
   private boolean addingSeparator;
+
+  private ClassLoader classLoader;
 
 
   // The singleton listener class to use
@@ -100,7 +100,6 @@ public class GuiElements {
 
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
-    this.order = guiElement.order();
     this.fieldName = fieldName;
     this.fieldClass = fieldClass;
     this.getterMethod = calculateGetterMethod( guiElement, fieldName );
@@ -124,109 +123,13 @@ public class GuiElements {
     }
   }
 
-  public GuiElements( GuiToolbarElement toolbarElement, Class<?> listenerClass, Method method ) {
-    this();
-
-    this.id = toolbarElement.id();
-    this.type = toolbarElement.type();
-    this.parentId = toolbarElement.parentId();
-    this.order = toolbarElement.order();
-    this.fieldName = null;
-    this.fieldClass = Void.class;
-    this.getterMethod = null;
-    this.setterMethod = null;
-    this.getComboValuesMethod = toolbarElement.comboValuesMethod();
-    this.image = toolbarElement.image();
-    this.disabledImage = toolbarElement.disabledImage();
-    this.variablesEnabled = toolbarElement.variables();
-    this.password = toolbarElement.password();
-    this.i18nPackage = calculateI18nPackage( toolbarElement.i18nPackageClass(), toolbarElement.i18nPackage() );
-    this.ignored = toolbarElement.ignored();
-    this.addingSeparator = toolbarElement.separator();
-    this.singleTon = StringUtils.isNotEmpty( toolbarElement.parent() );
-    this.listenerClass = listenerClass;
-    this.listenerMethod = method.getName();
-    if ( toolbarElement.label().startsWith( "${" ) ) {
-      System.out.println( "i18n" );
-    }
-    this.label = calculateI18n( i18nPackage, toolbarElement.label() );
-    this.toolTip = calculateI18n( i18nPackage, toolbarElement.toolTip() );
-  }
-
-  private String calculateI18n( String i18nPackage, String string ) {
-    if ( StringUtils.isEmpty( i18nPackage ) ) {
-      return string;
-    }
-    if ( StringUtils.isEmpty( string ) ) {
-      return null;
-    }
-    return BaseMessages.getString( i18nPackage, string );
-  }
-
-  public GuiElements( GuiMenuElement guiElement, Method method ) {
-    this();
-
-    this.id = guiElement.id();
-    this.type = guiElement.type();
-    this.parentId = guiElement.parentId();
-    this.order = guiElement.order();
-    this.fieldName = null;
-    this.fieldClass = Void.class;
-    this.getterMethod = null;
-    this.setterMethod = null;
-    this.getComboValuesMethod = guiElement.comboValuesMethod();
-    this.image = guiElement.image();
-    this.variablesEnabled = guiElement.variables();
-    this.password = guiElement.password();
-    this.i18nPackage = calculateI18nPackage( guiElement.i18nPackageClass(), guiElement.i18nPackage() );
-    this.ignored = guiElement.ignored();
-    this.addingSeparator = guiElement.separator();
-    this.listenerMethod = method.getName();
-    this.label = calculateI18n( i18nPackage, guiElement.label() );
-    this.toolTip = calculateI18n( i18nPackage, guiElement.toolTip() );
-  }
-
-  private String calculateI18nPackage( Class<?> i18nPackageClass, String i18nPackage ) {
-    if ( StringUtils.isNotEmpty( i18nPackage ) ) {
-      return i18nPackage;
-    }
-    if ( Void.class.equals( i18nPackageClass ) ) {
-      return null;
-    }
-    return i18nPackageClass.getPackage().getName();
-  }
-
-  private String calculateGetterMethod( GuiWidgetElement guiElement, String fieldName ) {
-    if ( StringUtils.isNotEmpty( guiElement.getterMethod() ) ) {
-      return guiElement.getterMethod();
-    }
-    String getter = "get" + StringUtil.initCap( fieldName );
-    return getter;
-  }
-
-
-  private String calculateSetterMethod( GuiWidgetElement guiElement, String fieldName ) {
-    if ( StringUtils.isNotEmpty( guiElement.setterMethod() ) ) {
-      return guiElement.setterMethod();
-    }
-    String getter = "set" + StringUtil.initCap( fieldName );
-    return getter;
-  }
 
   /**
    * Sort the children using the sort order.
    * If no sort field is available we use the ID
    */
   public void sortChildren() {
-    Collections.sort( children, new Comparator<GuiElements>() {
-      @Override public int compare( GuiElements o1, GuiElements o2 ) {
-        if ( StringUtils.isNotEmpty( o1.order ) && StringUtils.isNotEmpty( o2.order ) ) {
-          return o1.order.compareTo( o2.order );
-        } else {
-          return o1.id.compareTo( o2.id );
-        }
-      }
-    } );
+    Collections.sort( children, Comparator.comparing( o -> o.id ) );
   }
 
   public GuiElements findChild( String id ) {
@@ -494,22 +397,6 @@ public class GuiElements {
   }
 
   /**
-   * Gets order
-   *
-   * @return value of order
-   */
-  public String getOrder() {
-    return order;
-  }
-
-  /**
-   * @param order The order to set
-   */
-  public void setOrder( String order ) {
-    this.order = order;
-  }
-
-  /**
    * Gets fieldClass
    *
    * @return value of fieldClass
@@ -603,5 +490,21 @@ public class GuiElements {
    */
   public void setSingleTon( boolean singleTon ) {
     this.singleTon = singleTon;
+  }
+
+  /**
+   * Gets classLoader
+   *
+   * @return value of classLoader
+   */
+  public ClassLoader getClassLoader() {
+    return classLoader;
+  }
+
+  /**
+   * @param classLoader The classLoader to set
+   */
+  public void setClassLoader( ClassLoader classLoader ) {
+    this.classLoader = classLoader;
   }
 }

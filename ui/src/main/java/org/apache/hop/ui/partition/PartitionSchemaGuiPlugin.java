@@ -36,7 +36,7 @@ import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 )
 public class PartitionSchemaGuiPlugin implements IGuiMetaStorePlugin<PartitionSchema> {
 
-  @Override public Class<PartitionSchema> getMetastoreElementClass() {
+  @Override public Class<PartitionSchema> getMetaStoreElementClass() {
     return PartitionSchema.class;
   }
 }

@@ -17,18 +17,25 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
-import org.apache.hop.env.session.EnvironmentSessionUtil;
+import org.apache.hop.env.gui.EnvironmentGuiPlugin;
+import org.apache.hop.history.AuditEvent;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.ui.hopgui.HopGui;
 
+import java.util.Date;
+
 public class EnvironmentUtil {
 
   public static final String VARIABLE_ENVIRONMENT_HOME = "ENVIRONMENT_HOME";
   public static final String VARIABLE_DATASETS_BASE_PATH = "DATASETS_BASE_PATH";
   public static final String VARIABLE_UNIT_TESTS_BASE_PATH = "UNIT_TESTS_BASE_PATH";
+
+  public static final String STRING_ENVIRONMENT_AUDIT_GROUP = "environments";
+  public static final String STRING_ENVIRONMENT_AUDIT_TYPE = "environment";
+
 
 
   /**
@@ -46,7 +53,7 @@ public class EnvironmentUtil {
     // We'll use those to change the loaded variables in Spoon
     //
     IVariables variables = new Variables();
-    environment.modifyIVariables( variables, true );
+    environment.modifyVariables( variables, true );
 
     // Create Hop home folder in case it doesn't exist
     //
@@ -88,9 +95,28 @@ public class EnvironmentUtil {
     HopGui hopGui = HopGui.getInstance();
     if ( hopGui != null ) {
 
+      // Before we switch the namespace in HopGui, save the state of the perspectives
+      //
+      hopGui.auditDelegate.writeLastOpenFiles();
+
+      // Now we can close all files if they're all saved (or changes are ignored)
+      //
+      if (!hopGui.fileDelegate.saveGuardAllFiles()) {
+        // Abort the environment change
+        return;
+      }
+
+      // Close 'm all
+      //
+      hopGui.fileDelegate.closeAllFiles();
+
       // We store the environment in the HopGui namespace
       //
       hopGui.setNamespace( environment.getName() );
+
+      // Re-open last open files for the namespace
+      //
+      hopGui.auditDelegate.openLastFiles();
 
       // Clear last used, fill it with something useful.
       //
@@ -103,13 +129,18 @@ public class EnvironmentUtil {
         }
       }
 
-      if ( environment.isAutoRestoringHopGuiSession() ) {
-        EnvironmentSessionUtil.restoreHopGuiSession();
-      }
-
       // Refresh the currently active file
       //
       hopGui.getActivePerspective().getActiveFileTypeHandler().updateGui();
+
+      // Update the toolbar combo
+      //
+      EnvironmentGuiPlugin.selectEnvironmentInList(environment.getName());
+
+      // Also add this as an event so we know what the environment usage history is
+      //
+      AuditEvent envUsedEvent = new AuditEvent( STRING_ENVIRONMENT_AUDIT_GROUP, STRING_ENVIRONMENT_AUDIT_TYPE, environment.getName(), "open", new Date() );
+      hopGui.getAuditManager().storeEvent( envUsedEvent );
     }
   }
 
@@ -175,5 +206,9 @@ public class EnvironmentUtil {
     if ( environment.isEnforcingExecutionInHome() ) {
       EnvironmentUtil.validateFileInEnvironment( log, executableFilename, environment, space );
     }
+  }
+
+  public static Environment getEnvironment( String environmentName ) throws MetaStoreException {
+    return EnvironmentSingleton.getEnvironmentFactory().loadElement( environmentName );
   }
 }

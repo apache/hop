@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.menu;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -37,6 +37,11 @@ import java.lang.annotation.Target;
 public @interface GuiMenuElement {
 
   /**
+   * @return The root to which this menu item belongs. For example see HopGui.ID_MAIN_MENU
+   */
+  String root();
+
+  /**
    * Every GUI Element has a unique ID so it can be replaced by other plugins at any given time.
    *
    * @return The unique ID of the GUI Element
@@ -48,7 +53,7 @@ public @interface GuiMenuElement {
    *
    * @return
    */
-  GuiElementType type();
+  GuiMenuElementType type() default GuiMenuElementType.MENU_ITEM;
 
   /**
    * The label of the GUI element: the menu item text and so on.
@@ -89,36 +94,12 @@ public @interface GuiMenuElement {
   String parentId() default "";
 
   /**
-   * @return True if the text element you define is a password with an asterisk mask
+   * If we want to reference a menu element in another class than the GuiPlugin.
+   * For example, a plugin wants to add a menu item in the HopGui menu.
+   * In that case we would reference HopGui.class.getName() here.
+   * @return The parent class name or an empty String if nothing was specified.
    */
-  boolean password() default false;
-
-  /**
-   * @return true if the widget supports variables
-   */
-  boolean variables() default true;
-
-  /**
-   * @return The getter method of the property if it's non-standard
-   */
-  String getterMethod() default "";
-
-  /**
-   * @return The setter method of the property if it's non-standard
-   */
-  String setterMethod() default "";
-
-  /**
-   * @return The method which returns a String[] to populate a combo box widget GUI element
-   */
-  String comboValuesMethod() default "";
-
-  /**
-   * You can use this to order the GUI Elements for a given scenario
-   *
-   * @return The value on which the system will sort alphabetically
-   */
-  String order() default "";
+  String parentClass() default "";
 
   /**
    * Set this flag to true if you want to ignore the field as a GUI Element.

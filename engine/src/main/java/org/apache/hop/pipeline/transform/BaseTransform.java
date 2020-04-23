@@ -1202,15 +1202,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
-        /*
-        if ( isUsingThreadPriorityManagment() && !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
+
+        if ( !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
           try {
             Thread.sleep( 0, 1 );
           } catch ( InterruptedException e ) {
             // Ignore sleep interruption exception
           }
         }
-        */
+
 
         // Loop until we find room in the target rowset
         //
@@ -1239,15 +1239,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
         // To reduce stress on the locking system we are NOT going to allow
         // the buffer to grow to its full capacity.
-        /*
-        if ( isUsingThreadPriorityManagment() && !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
+
+        if ( !rs.isDone() && rs.size() >= upperBufferBoundary && !isStopped() ) {
           try {
             Thread.sleep( 0, 1 );
           } catch ( InterruptedException e ) {
             // Ignore sleep interruption exception
           }
         }
-         */
 
         try {
           // Loop until we find room in the target rowset
@@ -1565,16 +1564,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // To reduce stress on the locking system we are going to allow
       // The buffer to grow beyond "a few" entries.
       // We'll only do that if the previous transform has not ended...
-      /*
-      if ( isUsingThreadPriorityManagment()
-        && !inputRowSet.isDone() && inputRowSet.size() <= lowerBufferBoundary && !isStopped() ) {
+
+      if ( !inputRowSet.isDone() && inputRowSet.size() <= lowerBufferBoundary && !isStopped() ) {
         try {
           Thread.sleep( 0, 1 );
         } catch ( InterruptedException e ) {
           // Ignore sleep interruption exception
         }
       }
-       */
 
       // See if this transform is receiving partitioned data...
       // In that case it might be the case that one input row set is receiving
@@ -1836,16 +1833,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // To reduce stress on the locking system we are going to allow
     // The buffer to grow beyond "a few" entries.
     // We'll only do that if the previous transform has not ended...
-    /*
-    if ( isUsingThreadPriorityManagment()
-      && !rowSet.isDone() && rowSet.size() <= lowerBufferBoundary && !isStopped() ) {
+
+    if ( !rowSet.isDone() && rowSet.size() <= lowerBufferBoundary && !isStopped() ) {
       try {
         Thread.sleep( 0, 1 );
       } catch ( InterruptedException e ) {
         // Ignore sleep interruption exception
       }
     }
-     */
 
     // Grab a row... If nothing received after a timeout, try again.
     //

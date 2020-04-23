@@ -7,10 +7,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.env.util.Defaults;
 import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metastore.persist.MetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metastore.util.HopDefaults;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +24,7 @@ import java.util.List;
   name = "Hop Environment",
   description = "An environment to tie together all sorts of configuration options"
 )
-public class Environment {
+public class Environment implements IHopMetaStoreElement<Environment> {
 
   // Information about the environment itself
   //
@@ -49,15 +53,11 @@ public class Environment {
   private String environmentHomeFolder;
 
   @MetaStoreAttribute( key = "homeFolder" )
-  private String kettleHomeFolder;
+  private String hopHomeFolder;
 
   @MetaStoreAttribute
   private String metaStoreBaseFolder;
 
-  // Git information
-  //
-  @MetaStoreAttribute
-  private String spoonGitProject;
 
   // Data Sets , Unit tests
   //
@@ -69,12 +69,6 @@ public class Environment {
 
   @MetaStoreAttribute( key = "enforce_execution_in_environment" )
   private boolean enforcingExecutionInHome;
-
-  @MetaStoreAttribute
-  private boolean autoSavingSpoonSession;
-
-  @MetaStoreAttribute
-  private boolean autoRestoringSpoonSession;
 
   // Variables
   //
@@ -105,77 +99,68 @@ public class Environment {
     dataSetsCsvFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/datasets";
     unitTestsBasePath = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
     enforcingExecutionInHome = true;
-    autoSavingSpoonSession = true;
-    autoRestoringSpoonSession = true;
-  }
-
-  public void applyKettleDefaultSettings() {
-    name = "Default";
-    description = "These are the default settings for Kettle";
-    kettleHomeFolder = "${user.home}";
-    metaStoreBaseFolder = "${user.home}/.pentaho/";
   }
 
   public void modifySystem() {
-    modifyIVariables( null, true );
+    modifyVariables( null, true );
   }
 
-  public void modifyIVariables( IVariables space ) {
-    modifyIVariables( space, false );
+  public void modifyVariables( IVariables variables ) {
+    modifyVariables( variables, false );
   }
 
-  public void modifyIVariables( IVariables space, boolean modifySystem ) {
+  public void modifyVariables( IVariables variables, boolean modifySystem ) {
 
-    if ( space == null ) {
-      space = Variables.getADefaultVariableSpace();
+    if ( variables == null ) {
+      variables = Variables.getADefaultVariableSpace();
     }
 
     // Set the name of the active environment
     //
-    space.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
+    variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
     if ( modifySystem ) {
       System.setProperty( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
     }
 
     if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
-      String realValue = space.environmentSubstitute( environmentHomeFolder );
-      space.setVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
+      String realValue = variables.environmentSubstitute( environmentHomeFolder );
+      variables.setVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
       if ( modifySystem ) {
         System.setProperty( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
       }
     }
-    if ( StringUtils.isNotEmpty( kettleHomeFolder ) ) {
-      String realValue = space.environmentSubstitute( kettleHomeFolder );
-      space.setVariable( "KETTLE_HOME", realValue );
+    if ( StringUtils.isNotEmpty( hopHomeFolder ) ) {
+      String realValue = variables.environmentSubstitute( hopHomeFolder );
+      variables.setVariable( "HOP_HOME", realValue );
       if ( modifySystem ) {
-        System.setProperty( "KETTLE_HOME", realValue );
+        System.setProperty( "HOP_HOME", realValue );
       }
     }
     if ( StringUtils.isNotEmpty( metaStoreBaseFolder ) ) {
-      String realValue = space.environmentSubstitute( metaStoreBaseFolder );
-      space.setVariable( Const.HOP_METASTORE_FOLDER, realValue );
+      String realValue = variables.environmentSubstitute( metaStoreBaseFolder );
+      variables.setVariable( Const.HOP_METASTORE_FOLDER, realValue );
       if ( modifySystem ) {
         System.setProperty( Const.HOP_METASTORE_FOLDER, realValue );
       }
     }
     if ( StringUtils.isNotEmpty( unitTestsBasePath ) ) {
-      String realValue = space.environmentSubstitute( unitTestsBasePath );
-      space.setVariable( EnvironmentUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
+      String realValue = variables.environmentSubstitute( unitTestsBasePath );
+      variables.setVariable( EnvironmentUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
       if ( modifySystem ) {
         System.setProperty( EnvironmentUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
       }
     }
     if ( StringUtils.isNotEmpty( dataSetsCsvFolder ) ) {
-      String realValue = space.environmentSubstitute( dataSetsCsvFolder );
-      space.setVariable( EnvironmentUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
+      String realValue = variables.environmentSubstitute( dataSetsCsvFolder );
+      variables.setVariable( EnvironmentUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
       if ( modifySystem ) {
         System.setProperty( EnvironmentUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
       }
     }
 
-    for ( EnvironmentVariable variable : variables ) {
+    for ( EnvironmentVariable variable : this.variables ) {
       if ( variable.getName() != null ) {
-        space.setVariable( variable.getName(), variable.getValue() );
+        variables.setVariable( variable.getName(), variable.getValue() );
         if ( modifySystem ) {
           if ( StringUtils.isEmpty( variable.getValue() ) ) {
             System.clearProperty( variable.getName() );
@@ -272,31 +257,15 @@ public class Environment {
    *
    * @return value of kettleHomeFolder
    */
-  public String getKettleHomeFolder() {
-    return kettleHomeFolder;
+  public String getHopHomeFolder() {
+    return hopHomeFolder;
   }
 
   /**
-   * @param kettleHomeFolder The kettleHomeFolder to set
+   * @param hopHomeFolder The kettleHomeFolder to set
    */
-  public void setKettleHomeFolder( String kettleHomeFolder ) {
-    this.kettleHomeFolder = kettleHomeFolder;
-  }
-
-  /**
-   * Gets spoonGitProject
-   *
-   * @return value of spoonGitProject
-   */
-  public String getSpoonGitProject() {
-    return spoonGitProject;
-  }
-
-  /**
-   * @param spoonGitProject The spoonGitProject to set
-   */
-  public void setSpoonGitProject( String spoonGitProject ) {
-    this.spoonGitProject = spoonGitProject;
+  public void setHopHomeFolder( String hopHomeFolder ) {
+    this.hopHomeFolder = hopHomeFolder;
   }
 
   /**
@@ -411,35 +380,16 @@ public class Environment {
     this.enforcingExecutionInHome = enforcingExecutionInHome;
   }
 
-  /**
-   * Gets autoSavingSpoonSession
-   *
-   * @return value of autoSavingSpoonSession
-   */
-  public boolean isAutoSavingSpoonSession() {
-    return autoSavingSpoonSession;
+  @Override public MetaStoreFactory<Environment> getFactory( IMetaStore metaStore ) {
+    return createFactory( metaStore );
   }
 
-  /**
-   * @param autoSavingSpoonSession The autoSavingSpoonSession to set
-   */
-  public void setAutoSavingSpoonSession( boolean autoSavingSpoonSession ) {
-    this.autoSavingSpoonSession = autoSavingSpoonSession;
-  }
-
-  /**
-   * Gets autoRestoringSpoonSession
-   *
-   * @return value of autoRestoringSpoonSession
-   */
-  public boolean isAutoRestoringHopGuiSession() {
-    return autoRestoringSpoonSession;
-  }
-
-  /**
-   * @param autoRestoringSpoonSession The autoRestoringSpoonSession to set
-   */
-  public void setAutoRestoringSpoonSession( boolean autoRestoringSpoonSession ) {
-    this.autoRestoringSpoonSession = autoRestoringSpoonSession;
+  public static final MetaStoreFactory<Environment> createFactory( IMetaStore metaStore ) {
+    // Environment doesn't use the default metastore.
+    try {
+      return EnvironmentSingleton.getEnvironmentFactory();
+    } catch(Exception e) {
+      throw new RuntimeException( "Environment MetaStore configuration error", e );
+    }
   }
 }

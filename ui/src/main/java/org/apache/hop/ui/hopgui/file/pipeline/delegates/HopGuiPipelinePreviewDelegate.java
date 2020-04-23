@@ -40,9 +40,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelinePreviewExtension;
 import org.eclipse.swt.SWT;
@@ -168,6 +170,20 @@ public class HopGuiPipelinePreviewDelegate {
     }
   }
 
+  /**
+   * When a toolbar is hit it knows the class so it will come here to ask for the instance.
+   *
+   * @return The active instance of this class
+   */
+  public static HopGuiPipelinePreviewDelegate getInstance() {
+    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
+    if (fileTypeHandler instanceof HopGuiPipelineGraph ) {
+      HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
+      return graph.pipelinePreviewDelegate;
+    }
+    return null;
+  }
+
   private void addToolBar() {
     toolbar = new ToolBar( pipelinePreviewComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.RIGHT | SWT.HORIZONTAL );
     FormData fdToolBar = new FormData();
@@ -177,8 +193,8 @@ public class HopGuiPipelinePreviewDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiCompositeWidgets widgets = new GuiCompositeWidgets( hopGui.getVariables() );
-    widgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+    GuiToolbarWidgets widgets = new GuiToolbarWidgets( );
+    widgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
 

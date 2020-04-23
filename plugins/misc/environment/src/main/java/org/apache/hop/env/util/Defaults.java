@@ -11,9 +11,6 @@ public class Defaults {
 
   public static final String VARIABLE_ACTIVE_ENVIRONMENT = "ACTIVE_ENVIRONMENT";
 
-
-  public static final String AREA_DRAWN_ENVIRONMENT_NAME = "Hop Environment Name";
-
   public static final String EXTENSION_POINT_ENVIRONMENT_ACTIVATED = "EnvironmentActivated";
 
 }

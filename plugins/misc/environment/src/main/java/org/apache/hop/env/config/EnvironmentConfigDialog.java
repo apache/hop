@@ -1,7 +1,6 @@
 package org.apache.hop.env.config;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.env.environment.EnvironmentsDialog;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -21,7 +20,7 @@ import org.eclipse.swt.widgets.Text;
 
 
 public class EnvironmentConfigDialog extends Dialog {
-  private static Class<?> PKG = EnvironmentsDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = EnvironmentConfigDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final EnvironmentConfig config;
 
@@ -31,7 +30,6 @@ public class EnvironmentConfigDialog extends Dialog {
   private final PropsUi props;
 
   private Text wName;
-  private Text wLastUsedEnvironment;
   private Button wEnabled;
   private Button wAutoOpen;
 
@@ -81,26 +79,9 @@ public class EnvironmentConfigDialog extends Dialog {
     wName.setLayoutData( fdName );
     Control lastControl = wName;
 
-    Label wlLastUsedEnvironment = new Label( shell, SWT.RIGHT );
-    props.setLook( wlLastUsedEnvironment );
-    wlLastUsedEnvironment.setText( "Last used environment " );
-    FormData fdlLastUsedEnvironment = new FormData();
-    fdlLastUsedEnvironment.left = new FormAttachment( 0, 0 );
-    fdlLastUsedEnvironment.right = new FormAttachment( middle, 0 );
-    fdlLastUsedEnvironment.top = new FormAttachment( lastControl, margin );
-    wlLastUsedEnvironment.setLayoutData( fdlLastUsedEnvironment );
-    wLastUsedEnvironment = new Text( shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wLastUsedEnvironment );
-    FormData fdLastUsedEnvironment = new FormData();
-    fdLastUsedEnvironment.left = new FormAttachment( middle, margin );
-    fdLastUsedEnvironment.right = new FormAttachment( 100, 0 );
-    fdLastUsedEnvironment.top = new FormAttachment( wlLastUsedEnvironment, 0, SWT.CENTER );
-    wLastUsedEnvironment.setLayoutData( fdLastUsedEnvironment );
-    lastControl = wLastUsedEnvironment;
-
     Label wlEnabled = new Label( shell, SWT.RIGHT );
     props.setLook( wlEnabled );
-    wlEnabled.setText( "Enable Kettle Environment? " );
+    wlEnabled.setText( "Enable Hop Environment? " );
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment( 0, 0 );
     fdlEnabled.right = new FormAttachment( middle, 0 );
@@ -117,7 +98,7 @@ public class EnvironmentConfigDialog extends Dialog {
 
     Label wlAutoOpen = new Label( shell, SWT.RIGHT );
     props.setLook( wlAutoOpen );
-    wlAutoOpen.setText( "Open last environment at Spoon startup? " );
+    wlAutoOpen.setText( "Open last environment at Hop GUI startup? " );
     FormData fdlAutoOpen = new FormData();
     fdlAutoOpen.left = new FormAttachment( 0, 0 );
     fdlAutoOpen.right = new FormAttachment( middle, 0 );
@@ -148,7 +129,6 @@ public class EnvironmentConfigDialog extends Dialog {
     // When enter is hit, close the dialog
     //
     wName.addListener( SWT.DefaultSelection, ( e ) -> ok() );
-    wLastUsedEnvironment.addListener( SWT.DefaultSelection, ( e ) -> ok() );
 
     // Set the shell size, based upon previous time...
     BaseTransformDialog.setSize( shell );
@@ -186,14 +166,12 @@ public class EnvironmentConfigDialog extends Dialog {
 
   private void getData() {
     wName.setText( Const.NVL( config.getName(), "" ) );
-    wLastUsedEnvironment.setText( Const.NVL( config.getLastUsedEnvironment(), "" ) );
     wEnabled.setSelection( config.isEnabled() );
     wAutoOpen.setSelection( config.isOpeningLastEnvironmentAtStartup() );
   }
 
   private void getInfo( EnvironmentConfig conf ) {
     conf.setName( wName.getText() );
-    conf.setLastUsedEnvironment( wLastUsedEnvironment.getText() );
     conf.setEnabled( wEnabled.getSelection() );
     conf.setOpeningLastEnvironmentAtStartup( wAutoOpen.getSelection() );
   }
