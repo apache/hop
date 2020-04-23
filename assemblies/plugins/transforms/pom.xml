@@ -68,6 +68,7 @@
         <module>insertupdate</module>
         <module>ifnull</module>
         <module>loadfileinput</module>
+        <module>memgroupby</module>
         <module>mergejoin</module>
         <module>nullif</module>
         <module>pgbulkloader</module>
