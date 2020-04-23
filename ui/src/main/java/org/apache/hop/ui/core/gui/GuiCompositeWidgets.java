@@ -201,7 +201,6 @@ public class GuiCompositeWidgets {
             widgetsMap.put( guiElements.getId(), combo );
             control = combo;
           }
-          break;case MENU_ITEM:
           break;
         default:
           break;

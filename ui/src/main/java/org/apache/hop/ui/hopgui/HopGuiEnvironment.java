@@ -22,18 +22,17 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiOSXKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
@@ -47,10 +46,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class HopGuiEnvironment extends HopClientEnvironment {
@@ -89,44 +85,41 @@ public class HopGuiEnvironment extends HopClientEnvironment {
       for ( IPlugin guiPlugin : guiPlugins ) {
         ClassLoader classLoader = pluginRegistry.getClassLoader( guiPlugin );
         Class<?>[] typeClasses = guiPlugin.getClassMap().keySet().toArray( new Class<?>[ 0 ] );
-        String parentClassName = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
-        Class<?> parentClass = classLoader.loadClass( parentClassName );
+        String guiPluginClassName = guiPlugin.getClassMap().get( typeClasses[ 0 ] );
+        Class<?> guiPluginClass = classLoader.loadClass( guiPluginClassName );
 
         // Component widgets are defined on fields
         //
-        List<Field> fields = findDeclaredFields( parentClass );
+        List<Field> fields = findDeclaredFields( guiPluginClass );
 
         for ( Field field : fields ) {
           GuiWidgetElement guiElement = field.getAnnotation( GuiWidgetElement.class );
           if ( guiElement != null ) {
             // Add the GUI Element to the registry...
             //
-            guiRegistry.addGuiElement( parentClassName, guiElement, field );
+            guiRegistry.addGuiWidgetElement( guiPluginClassName, guiElement, field );
           }
         }
 
         // Menu and toolbar items are defined on methods
         //
-        List<GuiElementMethod> menuItems = new ArrayList<>();
-        List<GuiElementMethod> toolBarItems = new ArrayList<>();
-
-        List<Method> methods = findDeclaredMethods( parentClass );
+        List<Method> methods = findDeclaredMethods( guiPluginClass );
         for ( Method method : methods ) {
           GuiMenuElement menuElement = method.getAnnotation( GuiMenuElement.class );
           if ( menuElement != null ) {
-            menuItems.add( new GuiElementMethod( menuElement, method ) );
+            guiRegistry.addGuiWidgetElement( guiPluginClassName, menuElement, method, classLoader );
           }
           GuiToolbarElement toolbarElement = method.getAnnotation( GuiToolbarElement.class );
           if ( toolbarElement != null ) {
-            toolBarItems.add( new GuiElementMethod( toolbarElement, method ) );
+            guiRegistry.addGuiToolbarElement( guiPluginClassName, toolbarElement, method, classLoader );
           }
           GuiKeyboardShortcut shortcut = method.getAnnotation( GuiKeyboardShortcut.class );
           if ( shortcut != null ) {
-            guiRegistry.addKeyboardShortcut( parentClassName, method, shortcut );
+            guiRegistry.addKeyboardShortcut( guiPluginClassName, method, shortcut );
           }
-          GuiOSXKeyboardShortcut osxShortcut = method.getAnnotation( GuiOSXKeyboardShortcut.class );
+          GuiOsxKeyboardShortcut osxShortcut = method.getAnnotation( GuiOsxKeyboardShortcut.class );
           if ( osxShortcut != null ) {
-            guiRegistry.addKeyboardShortcut( parentClassName, method, osxShortcut );
+            guiRegistry.addKeyboardShortcut( guiPluginClassName, method, osxShortcut );
           }
           GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
           if ( contextAction != null ) {
@@ -134,46 +127,16 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
         }
 
-        Collections.sort( menuItems, new Comparator<GuiElementMethod>() {
-          @Override public int compare( GuiElementMethod o1, GuiElementMethod o2 ) {
-            if ( StringUtils.isEmpty( o1.menuElement.order() ) || StringUtils.isEmpty( o2.menuElement.order() ) ) {
-              return o1.menuElement.id().compareTo( o2.menuElement.id() );
-            } else {
-              return o1.menuElement.order().compareTo( o2.menuElement.order() );
-            }
-          }
-        } );
-        Collections.sort( toolBarItems, new Comparator<GuiElementMethod>() {
-          @Override public int compare( GuiElementMethod o1, GuiElementMethod o2 ) {
-            if ( StringUtils.isEmpty( o1.toolBarElement.order() ) || StringUtils.isEmpty( o2.toolBarElement.order() ) ) {
-              return o1.toolBarElement.id().compareTo( o2.toolBarElement.id() );
-            } else {
-              return o1.toolBarElement.order().compareTo( o2.toolBarElement.order() );
-            }
-          }
-        } );
-
-
-        for ( GuiElementMethod item : menuItems ) {
-          guiRegistry.addMethodElement( parentClassName, item.menuElement, item.method );
-        }
-        for ( GuiElementMethod item : toolBarItems ) {
-          if ( StringUtils.isEmpty( item.toolBarElement.parent() ) ) {
-            guiRegistry.addMethodElement( parentClassName, parentClass, item.toolBarElement, item.method );
-          } else {
-            guiRegistry.addMethodElement( item.toolBarElement.parent(), parentClass, item.toolBarElement, item.method );
-          }
-        }
 
         // Is this class annotated with @GuiMetaStoreElement ?
         //
-        GuiMetaStoreElement guiMetaStoreElement = parentClass.getAnnotation( GuiMetaStoreElement.class );
+        GuiMetaStoreElement guiMetaStoreElement = guiPluginClass.getAnnotation( GuiMetaStoreElement.class );
         if (guiMetaStoreElement!=null) {
           // The parent class is capable of serializing to a metastore
           //
           try {
-            IGuiMetaStorePlugin guiMetaStorePlugin = (IGuiMetaStorePlugin) parentClass.newInstance();
-            Class<? extends IHopMetaStoreElement> managedClass = guiMetaStorePlugin.getMetastoreElementClass();
+            IGuiMetaStorePlugin guiMetaStorePlugin = (IGuiMetaStorePlugin) guiPluginClass.newInstance();
+            Class<? extends IHopMetaStoreElement> managedClass = guiMetaStorePlugin.getMetaStoreElementClass();
             guiRegistry.addMetaStoreElementType( managedClass, guiMetaStoreElement, classLoader );
           } catch(ClassCastException e) {
             System.err.println( "Classes annotated with @"+GuiMetaStoreElement.class.getSimpleName()+" need to implement interface "+IHopMetaStoreElement.class.getSimpleName() );

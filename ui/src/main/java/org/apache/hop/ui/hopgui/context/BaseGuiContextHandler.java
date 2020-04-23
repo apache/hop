@@ -53,11 +53,7 @@ public abstract class BaseGuiContextHandler {
     //
     List<GuiAction> pluginActions = GuiRegistry.getInstance().getGuiContextActions( getContextId() );
     if ( pluginActions != null && sortActionsById ) {
-      Collections.sort( pluginActions, new Comparator<GuiAction>() {
-        @Override public int compare( GuiAction a1, GuiAction a2 ) {
-          return a1.getId().compareTo( a2.getId() );
-        }
-      } );
+      Collections.sort( pluginActions, Comparator.comparing( GuiAction::getId ) );
       actions.addAll( pluginActions );
     }
 

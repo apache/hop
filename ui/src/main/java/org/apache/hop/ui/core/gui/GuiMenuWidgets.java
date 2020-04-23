@@ -25,10 +25,9 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiElements;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.KeyboardShortcut;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -38,42 +37,50 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * This class contains the widgets for Menu Bars
  */
-public class GuiMenuWidgets {
+public class GuiMenuWidgets extends BaseGuiWidgets {
 
-  private IVariables variables;
   private Map<String, MenuItem> menuItemMap;
   private Map<String, KeyboardShortcut> shortcutMap;
 
-  public GuiMenuWidgets( IVariables variables ) {
-    this.variables = variables;
+  public GuiMenuWidgets() {
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
   }
 
-  public void createMenuWidgets( Object sourceData, Shell shell, Menu parent, String parentGuiElementId ) {
+  public void createMenuWidgets( String root, Shell shell, Menu parent ) {
     // Find the GUI Elements for the given class...
     //
     GuiRegistry registry = GuiRegistry.getInstance();
-    GuiElements guiElements = registry.findGuiElements( sourceData.getClass().getName(), parentGuiElementId );
-    if ( guiElements == null ) {
-      System.err.println( "Create menu widgets: no GUI elements found for class: " + sourceData.getClass().getName() + ", parent ID: " + parentGuiElementId );
+
+    // Loop over the GUI elements and create menus all the way down...
+    // We used the same ID for root and top level menu
+    //
+    List<GuiMenuItem> guiMenuItems = registry.findChildGuiMenuItems( root, root );
+    if ( guiMenuItems.isEmpty()) {
+      System.err.println( "Create menu widgets: no GUI menu items found for root: " + root);
       return;
     }
 
-    // Loop over the GUI elements and create menus all the way down...
+    // Sort by ID to get a stable UI
     //
-    addMenuWidgets( sourceData, shell, parent, guiElements );
+    Collections.sort(guiMenuItems);
+
+    for (GuiMenuItem guiMenuItem : guiMenuItems) {
+      addMenuWidgets( root, shell, parent, guiMenuItem );
+    }
   }
 
-  private void addMenuWidgets( Object sourceData, Shell shell, Menu parentMenu, GuiElements guiElements ) {
+  private void addMenuWidgets( String root, Shell shell, Menu parentMenu, GuiMenuItem guiMenuItem ) {
 
-    if ( guiElements.isIgnored() ) {
+    if ( guiMenuItem.isIgnored() ) {
       return;
     }
 
@@ -82,74 +89,89 @@ public class GuiMenuWidgets {
     MenuItem menuItem;
 
     // With children mean: drop-down menu item
+    // Without children:
     //
-    if ( guiElements.getChildren().isEmpty() ) {
+    List<GuiMenuItem> children = GuiRegistry.getInstance().findChildGuiMenuItems( root, guiMenuItem.getId() );
 
-      if ( guiElements.isAddingSeparator() ) {
+    if ( children.isEmpty() ) {
+
+      if ( guiMenuItem.isAddingSeparator() ) {
         new MenuItem( parentMenu, SWT.SEPARATOR );
       }
 
       menuItem = new MenuItem( parentMenu, SWT.PUSH );
-      menuItem.setText( guiElements.getLabel() );
-      if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
-        menuItem.setImage( GuiResource.getInstance().getImage( guiElements.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
+      menuItem.setText( guiMenuItem.getLabel() );
+      if ( StringUtils.isNotEmpty( guiMenuItem.getImage() ) ) {
+        menuItem.setImage( GuiResource.getInstance().getImage( guiMenuItem.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
       }
 
-      setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
-      if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
-        menuItem.setToolTipText( guiElements.getToolTip() );
+      setMenuItemKeyboardShortcut( menuItem, guiMenuItem );
+      if ( StringUtils.isNotEmpty( guiMenuItem.getToolTip() ) ) {
+        menuItem.setToolTipText( guiMenuItem.getToolTip() );
       }
 
       // Call the method to which the GuiWidgetElement annotation belongs.
       //
       menuItem.addListener( SWT.Selection, e -> {
         try {
-          Method menuMethod = sourceData.getClass().getMethod( guiElements.getListenerMethod() );
+
+          Object singleton = loadSingleTon( guiMenuItem.getClassLoader(), guiMenuItem.getListenerClassName() );
+
+          Method menuMethod = singleton.getClass().getMethod( guiMenuItem.getListenerMethod() );
           if ( menuMethod == null ) {
-            throw new HopException( "Unable to find method " + guiElements.getListenerMethod() + " in class " + sourceData.getClass().getName() );
+            throw new HopException( "Unable to find method " + guiMenuItem.getListenerMethod() + " in singleton " + guiMenuItem.getListenerClassName() );
           }
-          menuMethod.invoke( sourceData );
+          menuMethod.invoke( singleton );
         } catch ( Exception ex ) {
-          System.err.println( "Unable to call method " + guiElements.getListenerMethod() + " in class " + sourceData.getClass().getName() + " : " + ex.getMessage() );
+          System.err.println( "Unable to call method " + guiMenuItem.getListenerMethod() + " in singleton " + guiMenuItem.getListenerClassName() + " : " + ex.getMessage() );
           ex.printStackTrace( System.err );
         }
       } );
 
-      menuItemMap.put( guiElements.getId(), menuItem );
+      menuItemMap.put( guiMenuItem.getId(), menuItem );
 
     } else {
       // We have a bunch of children so we want to create a new drop-down menu in the parent menu
       //
       Menu menu = parentMenu;
-      if ( guiElements.getId() != null ) {
+      if ( guiMenuItem.getId() != null ) {
         menuItem = new MenuItem( parentMenu, SWT.CASCADE );
-        menuItem.setText( Const.NVL( guiElements.getLabel(), "" ) );
-        setMenuItemKeyboardShortcut( menuItem, guiElements, sourceData.getClass().getName() );
-        if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
-          menuItem.setToolTipText( guiElements.getToolTip() );
+        menuItem.setText( Const.NVL( guiMenuItem.getLabel(), "" ) );
+        setMenuItemKeyboardShortcut( menuItem, guiMenuItem );
+        if ( StringUtils.isNotEmpty( guiMenuItem.getToolTip() ) ) {
+          menuItem.setToolTipText( guiMenuItem.getToolTip() );
         }
         menu = new Menu( shell, SWT.DROP_DOWN );
         menuItem.setMenu( menu );
-        menuItemMap.put( guiElements.getId(), menuItem );
+        menuItemMap.put( guiMenuItem.getId(), menuItem );
       }
 
       // Add the children to this menu...
       //
-      for ( GuiElements child : guiElements.getChildren() ) {
-        addMenuWidgets( sourceData, shell, menu, child );
+
+      // Sort the children as well.  It gets chaotic otherwise
+      //
+      Collections.sort(children);
+
+      for ( GuiMenuItem child : children ) {
+        addMenuWidgets( root, shell, menu, child );
       }
     }
   }
 
-  private void setMenuItemKeyboardShortcut( MenuItem menuItem, GuiElements guiElements, String parentClassName ) {
 
+  private void setMenuItemKeyboardShortcut( MenuItem menuItem, GuiMenuItem guiMenuItem ) {
     // See if there's a shortcut worth mentioning...
     //
-    KeyboardShortcut shortcut = GuiRegistry.getInstance().findKeyboardShortcut( parentClassName, guiElements.getListenerMethod(), Const.isOSX() );
+    KeyboardShortcut shortcut = GuiRegistry.getInstance().findKeyboardShortcut(
+      guiMenuItem.getListenerClassName(),
+      guiMenuItem.getListenerMethod(),
+      Const.isOSX()
+    );
     if ( shortcut != null ) {
       appendShortCut( menuItem, shortcut );
       menuItem.setAccelerator( getAccelerator( shortcut ) );
-      shortcutMap.put( guiElements.getId(), shortcut );
+      shortcutMap.put( guiMenuItem.getId(), shortcut );
     }
   }
 
@@ -288,6 +310,7 @@ public class GuiMenuWidgets {
   public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission ) {
     return enableMenuItem( fileType, id, permission, true );
   }
+
   /**
    * Find the menu item with the given ID.
    * Check the capability in the given file type
@@ -296,7 +319,7 @@ public class GuiMenuWidgets {
    * @param fileType
    * @param id         The ID of the widget to look for
    * @param permission
-   * @param active The state if the permission is available
+   * @param active     The state if the permission is available
    * @return The menu item or null if nothing is found
    */
   public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission, boolean active ) {
@@ -307,22 +330,6 @@ public class GuiMenuWidgets {
     boolean hasCapability = fileType.hasCapability( permission );
     menuItem.setEnabled( hasCapability && active );
     return menuItem;
-  }
-
-  /**
-   * Gets space
-   *
-   * @return value of space
-   */
-  public IVariables getSpace() {
-    return variables;
-  }
-
-  /**
-   * @param variables The space to set
-   */
-  public void setSpace( IVariables variables ) {
-    this.variables = variables;
   }
 
   /**

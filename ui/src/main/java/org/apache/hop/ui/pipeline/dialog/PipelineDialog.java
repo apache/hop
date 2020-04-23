@@ -728,6 +728,7 @@ public class PipelineDialog extends Dialog {
   private void ok() {
     boolean OK = true;
 
+    pipelineMeta.setName( wPipelineName.getText() );
     pipelineMeta.setDescription( wPipelineDescription.getText() );
     pipelineMeta.setExtendedDescription( wExtendedDescription.getText() );
     pipelineMeta.setPipelineVersion( wPipelineVersion.getText() );

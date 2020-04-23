@@ -36,7 +36,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 )
   public class WorkflowRunConfigurationGuiPlugin implements IGuiMetaStorePlugin<WorkflowRunConfiguration> {
 
-  @Override public Class<WorkflowRunConfiguration> getMetastoreElementClass() {
+  @Override public Class<WorkflowRunConfiguration> getMetaStoreElementClass() {
     return WorkflowRunConfiguration.class;
   }
 }

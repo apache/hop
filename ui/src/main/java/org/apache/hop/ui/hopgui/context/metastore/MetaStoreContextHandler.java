@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiActionType;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
+import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
@@ -42,50 +43,51 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
   private IMetaStore metaStore;
   private MetaStoreFactory<IHopMetaStoreElement> factory;
   private Class<? extends IHopMetaStoreElement> metaStoreElementClass;
-  private GuiMetaStoreElement guiMetaStoreElement;
+  private HopMetaStoreGuiPluginDetails guiPluginDetails;
   private MetaStoreManager<? extends IHopMetaStoreElement> metaStoreManager;
 
   public MetaStoreContextHandler( HopGui hopGui, IMetaStore metaStore, MetaStoreFactory<IHopMetaStoreElement> factory,
-                                  Class<? extends IHopMetaStoreElement> metaStoreElementClass, GuiMetaStoreElement guiMetaStoreElement ) {
+                                  Class<? extends IHopMetaStoreElement> metaStoreElementClass,
+                                  HopMetaStoreGuiPluginDetails guiPluginDetails ) {
     this.hopGui = hopGui;
     this.metaStore = metaStore;
     this.factory = factory;
     this.metaStoreElementClass = metaStoreElementClass;
-    this.guiMetaStoreElement = guiMetaStoreElement;
-    this.metaStoreManager = new MetaStoreManager<>( hopGui.getVariables(), metaStore, metaStoreElementClass );
-
-
+    this.guiPluginDetails = guiPluginDetails;
+    
+    metaStoreManager = new MetaStoreManager<>( hopGui.getVariables(), metaStore, metaStoreElementClass );
+    metaStoreManager.setClassLoader( guiPluginDetails.getClassLoader() );
   }
 
   @Override public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
     GuiAction newAction = new GuiAction(
-      "Create: "+guiMetaStoreElement.name(),
+      "Create: "+guiPluginDetails.getName(),
       GuiActionType.Create,
-      "Create "+guiMetaStoreElement.name(),
-      "Create a new: "+guiMetaStoreElement.description(),
-      guiMetaStoreElement.iconImage(),
+      "Create "+guiPluginDetails.getName(),
+      "Create a new: "+guiPluginDetails.getDescription(),
+      guiPluginDetails.getIconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metaStoreManager.newMetadata() );
     newAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( newAction );
 
     GuiAction editAction = new GuiAction(
-      "Edit: "+guiMetaStoreElement.name(),
+      "Edit: "+guiPluginDetails.getName(),
       GuiActionType.Modify,
-      guiMetaStoreElement.name(),
-      guiMetaStoreElement.description(),
-      guiMetaStoreElement.iconImage(),
+      guiPluginDetails.getName(),
+      guiPluginDetails.getDescription(),
+      guiPluginDetails.getIconImage(),
       (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
     editAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( editAction );
 
     GuiAction deleteAction = new GuiAction(
-      "Delete "+guiMetaStoreElement.name(),
+      "Delete "+guiPluginDetails.getName(),
       GuiActionType.Delete,
-      guiMetaStoreElement.name(),
-      guiMetaStoreElement.description(),
-      guiMetaStoreElement.iconImage(),
+      guiPluginDetails.getName(),
+      guiPluginDetails.getDescription(),
+      guiPluginDetails.getIconImage(),
        (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
     deleteAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( deleteAction );

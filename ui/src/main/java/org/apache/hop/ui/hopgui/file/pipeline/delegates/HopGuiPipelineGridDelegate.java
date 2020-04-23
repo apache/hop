@@ -24,9 +24,8 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -38,11 +37,14 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.DisposeEvent;
@@ -55,6 +57,8 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -81,7 +85,7 @@ public class HopGuiPipelineGridDelegate {
   private TableView pipelineGridView;
 
   private ToolBar toolbar;
-  private GuiCompositeWidgets toolbarWidget;
+  private GuiToolbarWidgets toolbarWidget;
 
   private Composite pipelineGridComposite;
 
@@ -232,6 +236,20 @@ public class HopGuiPipelineGridDelegate {
     pipelineGraph.extraViewTabFolder.setSelection( pipelineGridTab );
   }
 
+  /**
+   * When a toolbar is hit it knows the class so it will come here to ask for the instance.
+   *
+   * @return The active instance of this class
+   */
+  public static HopGuiPipelineGridDelegate getInstance() {
+    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
+    if (fileTypeHandler instanceof HopGuiPipelineGraph ) {
+      HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
+      return graph.pipelineGridDelegate;
+    }
+    return null;
+  }
+
   private void addToolBar() {
 
     toolbar = new ToolBar( pipelineGridComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
@@ -242,16 +260,15 @@ public class HopGuiPipelineGridDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolbarWidget = new GuiCompositeWidgets( hopGui.getVariables() );
-    toolbarWidget.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+    toolbarWidget = new GuiToolbarWidgets( );
+    toolbarWidget.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "PipelineLog.Button.ShowOnlyActiveTransforms",
+    // label = "PipelineLog.Button.ShowOnlyActiveTransforms",
     toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-inactive.svg"
@@ -271,10 +288,9 @@ public class HopGuiPipelineGridDelegate {
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "PipelineLog.Button.ShowOnlySelectedTransforms",
+    // label = "PipelineLog.Button.ShowOnlySelectedTransforms",
     toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/toolbar/show-all.svg"
@@ -344,7 +360,7 @@ public class HopGuiPipelineGridDelegate {
         column.setToolTip( metric.getTooltip() );
         IValueMeta stringMeta = new ValueMetaString( metric.getCode() );
         ValueMetaInteger valueMeta = new ValueMetaInteger( metric.getCode(), 15, 0 );
-        valueMeta.setConversionMask( " #" );
+        valueMeta.setConversionMask( METRICS_FORMAT );
         stringMeta.setConversionMetadata( valueMeta );
         column.setValueMeta( stringMeta );
         column.setAllignement( SWT.RIGHT );
@@ -389,7 +405,7 @@ public class HopGuiPipelineGridDelegate {
 
         for ( IEngineMetric metric : usedMetrics ) {
           Long value = engineMetrics.getComponentMetric( component, metric );
-          item.setText( col++, value == null ? "" : Long.toString( value ) );
+          item.setText( col++, value == null ? "" : formatMetric(value) );
         }
         String speed = engineMetrics.getComponentSpeedMap().get( component );
         item.setText( col++, Const.NVL( speed, "" ) );
@@ -401,6 +417,14 @@ public class HopGuiPipelineGridDelegate {
     } finally {
       refreshViewLock.unlock();
     }
+  }
+
+  private static final String METRICS_FORMAT = " ###,###,###,###";
+
+  private static NumberFormat metricFormat = new DecimalFormat( METRICS_FORMAT );
+
+  private String formatMetric( Long value ) {
+    return metricFormat.format( value );
   }
 
   private void updateRowFromBaseTransform( ITransform baseTransform, TableItem row ) {

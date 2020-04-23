@@ -69,6 +69,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   public Properties getCapabilities() {
     Properties capabilities = new Properties();
     capabilities.setProperty( IHopFileType.CAPABILITY_NEW, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_CLOSE, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_START, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_STOP, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_SAVE, "true" );

@@ -23,6 +23,7 @@
 package org.apache.hop.ui.cluster;
 
 import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
 
 /**
  * This interface indicates that the given class is a GUI plugin for a certain MetaStore element type
@@ -30,6 +31,5 @@ import org.apache.hop.metastore.IHopMetaStoreElement;
  */
 public interface IGuiMetaStorePlugin<T extends IHopMetaStoreElement> {
 
-  Class<T> getMetastoreElementClass();
-
+  Class<T> getMetaStoreElementClass();
 }

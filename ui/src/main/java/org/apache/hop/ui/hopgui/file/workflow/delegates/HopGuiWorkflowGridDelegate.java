@@ -172,7 +172,7 @@ public class HopGuiWorkflowGridDelegate {
     };
     tim.schedule( timtask, 10L, 2000L ); // refresh every 2 seconds...
 
-    jobGraph.jobLogDelegate.getJobLogTab().addDisposeListener( new DisposeListener() {
+    jobGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( new DisposeListener() {
       public void widgetDisposed( DisposeEvent disposeEvent ) {
         tim.cancel();
       }

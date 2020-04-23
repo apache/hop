@@ -18,6 +18,7 @@
     <module>databases</module>
     <module>transforms</module>
     <module>actions</module>
+    <module>misc</module>
     <module>dist</module>
   </modules>
 

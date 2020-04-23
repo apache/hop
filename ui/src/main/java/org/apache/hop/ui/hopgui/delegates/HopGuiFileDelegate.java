@@ -42,6 +42,7 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.TabItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -191,9 +192,11 @@ public class HopGuiFileDelegate {
   }
 
   /**
-   * When the app exits we need to see if all open files are saved in all perspectives...
+   * Go over all files and ask to save the ones who have changed.
+   *
+   *  @return True if all files are saveguarded (or changes are ignored)
    */
-  public boolean fileExit() {
+  public boolean saveGuardAllFiles() {
     for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
       List<TabItemHandler> tabItemHandlers = perspective.getItems();
       if ( tabItemHandlers != null ) {
@@ -204,6 +207,33 @@ public class HopGuiFileDelegate {
           }
         }
       }
+    }
+    return true;
+  }
+
+  public void closeAllFiles() {
+    for ( IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives() ) {
+      List<TabItemHandler> tabItemHandlers = perspective.getItems();
+      if ( tabItemHandlers != null ) {
+        // Copy the list to avoid changing the list we're editing (closing items)
+        //
+        List<TabItemHandler> handlers = new ArrayList<>( tabItemHandlers );
+        for ( TabItemHandler tabItemHandler : handlers ) {
+          IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
+          typeHandler.close();
+        }
+      }
+    }
+  }
+
+
+  /**
+   * When the app exits we need to see if all open files are saved in all perspectives...
+   */
+  public boolean fileExit() {
+
+    if (!saveGuardAllFiles()) {
+      return false;
     }
     // Also save all the open files in a list
     //

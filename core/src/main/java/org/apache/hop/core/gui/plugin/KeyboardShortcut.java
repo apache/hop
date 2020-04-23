@@ -49,7 +49,7 @@ public class KeyboardShortcut {
     this.parentMethodName = parentMethod.getName();
   }
 
-  public KeyboardShortcut( GuiOSXKeyboardShortcut shortcut, Method parentMethod ) {
+  public KeyboardShortcut( GuiOsxKeyboardShortcut shortcut, Method parentMethod ) {
     this.osx = true;
     this.alt = shortcut.alt();
     this.control = shortcut.control();

@@ -25,24 +25,22 @@ package org.apache.hop.ui.hopgui.file.workflow.delegates;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -78,7 +76,7 @@ public class HopGuiWorkflowLogDelegate {
   private Composite jobLogComposite;
 
   private ToolBar toolbar;
-  private GuiCompositeWidgets toolBarWidgets;
+  private GuiToolbarWidgets toolBarWidgets;
 
   private HopGuiLogBrowser logBrowser;
 
@@ -146,6 +144,20 @@ public class HopGuiWorkflowLogDelegate {
     jobGraph.extraViewTabFolder.setSelection( jobLogTab );
   }
 
+  /**
+   * When a toolbar is hit it knows the class so it will come here to ask for the instance.
+   *
+   * @return The active instance of this class
+   */
+  public static HopGuiWorkflowLogDelegate getInstance() {
+    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
+    if (fileTypeHandler instanceof HopGuiWorkflowGraph) {
+      HopGuiWorkflowGraph graph = (HopGuiWorkflowGraph) fileTypeHandler;
+      return graph.workflowLogDelegate;
+    }
+    return null;
+  }
+
   private void addToolBar() {
     toolbar = new ToolBar( jobLogComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
     FormData fdToolBar = new FormData();
@@ -155,8 +167,8 @@ public class HopGuiWorkflowLogDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolBarWidgets = new GuiCompositeWidgets( hopGui.getVariables() );
-    toolBarWidgets.createCompositeWidgets( this, null, toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID, null );
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
 
@@ -167,10 +179,9 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_SETTINGS,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "WorkflowLog.Button.LogSettings",
+    // label = "WorkflowLog.Button.LogSettings",
     toolTip = "WorkflowLog.Button.LogSettings",
     i18nPackageClass = HopGui.class,
     image = "ui/images/log-settings.svg"
@@ -180,10 +191,9 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_ERROR_LINES,
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "WorkflowLog.Button.ShowErrorLines",
+    // label = "WorkflowLog.Button.ShowErrorLines",
     toolTip = "WorkflowLog.Button.ShowErrorLines",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-error-lines.svg"
@@ -249,13 +259,12 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_LOG_PAUSE_RESUME,
-    type = GuiElementType.TOOLBAR_BUTTON,
-    label = "WorkflowLog.Button.Pause",
+    // label = "WorkflowLog.Button.Pause",
     toolTip = "WorkflowLog.Button.Pause",
     i18nPackageClass = HopGui.class,
     image = "ui/images/pause-log.svg",
-    parentId = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     separator = true
   )
   public void pauseLog() {
@@ -275,7 +284,7 @@ public class HopGuiWorkflowLogDelegate {
 
   public void copySelected() {
     if ( hasSelectedText() ) {
-      jobGraph.jobClipboardDelegate.toClipboard( jobLogText.getSelectionText() );
+      jobGraph.workflowClipboardDelegate.toClipboard( jobLogText.getSelectionText() );
     }
   }
 }

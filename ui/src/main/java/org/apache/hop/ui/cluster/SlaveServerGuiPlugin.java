@@ -34,7 +34,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 )
 public class SlaveServerGuiPlugin implements IGuiMetaStorePlugin<SlaveServer> {
 
-  @Override public Class<SlaveServer> getMetastoreElementClass() {
+  @Override public Class<SlaveServer> getMetaStoreElementClass() {
     return SlaveServer.class;
   }
 }

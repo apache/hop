@@ -31,9 +31,8 @@ import java.util.Map;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.RowBuffer;
@@ -105,12 +104,10 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	@GuiToolbarElement(
+		root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
 		id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-		type = GuiElementType.TOOLBAR_BUTTON,
 		image = "ui/images/Plugin.svg",
-		toolTip = "Explore plugin",
-		parentId = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-		parent = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID
+		toolTip = "Explore plugin"
 	)
 	public void activate() {
 		hopGui.getPerspectiveManager().showPerspective(this.getClass());

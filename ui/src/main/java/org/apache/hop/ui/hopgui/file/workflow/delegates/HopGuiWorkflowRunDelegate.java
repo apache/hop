@@ -93,7 +93,7 @@ public class HopGuiWorkflowRunDelegate {
 
     if ( !workflowMeta.isShowDialog() || dialog.open() ) {
 
-      workflowGraph.jobLogDelegate.addJobLog();
+      workflowGraph.workflowLogDelegate.addJobLog();
 
       // Set the variables that where specified...
       //

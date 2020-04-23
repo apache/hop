@@ -42,6 +42,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Describes the capabilities of an execution engine for a certain type of object called the subject
@@ -466,4 +467,10 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
    */
   String getStatusDescription();
 
+  /**
+   * A map in which the various transforms and plugins can store objects to remember during the lifecycle of the pipeline.
+   * TODO This is obviously harder to do in a clustered or remote execution environment. As such it's not clear that it makes sense to leave this method here over time
+   * @return The extension data map to use
+   */
+  Map<String, Object> getExtensionDataMap();
 }

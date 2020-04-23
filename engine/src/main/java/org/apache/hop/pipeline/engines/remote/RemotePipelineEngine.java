@@ -44,7 +44,6 @@ import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.PrepareExecutionPipelineServlet;
@@ -130,6 +129,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   protected Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows;
 
+  protected Map<String, Object> extensionDataMap;
+
   protected int lastLogLineNr;
   protected Timer refreshTimer;
 
@@ -153,6 +154,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     activeSubPipelines = new HashMap<>();
     activeSubWorkflows = new HashMap<>();
     engineCapabilities = new RemotePipelineEngineCapabilities();
+    extensionDataMap = Collections.synchronizedMap( new HashMap<>() );
   }
 
   public RemotePipelineEngine( PipelineMeta subject ) {
@@ -191,7 +193,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       loggingObject = new LoggingObject( this );
       this.logChannel.setLogLevel( logLevel );
 
-      logChannel.logBasic("Executing this pipeline using the Remote Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
+      logChannel.logBasic( "Executing this pipeline using the Remote Pipeline Engine with run configuration '" + pipelineRunConfiguration.getName() + "'" );
 
       serverPollDelay = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollDelay() ), 1000L );
       serverPollInterval = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollInterval() ), 2000L );
@@ -401,7 +403,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         if ( finished ) {
           firePipelineExecutionFinishedListeners();
           refreshTimer.cancel();
-          logChannel.logBasic("Execution finished on a remote pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
+          logChannel.logBasic( "Execution finished on a remote pipeline engine with run configuration '" + pipelineRunConfiguration.getName() + "'" );
         }
       }
     } catch ( Exception e ) {
@@ -1415,5 +1417,67 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   public ComponentExecutionStatus getStatus() {
     return status;
+  }
+
+  /**
+   * Gets extensionDataMap
+   *
+   * @return value of extensionDataMap
+   */
+  @Override public Map<String, Object> getExtensionDataMap() {
+    return extensionDataMap;
+  }
+
+  /**
+   * @param statusDescription The statusDescription to set
+   */
+  public void setStatusDescription( String statusDescription ) {
+    this.statusDescription = statusDescription;
+  }
+
+  /**
+   * @param status The status to set
+   */
+  public void setStatus( ComponentExecutionStatus status ) {
+    this.status = status;
+  }
+
+  /**
+   * Gets serverPollDelay
+   *
+   * @return value of serverPollDelay
+   */
+  public long getServerPollDelay() {
+    return serverPollDelay;
+  }
+
+  /**
+   * @param serverPollDelay The serverPollDelay to set
+   */
+  public void setServerPollDelay( long serverPollDelay ) {
+    this.serverPollDelay = serverPollDelay;
+  }
+
+  /**
+   * Gets serverPollInterval
+   *
+   * @return value of serverPollInterval
+   */
+  public long getServerPollInterval() {
+    return serverPollInterval;
+  }
+
+  /**
+   * @param serverPollInterval The serverPollInterval to set
+   */
+  public void setServerPollInterval( long serverPollInterval ) {
+    this.serverPollInterval = serverPollInterval;
+  }
+
+  /**
+   * @param extensionDataMap The extensionDataMap to set
+   */
+  public void setExtensionDataMap( Map<String, Object> extensionDataMap ) {
+    this.extensionDataMap = extensionDataMap;
   }
 }
