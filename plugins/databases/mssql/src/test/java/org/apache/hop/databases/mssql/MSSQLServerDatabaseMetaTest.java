@@ -81,7 +81,7 @@ public class MSSQLServerDatabaseMetaTest {
     assertEquals( "net.sourceforge.jtds.jdbc.Driver", nativeMeta.getDriverClass() );
 
     assertEquals( "jdbc:jtds:sqlserver://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
-    assertEquals( "jdbc:jtds:sqlserver://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
+    assertEquals( "jdbc:jtds:sqlserver://FOO:1234/WIBBLE", nativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );

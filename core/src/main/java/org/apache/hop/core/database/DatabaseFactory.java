@@ -82,25 +82,30 @@ public class DatabaseFactory implements IDatabaseFactory {
 
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have hostname and port fields
     if ( databaseMeta.getIDatabase() instanceof GenericDatabaseMeta ) {
-      String customUrl = databaseMeta.getManualUrl();
-      String customDriverClass = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
-
-      return report.append( BaseMessages.getString( PKG, "GenericDatabaseMeta.report.customUrl" ) ).append(
-        db.environmentSubstitute( customUrl ) ).append( Const.CR ).append(
-        BaseMessages.getString( PKG, "GenericDatabaseMeta.report.customDriverClass" ) ).append(
-        db.environmentSubstitute( customDriverClass ) ).append( Const.CR );
+      
+    	String customDriverClass = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
+  		append( report, "GenericDatabaseMeta.report.customUrl",  db.environmentSubstitute(  databaseMeta.getManualUrl() ) );
+  		append( report, "GenericDatabaseMeta.report.customDriverClass",  db.environmentSubstitute(  customDriverClass ) );
+      
+  		return report;
     }
-
-    return appendConnectionInfo( report, db.environmentSubstitute( databaseMeta.getHostname() ), db
-      .environmentSubstitute( databaseMeta.getPort() ), db
-      .environmentSubstitute( databaseMeta.getDatabaseName() ) );
-  }
-
-  //CHECKSTYLE:LineLength:OFF
-  private StringBuilder appendConnectionInfo( StringBuilder report, String hostName, String portNumber, String dbName ) {
-    report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.Hostname" ) ).append( hostName ).append( Const.CR );
-    report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.Port" ) ).append( portNumber ).append( Const.CR );
-    report.append( BaseMessages.getString( PKG, "DatabaseMeta.report.DatabaseName" ) ).append( dbName ).append( Const.CR );
+        
+	append( report, "DatabaseMeta.report.Hostname",  db.environmentSubstitute(  databaseMeta.getHostname() ) );
+	append( report, "DatabaseMeta.report.Port",  db.environmentSubstitute( databaseMeta.getPort() ) );
+	append( report, "DatabaseMeta.report.DatabaseName",  db.environmentSubstitute( databaseMeta.getDatabaseName() ) );
+    
+	String url =  "";
+	try {
+		url =  databaseMeta.getURL();
+	} catch (HopDatabaseException e) {
+		url = e.toString();
+	}	
+	append( report, "DatabaseMeta.report.Url",  url );
+        
     return report;
+  }
+  
+  private void append( StringBuilder report, String label, String text) {
+	  report.append( BaseMessages.getString( PKG, label ) ).append('\t').append( text ).append( Const.CR );
   }
 }
