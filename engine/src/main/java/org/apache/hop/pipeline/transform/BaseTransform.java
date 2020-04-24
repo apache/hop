@@ -1481,10 +1481,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Object[] getRow() throws HopException {
+    Object[] row = getRowHandler().getRow();
+
     if (firstRowReadDate==null) {
       firstRowReadDate = new Date();
     }
-    return getRowHandler().getRow();
+
+    return row;
   }
 
 
@@ -1784,7 +1787,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @throws HopTransformException the hop transform exception
    */
   public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
-    return getRowHandler().getRowFrom( rowSet );
+    Object[] row = getRowHandler().getRowFrom( rowSet );
+    if (firstRowReadDate==null) {
+      firstRowReadDate = new Date();
+    }
+    return row;
   }
 
   public Object[] handleGetRowFrom( IRowSet rowSet ) throws HopTransformException {
