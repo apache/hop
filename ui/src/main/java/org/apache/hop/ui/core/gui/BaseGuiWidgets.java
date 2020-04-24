@@ -7,6 +7,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 
 import java.lang.reflect.Method;
@@ -37,11 +38,11 @@ public class BaseGuiWidgets {
     }
   }
 
-  protected void addSelectionListener( Widget item, ClassLoader classLoader, String listenerClassName, String listenerMethodName ) {
+  protected Listener getListener( ClassLoader classLoader, String listenerClassName, String listenerMethodName ) {
 
     // Call the method to which the GuiToolbarElement annotation belongs.
     //
-    item.addListener( SWT.Selection, e -> {
+    return e -> {
       try {
         Object singleton = loadSingleTon( classLoader, listenerClassName );
         Method listenerMethod = singleton.getClass().getDeclaredMethod( listenerMethodName );
@@ -57,6 +58,6 @@ public class BaseGuiWidgets {
       } catch ( Exception ex ) {
         ex.printStackTrace( System.err );
       }
-    } );
+    };
   }
 }

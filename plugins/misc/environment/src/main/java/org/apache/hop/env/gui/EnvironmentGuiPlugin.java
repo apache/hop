@@ -13,10 +13,13 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.env.config.EnvironmentConfigDialog;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
+import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.metastore.MetaStoreManager;
+import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -32,7 +35,9 @@ import java.util.List;
 )
 public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 
-  public static final String ID_TOOLBAR_ENVIRONMENT_COMBO = "toolbar-40000-environment";
+  public static final String ID_TOOLBAR_ENVIRONMENT_LABEL = "toolbar-40000-environment";
+  public static final String ID_TOOLBAR_ENVIRONMENT_COMBO = "toolbar-40010-environment";
+
   public static final String ID_MENU_TOOLS_CONFIGURE_ENVIRONMENTS = "40100-menu-tools-environment";
 
   private static EnvironmentGuiPlugin instance;
@@ -82,12 +87,35 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 
   @GuiToolbarElement(
     root = HopGui.ID_MAIN_TOOLBAR,
+    id = ID_TOOLBAR_ENVIRONMENT_LABEL,
+    type = GuiToolbarElementType.LABEL,
+    label = "  Environment : ",
+    toolTip = "Click here to edit the active environment",
+    separator = true
+  )
+  public void editEnvironment() {
+    HopGui hopGui = HopGui.getInstance();
+    Combo combo = getEnvironmentsCombo();
+    if ( combo == null ) {
+      return;
+    }
+    String environmentName = combo.getText();
+    try {
+      MetaStoreManager<Environment> manager = new MetaStoreManager<>( hopGui.getVariables(), EnvironmentSingleton.getEnvironmentMetaStore(), Environment.class );
+      if (manager.editMetadata( environmentName )) {
+        refreshEnvironmentsList();
+      }
+    } catch(Exception e) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error editing environment '" + environmentName, e );
+    }
+  }
+
+  @GuiToolbarElement(
+    root = HopGui.ID_MAIN_TOOLBAR,
     id = ID_TOOLBAR_ENVIRONMENT_COMBO,
     type = GuiToolbarElementType.COMBO,
-    label = "Environment :  ",
     comboValuesMethod = "getEnvironmentsList",
-    toolTip = "The active environment",
-    separator = true
+    toolTip = "Select the active environment"
   )
   public void selectEnvironment() {
     HopGui hopGui = HopGui.getInstance();
