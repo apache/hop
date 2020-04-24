@@ -3461,8 +3461,12 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
   @Override public List<IEngineComponent> getComponents() {
     List<IEngineComponent> list = new ArrayList<>();
-    for ( TransformMetaDataCombi transform : transforms ) {
-      list.add( transform.transform );
+    if (transforms!=null) {
+      synchronized ( transforms) {
+        for ( TransformMetaDataCombi transform : transforms ) {
+          list.add( transform.transform );
+        }
+      }
     }
     return list;
   }

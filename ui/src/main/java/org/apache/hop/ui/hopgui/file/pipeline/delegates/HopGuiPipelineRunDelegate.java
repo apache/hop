@@ -226,12 +226,8 @@ public class HopGuiPipelineRunDelegate {
         return null;
       }
 
-      if ( pipelineMeta.hasChanged() ) {
-        pipelineGraph.showSaveFileMessage();
-      }
-
       // Verify if there is at least one transform specified to debug or preview...
-      //
+      // TODO: Is this a local preview or debugging execution? We might want to get rid of the distinction
       if ( debug || preview ) {
         if ( pipelineDebugMeta.getNrOfUsedTransforms() == 0 ) {
           MessageBox box = new MessageBox( hopGui.getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO );
@@ -242,11 +238,6 @@ public class HopGuiPipelineRunDelegate {
             return null;
           }
         }
-      }
-
-      // Is this a local preview or debugging execution? // TODO: get rid of the distinction
-      //
-      if ( debug || preview ) {
         pipelineGraph.debug( executionConfiguration, pipelineDebugMeta );
       } else {
         pipelineGraph.start( executionConfiguration );

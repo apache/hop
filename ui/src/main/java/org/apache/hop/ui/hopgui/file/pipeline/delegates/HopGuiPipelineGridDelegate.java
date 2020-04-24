@@ -29,6 +29,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -62,6 +63,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -153,7 +155,7 @@ public class HopGuiPipelineGridDelegate {
         true );
     transformNameColumnInfo.setValueMeta( valueMeta );
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] columns =
       new ColumnInfo[] {
         transformNameColumnInfo,
         new ColumnInfo(
@@ -183,21 +185,21 @@ public class HopGuiPipelineGridDelegate {
           BaseMessages.getString( PKG, "PipelineLog.Column.PriorityBufferSizes" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false, true ), };
 
-    colinf[ 1 ].setAllignement( SWT.RIGHT );
-    colinf[ 2 ].setAllignement( SWT.RIGHT );
-    colinf[ 3 ].setAllignement( SWT.RIGHT );
-    colinf[ 4 ].setAllignement( SWT.RIGHT );
-    colinf[ 5 ].setAllignement( SWT.RIGHT );
-    colinf[ 6 ].setAllignement( SWT.RIGHT );
-    colinf[ 7 ].setAllignement( SWT.RIGHT );
-    colinf[ 8 ].setAllignement( SWT.RIGHT );
-    colinf[ 9 ].setAllignement( SWT.LEFT );
-    colinf[ 10 ].setAllignement( SWT.RIGHT );
-    colinf[ 11 ].setAllignement( SWT.RIGHT );
-    colinf[ 12 ].setAllignement( SWT.RIGHT );
+    columns[ 1 ].setAllignement( SWT.RIGHT );
+    columns[ 2 ].setAllignement( SWT.RIGHT );
+    columns[ 3 ].setAllignement( SWT.RIGHT );
+    columns[ 4 ].setAllignement( SWT.RIGHT );
+    columns[ 5 ].setAllignement( SWT.RIGHT );
+    columns[ 6 ].setAllignement( SWT.RIGHT );
+    columns[ 7 ].setAllignement( SWT.RIGHT );
+    columns[ 8 ].setAllignement( SWT.RIGHT );
+    columns[ 9 ].setAllignement( SWT.LEFT );
+    columns[ 10 ].setAllignement( SWT.RIGHT );
+    columns[ 11 ].setAllignement( SWT.RIGHT );
+    columns[ 12 ].setAllignement( SWT.RIGHT );
 
     pipelineGridView = new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.BORDER
-      | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1,
+      | SWT.FULL_SELECTION | SWT.MULTI, columns, 1,
       true, // readonly!
       null, // Listener
       hopGui.getProps() );
@@ -268,7 +270,6 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_HIDE_INACTIVE,
-    // label = "PipelineLog.Button.ShowOnlyActiveTransforms",
     toolTip = "PipelineLog.Button.ShowOnlyActiveTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/show-inactive.svg"
@@ -290,7 +291,6 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ICON_SHOW_HIDE_SELECTED,
-    // label = "PipelineLog.Button.ShowOnlySelectedTransforms",
     toolTip = "PipelineLog.Button.ShowOnlySelectedTransforms",
     i18nPackageClass = HopGui.class,
     image = "ui/images/toolbar/show-all.svg"
@@ -367,9 +367,17 @@ public class HopGuiPipelineGridDelegate {
         columns.add( column );
       }
 
+      IValueMeta stringMeta = new ValueMetaString( "string" );
+
+      // Duration?
+      //
+      ColumnInfo durationColumn = new ColumnInfo( "Duration", ColumnInfo.COLUMN_TYPE_TEXT, false, true ); // TODO i18n
+      durationColumn.setValueMeta( stringMeta );
+      durationColumn.setAllignement( SWT.RIGHT );
+      columns.add( durationColumn );
+
       // Also add the status and speed
       //
-      IValueMeta stringMeta = new ValueMetaString( "speed" );
       ValueMetaInteger speedMeta = new ValueMetaInteger( "speed", 15, 0 );
       speedMeta.setConversionMask( " ###,###,###,##0" );
       stringMeta.setConversionMetadata( speedMeta );
@@ -407,6 +415,8 @@ public class HopGuiPipelineGridDelegate {
           Long value = engineMetrics.getComponentMetric( component, metric );
           item.setText( col++, value == null ? "" : formatMetric(value) );
         }
+        String duration = calculateDuration(component );
+        item.setText(col++, duration);
         String speed = engineMetrics.getComponentSpeedMap().get( component );
         item.setText( col++, Const.NVL( speed, "" ) );
         String status = engineMetrics.getComponentStatusMap().get( component );
@@ -417,6 +427,18 @@ public class HopGuiPipelineGridDelegate {
     } finally {
       refreshViewLock.unlock();
     }
+  }
+
+  private String calculateDuration( IEngineComponent component ) {
+    String duration;
+    Date firstRowReadDate = component.getFirstRowReadDate();
+    if (firstRowReadDate!=null) {
+      long durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
+      duration = Utils.getDurationHMS( ((double)durationMs)/1000 );
+    } else {
+      duration = "";
+    }
+    return duration;
   }
 
   private static final String METRICS_FORMAT = " ###,###,###,###";

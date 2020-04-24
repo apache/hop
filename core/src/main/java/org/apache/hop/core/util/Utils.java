@@ -26,6 +26,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.IVariables;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /* Levenshtein in Java, originally from Josh Drew's code at
  * http://joshdrew.com/
@@ -301,4 +302,33 @@ public class Utils {
     return rtn;
   }
 
+  public static String getDurationHMS(double seconds) {
+    int day = (int) TimeUnit.SECONDS.toDays((long)seconds);
+    long hours = TimeUnit.SECONDS.toHours((long)seconds) - (day *24);
+    long minute = TimeUnit.SECONDS.toMinutes((long)seconds) - (TimeUnit.SECONDS.toHours((long)seconds)* 60);
+    long second = TimeUnit.SECONDS.toSeconds((long)seconds) - (TimeUnit.SECONDS.toMinutes((long)seconds) *60);
+    long ms = (long)((seconds - ((long)seconds))*1000);
+
+    StringBuilder hms = new StringBuilder();
+    if (day>0) {
+      hms.append( day + "d " );
+    }
+    if (day>0 || hours>0) {
+      hms.append(hours + "h ");
+    }
+    if (day>0 || hours>0 || minute>0) {
+      hms.append(String.format( "%2d", minute ) + "' ");
+    }
+    hms.append(String.format( "%2d", second ));
+
+    // After a few minutes we don't need the microseconds
+    //
+    if (day==0 && hours==0 && minute<3) {
+      hms.append('.').append(String.format("%03d", ms));
+    }
+    hms.append('"');
+
+
+    return hms.toString();
+  }
 }

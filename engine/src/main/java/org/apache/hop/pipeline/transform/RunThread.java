@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.i18n.BaseMessages;
 
+import java.util.Date;
 import java.util.List;
 
 public class RunThread implements Runnable {
@@ -56,6 +57,7 @@ public class RunThread implements Runnable {
   public void run() {
     try {
       transform.setRunning( true );
+      transform.setExecutionStartDate( new Date() );
       transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_START );
 
       if ( log.isDetailed() ) {
@@ -99,6 +101,7 @@ public class RunThread implements Runnable {
       }
     } finally {
       transform.dispose();
+      transform.setExecutionEndDate( new Date() );
       transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_STOP );
       try {
         long li = transform.getLinesInput();
