@@ -2750,6 +2750,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void delSelected( TransformMeta transformMeta ) {
     List<TransformMeta> selection = pipelineMeta.getSelectedTransforms();
+    if (currentTransform==null && transformMeta==null && selection.isEmpty()) {
+      return; // nothing to do
+    }
     if ( transformMeta != null && selection.size() == 0 ) {
       pipelineTransformDelegate.delTransform( pipelineMeta, transformMeta );
       return;
