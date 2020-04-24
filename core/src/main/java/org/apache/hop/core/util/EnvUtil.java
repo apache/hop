@@ -84,9 +84,9 @@ public class EnvUtil {
       Thread.currentThread().setContextClassLoader( ClassLoader.getSystemClassLoader() );
     }
 
-    Map<Object, Object> kettleProperties = EnvUtil.readProperties( Const.HOP_PROPERTIES );
-    insertDefaultValues( kettleProperties );
-    applyHopProperties( kettleProperties );
+    Map<Object, Object> hopProperties = EnvUtil.readProperties( Const.HOP_PROPERTIES );
+    insertDefaultValues( hopProperties );
+    applyHopProperties( hopProperties );
 
     // Also put some default values for obscure environment variables in there...
     // Place-holders if you will.

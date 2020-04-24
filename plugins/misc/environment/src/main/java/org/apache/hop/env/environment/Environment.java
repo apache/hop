@@ -78,6 +78,11 @@ public class Environment implements IHopMetaStoreElement<Environment> {
 
   public Environment() {
     variables = new ArrayList<>();
+    environmentHomeFolder = "/path/to/your/environment/folder/";
+    metaStoreBaseFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
+    dataSetsCsvFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/datasets";
+    unitTestsBasePath = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
+    enforcingExecutionInHome = true;
   }
 
   public String toJsonString() throws IOException {
@@ -92,14 +97,6 @@ public class Environment implements IHopMetaStoreElement<Environment> {
     return objectMapper.readValue( jsonString, Environment.class );
   }
 
-
-  public void applySuggestedSettings() {
-    environmentHomeFolder = "/path/to/your/environment/folder/";
-    metaStoreBaseFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
-    dataSetsCsvFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/datasets";
-    unitTestsBasePath = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
-    enforcingExecutionInHome = true;
-  }
 
   public void modifySystem() {
     modifyVariables( null, true );

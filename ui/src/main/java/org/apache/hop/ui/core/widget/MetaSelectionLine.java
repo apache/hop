@@ -198,14 +198,17 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     }
   }
 
-  private void newMetadata() {
-    if ( manager.newMetadata() ) {
+  private T newMetadata() {
+    T element = manager.newMetadata();
+    if ( element!=null ) {
       try {
         fillItems();
+        getComboWidget().setText(Const.NVL(element.getName(),""));
       } catch ( Exception e ) {
-        LogChannel.UI.logError( "Error updating list of relational database connection names from the metastore", e );
+        LogChannel.UI.logError( "Error updating list of element names from the metastore", e );
       }
     }
+    return element;
   }
 
   /**
@@ -232,7 +235,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     try {
       fillItems();
     } catch ( Exception e ) {
-      LogChannel.UI.logError( "Error getting list of relational database connection names from the metastore", e );
+      LogChannel.UI.logError( "Error getting list of element names from the metastore", e );
     }
     addModifyListener( lsMod );
 
@@ -437,80 +440,4 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     return leftAlignedLabel;
   }
 
-
-  public static void main( String[] args ) throws Exception {
-    HopClientEnvironment.init();
-    Display display = new Display();
-    PropsUi.init( display );
-    HopEnvironment.init();
-    IMetaStore metaStore = buildTestMetaStore();
-
-    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE | SWT.CLOSE );
-    shell.setText( "MetaSelectionLine" );
-    FormLayout shellLayout = new FormLayout();
-    shellLayout.marginTop = 5;
-    shellLayout.marginBottom = 5;
-    shellLayout.marginLeft = 5;
-    shellLayout.marginRight = 5;
-    shell.setLayout( shellLayout );
-
-    MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
-      Variables.getADefaultVariableSpace(),
-      metaStore,
-      DatabaseMeta.class,
-      shell, SWT.NONE,
-      "Database connection",
-      "Select the database connection to use.",
-      true
-    );
-    wConnection.fillItems();
-
-    FormData fdConnection = new FormData();
-    fdConnection.left = new FormAttachment( 0, 0 );
-    fdConnection.top = new FormAttachment( 0, 0 );
-    fdConnection.right = new FormAttachment( 100, 0 );
-    wConnection.setLayoutData( fdConnection );
-
-    Button wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( "Owkeej" );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk }, PropsUi.getInstance().getMargin(), wConnection );
-
-    BaseTransformDialog.setSize( shell );
-
-    shell.open();
-
-    while ( shell != null && !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
-    display.dispose();
-  }
-
-  private static IMetaStore buildTestMetaStore() throws MetaStoreException {
-    MemoryMetaStore metaStore = new MemoryMetaStore();
-    MetaStoreFactory<DatabaseMeta> dbFactory = DatabaseMeta.createFactory( metaStore );
-
-    DatabaseMeta one = new DatabaseMeta();
-    one.setName( "One" );
-    one.setDatabaseType( "MYSQL" );
-    one.setHostname( "${HOSTNAME1}" );
-    one.setPort( "${PORT1}" );
-    one.setDBName( "${DB1}" );
-    one.setUsername( "${USERNAME1}" );
-    one.setPassword( "${PASSWORD1}" );
-    dbFactory.saveElement( one );
-
-    DatabaseMeta two = new DatabaseMeta();
-    two.setName( "Two" );
-    two.setDatabaseType( "ORACLE" );
-    two.setHostname( "${HOSTNAME2}" );
-    two.setPort( "${PORT2}" );
-    two.setDBName( "${DB2}" );
-    two.setUsername( "${USERNAME2}" );
-    two.setPassword( "${PASSWORD2}" );
-    dbFactory.saveElement( two );
-
-    return metaStore;
-  }
 }

@@ -9,11 +9,37 @@ import static org.junit.Assert.*;
 
 public class EnvironmentTest {
 
-  private static final String JSON_CASE1 = "{\n  \"name\" : \"name1\",\n  \"description\" : \"description1\"\n}";
-  private static final String JSON_CASE2 = "{\n  \"name\" : \"name2\",\n  \"description\" : \"description2\",\n  "
-    + "\"variables\" : [ {\n    \"name\" : \"var1\",\n    \"value\" : \"val1\",\n    \"description\" : \"desc1\"\n  }, "
-    + "{\n    \"name\" : \"var2\",\n    \"value\" : \"val2\",\n    \"description\" : \"desc2\"\n  }, "
-    + "{\n    \"name\" : \"var3\",\n    \"value\" : \"val3\",\n    \"description\" : \"desc3\"\n  } ]\n}";
+  private static final String JSON_CASE1 = "{\n"
+    + "  \"name\" : \"name1\",\n"
+    + "  \"description\" : \"description1\",\n"
+    + "  \"environmentHomeFolder\" : \"/path/to/your/environment/folder/\",\n"
+    + "  \"metaStoreBaseFolder\" : \"${ENVIRONMENT_HOME}\",\n"
+    + "  \"unitTestsBasePath\" : \"${ENVIRONMENT_HOME}\",\n"
+    + "  \"dataSetsCsvFolder\" : \"${ENVIRONMENT_HOME}/datasets\",\n"
+    + "  \"enforcingExecutionInHome\" : true\n"
+    + "}";
+  private static final String JSON_CASE2 = "{\n"
+    + "  \"name\" : \"name2\",\n"
+    + "  \"description\" : \"description2\",\n"
+    + "  \"environmentHomeFolder\" : \"/path/to/your/environment/folder/\",\n"
+    + "  \"metaStoreBaseFolder\" : \"${ENVIRONMENT_HOME}\",\n"
+    + "  \"unitTestsBasePath\" : \"${ENVIRONMENT_HOME}\",\n"
+    + "  \"dataSetsCsvFolder\" : \"${ENVIRONMENT_HOME}/datasets\",\n"
+    + "  \"enforcingExecutionInHome\" : true,\n"
+    + "  \"variables\" : [ {\n"
+    + "    \"name\" : \"var1\",\n"
+    + "    \"value\" : \"val1\",\n"
+    + "    \"description\" : \"desc1\"\n"
+    + "  }, {\n"
+    + "    \"name\" : \"var2\",\n"
+    + "    \"value\" : \"val2\",\n"
+    + "    \"description\" : \"desc2\"\n"
+    + "  }, {\n"
+    + "    \"name\" : \"var3\",\n"
+    + "    \"value\" : \"val3\",\n"
+    + "    \"description\" : \"desc3\"\n"
+    + "  } ]\n"
+    + "}";
 
   private static final List<EnvironmentVariable> case2Variables = Arrays.asList(
     new EnvironmentVariable( "var1", "val1", "desc1" ),

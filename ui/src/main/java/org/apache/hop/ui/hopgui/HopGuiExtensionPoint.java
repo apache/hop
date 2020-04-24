@@ -22,13 +22,14 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenExtension;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public enum HopGuiExtensionPoint {
 
-  HopGuiFileOpenDialog( "HopGuiFileOpenDialog", "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileOpenExtension.class ),
-  HopGuiNewPipelineTab( "HopGuiPipelineTab", "Determine the tab name of a pipeline", HopGuiPipelineGraph.class ),
+  HopGuiFileOpenDialog( "Allows you to modify the file open dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
+  HopGuiFileSaveDialog( "Allows you to modify the file save dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
+  HopGuiNewPipelineTab( "Determine the tab name of a pipeline", HopGuiPipelineGraph.class ),
   ;
 
   public String id;
@@ -37,14 +38,9 @@ public enum HopGuiExtensionPoint {
 
   public Class<?> providedClass;
 
-  private HopGuiExtensionPoint( String id, String description ) {
-    this.id = id;
-    this.description = description;
-    this.providedClass = Object.class;
-  }
 
-  private HopGuiExtensionPoint( String id, String description, Class<?> providedClass ) {
-    this.id = id;
+  HopGuiExtensionPoint( String description, Class<?> providedClass ) {
+    this.id = name();
     this.description = description;
     this.providedClass = providedClass;
   }

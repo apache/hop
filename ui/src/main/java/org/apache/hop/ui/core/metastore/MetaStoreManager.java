@@ -248,19 +248,23 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     }
   }
 
-  public boolean newMetadata() {
+  public T newMetadata() {
     try {
       // Create a new instance of the managed class
       //
       T element = managedClass.newInstance();
+      if (element instanceof IVariables) {
+        IVariables parent = (IVariables) element;
+        parent.initializeVariablesFrom( variables );
+      }
       boolean created = openMetaDialog( element, element.getFactory( metaStore ) );
       if (created) {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementCreated.id, element );
       }
-      return created;
+      return element;
     } catch ( Exception e ) {
       new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e );
-      return false;
+      return null;
     }
   }
 

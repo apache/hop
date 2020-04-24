@@ -105,7 +105,7 @@ public class HopClientEnvironment {
 
     createHopHome();
 
-    // Read the hop.properties file before anything else
+    // Read the hop.properties file before anything else, set
     //
     EnvUtil.environmentInit();
 

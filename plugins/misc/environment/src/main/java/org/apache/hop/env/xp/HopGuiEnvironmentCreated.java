@@ -2,17 +2,13 @@ package org.apache.hop.env.xp;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenExtension;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 
 @ExtensionPoint(

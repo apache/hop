@@ -104,6 +104,7 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
       MetaStoreManager<Environment> manager = new MetaStoreManager<>( hopGui.getVariables(), EnvironmentSingleton.getEnvironmentMetaStore(), Environment.class );
       if (manager.editMetadata( environmentName )) {
         refreshEnvironmentsList();
+        selectEnvironmentInList( environmentName );
       }
     } catch(Exception e) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error editing environment '" + environmentName, e );
