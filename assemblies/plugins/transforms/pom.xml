@@ -71,6 +71,7 @@
         <module>memgroupby</module>
         <module>mergejoin</module>
         <module>nullif</module>
+        <module>numberrange</module>
         <module>pgbulkloader</module>
         <module>rest</module>
         <module>rowgenerator</module>
@@ -84,6 +85,7 @@
         <module>terafast</module>
         <module>textfile</module>
         <module>update</module>
+        <module>valuemapper</module>
     </modules>
 
 </project>
