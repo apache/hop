@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -108,7 +109,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     if (toolbarItem.getType()!=GuiToolbarElementType.LABEL && StringUtils.isNotEmpty(toolbarItem.getLabel())) {
       ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
       Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-      label.setText(toolbarItem.getLabel());
+      label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
       label.setBackground( toolBar.getBackground() );
       label.pack();
@@ -121,13 +122,17 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     switch ( toolbarItem.getType() ) {
       case LABEL:
         ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
+        Label label = new Label( parent, SWT.SINGLE | SWT.LEFT );
+        label.setText( Const.NVL(toolbarItem.getLabel(), ""));
+        label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
         label.setBackground( toolBar.getBackground() );
         label.pack();
         labelSeparator.setWidth( label.getSize().x );
         labelSeparator.setControl( label );
         toolItemMap.put( toolbarItem.getId(), labelSeparator );
         widgetsMap.put( toolbarItem.getId(), label );
+        Listener listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        label.addListener( SWT.MouseUp, listener );
         break;
 
       case TOOLBAR_BUTTON:
@@ -141,19 +146,20 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         if ( StringUtils.isNotEmpty( toolbarItem.getToolTip() ) ) {
           item.setToolTipText( toolbarItem.getToolTip() );
         }
-        addSelectionListener( item, toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        item.addListener( SWT.Selection, listener );
         toolItemMap.put( toolbarItem.getId(), item );
         break;
 
       case COMBO:
         ToolItem comboSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Combo combo = new Combo( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
-        // props.setLook( combo );
+        Combo combo = new Combo( parent, SWT.SINGLE | SWT.LEFT );
         combo.setItems( getComboItems( toolbarItem ) );
         combo.pack();
         comboSeparator.setWidth( combo.getSize().x + 100 ); // extra room for new items with longer names
         comboSeparator.setControl( combo );
-        addSelectionListener( combo, toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        combo.addListener( SWT.Selection, listener );
         toolItemMap.put( toolbarItem.getId(), comboSeparator );
         widgetsMap.put( toolbarItem.getId(), combo );
 
