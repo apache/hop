@@ -159,6 +159,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private final Object statusCountersLock = new Object();
 
+  protected Date initStartDate;
+  protected Date executionStartDate;
+  protected Date firstRowReadDate;
+  protected Date lastRowWrittenDate;
+  protected Date executionEndDate;
+
   /**
    * nr of lines read from previous transform(s)
    *
@@ -412,7 +418,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     this.pipeline = pipeline;
     this.transformName = transformMeta.getName();
 
-    // Set the name of the thread
+    // Sanity check
+    //
     if ( transformMeta.getName() == null ) {
       throw new RuntimeException( "A transform in pipeline [" + pipelineMeta.toString() + "] doesn't have a name.  A transform should always have a name to identify it by." );
     }
@@ -429,13 +436,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     init = false;
 
     synchronized ( statusCountersLock ) {
-      linesRead = 0L; // new AtomicLong(0L); // Keep some statistics!
-      linesWritten = 0L; // new AtomicLong(0L);
-      linesUpdated = 0L; // new AtomicLong(0L);
-      linesSkipped = 0L; // new AtomicLong(0L);
-      linesRejected = 0L; // new AtomicLong(0L);
-      linesInput = 0L; // new AtomicLong(0L);
-      linesOutput = 0L; // new AtomicLong(0L);
+      linesRead = 0L;
+      linesWritten = 0L;
+      linesUpdated = 0L;
+      linesSkipped = 0L;
+      linesRejected = 0L;
+      linesInput = 0L;
+      linesOutput = 0L;
     }
 
     inputRowSets = null;
@@ -449,50 +456,21 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       terminator_rows = null;
     }
 
-    // debug="-";
-
     startTime = null;
     stopTime = null;
 
     distributed = transformMeta.isDistributes();
     rowDistribution = transformMeta.getRowDistribution();
 
-    if ( distributed ) {
-      if ( rowDistribution != null ) {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString(
-            PKG, "BaseTransform.Log.CustomRowDistributionActivated", rowDistributionCode ) );
-        }
-      } else {
-        if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "BaseTransform.Log.DistributionActivated" ) );
-        }
-      }
-    } else {
-      if ( log.isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "BaseTransform.Log.DistributionDeactivated" ) );
-      }
-    }
-
-    rowListeners = new CopyOnWriteArrayList<IRowListener>();
-    resultFiles = new HashMap<String, ResultFile>();
+    rowListeners = new CopyOnWriteArrayList<>();
+    resultFiles = new HashMap<>();
     resultFilesLock = new ReentrantReadWriteLock();
 
     repartitioning = TransformPartitioningMeta.PARTITIONING_METHOD_NONE;
-    partitionTargets = new Hashtable<String, BlockingRowSet>();
+    partitionTargets = new Hashtable<>();
 
     extensionDataMap = new HashMap<>();
 
-    // tuning parameters
-    // putTimeOut = 10; //s
-    // getTimeOut = 500; //s
-    // timeUnit = TimeUnit.MILLISECONDS;
-    // the smaller singleWaitTime, the faster the program run but cost CPU
-    // singleWaitTime = 1; //ms
-    // maxPutWaitCount = putTimeOut*1000/singleWaitTime;
-    // maxGetWaitCount = getTimeOut*1000/singleWaitTime;
-
-    // worker = Executors.newFixedThreadPool(10);
     checkPipelineRunning = false;
 
     blockPointer = 0;
@@ -509,6 +487,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   @Override public boolean init() {
+
+    initStartDate = new Date();
 
     data.setStatus( ComponentExecutionStatus.STATUS_INIT );
 
@@ -1501,6 +1481,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public Object[] getRow() throws HopException {
+    if (firstRowReadDate==null) {
+      firstRowReadDate = new Date();
+    }
     return getRowHandler().getRow();
   }
 
@@ -2048,6 +2031,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         errorRowSet.setDone();
       }
     } finally {
+      lastRowWrittenDate = new Date();
       outputRowSetsLock.readLock().unlock();
     }
   }
@@ -3722,5 +3706,84 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   }
 
+  /**
+   * Gets initStartDate
+   *
+   * @return value of initStartDate
+   */
+  public Date getInitStartDate() {
+    return initStartDate;
+  }
+
+  /**
+   * @param initStartDate The initStartDate to set
+   */
+  public void setInitStartDate( Date initStartDate ) {
+    this.initStartDate = initStartDate;
+  }
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  public void setExecutionStartDate( Date executionStartDate ) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets firstRowReadDate
+   *
+   * @return value of firstRowReadDate
+   */
+  public Date getFirstRowReadDate() {
+    return firstRowReadDate;
+  }
+
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
+  public void setFirstRowReadDate( Date firstRowReadDate ) {
+    this.firstRowReadDate = firstRowReadDate;
+  }
+
+  /**
+   * Gets lastRowWrittenDate
+   *
+   * @return value of lastRowWrittenDate
+   */
+  public Date getLastRowWrittenDate() {
+    return lastRowWrittenDate;
+  }
+
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
+  public void setLastRowWrittenDate( Date lastRowWrittenDate ) {
+    this.lastRowWrittenDate = lastRowWrittenDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  public void setExecutionEndDate( Date executionEndDate ) {
+    this.executionEndDate = executionEndDate;
+  }
 }
 

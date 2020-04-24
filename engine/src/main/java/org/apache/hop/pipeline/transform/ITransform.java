@@ -39,6 +39,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -448,5 +449,67 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
    * @param data The transform data to set
    */
   void setData( Data data );
+
+
+
+  /**
+   * Gets initStartDate
+   *
+   * @return value of initStartDate
+   */
+  Date getInitStartDate();
+
+  /**
+   * @param initStartDate The initStartDate to set
+   */
+  void setInitStartDate( Date initStartDate );
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  Date getExecutionStartDate();
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  void setExecutionStartDate( Date executionStartDate );
+
+  /**
+   * Gets firstRowReadDate
+   *
+   * @return value of firstRowReadDate
+   */
+  Date getFirstRowReadDate();
+
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
+  void setFirstRowReadDate( Date firstRowReadDate );
+
+  /**
+   * Gets lastRowWrittenDate
+   *
+   * @return value of lastRowWrittenDate
+   */
+  Date getLastRowWrittenDate();
+
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
+  void setLastRowWrittenDate( Date lastRowWrittenDate );
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  Date getExecutionEndDate();
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  void setExecutionEndDate( Date executionEndDate );
 
 }

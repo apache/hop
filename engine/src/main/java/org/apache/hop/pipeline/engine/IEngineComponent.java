@@ -25,6 +25,8 @@ package org.apache.hop.pipeline.engine;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.IRowListener;
 
+import java.util.Date;
+
 /**
  * An identifiable component of an execution engine {@link IPipelineEngine}
  * In a pipeline engine this would be a transform
@@ -110,5 +112,65 @@ public interface IEngineComponent {
    */
   EngineComponent.ComponentExecutionStatus getStatus();
 
+
+  /**
+   * Gets initStartDate
+   *
+   * @return value of initStartDate
+   */
+  Date getInitStartDate();
+
+  /**
+   * @param initStartDate The initStartDate to set
+   */
+  void setInitStartDate( Date initStartDate );
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  Date getExecutionStartDate();
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  void setExecutionStartDate( Date executionStartDate );
+
+  /**
+   * Gets firstRowReadDate
+   *
+   * @return value of firstRowReadDate
+   */
+  Date getFirstRowReadDate();
+
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
+  void setFirstRowReadDate( Date firstRowReadDate );
+
+  /**
+   * Gets lastRowWrittenDate
+   *
+   * @return value of lastRowWrittenDate
+   */
+  Date getLastRowWrittenDate();
+
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
+  void setLastRowWrittenDate( Date lastRowWrittenDate );
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  Date getExecutionEndDate();
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  void setExecutionEndDate( Date executionEndDate );
 
 }

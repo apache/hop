@@ -3384,19 +3384,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   )
   @Override
   public void start() {
-    pipelineMeta.setShowDialog( pipelineMeta.isAlwaysShowRunOptions() );
-    Thread thread = new Thread( () -> getDisplay().asyncExec( () -> {
-      try {
-        if ( isRunning() && pipeline.isPaused() ) {
-          pauseResume();
-        } else {
-          pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
+    try {
+      pipelineMeta.setShowDialog( pipelineMeta.isAlwaysShowRunOptions() );
+      Thread thread = new Thread( () -> getDisplay().asyncExec( () -> {
+        try {
+          if ( isRunning() && pipeline.isPaused() ) {
+            pauseResume();
+          } else {
+            pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
+          }
+        } catch ( Throwable e ) {
+          new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
         }
-      } catch ( Throwable e ) {
-        new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
-      }
-    } ) );
-    thread.start();
+      } ) );
+      thread.start();
+    } catch(Throwable e) {
+      log.logError( "Severe error in pipeline execution detected", e);
+    }
   }
 
   @Override

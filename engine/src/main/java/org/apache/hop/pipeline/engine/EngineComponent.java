@@ -4,6 +4,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class EngineComponent implements IEngineComponent {
@@ -32,6 +33,11 @@ public class EngineComponent implements IEngineComponent {
   private boolean stopped;
   private boolean paused;
   private ComponentExecutionStatus status;
+  private Date initStartDate;
+  private Date executionStartDate;
+  private Date firstRowReadDate;
+  private Date lastRowWrittenDate;
+  private Date executionEndDate;
 
   public EngineComponent() {
   }
@@ -380,6 +386,86 @@ public class EngineComponent implements IEngineComponent {
     this.status = status;
   }
 
+  /**
+   * Gets initStartDate
+   *
+   * @return value of initStartDate
+   */
+  @Override public Date getInitStartDate() {
+    return initStartDate;
+  }
+
+  /**
+   * @param initStartDate The initStartDate to set
+   */
+  @Override public void setInitStartDate( Date initStartDate ) {
+    this.initStartDate = initStartDate;
+  }
+
+  /**
+   * Gets executionStartDate
+   *
+   * @return value of executionStartDate
+   */
+  @Override public Date getExecutionStartDate() {
+    return executionStartDate;
+  }
+
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
+  @Override public void setExecutionStartDate( Date executionStartDate ) {
+    this.executionStartDate = executionStartDate;
+  }
+
+  /**
+   * Gets firstRowReadDate
+   *
+   * @return value of firstRowReadDate
+   */
+  @Override public Date getFirstRowReadDate() {
+    return firstRowReadDate;
+  }
+
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
+  @Override public void setFirstRowReadDate( Date firstRowReadDate ) {
+    this.firstRowReadDate = firstRowReadDate;
+  }
+
+  /**
+   * Gets lastRowWrittenDate
+   *
+   * @return value of lastRowWrittenDate
+   */
+  @Override public Date getLastRowWrittenDate() {
+    return lastRowWrittenDate;
+  }
+
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
+  @Override public void setLastRowWrittenDate( Date lastRowWrittenDate ) {
+    this.lastRowWrittenDate = lastRowWrittenDate;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  @Override public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
+  @Override public void setExecutionEndDate( Date executionEndDate ) {
+    this.executionEndDate = executionEndDate;
+  }
+
   public enum ComponentExecutionStatus {
 
 
@@ -456,6 +542,8 @@ public class EngineComponent implements IEngineComponent {
     public String getDescription() {
       return description;
     }
+
+
 
     /*
      * (non-Javadoc)

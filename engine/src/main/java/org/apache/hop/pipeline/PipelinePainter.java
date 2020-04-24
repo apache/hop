@@ -52,6 +52,8 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 
+import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -78,8 +80,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private TransformMeta showTargetStreamsTransform;
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
-
-  private EngineMetrics engineMetrics;
 
   public static final String[] magnificationDescriptions =
     new String[] { "  400% ", "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
@@ -114,7 +114,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private static String[] getPeekTitles() {
     String[] titles =
       {
-
         BaseMessages.getString( PKG, "PeekMetric.Column.Copynr" ),
         BaseMessages.getString( PKG, "PeekMetric.Column.Read" ),
         BaseMessages.getString( PKG, "PeekMetric.Column.Written" ),
@@ -131,11 +130,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   public void buildPipelineImage() {
-    if ( pipeline == null ) {
-      engineMetrics = new EngineMetrics();
-    } else {
-      engineMetrics = pipeline.getEngineMetrics();
-    }
 
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );
@@ -322,43 +316,41 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       int x = screen.x;
       int y = screen.y;
 
-      synchronized ( engineMetrics ) {
-        List<IEngineComponent> components = engineMetrics.getComponents();
-        for ( IEngineComponent component : components ) {
-          if ( component.getName().equals( transformMeta.getName() ) ) {
-            if ( component.isRunning() ) {
-              Long inputRowsValue = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_IN );
-              Long outputRowsValue = engineMetrics.getComponentMetric( component, Pipeline.METRIC_BUFFER_OUT );
-              if ( inputRowsValue != null && outputRowsValue != null ) {
-                long inputRows = inputRowsValue.longValue();
-                long outputRows = outputRowsValue.longValue();
+      List<IEngineComponent> components = pipeline.getComponents();
+      for ( IEngineComponent component : components ) {
+        if ( component.getName().equals( transformMeta.getName() ) ) {
+          if ( component.isRunning() ) {
+            Long inputRowsValue = component.getInputBufferSize();
+            Long outputRowsValue = component.getOutputBufferSize();
+            if ( inputRowsValue != null && outputRowsValue != null ) {
+              long inputRows = inputRowsValue.longValue();
+              long outputRows = outputRowsValue.longValue();
 
-                // if the transform can't keep up with its input, mark it by drawing an animation
-                boolean isSlow = inputRows * 0.85 > outputRows;
-                if ( isSlow ) {
-                  gc.setLineWidth( lineWidth + 1 );
-                  if ( System.currentTimeMillis() % 2000 > 1000 ) {
-                    gc.setForeground( EColor.BACKGROUND );
-                    gc.setLineStyle( ELineStyle.SOLID );
-                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+              // if the transform can't keep up with its input, mark it by drawing an animation
+              boolean isSlow = inputRows * 0.85 > outputRows;
+              if ( isSlow ) {
+                gc.setLineWidth( lineWidth + 1 );
+                if ( System.currentTimeMillis() % 2000 > 1000 ) {
+                  gc.setForeground( EColor.BACKGROUND );
+                  gc.setLineStyle( ELineStyle.SOLID );
+                  gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
-                    gc.setForeground( EColor.DARKGRAY );
-                    gc.setLineStyle( ELineStyle.DOT );
-                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
-                  } else {
-                    gc.setForeground( EColor.DARKGRAY );
-                    gc.setLineStyle( ELineStyle.SOLID );
-                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                  gc.setForeground( EColor.DARKGRAY );
+                  gc.setLineStyle( ELineStyle.DOT );
+                  gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
+                } else {
+                  gc.setForeground( EColor.DARKGRAY );
+                  gc.setLineStyle( ELineStyle.SOLID );
+                  gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
 
-                    gc.setForeground( EColor.BACKGROUND );
-                    gc.setLineStyle( ELineStyle.DOT );
-                    gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
-                  }
+                  gc.setForeground( EColor.BACKGROUND );
+                  gc.setLineStyle( ELineStyle.DOT );
+                  gc.drawRectangle( x + 1, y + 1, iconSize - 2, iconSize - 2 );
                 }
               }
             }
-            gc.setLineStyle( ELineStyle.SOLID );
           }
+          gc.setLineStyle( ELineStyle.SOLID );
         }
       }
     }
@@ -470,7 +462,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             rowX += colWidth;
             rowY = popupY + MINI_ICON_MARGIN;
 
-            String[] fields = getPeekFields( engineMetrics, transform );
+            String[] fields = getPeekFields( transform );
 
             for ( int i = 0; i < fields.length; i++ ) {
               if ( i % 2 == 1 ) {
@@ -490,17 +482,49 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
   }
 
-  public String[] getPeekFields( EngineMetrics engineMetrics, IEngineComponent transform ) {
+  public String[] getPeekFields( IEngineComponent component ) {
+
+    long durationMs;
+    String duration;
+    Date firstRowReadDate = component.getFirstRowReadDate();
+    if (firstRowReadDate!=null) {
+      durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
+      duration = Utils.getDurationHMS( ((double)durationMs)/1000 );
+    } else {
+      durationMs = 0;
+      duration = "";
+    }
+    String speed;
+    if (durationMs>0) {
+      // Look at the maximum read/written
+      //
+      long maxReadWritten = Math.max(component.getLinesRead(), component.getLinesWritten());
+      long maxInputOutput = Math.max(component.getLinesInput(), component.getLinesOutput());
+      long processed = Math.max(maxReadWritten, maxInputOutput);
+
+      double durationSec = ((double)durationMs) / 1000.0;
+      double rowsPerSec = ((double)processed) / durationSec;
+      speed = new DecimalFormat("##,###,##0").format( rowsPerSec );
+    } else {
+      speed = "-";
+    }
+
+    boolean active = firstRowReadDate!=null && component.getLastRowWrittenDate()==null;
+
     String[] fields =
       new String[] {
-        Integer.toString( transform.getCopyNr() ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_READ ) ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_WRITTEN ) ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_INPUT ) ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_OUTPUT ) ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_REJECTED ) ),
-        Long.toString( engineMetrics.getComponentMetric( transform, Pipeline.METRIC_ERROR ) ),
-        engineMetrics.getComponentStatusMap().get( transform ),
+        Integer.toString( component.getCopyNr() ),
+        Long.toString( component.getLinesRead() ),
+        Long.toString( component.getLinesWritten() ),
+        Long.toString( component.getLinesInput() ),
+        Long.toString( component.getLinesOutput() ),
+        Long.toString( component.getLinesUpdated() ),
+        Long.toString( component.getLinesRejected() ),
+        Long.toString( component.getErrors() ),
+        active ? "Yes" : "No",
+        duration,
+        speed,
+        component.getInputBufferSize()+"/"+component.getOutputBufferSize()
       };
     return fields;
 
@@ -528,7 +552,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         List<IEngineComponent> transforms = pipeline.getComponentCopies( transformMeta.getName() );
 
         for ( IEngineComponent transform : transforms ) {
-          String transformStatus = engineMetrics.getComponentStatusMap().get( transform );
+          String transformStatus = transform.getStatusDescription();
           if ( transformStatus != null && transformStatus.equalsIgnoreCase( EngineComponent.ComponentExecutionStatus.STATUS_FINISHED.getDescription() ) ) {
             gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
           }
