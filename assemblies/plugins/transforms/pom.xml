@@ -85,6 +85,8 @@
         <module>tableexists</module>
         <module>terafast</module>
         <module>textfile</module>
+        <module>uniquerows</module>
+        <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
     </modules>
