@@ -1,4 +1,4 @@
-:documentationPath: /plugins/actions/
+:documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/detectlastrow/src/main/doc/detectlastrow.adoc
 = Detect last row
