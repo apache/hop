@@ -27,12 +27,12 @@ import org.eclipse.swt.widgets.FileDialog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HopGuiFileOpenExtension {
+public class HopGuiFileDialogExtension {
   public AtomicBoolean doIt;
   public FileDialog fileDialog;
   public HopGui hopGui;
 
-  public HopGuiFileOpenExtension( AtomicBoolean doIt, FileDialog fileDialog, HopGui hopGui ) {
+  public HopGuiFileDialogExtension( AtomicBoolean doIt, FileDialog fileDialog, HopGui hopGui ) {
     this.doIt = doIt;
     this.fileDialog = fileDialog;
     this.hopGui = hopGui;

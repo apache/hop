@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -42,7 +41,6 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.TabItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,7 +76,7 @@ public class HopGuiFileDelegate {
 
       AtomicBoolean doIt = new AtomicBoolean( true );
       try {
-        HopGuiFileOpenExtension openExtension = new HopGuiFileOpenExtension( doIt, fileDialog, hopGui );
+        HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( doIt, fileDialog, hopGui );
         ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openExtension );
       } catch ( Exception e ) {
         throw new HopException( "Error calling extension point on the file dialog", e );
@@ -136,8 +134,8 @@ public class HopGuiFileDelegate {
 
       AtomicBoolean doIt = new AtomicBoolean( true );
       try {
-        HopGuiFileOpenExtension openExtension = new HopGuiFileOpenExtension( doIt, fileDialog, hopGui );
-        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineBeforeOpen.id, openExtension );
+        HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( doIt, fileDialog, hopGui );
+        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopGuiExtensionPoint.HopGuiFileSaveDialog.id, openExtension );
       } catch ( Exception e ) {
         throw new HopException( "Error calling extension point on the file dialog", e );
       }

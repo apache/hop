@@ -62,9 +62,8 @@ public class HopEnvironment {
   /**
    * Indicates whether the Hop environment has been initialized.
    */
-  private static AtomicReference<SettableFuture<Boolean>> initialized =
-    new AtomicReference<>( null );
-  private static HopLifecycleSupport kettleLifecycleSupport;
+  private static AtomicReference<SettableFuture<Boolean>> initialized = new AtomicReference<>( null );
+  private static HopLifecycleSupport hopLifecycleSupport;
 
   /**
    * Initializes the Hop environment. This method performs the following operations:
@@ -151,9 +150,9 @@ public class HopEnvironment {
    * @throws HopException when a lifecycle listener throws an exception
    */
   private static void initLifecycleListeners() throws HopException {
-    kettleLifecycleSupport = new HopLifecycleSupport();
-    kettleLifecycleSupport.onEnvironmentInit();
-    final HopLifecycleSupport s = kettleLifecycleSupport;
+    hopLifecycleSupport = new HopLifecycleSupport();
+    hopLifecycleSupport.onEnvironmentInit();
+    final HopLifecycleSupport s = hopLifecycleSupport;
 
     // Register a shutdown hook to invoke the listener's onExit() methods
     Runtime.getRuntime().addShutdownHook( new Thread() {
@@ -166,7 +165,7 @@ public class HopEnvironment {
 
   // Shutdown the Hop environment programmatically
   public static void shutdown() {
-    shutdown( kettleLifecycleSupport );
+    shutdown( hopLifecycleSupport );
   }
 
   private static void shutdown( HopLifecycleSupport kettleLifecycleSupport ) {

@@ -50,27 +50,10 @@ public class EnvironmentUtil {
   public static void enableEnvironment( Environment environment, DelegatingMetaStore delegatingMetaStore ) throws HopException, MetaStoreException {
 
     // Variable system variables but also apply them to variables
-    // We'll use those to change the loaded variables in Spoon
+    // We'll use those to change the loaded variables in HopGui
     //
-    IVariables variables = new Variables();
-    environment.modifyVariables( variables, true );
-
-    // Create Hop home folder in case it doesn't exist
-    //
-    HopClientEnvironment.createHopHome();
-
-    // Force reload of the Hop environment
-    //
-    EnvUtil.environmentInit();
-
-    // Initialize the logging back-end.
-    //
-    HopLogStore.init();
-
-    // Restart the environment
-    //
-    HopEnvironment.shutdown();
-    HopEnvironment.init();
+    IVariables variables = Variables.getADefaultVariableSpace();
+    environment.modifyVariables( variables, true );  // TODO: do we need to change System?
 
     // Modify local loaded metastore...
     //
@@ -91,6 +74,8 @@ public class EnvironmentUtil {
     // See if we need to restore the default Spoon session for this environment
     // The name of the session is the name of the environment
     // This will cause the least amount of issues.
+    //
+    // Set this in hopGui so new files will inherit from it.
     //
     HopGui hopGui = HopGui.getInstance();
     if ( hopGui != null ) {
@@ -113,6 +98,10 @@ public class EnvironmentUtil {
       // We store the environment in the HopGui namespace
       //
       hopGui.setNamespace( environment.getName() );
+
+      // We need to change the currently set variables in the newly loaded files
+      //
+      hopGui.setVariables( variables );
 
       // Re-open last open files for the namespace
       //
