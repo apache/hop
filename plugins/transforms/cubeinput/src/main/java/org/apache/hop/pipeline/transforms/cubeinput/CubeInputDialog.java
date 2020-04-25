@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.cubeinput;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -50,6 +51,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "CubeInput",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        image = "cubeinput.svg",
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/cubeinput.html"
+)
 public class CubeInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
 

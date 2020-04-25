@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.getvariable;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -60,6 +61,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "GetVariable",
+        image = "getvariable.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
+)
 public class GetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
 

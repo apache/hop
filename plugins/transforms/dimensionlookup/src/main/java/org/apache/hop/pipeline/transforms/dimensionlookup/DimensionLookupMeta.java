@@ -63,7 +63,6 @@ import java.util.*;
  */
 @Transform(
         id = "DimensionLookup",
-        image = "ui/images/DIM.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.dimensionlookup",
         name = "BaseTransform.TypeLongDesc.DimensionUpdate",
         description = "BaseTransform.TypeTooltipDesc.DimensionUpdate",
@@ -1932,9 +1931,4 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
     fieldUpdate = rtnFieldUpdate[ 0 ];
   }
 
-
-  @Override
-  public String getDialogClassName(){
-    return DimensionLookupDialog.class.getName();
-  }
 }

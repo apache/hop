@@ -19,7 +19,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
-import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -31,7 +30,7 @@ import java.util.List;
 @GuiMetaStoreElement(
   name = "Environment",
   description = "A environment to manage your projects",
-  iconImage = "ui/images/HTP.svg"
+  iconImage = "HTP.svg"
 )
 public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 

@@ -80,9 +80,9 @@ import java.util.Set;
 
 @PluginDialog(
         id = "InsertUpdate",
-        image = "ui/images/INU.svg",
+        image = "insertupdate.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/insertupdate.html"
 )
 public class InsertUpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!

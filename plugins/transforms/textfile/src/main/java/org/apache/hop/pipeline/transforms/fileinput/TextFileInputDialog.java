@@ -26,6 +26,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
@@ -107,6 +108,12 @@ import java.util.Vector;
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
+@PluginDialog(
+        id = "TextFileInput",
+        image = "textfileinput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 

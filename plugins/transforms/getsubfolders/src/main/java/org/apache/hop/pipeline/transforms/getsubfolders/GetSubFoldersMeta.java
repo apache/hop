@@ -59,12 +59,10 @@ import java.util.Map;
  */
 @Transform(
         id = "GetSubFolders",
-        image = "ui/images/LSF.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getsubfolders",
         name = "BaseTransform.TypeLongDesc.GetSubFolders",
         description = "BaseTransform.TypeTooltipDesc.GetSubFolders",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
@@ -493,10 +491,5 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
     } catch ( Exception e ) {
       throw new HopException( e );
     }
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetSubFoldersDialog.class.getName();
   }
 }

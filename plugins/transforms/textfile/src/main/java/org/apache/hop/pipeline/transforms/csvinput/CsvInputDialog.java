@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -81,6 +82,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+@PluginDialog(
+        id = "CSVInput",
+        image = "textfileinput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/csvinput.html"
+)
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
   private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!

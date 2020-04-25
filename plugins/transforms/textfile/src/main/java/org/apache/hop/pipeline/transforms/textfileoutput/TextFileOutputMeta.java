@@ -61,7 +61,6 @@ import java.util.Map;
  */
 @Transform(
         id = "TextFileOutput",
-        image = "ui/images/TFO.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.textfileoutput",
         name = "BaseTransform.TypeLongDesc.TextFileOutput",
         description = "BaseTransform.TypeTooltipDesc.TextFileOutput",

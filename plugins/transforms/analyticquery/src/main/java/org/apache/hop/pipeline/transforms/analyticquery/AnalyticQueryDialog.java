@@ -64,8 +64,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@PluginDialog( id = "AnalyticQuery", image = "AnalyticQuery.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Analytic+Query" )
+@PluginDialog(
+        id = "AnalyticQuery",
+        image = "analyticquery.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/analyticquery.html"
+)
 public class AnalyticQueryDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AnalyticQueryDialog.class; // for i18n purposes, needed by Translator!!
 

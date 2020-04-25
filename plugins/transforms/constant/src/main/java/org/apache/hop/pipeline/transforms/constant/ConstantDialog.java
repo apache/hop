@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.constant;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,6 +41,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "Constant",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        image = "constant.svg",
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/constant.html"
+)
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -53,12 +53,10 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "StreamLookupMeta.Injection." )
 @Transform(
         id = "StreamLookup",
-        image = "ui/images/SLU.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.streamlookup",
         name = "BaseTransform.TypeLongDesc.StreamLookup",
         description = "BaseTransform.TypeTooltipDesc.StreamLookup",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
 public class StreamLookupMeta extends BaseTransformMeta implements ITransformMeta<StreamLookup, StreamLookupData> {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
@@ -648,10 +646,5 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
       valueDefault = newValueDefault;
     }
 
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return StreamLookupDialog.class.getName();
   }
 }

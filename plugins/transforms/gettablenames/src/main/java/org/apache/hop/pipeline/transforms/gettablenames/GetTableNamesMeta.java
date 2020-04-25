@@ -53,12 +53,10 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "GetTableNames.Injection.", groups = { "FIELDS", "SETTINGS", "OUTPUT" } )
 @Transform(
         id = "GetTableNames",
-        image = "ui/images/GTN.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.gettablenames",
         name = "BaseTransform.TypeLongDesc.GetTableNames",
         description = "BaseTransform.TypeTooltipDesc.GetTableNames",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMeta<GetTableNames, GetTableNamesData> {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
@@ -468,10 +466,5 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetTableNamesDialog.class.getName();
   }
 }

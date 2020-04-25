@@ -43,12 +43,10 @@ import java.util.List;
 
 @Transform(
         id = "TypeExitEdi2XmlTransform",
-        image = "ui/images/EDI2XML.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.edi2xml",
         name = "BaseTransform.TypeLongDesc.Edi2Xml",
         description = "BaseTransform.TypeTooltipDesc.Edi2Xml",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
 )
 public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
 
@@ -190,8 +188,4 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     return true;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return Edi2XmlDialog.class.getName();
-  }
 }

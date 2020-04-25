@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -75,6 +76,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+        id = "HttpPost",
+        image = "httppost.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/httppost.html"
+)
 public class HttpPostDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = HttpPostMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -31,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transforms.valuemapper.ValueMapperMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -60,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "ValueMapper",
-        image = "ui/images/VMAP.svg",
+        image = "valuemapper.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
         documentationUrl = ""
 )

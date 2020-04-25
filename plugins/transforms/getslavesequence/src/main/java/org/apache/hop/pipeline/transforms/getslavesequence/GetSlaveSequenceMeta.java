@@ -48,12 +48,10 @@ import java.util.List;
  */
 @Transform(
         id = "GetSlaveSequence",
-        image = "ui/images/SEQ.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getslavesequence",
         name = "BaseTransform.TypeLongDesc.GetSlaveSequence",
         description = "BaseTransform.TypeTooltipDesc.GetSlaveSequence",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetSlaveSequence, GetSlaveSequenceData> {
   private static Class<?> PKG = GetSlaveSequenceMeta.class; // for i18n purposes, needed by Translator!!
@@ -198,10 +196,5 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
    */
   public void setIncrement( String increment ) {
     this.increment = increment;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetSlaveSequenceDialog.class.getName();
   }
 }

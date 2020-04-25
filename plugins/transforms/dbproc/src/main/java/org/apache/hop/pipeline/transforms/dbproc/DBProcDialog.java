@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.dbproc;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -72,6 +73,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+        id = "DBProc",
+        image = "dbproc.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/dbproc.html"
+)
 public class DBProcDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
 

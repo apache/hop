@@ -51,7 +51,6 @@ import java.util.List;
  */
 @Transform(
         id = "ExecSqlRow",
-        image = "ui/images/SQLR.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.execsqlrow",
         name = "BaseTransform.TypeLongDesc.ExecSqlRow",
         description = "BaseTransform.TypeTooltipDesc.ExecSqlRow",
@@ -398,8 +397,4 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
     this.metaStore = metaStore;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return ExecSqlRowDialog.class.getName();
-  }
 }

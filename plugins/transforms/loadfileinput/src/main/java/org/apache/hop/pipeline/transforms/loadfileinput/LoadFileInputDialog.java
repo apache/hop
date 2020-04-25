@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -76,6 +77,12 @@ import org.eclipse.swt.widgets.Text;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+@PluginDialog(
+        id = "LoadFileInput",
+        image = "loadfileinput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/loadfileinput.html"
+)
 public class LoadFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 

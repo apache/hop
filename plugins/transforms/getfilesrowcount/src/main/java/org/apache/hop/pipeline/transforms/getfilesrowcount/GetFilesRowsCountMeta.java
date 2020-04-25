@@ -52,12 +52,10 @@ import java.util.Map;
 
 @Transform(
         id = "GetFilesRowsCount",
-        image = "ui/images/FRC.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getfilesrowcount",
         name = "BaseTransform.TypeLongDesc.GetFilesRowsCount",
         description = "BaseTransform.TypeTooltipDesc.GetFilesRowsCount",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
@@ -620,10 +618,5 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     } catch ( Exception e ) {
       throw new HopException( e );
     }
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetFilesRowsCountDialog.class.getName();
   }
 }

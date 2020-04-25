@@ -54,7 +54,7 @@ import java.util.List;
 
 @Transform(
         id = "Sequence",
-        image = "ui/images/SEQ.svg",
+        image = "addsequence.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.addsequence",
         name = "BaseTransform.TypeLongDesc.AddSequence",
         description = "BaseTransform.TypeTooltipDesc.AddSequence",
@@ -412,8 +412,4 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
     this.schemaName = schemaName;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return AddSequenceDialog.class.getName();
-  }
 }

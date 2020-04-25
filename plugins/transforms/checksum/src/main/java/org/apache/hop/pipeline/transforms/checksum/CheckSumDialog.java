@@ -65,8 +65,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@PluginDialog( id = "CheckSum", image = "CheckSum.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "Products/Data_Integration/Pipeline_Transform_Reference/Add_a_Checksum" )
+@PluginDialog(
+        id = "CheckSum",
+        image = "checksum.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/checksum.html"
+)
 public class CheckSumDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CheckSumDialog.class; // for i18n purposes, needed by Translator!!
 

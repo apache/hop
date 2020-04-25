@@ -62,7 +62,6 @@ import java.util.List;
  */
 @Transform(
         id = "SelectValues",
-        image = "ui/images/SEL.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.selectvalues",
         name = "BaseTransform.TypeLongDesc.SelectValues",
         description = "BaseTransform.TypeTooltipDesc.SelectValues",

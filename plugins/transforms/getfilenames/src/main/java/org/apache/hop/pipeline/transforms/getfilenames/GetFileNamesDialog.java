@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.getfilenames;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -70,6 +71,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "GetFileNames",
+        image = "getfilenames.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getfilenames.html"
+)
 public class GetFileNamesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
 

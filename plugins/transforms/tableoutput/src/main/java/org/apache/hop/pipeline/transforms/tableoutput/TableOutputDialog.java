@@ -28,6 +28,7 @@ import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -94,6 +95,12 @@ import java.util.Set;
  *
  * @author Matt Casters
  */
+@PluginDialog(
+        id = "TableOutput",
+        image = "tableoutput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
+)
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 

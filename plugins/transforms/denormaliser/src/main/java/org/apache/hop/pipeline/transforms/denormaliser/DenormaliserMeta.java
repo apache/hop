@@ -51,7 +51,6 @@ import java.util.List;
 
 @Transform(
         id = "Denormaliser",
-        image = "ui/images/UNP.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.denormaliser",
         name = "BaseTransform.TypeLongDesc.RowDenormaliser",
         description = "BaseTransform.TypeTooltipDesc.RowDenormaliser",
@@ -321,8 +320,4 @@ public class DenormaliserMeta extends BaseTransformMeta implements ITransformMet
     return new DenormaliserData();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DenormaliserDialog.class.getName();
-  }
 }

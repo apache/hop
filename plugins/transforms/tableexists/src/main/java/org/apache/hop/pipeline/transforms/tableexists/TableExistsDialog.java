@@ -33,7 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transforms.tableexists.TableExistsMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -63,9 +62,9 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "TableExists",
-        image = "ui/images/TEX.svg",
+        image = "tableexists.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableexists.html"
 )
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
