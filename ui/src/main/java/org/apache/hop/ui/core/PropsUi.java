@@ -49,6 +49,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -698,7 +699,12 @@ public class PropsUi extends Props {
   }
 
   public void setLook( Control widget ) {
+    if (widget instanceof Combo ) {
+      return; // Just keep the default
+    }
+
     setLook( widget, WIDGET_STYLE_DEFAULT );
+
     if ( widget instanceof Composite ) {
       for ( Control child : ( (Composite) widget ).getChildren() ) {
         setLook( child );

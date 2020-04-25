@@ -61,32 +61,32 @@ public class MetaStoreContextHandler implements IGuiContextHandler {
     List<GuiAction> actions = new ArrayList<>();
 
     GuiAction newAction = new GuiAction(
-      "Create: "+guiPluginDetails.getName(),
+      "CREATE_"+guiPluginDetails.getName(),
       GuiActionType.Create,
-      "Create "+guiPluginDetails.getName(),
-      "Create a new: "+guiPluginDetails.getDescription(),
+      guiPluginDetails.getName(),
+      "Creates a new "+guiPluginDetails.getName()+" : "+guiPluginDetails.getDescription(),
       guiPluginDetails.getIconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metaStoreManager.newMetadata() );
     newAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( newAction );
 
     GuiAction editAction = new GuiAction(
-      "Edit: "+guiPluginDetails.getName(),
+      "EDIT_"+guiPluginDetails.getName(),
       GuiActionType.Modify,
       guiPluginDetails.getName(),
-      guiPluginDetails.getDescription(),
+      "Edits a "+guiPluginDetails.getName()+" : "+guiPluginDetails.getDescription(),
       guiPluginDetails.getIconImage(),
       (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
     editAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( editAction );
 
     GuiAction deleteAction = new GuiAction(
-      "Delete "+guiPluginDetails.getName(),
+      "DELETE_"+guiPluginDetails.getName(),
       GuiActionType.Delete,
       guiPluginDetails.getName(),
-      guiPluginDetails.getDescription(),
+      "After confirmation this deletes a "+guiPluginDetails.getName()+" : "+guiPluginDetails.getDescription(),
       guiPluginDetails.getIconImage(),
-       (shiftClicked, controlClicked, parameters) -> metaStoreManager.editMetadata() );
+       (shiftClicked, controlClicked, parameters) -> metaStoreManager.deleteMetadata() );
     deleteAction.setClassLoader( metaStoreElementClass.getClassLoader() );
     actions.add( deleteAction );
 

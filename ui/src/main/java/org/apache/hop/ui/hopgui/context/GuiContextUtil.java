@@ -23,14 +23,16 @@
 package org.apache.hop.ui.hopgui.context;
 
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.ui.core.dialog.ContextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class GuiContextUtil {
@@ -71,26 +73,39 @@ public class GuiContextUtil {
     return filtered;
   }
 
+  public static final void handleActionSelection( Shell parent, String message, IActionContextHandlersProvider provider, GuiActionType actionType ) {
+    handleActionSelection( parent, message, null, provider, actionType );
+  }
+
   public static final void handleActionSelection( Shell parent, String message, Point clickLocation, IActionContextHandlersProvider provider, GuiActionType actionType ) {
+    handleActionSelection( parent, message, clickLocation, provider, actionType, false );
+  }
+
+    public static final void handleActionSelection( Shell parent, String message, Point clickLocation, IActionContextHandlersProvider provider, GuiActionType actionType, boolean sortByName ) {
     // Get the list of create actions in the Hop UI context...
     //
     List<GuiAction> actions = GuiContextUtil.getContextActions( provider, actionType );
     if ( actions.isEmpty() ) {
       return;
     }
+    if (sortByName) {
+      Collections.sort( actions, Comparator.comparing( GuiAction::getName ) );
+    }
 
     handleActionSelection( parent, message, clickLocation, actions );
   }
 
-  /**
-   *
-   * @param parent
-   * @param message
-   * @param clickLocation
-   * @param actions
-   *
-   * @return true if the action dialog lost focus
-   */
+  public static boolean handleActionSelection( Shell parent, String message, List<GuiAction> actions ) {
+    return handleActionSelection( parent, message, null, actions );
+  }
+
+    /**
+     * @param parent
+     * @param message
+     * @param clickLocation
+     * @param actions
+     * @return true if the action dialog lost focus
+     */
   public static boolean handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
     if ( actions.isEmpty() ) {
       return false;
@@ -107,7 +122,7 @@ public class GuiContextUtil {
       GuiAction selectedAction = contextDialog.open();
       if ( selectedAction != null ) {
         IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
-        actionLambda.executeAction(contextDialog.isShiftClicked(), contextDialog.isCtrlClicked());
+        actionLambda.executeAction( contextDialog.isShiftClicked(), contextDialog.isCtrlClicked() );
       } else {
         return contextDialog.isFocusLost();
       }

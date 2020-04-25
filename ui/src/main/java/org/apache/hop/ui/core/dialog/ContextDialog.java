@@ -38,7 +38,9 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -169,8 +171,7 @@ public class ContextDialog extends Dialog {
 			if (classLoader == null) {
 				classLoader = ClassLoader.getSystemClassLoader();
 			}
-			SwtUniversalImage universalImage = SwtSvgImageUtil.getUniversalImage(display, classLoader,
-					action.getImage());
+			SwtUniversalImage universalImage = SwtSvgImageUtil.getUniversalImage(display, classLoader, action.getImage());
 			Image image = universalImage.getAsBitmapForSize(display, iconSize, iconSize);
 
 			Item item = new Item(action, image);
@@ -239,16 +240,14 @@ public class ContextDialog extends Dialog {
 		//
 		int width = (int) Math.round(650 * props.getZoomFactor());
 		int height = (int) Math.round(500 * props.getZoomFactor());
-		shell.setSize(width, height);
-		
+
 		// Position the dialog where there was a click to be more intuitive
 		//
 		if (location != null) {
+			shell.setSize(width, height);
 			shell.setLocation(location.x, location.y);
 		} else {
-			Rectangle parentBounds = HopGui.getInstance().getShell().getBounds();
-			shell.setLocation(Math.max((parentBounds.width - width) / 2, 0),
-					Math.max((parentBounds.height - height) / 2, 0));
+			BaseTransformDialog.setSize( shell, width, height, false );
 		}
 
 		// Add all the listeners
@@ -328,7 +327,13 @@ public class ContextDialog extends Dialog {
 	}	
 
 	private void dispose() {
-		
+
+		// Save the shell size and location in case the position isn't a mouse click
+		//
+		if (location==null) {
+			props.setScreen( new WindowProperty( shell ) );
+		}
+
 		// Close the dialog window
 		shell.close();
 		
@@ -342,7 +347,7 @@ public class ContextDialog extends Dialog {
 	/**
 	 * This is where all the actions are drawn
 	 *
-	 * @param e
+	 * @param event
 	 */	
 	private void onPaint(PaintEvent event) {
 		GC gc = event.gc;

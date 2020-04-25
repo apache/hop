@@ -334,8 +334,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   public void updateTabLabel( CTabItem tabItem, String filename, String name ) {
-    tabItem.setText( Const.NVL( name, "<>" ) );
-    tabItem.setToolTipText( filename );
+    if (!tabItem.isDisposed()) {
+      tabItem.setText( Const.NVL( name, "<>" ) );
+      tabItem.setToolTipText( filename );
+    }
   }
 
   /**
