@@ -33,11 +33,13 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
 import java.sql.ResultSet;
 
 /**
- * Contains MySQL specific information through static final members
+ * Contains MS SQL specific information through static final members
  *
  * @author Matt
  * @since 11-mrt-2005
@@ -49,14 +51,35 @@ import java.sql.ResultSet;
 @GuiPlugin( id = "GUI-MSSQLServerDatabaseMeta" )
 public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
+
+  @GuiWidgetElement(
+	 id = "instanceName",
+	 order = "20",
+	 parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+	 type = GuiElementType.TEXT,
+	 i18nPackage = "org.apache.hop.ui.core.database",
+	 label = "DatabaseDialog.label.SQLServerInstance"
+  )	
+  @MetaStoreAttribute
+  private String instanceName;
+
+  public String getInstanceName() {
+	return instanceName;
+  }
+
+  public void setInstanceName(String instanceName) {
+	this.instanceName = instanceName;
+  }
+	
   @GuiWidgetElement(
     id = "usingDoubleDigit",
-    order = "20",
+    order = "22",
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.CHECKBOX,
     i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
   )
+  @MetaStoreAttribute
   private boolean usingDoubleDigit;
 
   /**
@@ -65,15 +88,14 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * @return value of usingDoubleDigit
    */
   public boolean isUsingDoubleDigit() {
-    String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
-    return "Y".equalsIgnoreCase( flag );
+	  return usingDoubleDigit;
   }
 
   /**
    * @param usingDoubleDigit The usingDoubleDigit to set
    */
   public void setUsingDoubleDigit( boolean usingDoubleDigit ) {
-    getAttributes().setProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR, usingDoubleDigit ? "Y" : "N" );
+    this.usingDoubleDigit = usingDoubleDigit;
   }
 
   @Override
@@ -100,6 +122,12 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return "net.sourceforge.jtds.jdbc.Driver";
   }
 
+
+/**
+  * The URL format for jTDS is:
+  *
+  *  jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
+  */
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
@@ -107,12 +135,23 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     } else {
       StringBuilder sb = new StringBuilder( "jdbc:jtds:sqlserver://" );
       sb.append( hostname );
-      if ( port != null && port.length() > 0 ) {
-        sb.append( ":" );
+      
+      if ( !Utils.isEmpty( port ) && Const.toInt( port, -1 ) > 0 ) {
+        sb.append( ':' );
         sb.append( port );
       }
-      sb.append( "/" );
-      sb.append( databaseName );
+            
+      if ( !Utils.isEmpty(databaseName) ) {
+          sb.append( '/' );
+          sb.append( databaseName );
+      }
+      
+      // With jTDS you will have to use the instance name as a property.
+      if ( !Utils.isEmpty(this.instanceName) ) {
+    	sb.append( ";instance=" );
+      	sb.append( instanceName );
+      }      
+      
       return sb.toString();
     }
   }

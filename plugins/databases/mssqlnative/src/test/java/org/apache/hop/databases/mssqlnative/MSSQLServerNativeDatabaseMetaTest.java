@@ -29,17 +29,12 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Properties;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
 
 public class MSSQLServerNativeDatabaseMetaTest {
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  private DatabaseMeta databaseMeta;
-  private IDatabase iDatabase;
 
   @Test
   public void testMSSQLOverrides() throws Exception {
@@ -50,19 +45,20 @@ public class MSSQLServerNativeDatabaseMetaTest {
 
     assertEquals( "com.microsoft.sqlserver.jdbc.SQLServerDriver", localNativeMeta.getDriverClass() );
     assertEquals( "jdbc:odbc:WIBBLE", localOdbcMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
+    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=false",
-      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    
+    localNativeMeta.setUsingIntegratedSecurity(false);
+    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    
+    localNativeMeta.setUsingIntegratedSecurity(true);
+    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
-    Properties attrs = new Properties();
-    attrs.put( "MSSQLUseIntegratedSecurity", "false" );
-    localNativeMeta.setAttributes( attrs );
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=false",
-      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
-    attrs.put( "MSSQLUseIntegratedSecurity", "true" );
-    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true",
-      localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
+    localNativeMeta.setInstanceName("TEST");
+    assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
+    localNativeMeta.setPort("");
+    assertEquals( "jdbc:sqlserver://FOO\\TEST;databaseName=WIBBLE;integratedSecurity=true", localNativeMeta.getURL( "FOO", "", "WIBBLE" ) );    
   }
 
   @Test

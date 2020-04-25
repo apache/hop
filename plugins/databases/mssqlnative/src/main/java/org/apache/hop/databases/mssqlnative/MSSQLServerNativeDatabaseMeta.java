@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
 @DatabaseMetaPlugin(
   type = "MSSQLNATIVE",
@@ -38,27 +39,16 @@ import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
 @GuiPlugin( id = "GUI-MSSQLServerNativeDatabaseMeta" )
 public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
 
-  public static final String ATTRIBUTE_USE_INTEGRATED_SECURITY = "MSSQLUseIntegratedSecurity";
-
   @GuiWidgetElement(
-    id = "usingIntegratedSecurity",
-    order = "20",
-    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.UseIntegratedSecurity"
+	 id = "usingIntegratedSecurity",
+	 order = "21",
+	 parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+	 type = GuiElementType.CHECKBOX,
+	 i18nPackage = "org.apache.hop.ui.core.database",
+	 label = "DatabaseDialog.label.UseIntegratedSecurity"
   )
+  @MetaStoreAttribute
   private boolean usingIntegratedSecurity;
-
-  @GuiWidgetElement(
-    id = "usingDoubleDigit",
-    order = "20",
-    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
-  )
-  private boolean usingDoubleDigit;
 
   /**
    * Gets usingIntegratedSecurity
@@ -66,34 +56,14 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
    * @return value of usingIntegratedSecurity
    */
   public boolean isUsingIntegratedSecurity() {
-    String flag = getAttributes().getProperty( ATTRIBUTE_USE_INTEGRATED_SECURITY );
-    return "Y".equalsIgnoreCase( flag );
+	return this.usingIntegratedSecurity;
   }
 
   /**
    * @param usingIntegratedSecurity The usingIntegratedSecurity to set
    */
   public void setUsingIntegratedSecurity( boolean usingIntegratedSecurity ) {
-    getAttributes().setProperty( ATTRIBUTE_USE_INTEGRATED_SECURITY, usingIntegratedSecurity ? "Y" : "N" );
-  }
-
-  /**
-   * Gets usingDoubleDigit
-   *
-   * @return value of usingDoubleDigit
-   */
-  @Override
-  public boolean isUsingDoubleDigit() {
-    String flag = getAttributes().getProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR );
-    return "Y".equalsIgnoreCase( flag );
-  }
-
-  /**
-   * @param usingDoubleDigit The usingDoubleDigit to set
-   */
-  @Override
-  public void setUsingDoubleDigit( boolean usingDoubleDigit ) {
-    getAttributes().setProperty( ATTRIBUTE_MSSQL_DOUBLE_DECIMAL_SEPARATOR, usingDoubleDigit ? "Y" : "N" );
+	this.usingIntegratedSecurity = usingIntegratedSecurity;
   }
 
   @Override
@@ -101,31 +71,37 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
     return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
   }
 
-  @Override
-  public String getURL( String hostname, String port, String databaseName ) {
+  @Override  
+  public String getURL( String serverName, String port, String databaseName ) {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
       return "jdbc:odbc:" + databaseName;
     } else {
-      String useIntegratedSecurity = "false";
-      Object value = getAttributes().get( ATTRIBUTE_USE_INTEGRATED_SECURITY );
-      if ( value instanceof String ) {
-        useIntegratedSecurity = (String) value;
-        // Check if the String can be parsed into a boolean
-        try {
-          Boolean.parseBoolean( useIntegratedSecurity );
-        } catch ( IllegalArgumentException e ) {
-          useIntegratedSecurity = "false";
-        }
-      }
-
-      String url = "jdbc:sqlserver://" + hostname;
-
+      StringBuilder sb = new StringBuilder( "jdbc:sqlserver://" );
+      
+      sb.append(serverName);
+      
+      // When specifying the location of the SQL Server instance, one normally provides serverName\instanceName or serverName:portNumber
+      // If both a portNumber and instanceName are used, the portNumber will take precedence and the instanceName will be ignored.                
       if ( !Utils.isEmpty( port ) && Const.toInt( port, -1 ) > 0 ) {
-        url += ":" + port;
+        sb.append( ':' );
+        sb.append( port );
       }
-      url += ";databaseName=" + databaseName + ";integratedSecurity=" + useIntegratedSecurity;
-
-      return url;
+      else if ( !Utils.isEmpty(this.getInstanceName()) ) {
+          sb.append( '\\' );
+          sb.append( this.getInstanceName() );        
+      }
+      
+      if ( !Utils.isEmpty(databaseName) ) {
+          sb.append( ";databaseName=" );
+          sb.append( databaseName );   
+      }
+            
+      if ( this.usingIntegratedSecurity ) {
+          sb.append( ";integratedSecurity=" );
+          sb.append( String.valueOf(this.usingIntegratedSecurity) );   
+      }
+      
+      return sb.toString();
     }
   }
 
