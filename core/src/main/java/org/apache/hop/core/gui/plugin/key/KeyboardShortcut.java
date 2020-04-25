@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.key;
 
 import java.lang.reflect.Method;
 import java.util.Objects;

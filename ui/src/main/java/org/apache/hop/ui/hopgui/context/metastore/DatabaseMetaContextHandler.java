@@ -22,8 +22,8 @@
 
 package org.apache.hop.ui.hopgui.context.metastore;
 
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;

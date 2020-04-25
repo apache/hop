@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.key;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI

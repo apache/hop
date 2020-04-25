@@ -102,6 +102,10 @@ public class RunThread implements Runnable {
     } finally {
       transform.dispose();
       transform.setExecutionEndDate( new Date() );
+      // If the transform was stopped it never flagged the last row
+      if (transform.getLastRowWrittenDate()==null) {
+        transform.setLastRowWrittenDate( transform.getExecutionEndDate() );
+      }
       transform.getLogChannel().snap( Metrics.METRIC_TRANSFORM_EXECUTION_STOP );
       try {
         long li = transform.getLinesInput();

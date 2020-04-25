@@ -44,7 +44,6 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -61,17 +60,13 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -452,24 +447,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     ap.setAppendLogfile = wAppendLogfile.getSelection();
     ap.setWaitingToFinish( wWaitingToFinish.getSelection() );
     ap.setFollowingAbortRemotely( wFollowingAbortRemotely.getSelection() );
-
-    PipelineExecutionConfiguration executionConfiguration = new PipelineExecutionConfiguration();
-    executionConfiguration.setRunConfiguration( ap.getRunConfiguration() );
-    try {
-      ExtensionPointHandler.callExtensionPoint( this.action.getLogChannel(), HopExtensionPoint.HopUiPipelineBeforeStart.id,
-        new Object[] { executionConfiguration, workflowMeta, workflowMeta, null } );
-    } catch ( HopException e ) {
-      // Ignore errors
-    }
-
-    try {
-      ExtensionPointHandler.callExtensionPoint( this.action.getLogChannel(), HopExtensionPoint.JobEntryPipelineSave.id,
-        new Object[] { workflowMeta, ap.getRunConfiguration() } );
-    } catch ( HopException e ) {
-      // Ignore errors
-    }
-
-    ap.setLoggingRemoteWork( executionConfiguration.isLogRemoteExecutionLocally() );
   }
 
   protected void ok() {

@@ -26,10 +26,10 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -123,7 +123,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
           GuiContextAction contextAction = method.getAnnotation( GuiContextAction.class );
           if ( contextAction != null ) {
-            guiRegistry.addGuiContextAction( method, contextAction, classLoader );
+            guiRegistry.addGuiContextAction( guiPluginClassName, method, contextAction, classLoader );
           }
         }
 

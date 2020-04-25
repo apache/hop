@@ -10,7 +10,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 @ExtensionPoint(
   id = "WorkflowStartCheckEnvironmentExtensionPoint",
   description = "At the start of a job, verify it lives in the active environment",
-  extensionPointId = "JobStart"
+  extensionPointId = "WorkflowStart"
 )
 /**
  * set the debug level right before the step starts to run

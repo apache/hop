@@ -39,7 +39,6 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -271,7 +270,7 @@ public class HopRun implements Runnable {
 
       // Certain Pentaho plugins rely on this.  Meh.
       //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
 
       // Before running, do we print the options?
       //

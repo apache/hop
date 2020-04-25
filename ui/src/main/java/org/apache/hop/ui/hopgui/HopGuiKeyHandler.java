@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.KeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;

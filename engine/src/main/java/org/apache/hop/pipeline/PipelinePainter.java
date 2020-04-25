@@ -77,13 +77,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private TransformMeta noInputTransform;
   private StreamType candidateHopType;
   private boolean startErrorHopTransform;
-  private TransformMeta showTargetStreamsTransform;
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
 
   public static final String[] magnificationDescriptions =
-    new String[] { "  400% ", "  200% ", "  150% ", "  100% ", "  75% ", "  50% ", "  25% " };
-
+    new String[] { "1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%" };
 
   public PipelinePainter( IGc gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
                           IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
@@ -103,12 +101,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   }
 
   public PipelinePainter( IGc gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
-                          IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
-                          List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
-                          boolean antiAliasing, String noteFontName, int noteFontHeight, double zoomFactor ) {
+                          IScrollBar vert, PipelineHopMeta candidate, Point dropCandidate, Rectangle selectionRectangle,
+                          List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
+                          String noteFontName, int noteFontHeight, double zoomFactor ) {
 
-    this( gc, pipelineMeta, area, hori, vert, candidate, drop_candidate, selrect, areaOwners, iconsize,
-      linewidth, gridsize, noteFontName, noteFontHeight, null, false, zoomFactor );
+    this( gc, pipelineMeta, area, hori, vert, candidate, dropCandidate, selectionRectangle, areaOwners, iconSize,
+      lineWidth, gridSize, noteFontName, noteFontHeight, null, false, zoomFactor );
   }
 
   private static String[] getPeekTitles() {
@@ -141,7 +139,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Draw the pipeline onto the image
     //
-    gc.setTransform( translationX, translationY, 0, magnification );
+    gc.setTransform( translationX, translationY, magnification );
     gc.setAlpha( 255 );
     drawPipeline( thumb );
 
@@ -587,8 +585,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     boolean isDeprecated = transformMeta.isDeprecated();
     int alpha = gc.getAlpha();
 
-    ITransformIOMeta ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
-
     Point pt = transformMeta.getLocation();
     if ( pt == null ) {
       pt = new Point( 50, 50 );
@@ -730,7 +726,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconSize - 3, pt.y - 8, ib.x, ib.y, offset, log,
         STRING_TRANSFORM_ERROR_LOG ) );
     }
-
 
     PipelinePainterExtension extension = new PipelinePainterExtension( gc, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconSize );
     try {
@@ -1019,20 +1014,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   public void setStartErrorHopTransform( boolean startErrorHopTransform ) {
     this.startErrorHopTransform = startErrorHopTransform;
-  }
-
-  /**
-   * @return the show Target Streams Transform
-   */
-  public TransformMeta getShowTargetStreamsTransform() {
-    return showTargetStreamsTransform;
-  }
-
-  /**
-   * @param showTargetStreamsTransform the show Target Streams Transform to set
-   */
-  public void setShowTargetStreamsTransform( TransformMeta showTargetStreamsTransform ) {
-    this.showTargetStreamsTransform = showTargetStreamsTransform;
   }
 
   public PipelineMeta getPipelineMeta() {

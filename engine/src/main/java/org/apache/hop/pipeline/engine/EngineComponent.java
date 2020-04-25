@@ -1,5 +1,8 @@
 package org.apache.hop.pipeline.engine;
 
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
@@ -17,6 +20,8 @@ public class EngineComponent implements IEngineComponent {
   private String name;
   private int copyNr;
   private String logChannelId;
+  private ILogChannel logChannel;
+  private LogLevel logLevel;
   private String logText;
   private boolean running;
   private boolean selected;
@@ -46,6 +51,7 @@ public class EngineComponent implements IEngineComponent {
     this();
     this.name = name;
     this.copyNr = copyNr;
+    this.logChannel = LogChannel.GENERAL;
   }
 
   @Override public boolean equals( Object o ) {
@@ -97,6 +103,22 @@ public class EngineComponent implements IEngineComponent {
   }
 
   /**
+   * Gets logChannel
+   *
+   * @return value of logChannel
+   */
+  @Override public ILogChannel getLogChannel() {
+    return logChannel;
+  }
+
+  /**
+   * @param logChannel The logChannel to set
+   */
+  public void setLogChannel( ILogChannel logChannel ) {
+    this.logChannel = logChannel;
+  }
+
+  /**
    * Gets logChannelId
    *
    * @return value of logChannelId
@@ -110,6 +132,22 @@ public class EngineComponent implements IEngineComponent {
    */
   public void setLogChannelId( String logChannelId ) {
     this.logChannelId = logChannelId;
+  }
+
+  /**
+   * Gets logLevel
+   *
+   * @return value of logLevel
+   */
+  @Override public LogLevel getLogLevel() {
+    return logLevel;
+  }
+
+  /**
+   * @param logLevel The logLevel to set
+   */
+  @Override public void setLogLevel( LogLevel logLevel ) {
+    this.logLevel = logLevel;
   }
 
   /**

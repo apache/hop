@@ -20,16 +20,29 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.workflow.action;
+package org.apache.hop.core.gui.plugin.key;
 
-public interface IActionRunConfigurable {
+/**
+ * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
+ */
 
-  String getRunConfiguration();
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-  void setRunConfiguration( String runConfiguration );
+@Documented
+@Retention( RetentionPolicy.RUNTIME )
+@Target( { ElementType.FIELD, ElementType.METHOD } )
+public @interface GuiKeyboardShortcut {
+  boolean control() default false;
 
-  void setLoggingRemoteWork( boolean loggingRemoteWork );
+  boolean alt() default false;
 
-  void setChanged();
+  boolean shift() default false;
 
+  boolean command() default false;
+
+  int key() default -1;
 }

@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.laf.BasePropertyHandler;

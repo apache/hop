@@ -25,12 +25,34 @@ public class BaseGuiWidgets {
   protected String[] getComboItems( GuiToolbarItem toolbarItem ) {
     try {
       Object singleton = loadSingleTon( toolbarItem.getClassLoader(), toolbarItem.getListenerClass() );
-
-      Method method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod(), ILogChannel.class, IMetaStore.class );
-      if ( method == null ) {
-        throw new HopException( "Unable to find method '" + toolbarItem.getGetComboValuesMethod() + "' with parameters ILogChannel and IMetaStore in class '" + toolbarItem.getListenerClass() + "'" );
+      if (singleton==null) {
+        LogChannel.UI.logError( "Could not get instance of class '" + toolbarItem.getListenerClass() +" for toolbar item "+toolbarItem+", combo values method : "+toolbarItem.getGetComboValuesMethod() );
+        return new String[] {};
       }
-      List<String> values = (List<String>) method.invoke( singleton, LogChannel.UI, HopGui.getInstance().getMetaStore() );
+
+      // TODO: create a method finder where we can simply give a list of objects that we have available
+      // You can find them in any order that the developer chose and just pass them that way.
+      //
+      Method method;
+      boolean withArguments = true;
+      try {
+        method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod(), ILogChannel.class, IMetaStore.class );
+      } catch(NoSuchMethodException nsme) {
+        // Try to find the method without arguments...
+        //
+        try {
+          method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod() );
+          withArguments = false;
+        } catch(NoSuchMethodException nsme2) {
+          throw new HopException( "Unable to find method '" + toolbarItem.getGetComboValuesMethod() + "' without parameters or with parameters ILogChannel and IMetaStore in class '" + toolbarItem.getListenerClass() + "'", nsme2 );
+        }
+      }
+      List<String> values;
+      if (withArguments) {
+        values =  (List<String>) method.invoke( singleton, LogChannel.UI, HopGui.getInstance().getMetaStore() );
+      } else {
+        values =  (List<String>) method.invoke( singleton  );
+      }
       return values.toArray( new String[ 0 ] );
     } catch ( Exception e ) {
       LogChannel.UI.logError( "Error getting list of combo items for method '" + toolbarItem.getGetComboValuesMethod() + "' in class : " + toolbarItem.getListenerClass(), e );

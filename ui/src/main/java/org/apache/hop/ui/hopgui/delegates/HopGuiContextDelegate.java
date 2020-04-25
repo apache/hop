@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 

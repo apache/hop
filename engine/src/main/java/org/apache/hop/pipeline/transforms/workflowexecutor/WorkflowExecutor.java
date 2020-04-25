@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -35,7 +34,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -47,9 +45,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutor;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
@@ -216,7 +212,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow( getTransformName(), data.executorWorkflow );
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, data.executorWorkflow );
+    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow );
 
     Result result = data.executorWorkflow.startExecution();
 

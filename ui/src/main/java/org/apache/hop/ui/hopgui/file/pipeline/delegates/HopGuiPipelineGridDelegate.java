@@ -433,7 +433,12 @@ public class HopGuiPipelineGridDelegate {
     String duration;
     Date firstRowReadDate = component.getFirstRowReadDate();
     if (firstRowReadDate!=null) {
-      long durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
+      long durationMs;
+      if (component.getLastRowWrittenDate()==null) {
+        durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
+      } else {
+        durationMs = component.getLastRowWrittenDate().getTime() - firstRowReadDate.getTime();
+      }
       duration = Utils.getDurationHMS( ((double)durationMs)/1000 );
     } else {
       duration = "";

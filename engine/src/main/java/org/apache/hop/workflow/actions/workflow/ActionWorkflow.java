@@ -52,7 +52,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionRunConfigurable;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -73,9 +72,8 @@ import java.util.UUID;
  * @author Matt
  * @since 01-10-2003, Rewritten on 18-06-2004
  */
-public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IActionRunConfigurable {
+public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
-  public static final int IS_PENTAHO = 1;
 
   private String runConfigurationName;
 
@@ -100,9 +98,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
   public boolean waitingToFinish = true;
   public boolean followingAbortRemotely;
 
-  public boolean expandingRemoteWorkflow;
-
-  private String remoteSlaveServerName;
   public boolean passingAllParameters = true;
 
   private boolean passingExport;
@@ -224,10 +219,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "loglevel", logFileLevel != null ? logFileLevel.getCode() : DEFAULT_LOG_LEVEL
         .getCode() ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "slave_server_name", remoteSlaveServerName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "expand_remote_job", expandingRemoteWorkflow ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "pass_export", passingExport ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
@@ -271,7 +264,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       logext = XmlHandler.getTagValue( entrynode, "logext" );
       logFileLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
       setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
-      remoteSlaveServerName = XmlHandler.getTagValue( entrynode, "slave_server_name" );
       passingExport = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "pass_export" ) );
       createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_parent_folder" ) );
       runConfiguration = XmlHandler.getTagValue( entrynode, "run_configuration" );
@@ -284,7 +276,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
       }
 
       followingAbortRemotely = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "follow_abort_remote" ) );
-      expandingRemoteWorkflow = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "expand_remote_job" ) );
 
       // How many arguments?
       int argnr = 0;
@@ -866,20 +857,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
   }
 
   /**
-   * @return the remote slave server name
-   */
-  public String getRemoteSlaveServerName() {
-    return remoteSlaveServerName;
-  }
-
-  /**
-   * @param remoteSlaveServerName the remoteSlaveServer to set
-   */
-  public void setRemoteSlaveServerName( String remoteSlaveServerName ) {
-    this.remoteSlaveServerName = remoteSlaveServerName;
-  }
-
-  /**
    * @return the waitingToFinish
    */
   public boolean isWaitingToFinish() {
@@ -961,12 +938,19 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction, IA
     return getWorkflowMeta( metaStore, variables );
   }
 
-  public boolean isExpandingRemoteWorkflow() {
-    return expandingRemoteWorkflow;
+  /**
+   * Gets runConfigurationName
+   *
+   * @return value of runConfigurationName
+   */
+  public String getRunConfigurationName() {
+    return runConfigurationName;
   }
 
-  public void setExpandingRemoteWorkflow( boolean expandingRemoteWorkflow ) {
-    this.expandingRemoteWorkflow = expandingRemoteWorkflow;
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
+  public void setRunConfigurationName( String runConfigurationName ) {
+    this.runConfigurationName = runConfigurationName;
   }
-
 }

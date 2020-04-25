@@ -104,7 +104,9 @@ public interface IPrimitiveGc {
 
   void setAntialias( boolean antiAlias );
 
-  void setTransform( float translationX, float translationY, int shadowsize, float magnification );
+  void setTransform( float translationX, float translationY, float magnification );
+
+  float getMagnification();
 
   void setAlpha( int alpha );
 

@@ -642,11 +642,15 @@ public class SwingDirectGc implements IGc {
     gc.setStroke( createStroke() );
   }
 
-  public void setTransform( float translationX, float translationY, int shadowsize, float magnification ) {
+  public void setTransform( float translationX, float translationY, float magnification ) {
     AffineTransform transform = new AffineTransform();
-    transform.translate( translationX + shadowsize * magnification, translationY + shadowsize * magnification );
+    transform.translate( translationX, translationY );
     transform.scale( magnification, magnification );
     gc.setTransform( transform );
+  }
+
+  @Override public float getMagnification() {
+    return (float)gc.getTransform().getScaleX();
   }
 
   public Point textExtent( String text ) {

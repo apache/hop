@@ -394,15 +394,19 @@ public class SwtGc implements IGc {
     gc.setLineWidth( width );
   }
 
-  public void setTransform( float translationX, float translationY, int shadowsize, float magnification ) {
+  public void setTransform( float translationX, float translationY, float magnification ) {
     if ( transform != null ) { // dispose of previous to prevent leaking of handles
       transform.dispose();
     }
     transform = new Transform( gc.getDevice() );
-    transform.translate( translationX + shadowsize * magnification, translationY + shadowsize * magnification );
+    transform.translate( translationX , translationY );
     transform.scale( magnification, magnification );
     gc.setTransform( transform );
     currentMagnification = magnification;
+  }
+
+  @Override public float getMagnification() {
+    return currentMagnification;
   }
 
   public Point textExtent( String text ) {

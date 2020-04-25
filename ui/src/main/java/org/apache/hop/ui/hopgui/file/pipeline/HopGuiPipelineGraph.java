@@ -45,12 +45,13 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
-import org.apache.hop.core.gui.plugin.GuiActionType;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.IHasLogChannel;
@@ -148,7 +149,6 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -230,6 +230,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY = "HopGuiPipelineGraph-ToolBar-10310-Distribute-Vertically";
 
   public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS = "HopGuiPipelineGraph-ToolBar-10400-Execution-Results";
+
+  public static final String TOOLBAR_ITEM_ZOOM_LEVEL = "HopGuiPipelineGraph-ToolBar-10500-Zoom-Level";
 
   private ILogChannel log;
 
@@ -363,11 +365,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private Map<TransformMeta, DelayTimer> delayTimers;
 
-  private TransformMeta showTargetStreamsTransform;
-
   Timer redrawTimer;
-  private ToolItem stopItem;
-  private Combo zoomLabel;
 
   private HopPipelineFileType fileType;
   private boolean ignoreNextClick;
@@ -408,6 +406,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public HopGuiPipelineGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
                               final HopDataOrchestrationPerspective perspective, final PipelineMeta pipelineMeta, final HopPipelineFileType fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
+    activePipelineGraph = this; // We're working on this one
     this.hopGui = hopGui;
     this.parentTabItem = parentTabItem;
     this.perspective = perspective;
@@ -453,6 +452,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // The form-data is set on the native widget automatically
     //
     addToolBar();
+
+    activePipelineGraph = null; // No longer needed
 
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
@@ -724,11 +725,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
+  private static HopGuiPipelineGraph activePipelineGraph;
+
   // In case anyone asks...
   //
   public static HopGuiPipelineGraph getInstance() {
+    if (activePipelineGraph!=null) {
+      return activePipelineGraph;
+    }
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph) {
+    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
       return (HopGuiPipelineGraph) fileTypeHandler;
     }
     return null;
@@ -1532,7 +1538,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     TransformMeta fromTransform = candidate.getFromTransform();
     TransformMeta toTransform = candidate.getToTransform();
-    if (fromTransform.equals( toTransform )) {
+    if ( fromTransform.equals( toTransform ) ) {
       return; // Don't add
     }
 
@@ -1714,6 +1720,24 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } );
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_ZOOM_LEVEL,
+    label = "  Zoom: ",
+    toolTip = "Zoom in our out",
+    type = GuiToolbarElementType.COMBO,
+    alignRight = true,
+    comboValuesMethod = "getZoomLevels"
+  )
+  public void zoomLevel() {
+    readMagnification();
+    setFocus();
+  }
+
+  public List<String> getZoomLevels() {
+    return Arrays.asList( PipelinePainter.magnificationDescriptions );
+  }
+
   private void addToolBar() {
 
     try {
@@ -1729,36 +1753,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       toolBar.setLayoutData( layoutData );
       toolBar.pack();
 
-      // Add a zoom label widget: TODO: move to GuiElement
-      //
-      new ToolItem( toolBar, SWT.SEPARATOR );
-      ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
-
-      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
-      zoomLabel.setItems( PipelinePainter.magnificationDescriptions );
-      zoomLabel.addSelectionListener( new SelectionAdapter() {
-        @Override
-        public void widgetSelected( SelectionEvent arg0 ) {
-          readMagnification();
-        }
-      } );
-
-      zoomLabel.addKeyListener( new KeyAdapter() {
-        @Override
-        public void keyPressed( KeyEvent event ) {
-          if ( event.character == SWT.CR ) {
-            readMagnification();
-          }
-        }
-      } );
-
-      setZoomLabel();
-      zoomLabel.pack();
-      zoomLabel.layout( true, true );
-      sep.setWidth( zoomLabel.getBounds().width );
-      sep.setControl( zoomLabel );
-      toolBar.pack();
-
       // enable / disable the icons in the toolbar too.
       //
       updateGui();
@@ -1770,10 +1764,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public void setZoomLabel() {
-    String newString = Integer.toString( Math.round( magnification * 100 ) ) + "%";
-    String oldString = zoomLabel.getText();
+    Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
+    if (combo==null) {
+      return;
+    }
+    String newString = Math.round( magnification * 100 ) + "%";
+    String oldString = combo.getText();
     if ( !newString.equals( oldString ) ) {
-      zoomLabel.setText( Integer.toString( Math.round( magnification * 100 ) ) + "%" );
+      combo.setText( Math.round( magnification * 100 ) + "%" );
     }
   }
 
@@ -1781,6 +1779,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * Allows for magnifying to any percentage entered by the user...
    */
   private void readMagnification() {
+    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
+    if (zoomLabel==null) {
+      return;
+    }
     String possibleText = zoomLabel.getText();
     possibleText = possibleText.replace( "%", "" );
 
@@ -2750,7 +2752,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void delSelected( TransformMeta transformMeta ) {
     List<TransformMeta> selection = pipelineMeta.getSelectedTransforms();
-    if (currentTransform==null && transformMeta==null && selection.isEmpty()) {
+    if ( currentTransform == null && transformMeta == null && selection.isEmpty() ) {
       return; // nothing to do
     }
     if ( transformMeta != null && selection.size() == 0 ) {
@@ -2900,7 +2902,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelinePainter.setEndHopTransform( endHopTransform );
     pipelinePainter.setCandidateHopType( candidateHopType );
     pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
-    pipelinePainter.setShowTargetStreamsTransform( showTargetStreamsTransform );
 
     pipelinePainter.buildPipelineImage();
 
@@ -2923,7 +2924,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void editNote( NotePadMeta ni ) {
-    NotePadMeta before = (NotePadMeta) ni.clone();
+    NotePadMeta before = ni.clone();
 
     String title = BaseMessages.getString( PKG, "PipelineGraph.Dialog.EditNote.Title" );
     NotePadDialog dd = new NotePadDialog( pipelineMeta, hopShell(), title, ni );
@@ -3398,8 +3399,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       } ) );
       thread.start();
-    } catch(Throwable e) {
-      log.logError( "Severe error in pipeline execution detected", e);
+    } catch ( Throwable e ) {
+      log.logError( "Severe error in pipeline execution detected", e );
     }
   }
 
@@ -3822,7 +3823,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopShell(), pipelineMeta,
           SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
-            transformDebugMeta.getTransformMeta().getName(), rowBufferMeta, rowBuffer
+          transformDebugMeta.getTransformMeta().getName(), rowBufferMeta, rowBuffer
         );
         previewRowsDialog.setProposingToGetMoreRows( true );
         previewRowsDialog.setProposingToStop( true );
@@ -4402,39 +4403,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
 
-    hopDisplay().asyncExec( new Runnable() {
-      @Override public void run() {
-        setZoomLabel();
+    hopDisplay().asyncExec( () -> {
+      setZoomLabel();
 
-        // Enable/disable the undo/redo toolbar buttons...
-        //
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, pipelineMeta.viewThisUndo() != null );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, pipelineMeta.viewNextUndo() != null );
+      // Enable/disable the undo/redo toolbar buttons...
+      //
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, pipelineMeta.viewThisUndo() != null );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, pipelineMeta.viewNextUndo() != null );
 
-        // Enable/disable the align/distribute toolbar buttons
-        //
-        boolean selectedTransform = !pipelineMeta.getSelectedTransforms().isEmpty();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
+      // Enable/disable the align/distribute toolbar buttons
+      //
+      boolean selectedTransform = !pipelineMeta.getSelectedTransforms().isEmpty();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
 
-        boolean selectedTransforms = pipelineMeta.getSelectedTransforms().size() > 1;
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedTransforms );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedTransforms );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedTransforms );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedTransforms );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedTransforms );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedTransforms );
+      boolean selectedTransforms = pipelineMeta.getSelectedTransforms().size() > 1;
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedTransforms );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedTransforms );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedTransforms );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedTransforms );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedTransforms );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedTransforms );
 
-        boolean running = isRunning();
-        boolean paused =  running && pipeline.isPaused();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running || paused );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PAUSE, running && !paused );
+      boolean running = isRunning();
+      boolean paused = running && pipeline.isPaused();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running || paused );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PAUSE, running && !paused );
 
-        hopGui.setUndoMenu( pipelineMeta );
-        hopGui.handleFileCapabilities( fileType, running, paused );
+      hopGui.setUndoMenu( pipelineMeta );
+      hopGui.handleFileCapabilities( fileType, running, paused );
 
-        HopGuiPipelineGraph.super.redraw();
-      }
+      HopGuiPipelineGraph.super.redraw();
     } );
 
   }

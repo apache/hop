@@ -33,8 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -45,7 +43,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
@@ -66,13 +63,11 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -372,7 +367,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wCreateParentFolder.setSelection( action.createParentFolder );
     wWaitingToFinish.setSelection( action.isWaitingToFinish() );
     wFollowingAbortRemotely.setSelection( action.isFollowingAbortRemotely() );
-    wExpandRemote.setSelection( action.isExpandingRemoteWorkflow() );
 
     try {
       List<String> runConfigurations = WorkflowRunConfiguration.createFactory( metaStore).getElementNames();
@@ -466,24 +460,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     aw.setWaitingToFinish( wWaitingToFinish.getSelection() );
     aw.createParentFolder = wCreateParentFolder.getSelection();
     aw.setFollowingAbortRemotely( wFollowingAbortRemotely.getSelection() );
-    aw.setExpandingRemoteWorkflow( wExpandRemote.getSelection() );
     aw.setRunConfiguration( wRunConfiguration.getText() );
-
-    WorkflowExecutionConfiguration executionConfiguration = new WorkflowExecutionConfiguration();
-    executionConfiguration.setRunConfiguration( aw.getRunConfiguration() );
-    try {
-      ExtensionPointHandler.callExtensionPoint( action.getLogChannel(), HopExtensionPoint.HopUiPipelineBeforeStart.id,
-        new Object[] { executionConfiguration, workflowMeta, workflowMeta, null } );
-    } catch ( HopException e ) {
-      // Ignore errors
-    }
-
-    try {
-      ExtensionPointHandler.callExtensionPoint( action.getLogChannel(), HopExtensionPoint.JobEntryPipelineSave.id,
-        new Object[] { workflowMeta, aw.getRunConfiguration() } );
-    } catch ( HopException e ) {
-      // Ignore errors
-    }
   }
 
   public void ok() {

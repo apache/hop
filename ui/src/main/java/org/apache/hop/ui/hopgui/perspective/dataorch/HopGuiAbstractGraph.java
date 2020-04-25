@@ -24,7 +24,7 @@ package org.apache.hop.ui.hopgui.perspective.dataorch;
 
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -170,10 +170,12 @@ public abstract class HopGuiAbstractGraph extends Composite {
     canvas.redraw();
   }
 
+  public abstract void setZoomLabel();
 
   @GuiKeyboardShortcut( control = true, key = '=' )
   public void zoomIn() {
     magnification += .1f;
+    setZoomLabel();
     redraw();
   }
 
@@ -182,12 +184,14 @@ public abstract class HopGuiAbstractGraph extends Composite {
     if ( magnification > 0.15f ) {
       magnification -= .1f;
     }
+    setZoomLabel();
     redraw();
   }
 
   @GuiKeyboardShortcut( control = true, key = '0' )
   public void zoom100Percent() {
     magnification = 1.0f;
+    setZoomLabel();
     redraw();
   }
 

@@ -1010,6 +1010,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
     getRowHandler().putRow( rowMeta, row );
+
+    // This transform is not reading data, only writing
+    //
+    if (firstRowReadDate==null) {
+      firstRowReadDate = new Date();
+    }
   }
 
   private void handlePutRow( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
@@ -1274,6 +1280,12 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   public void putRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
     getRowHandler().putRowTo( rowMeta, row, rowSet );
+
+    // This transform is not reading data, only writing
+    //
+    if (firstRowReadDate==null) {
+      firstRowReadDate = new Date();
+    }
   }
 
   public void handlePutRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {

@@ -655,12 +655,16 @@ public class SwingGc implements IGc {
     gc.setStroke( createStroke() );
   }
 
-  public void setTransform( float translationX, float translationY, int shadowsize, float magnification ) {
+  public void setTransform( float translationX, float translationY, float magnification ) {
     // PDI-9953 - always use original GC's transform.
     AffineTransform transform = (AffineTransform) originalTransform.clone();
-    transform.translate( translationX + shadowsize * magnification, translationY + shadowsize * magnification );
+    transform.translate( translationX, translationY );
     transform.scale( magnification, magnification );
     gc.setTransform( transform );
+  }
+
+  @Override public float getMagnification() {
+    return (float)gc.getTransform().getScaleX();
   }
 
   public AffineTransform getTransform() {

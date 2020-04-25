@@ -1203,6 +1203,10 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
             //
             addTransformPerformanceSnapShot();
 
+            // We're really done now.
+            //
+            executionEndDate = new Date();
+
             try {
               firePipelineExecutionFinishedListeners();
             } catch ( Exception e ) {
@@ -1211,10 +1215,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
             }
 
             log.logBasic("Execution finished on a local pipeline engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
-
-            // We're really done now.
-            //
-            executionEndDate = new Date();
           }
 
           // If a transform fails with an error, we want to kill/stop the others

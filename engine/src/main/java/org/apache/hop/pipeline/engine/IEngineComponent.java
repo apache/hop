@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.engine;
 
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.IRowListener;
 
@@ -43,6 +45,11 @@ public interface IEngineComponent {
    */
   int getCopyNr();
 
+  LogLevel getLogLevel();
+
+  void setLogLevel(LogLevel logLevel);
+
+  ILogChannel getLogChannel();
 
   /**
    * @return The log channel ID or null if there is no separate log channel.

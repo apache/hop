@@ -32,12 +32,12 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
-import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.KeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -517,7 +517,9 @@ public class HopGui implements IActionContextHandlersProvider {
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE_ALL, label = "Close all", parentId = ID_MAIN_MENU_FILE )
   public void menuFileCloseAll() {
-    System.out.println( "TODO: implement HopGui.menuFileCloseAll()" );
+    if (fileDelegate.saveGuardAllFiles()) {
+      fileDelegate.closeAllFiles();
+    }
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXIT, label = "Exit", parentId = ID_MAIN_MENU_FILE, separator = true )

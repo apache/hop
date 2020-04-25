@@ -20,10 +20,14 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.action;
 
-public class GuiActionLambda implements IGuiActionLambda<Object> {
-  @Override public void executeAction( boolean shiftClicked, boolean controlClicked, Object... objects ) {
-    // To be implemented when doing an override.
-  }
+public enum GuiActionType {
+  Create,
+  Modify,
+  Delete,
+  Duplicate,
+  Info,
+  Custom,
+  ;
 }

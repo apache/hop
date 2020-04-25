@@ -65,7 +65,7 @@ public class ActionWorkflowRunner implements Runnable {
       // This JobEntryRunner is a replacement for the Workflow thread.
       // The workflow thread is never started because we simply want to wait for the result.
       //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, getWorkflow() );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, getWorkflow() );
 
       result = workflow.startExecution();
     } catch ( HopException e ) {
@@ -77,7 +77,7 @@ public class ActionWorkflowRunner implements Runnable {
       //[PDI-14981] otherwise will get null pointer exception if 'workflow finished' listeners will be using it
       workflow.setResult( result );
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, getWorkflow() );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowFinish.id, getWorkflow() );
         workflow.fireWorkflowFinishListeners();
 
         //catch more general exception to prevent thread hanging

@@ -23,8 +23,8 @@
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
@@ -40,15 +40,15 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
 
   private WorkflowMeta workflowMeta;
   private ActionCopy actionCopy;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private Point click;
   private GuiActionLambdaBuilder<HopGuiWorkflowActionContext> lambdaBuilder;
 
-  public HopGuiWorkflowActionContext( WorkflowMeta workflowMeta, ActionCopy actionCopy, HopGuiWorkflowGraph jobGraph, Point click ) {
+  public HopGuiWorkflowActionContext( WorkflowMeta workflowMeta, ActionCopy actionCopy, HopGuiWorkflowGraph workflowGraph, Point click ) {
     super();
     this.workflowMeta = workflowMeta;
     this.actionCopy = actionCopy;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
@@ -70,7 +70,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, jobGraph, this, jobGraph ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, this, workflowGraph ) );
       }
     }
 
@@ -110,19 +110,19 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
   }
 
   /**
-   * Gets jobGraph
+   * Gets workflow graph
    *
    * @return value of jobGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+  public HopGuiWorkflowGraph getWorkflowGraph() {
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The workflow graph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**
