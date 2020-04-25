@@ -26,12 +26,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -96,88 +96,58 @@ import java.util.Set;
  * @author Matt Casters
  */
 @PluginDialog(
-        id = "TableOutput",
-        image = "tableoutput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
+  id = "TableOutput",
+  image = "tableoutput.svg",
+  pluginType = PluginDialog.PluginType.TRANSFORM,
+  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
 )
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wMainTab, wFieldsTab;
-  private FormData fdMainComp, fdFieldsComp;
-
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSchema;
   private TextVar wSchema;
-  private FormData fdlSchema, fdSchema;
-  private FormData fdbSchema;
-  private Button wbSchema;
 
   private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
-  private FormData fdlTable, fdbTable, fdTable;
 
-  private Label wlCommit;
   private TextVar wCommit;
-  private FormData fdlCommit, fdCommit;
 
   private Label wlTruncate;
   private Button wTruncate;
-  private FormData fdlTruncate, fdTruncate;
 
   private Label wlIgnore;
   private Button wIgnore;
-  private FormData fdlIgnore, fdIgnore;
 
-  private Label wlSpecifyFields;
   private Button wSpecifyFields;
-  private FormData fdlSpecifyFields, fdSpecifyFields;
 
   private Label wlBatch;
   private Button wBatch;
-  private FormData fdlBatch, fdBatch;
 
-  private Label wlUsePart;
   private Button wUsePart;
-  private FormData fdlUsePart, fdUsePart;
 
   private Label wlPartField;
   private ComboVar wPartField;
-  private FormData fdlPartField, fdPartField;
 
   private Label wlPartMonthly;
   private Button wPartMonthly;
-  private FormData fdlPartMonthly, fdPartMonthly;
 
   private Label wlPartDaily;
   private Button wPartDaily;
-  private FormData fdlPartDaily, fdPartDaily;
 
-  private Label wlNameInField;
   private Button wNameInField;
-  private FormData fdlNameInField, fdNameInField;
 
   private Label wlNameField;
   private ComboVar wNameField;
-  private FormData fdlNameField, fdNameField;
 
   private Label wlNameInTable;
   private Button wNameInTable;
-  private FormData fdlNameInTable, fdNameInTable;
 
-  private Label wlReturnKeys;
   private Button wReturnKeys;
-  private FormData fdlReturnKeys, fdReturnKeys;
 
   private Label wlReturnField;
   private TextVar wReturnField;
-  private FormData fdlReturnField, fdReturnField;
+  private FormData fdReturnField;
 
   private Label wlFields;
   private TableView wFields;
@@ -221,16 +191,9 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
-    ModifyListener lsTableMod = new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
+    ModifyListener lsTableMod = arg0 -> {
+      input.setChanged();
+      setTableFieldCombo();
     };
     SelectionListener lsSelection = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -263,7 +226,6 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment( middle, 0 );
     fdTransformName.top = new FormAttachment( 0, margin );
@@ -271,24 +233,24 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData( fdTransformName );
 
     // Connection line
-    wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), lsMod );
+    wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), null );
     wConnection.addModifyListener( e -> setFlags() );
     wConnection.addSelectionListener( lsSelection );
 
     // Schema line...
-    wlSchema = new Label( shell, SWT.RIGHT );
+    Label wlSchema = new Label( shell, SWT.RIGHT );
     wlSchema.setText( BaseMessages.getString( PKG, "TableOutputDialog.TargetSchema.Label" ) );
     props.setLook( wlSchema );
-    fdlSchema = new FormData();
+    FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment( 0, 0 );
     fdlSchema.right = new FormAttachment( middle, -margin );
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
     wlSchema.setLayoutData( fdlSchema );
 
-    wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
+    Button wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbSchema );
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData( fdbSchema );
@@ -296,7 +258,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
-    fdSchema = new FormData();
+    FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment( middle, 0 );
     fdSchema.top = new FormAttachment( wConnection, margin * 2 );
     fdSchema.right = new FormAttachment( wbSchema, -margin );
@@ -306,16 +268,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlTable = new Label( shell, SWT.RIGHT );
     wlTable.setText( BaseMessages.getString( PKG, "TableOutputDialog.TargetTable.Label" ) );
     props.setLook( wlTable );
-    fdlTable = new FormData();
+    FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment( 0, 0 );
     fdlTable.right = new FormAttachment( middle, -margin );
     fdlTable.top = new FormAttachment( wbSchema, margin );
     wlTable.setLayoutData( fdlTable );
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
+    Button wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbTable );
     wbTable.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
@@ -323,27 +285,26 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
-    fdTable = new FormData();
+    FormData fdTable = new FormData();
     fdTable.top = new FormAttachment( wbSchema, margin );
     fdTable.left = new FormAttachment( middle, 0 );
     fdTable.right = new FormAttachment( wbTable, -margin );
     wTable.setLayoutData( fdTable );
 
     // Commit size ...
-    wlCommit = new Label( shell, SWT.RIGHT );
+    Label wlCommit = new Label( shell, SWT.RIGHT );
     wlCommit.setText( BaseMessages.getString( PKG, "TableOutputDialog.CommitSize.Label" ) );
     props.setLook( wlCommit );
-    fdlCommit = new FormData();
+    FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment( 0, 0 );
     fdlCommit.right = new FormAttachment( middle, -margin );
     fdlCommit.top = new FormAttachment( wbTable, margin );
     wlCommit.setLayoutData( fdlCommit );
     wCommit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
-    wCommit.addModifyListener( lsMod );
-    fdCommit = new FormData();
+    FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment( middle, 0 );
-    fdCommit.top = new FormAttachment( wbTable, margin );
+    fdCommit.top = new FormAttachment( wlCommit, 0, SWT.CENTER );
     fdCommit.right = new FormAttachment( 100, 0 );
     wCommit.setLayoutData( fdCommit );
 
@@ -351,16 +312,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlTruncate = new Label( shell, SWT.RIGHT );
     wlTruncate.setText( BaseMessages.getString( PKG, "TableOutputDialog.TruncateTable.Label" ) );
     props.setLook( wlTruncate );
-    fdlTruncate = new FormData();
+    FormData fdlTruncate = new FormData();
     fdlTruncate.left = new FormAttachment( 0, 0 );
     fdlTruncate.top = new FormAttachment( wCommit, margin );
     fdlTruncate.right = new FormAttachment( middle, -margin );
     wlTruncate.setLayoutData( fdlTruncate );
     wTruncate = new Button( shell, SWT.CHECK );
     props.setLook( wTruncate );
-    fdTruncate = new FormData();
+    FormData fdTruncate = new FormData();
     fdTruncate.left = new FormAttachment( middle, 0 );
-    fdTruncate.top = new FormAttachment( wCommit, margin );
+    fdTruncate.top = new FormAttachment( wlTruncate, 0, SWT.CENTER );
     fdTruncate.right = new FormAttachment( 100, 0 );
     wTruncate.setLayoutData( fdTruncate );
     SelectionAdapter lsSelMod = new SelectionAdapter() {
@@ -374,34 +335,34 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlIgnore = new Label( shell, SWT.RIGHT );
     wlIgnore.setText( BaseMessages.getString( PKG, "TableOutputDialog.IgnoreInsertErrors.Label" ) );
     props.setLook( wlIgnore );
-    fdlIgnore = new FormData();
+    FormData fdlIgnore = new FormData();
     fdlIgnore.left = new FormAttachment( 0, 0 );
     fdlIgnore.top = new FormAttachment( wTruncate, margin );
     fdlIgnore.right = new FormAttachment( middle, -margin );
     wlIgnore.setLayoutData( fdlIgnore );
     wIgnore = new Button( shell, SWT.CHECK );
     props.setLook( wIgnore );
-    fdIgnore = new FormData();
+    FormData fdIgnore = new FormData();
     fdIgnore.left = new FormAttachment( middle, 0 );
-    fdIgnore.top = new FormAttachment( wTruncate, margin );
+    fdIgnore.top = new FormAttachment( wlIgnore, 0, SWT.CENTER );
     fdIgnore.right = new FormAttachment( 100, 0 );
     wIgnore.setLayoutData( fdIgnore );
     wIgnore.addSelectionListener( lsSelMod );
 
     // Specify fields
-    wlSpecifyFields = new Label( shell, SWT.RIGHT );
+    Label wlSpecifyFields = new Label( shell, SWT.RIGHT );
     wlSpecifyFields.setText( BaseMessages.getString( PKG, "TableOutputDialog.SpecifyFields.Label" ) );
     props.setLook( wlSpecifyFields );
-    fdlSpecifyFields = new FormData();
+    FormData fdlSpecifyFields = new FormData();
     fdlSpecifyFields.left = new FormAttachment( 0, 0 );
     fdlSpecifyFields.top = new FormAttachment( wIgnore, margin );
     fdlSpecifyFields.right = new FormAttachment( middle, -margin );
     wlSpecifyFields.setLayoutData( fdlSpecifyFields );
     wSpecifyFields = new Button( shell, SWT.CHECK );
     props.setLook( wSpecifyFields );
-    fdSpecifyFields = new FormData();
+    FormData fdSpecifyFields = new FormData();
     fdSpecifyFields.left = new FormAttachment( middle, 0 );
-    fdSpecifyFields.top = new FormAttachment( wIgnore, margin );
+    fdSpecifyFields.top = new FormAttachment( wlSpecifyFields, 0, SWT.CENTER );
     fdSpecifyFields.right = new FormAttachment( 100, 0 );
     wSpecifyFields.setLayoutData( fdSpecifyFields );
     wSpecifyFields.addSelectionListener( lsSelMod );
@@ -413,13 +374,13 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
     } );
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
+    CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF KEY TAB ///
     // /
-    wMainTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wMainTab = new CTabItem( wTabFolder, SWT.NONE );
     wMainTab.setText( BaseMessages.getString( PKG, "TableOutputDialog.MainTab.CTabItem" ) );
 
     FormLayout mainLayout = new FormLayout();
@@ -433,20 +394,20 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     // Partitioning support
 
     // Use partitioning?
-    wlUsePart = new Label( wMainComp, SWT.RIGHT );
+    Label wlUsePart = new Label( wMainComp, SWT.RIGHT );
     wlUsePart.setText( BaseMessages.getString( PKG, "TableOutputDialog.UsePart.Label" ) );
     wlUsePart.setToolTipText( BaseMessages.getString( PKG, "TableOutputDialog.UsePart.Tooltip" ) );
     props.setLook( wlUsePart );
-    fdlUsePart = new FormData();
+    FormData fdlUsePart = new FormData();
     fdlUsePart.left = new FormAttachment( 0, 0 );
-    fdlUsePart.top = new FormAttachment( wSpecifyFields, margin * 5 );
+    fdlUsePart.top = new FormAttachment( 0, margin );
     fdlUsePart.right = new FormAttachment( middle, -margin );
     wlUsePart.setLayoutData( fdlUsePart );
     wUsePart = new Button( wMainComp, SWT.CHECK );
     props.setLook( wUsePart );
-    fdUsePart = new FormData();
+    FormData fdUsePart = new FormData();
     fdUsePart.left = new FormAttachment( middle, 0 );
-    fdUsePart.top = new FormAttachment( wSpecifyFields, margin * 5 );
+    fdUsePart.top = new FormAttachment( wlUsePart, 0, SWT.CENTER );
     fdUsePart.right = new FormAttachment( 100, 0 );
     wUsePart.setLayoutData( fdUsePart );
     wUsePart.addSelectionListener( lsSelMod );
@@ -464,16 +425,15 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlPartField = new Label( wMainComp, SWT.RIGHT );
     wlPartField.setText( BaseMessages.getString( PKG, "TableOutputDialog.PartField.Label" ) );
     props.setLook( wlPartField );
-    fdlPartField = new FormData();
+    FormData fdlPartField = new FormData();
     fdlPartField.top = new FormAttachment( wUsePart, margin );
     fdlPartField.left = new FormAttachment( 0, 0 );
     fdlPartField.right = new FormAttachment( middle, -margin );
     wlPartField.setLayoutData( fdlPartField );
     wPartField = new ComboVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPartField );
-    wPartField.addModifyListener( lsMod );
-    fdPartField = new FormData();
-    fdPartField.top = new FormAttachment( wUsePart, margin );
+    FormData fdPartField = new FormData();
+    fdPartField.top = new FormAttachment( wlPartField,  0, SWT.CENTER );
     fdPartField.left = new FormAttachment( middle, 0 );
     fdPartField.right = new FormAttachment( 100, 0 );
     wPartField.setLayoutData( fdPartField );
@@ -495,16 +455,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlPartMonthly.setText( BaseMessages.getString( PKG, "TableOutputDialog.PartMonthly.Label" ) );
     wlPartMonthly.setToolTipText( BaseMessages.getString( PKG, "TableOutputDialog.PartMonthly.Tooltip" ) );
     props.setLook( wlPartMonthly );
-    fdlPartMonthly = new FormData();
+    FormData fdlPartMonthly = new FormData();
     fdlPartMonthly.left = new FormAttachment( 0, 0 );
     fdlPartMonthly.top = new FormAttachment( wPartField, margin );
     fdlPartMonthly.right = new FormAttachment( middle, -margin );
     wlPartMonthly.setLayoutData( fdlPartMonthly );
     wPartMonthly = new Button( wMainComp, SWT.RADIO );
     props.setLook( wPartMonthly );
-    fdPartMonthly = new FormData();
+    FormData fdPartMonthly = new FormData();
     fdPartMonthly.left = new FormAttachment( middle, 0 );
-    fdPartMonthly.top = new FormAttachment( wPartField, margin );
+    fdPartMonthly.top = new FormAttachment( wlPartMonthly, 0, SWT.CENTER );
     fdPartMonthly.right = new FormAttachment( 100, 0 );
     wPartMonthly.setLayoutData( fdPartMonthly );
     wPartMonthly.addSelectionListener( lsSelMod );
@@ -521,16 +481,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlPartDaily.setText( BaseMessages.getString( PKG, "TableOutputDialog.PartDaily.Label" ) );
     wlPartDaily.setToolTipText( BaseMessages.getString( PKG, "TableOutputDialog.PartDaily.Tooltip" ) );
     props.setLook( wlPartDaily );
-    fdlPartDaily = new FormData();
+    FormData fdlPartDaily = new FormData();
     fdlPartDaily.left = new FormAttachment( 0, 0 );
     fdlPartDaily.top = new FormAttachment( wPartMonthly, margin );
     fdlPartDaily.right = new FormAttachment( middle, -margin );
     wlPartDaily.setLayoutData( fdlPartDaily );
     wPartDaily = new Button( wMainComp, SWT.RADIO );
     props.setLook( wPartDaily );
-    fdPartDaily = new FormData();
+    FormData fdPartDaily = new FormData();
     fdPartDaily.left = new FormAttachment( middle, 0 );
-    fdPartDaily.top = new FormAttachment( wPartMonthly, margin );
+    fdPartDaily.top = new FormAttachment( wlPartDaily, 0, SWT.CENTER );
     fdPartDaily.right = new FormAttachment( 100, 0 );
     wPartDaily.setLayoutData( fdPartDaily );
     wPartDaily.addSelectionListener( lsSelMod );
@@ -546,20 +506,19 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlBatch = new Label( wMainComp, SWT.RIGHT );
     wlBatch.setText( BaseMessages.getString( PKG, "TableOutputDialog.Batch.Label" ) );
     props.setLook( wlBatch );
-    fdlBatch = new FormData();
+    FormData fdlBatch = new FormData();
     fdlBatch.left = new FormAttachment( 0, 0 );
     fdlBatch.top = new FormAttachment( wPartDaily, 5 * margin );
     fdlBatch.right = new FormAttachment( middle, -margin );
     wlBatch.setLayoutData( fdlBatch );
     wBatch = new Button( wMainComp, SWT.CHECK );
     props.setLook( wBatch );
-    fdBatch = new FormData();
+    FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment( middle, 0 );
-    fdBatch.top = new FormAttachment( wPartDaily, 5 * margin );
+    fdBatch.top = new FormAttachment( wlBatch, 0, SWT.CENTER );
     fdBatch.right = new FormAttachment( 100, 0 );
     wBatch.setLayoutData( fdBatch );
     wBatch.addSelectionListener( lsSelMod );
-
     wBatch.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         setFlags();
@@ -567,19 +526,19 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     } );
 
     // NameInField
-    wlNameInField = new Label( wMainComp, SWT.RIGHT );
+    Label wlNameInField = new Label( wMainComp, SWT.RIGHT );
     wlNameInField.setText( BaseMessages.getString( PKG, "TableOutputDialog.NameInField.Label" ) );
     props.setLook( wlNameInField );
-    fdlNameInField = new FormData();
+    FormData fdlNameInField = new FormData();
     fdlNameInField.left = new FormAttachment( 0, 0 );
     fdlNameInField.top = new FormAttachment( wBatch, margin * 5 );
     fdlNameInField.right = new FormAttachment( middle, -margin );
     wlNameInField.setLayoutData( fdlNameInField );
     wNameInField = new Button( wMainComp, SWT.CHECK );
     props.setLook( wNameInField );
-    fdNameInField = new FormData();
+    FormData fdNameInField = new FormData();
     fdNameInField.left = new FormAttachment( middle, 0 );
-    fdNameInField.top = new FormAttachment( wBatch, margin * 5 );
+    fdNameInField.top = new FormAttachment( wlNameInField, 0, SWT.CENTER );
     fdNameInField.right = new FormAttachment( 100, 0 );
     wNameInField.setLayoutData( fdNameInField );
     wNameInField.addSelectionListener( new SelectionAdapter() {
@@ -596,17 +555,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlNameField = new Label( wMainComp, SWT.RIGHT );
     wlNameField.setText( BaseMessages.getString( PKG, "TableOutputDialog.NameField.Label" ) );
     props.setLook( wlNameField );
-    fdlNameField = new FormData();
+    FormData fdlNameField = new FormData();
     fdlNameField.left = new FormAttachment( 0, 0 );
     fdlNameField.top = new FormAttachment( wNameInField, margin );
     fdlNameField.right = new FormAttachment( middle, -margin );
     wlNameField.setLayoutData( fdlNameField );
     wNameField = new ComboVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNameField );
-    wNameField.addModifyListener( lsMod );
-    fdNameField = new FormData();
+    FormData fdNameField = new FormData();
     fdNameField.left = new FormAttachment( middle, 0 );
-    fdNameField.top = new FormAttachment( wNameInField, margin );
+    fdNameField.top = new FormAttachment( wlNameField,  0, SWT.CENTER );
     fdNameField.right = new FormAttachment( 100, 0 );
     wNameField.setLayoutData( fdNameField );
     wNameField.addFocusListener( new FocusListener() {
@@ -626,16 +584,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlNameInTable = new Label( wMainComp, SWT.RIGHT );
     wlNameInTable.setText( BaseMessages.getString( PKG, "TableOutputDialog.NameInTable.Label" ) );
     props.setLook( wlNameInTable );
-    fdlNameInTable = new FormData();
+    FormData fdlNameInTable = new FormData();
     fdlNameInTable.left = new FormAttachment( 0, 0 );
     fdlNameInTable.top = new FormAttachment( wNameField, margin );
     fdlNameInTable.right = new FormAttachment( middle, -margin );
     wlNameInTable.setLayoutData( fdlNameInTable );
     wNameInTable = new Button( wMainComp, SWT.CHECK );
     props.setLook( wNameInTable );
-    fdNameInTable = new FormData();
+    FormData fdNameInTable = new FormData();
     fdNameInTable.left = new FormAttachment( middle, 0 );
-    fdNameInTable.top = new FormAttachment( wNameField, margin );
+    fdNameInTable.top = new FormAttachment( wlNameInTable, 0, SWT.CENTER );
     fdNameInTable.right = new FormAttachment( 100, 0 );
     wNameInTable.setLayoutData( fdNameInTable );
     wNameInTable.addSelectionListener( new SelectionAdapter() {
@@ -644,25 +602,25 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
     } );
     wNameInTable.addSelectionListener( lsSelMod );
+
     // Return generated keys?
-    wlReturnKeys = new Label( wMainComp, SWT.RIGHT );
+    Label wlReturnKeys = new Label( wMainComp, SWT.RIGHT );
     wlReturnKeys.setText( BaseMessages.getString( PKG, "TableOutputDialog.ReturnKeys.Label" ) );
     wlReturnKeys.setToolTipText( BaseMessages.getString( PKG, "TableOutputDialog.ReturnKeys.Tooltip" ) );
     props.setLook( wlReturnKeys );
-    fdlReturnKeys = new FormData();
+    FormData fdlReturnKeys = new FormData();
     fdlReturnKeys.left = new FormAttachment( 0, 0 );
     fdlReturnKeys.top = new FormAttachment( wNameInTable, margin * 5 );
     fdlReturnKeys.right = new FormAttachment( middle, -margin );
     wlReturnKeys.setLayoutData( fdlReturnKeys );
     wReturnKeys = new Button( wMainComp, SWT.CHECK );
     props.setLook( wReturnKeys );
-    fdReturnKeys = new FormData();
+    FormData fdReturnKeys = new FormData();
     fdReturnKeys.left = new FormAttachment( middle, 0 );
-    fdReturnKeys.top = new FormAttachment( wNameInTable, margin * 5 );
+    fdReturnKeys.top = new FormAttachment( wlReturnKeys,  0, SWT.CENTER );
     fdReturnKeys.right = new FormAttachment( 100, 0 );
     wReturnKeys.setLayoutData( fdReturnKeys );
     wReturnKeys.addSelectionListener( lsSelMod );
-
     wReturnKeys.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         setFlags();
@@ -673,21 +631,20 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlReturnField = new Label( wMainComp, SWT.RIGHT );
     wlReturnField.setText( BaseMessages.getString( PKG, "TableOutputDialog.ReturnField.Label" ) );
     props.setLook( wlReturnField );
-    fdlReturnField = new FormData();
+    FormData fdlReturnField = new FormData();
     fdlReturnField.left = new FormAttachment( 0, 0 );
     fdlReturnField.right = new FormAttachment( middle, -margin );
     fdlReturnField.top = new FormAttachment( wReturnKeys, margin );
     wlReturnField.setLayoutData( fdlReturnField );
     wReturnField = new TextVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReturnField );
-    wReturnField.addModifyListener( lsMod );
     fdReturnField = new FormData();
     fdReturnField.left = new FormAttachment( middle, 0 );
-    fdReturnField.top = new FormAttachment( wReturnKeys, margin );
+    fdReturnField.top = new FormAttachment( wlReturnField, 0, SWT.CENTER );
     fdReturnField.right = new FormAttachment( 100, 0 );
     wReturnField.setLayoutData( fdReturnField );
 
-    fdMainComp = new FormData();
+    FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment( 0, 0 );
     fdMainComp.top = new FormAttachment( 0, 0 );
     fdMainComp.right = new FormAttachment( 100, 0 );
@@ -700,7 +657,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     //
     // Fields tab...
     //
-    wFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
     wFieldsTab.setText( BaseMessages.getString( PKG, "TableOutputDialog.FieldsTab.CTabItem.Title" ) );
 
     Composite wFieldsComp = new Composite( wTabFolder, SWT.NONE );
@@ -735,7 +692,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     tableFieldColumns.add( ciFields[ 0 ] );
     wFields =
       new TableView( pipelineMeta, wFieldsComp, SWT.BORDER
-        | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciFields, UpInsRows, lsMod, props );
+        | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciFields, UpInsRows, null, props );
 
     wGetFields = new Button( wFieldsComp, SWT.PUSH );
     wGetFields.setText( BaseMessages.getString( PKG, "TableOutputDialog.GetFields.Button" ) );
@@ -764,7 +721,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdFields.bottom = new FormAttachment( 100, -2 * margin );
     wFields.setLayoutData( fdFields );
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment( 0, 0 );
     fdFieldsComp.top = new FormAttachment( 0, 0 );
     fdFieldsComp.right = new FormAttachment( 100, 0 );
@@ -809,34 +766,18 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     setButtonPositions( new Button[] { wOk, wCancel, wCreate }, margin, null );
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
-    fdTabFolder.top = new FormAttachment( wSpecifyFields, margin );
+    fdTabFolder.top = new FormAttachment( wSpecifyFields, 3*margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( wOk, -margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCreate = new Listener() {
-      public void handleEvent( Event e ) {
-        sql();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
+    lsOk = e -> ok();
+    lsCreate = e -> sql();
+    lsCancel = e -> cancel();
+    lsGet = e -> get();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCreate.addListener( SWT.Selection, lsCreate );
