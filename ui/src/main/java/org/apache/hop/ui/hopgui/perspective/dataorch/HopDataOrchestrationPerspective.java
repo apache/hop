@@ -23,6 +23,7 @@
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -159,9 +160,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // A tab folder covers the complete area...
     //
-    tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER );
-    //tabFolder.setSimple( false );
-    //tabFolder.setBackground( GuiResource.getInstance().getColorBackground() );
+    tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER  );
+    props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
     fdLabel.right = new FormAttachment( 100, 0 );

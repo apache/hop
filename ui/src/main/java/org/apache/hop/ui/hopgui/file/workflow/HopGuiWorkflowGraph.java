@@ -45,11 +45,12 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
-import org.apache.hop.core.gui.plugin.GuiActionType;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
@@ -154,6 +155,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -190,6 +192,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY = "HopGuiWorkflowGraph-ToolBar-10310-Distribute-Vertically";
 
   public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS = "HopGuiWorkflowGraph-ToolBar-10400-Execution-Results";
+
+  public static final String TOOLBAR_ITEM_ZOOM_LEVEL = "HopGuiWorkflowGraph-ToolBar-10500-Zoom-Level";
 
   private static final String STRING_PARALLEL_WARNING_PARAMETER = "ParallelActionsWarning";
 
@@ -280,18 +284,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private List<AreaOwner> areaOwners;
 
-  /**
-   * A map that keeps track of which log line was written by which action
-   */
-  private Map<ActionCopy, String> entryLogMap;
-
   private Map<ActionCopy, DelayTimer> delayTimers;
 
-  private ToolItem stopItem;
-  private Combo zoomLabel;
-
   private HopWorkflowFileType fileType;
-
 
   private ActionCopy startHopEntry;
   private Point endHopLocation;
@@ -308,6 +303,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public HopGuiWorkflowGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
                               final HopDataOrchestrationPerspective perspective, final WorkflowMeta workflowMeta, final HopWorkflowFileType fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
+    activeInstance = this;
     this.perspective = perspective;
     this.workflowMeta = workflowMeta;
     this.fileType = fileType;
@@ -339,6 +335,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // The form-data is set on the native widget automatically
     //
     addToolBar();
+
+    activeInstance = null; // no longer needed
 
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
@@ -568,9 +566,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
+  private static HopGuiWorkflowGraph activeInstance;
+
   // In case anyone asks...
   //
   public static HopGuiWorkflowGraph getInstance() {
+    if (activeInstance!=null) {
+      return activeInstance;
+    }
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
     if ( fileTypeHandler instanceof HopGuiWorkflowGraph ) {
       return (HopGuiWorkflowGraph) fileTypeHandler;
@@ -594,7 +597,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     hideToolTips();
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.JobGraphMouseDoubleClick.id, new HopGuiWorkflowGraphExtension( this, e, real ) );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, new HopGuiWorkflowGraphExtension( this, e, real ) );
     } catch ( Exception ex ) {
       LogChannel.GENERAL.logError( "Error calling JobGraphMouseDoubleClick extension point", ex );
     }
@@ -649,7 +652,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.JobGraphMouseDown.id,
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDown.id,
         new HopGuiWorkflowGraphExtension( this, e, real ) );
     } catch ( Exception ex ) {
       LogChannel.GENERAL.logError( "Error calling JobGraphMouseDown extension point", ex );
@@ -1378,6 +1381,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } );
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_ZOOM_LEVEL,
+    label = "  Zoom: ",
+    toolTip = "Zoom in our out",
+    type = GuiToolbarElementType.COMBO,
+    alignRight = true,
+    comboValuesMethod = "getZoomLevels"
+  )
+  public void zoomLevel() {
+    readMagnification();
+    setFocus();
+  }
+
+  public List<String> getZoomLevels() {
+    return Arrays.asList( PipelinePainter.magnificationDescriptions );
+  }
+
   private void addToolBar() {
 
     try {
@@ -1393,36 +1414,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       toolBar.setLayoutData( layoutData );
       toolBar.pack();
 
-      // Add a zoom label widget: TODO: move to GuiElement
-      //
-      new ToolItem( toolBar, SWT.SEPARATOR );
-      ToolItem sep = new ToolItem( toolBar, SWT.SEPARATOR );
-
-      zoomLabel = new Combo( toolBar, SWT.DROP_DOWN );
-      zoomLabel.setItems( PipelinePainter.magnificationDescriptions );
-      zoomLabel.addSelectionListener( new SelectionAdapter() {
-        @Override
-        public void widgetSelected( SelectionEvent arg0 ) {
-          readMagnification();
-        }
-      } );
-
-      zoomLabel.addKeyListener( new KeyAdapter() {
-        @Override
-        public void keyPressed( KeyEvent event ) {
-          if ( event.character == SWT.CR ) {
-            readMagnification();
-          }
-        }
-      } );
-
-      setZoomLabel();
-      zoomLabel.pack();
-      zoomLabel.layout( true, true );
-      sep.setWidth( zoomLabel.getBounds().width );
-      sep.setControl( zoomLabel );
-      toolBar.pack();
-
       // enable / disable the icons in the toolbar too.
       //
       updateGui();
@@ -1434,10 +1425,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void setZoomLabel() {
-    String newString = Integer.toString( Math.round( magnification * 100 ) ) + "%";
+    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
+    if (zoomLabel==null) {
+      return;
+    }
+    String newString = Math.round( magnification * 100 ) + "%";
     String oldString = zoomLabel.getText();
     if ( !newString.equals( oldString ) ) {
-      zoomLabel.setText( Integer.toString( Math.round( magnification * 100 ) ) + "%" );
+      zoomLabel.setText( Math.round( magnification * 100 ) + "%" );
     }
   }
 
@@ -1509,6 +1504,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    * Allows for magnifying to any percentage entered by the user...
    */
   private void readMagnification() {
+    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
+    if (zoomLabel==null) {
+      return;
+    }
     String possibleText = zoomLabel.getText();
     possibleText = possibleText.replace( "%", "" );
 
@@ -2423,7 +2422,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
     workflowPainter.setMagnification( correctedMagnification );
-    workflowPainter.setEntryLogMap( entryLogMap );
     workflowPainter.setStartHopEntry( startHopEntry );
     workflowPainter.setEndHopLocation( endHopLocation );
     workflowPainter.setEndHopEntry( endHopEntry );
@@ -3522,22 +3520,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    */
   public void setHopGui( HopGui hopGui ) {
     this.hopGui = hopGui;
-  }
-
-  /**
-   * Gets zoomLabel
-   *
-   * @return value of zoomLabel
-   */
-  public Combo getZoomLabel() {
-    return zoomLabel;
-  }
-
-  /**
-   * @param zoomLabel The zoomLabel to set
-   */
-  public void setZoomLabel( Combo zoomLabel ) {
-    this.zoomLabel = zoomLabel;
   }
 
   /**

@@ -23,6 +23,10 @@
 package org.apache.hop.core.gui.plugin;
 
 import org.apache.hop.core.action.GuiContextAction;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
@@ -374,12 +378,13 @@ public class GuiRegistry {
    * Add a GUI context action for the given method and its annotation.
    * Also provide a classloader which can be used to load resources later.
    *
+   * @param guiPluginClassName
    * @param method
    * @param ca
    * @param classLoader
    */
-  public void addGuiContextAction( Method method, GuiContextAction ca, ClassLoader classLoader ) {
-    GuiAction action = new GuiAction( ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), method.getName() );
+  public void addGuiContextAction( String guiPluginClassName, Method method, GuiContextAction ca, ClassLoader classLoader ) {
+    GuiAction action = new GuiAction( ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), guiPluginClassName, method.getName() );
     action.setClassLoader( classLoader );
 
     List<GuiAction> actions = contextActionsMap.get( ca.parentId() );

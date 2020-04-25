@@ -22,7 +22,7 @@
 
 package org.apache.hop.core.action;
 
-import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

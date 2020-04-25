@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopgui.file.workflow.context;
 
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -69,7 +69,7 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, jobGraph, this, jobGraph ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, this, jobGraph ) );
       }
     }
 

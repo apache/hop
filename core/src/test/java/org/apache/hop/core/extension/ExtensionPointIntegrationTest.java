@@ -87,7 +87,7 @@ public class ExtensionPointIntegrationTest {
     }
 
     // check modification of extension point
-    final HopExtensionPoint jobAfterOpen = HopExtensionPoint.JobAfterOpen;
+    final HopExtensionPoint jobAfterOpen = HopExtensionPoint.WorkflowAfterOpen;
     final IExtensionPoint int1 = ExtensionPointMap.getInstance().getTableValue( jobAfterOpen.id, "id" + jobAfterOpen.id );
     ExtensionPointPluginType.getInstance().registerCustom( createClassRuntime( jobAfterOpen, "Edited" ), "custom", "id"
         + jobAfterOpen.id, jobAfterOpen.id,

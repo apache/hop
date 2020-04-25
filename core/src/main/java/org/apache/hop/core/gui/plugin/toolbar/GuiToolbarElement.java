@@ -133,4 +133,16 @@ public @interface GuiToolbarElement {
    * @return True if you want a separator before this element
    */
   boolean separator() default false;
+
+  /**
+   * If you want extra width on a difficult item like a label or a combo
+   * @return The extra width to give the item
+   */
+  int extraWidth() default 0;
+
+  /**
+   * The text alignment of label or combo widgets
+   * @return
+   */
+  boolean alignRight() default false;
 }

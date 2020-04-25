@@ -24,8 +24,8 @@ package org.apache.hop.ui.hopgui.file.pipeline.context;
 
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -70,7 +70,7 @@ public class HopGuiPipelineNoteContext extends BaseGuiContextHandler implements 
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, pipelineGraph, this, pipelineGraph ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, this, pipelineGraph ) );
       }
     }
 

@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 
 import java.util.ArrayList;

@@ -48,11 +48,9 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.resource.IResourceNaming;
@@ -60,11 +58,9 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionRunConfigurable;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -83,7 +79,7 @@ import java.util.Map;
  * @author Matt Casters
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
-public class ActionPipeline extends ActionBase implements Cloneable, IAction, IActionRunConfigurable {
+public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
   public static final int IS_PENTAHO = 1;
 
@@ -122,8 +118,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
   public boolean followingAbortRemotely;
 
   private boolean passingAllParameters = true;
-
-  private boolean loggingRemoteWork;
 
   private String runConfiguration;
 
@@ -231,7 +225,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
     retval.append( "      " ).append( XmlHandler.addTagValue( "wait_until_finished", waitingToFinish ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "follow_abort_remote", followingAbortRemotely ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "create_parent_folder", createParentFolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "logging_remote_work", loggingRemoteWork ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     if ( arguments != null ) {
@@ -282,7 +275,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
       logext = XmlHandler.getTagValue( entrynode, "logext" );
       logFileLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( entrynode, "loglevel" ) );
       createParentFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_parent_folder" ) );
-      loggingRemoteWork = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "logging_remote_work" ) );
       runConfiguration = XmlHandler.getTagValue( entrynode, "run_configuration" );
 
       setAppendLogfile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "set_append_logfile" ) );
@@ -593,7 +585,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
         // Create the pipeline from meta-data
         //
         final PipelineMeta meta = pipelineMeta;
-        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, meta);
+        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, meta );
         pipeline.setParent( this );
 
 
@@ -642,50 +634,44 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
           result.setNrErrors( 1 );
         }
 
-    } catch( Exception e ){
+      } catch ( Exception e ) {
 
-      logError( BaseMessages.getString( PKG, "ActionPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
-      logError( Const.getStackTracker( e ) );
-      result.setNrErrors( 1 );
-    }
-    iteration++;
-  }
-
-    if(setLogfile )
-
-  {
-    if ( logChannelFileWriter != null ) {
-      logChannelFileWriter.stopLogging();
-
-      ResultFile resultFile =
-        new ResultFile(
-          ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getWorkflowName(), getName() );
-      result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
-
-      // See if anything went wrong during file writing...
-      //
-      if ( logChannelFileWriter.getException() != null ) {
-        logError( "Unable to open log file [" + getLogFilename() + "] : " );
-        logError( Const.getStackTracker( logChannelFileWriter.getException() ) );
+        logError( BaseMessages.getString( PKG, "ActionPipeline.ErrorUnableOpenPipeline", e.getMessage() ) );
+        logError( Const.getStackTracker( e ) );
         result.setNrErrors( 1 );
-        result.setResult( false );
-        return result;
+      }
+      iteration++;
+    }
+
+    if ( setLogfile ) {
+      if ( logChannelFileWriter != null ) {
+        logChannelFileWriter.stopLogging();
+
+        ResultFile resultFile =
+          new ResultFile(
+            ResultFile.FILE_TYPE_LOG, logChannelFileWriter.getLogFile(), parentWorkflow.getWorkflowName(), getName() );
+        result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
+
+        // See if anything went wrong during file writing...
+        //
+        if ( logChannelFileWriter.getException() != null ) {
+          logError( "Unable to open log file [" + getLogFilename() + "] : " );
+          logError( Const.getStackTracker( logChannelFileWriter.getException() ) );
+          result.setNrErrors( 1 );
+          result.setResult( false );
+          return result;
+        }
       }
     }
-  }
 
-    if(result.getNrErrors()==0)
-
-  {
-    result.setResult( true );
-  } else
-
-  {
-    result.setResult( false );
-  }
+    if ( result.getNrErrors() == 0 ) {
+      result.setResult( true );
+    } else {
+      result.setResult( false );
+    }
 
     return result;
-}
+  }
 
   protected void updateResult( Result result ) {
     Result newResult = pipeline.getResult();
@@ -859,14 +845,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction, IA
    */
   public void setFollowingAbortRemotely( boolean followingAbortRemotely ) {
     this.followingAbortRemotely = followingAbortRemotely;
-  }
-
-  public boolean isLoggingRemoteWork() {
-    return loggingRemoteWork;
-  }
-
-  public void setLoggingRemoteWork( boolean loggingRemoteWork ) {
-    this.loggingRemoteWork = loggingRemoteWork;
   }
 
   /**

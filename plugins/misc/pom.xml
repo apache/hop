@@ -8,7 +8,7 @@
   <version>0.20-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>Hop Plugins Miscellaneous Environment</name>
+  <name>Hop Plugins Miscellaneous</name>
 
   <parent>
     <groupId>org.hop</groupId>
@@ -26,6 +26,7 @@
     </activation>
     <modules>
       <module>environment</module>
+      <module>debug</module>
     </modules>
   </profile>
   </profiles>

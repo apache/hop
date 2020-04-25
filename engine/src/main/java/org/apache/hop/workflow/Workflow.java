@@ -298,8 +298,6 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       //
       fireWorkflowStartedListeners();
 
-      executionEndDate = new Date();
-
       result = executeFromStart();
     } catch ( Throwable je ) {
       log.logError( BaseMessages.getString( PKG, "Workflow.Log.ErrorExecWorkflow", je.getMessage() ), je );
@@ -320,8 +318,9 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       setStopped( false );
     } finally {
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobFinish.id, this );
-        log.logDebug( BaseMessages.getString( PKG, "Workflow.Log.DisposeEmbeddedMetastore" ) );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowFinish.id, this );
+
+        executionEndDate = new Date();
 
         fireWorkflowFinishListeners();
 
@@ -366,7 +365,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
 
       log.logMinimal( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ) );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobStart.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, this );
 
       // Start the tracking...
       ActionResult jerStart =
@@ -536,7 +535,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
 
     WorkflowExecutionExtension extension = new WorkflowExecutionExtension( this, prevResult, actionCopy, true );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobBeforeJobEntryExecution.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeActionExecution.id, extension );
 
     if ( extension.result != null ) {
       prevResult = extension.result;
@@ -636,7 +635,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
 
     extension = new WorkflowExecutionExtension( this, prevResult, actionCopy, extension.executeEntry );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobAfterJobEntryExecution.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowAfterActionExecution.id, extension );
 
     // Try all next actions.
     //
@@ -831,7 +830,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     resetErrors();
 
     WorkflowExecutionExtension extension = new WorkflowExecutionExtension( this, result, null, false );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.JobBeginProcessing.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeginProcessing.id, extension );
 
     return true;
   }

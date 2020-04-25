@@ -20,9 +20,10 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.core.gui.plugin;
+package org.apache.hop.core.gui.plugin.action;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,8 @@ public class GuiAction {
   private String tooltip;
   private String image;
   private IGuiActionLambda actionLambda;
-  private String methodName;
+  private String guiPluginClassName;
+  private String guiPluginMethodName;
   private ClassLoader classLoader;
   private List<String> keywords;
 
@@ -73,16 +75,17 @@ public class GuiAction {
    * @param name
    * @param tooltip
    * @param image
-   * @param methodName
+   * @param guiPluginMethodName
    */
-  public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, String methodName ) {
+  public GuiAction( String id, GuiActionType type, String name, String tooltip, String image, String guiPluginClassName, String guiPluginMethodName ) {
     this();
     this.id = id;
     this.type = type;
     this.name = name;
     this.tooltip = tooltip;
     this.image = image;
-    this.methodName = methodName;
+    this.guiPluginClassName = guiPluginClassName;
+    this.guiPluginMethodName = guiPluginMethodName;
   }
 
   public GuiAction( GuiAction guiAction ) {
@@ -92,7 +95,8 @@ public class GuiAction {
     this.name = guiAction.name;
     this.tooltip = guiAction.tooltip;
     this.image = guiAction.image;
-    this.methodName = guiAction.methodName;
+    this.guiPluginClassName = guiAction.guiPluginClassName;
+    this.guiPluginMethodName = guiAction.guiPluginMethodName;
     this.actionLambda = guiAction.actionLambda;
     for ( String keyword : guiAction.getKeywords() ) {
       keywords.add( keyword );
@@ -149,13 +153,14 @@ public class GuiAction {
 
   /**
    * For any name longer than 30 characters we return the first 28 characters + "...";
+   *
    * @return the short name
    */
   public String getShortName() {
-    if (name==null) {
+    if ( name == null ) {
       return null;
     }
-    if (name.length()<30) {
+    if ( name.length() < 30 ) {
       return name;
     } else {
       return name.substring( 0, 28 ) + "...";
@@ -274,19 +279,35 @@ public class GuiAction {
   }
 
   /**
+   * Gets guiPluginClassName
+   *
+   * @return value of guiPluginClassName
+   */
+  public String getGuiPluginClassName() {
+    return guiPluginClassName;
+  }
+
+  /**
+   * @param guiPluginClassName The guiPluginClassName to set
+   */
+  public void setGuiPluginClassName( String guiPluginClassName ) {
+    this.guiPluginClassName = guiPluginClassName;
+  }
+
+  /**
    * Gets methodName
    *
    * @return value of methodName
    */
-  public String getMethodName() {
-    return methodName;
+  public String getGuiPluginMethodName() {
+    return guiPluginMethodName;
   }
 
   /**
-   * @param methodName The methodName to set
+   * @param guiPluginMethodName The methodName to set
    */
-  public void setMethodName( String methodName ) {
-    this.methodName = methodName;
+  public void setGuiPluginMethodName( String guiPluginMethodName ) {
+    this.guiPluginMethodName = guiPluginMethodName;
   }
 
   /**

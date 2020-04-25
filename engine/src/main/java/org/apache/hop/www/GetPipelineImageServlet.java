@@ -49,77 +49,6 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
   public static final String CONTEXT_PATH = "/hop/pipelineImage";
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/hop/pipelineImage</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Generates PNG image of the specified pipeline currently present on HopServer server.
-   * Pipeline name and HopServer pipeline ID (optional) are used for specifying which
-   * pipeline to get information for. Response is a binary of the PNG image.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /hop/pipelineImage?name=dummy-pipeline
-   * </pre>
-   *
-   * </p>
-   * <h3>Parameters</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>name</th>
-   * <th>description</th>
-   * <th>type</th>
-   * </tr>
-   * <tr>
-   * <td>name</td>
-   * <td>Name of the pipeline to be used for image generation.</td>
-   * <td>query</td>
-   * </tr>
-   * <tr>
-   * <td>id</td>
-   * <td>HopServer id of the pipeline to be used for image generation.</td>
-   * <td>query, optional</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">binary streak:</td>
-   * <td>image</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>image/png</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>A binary PNG image or empty response is presented if no pipeline is found.</p>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getContextPath().startsWith( CONTEXT_PATH ) ) {
@@ -188,7 +117,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     maximum.multiply( magnification );
 
     SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
-    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, true, "Arial", 10, 1.0d );
+    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.buildPipelineImage();
 

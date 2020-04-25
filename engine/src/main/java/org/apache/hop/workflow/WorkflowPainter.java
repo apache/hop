@@ -39,6 +39,7 @@ import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.workflow.action.ActionCopy;
 
 import java.util.Collections;
@@ -50,7 +51,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
   private WorkflowMeta workflowMeta;
 
-  private Map<ActionCopy, String> entryLogMap;
   private ActionCopy startHopEntry;
   private Point endHopLocation;
   private ActionCopy endHopEntry;
@@ -68,7 +68,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     this.candidate = candidate;
 
-    entryLogMap = null;
   }
 
   public void drawJob() {
@@ -89,21 +88,21 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     // Draw the pipeline onto the image
     //
     gc.setAlpha( 255 );
-    gc.setTransform( translationX, translationY, 0, magnification );
+    gc.setTransform( translationX, translationY, magnification );
 
-    drawJobElements();
+    drawActions();
 
     gc.dispose();
 
   }
 
-  private void drawJobElements() {
+  private void drawActions() {
     if ( gridSize > 1 ) {
       drawGrid();
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.JobPainterStart.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterStart.id, this );
     } catch ( HopException e ) {
       LogChannel.GENERAL.logError( "Error in JobPainterStart extension point", e );
     }
@@ -161,7 +160,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     for ( int j = 0; j < workflowMeta.nrActions(); j++ ) {
       ActionCopy je = workflowMeta.getAction( j );
-      drawJobEntryCopy( je );
+      drawActionCopy( je );
     }
 
     // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
@@ -184,7 +183,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.JobPainterEnd.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterEnd.id, this );
     } catch ( HopException e ) {
       LogChannel.GENERAL.logError( "Error in JobPainterEnd extension point", e );
     }
@@ -192,7 +191,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     drawRect( selectionRectangle );
   }
 
-  protected void drawJobEntryCopy( ActionCopy actionCopy ) {
+  protected void drawActionCopy( ActionCopy actionCopy ) {
     int alpha = gc.getAlpha();
 
     Point pt = actionCopy.getLocation();
@@ -270,6 +269,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
             MINI_ICON_SIZE, offset, actionCopy, actionResult ) );
         }
       }
+    }
+
+    WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, null, actionCopy, x, y, 0, 0, 0, 0, offset, iconSize );
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterAction.id, extension );
+    } catch ( Exception e ) {
+      LogChannel.GENERAL.logError( "Error calling extension point(s) for the workflow painter action", e );
     }
 
     // Restore the previous alpha value
@@ -441,28 +447,14 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
         areaOwners.add( new AreaOwner( AreaType.JOB_HOP_PARALLEL_ICON, mx, my, bounds.x, bounds.y, offset, subject, jobHop ) );
       }
 
-      WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, jobHop, x1, y1, x2, y2, mx, my, offset );
+      WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, jobHop, null, x1, y1, x2, y2, mx, my, offset, iconSize );
       try {
         ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.JobPainterArrow.id, extension );
+          LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterArrow.id, extension );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Error calling extension point(s) for the workflow painter arrow", e );
       }
     }
-  }
-
-  /**
-   * @return the entryLogMap
-   */
-  public Map<ActionCopy, String> getEntryLogMap() {
-    return entryLogMap;
-  }
-
-  /**
-   * @param entryLogMap the entryLogMap to set
-   */
-  public void setEntryLogMap( Map<ActionCopy, String> entryLogMap ) {
-    this.entryLogMap = entryLogMap;
   }
 
   public void setStartHopEntry( ActionCopy startHopEntry ) {

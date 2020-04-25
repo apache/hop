@@ -24,9 +24,9 @@ package org.apache.hop.ui.hopgui.file.workflow.context;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.plugin.GuiAction;
-import org.apache.hop.core.gui.plugin.GuiActionLambdaBuilder;
-import org.apache.hop.core.gui.plugin.GuiActionType;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -74,7 +74,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        guiActions.add( lambdaBuilder.createLambda( pluginAction, jobGraph, this, jobGraph ) );
+        guiActions.add( lambdaBuilder.createLambda( pluginAction, this, jobGraph ) );
       }
     }
 

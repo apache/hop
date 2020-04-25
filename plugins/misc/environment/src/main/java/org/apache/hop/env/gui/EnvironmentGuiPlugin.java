@@ -2,9 +2,9 @@ package org.apache.hop.env.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.plugin.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -19,7 +19,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
-import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -116,6 +115,7 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
     id = ID_TOOLBAR_ENVIRONMENT_COMBO,
     type = GuiToolbarElementType.COMBO,
     comboValuesMethod = "getEnvironmentsList",
+    extraWidth = 200,
     toolTip = "Select the active environment"
   )
   public void selectEnvironment() {

@@ -63,6 +63,10 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   private String listenerClass;
   private String listenerMethod;
 
+  private int extraWidth;
+
+  private boolean alignRight;
+
   public GuiToolbarItem() {
   }
 
@@ -85,6 +89,8 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.label = calculateI18n( i18nPackage, toolbarElement.label() );
     this.toolTip = calculateI18n( i18nPackage, toolbarElement.toolTip() );
     this.classLoader = classLoader;
+    this.extraWidth = toolbarElement.extraWidth();
+    this.alignRight = toolbarElement.alignRight();
   }
 
 
@@ -357,7 +363,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   /**
    * Gets listenerMethod
    *
-   * @return value of listenerMethod
+   * @return value of listenerMethodf
    */
   public String getListenerMethod() {
     return listenerMethod;
@@ -368,5 +374,37 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
    */
   public void setListenerMethod( String listenerMethod ) {
     this.listenerMethod = listenerMethod;
+  }
+
+  /**
+   * Gets extraWidth
+   *
+   * @return value of extraWidth
+   */
+  public int getExtraWidth() {
+    return extraWidth;
+  }
+
+  /**
+   * @param extraWidth The extraWidth to set
+   */
+  public void setExtraWidth( int extraWidth ) {
+    this.extraWidth = extraWidth;
+  }
+
+  /**
+   * Gets alignRight
+   *
+   * @return value of alignRight
+   */
+  public boolean isAlignRight() {
+    return alignRight;
+  }
+
+  /**
+   * @param alignRight The alignRight to set
+   */
+  public void setAlignRight( boolean alignRight ) {
+    this.alignRight = alignRight;
   }
 }

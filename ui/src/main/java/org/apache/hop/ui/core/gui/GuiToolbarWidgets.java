@@ -29,7 +29,10 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -108,7 +111,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     if (toolbarItem.getType()!=GuiToolbarElementType.LABEL && StringUtils.isNotEmpty(toolbarItem.getLabel())) {
       ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-      Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
+      Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
       label.setText(Const.NVL(toolbarItem.getLabel(), ""));
       label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
       label.setBackground( toolBar.getBackground() );
@@ -122,7 +125,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     switch ( toolbarItem.getType() ) {
       case LABEL:
         ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Label label = new Label( parent, SWT.SINGLE | SWT.LEFT );
+        Label label = new Label( parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
         label.setText( Const.NVL(toolbarItem.getLabel(), ""));
         label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
         label.setBackground( toolBar.getBackground() );
@@ -153,10 +156,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
       case COMBO:
         ToolItem comboSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Combo combo = new Combo( parent, SWT.SINGLE | SWT.LEFT );
+        Combo combo = new Combo( parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
         combo.setItems( getComboItems( toolbarItem ) );
         combo.pack();
-        comboSeparator.setWidth( combo.getSize().x + 100 ); // extra room for new items with longer names
+        comboSeparator.setWidth( calculateComboWidth(combo) + toolbarItem.getExtraWidth()); // extra room for widget decorations
         comboSeparator.setControl( combo );
         listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
         combo.addListener( SWT.Selection, listener );
@@ -167,6 +170,24 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       default:
         break;
     }
+  }
+
+  private int calculateComboWidth( Combo combo ) {
+    Image image = new Image( HopGui.getInstance().getDisplay(), 10, 10 );
+    GC gc = new GC( image );
+
+    int maxWidth = combo.getSize().x;
+    for (String item : combo.getItems()) {
+      int width = gc.textExtent( item ).x;
+      if (width>maxWidth) {
+        maxWidth = width;
+      }
+    }
+
+    gc.dispose();
+    image.dispose();
+
+    return maxWidth;
   }
 
 
