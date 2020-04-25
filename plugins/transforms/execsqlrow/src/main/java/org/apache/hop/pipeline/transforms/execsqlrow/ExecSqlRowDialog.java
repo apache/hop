@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -43,6 +44,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "ExecSqlRow",
+        image = "execsqlrow.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 

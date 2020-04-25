@@ -55,12 +55,10 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "GetVariable.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "GetVariable",
-        image = "ui/images/GVA.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getvariable",
         name = "BaseTransform.TypeLongDesc.GetVariable",
         description = "BaseTransform.TypeTooltipDesc.GetVariable",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
 )
 public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta<GetVariable, GetVariableData> {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
@@ -438,10 +436,5 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta
         throw new RuntimeException( e );
       }
     }
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetVariableDialog.class.getName();
   }
 }

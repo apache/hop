@@ -55,7 +55,6 @@ import java.util.List;
  */
 @Transform(
   id = "Delete",
-  image = "ui/images/Delete.svg",
   i18nPackageName = "org.apache.hop.pipeline.transforms.delete",
   name = "BaseTransform.TypeLongDesc.Delete",
   description = "BaseTransform.TypeTooltipDesc.Delete",
@@ -592,7 +591,4 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     return true;
   }
 
-  public String getDialogClassName() {
-    return DeleteDialog.class.getName();
-  }
 }

@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -71,7 +70,7 @@ import java.util.stream.IntStream;
 
 @PluginDialog(
         id = "Unique",
-        image = "UNQ.svg",
+        image = "uniquerows.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
         documentationUrl = ""
 )

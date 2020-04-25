@@ -47,12 +47,10 @@ import java.util.List;
 
 @Transform(
         id = "Delay",
-        image = "ui/images/DLT.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.delay",
         name = "BaseTransform.TypeLongDesc.Delay",
         description = "BaseTransform.TypeTooltipDesc.Delay",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
 )
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
   private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
@@ -206,8 +204,4 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
     return new DelayData();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DelayDialog.class.getName();
-  }
 }

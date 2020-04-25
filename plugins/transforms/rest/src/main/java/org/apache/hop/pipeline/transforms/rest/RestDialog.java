@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.rest.RestMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -76,9 +75,9 @@ import java.util.Set;
 
 @PluginDialog(
         id = "Rest",
-        image = "ui/images/REST.svg",
+        image = "rest.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/rest.html"
 )
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!

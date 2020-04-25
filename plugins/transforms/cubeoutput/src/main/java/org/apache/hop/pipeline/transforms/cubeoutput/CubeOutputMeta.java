@@ -51,12 +51,10 @@ import java.util.Map;
  */
 @Transform(
         id = "CubeOutput",
-        image = "ui/images/COP.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeoutput",
         name = "BaseTransform.TypeLongDesc.CubeOutput",
         description = "BaseTransform.TypeTooltipDesc.CubeOutput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
 )
 public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<CubeOutput, CubeOutputData> {
 
@@ -223,8 +221,4 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     }
   }
 
-  @Override
-  public String getDialogClassName(){
-    return CubeOutputDialog.class.getName();
-  }
 }

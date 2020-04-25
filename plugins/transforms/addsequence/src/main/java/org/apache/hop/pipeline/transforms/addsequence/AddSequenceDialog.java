@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.addsequence;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
@@ -42,6 +43,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "Sequence",
+        image = "addsequence.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/addsequence.html"
+)
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
 

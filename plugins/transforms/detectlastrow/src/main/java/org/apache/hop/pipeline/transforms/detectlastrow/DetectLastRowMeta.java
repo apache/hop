@@ -49,7 +49,6 @@ import java.util.List;
  */
 @Transform(
         id = "DetectLastRow",
-        image = "ui/images/DLR.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectlastrow",
         name = "BaseTransform.TypeLongDesc.DetectLastRow",
         description = "BaseTransform.TypeTooltipDesc.DetectLastRow",
@@ -160,8 +159,4 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
     return new PipelineType[] { PipelineType.Normal, };
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DetectLastRowDialog.class.getName();
-  }
 }

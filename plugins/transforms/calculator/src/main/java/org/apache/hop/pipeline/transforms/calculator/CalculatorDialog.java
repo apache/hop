@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -49,6 +50,12 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
+@PluginDialog(
+        id = "Calculator",
+        image = "calculator.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/calculator.html"
+)
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -479,7 +486,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
 
   protected Image getImage() {
     return SwtSvgImageUtil
-      .getImage( shell.getDisplay(), getClass().getClassLoader(), "CLC.svg", ConstUi.LARGE_ICON_SIZE,
+      .getImage( shell.getDisplay(), getClass().getClassLoader(), "calculator.svg", ConstUi.LARGE_ICON_SIZE,
         ConstUi.LARGE_ICON_SIZE );
   }
 }

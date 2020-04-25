@@ -58,7 +58,6 @@ import java.util.List;
  */
 @Transform(
         id = "TableOutput",
-        image = "ui/images/TOP.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.tableoutput",
         name = "BaseTransform.TypeLongDesc.TableOutput",
         description = "BaseTransform.TypeTooltipDesc.TableOutput",
@@ -878,10 +877,4 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     // Use default connection missing message
     return null;
   }
-
-  @Override
-  public String getDialogClassName(){
-    return TableOutputDialog.class.getName();
-  }
-
 }

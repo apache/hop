@@ -51,7 +51,6 @@ import java.util.List;
 
 @Transform(
         id = "FileLocked",
-        image = "ui/images/CFL.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filelocked",
         name = "BaseTransform.TypeLongDesc.FileLocked",
         description = "BaseTransform.TypeTooltipDesc.FileLocked",
@@ -207,10 +206,5 @@ public class FileLockedMeta extends BaseTransformMeta implements ITransformMeta<
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FileLockedDialog.class.getName();
   }
 }

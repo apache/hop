@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.fuzzymatch;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -72,6 +73,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+        id = "FuzzyMatch",
+        image = "fuzzymatch.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/fuzzymatch.html"
+)
 public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
 

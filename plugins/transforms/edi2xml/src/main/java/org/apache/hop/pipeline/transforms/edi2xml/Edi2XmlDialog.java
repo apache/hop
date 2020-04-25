@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.edi2xml;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -50,6 +51,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "TypeExitEdi2XmlTransform",
+        image = "EDI2XML.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes

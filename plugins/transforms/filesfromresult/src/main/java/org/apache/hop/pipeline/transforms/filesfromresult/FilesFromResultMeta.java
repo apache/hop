@@ -49,12 +49,10 @@ import java.util.List;
 
 @Transform(
         id = "FilesFromResult",
-        image = "ui/images/FFR.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filesfromresult",
         name = "BaseTransform.TypeLongDesc.FilesFromResult",
         description = "BaseTransform.TypeTooltipDesc.FilesFromResult",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
 )
 public class FilesFromResultMeta extends BaseTransformMeta implements ITransformMeta<FilesFromResult, FilesFromResultData> {
   private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
@@ -124,8 +122,4 @@ public class FilesFromResultMeta extends BaseTransformMeta implements ITransform
     return new FilesFromResultData();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return FilesFromResultDialog.class.getName();
-  }
 }

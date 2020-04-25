@@ -54,12 +54,10 @@ import java.util.List;
 
 @Transform(
         id = "HttpPost",
-        image = "ui/images/HTP.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.httppost",
         name = "BaseTransform.TypeLongDesc.HTTPPOST",
         description = "BaseTransform.TypeTooltipDesc.HTTPPOST",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
 public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<HttpPost, HttpPostData> {
   private static Class<?> PKG = HttpPostMeta.class; // for i18n purposes, needed by Translator!!
@@ -672,10 +670,5 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
 
   public void setResponseHeaderFieldName( String responseHeaderFieldName ) {
     this.responseHeaderFieldName = responseHeaderFieldName;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return HttpPostDialog.class.getName();
   }
 }

@@ -63,8 +63,7 @@ import java.util.List;
   description = "PGBulkLoader.Description",
   name = "PGBulkLoader.Name",
   categoryDescription = "BaseTransform.Category.Bulk",
-  image = "PGBulkLoader.svg",
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/PostgreSQL+Bulk+Loader"
+  image = "PGBulkLoader.svg"
 )
 public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
   IProvidesDatabaseConnectionInformation {

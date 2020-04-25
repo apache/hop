@@ -33,7 +33,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -66,9 +65,9 @@ import java.util.List;
 
 @PluginDialog(
         id = "MergeJoin",
-        image = "ui/images/MJOIN.svg",
+        image = "mergejoin.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
 )
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!

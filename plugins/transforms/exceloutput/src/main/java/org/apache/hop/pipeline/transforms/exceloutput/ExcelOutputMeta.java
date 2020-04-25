@@ -61,7 +61,6 @@ import java.util.Map;
  */
 @Transform(
         id = "ExcelOutput",
-        image = "ui/images/XLO.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.exceloutput",
         name = "BaseTransform.TypeLongDesc.ExcelOutput",
         description = "BaseTransform.TypeTooltipDesc.ExcelOutput",

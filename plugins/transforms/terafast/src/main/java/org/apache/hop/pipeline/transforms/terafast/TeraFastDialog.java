@@ -58,7 +58,7 @@ import java.util.*;
 		  id = "TeraFast", 
 		  image = "TeraFast.svg", 
 		  pluginType = PluginDialog.PluginType.TRANSFORM,
-		  documentationUrl = ""
+		  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 

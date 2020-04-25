@@ -59,8 +59,12 @@ import org.eclipse.swt.widgets.Text;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-@PluginDialog( id = "ChangeFileEncoding", image = "ChangeFileEncoding.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Change+file+encoding" )
+@PluginDialog(
+        id = "ChangeFileEncoding",
+        image = "changefileencoding.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/changefileencoding.html"
+)
 public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ChangeFileEncodingDialog.class; // for i18n purposes, needed by Translator!!
 

@@ -53,7 +53,6 @@ import java.util.List;
 
 @Transform(
         id = "Calculator",
-        image = "ui/images/CLC.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transform.calculator",
         name = "BaseTransform.TypeLongDesc.Calculator",
         description = "BaseTransform.TypeTooltipDesc.Calculator",
@@ -250,8 +249,4 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
     return new CalculatorData();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return CalculatorDialog.class.getName();
-  }
 }

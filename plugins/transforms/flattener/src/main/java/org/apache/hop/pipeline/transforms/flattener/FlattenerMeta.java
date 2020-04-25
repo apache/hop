@@ -50,12 +50,10 @@ import java.util.List;
 
 @Transform(
         id = "Flattener,Flatterner",
-        image = "ui/images/FLA.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.flattener",
         name = "BaseTransform.TypeLongDesc.RowFlattener",
         description = "BaseTransform.TypeTooltipDesc.RowFlattener",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<Flattener, FlattenerData> {
   private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
@@ -198,10 +196,5 @@ public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<F
 
   public FlattenerData getTransformData() {
     return new FlattenerData();
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FlattenerDialog.class.getName();
   }
 }

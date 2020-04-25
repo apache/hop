@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -56,6 +57,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@PluginDialog(
+        id = "DBLookup",
+        image = "dblookup.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/databaselookup.html"
+)
 public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 

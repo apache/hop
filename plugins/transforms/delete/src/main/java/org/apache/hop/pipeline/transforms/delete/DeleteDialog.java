@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.delete;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -58,6 +59,12 @@ import java.util.*;
  * @author Tom
  * @since 28-March-2006
  */
+@PluginDialog(
+        id = "Delete",
+        image = "delete.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 

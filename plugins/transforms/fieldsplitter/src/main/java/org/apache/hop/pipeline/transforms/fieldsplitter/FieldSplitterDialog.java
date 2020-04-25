@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -59,6 +60,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "FieldSplitter",
+        image = "fieldsplitter.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 

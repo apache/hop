@@ -58,8 +58,7 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.valuemapper",
         name = "BaseTransform.TypeLongDesc.ValueMapper",
         description = "BaseTransform.TypeTooltipDesc.ValueMapper",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class ValueMapperMeta extends BaseTransformMeta implements ITransformMeta<ValueMapper, ValueMapperData> {
   private static Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!

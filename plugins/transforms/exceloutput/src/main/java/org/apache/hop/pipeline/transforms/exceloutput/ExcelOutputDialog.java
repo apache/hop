@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.exceloutput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -58,6 +59,12 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.*;
 
+@PluginDialog(
+        id = "ExcelOutput",
+        image = "exceloutput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class ExcelOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 

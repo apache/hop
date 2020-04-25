@@ -101,12 +101,10 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "FieldSplitter.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "FieldSplitter",
-        image = "ui/images/SPL.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fieldsplitter",
         name = "BaseTransform.TypeLongDesc.SplitFields",
         description = "BaseTransform.TypeTooltipDesc.SplitFields",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMeta<FieldSplitter, FieldSplitterData> {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
@@ -617,10 +615,5 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
     fieldPrecision = normalizedIntArrays[ 2 ];
     fieldTrimType = normalizedIntArrays[ 3 ];
 
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FieldSplitterDialog.class.getName();
   }
 }

@@ -32,8 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transforms.tablecompare.TableCompare;
-import org.apache.hop.pipeline.transforms.tablecompare.TableCompareMeta;
 import org.apache.hop.ui.core.widget.LabelCombo;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -60,9 +58,9 @@ import java.util.Arrays;
 
 @PluginDialog(
         id = "TableCompare",
-        image = "TBLCMP.svg",
+        image = "tablecompare.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
 )
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!

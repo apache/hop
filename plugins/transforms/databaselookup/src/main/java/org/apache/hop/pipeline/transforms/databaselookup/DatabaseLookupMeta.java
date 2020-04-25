@@ -55,7 +55,6 @@ import java.util.List;
 
 @Transform(
         id = "DBLookup",
-        image = "ui/images/DLU.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.databaselookup",
         name = "BaseTransform.TypeLongDesc.DatabaseLookup",
         description = "BaseTransform.TypeTooltipDesc.DatabaseLookup",
@@ -851,8 +850,4 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
     return Arrays.asList( returnValueNewName );
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DatabaseLookupDialog.class.getName();
-  }
 }

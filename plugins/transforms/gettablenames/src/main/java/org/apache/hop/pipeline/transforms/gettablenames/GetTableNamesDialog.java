@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.gettablenames;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -63,6 +64,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "GetTableNames",
+        image = "gettablenames.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/gettablenames.html"
+)
 public class GetTableNamesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
 

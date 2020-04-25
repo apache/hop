@@ -80,8 +80,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@PluginDialog( id = "CombinationLookup", pluginType = PluginDialog.PluginType.TRANSFORM, image = "CombinationLookup.svg",
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Combination+lookup-update" )
+@PluginDialog(
+        id = "CombinationLookup",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        image = "combinationlookup.svg",
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/combinationlookup.html"
+)
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // for i18n purposes, needed by Translator!!
 

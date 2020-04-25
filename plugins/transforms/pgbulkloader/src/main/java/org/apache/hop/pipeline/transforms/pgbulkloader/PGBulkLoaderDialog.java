@@ -91,7 +91,7 @@ import java.util.Set;
 		  id = "PGBulkLoader", 
 		  image = "PGBulkLoader.svg", 
 		  pluginType = PluginDialog.PluginType.TRANSFORM,
-		  documentationUrl = ""
+		  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
 )
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!

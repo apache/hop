@@ -56,7 +56,6 @@ import java.util.Locale;
 @InjectionSupported( localizationPrefix = "SortRows.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "SortRows",
-        image = "ui/images/SRT.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.sort",
         name = "BaseTransform.TypeLongDesc.SortRows",
         description = "BaseTransform.TypeTooltipDesc.SortRows",
@@ -638,8 +637,4 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
 
   }
 
-  @Override
-  public String getDialogClassName(){
-    return SortRowsDialog.class.getName();
-  }
 }

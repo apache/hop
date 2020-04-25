@@ -58,12 +58,10 @@ import java.util.zip.GZIPInputStream;
  */
 @Transform(
         id = "CubeInput",
-        image = "ui/images/CIP.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeinput",
         name = "BaseTransform.TypeLongDesc.CubeInput",
         description = "BaseTransform.TypeTooltipDesc.CubeInput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<CubeInput, CubeInputData> {
 
@@ -252,11 +250,6 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
     } catch ( Exception e ) {
       throw new HopException( e );
     }
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return CubeInputDialog.class.getName();
   }
 
 }

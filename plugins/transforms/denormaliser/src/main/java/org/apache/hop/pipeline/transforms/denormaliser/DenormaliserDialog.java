@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.denormaliser;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -49,6 +50,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "Denormaliser",
+        image = "denormaliser.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 

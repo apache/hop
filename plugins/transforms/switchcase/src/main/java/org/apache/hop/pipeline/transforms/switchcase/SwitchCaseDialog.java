@@ -32,8 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
-import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseTarget;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -60,9 +58,9 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "SwitchCase",
-        image = "ui/images/SWC.svg",
+        image = "switchcase.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/switchcase.html"
 )
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!

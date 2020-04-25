@@ -48,7 +48,6 @@ import java.util.List;
 
 @Transform(
         id = "BlockUntilTransformsFinish",
-        image = "ui/images/WFS.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.blockuntiltransformsfinish",
         name = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
         description = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
@@ -214,11 +213,6 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements
 
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] { PipelineType.Normal, };
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return BlockUntilTransformsFinishDialog.class.getName();
   }
 
 }

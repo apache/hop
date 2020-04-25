@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.filelocked;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -53,6 +54,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "FileLocked",
+        image = "filelocked.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/filelocked.html"
+)
 public class FileLockedDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 

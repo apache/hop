@@ -62,12 +62,10 @@ import java.util.Optional;
 @InjectionSupported( localizationPrefix = "FilterRowsMeta.Injection." )
 @Transform(
         id = "FilterRows",
-        image = "ui/images/FLT.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filterrows",
         name = "BaseTransform.TypeLongDesc.FilterRows",
         description = "BaseTransform.TypeTooltipDesc.FilterRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
 )
 public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<FilterRows, FilterRowsData> {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
@@ -436,8 +434,4 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
     }
   }
 
-  @Override
-  public String getDialogClassName(){
-    return FilterRowsDialog.class.getName();
-  }
 }

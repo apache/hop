@@ -38,7 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.update.UpdateMeta;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -78,9 +77,9 @@ import java.util.Set;
 
 @PluginDialog(
         id = "Update",
-        image = "ui/images/UPD.svg",
+        image = "update.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/update.html"
 )
 public class UpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!

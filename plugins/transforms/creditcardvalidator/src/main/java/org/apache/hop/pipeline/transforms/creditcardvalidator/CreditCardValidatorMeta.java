@@ -50,12 +50,10 @@ import java.util.List;
 
 @Transform(
         id = "CreditCardValidator",
-        image = "ui/images/CCV.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.creditcardvalidator",
         name = "BaseTransform.TypeLongDesc.CreditCardValidator",
         description = "BaseTransform.TypeTooltipDesc.CreditCardValidator",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
 )
 public class CreditCardValidatorMeta extends BaseTransformMeta implements ITransformMeta<CreditCardValidator, CreditCardValidatorData> {
 
@@ -263,8 +261,4 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
     return true;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return CreditCardValidatorDialog.class.getName();
-  }
 }

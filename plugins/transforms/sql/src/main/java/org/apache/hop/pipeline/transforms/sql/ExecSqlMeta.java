@@ -60,7 +60,6 @@ import java.util.List;
 
 @Transform(
   id = "ExecSql",
-  image = "ui/images/SQL.svg",
   i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
   name = "ExecSql.Name",
   description = "ExecSql.Description",
@@ -476,8 +475,4 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     this.singleStatement = singleStatement;
   }
 
-  @Override
-  public String getDialogClassName() {
-    return ExecSqlDialog.class.getName();
-  }
 }

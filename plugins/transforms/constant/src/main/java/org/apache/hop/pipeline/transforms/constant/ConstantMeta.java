@@ -50,7 +50,7 @@ import java.util.List;
  */
 @Transform(
         id = "Constant",
-        image = "ui/images/CST.svg",
+        image = "constant.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.constant",
         name = "BaseTransform.TypeLongDesc.AddConstants",
         description = "BaseTransform.TypeTooltipDesc.AddConstants",
@@ -395,8 +395,4 @@ public class ConstantMeta extends BaseTransformMeta implements ITransformMeta<Co
     return new ConstantData();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return ConstantDialog.class.getName();
-  }
 }
