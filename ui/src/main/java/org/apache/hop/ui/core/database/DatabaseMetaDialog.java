@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -85,6 +86,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private static Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
+
   private Shell parent;
   private Shell shell;
   private IMetaStore metaStore;
@@ -103,7 +105,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private TextVar wOdbcDsn;
   private Label wlManualUrl;
   private TextVar wManualUrl;
+  private Label wlUsername;
   private TextVar wUsername;
+  private Label wlPassword;
   private TextVar wPassword;
 
   private Composite wDatabaseSpecificComp;
@@ -351,7 +355,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
       enableFields();
     } );
 
-    Label wlPassword = new Label( wGeneralComp, SWT.RIGHT );
+    wlPassword = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlPassword );
     wlPassword.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Password" ) );
     FormData fdlPassword = new FormData();
@@ -368,7 +372,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     fdPassword.right = new FormAttachment( 100, 0 );
     wPassword.setLayoutData( fdPassword );
 
-    Label wlUsername = new Label( wGeneralComp, SWT.RIGHT );
+    wlUsername = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlUsername );
     wlUsername.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Username" ) );
     FormData fdlUsername = new FormData();
@@ -404,6 +408,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
     // System.out.println( "---- widgets created for : " + workingMeta.getIDatabase().getClass().getName() );
 
+    addCompositeWidgetsUsernamePassword();
+
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
@@ -413,6 +419,15 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     wGeneralComp.layout();
     wGeneralTab.setControl( wGeneralComp );
+  }
+
+  private void addCompositeWidgetsUsernamePassword() {
+    // Add username and password to the mix so folks can enable/disable those
+    //
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_LABEL, wlUsername);
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_WIDGET, wUsername);
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_LABEL, wlPassword);
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_WIDGET, wPassword);
   }
 
   private AtomicBoolean busyChangingConnectionType = new AtomicBoolean( false );
@@ -450,7 +465,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     //
     guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta );
     guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+
     // System.out.println( "---- widgets created for class: " + workingMeta.getIDatabase().getClass().getName() );
+    addCompositeWidgetsUsernamePassword();
 
     // Put the data back
     //

@@ -116,6 +116,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public static final String SEQUENCE_FOR_BATCH_ID = "SEQUENCE_FOR_BATCH_ID";
   public static final String AUTOINCREMENT_SQL_FOR_BATCH_ID = "AUTOINCREMENT_SQL_FOR_BATCH_ID";
 
+  public static final String ID_USERNAME_LABEL = "username-label";
+  public static final String ID_USERNAME_WIDGET = "username-widget";
+
+  public static final String ID_PASSWORD_LABEL = "password-label";
+  public static final String ID_PASSWORD_WIDGET = "password-widget";
+
   /**
    * Boolean to indicate if savepoints can be released Most databases do, so we set it to true. Child classes can
    * overwrite with false if need be.
