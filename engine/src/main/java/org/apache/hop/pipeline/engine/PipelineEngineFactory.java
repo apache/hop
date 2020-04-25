@@ -51,8 +51,16 @@ public class PipelineEngineFactory {
     }
 
     IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
+
+    // inherit variables from the metadata
+    //
+    pipelineEngine.initializeVariablesFrom( pipelineMeta );
+
+    // Pass the metastore to make sure
+    //
     pipelineEngine.setMetaStore( metaStore );
     pipelineMeta.setMetaStore( metaStore );
+
     return pipelineEngine;
   }
 

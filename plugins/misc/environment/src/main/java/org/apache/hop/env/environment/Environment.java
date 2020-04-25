@@ -52,9 +52,6 @@ public class Environment implements IHopMetaStoreElement<Environment> {
   @MetaStoreAttribute
   private String environmentHomeFolder;
 
-  @MetaStoreAttribute( key = "homeFolder" )
-  private String hopHomeFolder;
-
   @MetaStoreAttribute
   private String metaStoreBaseFolder;
 
@@ -97,16 +94,7 @@ public class Environment implements IHopMetaStoreElement<Environment> {
     return objectMapper.readValue( jsonString, Environment.class );
   }
 
-
-  public void modifySystem() {
-    modifyVariables( null, true );
-  }
-
   public void modifyVariables( IVariables variables ) {
-    modifyVariables( variables, false );
-  }
-
-  public void modifyVariables( IVariables variables, boolean modifySystem ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
@@ -115,56 +103,27 @@ public class Environment implements IHopMetaStoreElement<Environment> {
     // Set the name of the active environment
     //
     variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
-    if ( modifySystem ) {
-      System.setProperty( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
-    }
 
     if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
       String realValue = variables.environmentSubstitute( environmentHomeFolder );
       variables.setVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
-      if ( modifySystem ) {
-        System.setProperty( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
-      }
-    }
-    if ( StringUtils.isNotEmpty( hopHomeFolder ) ) {
-      String realValue = variables.environmentSubstitute( hopHomeFolder );
-      variables.setVariable( "HOP_HOME", realValue );
-      if ( modifySystem ) {
-        System.setProperty( "HOP_HOME", realValue );
-      }
     }
     if ( StringUtils.isNotEmpty( metaStoreBaseFolder ) ) {
       String realValue = variables.environmentSubstitute( metaStoreBaseFolder );
       variables.setVariable( Const.HOP_METASTORE_FOLDER, realValue );
-      if ( modifySystem ) {
-        System.setProperty( Const.HOP_METASTORE_FOLDER, realValue );
-      }
     }
     if ( StringUtils.isNotEmpty( unitTestsBasePath ) ) {
       String realValue = variables.environmentSubstitute( unitTestsBasePath );
       variables.setVariable( EnvironmentUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
-      if ( modifySystem ) {
-        System.setProperty( EnvironmentUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
-      }
     }
     if ( StringUtils.isNotEmpty( dataSetsCsvFolder ) ) {
       String realValue = variables.environmentSubstitute( dataSetsCsvFolder );
       variables.setVariable( EnvironmentUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
-      if ( modifySystem ) {
-        System.setProperty( EnvironmentUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
-      }
     }
 
     for ( EnvironmentVariable variable : this.variables ) {
       if ( variable.getName() != null ) {
         variables.setVariable( variable.getName(), variable.getValue() );
-        if ( modifySystem ) {
-          if ( StringUtils.isEmpty( variable.getValue() ) ) {
-            System.clearProperty( variable.getName() );
-          } else {
-            System.setProperty( variable.getName(), variable.getValue() );
-          }
-        }
       }
     }
   }
@@ -247,22 +206,6 @@ public class Environment implements IHopMetaStoreElement<Environment> {
    */
   public void setEnvironmentHomeFolder( String environmentHomeFolder ) {
     this.environmentHomeFolder = environmentHomeFolder;
-  }
-
-  /**
-   * Gets kettleHomeFolder
-   *
-   * @return value of kettleHomeFolder
-   */
-  public String getHopHomeFolder() {
-    return hopHomeFolder;
-  }
-
-  /**
-   * @param hopHomeFolder The kettleHomeFolder to set
-   */
-  public void setHopHomeFolder( String hopHomeFolder ) {
-    this.hopHomeFolder = hopHomeFolder;
   }
 
   /**

@@ -5,6 +5,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 @ExtensionPoint(
@@ -15,15 +16,9 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 /**
  * validate whether or not the pipeline about to be executed is part of the current environment
  */
-public class PipelineStartCheckEnvironmentExtensionPoint implements IExtensionPoint {
+public class PipelineStartCheckEnvironmentExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object object ) throws HopException {
-
-    if ( !( object instanceof IPipelineEngine ) ) {
-      return;
-    }
-
-    IPipelineEngine pipeline = (IPipelineEngine) object;
+  @Override public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     String filename = pipeline.getFilename();
 

@@ -63,11 +63,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class HopRun implements Runnable {
-  public static final String XP_HOP_RUN_START = "HopRunStart";
-  public static final String XP_CREATE_ENVIRONMENT = "CreateEnvironment";
-  public static final String XP_IMPORT_ENVIRONMENT = "ImportEnvironment";
 
-  @Option( names = { "-f", "-z", "--file" }, description = "The filename of the workflow or pipeline to run" )
+  @Option( names = { "-f", "--file" }, description = "The filename of the workflow or pipeline to run" )
   private String filename;
 
   @Option( names = { "-l", "--level" }, description = "The debug level, one of NONE, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL" )
@@ -94,6 +91,11 @@ public class HopRun implements Runnable {
   @Option( names = { "-o", "--printoptions" }, description = "Print the used options" )
   private boolean printingOptions = false;
 
+  // This is only used by the environment plugin : TODO: figure out how to make it pluggable as well. (picocli)?
+  //
+  @Option( names = { "-e", "--environment" }, description = "The name of the environment to use" )
+  private String environment = null;
+
   private IVariables variables;
   private String realRunConfigurationName;
   private String realFilename;
@@ -105,10 +107,17 @@ public class HopRun implements Runnable {
     validateOptions();
 
     try {
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopRunInit.id, this );
+
       initialize( cmd );
 
       log = new LogChannel( "HopRun" );
+      log.setLogLevel( determineLogLevel() );
       log.logDetailed( "Start of Hop Run" );
+
+      // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even loaded
+      //
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopRunStart.id, this );
 
       if ( isPipeline() ) {
         runPipeline( cmd, log );
@@ -116,6 +125,8 @@ public class HopRun implements Runnable {
       if ( isJob() ) {
         runWorkflow( cmd, log );
       }
+
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopRunEnd.id, this );
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "There was an error during execution of file '" + filename + "'", e );
     }
@@ -151,13 +162,13 @@ public class HopRun implements Runnable {
   }
 
   private void buildVariableSpace() throws IOException {
-    // Load hop.properties before running for convenience...
+    // Load hop.properties before running.
     //
     variables = Variables.getADefaultVariableSpace();
-    Properties kettleProperties = new Properties();
-    kettleProperties.load( new FileInputStream( Const.getHopDirectory() + "/hop.properties" ) );
-    for ( final String key : kettleProperties.stringPropertyNames() ) {
-      variables.setVariable( key, kettleProperties.getProperty( key ) );
+    Properties hopProperties = new Properties();
+    hopProperties.load( new FileInputStream( Const.getHopDirectory() + "/hop.properties" ) );
+    for ( final String key : hopProperties.stringPropertyNames() ) {
+      variables.setVariable( key, hopProperties.getProperty( key ) );
     }
   }
 
@@ -182,11 +193,6 @@ public class HopRun implements Runnable {
       //
       configureParametersAndVariables( cmd, configuration, pipelineMeta, pipelineMeta );
 
-      // Certain Pentaho plugins rely on this.  Meh.
-      //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
-        configuration, null, pipelineMeta, null } );
-
       // Before running, do we print the options?
       //
       if ( printingOptions ) {
@@ -208,21 +214,7 @@ public class HopRun implements Runnable {
   private void calculateRealFilename() throws HopException {
     realFilename = variables.environmentSubstitute( filename );
 
-    try {
-      FileObject fileObject = HopVfs.getFileObject( realFilename );
-      if ( !fileObject.exists() ) {
-        // Try to prepend with ${ENVIRONMENT_HOME}
-        //
-        String alternativeFilename = variables.environmentSubstitute( "${ENVIRONMENT_HOME}/" + filename );
-        fileObject = HopVfs.getFileObject( alternativeFilename );
-        if ( fileObject.exists() ) {
-          realFilename = alternativeFilename;
-          log.logMinimal( "Relative path filename specified: " + realFilename );
-        }
-      }
-    } catch ( Exception e ) {
-      throw new HopException( "Error calculating filename", e );
-    }
+    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopRunCalculateFilename.id, this );
   }
 
   private void runPipeline( CommandLine cmd, ILogChannel log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
@@ -316,11 +308,15 @@ public class HopRun implements Runnable {
 
     realRunConfigurationName = variables.environmentSubstitute( runConfigurationName );
     configuration.setRunConfiguration( realRunConfigurationName );
-    configuration.setLogLevel( LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) ) );
+    configuration.setLogLevel( determineLogLevel() );
 
     // Set variables and parameters...
     //
     parseParametersAndVariables( cmd, configuration, namedParams );
+  }
+
+  private LogLevel determineLogLevel() {
+    return LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) );
   }
 
   private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws MetaStoreException {
@@ -464,7 +460,7 @@ public class HopRun implements Runnable {
    *
    * @return value of metaStore
    */
-  public IMetaStore getMetaStore() {
+  public DelegatingMetaStore getMetaStore() {
     return metaStore;
   }
 
@@ -626,6 +622,84 @@ public class HopRun implements Runnable {
    */
   public void setSystemProperties( String[] systemProperties ) {
     this.systemProperties = systemProperties;
+  }
+
+  /**
+   * Gets environment
+   *
+   * @return value of environment
+   */
+  public String getEnvironment() {
+    return environment;
+  }
+
+  /**
+   * @param environment The environment to set
+   */
+  public void setEnvironment( String environment ) {
+    this.environment = environment;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * @param variables The variables to set
+   */
+  public void setVariables( IVariables variables ) {
+    this.variables = variables;
+  }
+
+  /**
+   * Gets realRunConfigurationName
+   *
+   * @return value of realRunConfigurationName
+   */
+  public String getRealRunConfigurationName() {
+    return realRunConfigurationName;
+  }
+
+  /**
+   * @param realRunConfigurationName The realRunConfigurationName to set
+   */
+  public void setRealRunConfigurationName( String realRunConfigurationName ) {
+    this.realRunConfigurationName = realRunConfigurationName;
+  }
+
+  /**
+   * Gets realFilename
+   *
+   * @return value of realFilename
+   */
+  public String getRealFilename() {
+    return realFilename;
+  }
+
+  /**
+   * @param realFilename The realFilename to set
+   */
+  public void setRealFilename( String realFilename ) {
+    this.realFilename = realFilename;
+  }
+
+  /**
+   * @param log The log to set
+   */
+  public void setLog( ILogChannel log ) {
+    this.log = log;
+  }
+
+  /**
+   * @param metaStore The metaStore to set
+   */
+  public void setMetaStore( DelegatingMetaStore metaStore ) {
+    this.metaStore = metaStore;
   }
 
   public static void main( String[] args ) {

@@ -113,6 +113,11 @@ public enum HopExtensionPoint {
   HopGuiMetaStoreElementCreated("A new metastore element is created"),
   HopGuiMetaStoreElementUpdated("A metastore element is updated"),
   HopGuiMetaStoreElementDeleted("A metastore element is deleted"),
+
+  HopRunInit( "At the start of the HopRun command line, before initialization" ),
+  HopRunCalculateFilename( "Right after the filename is determined, before it is used in any way" ),
+  HopRunStart( "At the start of the HopRun command line, before loading metadata execution" ),
+  HopRunEnd( "At the end of the HopRun command line execution" ),
   ;
 
   public String id;
