@@ -6,11 +6,12 @@ cd $BASEDIR
 
 # Settings for all OSses
 #
-OPTIONS='-Xmx1g'
-
+if [ -z "$PENTAHO_DI_JAVA_OPTIONS" ]; then
+  HOP_OPTIONS="-Xmx2048m"
+fi
 # optional line for attaching a debugger
 #
-OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
 
 case $( uname -s ) in
@@ -24,7 +25,7 @@ case $( uname -s ) in
 esac
 
 
-java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui $@
+java ${HOP_OPTIONS} -Djava.library.path=$LIBPATH -classpath "${CLASSPATH}" org.apache.hop.ui.hopgui.HopGui $@
 EXITCODE=$?
 
 cd ${ORIGINDIR}

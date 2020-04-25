@@ -17,7 +17,5 @@
 
     <modules>
         <module>lib</module>
-        <module>static</module>
-        <module>client</module>
     </modules>
 </project>
