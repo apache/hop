@@ -16,7 +16,7 @@ As always, the row layout for the input data coming from both transforms has to 
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
 |Head hop|The name of the transform from which will be read from first.
 |Tail hop|The name of the transform from which will be read from last. 
 |===

@@ -15,7 +15,7 @@ You can use the Execute a process transform to execute a shell script on the hos
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; this name has to be unique in a single pipeline
+|Transform name|Name of the transform; this name has to be unique in a single pipeline
 |Process field|The field name in the data stream that defines the process to start (shell script / batch file to start). Arguments can also be used.
 |Fail if not success|Checking this option means if the exit status is different than zero the transform fails. You can use error handling to get these rows.
 |Output line delimiter|Without defining a line delimiter, all returned lines are collapsed into a single string with no line delimiters.

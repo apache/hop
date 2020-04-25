@@ -12,7 +12,7 @@ This transform creates copies (clones) of a row and outputs them directly after 
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
 |Nr clones|The number of clones you want to add after the original row.
 |Add clone flag a|Check this option if you want to add a boolean field in the output indicating if the row is a clone or not.
 

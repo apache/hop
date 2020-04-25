@@ -13,7 +13,7 @@ Technically, this transform reads all input rows in memory and calculates all po
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|The name that uniquely identifies the transform.
+|Transform name|The name that uniquely identifies the transform.
 |Parent ID field|The field name that contains the parent ID of the parent-child relationship.
 |Child ID field|The field name that contains the child ID of the parent-child relationship.
 |Distance field name|The name of the distance field that will be added to the output

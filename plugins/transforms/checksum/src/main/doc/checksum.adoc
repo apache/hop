@@ -12,7 +12,7 @@ This transform calculates checksums for one or more fields in the input stream a
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
 |Type a|The type of checksum that needs to be calculated.  These are the types that are available:
 
 * CRC32 : 32-bit Cyclic Redundancy Check : http://en.wikipedia.org/wiki/Cyclic_redundancy_check

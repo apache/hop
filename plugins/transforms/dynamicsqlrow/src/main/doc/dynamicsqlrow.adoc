@@ -12,7 +12,7 @@ The Dynamic SQL row transform allows you to execute a SQL statement that is defi
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; This name has to be unique in a single pipeline
+|Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|Select a database connection for the lookup
 |SQL field name|Specify the field that contains the SQL to execute
 |Number of rows to return|Specify the number of records to return. 0 means, return all rows
