@@ -51,7 +51,6 @@ import java.util.List;
 
 @Transform(
         id = "ExecProcess",
-        image = "ui/images/RPL.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.execprocess",
         name = "BaseTransform.TypeLongDesc.ExecProcess",
         description = "BaseTransform.TypeTooltipDesc.ExecProcess",
@@ -365,11 +364,6 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
 
   public void setArgumentFieldNames(String[] argumentFieldNames) {
     this.argumentFieldNames = argumentFieldNames;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return ExecProcessDialog.class.getName();
   }
 
 }

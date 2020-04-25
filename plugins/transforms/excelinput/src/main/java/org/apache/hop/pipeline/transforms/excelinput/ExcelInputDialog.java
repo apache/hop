@@ -26,6 +26,7 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -71,6 +72,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+@PluginDialog(
+        id = "ExcelInput",
+        image = "excelinput.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 

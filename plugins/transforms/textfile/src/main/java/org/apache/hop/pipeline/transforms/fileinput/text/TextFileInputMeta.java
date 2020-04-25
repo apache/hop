@@ -68,7 +68,6 @@ import java.util.Map;
 @SuppressWarnings( "deprecation" )
 @Transform(
         id = "TextFileInput",
-        image = "ui/images/TFI.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.fileinput.text",
         name = "BaseTransform.TypeLongDesc.TextFileInput",
         description = "BaseTransform.TypeTooltipDesc.TextFileInput",
@@ -1171,8 +1170,4 @@ public class TextFileInputMeta
     return fileList.nrOfFiles() == 0 ? null : fileList.getFile( 0 );
   }
 
-  @Override
-  public String getDialogClassName(){
-    return TextFileInputDialog.class.getName();
-  }
 }

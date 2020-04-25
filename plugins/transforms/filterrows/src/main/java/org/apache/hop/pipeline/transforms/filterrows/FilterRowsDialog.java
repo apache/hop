@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.filterrows;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -58,6 +59,12 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
+@PluginDialog(
+        id = "FilterRows",
+        image = "filterrows.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 

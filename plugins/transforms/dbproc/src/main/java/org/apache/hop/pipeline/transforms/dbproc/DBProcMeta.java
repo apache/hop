@@ -55,12 +55,10 @@ import java.util.List;
 
 @Transform(
         id = "DBProc",
-        image = "ui/images/PRC.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.dbproc",
         name = "BaseTransform.TypeLongDesc.CallDBProcedure",
         description = "BaseTransform.TypeTooltipDesc.CallDBProcedure",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
 public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
 
@@ -459,8 +457,4 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
     return true;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DBProcDialog.class.getName();
-  }
 }

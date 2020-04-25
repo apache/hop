@@ -44,7 +44,6 @@ import java.util.List;
 
 @Transform(
         id = "DataGrid",
-        image = "ui/images/GNR.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.datagrid",
         name = "BaseTransform.TypeLongDesc.DataGrid",
         description = "BaseTransform.TypeTooltipDesc.DataGrid",
@@ -408,9 +407,4 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
     return new DataGridData();
   }
 
-
-  @Override
-  public String getDialogClassName(){
-    return DataGridDialog.class.getName();
-  }
 }

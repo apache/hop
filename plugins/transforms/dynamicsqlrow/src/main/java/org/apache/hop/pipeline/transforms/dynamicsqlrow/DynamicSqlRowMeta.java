@@ -49,7 +49,6 @@ import java.util.List;
 
 @Transform(
         id = "DynamicSqlRow",
-        image = "ui/images/DSR.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.dynamicsqlrow",
         name = "BaseTransform.TypeLongDesc.DynamicSQLRow",
         description = "BaseTransform.TypeTooltipDesc.DynamicSQLRow",
@@ -405,8 +404,4 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
     return true;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DynamicSqlRowDialog.class.getName();
-  }
 }

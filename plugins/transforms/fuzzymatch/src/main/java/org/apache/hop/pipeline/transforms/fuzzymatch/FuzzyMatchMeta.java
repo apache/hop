@@ -51,12 +51,10 @@ import java.util.List;
 
 @Transform(
         id = "FuzzyMatch",
-        image = "ui/images/FZM.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fuzzymatch",
         name = "BaseTransform.TypeLongDesc.FuzzyMatch",
         description = "BaseTransform.TypeTooltipDesc.FuzzyMatch",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
 public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
@@ -728,10 +726,5 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void resetTransformIoMeta() {
     // Do nothing, don't reset as there is no need to do this.
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FuzzyMatchDialog.class.getName();
   }
 }

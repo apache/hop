@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -67,6 +68,12 @@ import java.util.*;
 /**
  * Dialog for the Dimension Lookup/Update transform.
  */
+@PluginDialog(
+        id = "DimensionLookup",
+        image = "dimensionlookup.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DimensionLookupMeta.class; // for
   // i18n

@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -51,6 +52,12 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
+@PluginDialog(
+        id = "FieldsChangeSequence",
+        image = "fieldschangesequence.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class FieldsChangeSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -70,7 +70,6 @@ import java.util.Map;
 
 @Transform(
         id = "CSVInput",
-        image = "ui/images/TFI.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.csvinput",
         name = "BaseTransform.TypeLongDesc.CsvInput",
         description = "BaseTransform.TypeTooltipDesc.CsvInput",
@@ -691,10 +690,4 @@ public class CsvInputMeta
     }
   }
 
-
-  @Override
-  public String getDialogClassName(){
-
-    return CsvInputDialog.class.getName();
-  }
 }

@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -56,6 +57,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "CreditCardValidator",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        image = "creditcardvalidator.svg",
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/creditcardvalidator.html"
+)
 public class CreditCardValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator!!
 

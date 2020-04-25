@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
@@ -51,6 +52,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "GetFilesRowsCount",
+        image = "getfilesrowcount.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getfilesrowcount.html"
+)
 public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
 

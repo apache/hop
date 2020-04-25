@@ -31,8 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transforms.numberrange.NumberRangeMeta;
-import org.apache.hop.pipeline.transforms.numberrange.NumberRangeRule;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -66,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
  */
 @PluginDialog(
         id = "NumberRange",
-        image = "NRI.svg",
+        image = "numberrange.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
         documentationUrl = "" )
 public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {

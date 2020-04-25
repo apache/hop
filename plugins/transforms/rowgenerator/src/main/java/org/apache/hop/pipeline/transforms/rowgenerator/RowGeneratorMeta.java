@@ -52,8 +52,8 @@ import java.util.List;
 /*
  * Created on 4-apr-2003
  */
-@Transform(  id = "RowGenerator",
-        image = "ui/images/GEN.svg",
+@Transform(
+        id = "RowGenerator",
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowgenerator",
         name = "BaseTransform.TypeLongDesc.GenerateRows",
         description = "BaseTransform.TypeTooltipDesc.GenerateRows",
@@ -508,10 +508,5 @@ public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMet
    */
   public void setValue( String[] value ) {
     this.value = value;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return RowGeneratorDialog.class.getName();
   }
 }

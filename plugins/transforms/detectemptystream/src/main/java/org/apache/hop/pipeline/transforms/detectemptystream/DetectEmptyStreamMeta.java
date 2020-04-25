@@ -44,7 +44,6 @@ import java.util.List;
  */
 @Transform(
         id = "DetectEmptyStream",
-        image = "ui/images/EMS.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectemptystream",
         name = "BaseTransform.TypeLongDesc.DetectEmptyStream",
         description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",
@@ -115,8 +114,4 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
     return new PipelineType[] { PipelineType.Normal, };
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DetectEmptyStreamDialog.class.getName();
-  }
 }

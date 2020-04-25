@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.detectlastrow;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -37,6 +38,12 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
+@PluginDialog(
+        id = "DetectLastRow",
+        image = "detectlastrow.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class DetectLastRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 

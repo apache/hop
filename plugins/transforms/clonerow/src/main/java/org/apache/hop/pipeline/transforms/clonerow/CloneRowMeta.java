@@ -53,7 +53,7 @@ import java.util.List;
   id = "CloneRow", 
   name = "CloneRow.Name",  
   description = "CloneRow.Description",
-  image = "CloneRow.svg",
+  image = "clonerow.svg",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
   i18nPackageName = "org.apache.hop.pipeline.transforms.clonerow"
 )

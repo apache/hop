@@ -49,7 +49,6 @@ import java.util.List;
 
 @Transform(
         id = "FieldsChangeSequence",
-        image = "ui/images/CSEQ.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.datagrid",
         name = "BaseTransform.TypeLongDesc.FieldsChangeSequence",
         description = "BaseTransform.TypeTooltipDesc.FieldsChangeSequence",
@@ -289,11 +288,6 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FieldsChangeSequenceDialog.class.getName();
   }
 
 }

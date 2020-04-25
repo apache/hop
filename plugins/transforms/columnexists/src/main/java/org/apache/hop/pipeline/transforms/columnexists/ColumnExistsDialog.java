@@ -62,8 +62,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-@PluginDialog( id = "ColumnExists", image = "ColumnExists.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "https://wiki.pentaho.com/display/EAI/Check+if+a+column+exists" )
+@PluginDialog(
+        id = "ColumnExists",
+        image = "columnexists.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/columnexists.html"
+)
 public class ColumnExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ColumnExistsDialog.class; // for i18n purposes, needed by Translator!!
 

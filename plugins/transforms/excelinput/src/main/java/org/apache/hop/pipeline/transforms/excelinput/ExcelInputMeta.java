@@ -63,7 +63,6 @@ import java.util.Map;
  */
 @Transform(
         id = "ExcelInput",
-        image = "ui/images/XLI.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.excelinput",
         name = "BaseTransform.TypeLongDesc.ExcelInput",
         description = "BaseTransform.TypeTooltipDesc.ExcelInput",
@@ -1478,8 +1477,4 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
     this.normilizeAllocation();
   }
 
-  @Override
-  public String getDialogClassName(){
-    return ExcelInputDialog.class.getName();
-  }
 }

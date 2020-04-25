@@ -54,7 +54,6 @@ import java.util.List;
 
 @Transform(
         id = "DBJoin",
-        image = "ui/images/DBJ.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.databasejoin",
         name = "BaseTransform.TypeLongDesc.DatabaseJoin",
         description = "BaseTransform.TypeTooltipDesc.DatabaseJoin",
@@ -566,8 +565,4 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
     return true;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return DatabaseJoinDialog.class.getName();
-  }
 }

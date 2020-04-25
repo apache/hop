@@ -50,12 +50,10 @@ import java.util.List;
 
 @Transform(
         id = "FileExists",
-        image = "ui/images/FEX.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fileexists",
         name = "BaseTransform.TypeLongDesc.FileExists",
         description = "BaseTransform.TypeTooltipDesc.FileExists",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
 )
 public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<FileExists, FileExistsData> {
   private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
@@ -247,10 +245,5 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return FileExistsDialog.class.getName();
   }
 }

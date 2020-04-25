@@ -53,8 +53,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-@PluginDialog( id = "Abort", image = "Abort.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "Products/Data_Integration/Pipeline_Transform_Reference/Abort" )
+@PluginDialog(
+        id = "Abort",
+        image = "abort.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/abort.html"
+)
 public class AbortDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AbortDialog.class; // for i18n purposes, needed by Translator!!
 
@@ -329,7 +333,7 @@ public class AbortDialog extends BaseTransformDialog implements ITransformDialog
   }
 
   private Image getImage() {
-    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "Abort.svg", ConstUi.LARGE_ICON_SIZE,
+    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "abort.svg", ConstUi.LARGE_ICON_SIZE,
       ConstUi.LARGE_ICON_SIZE );
   }
 

@@ -59,12 +59,10 @@ import java.util.Map;
 
 @Transform(
         id = "GetFileNames",
-        image = "ui/images/GFN.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getfilenames",
         name = "BaseTransform.TypeLongDesc.GetFileNames",
         description = "BaseTransform.TypeTooltipDesc.GetFileNames",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMeta<GetFileNames, GetFileNamesData> {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
@@ -767,10 +765,5 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
     } catch ( Exception e ) {
       throw new HopException( e );
     }
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return GetFileNamesDialog.class.getName();
   }
 }

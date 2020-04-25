@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.sql;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -74,6 +75,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+        id = "ExecSql",
+        image = "SQL.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/sql.html"
+)
 public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!
 

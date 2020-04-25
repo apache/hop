@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.sort;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -51,6 +52,12 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
+@PluginDialog(
+        id = "SortRows",
+        image = "sortrows.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/sort.html"
+)
 public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
 

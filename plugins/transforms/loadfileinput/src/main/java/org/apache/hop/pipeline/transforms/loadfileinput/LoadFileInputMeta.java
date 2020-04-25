@@ -59,12 +59,10 @@ import java.util.Map;
 
 @Transform(
         id = "LoadFileInput",
-        image = "ui/images/LFI.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.loadfileinput",
         name = "BaseTransform.TypeLongDesc.LoadFileInput",
         description = "BaseTransform.TypeTooltipDesc.LoadFileInput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMeta<LoadFileInput, LoadFileInputData> {
   private static final String INCLUDE = "include";
@@ -1096,10 +1094,5 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
     result = 31 * result + ( rootUriNameFieldName != null ? rootUriNameFieldName.hashCode() : 0 );
     result = 31 * result + ( extensionFieldName != null ? extensionFieldName.hashCode() : 0 );
     return result;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return LoadFileInputDialog.class.getName();
   }
 }

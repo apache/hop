@@ -53,8 +53,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-@PluginDialog( id = "ClosureGenerator", image = "ClosureGenerator.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Closure+Generator" )
+@PluginDialog(
+        id = "ClosureGenerator",
+        image = "closuregenerator.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/closure.html"
+)
 public class ClosureGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ClosureGeneratorDialog.class; // for i18n purposes, needed by Translator!!
 

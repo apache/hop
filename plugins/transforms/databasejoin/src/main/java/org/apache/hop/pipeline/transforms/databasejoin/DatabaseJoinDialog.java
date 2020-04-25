@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.databasejoin;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -51,6 +52,12 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
+@PluginDialog(
+        id = "DBJoin",
+        image = "dbjoin.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/databasejoin.html"
+)
 public class DatabaseJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -51,8 +51,7 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.uniquerows",
         name = "BaseTransform.TypeLongDesc.UniqueRows",
         description = "BaseTransform.TypeTooltipDesc.UniqueRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class UniqueRowsMeta extends BaseTransformMeta implements ITransformMeta<UniqueRows, UniqueRowsData> {
   private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!

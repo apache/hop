@@ -50,8 +50,12 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-@PluginDialog( id = "BlockingTransform", image = "BLK.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://wiki.pentaho.com/display/EAI/Blocking+transform" )
+@PluginDialog(
+        id = "BlockingTransform",
+        image = "blockingtransform.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/blockingtransform.html"
+)
 public class BlockingTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BlockingTransformDialog.class; // for i18n purposes, needed by Translator!!
 

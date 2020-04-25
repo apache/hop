@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -65,7 +64,7 @@ import java.util.Set;
 
 @PluginDialog(
         id = "MemoryGroupBy",
-        image = "ui/images/MGB.svg",
+        image = "memorygroupby.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
         documentationUrl = ""
 )
