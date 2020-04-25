@@ -163,7 +163,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       @Override public List<GuiAction> getSupportedActions() {
         List<GuiAction> actions = new ArrayList<>();
 
-        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "New pipeline", "Create a new pipeline",
+        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Pipeline", "Creates a new pipeline. Process your data using a network of transforms running in parallel",
           BasePropertyHandler.getProperty( "Pipeline_image" ),
           ( shiftClicked, controlClicked, parameters ) -> {
             try {

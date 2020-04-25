@@ -300,7 +300,15 @@ public class HopGui implements IActionContextHandlersProvider {
         hopGui.getLog().logError( "Error calling extension point plugin(s) for HopGuiInit", e);
       }
 
-      hopGui.open();
+      boolean quit = false;
+      while (!quit) {
+        try {
+          hopGui.open();
+          quit = hopGui.getShell().isDisposed();
+        } catch ( Throwable e ) {
+          originalSystemErr.println( "Serious error detected in the Hop GUI: " + e.getMessage() );
+        }
+      }
 
       System.exit( 0 );
     } catch ( Throwable e ) {
@@ -497,7 +505,7 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
-  public void menuFileMetaStore() {
+  public void menuFileDeleteMetaStore() {
     contextDelegate.fileMetaStoreDelete();
   }
 

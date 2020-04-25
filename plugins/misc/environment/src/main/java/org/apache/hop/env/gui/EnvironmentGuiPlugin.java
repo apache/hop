@@ -29,8 +29,8 @@ import java.util.List;
 @GuiPlugin
 @GuiMetaStoreElement(
   name = "Environment",
-  description = "A environment to manage your projects",
-  iconImage = "ui/images/HTP.svg"
+  description = "An environment to manage your project",
+  iconImage = "environment.svg"
 )
 public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 

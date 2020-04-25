@@ -23,9 +23,16 @@
 package org.apache.hop.ui.core.metastore;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
@@ -37,14 +44,17 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is a utility class which allows you to create or edit metastore elements in a generic fashion
@@ -80,16 +90,36 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
    * @return True if anything was changed
    */
   public boolean editMetadata() {
+    HopGui hopGui = HopGui.getInstance();
     try {
       List<String> names = getNames();
-      EnterSelectionDialog dialog = new EnterSelectionDialog( HopGui.getInstance().getShell(), names.toArray( new String[ 0 ] ), "Select the element", "Select the element to edit" );
-      String name = dialog.open();
-      if ( name != null ) {
-        return editMetadata( name );
+
+      // Is there a GuiPlugin available for T?
+      //
+      HopMetaStoreGuiPluginDetails details = GuiRegistry.getInstance().getMetaStoreTypeMap().get( managedClass );
+      if (details!=null) {
+        // Show an action dialog...
+        //
+        List<GuiAction> actions = new ArrayList<>(  );
+        for (final String name : names) {
+          GuiAction action = new GuiAction( name, GuiActionType.Modify, name, name + " : " + details.getDescription(), details.getIconImage(),
+            ( shiftAction, controlAction, t ) -> editMetadata( name ) );
+          action.setClassLoader( getClassLoader() );
+          actions.add(action);
+        }
+        return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the "+details.getName()+" to edit", actions );
+      } else {
+        // The regular selection dialog
+        //
+        EnterSelectionDialog dialog = new EnterSelectionDialog( hopGui.getShell(), names.toArray( new String[ 0 ] ), "Select the element", "Select the element to edit" );
+        String name = dialog.open();
+        if ( name != null ) {
+          return editMetadata( name );
+        }
+        return false;
       }
-      return false;
     } catch ( Exception e ) {
-      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing metadata", e );
+      new ErrorDialog( hopGui.getShell(), "Error", "Error editing metadata", e );
       return false;
     }
   }
@@ -100,16 +130,36 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
    * @return True if anything was changed
    */
   public boolean deleteMetadata() {
+    HopGui hopGui = HopGui.getInstance();
     try {
       List<String> names = getNames();
-      EnterSelectionDialog dialog = new EnterSelectionDialog( HopGui.getInstance().getShell(), names.toArray( new String[ 0 ] ), "Delete an element", "Select the element to delete" );
-      String name = dialog.open();
-      if ( name != null ) {
-        return deleteMetadata( name );
+
+      // Is there a GuiPlugin available for T?
+      //
+      HopMetaStoreGuiPluginDetails details = GuiRegistry.getInstance().getMetaStoreTypeMap().get( managedClass );
+      if (details!=null) {
+        // Show an action dialog...
+        //
+        List<GuiAction> actions = new ArrayList<>();
+        for ( final String name : names ) {
+          GuiAction action = new GuiAction( name, GuiActionType.Delete, name, name + " : " + details.getDescription(), details.getIconImage(),
+            ( shiftAction, controlAction, t ) -> deleteMetadata( name ) );
+          action.setClassLoader( getClassLoader() );
+          actions.add( action );
+        }
+        return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + details.getName() + " to delete after confirmation", actions );
+      } else {
+        // Good old selection dialog
+        //
+        EnterSelectionDialog dialog = new EnterSelectionDialog( hopGui.getShell(), names.toArray( new String[ 0 ] ), "Delete an element", "Select the element to delete" );
+        String name = dialog.open();
+        if ( name != null ) {
+          return deleteMetadata( name );
+        }
+        return false;
       }
-      return false;
     } catch ( Exception e ) {
-      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error deleting metadata", e );
+      new ErrorDialog( hopGui.getShell(), "Error", "Error deleting metadata", e );
       return false;
     }
   }
