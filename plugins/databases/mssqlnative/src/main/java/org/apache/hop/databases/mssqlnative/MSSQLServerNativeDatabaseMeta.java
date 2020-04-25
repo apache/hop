@@ -23,6 +23,7 @@
 package org.apache.hop.databases.mssqlnative;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -31,16 +32,29 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.ui.core.database.DatabaseMetaDialog;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @DatabaseMetaPlugin(
   type = "MSSQLNATIVE",
   typeDescription = "MS SQL Server (Native)"
 )
 @GuiPlugin( id = "GUI-MSSQLServerNativeDatabaseMeta" )
-public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
+public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta implements IGuiPluginCompositeWidgetsListener {
+
+  public static final String ID_INTEGRATED_SECURITY_WIDGET = "usingIntegratedSecurity";
 
   @GuiWidgetElement(
-	 id = "usingIntegratedSecurity",
+	 id = ID_INTEGRATED_SECURITY_WIDGET,
 	 order = "21",
 	 parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
 	 type = GuiElementType.CHECKBOX,
@@ -49,6 +63,40 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta {
   )
   @MetaStoreAttribute
   private boolean usingIntegratedSecurity;
+
+  @Override public void widgetsCreated( GuiCompositeWidgets compositeWidgets ) {
+  }
+
+  @Override public void widgetsPopulated( GuiCompositeWidgets compositeWidgets ) {
+    enableField(compositeWidgets);
+  }
+
+  @Override public void widgetModified( GuiCompositeWidgets compositeWidgets, Control changedWidget ) {
+    enableField(compositeWidgets);
+  }
+
+  private void enableField( GuiCompositeWidgets compositeWidgets ) {
+    List<Control> controls = new ArrayList<>(  );
+    String[] ids = new String[] {
+      BaseDatabaseMeta.ID_USERNAME_LABEL,
+      BaseDatabaseMeta.ID_USERNAME_WIDGET,
+      BaseDatabaseMeta.ID_PASSWORD_LABEL,
+      BaseDatabaseMeta.ID_PASSWORD_WIDGET,
+    };
+    for (String id : ids) {
+      // During creation and so on we get widgets which aren't there. TODO: fix this
+      Control control = compositeWidgets.getWidgetsMap().get( id );
+      if (control!=null) {
+        controls.add(control);
+      }
+    }
+    Button wIntegratedSecurity = (Button) compositeWidgets.getWidgetsMap().get( ID_INTEGRATED_SECURITY_WIDGET );
+
+    boolean enable = !wIntegratedSecurity.getSelection();
+    for (Control control : controls) {
+      control.setEnabled( enable );
+    }
+  }
 
   /**
    * Gets usingIntegratedSecurity

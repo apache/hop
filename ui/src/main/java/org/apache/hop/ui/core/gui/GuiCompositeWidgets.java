@@ -25,14 +25,12 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -46,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import java.beans.PropertyDescriptor;
@@ -60,14 +57,12 @@ import java.util.Map;
  */
 public class GuiCompositeWidgets {
 
-  private static final String LABEL_ID_PREFIX = "label-";
-
   private IVariables variables;
   private Map<String, Control> labelsMap;
   private Map<String, Control> widgetsMap;
-  private Map<String, ToolItem> toolItemMap;
   private int maxNrItems;
   private int nrItems;
+  private IGuiPluginCompositeWidgetsListener compositeWidgetsListener;
 
   public GuiCompositeWidgets( IVariables variables ) {
     this(variables, 0);
@@ -78,11 +73,20 @@ public class GuiCompositeWidgets {
     this.maxNrItems = maxNrItems;
     labelsMap = new HashMap<>();
     widgetsMap = new HashMap<>();
-    toolItemMap = new HashMap<>();
     nrItems =0;
+    compositeWidgetsListener = null;
   }
 
   public void createCompositeWidgets( Object sourceData, String parentKey, Composite parent, String parentGuiElementId, Control lastControl ) {
+
+    /*
+      The developer wants to be informed of any change to the content of the widget
+      We're just creating the widgets here so once the data is set it will generate a lot of modify listener events
+     */
+    if (sourceData instanceof IGuiPluginCompositeWidgetsListener ) {
+      compositeWidgetsListener = (IGuiPluginCompositeWidgetsListener) sourceData;
+    }
+
     // Find the GUI Elements for the given class...
     //
     GuiRegistry registry = GuiRegistry.getInstance();
@@ -102,6 +106,10 @@ public class GuiCompositeWidgets {
     //
     addCompositeWidgets( sourceData, parent, guiElements, lastControl );
 
+    if (compositeWidgetsListener!=null) {
+      compositeWidgetsListener.widgetsCreated( this );
+    }
+
     // Force re-layout
     //
     parent.layout( true, true );
@@ -114,7 +122,6 @@ public class GuiCompositeWidgets {
     }
 
     PropsUi props = PropsUi.getInstance();
-    boolean isToolbar = parent instanceof ToolBar;
     Label label = null;
     Control control = null;
     ToolItem separator = null;
@@ -123,13 +130,11 @@ public class GuiCompositeWidgets {
     //
     if ( guiElements.getId() != null ) {
 
-      if ( isToolbar && ( guiElements.isAddingSeparator() || guiElements.getType() != GuiElementType.TOOLBAR_BUTTON ) ) {
-        separator = new ToolItem( (ToolBar) parent, SWT.SEPARATOR );
-      }
+
 
       // Add the label on the left hand side...
       //
-      if ( !isToolbar && StringUtils.isNotEmpty( guiElements.getLabel() ) ) {
+      if ( StringUtils.isNotEmpty( guiElements.getLabel() ) ) {
         label = new Label( parent, SWT.RIGHT | SWT.SINGLE );
         props.setLook( label );
         label.setText( Const.NVL( guiElements.getLabel(), "" ) );
@@ -156,6 +161,7 @@ public class GuiCompositeWidgets {
               textVar.setEchoChar( '*' );
             }
             widgetsMap.put( guiElements.getId(), textVar );
+            addModifyListener(textVar.getTextWidget());
             control = textVar;
           } else {
             Text text = new Text( parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT );
@@ -164,6 +170,7 @@ public class GuiCompositeWidgets {
               text.setEchoChar( '*' );
             }
             widgetsMap.put( guiElements.getId(), text );
+            addModifyListener(text);
             control = text;
           }
           break;
@@ -171,21 +178,8 @@ public class GuiCompositeWidgets {
           Button button = new Button( parent, SWT.CHECK | SWT.LEFT );
           props.setLook( button );
           widgetsMap.put( guiElements.getId(), button );
+          addModifyListener(button);
           control = button;
-          break;
-        case TOOLBAR_BUTTON:
-          ToolItem item = new ToolItem( (ToolBar) parent, SWT.NONE );
-          if ( StringUtils.isNotEmpty( guiElements.getImage() ) ) {
-            item.setImage( GuiResource.getInstance().getImage( guiElements.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
-          }
-          if ( StringUtils.isNotEmpty( guiElements.getDisabledImage() ) ) {
-            item.setDisabledImage( GuiResource.getInstance().getImage( guiElements.getDisabledImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
-          }
-          if ( StringUtils.isNotEmpty( guiElements.getToolTip() ) ) {
-            item.setToolTipText( guiElements.getToolTip() );
-          }
-          addListener( item, sourceObject, guiElements );
-          toolItemMap.put( guiElements.getId(), item );
           break;
         case COMBO:
           if ( guiElements.isVariablesEnabled() ) {
@@ -206,7 +200,7 @@ public class GuiCompositeWidgets {
           break;
       }
 
-      if ( control != null && !isToolbar ) {
+      if ( control != null ) {
         FormData fdControl = new FormData();
         if ( label != null ) {
           fdControl.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
@@ -257,6 +251,20 @@ public class GuiCompositeWidgets {
 
 
     return previousControl;
+  }
+
+  /**
+   * If a widget changes
+   * @param control
+   */
+  private void addModifyListener( final Control control ) {
+    if ( compositeWidgetsListener !=null) {
+      if (control instanceof Button) {
+        control.addListener( SWT.Selection, e -> compositeWidgetsListener.widgetModified( this, control ));
+      } else {
+        control.addListener( SWT.Modify, e -> compositeWidgetsListener.widgetModified( this, control ) );
+      }
+    }
   }
 
   private String[] getComboItems( Object sourceObject, String getComboValuesMethod ) {
@@ -315,6 +323,10 @@ public class GuiCompositeWidgets {
     }
 
     setWidgetsData( sourceData, guiElements );
+
+    if (compositeWidgetsListener!=null) {
+      compositeWidgetsListener.widgetsCreated( this );
+    }
 
     parentComposite.layout( true, true );
   }
@@ -511,20 +523,6 @@ public class GuiCompositeWidgets {
     }
   }
 
-  public void enableToolbarItem( String id, boolean enabled ) {
-    ToolItem toolItem = toolItemMap.get( id );
-    if ( toolItem == null ) {
-      return;
-    }
-    if ( enabled != toolItem.isEnabled() ) {
-      toolItem.setEnabled( enabled );
-    }
-  }
-
-  public ToolItem findToolItem( String id ) {
-    return toolItemMap.get( id );
-  }
-
   /**
    * Gets space
    *
@@ -571,21 +569,5 @@ public class GuiCompositeWidgets {
    */
   public void setWidgetsMap( Map<String, Control> widgetsMap ) {
     this.widgetsMap = widgetsMap;
-  }
-
-  /**
-   * Gets toolItemMap
-   *
-   * @return value of toolItemMap
-   */
-  public Map<String, ToolItem> getToolItemMap() {
-    return toolItemMap;
-  }
-
-  /**
-   * @param toolItemMap The toolItemMap to set
-   */
-  public void setToolItemMap( Map<String, ToolItem> toolItemMap ) {
-    this.toolItemMap = toolItemMap;
   }
 }
