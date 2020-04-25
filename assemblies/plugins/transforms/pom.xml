@@ -83,6 +83,7 @@
         <module>switchcase</module>
         <module>tablecompare</module>
         <module>tableexists</module>
+        <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
         <module>uniquerows</module>

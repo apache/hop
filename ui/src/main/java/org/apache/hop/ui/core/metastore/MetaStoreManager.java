@@ -188,11 +188,19 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
         throw new HopException( "Unable to find element '" + elementName + "' in the metastore" );
       }
 
+      initializeElementVariables(element);
+
       return openMetaDialog( element, factory );
 
     } catch ( Exception e ) {
       new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing metadata", e );
       return false;
+    }
+  }
+
+  private void initializeElementVariables( T element ) {
+    if (element instanceof IVariables) {
+      ((IVariables)element).initializeVariablesFrom( variables );
     }
   }
 
@@ -222,6 +230,10 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       // delete the metadata element from the metastore
       //
       T element = factory.deleteElement( elementName );
+
+      // Just to be precise.
+      //
+      initializeElementVariables( element );
 
       ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementDeleted.id, element );
 
@@ -303,10 +315,7 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
       // Create a new instance of the managed class
       //
       T element = managedClass.newInstance();
-      if (element instanceof IVariables) {
-        IVariables parent = (IVariables) element;
-        parent.initializeVariablesFrom( variables );
-      }
+      initializeElementVariables( element );
       boolean created = openMetaDialog( element, element.getFactory( metaStore ) );
       if (created) {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetaStoreElementCreated.id, element );

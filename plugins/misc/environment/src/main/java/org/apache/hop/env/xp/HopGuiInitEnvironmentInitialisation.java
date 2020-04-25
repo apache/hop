@@ -31,24 +31,7 @@ import java.util.List;
 public class HopGuiInitEnvironmentInitialisation implements IExtensionPoint {
 
   @Override public void callExtensionPoint( ILogChannel logChannelInterface, Object o ) throws HopException {
-    IVariables variables = Variables.getADefaultVariableSpace();
-
-    // Where is the metastore for the environment
-    //
-    String environmentMetastoreLocation = variables.getVariable( Defaults.VARIABLE_ENVIRONMENT_METASTORE_FOLDER );
-    if ( StringUtils.isEmpty( environmentMetastoreLocation ) ) {
-      environmentMetastoreLocation = Defaults.ENVIRONMENT_METASTORE_FOLDER;
-    }
-
-    // Build the metastore for it.
-    //
-    try {
-      EnvironmentSingleton.initialize( environmentMetastoreLocation );
-
-      EnvironmentConfigSingleton.initialize( EnvironmentSingleton.getEnvironmentMetaStore() );
-    } catch ( Exception e ) {
-      throw new HopException("Error initializing the Environment system", e );
-    }
+    EnvironmentSingleton.initializeEnvironments();
   }
 
 }

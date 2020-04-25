@@ -49,7 +49,6 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
   private Text wVersion;
 
   private TextVar wEnvironmentHome;
-  private TextVar wHopHomeFolder;
   private TextVar wMetaStoreBaseFolder;
   private TextVar wUnitTestsBasePath;
   private TextVar wDataSetCsvFolder;
@@ -227,24 +226,6 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     wEnvironmentHome.addModifyListener( e -> updateIVariables() );
     lastControl = wEnvironmentHome;
 
-    Label wlHopHomeFolder = new Label( shell, SWT.RIGHT );
-    props.setLook( wlHopHomeFolder );
-    wlHopHomeFolder.setText( "Hop home folder (HOP_HOME) " );
-    FormData fdlHopHomeFolder = new FormData();
-    fdlHopHomeFolder.left = new FormAttachment( 0, 0 );
-    fdlHopHomeFolder.right = new FormAttachment( middle, 0 );
-    fdlHopHomeFolder.top = new FormAttachment( lastControl, margin );
-    wlHopHomeFolder.setLayoutData( fdlHopHomeFolder );
-    wHopHomeFolder = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wHopHomeFolder );
-    FormData fdHopHomeFolder = new FormData();
-    fdHopHomeFolder.left = new FormAttachment( middle, margin );
-    fdHopHomeFolder.right = new FormAttachment( 100, 0 );
-    fdHopHomeFolder.top = new FormAttachment( wlHopHomeFolder, 0, SWT.CENTER );
-    wHopHomeFolder.setLayoutData( fdHopHomeFolder );
-    wHopHomeFolder.addModifyListener( e -> updateIVariables() );
-    lastControl = wHopHomeFolder;
-
     Label wlMetaStoreBaseFolder = new Label( shell, SWT.RIGHT );
     props.setLook( wlMetaStoreBaseFolder );
     wlMetaStoreBaseFolder.setText( "MetaStore base folder (HOP_METASTORE_FOLDER)" );
@@ -352,7 +333,6 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     wProject.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wVersion.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wEnvironmentHome.addListener( SWT.DefaultSelection, ( e ) -> ok() );
-    wHopHomeFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wMetaStoreBaseFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wUnitTestsBasePath.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wDataSetCsvFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
@@ -405,7 +385,6 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     wProject.setText( Const.NVL( environment.getProject(), "" ) );
     wVersion.setText( Const.NVL( environment.getVersion(), "" ) );
     wEnvironmentHome.setText( Const.NVL( environment.getEnvironmentHomeFolder(), "" ) );
-    wHopHomeFolder.setText( Const.NVL( environment.getHopHomeFolder(), "" ) );
     wMetaStoreBaseFolder.setText( Const.NVL( environment.getMetaStoreBaseFolder(), "" ) );
     wUnitTestsBasePath.setText( Const.NVL( environment.getUnitTestsBasePath(), "" ) );
     wDataSetCsvFolder.setText( Const.NVL( environment.getDataSetsCsvFolder(), "" ) );
@@ -429,7 +408,6 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     env.setProject( wProject.getText() );
     env.setVersion( wVersion.getText() );
     env.setEnvironmentHomeFolder( wEnvironmentHome.getText() );
-    env.setHopHomeFolder( wHopHomeFolder.getText() );
     env.setMetaStoreBaseFolder( wMetaStoreBaseFolder.getText() );
     env.setUnitTestsBasePath( wUnitTestsBasePath.getText() );
     env.setDataSetsCsvFolder( wDataSetCsvFolder.getText() );

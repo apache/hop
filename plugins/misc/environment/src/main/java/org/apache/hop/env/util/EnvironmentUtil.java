@@ -42,18 +42,18 @@ public class EnvironmentUtil {
    * Enable the specified environment
    * Force reload of a number of settings
    *
+   * @param log the log channel to log to
    * @param environment
    * @param delegatingMetaStore
    * @throws HopException
    * @throws MetaStoreException
    */
-  public static void enableEnvironment( Environment environment, DelegatingMetaStore delegatingMetaStore ) throws HopException, MetaStoreException {
+  public static void enableEnvironment( ILogChannel log, Environment environment, DelegatingMetaStore delegatingMetaStore, IVariables variables ) throws HopException, MetaStoreException {
 
     // Variable system variables but also apply them to variables
     // We'll use those to change the loaded variables in HopGui
     //
-    IVariables variables = Variables.getADefaultVariableSpace();
-    environment.modifyVariables( variables, true );  // TODO: do we need to change System?
+    environment.modifyVariables( variables );
 
     // Modify local loaded metastore...
     //
@@ -69,68 +69,7 @@ public class EnvironmentUtil {
 
     // Signal others that we have a new active environment
     //
-    ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, Defaults.EXTENSION_POINT_ENVIRONMENT_ACTIVATED, environment.getName() );
-
-    // See if we need to restore the default Spoon session for this environment
-    // The name of the session is the name of the environment
-    // This will cause the least amount of issues.
-    //
-    // Set this in hopGui so new files will inherit from it.
-    //
-    HopGui hopGui = HopGui.getInstance();
-    if ( hopGui != null ) {
-
-      // Before we switch the namespace in HopGui, save the state of the perspectives
-      //
-      hopGui.auditDelegate.writeLastOpenFiles();
-
-      // Now we can close all files if they're all saved (or changes are ignored)
-      //
-      if (!hopGui.fileDelegate.saveGuardAllFiles()) {
-        // Abort the environment change
-        return;
-      }
-
-      // Close 'm all
-      //
-      hopGui.fileDelegate.closeAllFiles();
-
-      // We store the environment in the HopGui namespace
-      //
-      hopGui.setNamespace( environment.getName() );
-
-      // We need to change the currently set variables in the newly loaded files
-      //
-      hopGui.setVariables( variables );
-
-      // Re-open last open files for the namespace
-      //
-      hopGui.auditDelegate.openLastFiles();
-
-      // Clear last used, fill it with something useful.
-      //
-      IVariables hopGuiVariables = Variables.getADefaultVariableSpace();
-      hopGui.setVariables( hopGuiVariables );
-      for ( String variable : variables.listVariables() ) {
-        String value = variables.getVariable( variable );
-        if ( !variable.startsWith( Const.INTERNAL_VARIABLE_PREFIX ) ) {
-          hopGuiVariables.setVariable( variable, value );
-        }
-      }
-
-      // Refresh the currently active file
-      //
-      hopGui.getActivePerspective().getActiveFileTypeHandler().updateGui();
-
-      // Update the toolbar combo
-      //
-      EnvironmentGuiPlugin.selectEnvironmentInList(environment.getName());
-
-      // Also add this as an event so we know what the environment usage history is
-      //
-      AuditEvent envUsedEvent = new AuditEvent( STRING_ENVIRONMENT_AUDIT_GROUP, STRING_ENVIRONMENT_AUDIT_TYPE, environment.getName(), "open", new Date() );
-      hopGui.getAuditManager().storeEvent( envUsedEvent );
-    }
+    ExtensionPointHandler.callExtensionPoint( log, Defaults.EXTENSION_POINT_ENVIRONMENT_ACTIVATED, environment.getName() );
   }
 
   public static void validateFileInEnvironment( ILogChannel log, String transFilename, Environment environment, IVariables space ) throws HopException, FileSystemException {

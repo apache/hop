@@ -11,6 +11,7 @@ import org.apache.hop.env.config.EnvironmentConfig;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
+import org.apache.hop.env.gui.EnvironmentGuiPlugin;
 import org.apache.hop.env.util.Defaults;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
@@ -75,7 +76,7 @@ public class HopGuiStartEnvironmentLoad implements IExtensionPoint {
                 // Set system variables for HOP_HOME, HOP_METASTORE_FOLDER, ...
                 // Sets the namespace in HopGui to the name of the environment
                 //
-                EnvironmentUtil.enableEnvironment( environment, hopGui.getMetaStore() );
+                EnvironmentGuiPlugin.enableHopGuiEnvironment( environment );
 
                 // Don't open the files twice
                 //

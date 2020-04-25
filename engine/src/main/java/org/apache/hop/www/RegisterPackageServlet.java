@@ -57,7 +57,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
-  public static final String TYPE_JOB = "workflow";
+  public static final String TYPE_WORKFLOW = "workflow";
   public static final String TYPE_PIPELINE = "pipeline";
 
   private static final String ZIP_CONT = "zip:{0}!{1}";
@@ -80,10 +80,10 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
 
     if ( !Utils.isEmpty( load ) ) {
       String fileUrl = MessageFormat.format( ZIP_CONT, archiveUrl, load );
-      boolean isJob = TYPE_JOB.equalsIgnoreCase( request.getParameter( PARAMETER_TYPE ) );
+      boolean isWorkflow = TYPE_WORKFLOW.equalsIgnoreCase( request.getParameter( PARAMETER_TYPE ) );
       String resultId;
 
-      if ( isJob ) {
+      if ( isWorkflow ) {
         Node node = getConfigNodeFromZIP( archiveUrl, Workflow.CONFIGURATION_IN_EXPORT_FILENAME, WorkflowExecutionConfiguration.XML_TAG );
         WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration( node );
 

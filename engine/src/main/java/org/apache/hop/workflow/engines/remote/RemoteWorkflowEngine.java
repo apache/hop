@@ -45,10 +45,8 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
 import org.apache.hop.www.SlaveServerWorkflowStatus;
-import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.WebResult;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -348,7 +346,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
             metaStore, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
-        String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_JOB, topLevelResource.getBaseResourceName() );
+        String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
         WebResult webResult = WebResult.fromXMLString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR+ webResult.getMessage() );

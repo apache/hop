@@ -237,7 +237,9 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     } catch ( Exception e ) {
       LogChannel.UI.logError( "Error getting list of element names from the metastore", e );
     }
-    addModifyListener( lsMod );
+    if (lsMod!=null) {
+      addModifyListener( lsMod );
+    }
 
     // Set a default value if there is only 1 connection in the list and nothing else is previously selected...
     //
@@ -261,7 +263,6 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     }
     setLayoutData( fdConnection );
   }
-
 
   public void addModifyListener( ModifyListener lsMod ) {
     wCombo.addModifyListener( lsMod );
