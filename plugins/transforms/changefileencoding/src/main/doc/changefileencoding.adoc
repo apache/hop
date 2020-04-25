@@ -10,7 +10,7 @@ This transform changes a text file from one encoding to another.
 == Options
 
 
-* transform name : the name of the transform, unique in a pipeline
+* Transform name : the name of the transform, unique in a pipeline
 * Source file
   ** Filename field : the name of the input field which will carry the file names at runtime
   ** Source encoding: the encoding of the text files

@@ -14,7 +14,7 @@ You can use it to avoid the natural concurrency (parallelism) that exists betwee
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform.
+|Transform name|Name of the transform.
 |Watch the following transforms|Use this grid to specify the transforms to wait for.
 |Get transforms|Push this button to auto-fill the "Watch the following transforms" grid with all transforms available in the pipeline.
 |===

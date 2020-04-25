@@ -12,7 +12,7 @@ This transforms allows you to verify the existence of a specific column in a dat
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; This name has to be unique in a single pipeline
+|Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|The database connection to use
 |Schema name|(optional) The schema name of the table of the column to check
 |Table name|The name of the table of the column to check

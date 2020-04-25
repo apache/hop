@@ -16,7 +16,7 @@ This transform allows you to peek forward and backwards across rows. Examples of
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name| The name of this transform as it appears in the pipeline workspace.
+|Transform name| The name of this transform as it appears in the pipeline workspace.
 |Group fields table|Specify the fields you want to group. Click Get Fields to add all fields from the input stream(s). The transform will do no additional sorting, so in addition to the grouping identified (for example CUSTOMER_ID) here you must also have the data sorted (for example ORDER_DATE).
 |Analytic Functions table|Specify the analytic functions to be solved.
 |New Field Name|the name you want this new field to be named on the stream (for example PREV_ORDER_DATE)

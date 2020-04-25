@@ -5,7 +5,7 @@
 
 == Description
 
-This step will output one row if input stream is empty (ie when input stream does not contain any row). The output row will have the same fields as the input row, but all field values will be empty (null).
+This transform will output one row if input stream is empty (ie when input stream does not contain any row). The output row will have the same fields as the input row, but all field values will be empty (null).
 
 If the input stream is not empty it will not output anything.
 
@@ -14,6 +14,6 @@ If the input stream is not empty it will not output anything.
 [width="90%", options="header"]
 |===
 |Option|Description
-|Step name|Name of the step. This name must be unique throughout the transformation
+|Transform name|Name of the transform. This name must be unique throughout the pipeline.
 |===
 

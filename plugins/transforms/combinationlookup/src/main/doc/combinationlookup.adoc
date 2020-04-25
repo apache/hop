@@ -25,7 +25,7 @@ Pentaho Data Integration will store the information in a table where the primary
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform.
+|Transform name|Name of the transform.
 |Connection|Name of the database connection on which the dimension table resides.
 |Target schema|This allows you to specify a schema name.
 |Target table|Name of the dimension table.

@@ -5,10 +5,10 @@
 
 == Description
 
-The Database Join step allows you to run a query against a database using data obtained from previous steps. The parameters for this query are specified as follows:
+The Database Join transform allows you to run a query against a database using data obtained from previous transforms. The parameters for this query are specified as follows:
 
-The data grid in the step properties dialog.  This allows you to select the data coming in from the source hop.
-As question marks (?) in the SQL query.  When the step runs, these will be replaced with data coming in from the fields defined from the data grid.  The question marks will be replaced in the same order as defined in the data grid.
+The data grid in the transform properties dialog.  This allows you to select the data coming in from the source hop.
+As question marks (?) in the SQL query.  When the transform runs, these will be replaced with data coming in from the fields defined from the data grid.  The question marks will be replaced in the same order as defined in the data grid.
 For example, Database Join allows you to run queries looking up the oldest person who bought a specific product as shown below:
 
 [source,sql]
@@ -24,14 +24,14 @@ The grid is then defined as follows:
 
 image::databasejoin-grid.png[]
 
-When the step runs, the (?) placeholder defined in the SQL query will be replaced with the incoming productnr field value from the source hop.  To define and use multiple parameters, list the fields in order you want them to be replaced in the SQL statement.
+When the transform runs, the (?) placeholder defined in the SQL query will be replaced with the incoming productnr field value from the source hop.  To define and use multiple parameters, list the fields in order you want them to be replaced in the SQL statement.
 
 == Options
 
 [width="90%", options="header"]
 |===
 |Option|Description
-|Step name|Name of the step; This name has to be unique in a single transformation
+|transform name|Name of the transform; This name has to be unique in a single transformation
 |Connection|The database connection to use for the query.
 |SQL|SQL query to form the join; use question marks as parameter placeholders
 |Number of rows to return|Zero (0) returns all rows; any other number limits the number of rows returned.

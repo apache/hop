@@ -14,7 +14,7 @@ At that point, the last row is sent to the next transform or the complete input 
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; this name has to be unique in a single pipeline.
+|Transform name|Name of the transform; this name has to be unique in a single pipeline.
 |Pass all rows?|Determines whether to pass one row or all rows
 |Spool directory|The directory in which the temporary files are stored if needed; the default is the standard temporary directory for the system
 |Spool-file prefix|Choose a recognizable prefix to identify the files when they appear in the temp directory

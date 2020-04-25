@@ -18,7 +18,7 @@ The result is stored in a String field with the specified name.
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; this name has to be unique in a single pipeline
+|Transform name|Name of the transform; this name has to be unique in a single pipeline
 |URL|The base URL string
 |Accept URL from field?|Enable this option if you want to get the URL from a previous transform.
 Enabling this will also allow you to specify the name of the input field.

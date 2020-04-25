@@ -5,7 +5,7 @@
 
 == Description
 
-The delete step deletes rows of data from a database. This step is similar to the update family of steps in that it takes one or more key fields to determine the rows to delete.
+The delete transform deletes rows of data from a database. This transform is similar to the update family of transforms in that it takes one or more key fields to determine the rows to delete.
 
 image::delete.png[]
 
@@ -14,7 +14,7 @@ image::delete.png[]
 [width="90%", options="header"]
 |===
 |Option|Description
-|Step name|Name of the step. This name has to be unique in a single transformation.
+|Transform name|Name of the transform. This name has to be unique in a single transformation.
 |Connection|The database connection to which data is written
 |Target schema|The name of the Schema for the table to which data is written. This is important for data sources that allow for table names with periods in them.
 |Target table|Name of the table in which you want to do the insert or update.

@@ -12,7 +12,7 @@ Execute SQL script for every input-row to this transform. An input field can be 
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; This name has to be unique in a single pipeline
+|Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|Select a database connection to use
 |Commit|Number of rows to send before doing a database commit
 |SQL field name|The field that either contains the SQL to execute or optionally specifies the path to a file that contains SQL to execute|Read SQL from file
