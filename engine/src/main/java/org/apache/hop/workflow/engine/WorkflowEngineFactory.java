@@ -47,9 +47,20 @@ public class WorkflowEngineFactory {
     } catch(Exception e) {
       throw new HopException( "Error loading workflow run configuration '"+runConfigurationName+"'", e );
     }
+    if (runConfiguration==null) {
+      throw new HopException( "Workflow run configuration '"+runConfigurationName+"' could not be found" );
+    }
     IWorkflowEngine<T> workflowEngine = createWorkflowEngine( runConfiguration, workflowMeta );
+
+    // Copy the variables from the metadata
+    //
+    workflowEngine.initializeVariablesFrom( workflowMeta );
+
+    // Pass the metastores around to make sure
+    //
     workflowEngine.setMetaStore( metaStore );
     workflowMeta.setMetaStore( metaStore );
+
     return workflowEngine;
   }
 

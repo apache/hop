@@ -5,6 +5,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.env.environment.Environment;
+import org.apache.hop.env.gui.EnvironmentGuiPlugin;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -35,7 +36,7 @@ public class HopGuiEnvironmentUpdated extends HopGuiEnvironmentChanged implement
       int answer = messageBox.open();
       if ( ( answer & SWT.YES ) != 0 ) {
         try {
-          EnvironmentUtil.enableEnvironment( environment, hopGui.getMetaStore() );
+          EnvironmentGuiPlugin.enableHopGuiEnvironment( environment );
         } catch ( Exception e ) {
           new ErrorDialog( hopGui.getShell(), "Error", "Error reloading environment " + environment.getName(), e );
         }

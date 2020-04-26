@@ -3209,7 +3209,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             WorkflowMeta runWorkflowMeta;
 
 
-            runWorkflowMeta = new WorkflowMeta( null, workflowMeta.getFilename(), workflowMeta.getMetaStore() );
+            runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetaStore() );
 
             String hopGuiObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject hopGuiLoggingObject = new SimpleLoggingObject( "HOPGUI", LoggingObjectType.HOP_GUI, null );

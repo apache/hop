@@ -81,7 +81,6 @@ import java.util.Map;
  */
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
-  public static final int IS_PENTAHO = 1;
 
   private String filename;
 
@@ -547,45 +546,17 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         prepareFieldNamesParameters( parameters, parameterFieldNames, parameterValues, namedParam, this );
 
         TransformWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames, parameters, parameterValues, isPassingAllParameters() );
-        boolean doFallback = true;
-        SlaveServer remoteSlaveServer = null;
-        PipelineExecutionConfiguration executionConfiguration = new PipelineExecutionConfiguration();
 
         if ( StringUtils.isEmpty( runConfiguration ) ) {
           throw new HopException( "This action needs a run configuration to use to execute the specified pipeline" );
         }
 
         runConfiguration = environmentSubstitute( runConfiguration );
-        log.logBasic( BaseMessages.getString( PKG, "ActionPipeline.RunConfig.Message" ), runConfiguration );
-        executionConfiguration.setRunConfiguration( runConfiguration );
-        try {
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] {
-            executionConfiguration, parentWorkflow.getWorkflowMeta(), pipelineMeta } );
-          List<Object> items = Arrays.asList( runConfiguration, false );
-          try {
-            ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.RunConfigurationSelection.id, items );
-            if ( waitingToFinish && (Boolean) items.get( IS_PENTAHO ) ) {
-              String workflowName = parentWorkflow.getWorkflowMeta().getName();
-              String name = pipelineMeta.getName();
-              logBasic( BaseMessages.getString( PKG, "ActionPipeline.Log.InvalidRunConfigurationCombination", workflowName,
-                name, workflowName ) );
-            }
-          } catch ( Exception ignored ) {
-            // Ignored
-          }
-
-          doFallback = false;
-        } catch ( HopException e ) {
-          log.logError( e.getMessage(), getName() );
-          result.setNrErrors( 1 );
-          result.setResult( false );
-          return result;
-        }
+        log.logBasic( BaseMessages.getString( PKG, "ActionPipeline.RunConfig.Message", runConfiguration ));
 
         // Create the pipeline from meta-data
         //
-        final PipelineMeta meta = pipelineMeta;
-        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, meta );
+        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, pipelineMeta );
         pipeline.setParent( this );
 
 
