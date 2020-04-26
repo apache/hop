@@ -67,6 +67,7 @@
         <module>httppost</module>
         <module>insertupdate</module>
         <module>ifnull</module>
+        <module>ldap</module>
         <module>loadfileinput</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
@@ -83,6 +84,7 @@
         <module>switchcase</module>
         <module>tablecompare</module>
         <module>tableexists</module>
+        <module>tableoutput</module>
         <module>terafast</module>
         <module>textfile</module>
         <module>uniquerows</module>
