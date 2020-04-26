@@ -54,6 +54,7 @@ import java.util.List;
 		description = "LdapInput.Description",
 		image = "ldapinput.svg",
 		i18nPackageName = "org.apache.hop.pipeline.transforms.ldapinput",
+		categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
 		keywords = {"ldap","input"}
 )
 public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
