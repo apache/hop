@@ -71,6 +71,7 @@
         <module>loadfileinput</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
+        <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
