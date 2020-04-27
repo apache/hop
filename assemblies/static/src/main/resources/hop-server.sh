@@ -6,9 +6,9 @@ cd $BASEDIR
 
 # set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
 if [ -n "$HOP_JAVA_HOME" ]; then
-  _HOP_JAVA=$HOP_JAVA_HOME
+  _HOP_JAVA=$HOP_JAVA_HOME/bin/java
 elif [ -n "$JAVA_HOME" ]; then
-  _HOP_JAVA=$JAVA_HOME
+  _HOP_JAVA=$JAVA_HOME/bin/java
 else
   _HOP_JAVA="java"
 fi
