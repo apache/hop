@@ -37,6 +37,7 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGuiContextHandler {
@@ -95,6 +96,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
               jobGraph.workflowEntryDelegate.newJobEntry( workflowMeta, actionPlugin.getIds()[ 0 ], actionPlugin.getName(), controlClicked, click );
             }
           );
+        createActionGuiAction.getKeywords().addAll( Arrays.asList(actionPlugin.getKeywords()));
       try {
         createActionGuiAction.setClassLoader( registry.getClassLoader( actionPlugin ) );
       } catch ( HopPluginException e ) {

@@ -37,6 +37,7 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGuiContextHandler {
@@ -89,6 +90,7 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
             pipelineGraph.pipelineTransformDelegate.newTransform( pipelineMeta, transformPlugin.getIds()[ 0 ], transformPlugin.getName(), transformPlugin.getDescription(), controlClicked, true, click );
           }
         );
+      createTransformAction.getKeywords().addAll( Arrays.asList(transformPlugin.getKeywords()));
       try {
         createTransformAction.setClassLoader( registry.getClassLoader( transformPlugin ) );
       } catch ( HopPluginException e ) {
