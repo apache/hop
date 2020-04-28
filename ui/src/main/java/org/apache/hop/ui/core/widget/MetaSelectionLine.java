@@ -223,6 +223,25 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   }
 
   /**
+   * Load the selected element and return it.
+   * In case of errors, log them to LogChannel.UI
+   * @return The selected element or null if it doesn't exist or there was an error
+   */
+  public T loadSelectedElement() {
+    String selectedItem = wCombo.getText();
+    if (StringUtils.isEmpty( selectedItem )) {
+      return null;
+    }
+
+    try {
+      return manager.loadElement(selectedItem);
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Error loading element '"+selectedItem+"'", e );
+      return null;
+    }
+  }
+
+  /**
    * Adds the connection line for the given parent and previous control, and returns a meta selection manager control
    *
    * @param parent   the parent composite object

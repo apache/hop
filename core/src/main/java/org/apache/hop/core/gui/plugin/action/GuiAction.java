@@ -101,6 +101,7 @@ public class GuiAction {
     for ( String keyword : guiAction.getKeywords() ) {
       keywords.add( keyword );
     }
+    this.classLoader = guiAction.getClassLoader();
   }
 
   public boolean containsFilterStrings( String[] filters ) {

@@ -242,34 +242,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       drawTransformPerformanceTable( transformMeta );
     }
 
-    int selectedTransformsCount = 0;
-    for ( int i = pipelineMeta.nrTransforms() - 1; i >= 0; i-- ) {
-      TransformMeta transformMeta = pipelineMeta.getTransform( i );
-      if ( transformMeta.isSelected() ) {
-        selectedTransformsCount++;
-      }
-    }
-
-    PipelinePainterFlyoutExtension extension = null;
-    for ( int i = pipelineMeta.nrTransforms() - 1; i >= 0; i-- ) {
-      TransformMeta transformMeta = pipelineMeta.getTransform( i );
-      if ( transformMeta.isSelected() && selectedTransformsCount == 1 ) {
-        extension = new PipelinePainterFlyoutExtension(
-          gc, areaOwners, pipelineMeta, transformMeta, translationX, translationY, magnification, area, offset );
-        break;
-      }
-    }
-    if ( extension == null ) {
-      // pass null to notify extension that nothing is selected
-      extension = new PipelinePainterFlyoutExtension(
-        gc, areaOwners, pipelineMeta, null, translationX, translationY, magnification, area, offset );
-    }
-    try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelinePainterFlyout.id, extension );
-    } catch ( Exception e ) {
-      LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter transform", e );
-    }
-
     // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
     //
     if ( noInputTransform != null ) {

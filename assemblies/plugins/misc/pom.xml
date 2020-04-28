@@ -19,6 +19,7 @@
     <modules>
         <module>debug</module>
         <module>environment</module>
+        <module>testing</module>
     </modules>
 
 </project>

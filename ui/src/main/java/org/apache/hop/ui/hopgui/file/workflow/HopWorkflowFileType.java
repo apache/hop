@@ -23,6 +23,7 @@
 package org.apache.hop.ui.hopgui.file.workflow;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -101,6 +102,10 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Pass the MetaStore for reference lookups
       //
       workflowMeta.setMetaStore( hopGui.getMetaStore() );
+
+      // Inform those that want to know about it that we loaded a pipeline
+      //
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "WorkflowAfterOpen", workflowMeta );
 
       // Show it in the perspective
       //

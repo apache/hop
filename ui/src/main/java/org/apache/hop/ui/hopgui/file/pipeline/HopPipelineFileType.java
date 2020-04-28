@@ -23,6 +23,7 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -104,7 +105,13 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Show it in the perspective
       //
-      return perspective.addPipeline( perspective.getTabFolder(), hopGui, pipelineMeta, this );
+      IHopFileTypeHandler typeHandler = perspective.addPipeline( perspective.getTabFolder(), hopGui, pipelineMeta, this );
+
+      // Inform those that want to know about it that we loaded a pipeline
+      //
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "PipelineAfterOpen", pipelineMeta );
+
+      return typeHandler;
     } catch ( Exception e ) {
       throw new HopException( "Error opening pipeline file '" + filename + "'", e );
     }

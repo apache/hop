@@ -38,6 +38,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.ui.core.PropsUi;
@@ -380,14 +381,14 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
    *
    * @return value of space
    */
-  public IVariables getSpace() {
+  public IVariables getVariables() {
     return variables;
   }
 
   /**
    * @param variables The space to set
    */
-  public void setSpace( IVariables variables ) {
+  public void setVariables( IVariables variables ) {
     this.variables = variables;
   }
 
@@ -439,4 +440,9 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     this.props = props;
   }
 
+  public T loadElement( String selectedItem ) throws InstantiationException, IllegalAccessException, MetaStoreException {
+    T element = getFactory().loadElement( selectedItem );
+    initializeElementVariables( element );
+    return element;
+  }
 }

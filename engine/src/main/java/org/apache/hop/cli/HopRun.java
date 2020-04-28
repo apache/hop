@@ -386,7 +386,7 @@ public class HopRun implements Runnable {
 
   private void buildMetaStore() throws MetaStoreException {
     metaStore = new DelegatingMetaStore();
-    IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
+    IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore(variables);
     metaStore.addMetaStore( localMetaStore );
     metaStore.setActiveMetaStoreName( localMetaStore.getName() );
   }

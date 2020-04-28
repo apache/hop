@@ -24,6 +24,7 @@ package org.apache.hop.metastore;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.stores.xml.XmlMetaStore;
@@ -57,15 +58,15 @@ public class MetaStoreConst {
     return System.getProperty( "user.home" ) + File.separator + ".hop";
   }
 
-  public static IMetaStore openLocalHopMetaStore() throws MetaStoreException {
-    return MetaStoreConst.openLocalHopMetaStore( true );
+  public static IMetaStore openLocalHopMetaStore( IVariables variables ) throws MetaStoreException {
+    return MetaStoreConst.openLocalHopMetaStore( variables, true );
   }
 
-  public static IMetaStore openLocalHopMetaStore( boolean allowCreate ) throws MetaStoreException {
+  public static IMetaStore openLocalHopMetaStore( IVariables variables, boolean allowCreate ) throws MetaStoreException {
     if ( disableMetaStore ) {
       return null;
     }
-    String rootFolder = System.getProperty( Const.HOP_METASTORE_FOLDER );
+    String rootFolder = variables.getVariable( Const.HOP_METASTORE_FOLDER );
     if ( Utils.isEmpty( rootFolder ) ) {
       rootFolder = getDefaultHopMetaStoreLocation();
     }

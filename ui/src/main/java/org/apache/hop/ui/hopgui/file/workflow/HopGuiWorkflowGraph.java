@@ -2912,9 +2912,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void save() throws HopException {
-    String filename = workflowMeta.getFilename();
     try {
-      if ( StringUtils.isEmpty( filename ) ) {
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta);
+
+      if ( StringUtils.isEmpty( workflow.getFilename() ) ) {
         throw new HopException( "Please give the workflow a filename" );
       }
       String xml = workflowMeta.getXml();
@@ -2927,9 +2928,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       } finally {
         out.flush();
         out.close();
+
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowAfterSave.id, workflowMeta);
       }
     } catch ( Exception e ) {
-      throw new HopException( "Error saving workflow to file '" + filename + "'", e );
+      throw new HopException( "Error saving workflow to file '" + workflowMeta.getFilename() + "'", e );
     }
   }
 
@@ -3421,6 +3424,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowMeta.unselectAll();
     newEntry.setSelected( true );
     updateGui();
+  }
+
+  @Override public Object getSubject() {
+    return workflowMeta;
   }
 
   public WorkflowMeta getWorkflowMeta() {

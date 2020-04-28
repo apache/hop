@@ -406,6 +406,22 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       HopGuiKeyHandler.getInstance().removeParentObjectToHandle( typeHandler );
       hopGui.getMainHopGuiComposite().setFocus();
 
+      if (typeHandler.getSubject()!=null) {
+        if (typeHandler.getSubject() instanceof PipelineMeta) {
+          try {
+            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiPipelineAfterClose.id, typeHandler.getSubject() );
+          } catch(Exception e) {
+            hopGui.getLog().logError( "Error calling extension point 'HopGuiPipelineAfterClose'", e );
+          }
+        } else if (typeHandler.getSubject() instanceof WorkflowMeta) {
+          try {
+            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiWorkflowAfterClose.id, typeHandler.getSubject() );
+          } catch(Exception e) {
+            hopGui.getLog().logError( "Error calling extension point 'HopGuiWorkflowAfterClose'", e );
+          }
+        }
+      }
+
       return true;
     }
     return false;

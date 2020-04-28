@@ -27,6 +27,7 @@
     <modules>
       <module>environment</module>
       <module>debug</module>
+      <module>testing</module>
     </modules>
   </profile>
   </profiles>

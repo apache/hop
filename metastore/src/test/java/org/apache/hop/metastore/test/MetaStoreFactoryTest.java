@@ -397,7 +397,7 @@ public class MetaStoreFactoryTest extends TestCase {
         return context;
       }
     } );
-    when( objectFactory.instantiateClass( anyString(), anyMap() ) ).thenAnswer( new Answer<Object>() {
+    when( objectFactory.instantiateClass( anyString(), anyMap(), anyObject() ) ).thenAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {
         String className = (String) invocation.getArguments()[ 0 ];
@@ -477,7 +477,7 @@ public class MetaStoreFactoryTest extends TestCase {
     for ( int i = 0; i < contextCount.get(); i++ ) {
       Map<String, String> context = new HashMap<>();
       context.put( "context-num", String.valueOf( i ) );
-      verify( objectFactory ).instantiateClass( anyString(), eq( context ) );
+      verify( objectFactory ).instantiateClass( anyString(), eq( context ), anyObject() );
     }
 
   }

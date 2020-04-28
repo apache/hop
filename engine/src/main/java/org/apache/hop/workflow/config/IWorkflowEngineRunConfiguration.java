@@ -22,7 +22,9 @@
 
 package org.apache.hop.workflow.config;
 
-public interface IWorkflowEngineRunConfiguration extends Cloneable {
+import org.apache.hop.core.variables.IVariables;
+
+public interface IWorkflowEngineRunConfiguration extends Cloneable, IVariables {
 
   IWorkflowEngineRunConfiguration clone();
 

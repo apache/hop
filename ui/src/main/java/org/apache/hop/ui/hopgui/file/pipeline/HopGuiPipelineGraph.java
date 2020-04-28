@@ -2717,19 +2717,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       showTooltip( newTip, tooltipImage, screenX, screenY );
     }
 
-    if ( areaOwner != null && areaOwner.getExtensionAreaType() != null ) {
-      try {
-        HopGuiPipelinePainterFlyoutTooltipExtension extension =
-          new HopGuiPipelinePainterFlyoutTooltipExtension( areaOwner, this, new Point( screenX, screenY ) );
-
-        ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelinePainterFlyoutTooltip.id, extension );
-
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error calling extension point(s) for the pipeline painter transform", e );
-      }
-    }
-
     return subject;
   }
 
@@ -3317,9 +3304,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void save() throws HopException {
-    String filename = pipelineMeta.getFilename();
     try {
-      if ( StringUtils.isEmpty( filename ) ) {
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineBeforeSave.id, pipelineMeta);
+
+      if ( StringUtils.isEmpty( pipelineMeta.getFilename() ) ) {
         throw new HopException( "Please give the pipeline a filename" );
       }
       String xml = pipelineMeta.getXml();
@@ -3332,9 +3320,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       } finally {
         out.flush();
         out.close();
+
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineAfterSave.id, pipelineMeta);
       }
     } catch ( Exception e ) {
-      throw new HopException( "Error saving pipeline to file '" + filename + "'", e );
+      throw new HopException( "Error saving pipeline to file '" + pipelineMeta.getFilename() + "'", e );
     }
   }
 
@@ -3379,7 +3369,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_START,
-    // label = "Start",
     toolTip = "Start the execution of the pipeline",
     image = "ui/images/toolbar/run.svg"
   )
@@ -4304,6 +4293,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.hopGui = hopGui;
   }
 
+  @Override public Object getSubject() {
+    return pipelineMeta;
+  }
+
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
@@ -4505,5 +4498,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
+  }
+
+  /**
+   * Gets toolBarWidgets
+   *
+   * @return value of toolBarWidgets
+   */
+  public GuiToolbarWidgets getToolBarWidgets() {
+    return toolBarWidgets;
   }
 }

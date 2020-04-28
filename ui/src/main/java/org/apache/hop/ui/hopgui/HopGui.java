@@ -244,7 +244,7 @@ public class HopGui implements IActionContextHandlersProvider {
     //
     metaStore = new DelegatingMetaStore();
     try {
-      IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore();
+      IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore(variables);
       metaStore.addMetaStore( localMetaStore );
       metaStore.setActiveMetaStoreName( localMetaStore.getName() );
     } catch ( MetaStoreException e ) {

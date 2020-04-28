@@ -28,7 +28,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
@@ -37,11 +36,11 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
@@ -56,10 +55,6 @@ public class TextVar extends Composite {
   protected static Class<?> PKG = TextVar.class; // for i18n purposes, needed by Translator!!
 
   protected String toolTipText;
-
-  // private static final PropsUi props = PropsUi.getInstance();
-
-  protected ControlDecoration controlDecoration;
 
   protected IGetCaretPosition getCaretPositionInterface;
 
@@ -124,27 +119,32 @@ public class TextVar extends Composite {
 
     this.setLayout( formLayout );
 
+    // Add the variable $ image on the top right of the control
+    //
+    Label wlImage = new Label( this, SWT.NONE );
+    wlImage.setImage( GuiResource.getInstance().getImageVariable() );
+    wlImage.setToolTipText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
+    FormData fdlImage = new FormData();
+    fdlImage.top = new FormAttachment( 0, 0 );
+    fdlImage.right = new FormAttachment( 100, 0 );
+    wlImage.setLayoutData( fdlImage );
+
     // add a text field on it...
     wText = new Text( this, flags );
-    controlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT, this );
-    Image image = GuiResource.getInstance().getImageVariable();
-    controlDecoration.setImage( image );
-    controlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
-    PropsUi.getInstance().setLook( controlDecoration.getControl() );
+    FormData fdText = new FormData();
+    fdText.top = new FormAttachment( 0, 0 );
+    fdText.left = new FormAttachment( 0, 0 );
+    fdText.right = new FormAttachment( wlImage, 0 );
+    fdText.bottom = new FormAttachment( 100, 0 );
+    wText.setLayoutData( fdText );
 
     modifyListenerTooltipText = getModifyListenerTooltipText( wText );
     wText.addModifyListener( modifyListenerTooltipText );
 
-    controlSpaceKeyAdapter =
-      new ControlSpaceKeyAdapter( variables, wText, getCaretPositionInterface, insertTextInterface );
+    controlSpaceKeyAdapter = new ControlSpaceKeyAdapter( variables, wText, getCaretPositionInterface, insertTextInterface );
     wText.addKeyListener( controlSpaceKeyAdapter );
 
-    FormData fdText = new FormData();
-    fdText.top = new FormAttachment( 0, 0 );
-    fdText.left = new FormAttachment( 0, 0 );
-    fdText.right = new FormAttachment( 100, -image.getBounds().width );
-    fdText.bottom = new FormAttachment( 100, 0 );
-    wText.setLayoutData( fdText );
+
   }
 
   /**

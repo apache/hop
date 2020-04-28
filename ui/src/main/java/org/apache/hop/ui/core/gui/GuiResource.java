@@ -44,6 +44,7 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -1774,19 +1775,23 @@ public class GuiResource {
     return fontBold.getFont();
   }
 
+  private Image getZoomedImaged( SwtUniversalImage universalImage, Device device, int width, int height) {
+    return universalImage.getAsBitmapForSize( device, (int)(zoomFactor*width), (int)(zoomFactor*height) );
+  }
+
   /**
    * @return the imageVariable
    */
   public Image getImageVariable() {
-    return imageVariable.getAsBitmapForSize( display, 13, 13 );
+    return getZoomedImaged( imageVariable, display, 10, 10 );
   }
 
   public Image getImagePipelineGraph() {
-    return imagePipelineGraph.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imagePipelineGraph, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImagePipelineTree() {
-    return imagePipelineTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imagePipelineTree, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getImageUser() {
@@ -1798,23 +1803,23 @@ public class GuiResource {
   }
 
   public Image getImageFolderConnections() {
-    return imagePipelineGraph.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imagePipelineGraph, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageFolderConnectionsMedium() {
-    return imagePipelineGraph.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imagePipelineGraph, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getImagePartitionSchema() {
-    return imagePartitionSchema.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imagePartitionSchema, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getImageWorkflowGraph() {
-    return imageWorkflowGraph.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageWorkflowGraph, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageWorkflowTree() {
-    return imageWorkflowTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageWorkflowTree, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getEditOptionButton() {
@@ -1837,7 +1842,7 @@ public class GuiResource {
    * @return the imageArrow
    */
   public Image getImageArrow() {
-    return imageArrow.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageArrow, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageArrow() {
@@ -1848,35 +1853,35 @@ public class GuiResource {
    * @return the imageArrow
    */
   public Image getImageFolder() {
-    return imageFolder.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageFolder, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
    * @return the imageDummySmall
    */
   public Image getImageDummySmall() {
-    return imageDummy.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageDummy, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   /**
    * @return the imageStartSmall
    */
   public Image getImageStartSmall() {
-    return imageStart.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageStart, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   /**
    * @return the imageDummyMedium
    */
   public Image getImageDummyMedium() {
-    return imageDummy.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageDummy, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
    * @return the imageStartSmall
    */
   public Image getImageStartMedium() {
-    return imageStart.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageStart, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
@@ -1925,7 +1930,7 @@ public class GuiResource {
    * @return the imageLogoSmall
    */
   public Image getImageLogoSmall() {
-    return imageLogoSmall.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageLogoSmall, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   /**
@@ -2157,19 +2162,19 @@ public class GuiResource {
   }
 
   public Image getImageClearText() {
-    return imageClearText.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageClearText, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageClearTextDisabled() {
-    return imageClearTextDisabled.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageClearTextDisabled, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageExpandAll() {
-    return imageExpandAll.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageExpandAll, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageExpandAllMedium() {
-    return imageExpandAll.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageExpandAll, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getImageSearchSmall() {
@@ -2181,15 +2186,15 @@ public class GuiResource {
   }
 
   public Image getImageCollapseAll() {
-    return imageCollapseAll.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageCollapseAll, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageCollapseAllMedium() {
-    return imageCollapseAll.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+    return getZoomedImaged( imageCollapseAll, display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public Image getImageTransformError() {
-    return imageTransformError.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageTransformError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageTransformError() {
@@ -2197,7 +2202,7 @@ public class GuiResource {
   }
 
   public Image getImageRedTransformError() {
-    return imageRedTransformError.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageRedTransformError, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageRedTransformError() {
@@ -2205,7 +2210,7 @@ public class GuiResource {
   }
 
   public Image getImageCopyHop() {
-    return imageCopyHop.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageCopyHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageCopyHop() {
@@ -2213,7 +2218,7 @@ public class GuiResource {
   }
 
   public Image getImageErrorHop() {
-    return imageErrorHop.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageErrorHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageErrorHop() {
@@ -2221,7 +2226,7 @@ public class GuiResource {
   }
 
   public Image getImageInfoHop() {
-    return imageInfoHop.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageInfoHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageInfoHop() {
@@ -2229,11 +2234,11 @@ public class GuiResource {
   }
 
   public Image getImageWarning() {
-    return imageWarning.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageWarning, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public Image getImageWarning32() {
-    return imageWarning.getAsBitmapForSize( display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
+    return getZoomedImaged( imageWarning, display, ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageWarning() {
@@ -2253,7 +2258,7 @@ public class GuiResource {
   }
 
   public Image getImageEdit() {
-    return imageEdit.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageEdit, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageEdit() {
@@ -2285,7 +2290,7 @@ public class GuiResource {
   }
 
   public Image getImageHopInput() {
-    return imageHopInput.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageHopInput, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageHopInput() {
@@ -2293,7 +2298,7 @@ public class GuiResource {
   }
 
   public Image getImageHopOutput() {
-    return imageHopOutput.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageHopOutput, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageHopOutput() {
@@ -2301,7 +2306,7 @@ public class GuiResource {
   }
 
   public Image getImageHopTarget() {
-    return imageHopTarget.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageHopTarget, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageHopTarget() {
@@ -2309,7 +2314,7 @@ public class GuiResource {
   }
 
   public Image getImageLocked() {
-    return imageLocked.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageLocked, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageLocked() {
@@ -2366,7 +2371,7 @@ public class GuiResource {
     Image image = imageMap.get( location );
     if ( image == null ) {
       SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage( display, classLoader, location );
-      image = new Image( display, svg.getAsBitmapForSize( display, width, height ), SWT.IMAGE_COPY );
+      image = new Image( display, getZoomedImaged( svg, display, width, height ), SWT.IMAGE_COPY );
       svg.dispose();
       imageMap.put( location, image );
     }
@@ -2394,7 +2399,7 @@ public class GuiResource {
    * @return the imageTrue
    */
   public Image getImageTrue() {
-    return imageTrue.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageTrue, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageTrue() {
@@ -2405,7 +2410,7 @@ public class GuiResource {
    * @return the imageFalse
    */
   public Image getImageFalse() {
-    return imageFalse.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageFalse, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageFalse() {
@@ -2416,7 +2421,7 @@ public class GuiResource {
    * @return the imageContextMenu
    */
   public Image getImageContextMenu() {
-    return imageContextMenu.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageContextMenu, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageContextMenu() {
@@ -2424,7 +2429,7 @@ public class GuiResource {
   }
 
   public Image getImageParallelHop() {
-    return imageParallelHop.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageParallelHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageParallelHop() {
@@ -2432,7 +2437,7 @@ public class GuiResource {
   }
 
   public Image getImageUnconditionalHop() {
-    return imageUnconditionalHop.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageUnconditionalHop, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageUnconditionalHop() {
@@ -2440,7 +2445,7 @@ public class GuiResource {
   }
 
   public Image getImageBusy() {
-    return imageBusy.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageBusy, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageBusy() {
@@ -2452,7 +2457,7 @@ public class GuiResource {
   }
 
   public Image getImageInject() {
-    return imageInject.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageInject, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageInject() {
@@ -2460,7 +2465,7 @@ public class GuiResource {
   }
 
   public Image getImageBalance() {
-    return imageBalance.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageBalance, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageBalance() {
@@ -2468,7 +2473,7 @@ public class GuiResource {
   }
 
   public Image getImageCheckpoint() {
-    return imageCheckpoint.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    return getZoomedImaged( imageCheckpoint, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageCheckpoint() {
@@ -2544,53 +2549,43 @@ public class GuiResource {
   }
 
   public Image getImageBackEnabled() {
-    return imageBackEnabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageBackEnabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageBackDisabled() {
-    return imageBackDisabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageBackDisabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageForwardEnabled() {
-    return imageForwardEnabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageForwardEnabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageForwardDisabled() {
-    return imageForwardDisabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageForwardDisabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageRefreshEnabled() {
-    return imageRefreshEnabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageRefreshEnabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageRefreshDisabled() {
-    return imageRefreshDisabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageRefreshDisabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageHomeEnabled() {
-    return imageHomeEnabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageHomeEnabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImageHomeDisabled() {
-    return imageHomeDisabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imageHomeDisabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImagePrintEnabled() {
-    return imagePrintEnabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imagePrintEnabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public Image getImagePrintDisabled() {
-    return imagePrintDisabled.getAsBitmapForSize( display, ConstUi.DOCUMENTATION_ICON_SIZE,
-      ConstUi.DOCUMENTATION_ICON_SIZE );
+    return getZoomedImaged( imagePrintDisabled, display, ConstUi.DOCUMENTATION_ICON_SIZE, ConstUi.DOCUMENTATION_ICON_SIZE );
   }
 
   public SwtUniversalImage getDefaultArrow() {

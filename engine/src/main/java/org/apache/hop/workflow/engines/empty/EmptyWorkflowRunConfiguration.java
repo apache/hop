@@ -22,11 +22,13 @@
 
 package org.apache.hop.workflow.engines.empty;
 
+import org.apache.commons.validator.Var;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 
 import java.util.Objects;
 
-public class EmptyWorkflowRunConfiguration implements IWorkflowEngineRunConfiguration, Cloneable {
+public class EmptyWorkflowRunConfiguration extends Variables implements IWorkflowEngineRunConfiguration, Cloneable {
 
   private String pluginId;
   private String pluginName;

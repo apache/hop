@@ -61,7 +61,7 @@ public class EnvironmentUtil {
       IMetaStore metaStore = delegatingMetaStore.getMetaStore( Const.HOP_METASTORE_NAME );
       if ( metaStore != null ) {
         int index = delegatingMetaStore.getMetaStoreList().indexOf( metaStore );
-        metaStore = MetaStoreConst.openLocalHopMetaStore();
+        metaStore = MetaStoreConst.openLocalHopMetaStore(variables);
         delegatingMetaStore.getMetaStoreList().set( index, metaStore );
         delegatingMetaStore.setActiveMetaStoreName( metaStore.getName() );
       }

@@ -38,6 +38,10 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
     emptyFileType = new EmptyFileType();
   }
 
+  @Override public Object getSubject() {
+    return null;
+  }
+
   @Override public String getName() {
     return null;
   }
