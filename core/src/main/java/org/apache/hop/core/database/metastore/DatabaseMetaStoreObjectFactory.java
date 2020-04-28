@@ -27,6 +27,7 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
 
@@ -37,7 +38,7 @@ public class DatabaseMetaStoreObjectFactory implements IMetaStoreObjectFactory {
 
   public static final String PLUGIN_ID_KEY = "pluginId";
 
-  @Override public Object instantiateClass( String className, Map<String, String> context ) throws MetaStoreException {
+  @Override public Object instantiateClass( String className, Map<String, String> context, Object parentObject ) throws MetaStoreException {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     String pluginId = context.get( PLUGIN_ID_KEY );
@@ -57,7 +58,6 @@ public class DatabaseMetaStoreObjectFactory implements IMetaStoreObjectFactory {
       } catch ( InstantiationException e ) {
         throw new MetaStoreException( "Unable to instantiate class '" + className + "'", e );
       }
-
     }
     IPlugin plugin = registry.findPluginWithId( DatabasePluginType.class, pluginId );
     if ( plugin == null ) {
@@ -65,7 +65,15 @@ public class DatabaseMetaStoreObjectFactory implements IMetaStoreObjectFactory {
     }
 
     try {
-      return registry.loadClass( plugin );
+      Object object = registry.loadClass( plugin );
+
+      // Inherent variables from parent object if it's applicable
+      //
+      if ( (object instanceof IVariables ) && (parentObject instanceof IVariables)) {
+        ((IVariables)object).initializeVariablesFrom( (IVariables)parentObject );
+      }
+
+      return object;
     } catch ( HopPluginException e ) {
       throw new MetaStoreException( "Unable to load the database plugin class: " + className + ", plugin id: " + pluginId, e );
     }

@@ -33,7 +33,7 @@ public interface IMetaStoreObjectFactory {
    * @param context   the context to use for the instatiation
    * @return the instantiated class
    */
-  public Object instantiateClass( String className, Map<String, String> context ) throws MetaStoreException;
+  public Object instantiateClass( String className, Map<String, String> context, Object parentObject ) throws MetaStoreException;
 
   /**
    * Extract plugin contextual information from the specified plugin object

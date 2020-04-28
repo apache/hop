@@ -1,0 +1,79 @@
+/*! ******************************************************************************
+ *
+ * Pentaho Data Integration
+ *
+ * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+package org.apache.hop.testing;
+
+import org.apache.hop.metastore.persist.MetaStoreAttribute;
+
+public class PipelineUnitTestTweak {
+
+  @MetaStoreAttribute
+  private PipelineTweak tweak;
+
+  @MetaStoreAttribute
+  private String transformName;
+
+  public PipelineUnitTestTweak() {
+    tweak = PipelineTweak.NONE;
+  }
+
+  public PipelineUnitTestTweak( PipelineTweak tweak, String transformName ) {
+    super();
+    this.tweak = tweak;
+    this.transformName = transformName;
+  }
+
+  @Override
+  public boolean equals( Object obj ) {
+    if ( !( obj instanceof PipelineUnitTestTweak ) ) {
+      return false;
+    }
+    if ( obj == this ) {
+      return true;
+    }
+
+    PipelineUnitTestTweak other = (PipelineUnitTestTweak) obj;
+
+    return transformName == null ? false : transformName.equals( other.transformName );
+  }
+
+  @Override
+  public int hashCode() {
+    return transformName == null ? 0 : transformName.hashCode();
+  }
+
+  public PipelineTweak getTweak() {
+    return tweak;
+  }
+
+  public void setTweak( PipelineTweak tweak ) {
+    this.tweak = tweak;
+  }
+
+  public String getTransformName() {
+    return transformName;
+  }
+
+  public void setTransformName( String transformName ) {
+    this.transformName = transformName;
+  }
+}

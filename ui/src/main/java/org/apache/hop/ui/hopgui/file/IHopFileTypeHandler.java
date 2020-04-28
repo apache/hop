@@ -31,6 +31,12 @@ import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
 
   /**
+   * What is this handling? (pipeline, workflow, ...)
+   * @return The subject being handled
+   */
+  Object getSubject();
+
+  /**
    * Get the user friendly name of the file being handled
    *
    * @return The user friendly name

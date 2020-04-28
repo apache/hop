@@ -279,7 +279,7 @@ public class MetaStoreFactory<T> {
         pojoObject = pojoClass.newInstance();
       } else {
         Map<String, String> objectFactoryContext = getObjectFactoryContext( child );
-        pojoObject = objectFactory.instantiateClass( pojoChildClassName, objectFactoryContext );
+        pojoObject = objectFactory.instantiateClass( pojoChildClassName, objectFactoryContext, parentObject );
         pojoClass = pojoObject.getClass();
       }
       loadAttributes( pojoObject, pojoChild, pojoClass );
@@ -386,7 +386,7 @@ public class MetaStoreFactory<T> {
             childObject = childClass.newInstance();
           } else {
             Map<String, String> context = getObjectFactoryContext( child );
-            childObject = objectFactory.instantiateClass( childClassName, context );
+            childObject = objectFactory.instantiateClass( childClassName, context, parentObject );
             childClass = childObject.getClass();
           }
 

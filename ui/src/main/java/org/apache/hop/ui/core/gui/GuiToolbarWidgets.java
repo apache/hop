@@ -56,9 +56,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, ToolItem> toolItemMap;
 
   public GuiToolbarWidgets() {
-    guiToolBarMap = new HashMap<>(  );
-    widgetsMap = new HashMap<>(  );
-    toolItemMap = new HashMap<>(  );
+    guiToolBarMap = new HashMap<>();
+    widgetsMap = new HashMap<>();
+    toolItemMap = new HashMap<>();
   }
 
   public void createToolbarWidgets( Composite parent, String root ) {
@@ -109,11 +109,11 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
     // Add a label in front of the item
     //
-    if (toolbarItem.getType()!=GuiToolbarElementType.LABEL && StringUtils.isNotEmpty(toolbarItem.getLabel())) {
+    if ( toolbarItem.getType() != GuiToolbarElementType.LABEL && StringUtils.isNotEmpty( toolbarItem.getLabel() ) ) {
       ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-      Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
-      label.setText(Const.NVL(toolbarItem.getLabel(), ""));
-      label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
+      Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+      label.setText( Const.NVL( toolbarItem.getLabel(), "" ) );
+      label.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
       label.setBackground( toolBar.getBackground() );
       label.pack();
       labelSeparator.setWidth( label.getSize().x );
@@ -125,43 +125,43 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     switch ( toolbarItem.getType() ) {
       case LABEL:
         ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Label label = new Label( parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
-        label.setText( Const.NVL(toolbarItem.getLabel(), ""));
-        label.setToolTipText( Const.NVL(toolbarItem.getToolTip(), "") );
+        Label label = new Label( parent, SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+        label.setText( Const.NVL( toolbarItem.getLabel(), "" ) );
+        label.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
         label.setBackground( toolBar.getBackground() );
         label.pack();
         labelSeparator.setWidth( label.getSize().x );
         labelSeparator.setControl( label );
         toolItemMap.put( toolbarItem.getId(), labelSeparator );
         widgetsMap.put( toolbarItem.getId(), label );
-        Listener listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        Listener listener = getListener( toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
         label.addListener( SWT.MouseUp, listener );
         break;
 
       case TOOLBAR_BUTTON:
         ToolItem item = new ToolItem( toolBar, SWT.NONE );
         if ( StringUtils.isNotEmpty( toolbarItem.getImage() ) ) {
-          item.setImage( GuiResource.getInstance().getImage( toolbarItem.getImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
+          item.setImage( GuiResource.getInstance().getImage( toolbarItem.getImage(), toolbarItem.getClassLoader(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE ) );
         }
         if ( StringUtils.isNotEmpty( toolbarItem.getDisabledImage() ) ) {
-          item.setDisabledImage( GuiResource.getInstance().getImage( toolbarItem.getDisabledImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
+          item.setDisabledImage( GuiResource.getInstance().getImage( toolbarItem.getDisabledImage(), toolbarItem.getClassLoader(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE ) );
         }
         if ( StringUtils.isNotEmpty( toolbarItem.getToolTip() ) ) {
           item.setToolTipText( toolbarItem.getToolTip() );
         }
-        listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        listener = getListener( toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
         item.addListener( SWT.Selection, listener );
         toolItemMap.put( toolbarItem.getId(), item );
         break;
 
       case COMBO:
         ToolItem comboSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Combo combo = new Combo( parent, SWT.SINGLE | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+        Combo combo = new Combo( parent, SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
         combo.setItems( getComboItems( toolbarItem ) );
         combo.pack();
-        comboSeparator.setWidth( calculateComboWidth(combo) + toolbarItem.getExtraWidth()); // extra room for widget decorations
+        comboSeparator.setWidth( calculateComboWidth( combo ) + toolbarItem.getExtraWidth() ); // extra room for widget decorations
         comboSeparator.setControl( combo );
-        listener = getListener( toolbarItem.getClassLoader(),toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        listener = getListener( toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
         combo.addListener( SWT.Selection, listener );
         toolItemMap.put( toolbarItem.getId(), comboSeparator );
         widgetsMap.put( toolbarItem.getId(), combo );
@@ -177,9 +177,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     GC gc = new GC( image );
 
     int maxWidth = combo.getSize().x;
-    for (String item : combo.getItems()) {
+    for ( String item : combo.getItems() ) {
       int width = gc.textExtent( item ).x;
-      if (width>maxWidth) {
+      if ( width > maxWidth ) {
         maxWidth = width;
       }
     }
@@ -207,12 +207,29 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   public void refreshComboItemList( String id ) {
     GuiToolbarItem item = guiToolBarMap.get( id );
-    if (item!=null) {
+    if ( item != null ) {
       Control control = widgetsMap.get( id );
-      if (control!=null) {
-        if (control instanceof Combo) {
+      if ( control != null ) {
+        if ( control instanceof Combo ) {
           Combo combo = (Combo) control;
           combo.setItems( getComboItems( item ) );
+        }
+      }
+    }
+  }
+
+  public void selectComboItem( String id, String string ) {
+    GuiToolbarItem item = guiToolBarMap.get( id );
+    if ( item != null ) {
+      Control control = widgetsMap.get( id );
+      if ( control != null ) {
+        if ( control instanceof Combo ) {
+          Combo combo = (Combo) control;
+          combo.setText( Const.NVL( string, "" ) );
+          int index = Const.indexOfString( string, combo.getItems() );
+          if ( index >= 0 ) {
+            combo.select( index );
+          }
         }
       }
     }

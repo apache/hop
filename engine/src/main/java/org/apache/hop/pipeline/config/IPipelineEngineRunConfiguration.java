@@ -22,7 +22,9 @@
 
 package org.apache.hop.pipeline.config;
 
-public interface IPipelineEngineRunConfiguration extends Cloneable {
+import org.apache.hop.core.variables.IVariables;
+
+public interface IPipelineEngineRunConfiguration extends Cloneable, IVariables {
 
   IPipelineEngineRunConfiguration clone();
 

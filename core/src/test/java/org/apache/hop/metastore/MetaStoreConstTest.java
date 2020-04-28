@@ -25,6 +25,8 @@ package org.apache.hop.metastore;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.stores.xml.XmlUtil;
 import org.junit.Test;
 
@@ -39,27 +41,28 @@ public class MetaStoreConstTest {
 
   @Test
   public void testOpenLocalHopMetaStore() throws Exception {
+    IVariables variables = Variables.getADefaultVariableSpace();
     MetaStoreConst.disableMetaStore = false;
     File tempDir = Files.createTempDir();
     String tempPath = tempDir.getAbsolutePath();
-    System.setProperty( Const.HOP_METASTORE_FOLDER, tempPath );
+    variables.setVariable( Const.HOP_METASTORE_FOLDER, tempPath );
     String metaFolder = tempPath + File.separator + XmlUtil.META_FOLDER_NAME;
 
     // Create a metastore
-    assertNotNull( MetaStoreConst.openLocalHopMetaStore() );
+    assertNotNull( MetaStoreConst.openLocalHopMetaStore(variables) );
     assertTrue( ( new File( metaFolder ) ).exists() );
 
     // Check existing while disabling the metastore ( used for tests )
     MetaStoreConst.disableMetaStore = true;
-    assertNull( MetaStoreConst.openLocalHopMetaStore() );
+    assertNull( MetaStoreConst.openLocalHopMetaStore(variables) );
 
     // Check existing metastore
     MetaStoreConst.disableMetaStore = false;
-    assertNotNull( MetaStoreConst.openLocalHopMetaStore( false ) );
+    assertNotNull( MetaStoreConst.openLocalHopMetaStore( variables, false ) );
 
     // Try to read a metastore that does not exist with allowCreate = false
     FileUtils.deleteDirectory( new File( metaFolder ) );
-    assertNull( MetaStoreConst.openLocalHopMetaStore( false ) );
+    assertNull( MetaStoreConst.openLocalHopMetaStore( variables, false ) );
     assertFalse( ( new File( metaFolder ) ).exists() );
   }
 

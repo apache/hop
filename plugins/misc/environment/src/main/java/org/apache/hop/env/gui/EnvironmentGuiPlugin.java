@@ -248,14 +248,6 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
   }
 
   public static void selectEnvironmentInList( String name ) {
-    Control control = HopGui.getInstance().getMainToolbarWidgets().getWidgetsMap().get( EnvironmentGuiPlugin.ID_TOOLBAR_ENVIRONMENT_COMBO );
-    if ( ( control != null ) && ( control instanceof Combo ) ) {
-      Combo combo = (Combo) control;
-      combo.setText( Const.NVL( name, "" ) );
-      int index = Const.indexOfString( name, combo.getItems() );
-      if ( index >= 0 ) {
-        combo.select( index );
-      }
-    }
+    HopGui.getInstance().getMainToolbarWidgets().selectComboItem( ID_TOOLBAR_ENVIRONMENT_COMBO, name );
   }
 }

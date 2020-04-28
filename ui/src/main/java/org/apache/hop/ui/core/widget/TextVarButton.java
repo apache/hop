@@ -35,32 +35,15 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class TextVarButton extends TextVar {
-
-  public TextVarButton( IVariables variables, Composite composite, int flags ) {
-    super( variables, composite, flags );
-  }
-
-  public TextVarButton( IVariables variables, Composite composite, int flags, String toolTipText ) {
-    super( variables, composite, flags, toolTipText );
-  }
-
-  public TextVarButton( IVariables variables, Composite composite, int flags,
-                        IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
-    super( variables, composite, flags, getCaretPositionInterface, insertTextInterface );
-  }
 
   public TextVarButton( IVariables variables, Composite composite, int flags,
                         IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface,
                         SelectionListener selectionListener ) {
     super( composite, variables, flags, getCaretPositionInterface, insertTextInterface, selectionListener );
-  }
-
-  public TextVarButton( IVariables variables, Composite composite, int flags, String toolTipText,
-                        IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
-    super( variables, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface );
   }
 
   protected void initialize( IVariables variables, Composite composite, int flags, String toolTipText,
@@ -93,12 +76,24 @@ public class TextVarButton extends TextVar {
       button.addSelectionListener( selectionListener );
     }
 
+    // Add the variable $ image on the top right of the control
+    //
+    Label wlImage = new Label( this, SWT.NONE );
+    wlImage.setImage( GuiResource.getInstance().getImageVariable() );
+    wlImage.setToolTipText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
+    FormData fdlImage = new FormData();
+    fdlImage.top = new FormAttachment( 0, 0 );
+    fdlImage.right = new FormAttachment( button, 0 );
+    wlImage.setLayoutData( fdlImage );
+
+    // add a text field on it...
     wText = new Text( this, flags );
-    controlDecoration = new ControlDecoration( wText, SWT.CENTER | SWT.RIGHT, this );
-    Image image = GuiResource.getInstance().getImageVariable();
-    controlDecoration.setImage( image );
-    controlDecoration.setDescriptionText( BaseMessages.getString( PKG, "TextVar.tooltip.InsertVariable" ) );
-    PropsUi.getInstance().setLook( controlDecoration.getControl() );
+    FormData fdText = new FormData();
+    fdText.top = new FormAttachment( 0, 0 );
+    fdText.left = new FormAttachment( 0, 0 );
+    fdText.right = new FormAttachment( wlImage, 0 );
+    fdText.bottom = new FormAttachment( 100, 0 );
+    wText.setLayoutData( fdText );
 
     modifyListenerTooltipText = getModifyListenerTooltipText( wText );
     wText.addModifyListener( modifyListenerTooltipText );
@@ -107,11 +102,6 @@ public class TextVarButton extends TextVar {
       new ControlSpaceKeyAdapter( variables, wText, getCaretPositionInterface, insertTextInterface );
     wText.addKeyListener( controlSpaceKeyAdapter );
 
-    FormData fdText = new FormData();
-    fdText.top = new FormAttachment( 0, 0 );
-    fdText.left = new FormAttachment( 0, 0 );
-    fdText.right = new FormAttachment( button, -image.getBounds().width );
-    wText.setLayoutData( fdText );
   }
 
 }

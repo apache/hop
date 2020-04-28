@@ -35,18 +35,17 @@ public enum HopExtensionPoint {
   PipelineHeartbeat( "A signal sent at regular intervals to indicate that the Pipeline is still active" ),
   PipelineFinish( "A Pipeline finishes" ),
   PipelineMetaLoaded( "Pipeline metadata was loaded" ),
-  PipelinePainterArrow( "Draw additional information on top of a Pipeline hop (arrow)" ),
-  PipelinePainterTransform( "Draw additional information on top of a Pipeline transform icon" ),
-  PipelinePainterFlyout( "Draw transform flyout when transform is clicked" ),
-  PipelinePainterFlyoutTooltip( "Draw the flyout tooltips" ),
+
   PipelinePainterStart( "Draw Pipeline or plugin metadata at the start (below the rest)" ),
+  PipelinePainterTransform( "Draw additional information on top of a Pipeline transform icon" ),
+  PipelinePainterArrow( "Draw additional information on top of a Pipeline hop (arrow)" ),
   PipelinePainterEnd( "Draw Pipeline or plugin metadata at the end (on top of all the rest)" ),
+
   PipelineGraphMouseDown( "A mouse down event occurred on the canvas" ),
   PipelineGraphMouseUp( "A mouse up event occurred on the canvas" ),
-  PipelineBeforeOpen( "A Pipeline file is about to be opened" ),
-  PipelineAfterOpen( "A Pipeline file was opened" ),
-  PipelineBeforeSave( "A Pipeline file is about to be saved" ),
-  PipelineAfterSave( "A Pipeline file was saved" ),
+  PipelineAfterOpen( "A Pipeline file was opened (PipelineMeta)" ),
+  PipelineBeforeSave( "A Pipeline file is about to be saved (PipelineMeta)" ),
+  PipelineAfterSave( "A Pipeline file was saved (PipelineMeta)" ),
   PipelineBeforeClose( "A Pipeline file is about to be closed" ),
   PipelineAfterClose( "A Pipeline file was closed" ),
   PipelineChanged( "A Pipeline has been changed" ),
@@ -54,6 +53,7 @@ public enum HopExtensionPoint {
   PipelineGraphMouseMoved( "The mouse was moved on the canvas" ),
   PipelineGraphMouseDoubleClick( "A left or right button was double-clicked in a Pipeline" ),
   PipelineBeforeDeleteTransforms( "Pipeline transforms about to be deleted" ),
+
   HopGuiPipelineMetaExecutionStart( "Hop GUI initiates the execution of a pipeline (PipelineMeta)" ),
   HopUiPipelineExecutionConfiguration( "Right before Hop UI configuration of Pipeline to be executed takes place" ),
   HopUiPipelineBeforeStart( "Right before the Pipeline is started" ),
@@ -70,8 +70,8 @@ public enum HopExtensionPoint {
   WorkflowBeginProcessing( "Start of a workflow at the end of the log table handling" ),
 
   WorkflowPainterStart( "Draw workflow or plugin metadata at the start (below the rest)" ),
-  WorkflowPainterArrow( "Draw additional information on top of a workflow hop (arrow)" ),
   WorkflowPainterAction( "Draw additional information on top of a action copy icon" ),
+  WorkflowPainterArrow( "Draw additional information on top of a workflow hop (arrow)" ),
   WorkflowPainterEnd( "Draw workflow or plugin metadata at the end (on top of all the rest)" ),
 
   WorkflowGraphMouseDown( "A left or right button was clicked in a workflow" ),
@@ -118,6 +118,9 @@ public enum HopExtensionPoint {
   HopRunCalculateFilename( "Right after the filename is determined, before it is used in any way" ),
   HopRunStart( "At the start of the HopRun command line, before loading metadata execution" ),
   HopRunEnd( "At the end of the HopRun command line execution" ),
+
+  HopGuiPipelineAfterClose("Called after a pipeline is closed in the Hop GUI (PipelineMeta)"),
+  HopGuiWorkflowAfterClose("Called after a workflow is closed in the Hop GUI (WorkflowMeta)"),
   ;
 
   public String id;

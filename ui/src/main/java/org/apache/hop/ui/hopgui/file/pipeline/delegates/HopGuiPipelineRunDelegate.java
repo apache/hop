@@ -216,8 +216,7 @@ public class HopGuiPipelineRunDelegate {
       pipelineMeta.setClearingLog( executionConfiguration.isClearingLog() );
 
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineExecutionConfiguration.id,
-        executionConfiguration );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineExecutionConfiguration.id, executionConfiguration );
 
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] { executionConfiguration, pipelineMeta, pipelineMeta } );

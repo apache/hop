@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.config;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -37,7 +38,7 @@ public class PipelineRunConfigurationMetaStoreObjectFactory implements IMetaStor
 
   public static final String PLUGIN_ID_KEY = "pluginId";
 
-  @Override public Object instantiateClass( String className, Map<String, String> context ) throws MetaStoreException {
+  @Override public Object instantiateClass( String className, Map<String, String> context, Object parentObject ) throws MetaStoreException {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     String pluginId = context.get( PLUGIN_ID_KEY );
@@ -57,6 +58,13 @@ public class PipelineRunConfigurationMetaStoreObjectFactory implements IMetaStor
       IPipelineEngineRunConfiguration engineRunConfiguration = engine.createDefaultPipelineEngineRunConfiguration();
       engineRunConfiguration.setEnginePluginId( plugin.getIds()[0] );
       engineRunConfiguration.setEnginePluginName( plugin.getName() );
+
+      // Inherent variables from parent object if it's applicable
+      //
+      if ( (parentObject instanceof IVariables )) {
+        engineRunConfiguration.initializeVariablesFrom( (IVariables)parentObject );
+      }
+
       return engineRunConfiguration;
     } catch ( HopPluginException e ) {
       throw new MetaStoreException( "Unable to load the pipeline engine plugin class: " + className + ", plugin id: " + pluginId, e );
