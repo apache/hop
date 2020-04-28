@@ -585,58 +585,7 @@ public class TestingGuiPlugin {
   }
 
   private void saveUnitTest( IMetaStore metaStore, PipelineUnitTest unitTest, PipelineMeta pipelineMeta ) throws MetaStoreException {
-
-    // Build relative path whenever a pipeline is saved
-    //
-    if ( StringUtils.isNotEmpty( pipelineMeta.getFilename() ) ) {
-      // Set the filename to be safe
-      //
-      unitTest.setPipelineFilename( pipelineMeta.getFilename() );
-
-      String basePath = unitTest.getBasePath();
-      if ( StringUtils.isEmpty( basePath ) ) {
-        basePath = pipelineMeta.getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
-      }
-      basePath = pipelineMeta.environmentSubstitute( basePath );
-      if ( StringUtils.isNotEmpty( basePath ) ) {
-        // See if the basePath is present in the filename
-        // Then replace the filename
-        //
-        try {
-          FileObject baseFolder = HopVfs.getFileObject( basePath );
-          FileObject transFile = HopVfs.getFileObject( pipelineMeta.getFilename() );
-          FileObject parent = transFile.getParent();
-          while ( parent != null ) {
-            if ( parent.equals( baseFolder ) ) {
-              // Here we are, we found the base folder in the pipeline file
-              //
-              String transFilename = transFile.toString();
-              String baseFoldername = parent.toString();
-
-              // Final validation & unit test filename correction
-              //
-              if ( transFilename.startsWith( baseFoldername ) ) {
-                String relativeFile = transFilename.substring( baseFoldername.length() );
-                String filename;
-                if ( relativeFile.startsWith( "/" ) ) {
-                  filename = "." + relativeFile;
-                } else {
-                  filename = "./" + relativeFile;
-                }
-                // Set the pipeline filename to the relative path
-                //
-                unitTest.setPipelineFilename( filename );
-                LogChannel.GENERAL.logBasic( "Unit test '" + unitTest.getName() + "' : Saved relative path to pipeline: " + filename );
-              }
-            }
-            parent = parent.getParent();
-          }
-        } catch ( Exception e ) {
-          throw new MetaStoreException( "Error calculating relative unit test file path", e );
-        }
-      }
-    }
-
+    unitTest.setRelativeFilename(pipelineMeta.getFilename());
     PipelineUnitTest.createFactory( metaStore ).saveElement( unitTest );
   }
 
@@ -691,7 +640,10 @@ public class TestingGuiPlugin {
       return;
     }
     // Create a new unit test
-    PipelineUnitTest test = new PipelineUnitTest( pipelineMeta.getName() + " UNIT", "", pipelineMeta.getFilename(),
+    PipelineUnitTest test = new PipelineUnitTest(
+      pipelineMeta.getName() + " UNIT",
+      "",
+      pipelineMeta.getFilename(),
       new ArrayList<>(),
       new ArrayList<>(),
       new ArrayList<>(),
@@ -700,13 +652,17 @@ public class TestingGuiPlugin {
       new ArrayList<>(),
       false
     );
+
     PipelineUnitTestDialog dialog = new PipelineUnitTestDialog( hopGui.getShell(), hopGui.getMetaStore(), test );
     String testName = dialog.open();
     if ( testName != null ) {
       try {
+        test.setRelativeFilename( pipelineMeta.getFilename() );
+
         PipelineUnitTest.createFactory( hopGui.getMetaStore() ).saveElement( test );
 
         // Activate the test
+        refreshUnitTestsList();
         selectUnitTest( pipelineMeta, test );
       } catch ( Exception e ) {
         new ErrorDialog( hopGui.getShell(), "Error", "Error saving test '" + test.getName() + "'", e );
@@ -761,6 +717,7 @@ public class TestingGuiPlugin {
       //
       testFactory.deleteElement( pipelineUnitTest.getName() );
 
+      refreshUnitTestsList();
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error deleting test", e );
     }
@@ -852,7 +809,8 @@ public class TestingGuiPlugin {
       List<PipelineUnitTest> tests = PipelineUnitTest.createFactory( metaStore ).getElements();
       names = new ArrayList<>();
       for ( PipelineUnitTest test : tests ) {
-        if ( test.matchesPipelineFilename( pipelineMeta, pipelineMeta.getFilename() ) ) {
+        test.initializeVariablesFrom( HopGui.getInstance().getVariables() );
+        if ( test.matchesPipelineFilename( pipelineMeta.getFilename() ) ) {
           names.add( test.getName() );
         }
       }
@@ -1055,7 +1013,7 @@ public class TestingGuiPlugin {
 
           if ( targetTest != null ) {
 
-            String completeFilename = targetTest.calculateCompleteFilename( hopGui.getVariables() );
+            String completeFilename = targetTest.calculateCompleteFilename();
             hopGui.fileDelegate.fileOpen( completeFilename );
 
             PipelineMeta pipelineMeta = getActivePipelineMeta();
@@ -1095,24 +1053,10 @@ public class TestingGuiPlugin {
 
         List<PipelineUnitTest> allTests = factory.getElements();
         for ( PipelineUnitTest test : allTests ) {
-          // Match the filename
+          // Match the pipeline reference filename
           //
-
-
-          // What's the pipeline absolute URI
-          //
-          FileObject transFile = HopVfs.getFileObject( pipelineMeta.getFilename() );
-          String transUri = transFile.getName().getURI();
-
-          // What's the filename referenced in the test?
-          //
-          FileObject testTransFile = HopVfs.getFileObject( test.calculateCompleteFilename( pipelineMeta ) );
-          if ( testTransFile.exists() ) {
-            String testTransUri = testTransFile.getName().getURI();
-
-            if ( transUri.equals( testTransUri ) ) {
-              tests.add( test );
-            }
+          if (test.matchesPipelineFilename( pipelineMeta.getFilename() )) {
+            tests.add( test );
           }
         }
       }

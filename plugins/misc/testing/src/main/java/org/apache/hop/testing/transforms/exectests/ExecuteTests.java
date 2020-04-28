@@ -226,7 +226,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
     PipelineMeta unitTestPipelineMeta = null;
     // Environment substitution is not yet supported in the UI
     //
-    String filename = test.calculateCompleteFilename( this );
+    String filename = test.calculateCompleteFilename();
     if ( StringUtils.isNotEmpty( filename ) ) {
       unitTestPipelineMeta = new PipelineMeta( filename, metaStore, true, this );
     }
