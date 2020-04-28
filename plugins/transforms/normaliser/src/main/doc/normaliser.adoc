@@ -1,0 +1,13 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/normaliser/src/main/doc/normaliser.adoc
+
+= Row Normaliser
+
+== Description
+
+The Row Normaliser transform converts the columns of an input stream into rows. You can use this transform to normalize repeating groups of columns.
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
