@@ -44,6 +44,14 @@ import org.apache.hop.core.row.IValueMeta;
 )
 @GuiPlugin( id = "GUI-VerticaDatabaseMeta" )
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+
+  /*
+   *
+   * https://www.vertica.com/docs/9.2.x/HTML/Content/Authoring/SQLReferenceManual/DataTypes/LongDataTypes.htm
+   *
+   * */
+  final int LONG = 65000;
+
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
@@ -149,10 +157,22 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "INTEGER";
         break;
       case IValueMeta.TYPE_STRING:
-        retval += ( length < 1 ) ? "VARCHAR" : "VARCHAR(" + length + ")";
+        if (length < 1) {
+          retval += "VARCHAR";
+        } else if(length > LONG) {
+          retval += "LONG VARCHAR(" + length + ")";
+        } else {
+          retval += "VARCHAR(" + length + ")";
+        }
         break;
       case IValueMeta.TYPE_BINARY:
-        retval += ( length < 1 ) ? "VARBINARY" : "VARBINARY(" + length + ")";
+        if (length < 1) {
+          retval += "VARBINARY";
+        } else if(length > LONG) {
+          retval += "LONG VARBINARY(" + length + ")";
+        } else {
+          retval += "VARBINARY(" + length + ")";
+        }
         break;
       default:
         retval += " UNKNOWN";
