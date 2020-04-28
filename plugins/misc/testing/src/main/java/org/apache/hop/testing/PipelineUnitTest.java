@@ -28,12 +28,15 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
@@ -230,29 +233,44 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     }
   }
 
-  public boolean matchesPipelineFilename(IVariables variables, String pipelineFilename) throws HopFileException, FileSystemException {
-    if ( Utils.isEmpty(pipelineFilename)) {
+  public boolean matchesPipelineFilename(String referencePipelineFilename) throws HopFileException, FileSystemException {
+    if ( Utils.isEmpty(referencePipelineFilename)) {
       return false;
     }
-    FileObject pipelineFile = HopVfs.getFileObject( pipelineFilename );
+    FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
     String pipelineUri = pipelineFile.getName().getURI();
 
-    FileObject testFile = HopVfs.getFileObject( calculateCompleteFilename( variables ) );
-    if (!testFile.exists()) {
+    String testPipelineFilename = calculateCompleteFilename();
+    if (Utils.isEmpty(testPipelineFilename)) {
       return false;
     }
-    String testUri = testFile.getName().getURI();
+    FileObject testPipelineFile = HopVfs.getFileObject( testPipelineFilename );
+    String testPipelineUri = testPipelineFile.getName().getURI();
 
-    return pipelineUri.equals( testUri );
+    return pipelineUri.equals( testPipelineUri );
   }
 
-  public String calculateCompleteFilename( IVariables space ) {
+  public String calculateCompleteFilename() {
 
-    String baseFilePath = space.environmentSubstitute( basePath );
+    // Without a filename we don't have any work
+    //
+    if ( StringUtil.isEmpty( pipelineFilename ) ) {
+      return null;
+    }
+
+    // If the filename is an absolute path, just return that.
+    //
+    if (pipelineFilename.startsWith( "/" ) || pipelineFilename.startsWith( "file:///" )) {
+      return environmentSubstitute( pipelineFilename ); // to make sure
+    }
+
+    // We're dealing with a relative path vs the base path
+    //
+    String baseFilePath = environmentSubstitute( basePath );
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       // See if the base path environment variable is set
       //
-      baseFilePath = space.getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
+      baseFilePath = getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
     }
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       baseFilePath = "";
@@ -463,5 +481,62 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
 
   public static final MetaStoreFactory<PipelineUnitTest> createFactory(IMetaStore metaStore) {
     return new MetaStoreFactory<>( PipelineUnitTest.class, metaStore, HopDefaults.NAMESPACE );
+  }
+
+  public void setRelativeFilename( String referencePipelineFilename ) throws MetaStoreException {
+    // Build relative path whenever a pipeline is saved
+    //
+    if ( StringUtils.isEmpty( referencePipelineFilename ) ) {
+      return; // nothing we can do
+    }
+
+    // Set the filename to be safe
+    //
+    setPipelineFilename( referencePipelineFilename );
+
+    String base = getBasePath();
+    if ( StringUtils.isEmpty( base ) ) {
+      base = getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
+    }
+    base = environmentSubstitute( base );
+    if ( StringUtils.isNotEmpty( base ) ) {
+      // See if the base path is present in the filename
+      // Then replace the filename
+      //
+      try {
+        FileObject baseFolder = HopVfs.getFileObject( base );
+        FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
+        FileObject parent = pipelineFile.getParent();
+        while ( parent != null ) {
+          if ( parent.equals( baseFolder ) ) {
+            // Here we are, we found the base folder in the pipeline file
+            //
+            String pipelineFileString = pipelineFile.toString();
+            String baseFolderName = parent.toString();
+
+            // Final validation & unit test filename correction
+            //
+            if ( pipelineFileString.startsWith( baseFolderName ) ) {
+              String relativeFile = pipelineFileString.substring( baseFolderName.length() );
+              String relativeFilename;
+              if ( relativeFile.startsWith( "/" ) ) {
+                relativeFilename = "." + relativeFile;
+              } else {
+                relativeFilename = "./" + relativeFile;
+              }
+              // Set the pipeline filename to the relative path
+              //
+              setPipelineFilename( relativeFilename );
+
+              LogChannel.GENERAL.logBasic( "Unit test '" + getName() + "' : saved relative path to pipeline: " + relativeFilename );
+            }
+          }
+          parent = parent.getParent();
+        }
+      } catch ( Exception e ) {
+        throw new MetaStoreException( "Error calculating relative unit test file path", e );
+      }
+    }
+
   }
 }

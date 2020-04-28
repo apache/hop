@@ -182,6 +182,9 @@ public class HopVfs {
   protected static boolean checkForScheme( String[] initialSchemes, boolean relativeFilename, String vfsFilename,
                                            IVariables variables, FileSystemOptions fsOptions )
     throws IOException {
+    if (vfsFilename==null) {
+      return false;
+    }
     for ( int i = 0; i < initialSchemes.length && relativeFilename; i++ ) {
       if ( vfsFilename.startsWith( initialSchemes[ i ] + ":" ) ) {
         relativeFilename = false;
