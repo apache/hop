@@ -100,6 +100,7 @@
         <module>httppost</module>
         <module>ifnull</module>
         <module>insertupdate</module>
+        <module>javascript</module>
         <module>ldap</module>
         <module>loadfileinput</module>
         <module>memgroupby</module>
