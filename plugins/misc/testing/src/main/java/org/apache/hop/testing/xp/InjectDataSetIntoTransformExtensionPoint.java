@@ -104,6 +104,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
         }
         return;
       }
+      unitTest.initializeVariablesFrom( pipelineMeta );
 
       // Replace all transforms with input data sets with Injector transforms.
       // Replace all transforms with a golden data set, attached to a unit test, with a Dummy
@@ -172,8 +173,11 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
                                            PipelineUnitTestSetLocation inputLocation ) throws MetaStoreException, HopException {
 
     final DataSet dataSet = DataSet.createFactory( metaStore ).loadElement( dataSetName );
+    if (dataSet==null) {
+      throw new HopException("Unable to find data set '"+dataSetName+"'");
+    }
+    dataSet.initializeVariablesFrom( pipeline );
     final ILogChannel log = pipeline.getLogChannel();
-
     final RowProducer rowProducer = pipeline.addRowProducer( transformMeta.getName(), 0 );
 
     // Look for the transform into which we'll inject rows...

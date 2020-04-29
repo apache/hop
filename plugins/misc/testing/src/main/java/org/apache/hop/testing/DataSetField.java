@@ -49,7 +49,7 @@ public class DataSetField {
     // Empty constructor for MetaStoreFactory.
   }
 
-  public DataSetField( String fieldName, String columnName, int type, int length, int precision, String comment, String format ) {
+  public DataSetField( String fieldName, int type, int length, int precision, String comment, String format ) {
     super();
     this.fieldName = fieldName;
     this.type = type;

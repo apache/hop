@@ -47,9 +47,6 @@ import java.util.List;
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> implements ITransform<SortedMergeMeta, SortedMergeData> {
   private static Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SortedMergeMeta meta;
-  private SortedMergeData data;
-
   public SortedMerge(TransformMeta transformMeta, SortedMergeMeta meta, SortedMergeData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

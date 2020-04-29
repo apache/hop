@@ -23,6 +23,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -196,6 +197,8 @@ public class TableView extends Composite {
   private boolean isTextButton = false;
   private boolean addIndexColumn = true;
 
+  private final Color nullTextColor;
+
   private ITableViewModifyListener tableViewModifyListener = new ITableViewModifyListener() {
     @Override
     public void moveRow( int position1, int position2 ) {
@@ -250,6 +253,8 @@ public class TableView extends Composite {
     sortfieldLast = -1;
     sortingDescending = false;
     sortingDescendingLast = null;
+
+    nullTextColor = GuiResource.getInstance().getColorBlue();
 
     sortable = true;
 
@@ -313,7 +318,7 @@ public class TableView extends Composite {
     tablecolumn[ 0 ].setAlignment( SWT.RIGHT );
 
     for ( int i = 0; i < columns.length; i++ ) {
-      int allignment = columns[ i ].getAllignement();
+      int allignment = columns[ i ].getAlignment();
       tablecolumn[ i + 1 ] = new TableColumn( table, allignment );
       tablecolumn[ i + 1 ].setResizable( true );
       if ( columns[ i ].getName() != null ) {
@@ -1468,7 +1473,7 @@ public class TableView extends Composite {
           String string = conversionRowMeta.getString( r, j );
           if ( showingBlueNullValues && string == null ) {
             string = "<null>";
-            item.setForeground( j - 2, GuiResource.getInstance().getColorBlue() );
+            item.setForeground( j - 2, nullTextColor );
           } else {
             item.setForeground( j - 2, GuiResource.getInstance().getColorBlack() );
           }
@@ -1836,10 +1841,17 @@ public class TableView extends Composite {
     for ( int r = 0; r < items.length; r++ ) {
       TableItem ti = items[ r ];
       for ( int c = 1; c < table.getColumnCount(); c++ ) {
+        ColumnInfo ci = columns[c-1];
         if ( c > 1 ) {
           selection += CLIPBOARD_DELIMITER;
         }
-        selection += ti.getText( c );
+        String value = ti.getText(c);
+        if ( StringUtils.isNotEmpty(value)) {
+          Color textColor = ti.getForeground( c );
+          if (!nullTextColor.equals(  textColor  ) || !"<null>".equals(value )) {
+              selection += ti.getText( c );
+          }
+        }
       }
       selection += Const.CR;
     }

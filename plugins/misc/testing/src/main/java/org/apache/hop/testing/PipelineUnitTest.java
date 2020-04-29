@@ -188,6 +188,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
       if ( goldenDataSet == null ) {
         throw new HopException( "Unable to find golden data set '" + goldenDataSetName + "' for transform '" + transformName + "'" );
       }
+      goldenDataSet.initializeVariablesFrom( this );
 
       return goldenDataSet;
 

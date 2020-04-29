@@ -48,14 +48,14 @@ public class ColumnInfo {
   private int type;
   private String name;
 
-  private String[] combovals;
-  private Supplier<String[]> combovalsSupplier = () -> combovals;
+  private String[] comboValues;
+  private Supplier<String[]> comboValueSupplier = () -> comboValues;
   private boolean numeric;
   private String tooltip;
-  private int allignement;
+  private int alignment;
   private boolean readonly;
-  private String button_text;
-  private boolean hide_negative;
+  private String buttonText;
+  private boolean hidingNegativeValues;
   private int width = -1;
   private boolean autoResize = true;
 
@@ -83,12 +83,12 @@ public class ColumnInfo {
   public ColumnInfo( String colname, int coltype ) {
     name = colname;
     type = coltype;
-    combovals = null;
+    comboValues = null;
     numeric = false;
     tooltip = null;
-    allignement = SWT.LEFT;
+    alignment = SWT.LEFT;
     readonly = false;
-    hide_negative = false;
+    hidingNegativeValues = false;
     valueMeta = new ValueMetaString( colname );
   }
 
@@ -102,12 +102,12 @@ public class ColumnInfo {
    */
   public ColumnInfo( String colname, int coltype, String[] combo ) {
     this( colname, coltype );
-    combovals = combo;
+    comboValues = combo;
     numeric = false;
     tooltip = null;
-    allignement = SWT.LEFT;
+    alignment = SWT.LEFT;
     readonly = false;
-    hide_negative = false;
+    hidingNegativeValues = false;
     valueMeta = new ValueMetaString( colname );
   }
 
@@ -121,12 +121,12 @@ public class ColumnInfo {
    */
   public ColumnInfo( String colname, int coltype, boolean numeric ) {
     this( colname, coltype );
-    this.combovals = null;
+    this.comboValues = null;
     this.numeric = numeric;
     this.tooltip = null;
-    this.allignement = SWT.LEFT;
+    this.alignment = SWT.LEFT;
     this.readonly = false;
-    this.hide_negative = false;
+    this.hidingNegativeValues = false;
     if ( numeric ) {
       valueMeta = new ValueMetaInteger( colname );
     } else {
@@ -204,20 +204,20 @@ public class ColumnInfo {
     readonly = ro;
   }
 
-  public void setAllignement( int allign ) {
-    allignement = allign;
+  public void setAlignment( int allign ) {
+    alignment = allign;
   }
 
   public void setComboValues( String[] cv ) {
-    combovals = cv;
+    comboValues = cv;
   }
 
-  public void setCombovalsSupplier( Supplier<String[]> combovalsSupplier ) {
-    this.combovalsSupplier = combovalsSupplier;
+  public void setComboValueSupplier( Supplier<String[]> comboValueSupplier ) {
+    this.comboValueSupplier = comboValueSupplier;
   }
 
   public void setButtonText( String bt ) {
-    button_text = bt;
+    buttonText = bt;
   }
 
   public String getName() {
@@ -229,7 +229,7 @@ public class ColumnInfo {
   }
 
   public String[] getComboValues() {
-    String[] retval = combovalsSupplier.get();
+    String[] retval = comboValueSupplier.get();
     return retval;
   }
 
@@ -251,8 +251,8 @@ public class ColumnInfo {
     return tooltip;
   }
 
-  public int getAllignement() {
-    return allignement;
+  public int getAlignment() {
+    return alignment;
   }
 
   public boolean isReadOnly() {
@@ -260,7 +260,7 @@ public class ColumnInfo {
   }
 
   public String getButtonText() {
-    return button_text;
+    return buttonText;
   }
 
   public void setSelectionAdapter( SelectionListener sb ) {
@@ -272,15 +272,15 @@ public class ColumnInfo {
   }
 
   public void hideNegative() {
-    hide_negative = true;
+    hidingNegativeValues = true;
   }
 
   public void showNegative() {
-    hide_negative = false;
+    hidingNegativeValues = false;
   }
 
   public boolean isNegativeHidden() {
-    return hide_negative;
+    return hidingNegativeValues;
   }
 
   /**
@@ -394,4 +394,6 @@ public class ColumnInfo {
   public void setAutoResize( boolean resize ) {
     this.autoResize = resize;
   }
+
+
 }

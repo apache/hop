@@ -44,8 +44,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.DisposeEvent;
@@ -185,18 +183,18 @@ public class HopGuiPipelineGridDelegate {
           BaseMessages.getString( PKG, "PipelineLog.Column.PriorityBufferSizes" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false, true ), };
 
-    columns[ 1 ].setAllignement( SWT.RIGHT );
-    columns[ 2 ].setAllignement( SWT.RIGHT );
-    columns[ 3 ].setAllignement( SWT.RIGHT );
-    columns[ 4 ].setAllignement( SWT.RIGHT );
-    columns[ 5 ].setAllignement( SWT.RIGHT );
-    columns[ 6 ].setAllignement( SWT.RIGHT );
-    columns[ 7 ].setAllignement( SWT.RIGHT );
-    columns[ 8 ].setAllignement( SWT.RIGHT );
-    columns[ 9 ].setAllignement( SWT.LEFT );
-    columns[ 10 ].setAllignement( SWT.RIGHT );
-    columns[ 11 ].setAllignement( SWT.RIGHT );
-    columns[ 12 ].setAllignement( SWT.RIGHT );
+    columns[ 1 ].setAlignment( SWT.RIGHT );
+    columns[ 2 ].setAlignment( SWT.RIGHT );
+    columns[ 3 ].setAlignment( SWT.RIGHT );
+    columns[ 4 ].setAlignment( SWT.RIGHT );
+    columns[ 5 ].setAlignment( SWT.RIGHT );
+    columns[ 6 ].setAlignment( SWT.RIGHT );
+    columns[ 7 ].setAlignment( SWT.RIGHT );
+    columns[ 8 ].setAlignment( SWT.RIGHT );
+    columns[ 9 ].setAlignment( SWT.LEFT );
+    columns[ 10 ].setAlignment( SWT.RIGHT );
+    columns[ 11 ].setAlignment( SWT.RIGHT );
+    columns[ 12 ].setAlignment( SWT.RIGHT );
 
     pipelineGridView = new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.BORDER
       | SWT.FULL_SELECTION | SWT.MULTI, columns, 1,
@@ -345,7 +343,7 @@ public class HopGuiPipelineGridDelegate {
       //
       columns.add( new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ) );
       ColumnInfo copyColumn = new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, true, true );
-      copyColumn.setAllignement( SWT.RIGHT );
+      copyColumn.setAlignment( SWT.RIGHT );
       columns.add( copyColumn );
 
       List<IEngineMetric> usedMetrics = new ArrayList( engineMetrics.getMetricsList() );
@@ -363,7 +361,7 @@ public class HopGuiPipelineGridDelegate {
         valueMeta.setConversionMask( METRICS_FORMAT );
         stringMeta.setConversionMetadata( valueMeta );
         column.setValueMeta( stringMeta );
-        column.setAllignement( SWT.RIGHT );
+        column.setAlignment( SWT.RIGHT );
         columns.add( column );
       }
 
@@ -373,7 +371,7 @@ public class HopGuiPipelineGridDelegate {
       //
       ColumnInfo durationColumn = new ColumnInfo( "Duration", ColumnInfo.COLUMN_TYPE_TEXT, false, true ); // TODO i18n
       durationColumn.setValueMeta( stringMeta );
-      durationColumn.setAllignement( SWT.RIGHT );
+      durationColumn.setAlignment( SWT.RIGHT );
       columns.add( durationColumn );
 
       // Also add the status and speed
@@ -383,7 +381,7 @@ public class HopGuiPipelineGridDelegate {
       stringMeta.setConversionMetadata( speedMeta );
       ColumnInfo speedColumn = new ColumnInfo( "Speed", ColumnInfo.COLUMN_TYPE_TEXT, false, true ); // TODO i18n
       speedColumn.setValueMeta( stringMeta );
-      speedColumn.setAllignement( SWT.RIGHT );
+      speedColumn.setAlignment( SWT.RIGHT );
       columns.add( speedColumn );
 
       columns.add( new ColumnInfo( "Status", ColumnInfo.COLUMN_TYPE_TEXT, false, true ) ); // TODO i18n

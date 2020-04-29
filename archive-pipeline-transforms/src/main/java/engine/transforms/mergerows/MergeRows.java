@@ -84,7 +84,7 @@ public class MergeRows extends BaseTransform implements ITransform {
       //rowSetWhenIdentical is use in case the comparison is IDENTICAL.
       //this should be the "Comparison" stream but can be the "Reference" stream for backward compatibility (PDI-736)
       String useRefWhenIdenticalVar = Const
-        .NVL( System.getProperty( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL ), "N" );
+        .NVL( getVariable( Const.HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL ), "N" );
       if ( "N".equalsIgnoreCase( useRefWhenIdenticalVar ) ) {
         //use the reference stream (as per documentation)
         useRefWhenIdentical = false;

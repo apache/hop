@@ -163,6 +163,9 @@ public class TransformFieldsDialog extends Dialog {
           BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.Type" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false, true ),
         new ColumnInfo(
+          BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.ConversionMask" ),
+          ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
+        new ColumnInfo(
           BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.Length" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false, true ),
         new ColumnInfo(
@@ -173,9 +176,6 @@ public class TransformFieldsDialog extends Dialog {
           false, true ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.StorageType" ),
-          ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
-        new ColumnInfo(
-          BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.ConversionMask" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "TransformFieldsDialog.TableCol.Currency" ), ColumnInfo.COLUMN_TYPE_TEXT,
@@ -303,11 +303,11 @@ public class TransformFieldsDialog extends Dialog {
         item.setText( idx++, v.getName() );
       }
       item.setText( idx++, v.getTypeDesc() );
+      item.setText( idx++, Const.NVL( v.getConversionMask(), "" ) );
       item.setText( idx++, v.getLength() < 0 ? "-" : "" + v.getLength() );
       item.setText( idx++, v.getPrecision() < 0 ? "-" : "" + v.getPrecision() );
       item.setText( idx++, Const.NVL( v.getOrigin(), "" ) );
       item.setText( idx++, ValueMetaBase.getStorageTypeCode( v.getStorageType() ) );
-      item.setText( idx++, Const.NVL( v.getConversionMask(), "" ) );
       item.setText( idx++, Const.NVL( v.getCurrencySymbol(), "" ) );
       item.setText( idx++, Const.NVL( v.getDecimalSymbol(), "" ) );
       item.setText( idx++, Const.NVL( v.getGroupingSymbol(), "" ) );

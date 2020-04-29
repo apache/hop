@@ -43,9 +43,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> implements ITransform<UniqueRowsMeta, UniqueRowsData> {
   private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private UniqueRowsMeta meta;
-  private UniqueRowsData data;
-
   public UniqueRows( TransformMeta transformMeta, UniqueRowsMeta meta, UniqueRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

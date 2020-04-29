@@ -64,15 +64,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
-  private static Class<?> PKG = PipelineUnitTestDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = PipelineUnitTestDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private PipelineUnitTest pipelineUnitTest;
+  private final PipelineUnitTest pipelineUnitTest;
 
   private Shell shell;
 
   private Text wName;
   private Text wDescription;
   private Combo wTestType;
+  private Text wPipelineFilename;
   private TextVar wFilename;
   private TextVar wBasePath;
   private Button wAutoOpen;
@@ -81,13 +82,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
   private TableView wVariableValues;
 
 
-  private Button wOK;
-  private Button wCancel;
-
-  private PropsUi props;
-
-  private int middle;
-  private int margin;
+  private final PropsUi props;
 
   private String testName;
 
@@ -108,8 +103,8 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageTable() );
 
-    middle = props.getMiddlePct();
-    margin = Const.MARGIN;
+    int middle = props.getMiddlePct();
+    int margin = Const.MARGIN;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -175,6 +170,25 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     wTestType.setItems( DataSetConst.getTestTypeDescriptions() );
     lastControl = wTestType;
 
+    // The filename of the pipeline to test
+    //
+    Label wlPipelineFilename = new Label( shell, SWT.RIGHT );
+    props.setLook( wlPipelineFilename );
+    wlPipelineFilename.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.PipelineFilename.Label" ) );
+    FormData fdlPipelineFilename = new FormData();
+    fdlPipelineFilename.top = new FormAttachment( lastControl, margin );
+    fdlPipelineFilename.left = new FormAttachment( 0, 0 );
+    fdlPipelineFilename.right = new FormAttachment( middle, -margin );
+    wlPipelineFilename.setLayoutData( fdlPipelineFilename );
+    wPipelineFilename = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wPipelineFilename );
+    FormData fdPipelineFilename = new FormData();
+    fdPipelineFilename.top = new FormAttachment( wlPipelineFilename, 0, SWT.CENTER );
+    fdPipelineFilename.left = new FormAttachment( middle, 0 );
+    fdPipelineFilename.right = new FormAttachment( 100, 0 );
+    wPipelineFilename.setLayoutData( fdPipelineFilename );
+    lastControl = wPipelineFilename;
+    
     // The optional filename of the test result...
     //
     Label wlFilename = new Label( shell, SWT.RIGHT );
@@ -239,16 +253,16 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     props.setLook( wlFieldMapping );
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment( 0, 0 );
-    fdlUpIns.top = new FormAttachment( lastControl, 3*margin );
+    fdlUpIns.top = new FormAttachment( lastControl, 3* margin );
     wlFieldMapping.setLayoutData( fdlUpIns );
     lastControl = wlFieldMapping;
 
     // Buttons at the bottom...
     //
-    wOK = new Button( shell, SWT.PUSH );
+    Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     Button[] buttons = new Button[] { wOK, wCancel };
@@ -323,6 +337,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     wName.addSelectionListener( selAdapter );
     wDescription.addSelectionListener( selAdapter );
     wTestType.addSelectionListener( selAdapter );
+    wPipelineFilename.addSelectionListener( selAdapter );
     wFilename.addSelectionListener( selAdapter );
     wBasePath.addSelectionListener( selAdapter );
 
@@ -357,6 +372,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     wName.setText( Const.NVL( pipelineUnitTest.getName(), "" ) );
     wDescription.setText( Const.NVL( pipelineUnitTest.getDescription(), "" ) );
     wTestType.setText( Const.NVL( DataSetConst.getTestTypeDescription( pipelineUnitTest.getType() ), "" ) );
+    wPipelineFilename.setText( Const.NVL( pipelineUnitTest.getPipelineFilename(), "" ) );
     wFilename.setText( Const.NVL( pipelineUnitTest.getFilename(), "" ) );
     wBasePath.setText( Const.NVL( pipelineUnitTest.getBasePath(), "" ) );
     wAutoOpen.setSelection( pipelineUnitTest.isAutoOpening() );
@@ -392,6 +408,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     test.setName( wName.getText() );
     test.setDescription( wDescription.getText() );
     test.setType( DataSetConst.getTestTypeForDescription( wTestType.getText() ) );
+    test.setPipelineFilename( wPipelineFilename.getText() );
     test.setFilename( wFilename.getText() );
     test.setBasePath( wBasePath.getText() );
     test.setAutoOpening( wAutoOpen.getSelection() );
