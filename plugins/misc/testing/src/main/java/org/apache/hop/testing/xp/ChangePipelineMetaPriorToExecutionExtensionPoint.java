@@ -73,6 +73,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
 
     try {
       unitTest = PipelineUnitTest.createFactory( pipeline.getMetaStore() ).loadElement( unitTestName );
+      unitTest.initializeVariablesFrom( pipelineMeta );
     } catch ( MetaStoreException e ) {
       throw new HopException( "Unable to load unit test '" + unitTestName + "'", e );
     }

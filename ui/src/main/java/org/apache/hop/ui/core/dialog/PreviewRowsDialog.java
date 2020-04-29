@@ -74,21 +74,11 @@ public class PreviewRowsDialog {
 
   private TableView wFields;
 
-  private FormData fdlFields, fdFields;
-
-  private Button wClose;
-
-  private Button wStop;
-
-  private Button wNext;
-
-  private Button wLog;
-
   private Shell shell;
 
-  private List<Object[]> buffer;
+  private final List<Object[]> buffer;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private String title, message;
 
@@ -98,7 +88,7 @@ public class PreviewRowsDialog {
 
   private int hmax, vmax;
 
-  private String loggingText;
+  private final String loggingText;
 
   private boolean proposingToGetMoreRows;
 
@@ -110,9 +100,9 @@ public class PreviewRowsDialog {
 
   private IRowMeta rowMeta;
 
-  private IVariables variables;
+  private final IVariables variables;
 
-  private ILogChannel log;
+  private final ILogChannel log;
 
   private boolean dynamic;
 
@@ -122,9 +112,9 @@ public class PreviewRowsDialog {
 
   private int style = SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN;
 
-  private Shell parentShell;
+  private final Shell parentShell;
 
-  private List<IDialogClosedListener> dialogClosedListeners;
+  private final List<IDialogClosedListener> dialogClosedListeners;
 
   public PreviewRowsDialog( Shell parent, IVariables variables, int style, String transformName,
                             IRowMeta rowMeta, List<Object[]> rowBuffer ) {
@@ -186,7 +176,7 @@ public class PreviewRowsDialog {
 
     List<Button> buttons = new ArrayList<Button>();
 
-    wClose = new Button( shell, SWT.PUSH );
+    Button wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
     wClose.addListener( SWT.Selection, new Listener() {
       @Override
@@ -197,7 +187,7 @@ public class PreviewRowsDialog {
     buttons.add( wClose );
 
     if ( !Utils.isEmpty( loggingText ) ) {
-      wLog = new Button( shell, SWT.PUSH );
+      Button wLog = new Button( shell, SWT.PUSH );
       wLog.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.ShowLog" ) );
       wLog.addListener( SWT.Selection, new Listener() {
         @Override
@@ -209,7 +199,7 @@ public class PreviewRowsDialog {
     }
 
     if ( proposingToStop ) {
-      wStop = new Button( shell, SWT.PUSH );
+      Button wStop = new Button( shell, SWT.PUSH );
       wStop.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Stop.Label" ) );
       wStop.setToolTipText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Stop.ToolTip" ) );
       wStop.addListener( SWT.Selection, new Listener() {
@@ -223,7 +213,7 @@ public class PreviewRowsDialog {
     }
 
     if ( proposingToGetMoreRows ) {
-      wNext = new Button( shell, SWT.PUSH );
+      Button wNext = new Button( shell, SWT.PUSH );
       wNext.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Next.Label" ) );
       wNext.setToolTipText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Next.ToolTip" ) );
       wNext.addListener( SWT.Selection, new Listener() {
@@ -243,8 +233,7 @@ public class PreviewRowsDialog {
 
     // Position the buttons...
     //
-    BaseTransformDialog
-      .positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), props.getMargin(), null );
+    BaseTransformDialog.positionBottomButtons( shell, buttons.toArray( new Button[ buttons.size() ] ), props.getMargin(), null );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -270,14 +259,13 @@ public class PreviewRowsDialog {
   }
 
   private boolean addFields() {
-    // int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     if ( wlFields == null ) {
       wlFields = new Label( shell, SWT.LEFT );
       wlFields.setText( message );
       props.setLook( wlFields );
-      fdlFields = new FormData();
+      FormData fdlFields = new FormData();
       fdlFields.left = new FormAttachment( 0, 0 );
       fdlFields.right = new FormAttachment( 100, 0 );
       fdlFields.top = new FormAttachment( 0, margin );
@@ -303,20 +291,18 @@ public class PreviewRowsDialog {
       }
     }
 
-    // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];
-    ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
+    ColumnInfo[] columns = new ColumnInfo[ rowMeta.size() ];
     for ( int i = 0; i < rowMeta.size(); i++ ) {
       IValueMeta v = rowMeta.getValueMeta( i );
-      colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
-      colinf[ i ].setToolTip( v.toStringMeta() );
-      colinf[ i ].setValueMeta( v );
+      columns[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
+      columns[ i ].setToolTip( v.toStringMeta() );
+      columns[ i ].setValueMeta( v );
     }
 
-    wFields =
-      new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 0, null, props );
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns, 0, null, props );
     wFields.setShowingBlueNullValues( true );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
@@ -342,25 +328,22 @@ public class PreviewRowsDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   private void getData() {
-    shell.getDisplay().asyncExec( new Runnable() {
-      @Override
-      public void run() {
-        lineNr = 0;
-        for ( int i = 0; i < buffer.size(); i++ ) {
-          TableItem item;
-          if ( i == 0 ) {
-            item = wFields.table.getItem( i );
-          } else {
-            item = new TableItem( wFields.table, SWT.NONE );
-          }
-
-          Object[] row = buffer.get( i );
-
-          getDataForRow( item, row );
+    shell.getDisplay().asyncExec( () -> {
+      lineNr = 0;
+      for ( int i = 0; i < buffer.size(); i++ ) {
+        TableItem item;
+        if ( i == 0 ) {
+          item = wFields.table.getItem( i );
+        } else {
+          item = new TableItem( wFields.table, SWT.NONE );
         }
-        if ( !wFields.isDisposed() ) {
-          wFields.optWidth( true, 200 );
-        }
+
+        Object[] row = buffer.get( i );
+
+        getDataForRow( item, row );
+      }
+      if ( !wFields.isDisposed() ) {
+        wFields.optWidth( true, 200 );
       }
     } );
   }

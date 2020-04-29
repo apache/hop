@@ -106,6 +106,8 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           String testName = getInputRowMeta().getString( row, inputFieldIndex );
           try {
             PipelineUnitTest pipelineUnitTest = testFactory.loadElement( testName );
+            pipelineUnitTest.initializeVariablesFrom( this );
+
             data.tests.add( pipelineUnitTest );
           } catch ( Exception e ) {
             throw new HopException( "Unable to load test '" + testName + "'", e );

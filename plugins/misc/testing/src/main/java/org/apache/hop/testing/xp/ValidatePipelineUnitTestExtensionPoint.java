@@ -75,6 +75,7 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
       // If the pipeline has a variable set with the unit test in it, we're dealing with a unit test situation.
       //
       PipelineUnitTest unitTest = PipelineUnitTest.createFactory( metaStore ).loadElement( unitTestName );
+      unitTest.initializeVariablesFrom( pipelineMeta );
 
       final List<UnitTestResult> results = new ArrayList<UnitTestResult>();
       pipeline.getExtensionDataMap().put( DataSetConst.UNIT_TEST_RESULTS, results );

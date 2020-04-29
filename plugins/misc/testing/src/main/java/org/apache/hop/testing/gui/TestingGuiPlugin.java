@@ -161,6 +161,7 @@ public class TestingGuiPlugin {
       String setName = esd.open();
       if ( setName != null ) {
         DataSet dataSet = setFactory.loadElement( setName );
+        dataSet.initializeVariablesFrom( pipelineMeta );
 
         // Now we need to map the fields from the input data set to the transform...
         //
@@ -337,6 +338,7 @@ public class TestingGuiPlugin {
       String setName = esd.open();
       if ( setName != null ) {
         DataSet dataSet = setFactory.loadElement( setName );
+        dataSet.initializeVariablesFrom( pipelineMeta );
 
         // Now we need to map the fields from the transform to golden data set fields...
         //
@@ -480,12 +482,13 @@ public class TestingGuiPlugin {
       MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
 
       DataSet dataSet = new DataSet();
+      dataSet.initializeVariablesFrom( pipelineMeta );
+
       IRowMeta rowMeta = pipelineMeta.getTransformFields( transformMeta );
       for ( int i = 0; i < rowMeta.size(); i++ ) {
         IValueMeta valueMeta = rowMeta.getValueMeta( i );
         String setFieldName = valueMeta.getName();
-        String columnName = "field" + i;
-        DataSetField field = new DataSetField( setFieldName, columnName, valueMeta.getType(), valueMeta.getLength(),
+        DataSetField field = new DataSetField( setFieldName, valueMeta.getType(), valueMeta.getLength(),
           valueMeta.getPrecision(), valueMeta.getComments(), valueMeta.getFormatMask() );
         dataSet.getFields().add( field );
       }
@@ -543,6 +546,8 @@ public class TestingGuiPlugin {
       }
 
       DataSet dataSet = setFactory.loadElement( setName );
+      dataSet.initializeVariablesFrom( pipelineMeta );
+
       String[] setFields = new String[ dataSet.getFields().size() ];
       for ( int i = 0; i < setFields.length; i++ ) {
         setFields[ i ] = dataSet.getFields().get( i ).getFieldName();
@@ -700,6 +705,7 @@ public class TestingGuiPlugin {
       if (pipelineUnitTest==null) {
         return; // doesn't exist
       }
+      pipelineUnitTest.initializeVariablesFrom( pipelineMeta );
 
       MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
       box.setMessage( "Are you sure you want to delete test '"+pipelineUnitTest.getName()+"'?" );
@@ -849,6 +855,7 @@ public class TestingGuiPlugin {
         if ( unitTest == null ) {
           throw new HopException( "Unit test '" + testName + "' could not be found (deleted)?" );
         }
+        unitTest.initializeVariablesFrom( pipelineMeta );
 
         selectUnitTest( pipelineMeta, unitTest );
 
@@ -976,6 +983,8 @@ public class TestingGuiPlugin {
       List<String> testNames = testFactory.getElementNames();
       for ( String testName : testNames ) {
         PipelineUnitTest unitTest = testFactory.loadElement( testName );
+        unitTest.initializeVariablesFrom( hopGui.getVariables() );
+
         Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
         row[ 0 ] = testName;
         row[ 1 ] = unitTest.getDescription();
@@ -1012,6 +1021,8 @@ public class TestingGuiPlugin {
           PipelineUnitTest targetTest = PipelineUnitTest.createFactory( metaStore ).loadElement( unitTestName );
 
           if ( targetTest != null ) {
+
+            targetTest.initializeVariablesFrom( hopGui.getVariables() );
 
             String completeFilename = targetTest.calculateCompleteFilename();
             hopGui.fileDelegate.fileOpen( completeFilename );

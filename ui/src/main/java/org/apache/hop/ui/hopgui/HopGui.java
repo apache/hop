@@ -509,7 +509,7 @@ public class HopGui implements IActionContextHandlersProvider {
     contextDelegate.fileMetaStoreDelete();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Export the MetaStore", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore the MetaStore", parentId = ID_MAIN_MENU_FILE )
   @GuiKeyboardShortcut( control = true, shift=true, key = SWT.F5 )
   @GuiOsxKeyboardShortcut( command = true, shift=true, key = SWT.F5 )
   public void menuFileMetaStoreExplorer() {

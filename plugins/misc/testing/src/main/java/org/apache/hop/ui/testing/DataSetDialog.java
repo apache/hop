@@ -346,6 +346,9 @@ public class DataSetDialog extends Dialog implements IMetaStoreDialog {
               DataSetCsvUtil.writeDataSetData( set, fieldsRowMeta, newList );
               written = true;
             }
+          } else {
+            // User hit cancel
+            break;
           }
         } catch(Exception e) {
           new ErrorDialog( shell, "Error", "Error writing data to dataset file "+dataSet.getActualDataSetFilename(), e );

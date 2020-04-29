@@ -161,6 +161,7 @@ public class PipelineMetaModifier {
     DataSet dataSet;
     try {
       dataSet = DataSet.createFactory( metaStore ).loadElement( inputSetName );
+      dataSet.initializeVariablesFrom( pipelineMeta );
     } catch ( MetaStoreException e ) {
       throw new HopException( "Unable to load data set '" + inputSetName + "'" );
     }

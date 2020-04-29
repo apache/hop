@@ -72,6 +72,10 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
     HopGui hopGui = HopGui.getInstance();
     try {
       List<DataSet> dataSets = DataSet.createFactory( hopGui.getMetaStore() ).getElements();
+      for (DataSet dataSet : dataSets) {
+        dataSet.initializeVariablesFrom( pipelineMeta );
+      }
+
       Map<String, IRowMeta> transformFieldsMap = new HashMap<>();
       for ( TransformMeta transformMeta : pipelineMeta.getTransforms() ) {
         try {
@@ -134,6 +138,8 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
     try {
       MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
       DataSet dataSet = setFactory.loadElement( dataSetName );
+      dataSet.initializeVariablesFrom( hopGui.getVariables() );
+
       DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metaStore, dataSet );
       while ( dataSetDialog.open() != null ) {
         String message = TestingGuiPlugin.validateDataSet( dataSet, dataSetName, setFactory.getElementNames() );
