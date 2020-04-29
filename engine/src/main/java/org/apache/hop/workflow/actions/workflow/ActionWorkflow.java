@@ -75,8 +75,6 @@ import java.util.UUID;
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
 
-  private String runConfigurationName;
-
   private String filename;
 
   public boolean paramsFromPrevious;
@@ -205,7 +203,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
     retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfigurationName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "run_configuration", runConfiguration ) );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
 
@@ -253,6 +251,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     try {
       super.loadXml( entrynode );
 
+      runConfiguration = XmlHandler.getTagValue( entrynode, "run_configuration" );
       filename = XmlHandler.getTagValue( entrynode, "filename" );
 
       paramsFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "params_from_previous" ) );
@@ -512,7 +511,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         // Create a new workflow
         //
-        workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfigurationName ), metaStore, workflowMeta );
+        workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfiguration ), metaStore, workflowMeta );
         workflow.setParentWorkflow( parentWorkflow );
         workflow.setLogLevel( jobLogLevel );
         workflow.shareVariablesWith( this );
@@ -938,19 +937,4 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     return getWorkflowMeta( metaStore, variables );
   }
 
-  /**
-   * Gets runConfigurationName
-   *
-   * @return value of runConfigurationName
-   */
-  public String getRunConfigurationName() {
-    return runConfigurationName;
-  }
-
-  /**
-   * @param runConfigurationName The runConfigurationName to set
-   */
-  public void setRunConfigurationName( String runConfigurationName ) {
-    this.runConfigurationName = runConfigurationName;
-  }
 }

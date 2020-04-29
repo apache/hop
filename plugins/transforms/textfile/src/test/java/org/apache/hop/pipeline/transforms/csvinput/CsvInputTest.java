@@ -27,6 +27,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class CsvInputTest extends CsvInputUnitTestBase {
   @Test
   public void guessStringsFromLineWithEmptyLine() throws Exception {
     // This only validates that, given a null 'line', a null is returned!
-    String[] saData = CsvInput.guessStringsFromLine( logChannelInterface, null, csvInputMeta.getDelimiter(),
+    String[] saData = TextFileLineUtil.guessStringsFromLine( logChannelInterface, null, csvInputMeta.getDelimiter(),
       csvInputMeta.getEnclosure(), csvInputMeta.getEscapeCharacter() );
 
     assertNull( saData );

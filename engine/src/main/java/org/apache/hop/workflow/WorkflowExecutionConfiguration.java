@@ -144,7 +144,8 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   public void getUsedVariables( WorkflowMeta workflowMeta ) {
     Properties sp = new Properties();
-    IVariables variables = Variables.getADefaultVariableSpace();
+    IVariables variables = new Variables();
+    variables.initializeVariablesFrom( workflowMeta );
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {

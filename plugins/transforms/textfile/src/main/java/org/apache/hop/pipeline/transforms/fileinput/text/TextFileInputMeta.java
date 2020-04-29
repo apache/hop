@@ -59,6 +59,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -81,13 +82,6 @@ public class TextFileInputMeta
   // for base
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";
-
-  public static final int FILE_FORMAT_DOS = 0;
-  public static final int FILE_FORMAT_UNIX = 1;
-  public static final int FILE_FORMAT_MIXED = 2;
-
-  public static final int FILE_TYPE_CSV = 0;
-  public static final int FILE_TYPE_FIXED = 1;
 
   @InjectionDeep
   public Content content = new Content();
@@ -999,20 +993,20 @@ public class TextFileInputMeta
   public int getFileFormatTypeNr() {
     // calculate the file format type in advance so we can use a switch
     if ( content.fileFormat.equalsIgnoreCase( "DOS" ) ) {
-      return FILE_FORMAT_DOS;
+      return TextFileLineUtil.FILE_FORMAT_DOS;
     } else if ( content.fileFormat.equalsIgnoreCase( "unix" ) ) {
-      return TextFileInputMeta.FILE_FORMAT_UNIX;
+      return TextFileLineUtil.FILE_FORMAT_UNIX;
     } else {
-      return TextFileInputMeta.FILE_FORMAT_MIXED;
+      return TextFileLineUtil.FILE_FORMAT_MIXED;
     }
   }
 
   public int getFileTypeNr() {
     // calculate the file type in advance CSV or Fixed?
     if ( content.fileType.equalsIgnoreCase( "CSV" ) ) {
-      return TextFileInputMeta.FILE_TYPE_CSV;
+      return TextFileLineUtil.FILE_TYPE_CSV;
     } else {
-      return TextFileInputMeta.FILE_TYPE_FIXED;
+      return TextFileLineUtil.FILE_TYPE_FIXED;
     }
   }
 
