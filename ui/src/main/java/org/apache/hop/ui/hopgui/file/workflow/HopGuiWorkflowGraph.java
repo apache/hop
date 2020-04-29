@@ -45,10 +45,10 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.HopLogStore;
@@ -82,6 +82,7 @@ import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowContext;
+import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowHopContext;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowNoteContext;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowActionDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
@@ -120,7 +121,6 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -250,8 +250,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected NotePadMeta ni = null;
 
-  protected WorkflowHopMeta currentHop;
-
   // private Text filenameLabel;
   private SashForm sashForm;
 
@@ -299,6 +297,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private ActionCopy currentEntry;
   private boolean ignoreNextClick;
   private boolean doubleClick;
+  private WorkflowHopMeta clickedWorkflowHop;
 
   public HopGuiWorkflowGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
                               final HopDataOrchestrationPerspective perspective, final WorkflowMeta workflowMeta, final HopWorkflowFileType fileType ) {
@@ -461,13 +460,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         try {
           DragAndDropContainer container = (DragAndDropContainer) event.data;
-          String entry = container.getData();
+          String actionName = container.getData();
 
           switch ( container.getType() ) {
              /*
             case DragAndDropContainer.TYPE_BASE_JOB_ENTRY: // Create a new Workflow Entry on the canvas
 
-              ActionCopy jge = hopGui.newJobEntry( workflowMeta, entry, false );
+              ActionCopy jge = hopGui.newJobEntry( workflowMeta, actionName, false );
               if ( jge != null ) {
                 PropsUi.setLocation( jge, p.x, p.y );
                 jge.setDrawn();
@@ -486,9 +485,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               break;
 
             case DragAndDropContainer.TYPE_JOB_ENTRY: // Drag existing one onto the canvas
-              jge = workflowMeta.findJobEntry( entry, 0, true );
+              jge = workflowMeta.findJobEntry( actionName, 0, true );
               if ( jge != null ) {
-                // Create duplicate of existing entry
+                // Create duplicate of existing actionName
 
                 // There can be only 1 start!
                 if ( jge.isStart() && jge.isDrawn() ) {
@@ -507,7 +506,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   if ( newjge != null ) {
                     // newjge.setEntry(jge.getEntry());
                     if ( log.isDebug() ) {
-                      log.logDebug( "entry aft = " + ( (Object) jge.getEntry() ).toString() );
+                      log.logDebug( "actionName aft = " + ( (Object) jge.getEntry() ).toString() );
                     }
 
                     newjge.setNr( workflowMeta.findUnusedNr( newjge.getName() ) );
@@ -571,7 +570,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   // In case anyone asks...
   //
   public static HopGuiWorkflowGraph getInstance() {
-    if (activeInstance!=null) {
+    if ( activeInstance != null ) {
       return activeInstance;
     }
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
@@ -664,7 +663,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
       if ( areaOwner != null && areaOwner.getAreaType() != null ) {
         switch ( areaOwner.getAreaType() ) {
-          case JOB_ENTRY_MINI_ICON_OUTPUT:
+          case ACTION_MINI_ICON_OUTPUT:
             // Click on the output icon means: start of drag
             // Action: We show the input icons on the other transforms...
             //
@@ -673,7 +672,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // stopEntryMouseOverDelayTimer(startHopEntry);
             break;
 
-          case JOB_ENTRY_MINI_ICON_INPUT:
+          case ACTION_MINI_ICON_INPUT:
             // Click on the input icon means: start to a new hop
             // In this case, we set the end hop transform...
             //
@@ -683,20 +682,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // stopEntryMouseOverDelayTimer(endHopEntry);
             break;
 
-          case JOB_ENTRY_MINI_ICON_EDIT:
+          case ACTION_MINI_ICON_EDIT:
             clearSettings();
             currentEntry = (ActionCopy) areaOwner.getOwner();
             stopEntryMouseOverDelayTimer( currentEntry );
             editEntry( currentEntry );
             break;
 
-          case JOB_ENTRY_MINI_ICON_CONTEXT:
+          case ACTION_MINI_ICON_CONTEXT:
             clearSettings();
             ActionCopy actionCopy = (ActionCopy) areaOwner.getOwner();
             setMenu( actionCopy.getLocation().x, actionCopy.getLocation().y );
             break;
 
-          case JOB_ENTRY_ICON:
+          case ACTION_ICON:
             actionCopy = (ActionCopy) areaOwner.getOwner();
             currentEntry = actionCopy;
 
@@ -739,7 +738,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           // If you click on an evaluating icon, change the evaluation...
           //
-          case JOB_HOP_ICON:
+          case WORKFLOW_HOP_ICON:
             WorkflowHopMeta hop = (WorkflowHopMeta) areaOwner.getOwner();
             if ( hop.getFromEntry().evaluates() ) {
               if ( hop.isUnconditional() ) {
@@ -759,25 +758,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             break;
         }
       } else {
-        // A hop? --> enable/disable
-        //
         WorkflowHopMeta hop = findWorkflowHop( real.x, real.y );
         if ( hop != null ) {
-          WorkflowHopMeta before = (WorkflowHopMeta) hop.clone();
-          hop.setEnabled( !hop.isEnabled() );
-          if ( hop.isEnabled() && ( workflowMeta.hasLoop( hop.getToEntry() ) ) ) {
-            MessageBox mb = new MessageBox( hopShell(), SWT.CANCEL | SWT.OK | SWT.ICON_WARNING );
-            mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message" ) );
-            mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title" ) );
-            int choice = mb.open();
-            if ( choice == SWT.CANCEL ) {
-              hop.setEnabled( false );
-            }
-          }
-          WorkflowHopMeta after = (WorkflowHopMeta) hop.clone();
-          hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after }, new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
+          // A hop: show the hop context menu in the mouseUp() listener
+          //
+          clickedWorkflowHop = hop;
 
-          updateGui();
         } else {
           // No area-owner means: background:
           //
@@ -794,7 +780,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private enum SingleClickType {
     Job,
     Entry,
-    Note
+    Note,
+    Hop,
   }
 
   public void mouseUp( MouseEvent e ) {
@@ -804,6 +791,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     HopGuiWorkflowGraph.SingleClickType singleClickType = null;
     ActionCopy singleClickAction = null;
     NotePadMeta singleClickNote = null;
+    WorkflowHopMeta singleClickHop = null;
 
     if ( iconoffset == null ) {
       iconoffset = new Point( 0, 0 );
@@ -816,7 +804,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     if ( hopCandidate != null && areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
-        case JOB_ENTRY_ICON:
+        case ACTION_ICON:
           currentEntry = (ActionCopy) areaOwner.getOwner();
           break;
         default:
@@ -825,7 +813,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       addCandidateAsHop();
       redraw();
     } else {
-      // Did we select a region on the screen? Mark entries in region as selected
+      // Did we select a region on the screen? Mark actions in region as selected
       //
       if ( selectionRegion != null ) {
         selectionRegion.width = real.x - selectionRegion.x;
@@ -866,15 +854,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               if ( selectedNotes != null && selectedNotes.size() > 0 && previous_note_locations != null ) {
                 int[] indexes = workflowMeta.getNoteIndexes( selectedNotes );
 
-                addUndoPosition(
-                  selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
+                addUndoPosition( selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
                   previous_note_locations, workflowMeta.getSelectedNoteLocations(), also );
                 also = selectedEntries != null && selectedEntries.size() > 0;
               }
               if ( selectedEntries != null && selectedEntries.size() > 0 && previous_transform_locations != null ) {
                 int[] indexes = workflowMeta.getEntryIndexes( selectedEntries );
-                addUndoPosition(
-                  selectedEntries.toArray( new ActionCopy[ selectedEntries.size() ] ), indexes,
+                addUndoPosition( selectedEntries.toArray( new ActionCopy[ selectedEntries.size() ] ), indexes,
                   previous_transform_locations, workflowMeta.getSelectedLocations(), also );
               }
             }
@@ -1001,12 +987,22 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
     }
+    if ( clickedWorkflowHop != null ) {
+      // Clicked on a hop
+      //
+      singleClick = true;
+      singleClickType = SingleClickType.Hop;
+      singleClickHop = clickedWorkflowHop;
+    }
+    clickedWorkflowHop = null;
+
     // Only do this "mouseUp()" if this is not part of a double click...
     //
     final boolean fSingleClick = singleClick;
     final HopGuiWorkflowGraph.SingleClickType fSingleClickType = singleClickType;
     final ActionCopy fSingleClickAction = singleClickAction;
     final NotePadMeta fSingleClickNote = singleClickNote;
+    final WorkflowHopMeta fSingleClickHop = singleClickHop;
 
     Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
       () -> {
@@ -1031,6 +1027,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               case Note:
                 message = "Select the note action to take:";
                 contextHandler = new HopGuiWorkflowNoteContext( workflowMeta, fSingleClickNote, this, real );
+                break;
+              case Hop:
+                message = "Select the hop action to take:";
+                contextHandler = new HopGuiWorkflowHopContext( workflowMeta, fSingleClickHop, this, real );
                 break;
               default:
                 break;
@@ -1079,7 +1079,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       ActionCopy actionCopy = null;
       switch ( areaOwner.getAreaType() ) {
-        case JOB_ENTRY_ICON:
+        case ACTION_ICON:
           actionCopy = (ActionCopy) areaOwner.getOwner();
           resetDelayTimer( actionCopy );
           break;
@@ -1187,7 +1187,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             } else {
               noInputEntry = actionCopy;
               toolTip.setImage( null );
-              toolTip.setText( "The start entry can only be used at the start of a Workflow" );
+              toolTip.setText( "The start action can only be used at the start of a Workflow" );
               toolTip.show( new org.eclipse.swt.graphics.Point( real.x, real.y ) );
             }
           } else if ( endHopEntry != null ) {
@@ -1252,7 +1252,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
-        case JOB_ENTRY_ICON:
+        case ACTION_ICON:
         default:
           break;
       }
@@ -1281,10 +1281,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       // A couple of sanity checks...
       //
-      if ( hopCandidate.getFromEntry()==null || hopCandidate.getToEntry()==null) {
+      if ( hopCandidate.getFromEntry() == null || hopCandidate.getToEntry() == null ) {
         return;
       }
-      if ( hopCandidate.getFromEntry().equals( hopCandidate.getToEntry() )) {
+      if ( hopCandidate.getFromEntry().equals( hopCandidate.getToEntry() ) ) {
         return;
       }
 
@@ -1425,8 +1425,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void setZoomLabel() {
-    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
-    if (zoomLabel==null) {
+    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
+    if ( zoomLabel == null ) {
       return;
     }
     String newString = Math.round( magnification * 100 ) + "%";
@@ -1504,8 +1504,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    * Allows for magnifying to any percentage entered by the user...
    */
   private void readMagnification() {
-    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get(TOOLBAR_ITEM_ZOOM_LEVEL);
-    if (zoomLabel==null) {
+    Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
+    if ( zoomLabel == null ) {
       return;
     }
     String possibleText = zoomLabel.getText();
@@ -1738,7 +1738,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
     type = GuiActionType.Create,
     name = "Create hop",
-    tooltip = "Create a new hop between 2 entries",
+    tooltip = "Create a new hop between 2 actions",
     image = "ui/images/HOP.svg"
   )
   public void newHopCandidate( HopGuiWorkflowActionContext context ) {
@@ -1751,7 +1751,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     id = "workflow-graph-action-10800-edit-description",
     parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Edit entry description",
+    name = "Edit action description",
     tooltip = "Modify the action description",
     image = "ui/images/Edit.svg"
   )
@@ -1818,7 +1818,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     id = "workflow-graph-action-10900-delete",
     parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
     type = GuiActionType.Delete,
-    name = "Delete this entry",
+    name = "Delete this action",
     tooltip = "Delete the selected action from the workflow",
     image = "ui/images/generic-delete.svg"
   )
@@ -1980,84 +1980,141 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     redraw();
   }
 
-  public void flipHop() {
-    selectionRegion = null;
-    ActionCopy origFrom = currentHop.getFromEntry();
-    ActionCopy origTo = currentHop.getToEntry();
-    currentHop.setFromEntry( currentHop.getToEntry() );
-    currentHop.setToEntry( origFrom );
-
-    boolean cancel = false;
-    if ( workflowMeta.hasLoop( currentHop.getToEntry() ) ) {
-      MessageBox mb = new MessageBox( hopShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING );
-      mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopFlipCausesLoop.Message" ) );
-      mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title" ) );
-      int choice = mb.open();
-      if ( choice == SWT.CANCEL ) {
-        cancel = true;
-        currentHop.setFromEntry( origFrom );
-        currentHop.setToEntry( origTo );
+  @GuiContextAction(
+    id = "workflow-graph-hop-10010-hop-enable",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Enable hop",
+    tooltip = "Enable the hop",
+    image = "ui/images/HOP.svg"
+  )
+  public void enableHop( HopGuiWorkflowHopContext context ) {
+    WorkflowHopMeta hop = context.getHopMeta();
+    if ( !hop.isEnabled() ) {
+      WorkflowHopMeta before = hop.clone();
+      hop.setEnabled( true );
+      if ( checkHopLoop( hop, false ) ) {
+        WorkflowHopMeta after = hop.clone();
+        hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after },
+          new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
       }
+      updateGui();
     }
-    if ( !cancel ) {
-      currentHop.setChanged();
-    }
-    updateGui();
   }
 
-  public void disableHop() {
-    selectionRegion = null;
-    boolean orig = currentHop.isEnabled();
-    currentHop.setEnabled( !currentHop.isEnabled() );
+  @GuiContextAction(
+    id = "workflow-graph-hop-10000-hop-disable",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Disable hop",
+    tooltip = "Disable the hop",
+    image = "ui/images/HOP_disable.svg"
+  )
+  public void disableHop( HopGuiWorkflowHopContext context ) {
+    WorkflowHopMeta hop = context.getHopMeta();
+    if ( hop.isEnabled() ) {
+      WorkflowHopMeta before = hop.clone();
+      hop.setEnabled( false );
+      updateGui();
+      WorkflowHopMeta after = hop.clone();
+      hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after },
+        new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
+    }
+  }
 
-    if ( !orig && ( workflowMeta.hasLoop( currentHop.getToEntry() ) ) ) {
+  private boolean checkHopLoop( WorkflowHopMeta hop, boolean originalState ) {
+    if ( !originalState && ( workflowMeta.hasLoop( hop.getToEntry() ) ) ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.CANCEL | SWT.OK | SWT.ICON_WARNING );
       mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title" ) );
       int choice = mb.open();
       if ( choice == SWT.CANCEL ) {
-        currentHop.setEnabled( orig );
+        hop.setEnabled( originalState );
+        return false;
       }
+    }
+    return true;
+  }
+
+  @GuiContextAction(
+    id = "workflow-graph-hop-10020-hop-delete",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Delete,
+    name = "Delete hop",
+    tooltip = "Delete the hop between 2 actions",
+    image = "ui/images/HOP_delete.svg"
+  )
+  public void deleteHop( HopGuiWorkflowHopContext context ) {
+    workflowHopDelegate.delHop( workflowMeta, context.getHopMeta() );
+    updateGui();
+  }
+
+  @GuiContextAction(
+    id = "workflow-graph-hop-10030-hop-unconditional",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Unconditional hop",
+    tooltip = "Go to the next execution regardless of execution outcome",
+    image = "ui/images/unconditional-hop.svg"
+  )
+  public void setHopUnconditional( HopGuiWorkflowHopContext context ) {
+    WorkflowHopMeta hop = context.getHopMeta();
+    WorkflowHopMeta before = hop.clone();
+    if ( !hop.isUnconditional() ) {
+      hop.setUnconditional();
+      WorkflowHopMeta after = hop.clone();
+      hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after },
+        new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
     }
     updateGui();
   }
 
-  public void deleteHop() {
-    selectionRegion = null;
-    int idx = workflowMeta.indexOfWorkflowHop( currentHop );
-    workflowMeta.removeWorkflowHop( idx );
+  @GuiContextAction(
+    id = "workflow-graph-hop-10040-hop-evaluation-success",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Success hop",
+    tooltip = "Go to the next execution when successful",
+    image = "ui/images/true.svg"
+  )
+  public void setHopEvaluationTrue( HopGuiWorkflowHopContext context ) {
+    WorkflowHopMeta hop = context.getHopMeta();
+    WorkflowHopMeta before = hop.clone();
+    hop.setConditional();
+    hop.setEvaluation( true );
+    WorkflowHopMeta after = hop.clone();
+    hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after },
+      new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
+
     updateGui();
   }
 
-  public void setHopUnconditional() {
-    currentHop.setUnconditional();
+  @GuiContextAction(
+    id = "workflow-graph-hop-10050-hop-evaluation-failure",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Failure hop",
+    tooltip = "Go to the next execution when unsuccessful",
+    image = "ui/images/false.svg"
+  )
+  public void setHopEvaluationFalse( HopGuiWorkflowHopContext context ) {
+    WorkflowHopMeta hop = context.getHopMeta();
+    WorkflowHopMeta before = hop.clone();
+    hop.setConditional();
+    hop.setEvaluation( false );
+    WorkflowHopMeta after = hop.clone();
+    hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after },
+      new int[] { workflowMeta.indexOfWorkflowHop( hop ) } );
+
     updateGui();
   }
 
-  public void setHopEvaluationTrue() {
-    currentHop.setConditional();
-    currentHop.setEvaluation( true );
-    updateGui();
-  }
-
-  public void setHopEvaluationFalse() {
-    currentHop.setConditional();
-    currentHop.setEvaluation( false );
-    updateGui();
-  }
-
-  protected void setCurrentHop( WorkflowHopMeta hop ) {
-    currentHop = hop;
-  }
-
-  protected WorkflowHopMeta getCurrentHop() {
-    return currentHop;
-  }
-
+  // TODO
   public void enableHopsBetweenSelectedEntries() {
     enableHopsBetweenSelectedEntries( true );
   }
 
+  // TODO
   public void disableHopsBetweenSelectedEntries() {
     enableHopsBetweenSelectedEntries( false );
   }
@@ -2095,27 +2152,43 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
-  public void enableHopsDownstream() {
-    enableDisableHopsDownstream( true );
+  @GuiContextAction(
+    id = "workflow-graph-hop-10060-hop-enable-downstream",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Enable downstream hops",
+    tooltip = "Enable all disabled downstream hops",
+    image = "ui/images/HOP_enable_downstream.svg"
+  )
+  public void enableHopsDownstream( HopGuiWorkflowHopContext context ) {
+    enableDisableHopsDownstream( context.getHopMeta(), true );
   }
 
-  public void disableHopsDownstream() {
-    enableDisableHopsDownstream( false );
+  @GuiContextAction(
+    id = "workflow-graph-hop-10070-hop-disable-downstream",
+    parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Disable downstream hops",
+    tooltip = "Disable all enabled downstream hops",
+    image = "ui/images/HOP_disable_downstream.svg"
+  )
+  public void disableHopsDownstream( HopGuiWorkflowHopContext context ) {
+    enableDisableHopsDownstream( context.getHopMeta(), false );
   }
 
-  public void enableDisableHopsDownstream( boolean enabled ) {
-    if ( currentHop == null ) {
+  public void enableDisableHopsDownstream( WorkflowHopMeta hop, boolean enabled ) {
+    if ( hop == null ) {
       return;
     }
-    WorkflowHopMeta before = (WorkflowHopMeta) currentHop.clone();
-    currentHop.setEnabled( enabled );
-    WorkflowHopMeta after = (WorkflowHopMeta) currentHop.clone();
+    WorkflowHopMeta before = (WorkflowHopMeta) hop.clone();
+    hop.setEnabled( enabled );
+    WorkflowHopMeta after = (WorkflowHopMeta) hop.clone();
     hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after }, new int[] { workflowMeta
-      .indexOfWorkflowHop( currentHop ) } );
+      .indexOfWorkflowHop( hop ) } );
 
-    Set<ActionCopy> checkedEntries = enableDisableNextHops( currentHop.getToEntry(), enabled, new HashSet<>() );
+    Set<ActionCopy> checkedEntries = enableDisableNextHops( hop.getToEntry(), enabled, new HashSet<>() );
 
-    if ( checkedEntries.stream().anyMatch( entry -> workflowMeta.hasLoop( entry ) ) ) {
+    if ( checkedEntries.stream().anyMatch( action -> workflowMeta.hasLoop( action ) ) ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.OK | SWT.ICON_WARNING );
       mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title" ) );
@@ -2168,7 +2241,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       ActionCopy actionCopy;
       switch ( areaOwner.getAreaType() ) {
-        case JOB_HOP_ICON:
+        case WORKFLOW_HOP_ICON:
           hi = (WorkflowHopMeta) areaOwner.getOwner();
           if ( hi.isUnconditional() ) {
             tipImage = GuiResource.getInstance().getImageUnconditionalHop();
@@ -2187,7 +2260,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
           break;
 
-        case JOB_HOP_PARALLEL_ICON:
+        case WORKFLOW_HOP_PARALLEL_ICON:
           hi = (WorkflowHopMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString(
             PKG, "WorkflowGraph.Hop.Tooltip.Parallel", hi.getFromEntry().getName(), Const.CR ) );
@@ -2201,32 +2274,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           GuiResource.getInstance().getImagePipelineGraph();
           break;
 
-        case JOB_ENTRY_MINI_ICON_INPUT:
+        case ACTION_MINI_ICON_INPUT:
           tip.append( BaseMessages.getString( PKG, "WorkflowGraph.EntryInputConnector.Tooltip" ) );
           tipImage = GuiResource.getInstance().getImageHopInput();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
-        case JOB_ENTRY_MINI_ICON_OUTPUT:
+        case ACTION_MINI_ICON_OUTPUT:
           tip.append( BaseMessages.getString( PKG, "WorkflowGraph.EntryOutputConnector.Tooltip" ) );
           tipImage = GuiResource.getInstance().getImageHopOutput();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
-        case JOB_ENTRY_MINI_ICON_EDIT:
+        case ACTION_MINI_ICON_EDIT:
           tip.append( BaseMessages.getString( PKG, "WorkflowGraph.EditTransform.Tooltip" ) );
           tipImage = GuiResource.getInstance().getImageEdit();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
-        case JOB_ENTRY_MINI_ICON_CONTEXT:
+        case ACTION_MINI_ICON_CONTEXT:
           tip.append( BaseMessages.getString( PKG, "WorkflowGraph.ShowMenu.Tooltip" ) );
           tipImage = GuiResource.getInstance().getImageContextMenu();
           resetDelayTimer( (ActionCopy) areaOwner.getOwner() );
           break;
 
-        case JOB_ENTRY_RESULT_FAILURE:
-        case JOB_ENTRY_RESULT_SUCCESS:
+        case ACTION_RESULT_FAILURE:
+        case ACTION_RESULT_SUCCESS:
           ActionResult actionResult = (ActionResult) areaOwner.getOwner();
           actionCopy = (ActionCopy) areaOwner.getParent();
           Result result = actionResult.getResult();
@@ -2287,12 +2360,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
           break;
 
-        case JOB_ENTRY_RESULT_CHECKPOINT:
+        case ACTION_RESULT_CHECKPOINT:
           tip.append( "The workflow started here since this is the furthest checkpoint "
             + "that was reached last time the pipeline was executed." );
           tipImage = GuiResource.getInstance().getImageCheckpoint();
           break;
-        case JOB_ENTRY_ICON:
+        case ACTION_ICON:
           ActionCopy jec = (ActionCopy) areaOwner.getOwner();
           if ( jec.isDeprecated() ) { // only need tooltip if action is deprecated
             tip.append( BaseMessages.getString( PKG, "WorkflowGraph.DeprecatedEntry.Tooltip.Title" ) ).append( Const.CR );
@@ -2473,7 +2546,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     id = "workflow-graph-action-10000-edit",
     parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Edit the entry",
+    name = "Edit the action",
     tooltip = "Edit the action properties",
     image = "ui/images/Edit.svg"
   )
@@ -2624,7 +2697,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_SNAP_TO_GRID,
     // label = "Snap to grid",
-    toolTip = "Align the selected entries to the specified grid size",
+    toolTip = "Align the selected actions to the specified grid size",
     image = "ui/images/toolbar/snap-to-grid.svg",
     disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg"
   )
@@ -2639,8 +2712,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_LEFT,
-    // label = "Left-align selected entries",
-    toolTip = "Align the entries with the left-most entry in your selection",
+    toolTip = "Align the actions with the left-most action in your selection",
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
@@ -2651,8 +2723,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_RIGHT,
-    // label = "Right-align selected entries",
-    toolTip = "Align the entries with the right-most entry in your selection",
+    toolTip = "Align the actions with the right-most action in your selection",
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
@@ -2663,8 +2734,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_TOP,
-    // label = "Top-align selected entries",
-    toolTip = "Align the entries with the top-most entry in your selection",
+    toolTip = "Align the actions with the top-most action in your selection",
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
@@ -2675,8 +2745,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_BOTTOM,
-    // label = "Bottom-align selected entries",
-    toolTip = "Align the entries with the bottom-most entry in your selection",
+    toolTip = "Align the actions with the bottom-most action in your selection",
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
@@ -2687,8 +2756,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY,
-    // label = "Horizontally distribute selected entries",
-    toolTip = "Distribute the selected entries evenly between the left-most and right-most entry in your selection",
+    toolTip = "Distribute the selected actions evenly between the left-most and right-most action in your selection",
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
@@ -2699,8 +2767,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY,
-    // label = "Vertically distribute selected entries",
-    toolTip = "Distribute the selected entries evenly between the top-most and bottom-most entry in your selection",
+    toolTip = "Distribute the selected actions evenly between the top-most and bottom-most action in your selection",
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
@@ -2736,7 +2803,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( workflowMeta.findWorkflowHop( hfrom.getFromEntry(), hto.getToEntry() ) == null ) {
         WorkflowHopMeta hnew = new WorkflowHopMeta( hfrom.getFromEntry(), hto.getToEntry() );
         workflowMeta.addWorkflowHop( hnew );
-        hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hnew.clone() }, new int[] { workflowMeta
+        hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hnew.clone() }, new int[] { workflowMeta
           .indexOfWorkflowHop( hnew ) } );
       }
     }
@@ -2913,7 +2980,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void save() throws HopException {
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta);
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta );
 
       if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
         throw new HopException( "Please give the workflow a filename" );
@@ -2929,7 +2996,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         out.flush();
         out.close();
 
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowAfterSave.id, workflowMeta);
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowAfterSave.id, workflowMeta );
       }
     } catch ( Exception e ) {
       throw new HopException( "Error saving workflow to file '" + workflowMeta.getFilename() + "'", e );
@@ -3202,7 +3269,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               workflowLogDelegate.clearLog();
             }
 
-            // Also make sure to clear the old log entries in the central log
+            // Also make sure to clear the old log actions in the central log
             // store & registry
             //
             if ( workflow != null ) {
@@ -3377,7 +3444,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public void addJobEntryToChain( String typeDesc, boolean shift ) {
 
-    //Is the lastChained entry still valid?
+    //Is the lastChained action still valid?
     //
     if ( lastChained != null && workflowMeta.findAction( lastChained.getName(), lastChained.getNr() ) == null ) {
       lastChained = null;
@@ -3402,7 +3469,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     p.x += 200;
 
-    // Which is the new entry?
+    // Which is the new action?
 
     ActionCopy newEntry = workflowEntryDelegate.newJobEntry( workflowMeta, null, typeDesc, false, p );
     if ( newEntry == null ) {
@@ -3443,7 +3510,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   // TODO
-  public void editJobEntry( WorkflowMeta workflowMeta, ActionCopy entryCopy ) {
+  public void editJobEntry( WorkflowMeta workflowMeta, ActionCopy actionCopy ) {
   }
 
   @Override

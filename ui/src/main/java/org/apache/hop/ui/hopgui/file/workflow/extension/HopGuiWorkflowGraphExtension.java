@@ -28,30 +28,30 @@ import org.eclipse.swt.events.MouseEvent;
 
 public class HopGuiWorkflowGraphExtension {
 
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private MouseEvent event;
   private Point point;
 
-  public HopGuiWorkflowGraphExtension( HopGuiWorkflowGraph jobGraph, MouseEvent event, Point point ) {
-    this.jobGraph = jobGraph;
+  public HopGuiWorkflowGraphExtension( HopGuiWorkflowGraph workflowGraph, MouseEvent event, Point point ) {
+    this.workflowGraph = workflowGraph;
     this.event = event;
     this.point = point;
   }
 
   /**
-   * Gets jobGraph
+   * Gets workflowGraph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**

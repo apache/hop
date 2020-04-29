@@ -51,12 +51,12 @@ public class HopGuiWorkflowClipboardDelegate {
   private static final String XML_TAG_ACTIONS = "actions";
 
   private HopGui hopGui;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private ILogChannel log;
 
-  public HopGuiWorkflowClipboardDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowClipboardDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
     this.log = hopGui.getLog();
   }
 
@@ -188,7 +188,7 @@ public class HopGuiWorkflowClipboardDelegate {
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Title" ),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Message" ), e );
     }
-    jobGraph.redraw();
+    workflowGraph.redraw();
   }
 
   public void copySelected( WorkflowMeta workflowMeta, List<ActionCopy> actions, List<NotePadMeta> notes ) {
@@ -255,19 +255,19 @@ public class HopGuiWorkflowClipboardDelegate {
   }
 
   /**
-   * Gets jobGraph
+   * Gets workflowGraph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**

@@ -176,16 +176,16 @@ public class HopGuiWorkflowRunDelegate {
 
 
   /**
-   * Gets jobGraph
+   * Gets workflowGraph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;
   }
 
   /**
-   * @param workflowGraph The jobGraph to set
+   * @param workflowGraph The workflowGraph to set
    */
   public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
     this.workflowGraph = workflowGraph;

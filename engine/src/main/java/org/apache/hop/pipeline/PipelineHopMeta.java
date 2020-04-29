@@ -41,7 +41,7 @@ import java.util.Objects;
 /**
  * Defines a link between 2 transforms in a pipeline
  */
-public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Comparable<PipelineHopMeta> {
+public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Comparable<PipelineHopMeta>, Cloneable {
   private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_HOP_TAG = "hop";
@@ -78,6 +78,14 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG, "PipelineHopMeta.Exception.UnableToLoadHopInfo" ), e );
     }
+  }
+
+  public PipelineHopMeta( PipelineHopMeta hop ) {
+    super( hop.isSplit(), hop.getFromTransform(), hop.getToTransform(), hop.isEnabled(), hop.hasChanged(), hop.isErrorHop() );
+  }
+
+  @Override public PipelineHopMeta clone() {
+    return new PipelineHopMeta( this );
   }
 
   public void setFromTransform( TransformMeta from ) {

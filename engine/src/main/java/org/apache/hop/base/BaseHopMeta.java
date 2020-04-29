@@ -29,7 +29,7 @@ import org.apache.hop.core.xml.IXml;
  *
  * @author Alexander Buloichik
  */
-public abstract class BaseHopMeta<T> implements Cloneable, IXml {
+public abstract class BaseHopMeta<T> implements IXml {
   public static final String XML_TAG = "hop";
 
   public boolean split = false;
@@ -38,13 +38,16 @@ public abstract class BaseHopMeta<T> implements Cloneable, IXml {
   protected boolean changed;
   private boolean errorHop;
 
-  public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch ( CloneNotSupportedException e ) {
-      return null;
-    }
+  public BaseHopMeta() {
+  }
+
+  public BaseHopMeta( boolean split, T from, T to, boolean enabled, boolean changed, boolean errorHop ) {
+    this.split = split;
+    this.from = from;
+    this.to = to;
+    this.enabled = enabled;
+    this.changed = changed;
+    this.errorHop = errorHop;
   }
 
   public void setChanged() {
@@ -82,4 +85,19 @@ public abstract class BaseHopMeta<T> implements Cloneable, IXml {
     this.errorHop = errorHop;
   }
 
+  /**
+   * Gets split
+   *
+   * @return value of split
+   */
+  public boolean isSplit() {
+    return split;
+  }
+
+  /**
+   * @param split The split to set
+   */
+  public void setSplit( boolean split ) {
+    this.split = split;
+  }
 }

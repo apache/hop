@@ -63,7 +63,7 @@ public class HopGuiWorkflowLogDelegate {
 
 
   private HopGui hopGui;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
 
   private CTabItem jobLogTab;
 
@@ -83,32 +83,32 @@ public class HopGuiWorkflowLogDelegate {
   /**
    * @param hopGui
    */
-  public HopGuiWorkflowLogDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowLogDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
   }
 
   public void addJobLog() {
     // First, see if we need to add the extra view...
     //
-    if ( jobGraph.extraViewComposite == null || jobGraph.extraViewComposite.isDisposed() ) {
-      jobGraph.addExtraView();
+    if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
+      workflowGraph.addExtraView();
     } else {
       if ( jobLogTab != null && !jobLogTab.isDisposed() ) {
         // just set this one active and get out...
         //
-        jobGraph.extraViewTabFolder.setSelection( jobLogTab );
+        workflowGraph.extraViewTabFolder.setSelection( jobLogTab );
         return;
       }
     }
 
     // Add a pipelineLogTab : display the logging...
     //
-    jobLogTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
+    jobLogTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
     jobLogTab.setImage( GuiResource.getInstance().getImageShowLog() );
     jobLogTab.setText( BaseMessages.getString( PKG, "WorkflowGraph.LogTab.Name" ) );
 
-    jobLogComposite = new Composite( jobGraph.extraViewTabFolder, SWT.NONE );
+    jobLogComposite = new Composite( workflowGraph.extraViewTabFolder, SWT.NONE );
     jobLogComposite.setLayout( new FormLayout() );
 
     addToolBar();
@@ -128,20 +128,20 @@ public class HopGuiWorkflowLogDelegate {
     fdText.bottom = new FormAttachment( 100, 0 );
     jobLogText.setLayoutData( fdText );
 
-    logBrowser = new HopGuiLogBrowser( jobLogText, jobGraph );
+    logBrowser = new HopGuiLogBrowser( jobLogText, workflowGraph );
     logBrowser.installLogSniffer();
 
     // If the workflow is closed, we should dispose of all the logging information in the buffer and registry for it
     //
-    jobGraph.addDisposeListener( event -> {
-      if ( jobGraph.getWorkflow() != null ) {
-        HopLogStore.discardLines( jobGraph.getWorkflow().getLogChannelId(), true );
+    workflowGraph.addDisposeListener( event -> {
+      if ( workflowGraph.getWorkflow() != null ) {
+        HopLogStore.discardLines( workflowGraph.getWorkflow().getLogChannelId(), true );
       }
     } );
 
     jobLogTab.setControl( jobLogComposite );
 
-    jobGraph.extraViewTabFolder.setSelection( jobLogTab );
+    workflowGraph.extraViewTabFolder.setSelection( jobLogTab );
   }
 
   /**
@@ -235,16 +235,16 @@ public class HopGuiWorkflowLogDelegate {
         err_lines[ i ] = err.get( i );
       }
 
-      EnterSelectionDialog esd = new EnterSelectionDialog( jobGraph.getShell(), err_lines,
+      EnterSelectionDialog esd = new EnterSelectionDialog( workflowGraph.getShell(), err_lines,
         BaseMessages.getString( PKG, "WorkflowLog.Dialog.ErrorLines.Title" ),
         BaseMessages.getString( PKG, "WorkflowLog.Dialog.ErrorLines.Message" ) );
       line = esd.open();
       if ( line != null ) {
-        WorkflowMeta workflowMeta = jobGraph.getManagedObject();
+        WorkflowMeta workflowMeta = workflowGraph.getManagedObject();
         for ( i = 0; i < workflowMeta.nrActions(); i++ ) {
           ActionCopy entryCopy = workflowMeta.getAction( i );
           if ( line.indexOf( entryCopy.getName() ) >= 0 ) {
-            jobGraph.editJobEntry( workflowMeta, entryCopy );
+            workflowGraph.editJobEntry( workflowMeta, entryCopy );
           }
         }
       }
@@ -284,7 +284,7 @@ public class HopGuiWorkflowLogDelegate {
 
   public void copySelected() {
     if ( hasSelectedText() ) {
-      jobGraph.workflowClipboardDelegate.toClipboard( jobLogText.getSelectionText() );
+      workflowGraph.workflowClipboardDelegate.toClipboard( jobLogText.getSelectionText() );
     }
   }
 }

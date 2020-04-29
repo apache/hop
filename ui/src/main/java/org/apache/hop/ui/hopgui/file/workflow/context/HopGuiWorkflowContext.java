@@ -45,13 +45,13 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   public static final String CONTEXT_ID = "HopGuiWorkflowContext";
 
   private WorkflowMeta workflowMeta;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private Point click;
   private GuiActionLambdaBuilder<HopGuiWorkflowContext> lambdaBuilder;
 
-  public HopGuiWorkflowContext( WorkflowMeta workflowMeta, HopGuiWorkflowGraph jobGraph, Point click ) {
+  public HopGuiWorkflowContext( WorkflowMeta workflowMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
     this.workflowMeta = workflowMeta;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
@@ -75,7 +75,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        guiActions.add( lambdaBuilder.createLambda( pluginAction, this, jobGraph ) );
+        guiActions.add( lambdaBuilder.createLambda( pluginAction, this, workflowGraph ) );
       }
     }
 
@@ -93,7 +93,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
         GuiAction createActionGuiAction =
           new GuiAction( "workflow-graph-create-workflow-action-" + actionPlugin.getIds()[ 0 ], GuiActionType.Create, actionPlugin.getName(), actionPlugin.getDescription(), actionPlugin.getImageFile(),
             (shiftClicked, controlClicked, t) -> {
-              jobGraph.workflowEntryDelegate.newJobEntry( workflowMeta, actionPlugin.getIds()[ 0 ], actionPlugin.getName(), controlClicked, click );
+              workflowGraph.workflowEntryDelegate.newJobEntry( workflowMeta, actionPlugin.getIds()[ 0 ], actionPlugin.getName(), controlClicked, click );
             }
           );
         createActionGuiAction.getKeywords().addAll( Arrays.asList(actionPlugin.getKeywords()));
@@ -113,7 +113,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   private GuiAction createStartGuiAction() {
     return new GuiAction( "workflow-graph-create-workflow-action-start", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_START, null, "ui/images/STR.svg",
       (shiftClicked, controlClicked, t) -> {
-          jobGraph.workflowEntryDelegate.newJobEntry( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_START, controlClicked, click );
+          workflowGraph.workflowEntryDelegate.newJobEntry( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_START, controlClicked, click );
         }
       );
   }
@@ -121,7 +121,7 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   private GuiAction createDummyGuiAction() {
     return new GuiAction( "workflow-graph-create-workflow-action-dummy", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_DUMMY, null, "ui/images/DUM.svg",
       (shiftClicked, controlClicked, t) -> {
-        jobGraph.workflowEntryDelegate.newJobEntry( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_DUMMY, controlClicked, click );
+        workflowGraph.workflowEntryDelegate.newJobEntry( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_DUMMY, controlClicked, click );
       }
     );
   }
@@ -143,19 +143,19 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   }
 
   /**
-   * Gets jobGraph
+   * Gets workflowGraph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**

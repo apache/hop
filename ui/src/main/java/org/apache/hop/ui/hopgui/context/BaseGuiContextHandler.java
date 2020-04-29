@@ -41,7 +41,8 @@ public abstract class BaseGuiContextHandler {
 
   /**
    * Create a list of supported actions from the plugin GUI registry.
-   * If this is indicated as such the actions will be sorted by ID to deliver a consistent user experience
+   * If this is indicated as such the actions will be sorted by ID to deliver a consistent user experience.
+   * The actions are picked up from GuiContextAction annotations in the GuiPlugin classes.
    *
    * @param sortActionsById true if the actions need to be sorted by ID
    * @return The list of supported actions

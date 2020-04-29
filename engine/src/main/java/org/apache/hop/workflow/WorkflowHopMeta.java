@@ -38,7 +38,7 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
+public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneable {
   private static Class<?> PKG = WorkflowHopMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_FROM_TAG = "from";
@@ -48,7 +48,13 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
   private boolean unconditional;
 
   public WorkflowHopMeta() {
-    this( (ActionCopy) null, (ActionCopy) null );
+    super(false, null, null, true, true, false);
+  }
+
+  public WorkflowHopMeta( WorkflowHopMeta hop ) {
+    super(hop.isSplit(), hop.getFromEntry(), hop.getToEntry(), hop.isEnabled(), hop.hasChanged(), hop.isErrorHop());
+    evaluation = hop.evaluation;
+    unconditional = hop.unconditional;
   }
 
   public WorkflowHopMeta( ActionCopy from, ActionCopy to ) {
@@ -80,6 +86,10 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     }
   }
 
+  @Override public WorkflowHopMeta clone() {
+    return new WorkflowHopMeta(this);
+  }
+
   private ActionCopy searchEntry( List<ActionCopy> actions, String name ) {
     for ( ActionCopy action : actions ) {
       if ( action.getName().equalsIgnoreCase( name ) ) {
@@ -89,15 +99,15 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     return null;
   }
 
-  public WorkflowHopMeta( Node hopnode, WorkflowMeta workflow ) throws HopXmlException {
+  public WorkflowHopMeta( Node hopNode, WorkflowMeta workflow ) throws HopXmlException {
     try {
-      String from_name = XmlHandler.getTagValue( hopnode, XML_FROM_TAG );
-      String to_name = XmlHandler.getTagValue( hopnode, XML_TO_TAG );
-      String sfrom_nr = XmlHandler.getTagValue( hopnode, "from_nr" );
-      String sto_nr = XmlHandler.getTagValue( hopnode, "to_nr" );
-      String senabled = XmlHandler.getTagValue( hopnode, "enabled" );
-      String sevaluation = XmlHandler.getTagValue( hopnode, "evaluation" );
-      String sunconditional = XmlHandler.getTagValue( hopnode, "unconditional" );
+      String from_name = XmlHandler.getTagValue( hopNode, XML_FROM_TAG );
+      String to_name = XmlHandler.getTagValue( hopNode, XML_TO_TAG );
+      String sfrom_nr = XmlHandler.getTagValue( hopNode, "from_nr" );
+      String sto_nr = XmlHandler.getTagValue( hopNode, "to_nr" );
+      String senabled = XmlHandler.getTagValue( hopNode, "enabled" );
+      String sevaluation = XmlHandler.getTagValue( hopNode, "evaluation" );
+      String sunconditional = XmlHandler.getTagValue( hopNode, "unconditional" );
 
       int from_nr, to_nr;
       from_nr = Const.toInt( sfrom_nr, 0 );
@@ -174,17 +184,6 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
 
   public boolean isUnconditional() {
     return unconditional;
-  }
-
-  public void setSplit( boolean split ) {
-    if ( this.split != split ) {
-      setChanged();
-    }
-    this.split = split;
-  }
-
-  public boolean isSplit() {
-    return split;
   }
 
   public String getDescription() {

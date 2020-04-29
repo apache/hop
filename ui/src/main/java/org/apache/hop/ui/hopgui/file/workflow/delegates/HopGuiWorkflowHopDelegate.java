@@ -38,12 +38,12 @@ public class HopGuiWorkflowHopDelegate {
 
 
   private HopGui hopGui;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private PropsUi props;
 
-  public HopGuiWorkflowHopDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowHopDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
     this.props = PropsUi.getInstance();
   }
 
@@ -67,7 +67,7 @@ public class HopGuiWorkflowHopDelegate {
         hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hopMeta }, new int[] { workflowMeta.indexOfWorkflowHop( hopMeta ) } );
       }
 
-      jobGraph.updateGui();
+      workflowGraph.updateGui();
     }
   }
 
@@ -111,10 +111,7 @@ public class HopGuiWorkflowHopDelegate {
   public void delHop( WorkflowMeta workflowMeta, WorkflowHopMeta hopMeta ) {
     int index = workflowMeta.indexOfWorkflowHop( hopMeta );
 
-    // TODO: Create new Undo/Redo system
     hopGui.undoDelegate.addUndoDelete( workflowMeta, new Object[] { hopMeta.clone() }, new int[] { index } );
     workflowMeta.removeWorkflowHop( index );
-
-    jobGraph.redraw();
   }
 }
