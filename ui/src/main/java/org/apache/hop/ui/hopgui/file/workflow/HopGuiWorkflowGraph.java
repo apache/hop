@@ -2820,8 +2820,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // If the transform was part of a chain, re-connect it.
     //
-    if (fromHop!=null && toHop!=null) {
-      workflowHopDelegate.newHop( workflowMeta, new WorkflowHopMeta(fromHop.getFromAction(), toHop.getToAction()) );
+    if ( fromHop != null && toHop != null ) {
+      workflowHopDelegate.newHop( workflowMeta, new WorkflowHopMeta( fromHop.getFromAction(), toHop.getToAction() ) );
     }
 
     updateGui();
@@ -2986,7 +2986,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta );
 
       if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
-        throw new HopException( "Please give the workflow a filename" );
+        throw new HopException( "No filename: please specify a filename for this workflow" );
       }
       String xml = workflowMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( workflowMeta.getFilename(), false );
@@ -2994,7 +2994,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         workflowMeta.clearChanged();
-        redraw();
+        updateGui();
+        HopDataOrchestrationPerspective.getInstance().updateTabs();
       } finally {
         out.flush();
         out.close();
@@ -3008,8 +3009,22 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void saveAs( String filename ) throws HopException {
-    workflowMeta.setFilename( filename );
-    save();
+    try {
+      FileObject fileObject = HopVfs.getFileObject( filename );
+      if ( fileObject.exists() ) {
+        MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+        box.setText( "Overwrite?" );
+        box.setMessage( "Are you sure you want to overwrite file '" + filename + "'?" );
+        int answer = box.open();
+        if ( ( answer & SWT.YES ) == 0 ) {
+          return;
+        }
+      }
+      workflowMeta.setFilename( filename );
+      save();
+    } catch ( Exception e ) {
+      new HopException( "Error validating file existence for '" + filename + "'", e );
+    }
   }
 
   /**

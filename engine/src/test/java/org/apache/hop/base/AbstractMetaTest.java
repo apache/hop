@@ -106,6 +106,20 @@ public class AbstractMetaTest {
   }
 
   @Test
+  public void testNameFilenameSync() throws Exception {
+    meta.setName( "myName" );
+    assertEquals( "myName", meta.getName() );
+
+    meta.setNameSynchronizedWithFilename( true );
+    meta.setFilename( "/my/path/some-file-name.ext" );
+    assertEquals( "some-file-name", meta.getName() );
+
+    meta.setFilename( "C:\\some\\windows\\path\\windows-name.ext" );
+    assertEquals( "windows-name", meta.getName() );
+  }
+
+
+  @Test
   public void testGetSetDescription() throws Exception {
     assertNull( meta.getDescription() );
     meta.setDescription( "I am a meta" );
@@ -563,6 +577,10 @@ public class AbstractMetaTest {
    * proper child classes.
    */
   public static class AbstractMetaStub extends AbstractMeta {
+
+    @Override protected String getExtension() {
+      return ".ext";
+    }
 
     // Reuse this method to set a mock internal variable space
     @Override

@@ -114,6 +114,8 @@ public class PipelineMeta extends AbstractMeta
   implements IXml, Comparator<PipelineMeta>, Comparable<PipelineMeta>, Cloneable, IResourceExport,
   ILoggingObject, IHasFilename, IVariables {
 
+  public  static final String PIPELINE_EXTENSION = ".hpl";
+
   /**
    * The package name, used for internationalization of messages.
    */
@@ -501,6 +503,11 @@ public class PipelineMeta extends AbstractMeta
     }
   }
 
+
+  protected String getExtension() {
+    return PIPELINE_EXTENSION;
+  }
+
   /**
    * Clears the pipeline's meta-data, including the lists of databases, transforms, hops, notes, dependencies,
    * partition schemas, slave servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
@@ -508,6 +515,8 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public void clear() {
+    nameSynchronizedWithFilename=true;
+
     transforms = new ArrayList<>();
     hops = new ArrayList<>();
     partitionSchemas = new ArrayList<>();
@@ -1827,7 +1836,7 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml() throws HopException {
-    return getXML( true, true, true, true );
+    return getXml( true, true, true, true );
   }
 
   /**
@@ -1841,114 +1850,110 @@ public class PipelineMeta extends AbstractMeta
    * @return the XML representation of this pipeline
    * @throws HopException if any errors occur during generation of the XML
    */
-  public String getXML( boolean includeTransforms,
+  public String getXml( boolean includeTransforms,
                         boolean includeNamedParameters,
                         boolean includeNotePads, boolean includeAttributeGroups ) throws HopException {
 
-    Props props = null;
-    if ( Props.isInitialized() ) {
-      props = Props.getInstance();
-    }
+    StringBuilder xml = new StringBuilder( 800 );
 
-    StringBuilder retval = new StringBuilder( 800 );
+    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    retval.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.openTag( XML_TAG_INFO ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_INFO ) ).append( Const.CR );
-
-    retval.append( "    " ).append( XmlHandler.addTagValue( "name", name ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_version", pipelineVersion ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_type", pipelineType.getCode() ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "name", name ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "name_sync_with_filename", nameSynchronizedWithFilename ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "pipeline_version", pipelineVersion ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "pipeline_type", pipelineType.getCode() ) );
 
     if ( pipelineStatus >= 0 ) {
-      retval.append( "    " ).append( XmlHandler.addTagValue( "pipeline_status", pipelineStatus ) );
+      xml.append( "    " ).append( XmlHandler.addTagValue( "pipeline_status", pipelineStatus ) );
     }
 
     if ( includeNamedParameters ) {
-      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+      xml.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
       String[] parameters = listParameters();
       for ( int idx = 0; idx < parameters.length; idx++ ) {
-        retval.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
-        retval.append( "        " )
+        xml.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
+        xml.append( "        " )
           .append( XmlHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
-        retval.append( "        " )
+        xml.append( "        " )
           .append( XmlHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
-        retval.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
+        xml.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
       }
-      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+      xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     }
 
     // Performance monitoring
     //
-    retval.append( "    " )
+    xml.append( "    " )
       .append( XmlHandler.addTagValue( "capture_transform_performance", capturingTransformPerformanceSnapShots ) );
-    retval.append( "    " )
+    xml.append( "    " )
       .append( XmlHandler.addTagValue( "transform_performance_capturing_delay", transformPerformanceCapturingDelay ) );
-    retval.append( "    " )
+    xml.append( "    " )
       .append( XmlHandler.addTagValue( "transform_performance_capturing_size_limit", transformPerformanceCapturingSizeLimit ) );
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
 
     try {
-      retval.append( "    " ).append( XmlHandler.addTagValue( "key_for_session_key", keyForSessionKey ) );
+      xml.append( "    " ).append( XmlHandler.addTagValue( "key_for_session_key", keyForSessionKey ) );
     } catch ( Exception ex ) {
       log.logError( "Unable to decode key", ex );
     }
-    retval.append( "    " ).append( XmlHandler.addTagValue( "is_key_private", isKeyPrivate ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "is_key_private", isKeyPrivate ) );
 
-    retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_INFO ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.closeTag( XML_TAG_INFO ) ).append( Const.CR );
 
     if ( includeNotePads ) {
-      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.openTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
       if ( notes != null ) {
         for ( int i = 0; i < nrNotes(); i++ ) {
           NotePadMeta ni = getNote( i );
-          retval.append( ni.getXml() );
+          xml.append( ni.getXml() );
         }
       }
-      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.closeTag( XML_TAG_NOTEPADS ) ).append( Const.CR );
     }
 
     if ( includeTransforms ) {
-      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.openTag( XML_TAG_ORDER ) ).append( Const.CR );
       for ( int i = 0; i < nrPipelineHops(); i++ ) {
         PipelineHopMeta pipelineHopMeta = getPipelineHop( i );
-        retval.append( pipelineHopMeta.getXml() );
+        xml.append( pipelineHopMeta.getXml() );
       }
-      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_ORDER ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.closeTag( XML_TAG_ORDER ) ).append( Const.CR );
 
       /* The transforms... */
       for ( int i = 0; i < nrTransforms(); i++ ) {
         TransformMeta transformMeta = getTransform( i );
-        retval.append( transformMeta.getXml() );
+        xml.append( transformMeta.getXml() );
       }
 
       /* The error handling metadata on the transforms */
-      retval.append( "  " ).append( XmlHandler.openTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.openTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
       for ( int i = 0; i < nrTransforms(); i++ ) {
         TransformMeta transformMeta = getTransform( i );
 
         if ( transformMeta.getTransformErrorMeta() != null ) {
-          retval.append( transformMeta.getTransformErrorMeta().getXml() );
+          xml.append( transformMeta.getTransformErrorMeta().getXml() );
         }
       }
-      retval.append( "  " ).append( XmlHandler.closeTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
+      xml.append( "  " ).append( XmlHandler.closeTag( XML_TAG_TRANSFORM_ERROR_HANDLING ) ).append( Const.CR );
     }
 
     // Also store the attribute groups
     //
     if ( includeAttributeGroups ) {
-      retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
+      xml.append( AttributesUtil.getAttributesXml( attributesMap ) );
     }
-    retval.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
-    return XmlFormatter.format( retval.toString() );
+    return XmlFormatter.format( xml.toString() );
   }
 
   /**
@@ -2134,7 +2139,9 @@ public class PipelineMeta extends AbstractMeta
 
         // Name
         //
-        setName( XmlHandler.getTagValue( infoNode, "name" ) );
+        this.name = XmlHandler.getTagValue( infoNode, "name" );
+
+        nameSynchronizedWithFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( infoNode, "name_sync_with_filename" )  );
 
         // description
         //

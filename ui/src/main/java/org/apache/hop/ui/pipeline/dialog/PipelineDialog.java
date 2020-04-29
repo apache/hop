@@ -55,8 +55,10 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -82,7 +84,7 @@ public class PipelineDialog extends Dialog {
   private CTabItem wPipelineTab, wParamTab, wMiscTab, wMonitorTab;
 
   private Text wPipelineName;
-
+  private Button wNameFilenameSync;
   private Text wPipelineFilename;
 
   // Pipeline description
@@ -274,12 +276,13 @@ public class PipelineDialog extends Dialog {
     Composite wPipelineComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wPipelineComp );
 
-    FormLayout transLayout = new FormLayout();
-    transLayout.marginWidth = Const.FORM_MARGIN;
-    transLayout.marginHeight = Const.FORM_MARGIN;
-    wPipelineComp.setLayout( transLayout );
+    FormLayout workflowLayout = new FormLayout();
+    workflowLayout.marginWidth = Const.FORM_MARGIN;
+    workflowLayout.marginHeight = Const.FORM_MARGIN;
+    wPipelineComp.setLayout( workflowLayout );
 
     // Pipeline name:
+    //
     Label wlPipelineName = new Label( wPipelineComp, SWT.RIGHT );
     wlPipelineName.setText( BaseMessages.getString( PKG, "PipelineDialog.PipelineName.Label" ) );
     props.setLook( wlPipelineName );
@@ -296,6 +299,27 @@ public class PipelineDialog extends Dialog {
     fdPipelineName.top = new FormAttachment( 0, margin );
     fdPipelineName.right = new FormAttachment( 100, 0 );
     wPipelineName.setLayoutData( fdPipelineName );
+    Control lastControl = wPipelineName;
+
+    // Synchronize name with filename?
+    //
+    Label wlNameFilenameSync = new Label( wPipelineComp, SWT.RIGHT );
+    wlNameFilenameSync.setText( BaseMessages.getString( PKG, "PipelineDialog.NameFilenameSync.Label" ) );
+    props.setLook( wlNameFilenameSync );
+    FormData fdlNameFilenameSync = new FormData();
+    fdlNameFilenameSync.left = new FormAttachment( 0, 0 );
+    fdlNameFilenameSync.right = new FormAttachment( middle, -margin );
+    fdlNameFilenameSync.top = new FormAttachment( lastControl, margin );
+    wlNameFilenameSync.setLayoutData( fdlNameFilenameSync );
+    wNameFilenameSync = new Button( wPipelineComp, SWT.CHECK );
+    props.setLook( wNameFilenameSync );
+    FormData fdNameFilenameSync = new FormData();
+    fdNameFilenameSync.left = new FormAttachment( middle, 0 );
+    fdNameFilenameSync.top = new FormAttachment( wlNameFilenameSync, 0, SWT.CENTER );
+    fdNameFilenameSync.right = new FormAttachment( 100, 0 );
+    wNameFilenameSync.setLayoutData( fdNameFilenameSync );
+    wNameFilenameSync.addListener( SWT.Selection, this::updateNameFilenameSync);
+    lastControl = wNameFilenameSync;
 
     // Pipeline name:
     Label wlPipelineFilename = new Label( wPipelineComp, SWT.RIGHT );
@@ -304,34 +328,36 @@ public class PipelineDialog extends Dialog {
     FormData fdlPipelineFilename = new FormData();
     fdlPipelineFilename.left = new FormAttachment( 0, 0 );
     fdlPipelineFilename.right = new FormAttachment( middle, -margin );
-    fdlPipelineFilename.top = new FormAttachment( wPipelineName, margin );
+    fdlPipelineFilename.top = new FormAttachment( lastControl, margin );
     wlPipelineFilename.setLayoutData( fdlPipelineFilename );
     wPipelineFilename = new Text( wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPipelineFilename );
     wPipelineFilename.addModifyListener( lsMod );
     FormData fdPipelineFilename = new FormData();
     fdPipelineFilename.left = new FormAttachment( middle, 0 );
-    fdPipelineFilename.top = new FormAttachment( wPipelineName, margin );
+    fdPipelineFilename.top = new FormAttachment( wlPipelineFilename, 0, SWT.CENTER );
     fdPipelineFilename.right = new FormAttachment( 100, 0 );
     wPipelineFilename.setLayoutData( fdPipelineFilename );
     wPipelineFilename.setEditable( false );
     wPipelineFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
+    lastControl = wPipelineFilename;
 
     // Pipeline description:
+    //
     Label wlPipelineDescription = new Label( wPipelineComp, SWT.RIGHT );
     wlPipelineDescription.setText( BaseMessages.getString( PKG, "PipelineDialog.PipelineDescription.Label" ) );
     props.setLook( wlPipelineDescription );
     FormData fdlPipelineDescription = new FormData();
     fdlPipelineDescription.left = new FormAttachment( 0, 0 );
     fdlPipelineDescription.right = new FormAttachment( middle, -margin );
-    fdlPipelineDescription.top = new FormAttachment( wPipelineFilename, margin );
+    fdlPipelineDescription.top = new FormAttachment( lastControl, margin );
     wlPipelineDescription.setLayoutData( fdlPipelineDescription );
     wPipelineDescription = new Text( wPipelineComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPipelineDescription );
     wPipelineDescription.addModifyListener( lsMod );
     FormData fdPipelineDescription = new FormData();
     fdPipelineDescription.left = new FormAttachment( middle, 0 );
-    fdPipelineDescription.top = new FormAttachment( wPipelineFilename, margin );
+    fdPipelineDescription.top = new FormAttachment( wlPipelineDescription, 0, SWT.CENTER );
     fdPipelineDescription.right = new FormAttachment( 100, 0 );
     wPipelineDescription.setLayoutData( fdPipelineDescription );
 
@@ -485,6 +511,18 @@ public class PipelineDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
     // / END OF PIPELINE TAB
     // ///////////////////////////////////////////////////////////
+  }
+
+  private void updateNameFilenameSync( Event event ) {
+    String name = wPipelineName.getText();
+    String filename = wPipelineFilename.getText();
+    boolean sync = wNameFilenameSync.getSelection();
+
+    String actualName = PipelineMeta.extractNameFromFilename( sync, name, filename, PipelineMeta.PIPELINE_EXTENSION );
+    wPipelineName.setEnabled( !sync );
+    wPipelineName.setEditable( !sync );
+
+    wPipelineName.setText( Const.NVL(actualName, "") );
   }
 
   private void addParamTab() {
@@ -655,7 +693,9 @@ public class PipelineDialog extends Dialog {
    */
   public void getData() {
     wPipelineName.setText( Const.NVL( pipelineMeta.getName(), "" ) );
+    wNameFilenameSync.setSelection( pipelineMeta.isNameSynchronizedWithFilename() );
     wPipelineFilename.setText( Const.NVL( pipelineMeta.getFilename(), "" ) );
+    updateNameFilenameSync( null );
     wPipelineDescription.setText( Const.NVL( pipelineMeta.getDescription(), "" ) );
     wExtendedDescription.setText( Const.NVL( pipelineMeta.getExtendedDescription(), "" ) );
     wPipelineVersion.setText( Const.NVL( pipelineMeta.getPipelineVersion(), "" ) );
@@ -729,6 +769,7 @@ public class PipelineDialog extends Dialog {
     boolean OK = true;
 
     pipelineMeta.setName( wPipelineName.getText() );
+    pipelineMeta.setNameSynchronizedWithFilename( wNameFilenameSync.getSelection() );
     pipelineMeta.setDescription( wPipelineDescription.getText() );
     pipelineMeta.setExtendedDescription( wExtendedDescription.getText() );
     pipelineMeta.setPipelineVersion( wPipelineVersion.getText() );
