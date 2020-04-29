@@ -378,8 +378,8 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
     // Create the XML meta transform
     final TransformMetaType populatedMeta = (TransformMetaType) getPopulatedMeta();
 
-    final PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline(
-      pipelineMeta, populatedMeta, wTransformName.getText() );
+    final PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      populatedMeta, wTransformName.getText() );
 
     final EnterNumberDialog numberDialog = new EnterNumberDialog( shell,
       props.getDefaultPreviewSize(), BaseMessages.getString( PKG,

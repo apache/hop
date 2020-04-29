@@ -798,8 +798,8 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
       return;
     }
 
-    PipelineMeta previewMeta =
-      PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
       BaseMessages.getString( PKG, "GetTableNamesDialog.PreviewSize.DialogTitle" ),

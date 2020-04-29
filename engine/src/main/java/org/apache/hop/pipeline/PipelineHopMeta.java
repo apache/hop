@@ -64,11 +64,11 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
     this( null, null, false );
   }
 
-  public PipelineHopMeta( Node hopnode, List<TransformMeta> transforms ) throws HopXmlException {
+  public PipelineHopMeta( Node hopNode, List<TransformMeta> transforms ) throws HopXmlException {
     try {
-      this.from = searchTransform( transforms, XmlHandler.getTagValue( hopnode, PipelineHopMeta.XML_FROM_TAG ) );
-      this.to = searchTransform( transforms, XmlHandler.getTagValue( hopnode, PipelineHopMeta.XML_TO_TAG ) );
-      String en = XmlHandler.getTagValue( hopnode, "enabled" );
+      this.from = searchTransform( transforms, XmlHandler.getTagValue( hopNode, PipelineHopMeta.XML_FROM_TAG ) );
+      this.to = searchTransform( transforms, XmlHandler.getTagValue( hopNode, PipelineHopMeta.XML_TO_TAG ) );
+      String en = XmlHandler.getTagValue( hopNode, "enabled" );
 
       if ( en == null ) {
         enabled = true;
@@ -140,22 +140,22 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta> implements Compa
   }
 
   public String toString() {
-    String str_fr = ( this.from == null ) ? "(empty)" : this.from.getName();
-    String str_to = ( this.to == null ) ? "(empty)" : this.to.getName();
-    return str_fr + " --> " + str_to + " (" + ( enabled ? "enabled" : "disabled" ) + ")";
+    String strFrom = ( this.from == null ) ? "(empty)" : this.from.getName();
+    String strTo = ( this.to == null ) ? "(empty)" : this.to.getName();
+    return strFrom + " --> " + strTo + " (" + ( enabled ? "enabled" : "disabled" ) + ")";
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 200 );
+    StringBuilder xml = new StringBuilder( 200 );
 
     if ( this.from != null && this.to != null ) {
-      retval.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
-      retval.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_FROM_TAG, this.from.getName() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_TO_TAG, this.to.getName() ) );
-      retval.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
-      retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
+      xml.append( "    " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+      xml.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_FROM_TAG, this.from.getName() ) );
+      xml.append( "      " ).append( XmlHandler.addTagValue( PipelineHopMeta.XML_TO_TAG, this.to.getName() ) );
+      xml.append( "      " ).append( XmlHandler.addTagValue( "enabled", enabled ) );
+      xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
     }
 
-    return retval.toString();
+    return xml.toString();
   }
 }

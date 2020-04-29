@@ -2052,9 +2052,36 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return new int[] { x1, y1, x2, y2 };
   }
 
-  public void detachTransform() {
-    detach( getCurrentTransform() );
-    selectedTransforms = null;
+  @GuiContextAction(
+    id = "pipeline-graph-action-10100-transform-detach",
+    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Detach transform",
+    tooltip = "Remove hops to and from this action",
+    image = "ui/images/HOP_delete.svg"
+  )
+  public void detachTransform( HopGuiPipelineTransformContext context ) {
+    TransformMeta transformMeta = context.getTransformMeta();
+    PipelineHopMeta fromHop = pipelineMeta.findPipelineHopTo( transformMeta );
+    PipelineHopMeta toHop = pipelineMeta.findPipelineHopFrom( transformMeta );
+
+    for ( int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i-- ) {
+      PipelineHopMeta hop = pipelineMeta.getPipelineHop( i );
+      if ( transformMeta.equals( hop.getFromTransform() ) || transformMeta.equals( hop.getToTransform() ) ) {
+        // Transform is connected with a hop, remove this hop.
+        //
+        hopGui.undoDelegate.addUndoNew( pipelineMeta, new PipelineHopMeta[] { hop }, new int[] { i } );
+        pipelineMeta.removePipelineHop( i );
+      }
+    }
+
+    // If the transform was part of a chain, re-connect it.
+    //
+    if ( fromHop != null && toHop != null ) {
+      pipelineHopDelegate.newHop( pipelineMeta, new PipelineHopMeta( fromHop.getFromTransform(), toHop.getToTransform() ) );
+    }
+
+    updateGui();
   }
 
   @GuiContextAction(
@@ -3132,20 +3159,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     createSnapAllignDistribute().distributevertical();
   }
 
-  private void detach( TransformMeta transformMeta ) {
-
-    for ( int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i-- ) {
-      PipelineHopMeta hop = pipelineMeta.getPipelineHop( i );
-      if ( transformMeta.equals( hop.getFromTransform() ) || transformMeta.equals( hop.getToTransform() ) ) {
-        // Transform is connected with a hop, remove this hop.
-        //
-        hopGui.undoDelegate.addUndoNew( pipelineMeta, new PipelineHopMeta[] { hop }, new int[] { i } );
-        pipelineMeta.removePipelineHop( i );
-      }
-    }
-
-    updateGui();
-  }
 
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,

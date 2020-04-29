@@ -496,8 +496,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       return;
     }
 
-    PipelineMeta previewMeta =
-      PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
       new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString(

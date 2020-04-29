@@ -80,9 +80,9 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private Class<T> managedClass;
   private Composite parentComposite;
   private PropsUi props;
-  private Label wLabel;
-  private ComboVar wCombo;
-  private boolean leftAlignedLabel;
+  private final Label wLabel;
+  private final ComboVar wCombo;
+  private final boolean leftAlignedLabel;
 
   public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
     this(variables, metaStore, managedClass, parentComposite, flags, labelText, toolTipText, false);

@@ -1087,8 +1087,8 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     GetFileNamesMeta oneMeta = new GetFileNamesMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta =
-      PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
       new EnterNumberDialog( shell, props.getDefaultPreviewSize(),

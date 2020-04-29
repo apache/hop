@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -86,11 +87,7 @@ public class PipelinePreviewProgressDialog {
    * @return a {@link PipelineMeta}
    */
   public PipelineMeta open( final boolean showErrorDialogs ) {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        doPreview( monitor, showErrorDialogs );
-      }
-    };
+    IRunnableWithProgress op = monitor -> doPreview( monitor, showErrorDialogs );
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
@@ -141,11 +138,11 @@ public class PipelinePreviewProgressDialog {
   }
 
   private void doPreview( final IProgressMonitor progressMonitor, final boolean showErrorDialogs ) {
-    progressMonitor.beginTask(
-      BaseMessages.getString( PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title" ), 100 );
+    progressMonitor.beginTask( BaseMessages.getString( PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title" ), 100 );
 
     // This pipeline is ready to run in preview!
-    pipeline = new LocalPipelineEngine( pipelineMeta );
+    //
+    pipeline = new LocalPipelineEngine( pipelineMeta, HopGui.getInstance().getLoggingObject() );
     pipeline.setPreview( true );
 
     // Prepare the execution...
@@ -154,13 +151,9 @@ public class PipelinePreviewProgressDialog {
       pipeline.prepareExecution();
     } catch ( final HopException e ) {
       if ( showErrorDialogs ) {
-        shell.getDisplay().asyncExec( new Runnable() {
-          public void run() {
-            new ErrorDialog( shell,
-              BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
-              BaseMessages.getString( PKG, "PipelinePreviewProgressDialog.Exception.ErrorPreparingPipeline" ), e );
-          }
-        } );
+        shell.getDisplay().asyncExec( () -> new ErrorDialog( shell,
+          BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
+          BaseMessages.getString( PKG, "PipelinePreviewProgressDialog.Exception.ErrorPreparingPipeline" ), e ) );
       }
 
       // It makes no sense to continue, so just stop running...

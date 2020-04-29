@@ -534,6 +534,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
     this.pipelineMeta = pipelineMeta;
     this.containerObjectId = pipelineMeta.getContainerObjectId();
+    this.metaStore = pipelineMeta.getMetaStore();
 
     setParent( parent );
 

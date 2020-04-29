@@ -1573,8 +1573,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       LdapInputMeta oneMeta = new LdapInputMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+        oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "LdapInputDialog.NumberRows.DialogTitle" ),

@@ -740,7 +740,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           //
           case WORKFLOW_HOP_ICON:
             WorkflowHopMeta hop = (WorkflowHopMeta) areaOwner.getOwner();
-            if ( hop.getFromEntry().evaluates() ) {
+            if ( hop.getFromAction().evaluates() ) {
               if ( hop.isUnconditional() ) {
                 hop.setUnconditional( false );
                 hop.setEvaluation( true );
@@ -901,19 +901,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 // B ==> hi.getToEntry();
                 // C ==> selectedTransform
                 //
-                if ( workflowMeta.findWorkflowHop( selectedEntry, hi.getFromEntry() ) == null
-                  && workflowMeta.findWorkflowHop( hi.getToEntry(), selectedEntry ) == null ) {
+                if ( workflowMeta.findWorkflowHop( selectedEntry, hi.getFromAction() ) == null
+                  && workflowMeta.findWorkflowHop( hi.getToAction(), selectedEntry ) == null ) {
 
-                  if ( workflowMeta.findWorkflowHop( hi.getFromEntry(), selectedEntry, true ) == null ) {
-                    WorkflowHopMeta newhop1 = new WorkflowHopMeta( hi.getFromEntry(), selectedEntry );
-                    if ( hi.getFromEntry().getEntry().isUnconditional() ) {
+                  if ( workflowMeta.findWorkflowHop( hi.getFromAction(), selectedEntry, true ) == null ) {
+                    WorkflowHopMeta newhop1 = new WorkflowHopMeta( hi.getFromAction(), selectedEntry );
+                    if ( hi.getFromAction().getEntry().isUnconditional() ) {
                       newhop1.setUnconditional();
                     }
                     workflowMeta.addWorkflowHop( newhop1 );
                     hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { newhop1, }, new int[] { workflowMeta.indexOfWorkflowHop( newhop1 ), }, true );
                   }
-                  if ( workflowMeta.findWorkflowHop( selectedEntry, hi.getToEntry(), true ) == null ) {
-                    WorkflowHopMeta newhop2 = new WorkflowHopMeta( selectedEntry, hi.getToEntry() );
+                  if ( workflowMeta.findWorkflowHop( selectedEntry, hi.getToAction(), true ) == null ) {
+                    WorkflowHopMeta newhop2 = new WorkflowHopMeta( selectedEntry, hi.getToAction() );
                     if ( selectedEntry.getEntry().isUnconditional() ) {
                       newhop2.setUnconditional();
                     }
@@ -1134,7 +1134,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( hi != null ) {
         // OK, we want to split the hop in 2
         //
-        if ( !hi.getFromEntry().equals( selectedEntry ) && !hi.getToEntry().equals( selectedEntry ) ) {
+        if ( !hi.getFromAction().equals( selectedEntry ) && !hi.getToAction().equals( selectedEntry ) ) {
           splitHop = true;
           lastHopSplit = hi;
           hi.split = true;
@@ -1281,24 +1281,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       // A couple of sanity checks...
       //
-      if ( hopCandidate.getFromEntry() == null || hopCandidate.getToEntry() == null ) {
+      if ( hopCandidate.getFromAction() == null || hopCandidate.getToAction() == null ) {
         return;
       }
-      if ( hopCandidate.getFromEntry().equals( hopCandidate.getToEntry() ) ) {
+      if ( hopCandidate.getFromAction().equals( hopCandidate.getToAction() ) ) {
         return;
       }
 
-      if ( !hopCandidate.getFromEntry().evaluates() && hopCandidate.getFromEntry().isUnconditional() ) {
+      if ( !hopCandidate.getFromAction().evaluates() && hopCandidate.getFromAction().isUnconditional() ) {
         hopCandidate.setUnconditional();
       } else {
         hopCandidate.setConditional();
-        int nr = workflowMeta.findNrNextActions( hopCandidate.getFromEntry() );
+        int nr = workflowMeta.findNrNextActions( hopCandidate.getFromAction() );
 
         // If there is one green link: make this one red! (or
         // vice-versa)
         if ( nr == 1 ) {
-          ActionCopy jge = workflowMeta.findNextAction( hopCandidate.getFromEntry(), 0 );
-          WorkflowHopMeta other = workflowMeta.findWorkflowHop( hopCandidate.getFromEntry(), jge );
+          ActionCopy jge = workflowMeta.findNextAction( hopCandidate.getFromAction(), 0 );
+          WorkflowHopMeta other = workflowMeta.findWorkflowHop( hopCandidate.getFromAction(), jge );
           if ( other != null ) {
             hopCandidate.setEvaluation( !other.getEvaluation() );
           }
@@ -1308,7 +1308,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( checkIfHopAlreadyExists( workflowMeta, hopCandidate ) ) {
         boolean cancel = false;
         workflowMeta.addWorkflowHop( hopCandidate );
-        if ( workflowMeta.hasLoop( hopCandidate.getToEntry() ) ) {
+        if ( workflowMeta.hasLoop( hopCandidate.getToAction() ) ) {
           MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING );
           mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message" ) );
           mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title" ) );
@@ -1330,7 +1330,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public boolean checkIfHopAlreadyExists( WorkflowMeta workflowMeta, WorkflowHopMeta newHop ) {
     boolean ok = true;
-    if ( workflowMeta.findWorkflowHop( newHop.getFromEntry(), newHop.getToEntry(), true ) != null ) {
+    if ( workflowMeta.findWorkflowHop( newHop.getFromAction(), newHop.getToAction(), true ) != null ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.OK | SWT.ICON_ERROR );
       mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopExists.Message" ) ); // "This hop already exists!"
       mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopExists.Title" ) ); // Error!
@@ -1680,8 +1680,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     WorkflowHopMeta online = null;
     for ( i = 0; i < workflowMeta.nrWorkflowHops(); i++ ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
-      ActionCopy fs = hi.getFromEntry();
-      ActionCopy ts = hi.getToEntry();
+      ActionCopy fs = hi.getFromAction();
+      ActionCopy ts = hi.getToAction();
 
       if ( fs == null || ts == null ) {
         return null;
@@ -2023,7 +2023,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private boolean checkHopLoop( WorkflowHopMeta hop, boolean originalState ) {
-    if ( !originalState && ( workflowMeta.hasLoop( hop.getToEntry() ) ) ) {
+    if ( !originalState && ( workflowMeta.hasLoop( hop.getToAction() ) ) ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.CANCEL | SWT.OK | SWT.ICON_WARNING );
       mb.setMessage( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Message" ) );
       mb.setText( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.LoopAfterHopEnabled.Title" ) );
@@ -2129,14 +2129,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     for ( int i = 0; i < workflowMeta.nrWorkflowHops(); i++ ) {
       WorkflowHopMeta hop = workflowMeta.getWorkflowHop( i );
-      if ( list.contains( hop.getFromEntry() ) && list.contains( hop.getToEntry() ) ) {
+      if ( list.contains( hop.getFromAction() ) && list.contains( hop.getToAction() ) ) {
 
         WorkflowHopMeta before = (WorkflowHopMeta) hop.clone();
         hop.setEnabled( enabled );
         WorkflowHopMeta after = (WorkflowHopMeta) hop.clone();
         hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after }, new int[] { workflowMeta
           .indexOfWorkflowHop( hop ) } );
-        if ( workflowMeta.hasLoop( hop.getToEntry() ) ) {
+        if ( workflowMeta.hasLoop( hop.getToAction() ) ) {
           hasLoop = true;
         }
       }
@@ -2186,7 +2186,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after }, new int[] { workflowMeta
       .indexOfWorkflowHop( hop ) } );
 
-    Set<ActionCopy> checkedEntries = enableDisableNextHops( hop.getToEntry(), enabled, new HashSet<>() );
+    Set<ActionCopy> checkedEntries = enableDisableNextHops( hop.getToAction(), enabled, new HashSet<>() );
 
     if ( checkedEntries.stream().anyMatch( action -> workflowMeta.hasLoop( action ) ) ) {
       MessageBox mb = new MessageBox( hopShell(), SWT.OK | SWT.ICON_WARNING );
@@ -2201,7 +2201,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private Set<ActionCopy> enableDisableNextHops( ActionCopy from, boolean enabled, Set<ActionCopy> checkedEntries ) {
     checkedEntries.add( from );
     workflowMeta.getWorkflowHops().stream()
-      .filter( hop -> from.equals( hop.getFromEntry() ) )
+      .filter( hop -> from.equals( hop.getFromAction() ) )
       .forEach( hop -> {
         if ( hop.isEnabled() != enabled ) {
           WorkflowHopMeta before = (WorkflowHopMeta) hop.clone();
@@ -2210,8 +2210,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGui.undoDelegate.addUndoChange( workflowMeta, new WorkflowHopMeta[] { before }, new WorkflowHopMeta[] { after }, new int[] { workflowMeta
             .indexOfWorkflowHop( hop ) } );
         }
-        if ( !checkedEntries.contains( hop.getToEntry() ) ) {
-          enableDisableNextHops( hop.getToEntry(), enabled, checkedEntries );
+        if ( !checkedEntries.contains( hop.getToAction() ) ) {
+          enableDisableNextHops( hop.getToAction(), enabled, checkedEntries );
         }
       } );
     return checkedEntries;
@@ -2246,15 +2246,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           if ( hi.isUnconditional() ) {
             tipImage = GuiResource.getInstance().getImageUnconditionalHop();
             tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Hop.Tooltip.Unconditional", hi
-              .getFromEntry().getName(), Const.CR ) );
+              .getFromAction().getName(), Const.CR ) );
           } else {
             if ( hi.getEvaluation() ) {
               tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Hop.Tooltip.EvaluatingTrue", hi
-                .getFromEntry().getName(), Const.CR ) );
+                .getFromAction().getName(), Const.CR ) );
               tipImage = GuiResource.getInstance().getImageTrue();
             } else {
               tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Hop.Tooltip.EvaluatingFalse", hi
-                .getFromEntry().getName(), Const.CR ) );
+                .getFromAction().getName(), Const.CR ) );
               tipImage = GuiResource.getInstance().getImageFalse();
             }
           }
@@ -2263,7 +2263,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         case WORKFLOW_HOP_PARALLEL_ICON:
           hi = (WorkflowHopMeta) areaOwner.getOwner();
           tip.append( BaseMessages.getString(
-            PKG, "WorkflowGraph.Hop.Tooltip.Parallel", hi.getFromEntry().getName(), Const.CR ) );
+            PKG, "WorkflowGraph.Hop.Tooltip.Parallel", hi.getFromAction().getName(), Const.CR ) );
           tipImage = GuiResource.getInstance().getImageParallelHop();
           break;
 
@@ -2394,9 +2394,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Set the tooltip for the hop:
       tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopInfo" ) ).append( Const.CR );
       tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopInfo.SourceEntry" ) ).append( " " ).append(
-        hi.getFromEntry().getName() ).append( Const.CR );
+        hi.getFromAction().getName() ).append( Const.CR );
       tip.append( BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopInfo.TargetEntry" ) ).append( " " ).append(
-        hi.getToEntry().getName() ).append( Const.CR );
+        hi.getToAction().getName() ).append( Const.CR );
       tip.append( BaseMessages.getString( PKG, "PipelineGraph.Dialog.HopInfo.Status" ) ).append( " " );
       tip.append( ( hi.isEnabled()
         ? BaseMessages.getString( PKG, "WorkflowGraph.Dialog.HopInfo.Enable" ) : BaseMessages.getString(
@@ -2795,32 +2795,35 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     gc.setLineStyle( SWT.LINE_SOLID );
   }
 
-  protected void detach( ActionCopy je ) {
-    WorkflowHopMeta hfrom = workflowMeta.findWorkflowHopTo( je );
-    WorkflowHopMeta hto = workflowMeta.findWorkflowHopFrom( je );
+  @GuiContextAction(
+    id = "workflow-graph-action-10100-action-detach",
+    parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Detach action",
+    tooltip = "Remove hops to and from this action",
+    image = "ui/images/HOP_delete.svg"
+  )
+  public void detachAction( HopGuiWorkflowActionContext context ) {
+    ActionCopy transformMeta = context.getActionCopy();
+    WorkflowHopMeta fromHop = workflowMeta.findWorkflowHopTo( transformMeta );
+    WorkflowHopMeta toHop = workflowMeta.findWorkflowHopFrom( transformMeta );
 
-    if ( hfrom != null && hto != null ) {
-      if ( workflowMeta.findWorkflowHop( hfrom.getFromEntry(), hto.getToEntry() ) == null ) {
-        WorkflowHopMeta hnew = new WorkflowHopMeta( hfrom.getFromEntry(), hto.getToEntry() );
-        workflowMeta.addWorkflowHop( hnew );
-        hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hnew.clone() }, new int[] { workflowMeta
-          .indexOfWorkflowHop( hnew ) } );
+    for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
+      WorkflowHopMeta hop = workflowMeta.getWorkflowHop( i );
+      if ( transformMeta.equals( hop.getFromAction() ) || transformMeta.equals( hop.getToAction() ) ) {
+        // Action is connected with a hop, remove this hop.
+        //
+        hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hop }, new int[] { i } );
+        workflowMeta.removeWorkflowHop( i );
       }
     }
-    if ( hfrom != null ) {
-      int fromidx = workflowMeta.indexOfWorkflowHop( hfrom );
-      if ( fromidx >= 0 ) {
-        workflowMeta.removeWorkflowHop( fromidx );
-        hopGui.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { hfrom }, new int[] { fromidx } );
-      }
+
+    // If the transform was part of a chain, re-connect it.
+    //
+    if (fromHop!=null && toHop!=null) {
+      workflowHopDelegate.newHop( workflowMeta, new WorkflowHopMeta(fromHop.getFromAction(), toHop.getToAction()) );
     }
-    if ( hto != null ) {
-      int toidx = workflowMeta.indexOfWorkflowHop( hto );
-      if ( toidx >= 0 ) {
-        workflowMeta.removeWorkflowHop( toidx );
-        hopGui.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { hto }, new int[] { toidx } );
-      }
-    }
+
     updateGui();
   }
 

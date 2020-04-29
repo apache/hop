@@ -229,7 +229,7 @@ public class HopGuiWorkflowActionDelegate {
     for ( int i = workflow.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflow.getWorkflowHop( i );
       for ( int j = 0; j < actions.size() && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromEntry().equals( actions.get( j ) ) || hi.getToEntry().equals( actions.get( j ) ) ) {
+        if ( hi.getFromAction().equals( actions.get( j ) ) || hi.getToAction().equals( actions.get( j ) ) ) {
           int idx = workflow.indexOfWorkflowHop( hi );
           jobHops.add( (WorkflowHopMeta) hi.clone() );
           hopIndexes[ hopIndex ] = idx;
@@ -259,7 +259,7 @@ public class HopGuiWorkflowActionDelegate {
   public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
-      if ( hi.getFromEntry().equals( action ) || hi.getToEntry().equals( action ) ) {
+      if ( hi.getFromAction().equals( action ) || hi.getToAction().equals( action ) ) {
         int idx = workflowMeta.indexOfWorkflowHop( hi );
         hopGui.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hi.clone() }, new int[] { idx } );
         workflowMeta.removeWorkflowHop( idx );

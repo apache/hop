@@ -300,7 +300,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
   }
 
   protected void drawWorkflowHop( WorkflowHopMeta hop, boolean candidate ) {
-    if ( hop == null || hop.getFromEntry() == null || hop.getToEntry() == null ) {
+    if ( hop == null || hop.getFromAction() == null || hop.getToAction() == null ) {
       return;
     }
 
@@ -311,12 +311,12 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
    * Calculates line coordinates from center to center.
    */
   protected void drawLine( WorkflowHopMeta jobHop, boolean is_candidate ) {
-    int[] line = getLine( jobHop.getFromEntry(), jobHop.getToEntry() );
+    int[] line = getLine( jobHop.getFromAction(), jobHop.getToAction() );
 
     gc.setLineWidth( lineWidth );
     EColor col;
 
-    if ( jobHop.getFromEntry().isLaunchingInParallel() ) {
+    if ( jobHop.getFromAction().isLaunchingInParallel() ) {
       gc.setLineStyle( ELineStyle.PARALLEL );
     } else {
       gc.setLineStyle( ELineStyle.SOLID );
@@ -361,7 +361,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
   }
 
   private void drawArrow( EImage arrow, int[] line, WorkflowHopMeta jobHop ) {
-    drawArrow( arrow, line, jobHop, jobHop.getFromEntry(), jobHop.getToEntry() );
+    drawArrow( arrow, line, jobHop, jobHop.getFromAction(), jobHop.getToAction() );
   }
 
   @Override
@@ -432,7 +432,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
       gc.drawImage( hopsIcon, mx, my, magnification );
       areaOwners.add( new AreaOwner( AreaType.WORKFLOW_HOP_ICON, mx, my, bounds.x, bounds.y, offset, subject, jobHop ) );
 
-      if ( jobHop.getFromEntry().isLaunchingInParallel() ) {
+      if ( jobHop.getFromAction().isLaunchingInParallel() ) {
 
         factor = 1;
 

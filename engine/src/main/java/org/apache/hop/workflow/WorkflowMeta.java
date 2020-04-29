@@ -930,7 +930,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
         // Return the first we find!
         //
-        if ( hi != null && ( hi.getFromEntry() != null ) && hi.getFromEntry().equals( jge ) ) {
+        if ( hi != null && ( hi.getFromAction() != null ) && hi.getFromAction().equals( jge ) ) {
           return hi;
         }
       }
@@ -960,8 +960,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public WorkflowHopMeta findWorkflowHop( ActionCopy from, ActionCopy to, boolean includeDisabled ) {
     for ( WorkflowHopMeta hi : workflowHops ) {
       if ( hi.isEnabled() || includeDisabled ) {
-        if ( hi != null && hi.getFromEntry() != null && hi.getToEntry() != null && hi.getFromEntry().equals( from )
-          && hi.getToEntry().equals( to ) ) {
+        if ( hi != null && hi.getFromAction() != null && hi.getToAction() != null && hi.getFromAction().equals( from )
+          && hi.getToAction().equals( to ) ) {
           return hi;
         }
       }
@@ -977,7 +977,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public WorkflowHopMeta findWorkflowHopTo( ActionCopy jge ) {
     for ( WorkflowHopMeta hi : workflowHops ) {
-      if ( hi != null && hi.getToEntry() != null && hi.getToEntry().equals( jge ) ) {
+      if ( hi != null && hi.getToAction() != null && hi.getToAction().equals( jge ) ) {
         // Return the first!
         return hi;
       }
@@ -1019,7 +1019,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && hi.getToEntry().equals( to ) ) {
+      if ( hi.isEnabled() && hi.getToAction().equals( to ) ) {
         count++;
       }
     }
@@ -1040,9 +1040,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && hi.getToEntry().equals( to ) ) {
+      if ( hi.isEnabled() && hi.getToAction().equals( to ) ) {
         if ( count == nr ) {
-          return hi.getFromEntry();
+          return hi.getFromAction();
         }
         count++;
       }
@@ -1061,7 +1061,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && ( hi.getFromEntry() != null ) && hi.getFromEntry().equals( from ) ) {
+      if ( hi.isEnabled() && ( hi.getFromAction() != null ) && hi.getFromAction().equals( from ) ) {
         count++;
       }
     }
@@ -1081,9 +1081,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.isEnabled() && ( hi.getFromEntry() != null ) && hi.getFromEntry().equals( from ) ) {
+      if ( hi.isEnabled() && ( hi.getFromAction() != null ) && hi.getFromAction().equals( from ) ) {
         if ( count == cnt ) {
-          return hi.getToEntry();
+          return hi.getToAction();
         }
         count++;
       }
@@ -1293,8 +1293,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
 
-      if ( hi.getFromEntry() != null && hi.getToEntry() != null ) {
-        if ( hi.getFromEntry().getName().equalsIgnoreCase( name ) || hi.getToEntry().getName()
+      if ( hi.getFromAction() != null && hi.getToAction() != null ) {
+        if ( hi.getFromAction().getName().equalsIgnoreCase( name ) || hi.getToAction().getName()
           .equalsIgnoreCase( name ) ) {
           hops.add( hi );
         }
@@ -1305,12 +1305,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   public boolean isPathExist( IAction from, IAction to ) {
     for ( WorkflowHopMeta hi : workflowHops ) {
-      if ( hi.getFromEntry() != null && hi.getToEntry() != null ) {
-        if ( hi.getFromEntry().getName().equalsIgnoreCase( from.getName() ) ) {
-          if ( hi.getToEntry().getName().equalsIgnoreCase( to.getName() ) ) {
+      if ( hi.getFromAction() != null && hi.getToAction() != null ) {
+        if ( hi.getFromAction().getName().equalsIgnoreCase( from.getName() ) ) {
+          if ( hi.getToAction().getName().equalsIgnoreCase( to.getName() ) ) {
             return true;
           }
-          if ( isPathExist( hi.getToEntry().getEntry(), to ) ) {
+          if ( isPathExist( hi.getToAction().getEntry(), to ) ) {
             return true;
           }
         }

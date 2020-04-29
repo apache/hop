@@ -116,8 +116,8 @@ public class HopGuiWorkflowUndoDelegate {
           WorkflowHopMeta hopMeta = (WorkflowHopMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           // Build a new hop:
-          ActionCopy from = workflowMeta.findAction( hopMeta.getFromEntry().getName() );
-          ActionCopy to = workflowMeta.findAction( hopMeta.getToEntry().getName() );
+          ActionCopy from = workflowMeta.findAction( hopMeta.getFromAction().getName() );
+          ActionCopy to = workflowMeta.findAction( hopMeta.getToAction().getName() );
           WorkflowHopMeta newHopMeta = new WorkflowHopMeta( from, to );
           workflowMeta.addWorkflowHop( idx, newHopMeta );
         }

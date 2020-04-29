@@ -25,16 +25,22 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class PipelinePreviewFactory {
-  public static final PipelineMeta generatePreviewPipeline( IVariables parent, ITransformMeta oneMeta,
+  public static final PipelineMeta generatePreviewPipeline( IVariables parent, IMetaStore metaStore, ITransformMeta oneMeta,
                                                             String oneTransformName ) {
     PluginRegistry registry = PluginRegistry.getInstance();
 
     PipelineMeta previewMeta = new PipelineMeta( parent );
+
+    // Pass the MetaStore to look up shared metadata at runtime
+    //
+    previewMeta.setMetaStore( metaStore );
+
     // The following operation resets the internal variables!
     //
     previewMeta.setName( parent == null ? "Preview pipeline" : parent.toString() );
