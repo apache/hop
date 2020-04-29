@@ -42,7 +42,7 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
 
   private static final int SAMPLE_SIZE = 100;
 
-  private static final int SHELL_WIDTH = 300;
+  private static final int SHELL_WIDTH = 700;
 
   private IGetFieldsCapableTransformDialog parentDialog;
   private boolean reloadAllFields;

@@ -47,10 +47,10 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputTransformControl;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.apache.hop.utils.TestUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -83,9 +83,7 @@ public class TextFileInputTest {
   public void testGetLineDOS() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r\n";
     String expected = "col1\tcol2\tcol3";
-    String output =
-      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_DOS,
-        new StringBuilder( 1000 ) );
+    String output = TextFileLineUtil.getLine( null, getInputStreamReader( input ), TextFileLineUtil.FILE_FORMAT_DOS, new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -93,9 +91,7 @@ public class TextFileInputTest {
   public void testGetLineUnix() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\ndata1\tdata2\tdata3\n";
     String expected = "col1\tcol2\tcol3";
-    String output =
-      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
-        new StringBuilder( 1000 ) );
+    String output = TextFileLineUtil.getLine( null, getInputStreamReader( input ), TextFileLineUtil.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -103,9 +99,7 @@ public class TextFileInputTest {
   public void testGetLineOSX() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\rdata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
-    String output =
-      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_UNIX,
-        new StringBuilder( 1000 ) );
+    String output = TextFileLineUtil.getLine( null, getInputStreamReader( input ), TextFileLineUtil.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -113,9 +107,7 @@ public class TextFileInputTest {
   public void testGetLineMixed() throws HopFileException, UnsupportedEncodingException {
     String input = "col1\tcol2\tcol3\r\ndata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
-    String output =
-      TextFileInputUtils.getLine( null, getInputStreamReader( input ), TextFileInputMeta.FILE_FORMAT_MIXED,
-        new StringBuilder( 1000 ) );
+    String output = TextFileLineUtil.getLine( null, getInputStreamReader( input ), TextFileLineUtil.FILE_FORMAT_MIXED, new StringBuilder( 1000 ) );
     assertEquals( expected, output );
   }
 
@@ -126,12 +118,12 @@ public class TextFileInputTest {
     String inputOSX = "col1\tcol2\tcol3\rdata1\tdata2\tdata3\r";
     String expected = "col1\tcol2\tcol3";
 
-    assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputDOS ),
-      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
-    assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputUnix ),
-      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
-    assertEquals( expected, TextFileInputUtils.getLine( null, getInputStreamReader( inputOSX ),
-      TextFileInputMeta.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+    assertEquals( expected, TextFileLineUtil.getLine( null, getInputStreamReader( inputDOS ),
+      TextFileLineUtil.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+    assertEquals( expected, TextFileLineUtil.getLine( null, getInputStreamReader( inputUnix ),
+      TextFileLineUtil.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
+    assertEquals( expected, TextFileLineUtil.getLine( null, getInputStreamReader( inputOSX ),
+      TextFileLineUtil.FILE_FORMAT_UNIX, new StringBuilder( 1000 ) ) );
   }
 
   @Test
@@ -364,7 +356,7 @@ public class TextFileInputTest {
     }
 
     data.dataErrorLineHandler = mock( IFileErrorHandler.class );
-    data.fileFormatType = TextFileInputMeta.FILE_FORMAT_UNIX;
+    data.fileFormatType = TextFileLineUtil.FILE_FORMAT_UNIX;
     data.filterProcessor = new TextFileFilterProcessor( new TextFileFilter[ 0 ], new Variables() );
     data.filePlayList = new FilePlayListAll();
     return data;

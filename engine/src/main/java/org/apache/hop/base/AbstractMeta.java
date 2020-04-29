@@ -24,6 +24,7 @@ package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
@@ -53,6 +54,7 @@ import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
@@ -93,6 +95,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
   protected String containerObjectId;
 
   protected String name;
+
+  protected boolean nameSynchronizedWithFilename;
 
   protected String description;
 
@@ -176,14 +180,44 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
     this.containerObjectId = containerObjectId;
   }
 
+  protected abstract String getExtension();
+
   /**
-   * Get the name of the pipeline.
+   * Get the name of the pipeline. If the name is synchronized with the filename, we return the base filename.
    *
    * @return The name of the pipeline
    */
   @Override
   public String getName() {
-    return name;
+    return extractNameFromFilename(nameSynchronizedWithFilename, name, filename, getExtension());
+  }
+
+  public static final String extractNameFromFilename( boolean sync, String name, String filename, String extension ) {
+    if (filename==null) {
+      return name;
+    } else {
+      if (sync) {
+        int lastExtIndex = filename.toLowerCase().lastIndexOf( extension );
+        if (lastExtIndex<0) {
+          lastExtIndex=filename.length();
+        }
+
+        // Get the last / or \ in a filename
+        //
+        int lastSlashIndex = filename.lastIndexOf( '/' );
+        if (lastSlashIndex<0) {
+          lastSlashIndex = filename.lastIndexOf( '\\' );
+        }
+        if (lastSlashIndex<0) {
+          lastSlashIndex = -1;
+        }
+
+        return filename.substring( lastSlashIndex+1, lastExtIndex );
+
+      } else {
+        return name;
+      }
+    }
   }
 
   /**
@@ -195,6 +229,22 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
     fireNameChangedListeners( this.name, newName );
     this.name = newName;
     setInternalNameHopVariable( variables );
+  }
+
+  /**
+   * Gets nameSynchronizedWithFilename
+   *
+   * @return value of nameSynchronizedWithFilename
+   */
+  public boolean isNameSynchronizedWithFilename() {
+    return nameSynchronizedWithFilename;
+  }
+
+  /**
+   * @param nameSynchronizedWithFilename The nameSynchronizedWithFilename to set
+   */
+  public void setNameSynchronizedWithFilename( boolean nameSynchronizedWithFilename ) {
+    this.nameSynchronizedWithFilename = nameSynchronizedWithFilename;
   }
 
   /**

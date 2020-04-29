@@ -37,6 +37,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -72,6 +73,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
@@ -94,23 +96,13 @@ public class WorkflowDialog extends Dialog {
 
   private CTabFolder wTabFolder;
 
-  private FormData fdTabFolder;
-
-  private CTabItem wWorkflowTab, wParamTab, wSettingsTab;
-
-  private PropsUi props;
-
-  private Label wlWorkflowName;
+  private final PropsUi props;
 
   private Text wWorkflowName;
-
+  private Button wNameFilenameSync;
   private Text wFilename;
 
-  private Label wlBatchPipeline;
-
   private Button wBatchPipeline;
-
-  private FormData fdlBatchPipeline, fdBatchPipeline;
 
   protected Button wOk, wCancel;
 
@@ -217,7 +209,7 @@ public class WorkflowDialog extends Dialog {
       }
     }
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
@@ -283,19 +275,19 @@ public class WorkflowDialog extends Dialog {
     // ////////////////////////
     // START OF JOB TAB///
     // /
-    wWorkflowTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wWorkflowTab = new CTabItem( wTabFolder, SWT.NONE );
     wWorkflowTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowTab.Label" ) );
 
-    Composite wJobComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wJobComp );
+    Composite wWorkflowComp = new Composite( wTabFolder, SWT.NONE );
+    props.setLook( wWorkflowComp );
 
-    FormLayout transLayout = new FormLayout();
-    transLayout.marginWidth = props.getMargin();
-    transLayout.marginHeight = props.getMargin();
-    wJobComp.setLayout( transLayout );
+    FormLayout workflowLayout = new FormLayout();
+    workflowLayout.marginWidth = props.getMargin();
+    workflowLayout.marginHeight = props.getMargin();
+    wWorkflowComp.setLayout( workflowLayout );
 
-    // Jobname:
-    wlWorkflowName = new Label( wJobComp, SWT.RIGHT );
+    // Workflow name:
+    Label wlWorkflowName = new Label( wWorkflowComp, SWT.RIGHT );
     wlWorkflowName.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowName.Label" ) );
     props.setLook( wlWorkflowName );
     FormData fdlWorkflowName = new FormData();
@@ -303,7 +295,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowName.right = new FormAttachment( middle, -margin );
     fdlWorkflowName.top = new FormAttachment( 0, margin );
     wlWorkflowName.setLayoutData( fdlWorkflowName );
-    wWorkflowName = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWorkflowName = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWorkflowName );
     wWorkflowName.addModifyListener( lsMod );
     FormData fdWorkflowName = new FormData();
@@ -311,29 +303,50 @@ public class WorkflowDialog extends Dialog {
     fdWorkflowName.top = new FormAttachment( 0, margin );
     fdWorkflowName.right = new FormAttachment( 100, 0 );
     wWorkflowName.setLayoutData( fdWorkflowName );
+    Control lastControl = wWorkflowName;
+
+    // Synchronize name with filename?
+    //
+    Label wlNameFilenameSync = new Label( wWorkflowComp, SWT.RIGHT );
+    wlNameFilenameSync.setText( BaseMessages.getString( PKG, "WorkflowDialog.NameFilenameSync.Label" ) );
+    props.setLook( wlNameFilenameSync );
+    FormData fdlNameFilenameSync = new FormData();
+    fdlNameFilenameSync.left = new FormAttachment( 0, 0 );
+    fdlNameFilenameSync.right = new FormAttachment( middle, -margin );
+    fdlNameFilenameSync.top = new FormAttachment( lastControl, margin );
+    wlNameFilenameSync.setLayoutData( fdlNameFilenameSync );
+    wNameFilenameSync = new Button( wWorkflowComp, SWT.CHECK );
+    props.setLook( wNameFilenameSync );
+    FormData fdNameFilenameSync = new FormData();
+    fdNameFilenameSync.left = new FormAttachment( middle, 0 );
+    fdNameFilenameSync.top = new FormAttachment( wlNameFilenameSync, 0, SWT.CENTER );
+    fdNameFilenameSync.right = new FormAttachment( 100, 0 );
+    wNameFilenameSync.setLayoutData( fdNameFilenameSync );
+    wNameFilenameSync.addListener( SWT.Selection, this::updateNameFilenameSync);
+    lastControl = wNameFilenameSync;
 
     // JobFilename:
-    Label wlFilename = new Label( wJobComp, SWT.RIGHT );
+    Label wlFilename = new Label( wWorkflowComp, SWT.RIGHT );
     wlFilename.setText( BaseMessages.getString( PKG, "WorkflowDialog.Filename.Label" ) );
     props.setLook( wlFilename );
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
     fdlFilename.right = new FormAttachment( middle, -margin );
-    fdlFilename.top = new FormAttachment( wWorkflowName, margin );
+    fdlFilename.top = new FormAttachment( lastControl, margin );
     wlFilename.setLayoutData( fdlFilename );
-    wFilename = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, 0 );
-    fdFilename.top = new FormAttachment( wWorkflowName, margin );
+    fdFilename.top = new FormAttachment( wlFilename, 0, SWT.CENTER );
     fdFilename.right = new FormAttachment( 100, 0 );
     wFilename.setLayoutData( fdFilename );
     wFilename.setEditable( false );
     wFilename.setBackground( GuiResource.getInstance().getColorLightGray() );
 
     // Workflow description:
-    Label wlDescription = new Label( wJobComp, SWT.RIGHT );
+    Label wlDescription = new Label( wWorkflowComp, SWT.RIGHT );
     wlDescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Description.Label" ) );
     props.setLook( wlDescription );
     FormData fdlDescription = new FormData();
@@ -341,7 +354,7 @@ public class WorkflowDialog extends Dialog {
     fdlDescription.right = new FormAttachment( middle, -margin );
     fdlDescription.top = new FormAttachment( wFilename, margin );
     wlDescription.setLayoutData( fdlDescription );
-    wDescription = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDescription = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDescription );
     wDescription.addModifyListener( lsMod );
     FormData fdDescription = new FormData();
@@ -351,7 +364,7 @@ public class WorkflowDialog extends Dialog {
     wDescription.setLayoutData( fdDescription );
 
     // Pipeline Extended description
-    wlExtendedDescription = new Label( wJobComp, SWT.RIGHT );
+    wlExtendedDescription = new Label( wWorkflowComp, SWT.RIGHT );
     wlExtendedDescription.setText( BaseMessages.getString( PKG, "WorkflowDialog.Extendeddescription.Label" ) );
     props.setLook( wlExtendedDescription );
     fdlExtendedDescription = new FormData();
@@ -360,7 +373,7 @@ public class WorkflowDialog extends Dialog {
     fdlExtendedDescription.right = new FormAttachment( middle, -margin );
     wlExtendedDescription.setLayoutData( fdlExtendedDescription );
 
-    wExtendedDescription = new Text( wJobComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    wExtendedDescription = new Text( wWorkflowComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wExtendedDescription, Props.WIDGET_STYLE_FIXED );
     wExtendedDescription.addModifyListener( lsMod );
     fdExtendedDescription = new FormData();
@@ -371,7 +384,7 @@ public class WorkflowDialog extends Dialog {
     wExtendedDescription.setLayoutData( fdExtendedDescription );
 
     // Pipeline Status
-    wlWorkflowStatus = new Label( wJobComp, SWT.RIGHT );
+    wlWorkflowStatus = new Label( wWorkflowComp, SWT.RIGHT );
     wlWorkflowStatus.setText( BaseMessages.getString( PKG, "WorkflowDialog.WorkflowStatus.Label" ) );
     props.setLook( wlWorkflowStatus );
     fdlWorkflowStatus = new FormData();
@@ -379,7 +392,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowStatus.right = new FormAttachment( middle, 0 );
     fdlWorkflowStatus.top = new FormAttachment( wExtendedDescription, margin * 2 );
     wlWorkflowStatus.setLayoutData( fdlWorkflowStatus );
-    wWorkflowStatus = new CCombo( wJobComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wWorkflowStatus = new CCombo( wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wWorkflowStatus.add( BaseMessages.getString( PKG, "WorkflowDialog.Draft_WorkflowStatus.Label" ) );
     wWorkflowStatus.add( BaseMessages.getString( PKG, "WorkflowDialog.Production_WorkflowStatus.Label" ) );
     wWorkflowStatus.add( "" );
@@ -393,7 +406,7 @@ public class WorkflowDialog extends Dialog {
     wWorkflowStatus.setLayoutData( fdWorkflowStatus );
 
     // Workflow version:
-    Label wlVersion = new Label( wJobComp, SWT.RIGHT );
+    Label wlVersion = new Label( wWorkflowComp, SWT.RIGHT );
     wlVersion.setText( BaseMessages.getString( PKG, "WorkflowDialog.Version.Label" ) );
     props.setLook( wlVersion );
     FormData fdlVersion = new FormData();
@@ -401,7 +414,7 @@ public class WorkflowDialog extends Dialog {
     fdlVersion.right = new FormAttachment( middle, -margin );
     fdlVersion.top = new FormAttachment( wWorkflowStatus, margin );
     wlVersion.setLayoutData( fdlVersion );
-    wVersion = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wVersion = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wVersion );
     wVersion.addModifyListener( lsMod );
     FormData fdVersion = new FormData();
@@ -412,7 +425,7 @@ public class WorkflowDialog extends Dialog {
 
 
     // Create User:
-    Label wlCreateUser = new Label( wJobComp, SWT.RIGHT );
+    Label wlCreateUser = new Label( wWorkflowComp, SWT.RIGHT );
     wlCreateUser.setText( BaseMessages.getString( PKG, "WorkflowDialog.CreateUser.Label" ) );
     props.setLook( wlCreateUser );
     FormData fdlCreateUser = new FormData();
@@ -420,7 +433,7 @@ public class WorkflowDialog extends Dialog {
     fdlCreateUser.right = new FormAttachment( middle, -margin );
     fdlCreateUser.top = new FormAttachment( wVersion, margin );
     wlCreateUser.setLayoutData( fdlCreateUser );
-    wCreateUser = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCreateUser = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCreateUser );
     wCreateUser.setEditable( false );
     wCreateUser.addModifyListener( lsMod );
@@ -431,7 +444,7 @@ public class WorkflowDialog extends Dialog {
     wCreateUser.setLayoutData( fdCreateUser );
 
     // Created Date:
-    Label wlCreateDate = new Label( wJobComp, SWT.RIGHT );
+    Label wlCreateDate = new Label( wWorkflowComp, SWT.RIGHT );
     wlCreateDate.setText( BaseMessages.getString( PKG, "WorkflowDialog.CreateDate.Label" ) );
     props.setLook( wlCreateDate );
     FormData fdlCreateDate = new FormData();
@@ -439,7 +452,7 @@ public class WorkflowDialog extends Dialog {
     fdlCreateDate.right = new FormAttachment( middle, -margin );
     fdlCreateDate.top = new FormAttachment( wCreateUser, margin );
     wlCreateDate.setLayoutData( fdlCreateDate );
-    wCreateDate = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCreateDate = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCreateDate );
     wCreateDate.setEditable( false );
     wCreateDate.addModifyListener( lsMod );
@@ -450,7 +463,7 @@ public class WorkflowDialog extends Dialog {
     wCreateDate.setLayoutData( fdCreateDate );
 
     // Modified User:
-    Label wlModUser = new Label( wJobComp, SWT.RIGHT );
+    Label wlModUser = new Label( wWorkflowComp, SWT.RIGHT );
     wlModUser.setText( BaseMessages.getString( PKG, "WorkflowDialog.LastModifiedUser.Label" ) );
     props.setLook( wlModUser );
     FormData fdlModUser = new FormData();
@@ -458,7 +471,7 @@ public class WorkflowDialog extends Dialog {
     fdlModUser.right = new FormAttachment( middle, -margin );
     fdlModUser.top = new FormAttachment( wCreateDate, margin );
     wlModUser.setLayoutData( fdlModUser );
-    wModUser = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wModUser = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wModUser );
     wModUser.setEditable( false );
     wModUser.addModifyListener( lsMod );
@@ -469,7 +482,7 @@ public class WorkflowDialog extends Dialog {
     wModUser.setLayoutData( fdModUser );
 
     // Modified Date:
-    Label wlModDate = new Label( wJobComp, SWT.RIGHT );
+    Label wlModDate = new Label( wWorkflowComp, SWT.RIGHT );
     wlModDate.setText( BaseMessages.getString( PKG, "WorkflowDialog.LastModifiedDate.Label" ) );
     props.setLook( wlModDate );
     FormData fdlModDate = new FormData();
@@ -477,7 +490,7 @@ public class WorkflowDialog extends Dialog {
     fdlModDate.right = new FormAttachment( middle, -margin );
     fdlModDate.top = new FormAttachment( wModUser, margin );
     wlModDate.setLayoutData( fdlModDate );
-    wModDate = new Text( wJobComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wModDate = new Text( wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wModDate );
     wModDate.setEditable( false );
     wModDate.addModifyListener( lsMod );
@@ -493,19 +506,31 @@ public class WorkflowDialog extends Dialog {
     fdWorkflowComp.right = new FormAttachment( 100, 0 );
     fdWorkflowComp.bottom = new FormAttachment( 100, 0 );
 
-    wJobComp.setLayoutData( fdWorkflowComp );
-    wWorkflowTab.setControl( wJobComp );
+    wWorkflowComp.setLayoutData( fdWorkflowComp );
+    wWorkflowTab.setControl( wWorkflowComp );
 
     // ///////////////////////////////////////////////////////////
     // / END OF JOB TAB
     // ///////////////////////////////////////////////////////////
   }
 
+  private void updateNameFilenameSync( Event event ) {
+    String name = wWorkflowName.getText();
+    String filename = wFilename.getText();
+    boolean sync = wNameFilenameSync.getSelection();
+
+    String actualName = WorkflowMeta.extractNameFromFilename( sync, name, filename, WorkflowMeta.WORKFLOW_EXTENSION );
+    wWorkflowName.setEnabled( !sync );
+    wWorkflowName.setEditable( !sync );
+
+    wWorkflowName.setText( Const.NVL(actualName, "") );
+  }
+
   private void addParamTab() {
     // ////////////////////////
     // START OF PARAM TAB
     // /
-    wParamTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wParamTab = new CTabItem( wTabFolder, SWT.NONE );
     wParamTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.ParamTab.Label" ) );
 
     FormLayout paramLayout = new FormLayout();
@@ -572,7 +597,7 @@ public class WorkflowDialog extends Dialog {
     // ////////////////////////
     // START OF SETTINGS TAB///
     // /
-    wSettingsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wSettingsTab = new CTabItem( wTabFolder, SWT.NONE );
     wSettingsTab.setText( BaseMessages.getString( PKG, "WorkflowDialog.SettingsTab.Label" ) );
 
     FormLayout LogLayout = new FormLayout();
@@ -583,10 +608,10 @@ public class WorkflowDialog extends Dialog {
     props.setLook( wSettingsComp );
     wSettingsComp.setLayout( LogLayout );
 
-    wlBatchPipeline = new Label( wSettingsComp, SWT.RIGHT );
+    Label wlBatchPipeline = new Label( wSettingsComp, SWT.RIGHT );
     wlBatchPipeline.setText( BaseMessages.getString( PKG, "WorkflowDialog.PassBatchID.Label" ) );
     props.setLook( wlBatchPipeline );
-    fdlBatchPipeline = new FormData();
+    FormData fdlBatchPipeline = new FormData();
     fdlBatchPipeline.left = new FormAttachment( 0, 0 );
     fdlBatchPipeline.top = new FormAttachment( 0, margin );
     fdlBatchPipeline.right = new FormAttachment( middle, -margin );
@@ -594,7 +619,7 @@ public class WorkflowDialog extends Dialog {
     wBatchPipeline = new Button( wSettingsComp, SWT.CHECK );
     props.setLook( wBatchPipeline );
     wBatchPipeline.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.PassBatchID.Tooltip" ) );
-    fdBatchPipeline = new FormData();
+    FormData fdBatchPipeline = new FormData();
     fdBatchPipeline.left = new FormAttachment( middle, 0 );
     fdBatchPipeline.top = new FormAttachment( 0, margin );
     fdBatchPipeline.right = new FormAttachment( 100, 0 );
@@ -626,7 +651,9 @@ public class WorkflowDialog extends Dialog {
    */
   public void getData() {
     wWorkflowName.setText( Const.NVL( workflowMeta.getName(), "" ) );
+    wNameFilenameSync.setSelection( workflowMeta.isNameSynchronizedWithFilename() );
     wFilename.setText( Const.NVL( workflowMeta.getFilename(), "" ) );
+    updateNameFilenameSync( null );
     wDescription.setText( Const.NVL( workflowMeta.getDescription(), "" ) );
     wExtendedDescription.setText( Const.NVL( workflowMeta.getExtendedDescription(), "" ) );
     wVersion.setText( Const.NVL( workflowMeta.getJobversion(), "" ) );

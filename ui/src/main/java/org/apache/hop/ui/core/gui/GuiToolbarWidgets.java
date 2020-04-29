@@ -141,10 +141,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       case TOOLBAR_BUTTON:
         ToolItem item = new ToolItem( toolBar, SWT.NONE );
         if ( StringUtils.isNotEmpty( toolbarItem.getImage() ) ) {
-          item.setImage( GuiResource.getInstance().getImage( toolbarItem.getImage(), toolbarItem.getClassLoader(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE ) );
+          item.setImage( GuiResource.getInstance().getImage( toolbarItem.getImage(), toolbarItem.getClassLoader(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
         }
         if ( StringUtils.isNotEmpty( toolbarItem.getDisabledImage() ) ) {
-          item.setDisabledImage( GuiResource.getInstance().getImage( toolbarItem.getDisabledImage(), toolbarItem.getClassLoader(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE ) );
+          item.setDisabledImage( GuiResource.getInstance().getImage( toolbarItem.getDisabledImage(), toolbarItem.getClassLoader(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
         }
         if ( StringUtils.isNotEmpty( toolbarItem.getToolTip() ) ) {
           item.setToolTipText( toolbarItem.getToolTip() );

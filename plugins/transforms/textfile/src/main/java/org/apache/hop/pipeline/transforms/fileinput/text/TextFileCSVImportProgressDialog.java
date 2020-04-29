@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -266,13 +267,13 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     // However, if it doesn't have a header, take a new line
     //
 
-    line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
+    line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
     fileLineNumber++;
 
     if ( meta.content.header ) {
       int skipped = 0;
       while ( line != null && skipped < meta.content.nrHeaderLines ) {
-        line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
+        line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
         skipped++;
         fileLineNumber++;
       }
@@ -344,7 +345,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
       // Grab another line...
       //
-      line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
+      line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineBuffer );
     }
 
     monitor.worked( 1 );

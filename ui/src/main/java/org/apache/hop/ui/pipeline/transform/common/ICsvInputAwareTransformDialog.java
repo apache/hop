@@ -22,8 +22,10 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -72,22 +74,19 @@ public interface ICsvInputAwareTransformDialog {
     final String delimiter = getPipelineMeta().environmentSubstitute( meta.getDelimiter() );
     final String enclosure = getPipelineMeta().environmentSubstitute( meta.getEnclosure() );
 
-    //TODO: refactor
-    //final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
-
-    //TODO: refactor
+    final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
 
     // Read a line of data to determine the number of rows...
-/*    final String line = TextFileInputUtils.getLine( getLogChannel(), reader, encodingType, meta.getFileFormatTypeNr(),
+    final String line = TextFileLineUtil.getLine( getLogChannel(), reader, encodingType, meta.getFileFormatTypeNr(),
       new StringBuilder( 1000 ) );
     if ( !StringUtils.isBlank( line ) ) {
-      fieldNames = CsvInput.guessStringsFromLine( getLogChannel(), line, delimiter, enclosure,
+      fieldNames = TextFileLineUtil.guessStringsFromLine( getLogChannel(), line, delimiter, enclosure,
         meta.getEscapeCharacter() );
     }
     if ( Utils.isEmpty( fieldNames ) ) {
       logError( BaseMessages.getString( "Dialog.ErrorGettingFields.Message" ) );
       return fieldNames;
-    }*/
+    }
 
     // Massage field names
     for ( int i = 0; i < fieldNames.length; i++ ) {

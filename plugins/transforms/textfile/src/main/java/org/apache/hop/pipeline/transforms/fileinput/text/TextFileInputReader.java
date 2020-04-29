@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputTransformControl;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 
 import java.io.BufferedInputStream;
 import java.io.InputStreamReader;
@@ -123,7 +124,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
     if ( meta.content.layoutPaged ) {
       for ( int i = 0; i < meta.content.nrLinesDocHeader; i++ ) {
         // Just skip these...
-        TextFileInputUtils.getLine( log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder ); // header
+        TextFileLineUtil.getLine( log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder ); // header
         // and
         // footer: not
         // wrapped
@@ -420,7 +421,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
   protected boolean tryToReadLine( boolean applyFilter ) throws HopFileException {
     String line;
-    line = TextFileInputUtils.getLine( log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder );
+    line = TextFileLineUtil.getLine( log, isr, data.encodingType, data.fileFormatType, data.lineStringBuilder );
     if ( line != null ) {
       // when there is no header, check the filter for the first line
       if ( applyFilter ) {

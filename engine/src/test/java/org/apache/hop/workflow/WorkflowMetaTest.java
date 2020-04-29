@@ -64,6 +64,7 @@ public class WorkflowMetaTest {
   @Before
   public void setUp() {
     workflowMeta = new WorkflowMeta();
+    workflowMeta.setNameSynchronizedWithFilename( false );
     // prepare
     listener = mock( IContentChangedListener.class );
     workflowMeta.addContentChangedListener( listener );
@@ -195,6 +196,7 @@ public class WorkflowMetaTest {
 
   private boolean testEquals( String name, String filename ) {
     WorkflowMeta workflowMeta2 = new WorkflowMeta();
+    workflowMeta2.setNameSynchronizedWithFilename( false );
     workflowMeta2.setName( name );
     workflowMeta2.setFilename( filename );
     return workflowMeta.equals( workflowMeta2 );

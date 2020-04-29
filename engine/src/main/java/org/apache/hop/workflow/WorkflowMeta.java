@@ -90,6 +90,8 @@ import java.util.Map;
 public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<WorkflowMeta>,
   IXml, IResourceExport, ILoggingObject, IHasFilename {
 
+  public static final String WORKFLOW_EXTENSION = ".hwf";
+
   private static Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "workflow";
@@ -171,6 +173,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   @Override
   public void clear() {
+    nameSynchronizedWithFilename=true;
+
     actionCopies = new ArrayList<>();
     workflowHops = new ArrayList<>();
 
@@ -359,6 +363,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     }
   }
 
+  protected String getExtension() {
+    return WORKFLOW_EXTENSION;
+  }
+
   /**
    * Clears the different changed flags of the workflow.
    */
@@ -406,78 +414,74 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public String getXml() {
 
-    Props props = null;
-    if ( Props.isInitialized() ) {
-      props = Props.getInstance();
-    }
+    StringBuilder xml = new StringBuilder( 500 );
 
-    StringBuilder retval = new StringBuilder( 500 );
+    xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    retval.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "name_sync_with_filename", nameSynchronizedWithFilename ) );
 
-    retval.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) );
-
-    retval.append( "  " ).append( XmlHandler.addTagValue( "description", description ) );
-    retval.append( "  " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
-    retval.append( "  " ).append( XmlHandler.addTagValue( "workflow_version", workflowVersion ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "description", description ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "workflow_version", workflowVersion ) );
     if ( workflowStatus >= 0 ) {
-      retval.append( "  " ).append( XmlHandler.addTagValue( "workflow_status", workflowStatus ) );
+      xml.append( "  " ).append( XmlHandler.addTagValue( "workflow_status", workflowStatus ) );
     }
 
-    retval.append( "  " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
-    retval.append( "  " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
-    retval.append( "  " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
-    retval.append( "  " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "created_user", createdUser ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "created_date", XmlHandler.date2string( createdDate ) ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "modified_user", modifiedUser ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "modified_date", XmlHandler.date2string( modifiedDate ) ) );
 
-    retval.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+    xml.append( "    " ).append( XmlHandler.openTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
     String[] parameters = listParameters();
     for ( int idx = 0; idx < parameters.length; idx++ ) {
-      retval.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
+      xml.append( "      " ).append( XmlHandler.openTag( "parameter" ) ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "name", parameters[ idx ] ) );
       try {
-        retval.append( "        " )
+        xml.append( "        " )
           .append( XmlHandler.addTagValue( "default_value", getParameterDefault( parameters[ idx ] ) ) );
-        retval.append( "        " )
+        xml.append( "        " )
           .append( XmlHandler.addTagValue( "description", getParameterDescription( parameters[ idx ] ) ) );
       } catch ( UnknownParamException e ) {
         // skip the default value and/or description. This exception should never happen because we use listParameters()
         // above.
       }
-      retval.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
+      xml.append( "      " ).append( XmlHandler.closeTag( "parameter" ) ).append( Const.CR );
     }
-    retval.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
+    xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
 
 
-    retval.append( "   " ).append( XmlHandler.addTagValue( "pass_batchid", batchIdPassed ) );
+    xml.append( "   " ).append( XmlHandler.addTagValue( "pass_batchid", batchIdPassed ) );
 
-    retval.append( "  " ).append( XmlHandler.openTag( "actions" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.openTag( "actions" ) ).append( Const.CR );
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionCopy jge = getAction( i );
-      retval.append( jge.getXml() );
+      xml.append( jge.getXml() );
     }
-    retval.append( "  " ).append( XmlHandler.closeTag( "actions" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.closeTag( "actions" ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XmlHandler.openTag( "hops" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.openTag( "hops" ) ).append( Const.CR );
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
-      retval.append( hi.getXml() );
+      xml.append( hi.getXml() );
     }
-    retval.append( "  " ).append( XmlHandler.closeTag( "hops" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.closeTag( "hops" ) ).append( Const.CR );
 
-    retval.append( "  " ).append( XmlHandler.openTag( "notepads" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.openTag( "notepads" ) ).append( Const.CR );
     for ( int i = 0; i < nrNotes(); i++ ) {
       NotePadMeta ni = getNote( i );
-      retval.append( ni.getXml() );
+      xml.append( ni.getXml() );
     }
-    retval.append( "  " ).append( XmlHandler.closeTag( "notepads" ) ).append( Const.CR );
+    xml.append( "  " ).append( XmlHandler.closeTag( "notepads" ) ).append( Const.CR );
 
     // Also store the attribute groups
     //
-    retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
+    xml.append( AttributesUtil.getAttributesXml( attributesMap ) );
 
-    retval.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
+    xml.append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
 
-    return XmlFormatter.format( retval.toString() );
+    return XmlFormatter.format( xml.toString() );
   }
 
   /**
@@ -573,7 +577,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
       // get workflow info:
       //
-      setName( XmlHandler.getTagValue( workflowNode, "name" ) );
+      this.name = XmlHandler.getTagValue( workflowNode, "name" ) ;
+
+      nameSynchronizedWithFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( workflowNode, "name_sync_with_filename" )  );
 
       // description
       description = XmlHandler.getTagValue( workflowNode, "description" );

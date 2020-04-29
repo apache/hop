@@ -94,8 +94,8 @@ public interface IGetFieldsCapableTransformDialog<TransformMetaType extends Base
 
   default List<String> getNewFieldNames( final String[] incomingFieldNames ) {
     final Set<String> fieldNamesInTable = new HashSet();
-    for ( int i = 0; i < getFieldsTable().table.getItemCount(); i++ ) {
-      final TableItem item = getFieldsTable().table.getItem( i );
+    for ( int i = 0; i < getFieldsTable().nrNonEmpty(); i++ ) {
+      final TableItem item = getFieldsTable().getNonEmpty( i );
       int fieldNameIndex = getFieldsTable().hasIndexColumn() ? 1 : 0;
       fieldNamesInTable.add( item.getText( fieldNameIndex ) );
     }

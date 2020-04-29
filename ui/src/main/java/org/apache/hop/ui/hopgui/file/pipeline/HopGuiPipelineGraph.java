@@ -3344,15 +3344,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineBeforeSave.id, pipelineMeta );
 
       if ( StringUtils.isEmpty( pipelineMeta.getFilename() ) ) {
-        throw new HopException( "Please give the pipeline a filename" );
+        throw new HopException( "No filename: please specify a filename for this pipeline" );
       }
+
       String xml = pipelineMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( pipelineMeta.getFilename(), false );
       try {
         out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         pipelineMeta.clearChanged();
-        redraw();
+        updateGui();
+        HopDataOrchestrationPerspective.getInstance().updateTabs();
       } finally {
         out.flush();
         out.close();
@@ -3366,8 +3368,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void saveAs( String filename ) throws HopException {
-    pipelineMeta.setFilename( filename );
-    save();
+
+    try {
+      FileObject fileObject = HopVfs.getFileObject( filename );
+      if ( fileObject.exists() ) {
+        MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+        box.setText( "Overwrite?" );
+        box.setMessage( "Are you sure you want to overwrite file '" + filename + "'?" );
+        int answer = box.open();
+        if ( ( answer & SWT.YES ) == 0 ) {
+          return;
+        }
+      }
+
+      pipelineMeta.setFilename( filename );
+      save();
+    } catch ( Exception e ) {
+      new HopException( "Error validating file existence for '" + filename + "'", e );
+    }
+
   }
 
   public void close() {

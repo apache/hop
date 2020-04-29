@@ -81,23 +81,8 @@ public class HopLogLayout {
         }
 
         if ( i == 0 && message.isError() ) {
-          BuildVersion buildVersion = BuildVersion.getInstance();
           line.append( ERROR_STRING );
-          line.append( " (version " );
-          line.append( buildVersion.getVersion() );
-          if ( !Utils.isEmpty( buildVersion.getRevision() ) ) {
-            line.append( ", build " );
-            line.append( buildVersion.getRevision() );
-          }
-          if ( !Utils.isEmpty( buildVersion.getBuildDate() ) ) {
-            line.append( " from " );
-            line.append( buildVersion.getBuildDate() );
-          }
-          if ( !Utils.isEmpty( buildVersion.getBuildUser() ) ) {
-            line.append( " by " );
-            line.append( buildVersion.getBuildUser() );
-          }
-          line.append( ") : " );
+          line.append( ": " );
         }
 
         line.append( parts[ i ] );

@@ -60,6 +60,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
+import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -2780,29 +2781,29 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           // Skip the header lines first if more then one, it helps us position
           if ( meta.content.layoutPaged && meta.content.nrLinesDocHeader > 0 ) {
             int skipped = 0;
-            String line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+            String line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
             while ( line != null && skipped < meta.content.nrLinesDocHeader - 1 ) {
               skipped++;
-              line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+              line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
             }
           }
 
           // Skip the header lines first if more then one, it helps us position
           if ( meta.content.header && meta.content.nrHeaderLines > 0 ) {
             int skipped = 0;
-            String line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+            String line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
             while ( line != null && skipped < meta.content.nrHeaderLines - 1 ) {
               skipped++;
-              line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+              line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
             }
           }
         }
 
-        String line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+        String line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
         while ( line != null && ( linenr < maxnr || nrlines == 0 ) ) {
           retval.add( line );
           linenr++;
-          line = TextFileInputUtils.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
+          line = TextFileLineUtil.getLine( log, reader, encodingType, fileFormatType, lineStringBuilder );
         }
       } catch ( Exception e ) {
         throw new HopException( BaseMessages.getString( PKG, "TextFileInputDialog.Exception.ErrorGettingFirstLines",

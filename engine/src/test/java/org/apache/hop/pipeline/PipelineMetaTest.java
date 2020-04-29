@@ -205,9 +205,11 @@ public class PipelineMetaTest {
   @Test
   public void testCompare() throws Exception {
     PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setNameSynchronizedWithFilename( false );
     pipelineMeta.setFilename( "aFile" );
     pipelineMeta.setName( "aName" );
     PipelineMeta pipelineMeta2 = new PipelineMeta();
+    pipelineMeta2.setNameSynchronizedWithFilename( false );
     pipelineMeta2.setFilename( "aFile" );
     pipelineMeta2.setName( "aName" );
     assertEquals( 0, pipelineMeta.compare( pipelineMeta, pipelineMeta2 ) );
