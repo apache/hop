@@ -83,6 +83,7 @@
         <module>sortedmerge</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>syslog</module>
         <module>switchcase</module>
         <module>tablecompare</module>
         <module>tableexists</module>
@@ -93,6 +94,7 @@
         <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
+        <module>writetolog</module>
     </modules>
 
 </project>

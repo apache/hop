@@ -117,6 +117,7 @@
         <module>sql</module>
         <module>streamlookup</module>
         <module>switchcase</module>
+        <module>syslog</module>
         <module>tablecompare</module>
         <module>tableexists</module>
         <module>tableoutput</module>
@@ -126,6 +127,7 @@
         <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
+        <module>writetolog</module>
       </modules>
     </profile>
 
