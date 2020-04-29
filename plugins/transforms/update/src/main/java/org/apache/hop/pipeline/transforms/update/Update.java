@@ -50,9 +50,6 @@ import java.util.ArrayList;
 public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITransform<UpdateMeta, UpdateData> {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
 
-  private UpdateMeta meta;
-  private UpdateData data;
-
   public Update(TransformMeta transformMeta, UpdateMeta meta, UpdateData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

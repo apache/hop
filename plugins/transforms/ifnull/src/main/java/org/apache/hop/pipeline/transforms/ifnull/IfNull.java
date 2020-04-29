@@ -49,9 +49,6 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
 
   private static final Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
 
-  //private IfNullMeta meta;
-  //private IfNullData data;
-
   public IfNull( TransformMeta transformMeta, IfNullMeta meta, IfNullData data , int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

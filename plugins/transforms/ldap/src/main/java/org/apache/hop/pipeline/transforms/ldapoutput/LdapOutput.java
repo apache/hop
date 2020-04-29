@@ -46,9 +46,6 @@ import java.util.List;
 public class LdapOutput extends BaseTransform<LdapOutputMeta,LdapOutputData> implements ITransform<LdapOutputMeta,LdapOutputData> {
   private static Class<?> PKG = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private LdapOutputMeta meta;
-  private LdapOutputData data;
-
   public LdapOutput( TransformMeta transformMeta, LdapOutputMeta meta,  LdapOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

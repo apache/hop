@@ -39,9 +39,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class NumberRange extends BaseTransform implements ITransform {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
 
-  private NumberRangeData data;
-  private NumberRangeMeta meta;
-
   private NumberRangeSet numberRange;
 
   /**

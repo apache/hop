@@ -49,9 +49,6 @@ import java.sql.ResultSet;
 public class TableCompare extends BaseTransform implements ITransform {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
 
-  private TableCompareMeta meta;
-  private TableCompareData data;
-
   public TableCompare( TransformMeta transformMeta, TableCompareMeta meta, TableCompareData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

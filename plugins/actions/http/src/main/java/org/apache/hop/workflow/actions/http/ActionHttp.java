@@ -382,9 +382,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
     URL server = null;
 
-    String beforeProxyHost = System.getProperty( "http.proxyHost" );
-    String beforeProxyPort = System.getProperty( "http.proxyPort" );
-    String beforeNonProxyHosts = System.getProperty( "http.nonProxyHosts" );
+    String beforeProxyHost = getVariable( "http.proxyHost" );
+    String beforeProxyPort = getVariable( "http.proxyPort" );
+    String beforeNonProxyHosts = getVariable( "http.nonProxyHosts" );
 
     for ( int i = 0; i < resultRows.size() && result.getNrErrors() == 0; i++ ) {
       RowMetaAndData row = resultRows.get( i );

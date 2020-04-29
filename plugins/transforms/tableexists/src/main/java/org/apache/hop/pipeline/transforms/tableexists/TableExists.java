@@ -46,9 +46,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 public class TableExists extends BaseTransform implements ITransform {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private TableExistsMeta meta;
-  private TableExistsData data;
-
   public TableExists( TransformMeta transformMeta, TableExistsMeta meta, TableExistsData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
