@@ -418,14 +418,13 @@ public class DataSetDialog extends Dialog implements IMetaStoreDialog {
       TableItem item = wFieldMapping.getNonEmpty( i );
       int colnr = 1;
       String fieldName = item.getText( colnr++ );
-      String columnName = item.getText( colnr++ );
       int type = ValueMetaFactory.getIdForValueMeta( item.getText( colnr++ ) );
       String format = item.getText( colnr++ );
       int length = Const.toInt( item.getText( colnr++ ), -1 );
       int precision = Const.toInt( item.getText( colnr++ ), -1 );
       String comment = item.getText( colnr++ );
 
-      DataSetField field = new DataSetField( fieldName, columnName, type, length, precision, comment, format );
+      DataSetField field = new DataSetField( fieldName, type, length, precision, comment, format );
       set.getFields().add( field );
     }
 
