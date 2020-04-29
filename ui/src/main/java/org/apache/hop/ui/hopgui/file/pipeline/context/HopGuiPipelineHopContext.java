@@ -20,34 +20,34 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.hopgui.file.workflow.context;
+package org.apache.hop.ui.hopgui.file.pipeline.context;
 
-import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
-import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.pipeline.PipelineHopMeta;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements IGuiContextHandler {
+public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
-  public static final String CONTEXT_ID = "HopGuiWorkflowNoteContext";
+  public static final String CONTEXT_ID = "HopGuiPipelineHopContext";
 
-  private WorkflowMeta workflowMeta;
-  private NotePadMeta notePadMeta;
-  private HopGuiWorkflowGraph workflowGraph;
+  private PipelineMeta pipelineMeta;
+  private PipelineHopMeta hopMeta;
+  private HopGuiPipelineGraph pipelineGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiWorkflowNoteContext> lambdaBuilder;
+  private GuiActionLambdaBuilder<HopGuiPipelineHopContext> lambdaBuilder;
 
-  public HopGuiWorkflowNoteContext( WorkflowMeta workflowMeta, NotePadMeta notePadMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
-    this.workflowMeta = workflowMeta;
-    this.notePadMeta = notePadMeta;
-    this.workflowGraph = workflowGraph;
+  public HopGuiPipelineHopContext( PipelineMeta pipelineMeta, PipelineHopMeta hopMeta, HopGuiPipelineGraph pipelineGraph, Point click ) {
+    this.pipelineMeta = pipelineMeta;
+    this.hopMeta = hopMeta;
+    this.pipelineGraph = pipelineGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
   }
@@ -57,7 +57,8 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
   }
 
   /**
-   * Create a list of supported actions on a workflow note.
+   * Create a list of supported actions on a pipeline.
+   * These are picked up from the annotations, mostly in PipelineGraph. Plugins can add actions as well.
    *
    * @return The list of supported actions
    */
@@ -69,43 +70,44 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     List<GuiAction> pluginActions = getPluginActions( true );
     if ( pluginActions != null ) {
       for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, this, workflowGraph ) );
+        actions.add( lambdaBuilder.createLambda( pluginAction, this, pipelineGraph ) );
       }
     }
 
     return actions;
   }
 
+
   /**
-   * Gets workflowMeta
+   * Gets pipelineMeta
    *
-   * @return value of workflowMeta
+   * @return value of pipelineMeta
    */
-  public WorkflowMeta getWorkflowMeta() {
-    return workflowMeta;
+  public PipelineMeta getPipelineMeta() {
+    return pipelineMeta;
   }
 
   /**
-   * @param workflowMeta The workflowMeta to set
+   * @param pipelineMeta The pipelineMeta to set
    */
-  public void setWorkflowMeta( WorkflowMeta workflowMeta ) {
-    this.workflowMeta = workflowMeta;
+  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+    this.pipelineMeta = pipelineMeta;
   }
 
   /**
-   * Gets notePadMeta
+   * Gets hopMeta
    *
-   * @return value of notePadMeta
+   * @return value of hopMeta
    */
-  public NotePadMeta getNotePadMeta() {
-    return notePadMeta;
+  public PipelineHopMeta getHopMeta() {
+    return hopMeta;
   }
 
   /**
-   * @param notePadMeta The notePadMeta to set
+   * @param hopMeta The hopMeta to set
    */
-  public void setNotePadMeta( NotePadMeta notePadMeta ) {
-    this.notePadMeta = notePadMeta;
+  public void setHopMeta( PipelineHopMeta hopMeta ) {
+    this.hopMeta = hopMeta;
   }
 
   /**
@@ -113,15 +115,15 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
    *
    * @return value of pipelineGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
-    return workflowGraph;
+  public HopGuiPipelineGraph getPipelineGraph() {
+    return pipelineGraph;
   }
 
   /**
-   * @param workflowGraph The pipelineGraph to set
+   * @param pipelineGraph The pipelineGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
-    this.workflowGraph = workflowGraph;
+  public void setPipelineGraph( HopGuiPipelineGraph pipelineGraph ) {
+    this.pipelineGraph = pipelineGraph;
   }
 
   /**

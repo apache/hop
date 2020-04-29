@@ -719,8 +719,8 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     GetSubFoldersMeta oneMeta = new GetSubFoldersMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta =
-      PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
       BaseMessages.getString( PKG, "GetSubFoldersDialog.PreviewSize.DialogTitle" ),

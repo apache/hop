@@ -49,11 +49,11 @@ public class HopGuiWorkflowActionDelegate {
 
 
   private HopGui hopGui;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
 
-  public HopGuiWorkflowActionDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowActionDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
   }
 
   public ActionCopy newJobEntry( WorkflowMeta workflowMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
@@ -123,7 +123,7 @@ public class HopGuiWorkflowActionDelegate {
             workflowMeta.renameActionIfNameCollides( jge );
 
             hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
-            jobGraph.updateGui();
+            workflowGraph.updateGui();
             return jge;
           } else {
             return null;
@@ -139,7 +139,7 @@ public class HopGuiWorkflowActionDelegate {
           jge.setNr( 0 );
           workflowMeta.addAction( jge );
           hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
-          jobGraph.updateGui();
+          workflowGraph.updateGui();
           return jge;
         }
       } else {
@@ -202,7 +202,7 @@ public class HopGuiWorkflowActionDelegate {
 
           ActionCopy after = (ActionCopy) action.clone();
           hopGui.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
-          jobGraph.updateGui();
+          workflowGraph.updateGui();
         }
       } else {
         MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
@@ -229,7 +229,7 @@ public class HopGuiWorkflowActionDelegate {
     for ( int i = workflow.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflow.getWorkflowHop( i );
       for ( int j = 0; j < actions.size() && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromEntry().equals( actions.get( j ) ) || hi.getToEntry().equals( actions.get( j ) ) ) {
+        if ( hi.getFromAction().equals( actions.get( j ) ) || hi.getToAction().equals( actions.get( j ) ) ) {
           int idx = workflow.indexOfWorkflowHop( hi );
           jobHops.add( (WorkflowHopMeta) hi.clone() );
           hopIndexes[ hopIndex ] = idx;
@@ -253,13 +253,13 @@ public class HopGuiWorkflowActionDelegate {
     }
     hopGui.undoDelegate.addUndoDelete( workflow, actions.toArray( new ActionCopy[ 0 ] ), positions );
 
-    jobGraph.updateGui();
+    workflowGraph.updateGui();
   }
 
   public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
-      if ( hi.getFromEntry().equals( action ) || hi.getToEntry().equals( action ) ) {
+      if ( hi.getFromAction().equals( action ) || hi.getToAction().equals( action ) ) {
         int idx = workflowMeta.indexOfWorkflowHop( hi );
         hopGui.undoDelegate.addUndoDelete( workflowMeta, new WorkflowHopMeta[] { (WorkflowHopMeta) hi.clone() }, new int[] { idx } );
         workflowMeta.removeWorkflowHop( idx );
@@ -270,7 +270,7 @@ public class HopGuiWorkflowActionDelegate {
     workflowMeta.removeAction( pos );
     hopGui.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { action }, new int[] { pos } );
 
-    jobGraph.updateGui();
+    workflowGraph.updateGui();
   }
 
   public void dupeJobEntry( WorkflowMeta workflowMeta, ActionCopy action ) {
@@ -294,7 +294,7 @@ public class HopGuiWorkflowActionDelegate {
 
     workflowMeta.addAction( copyOfAction );
 
-    jobGraph.updateGui();
+    workflowGraph.updateGui();
   }
 
 

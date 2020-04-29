@@ -35,15 +35,15 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 public class HopGuiWorkflowUndoDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;
 
   /**
    * @param hopGui
    */
-  public HopGuiWorkflowUndoDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowUndoDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
   }
 
   public void undoJobAction( IHopFileTypeHandler handler, WorkflowMeta workflowMeta ) {
@@ -116,8 +116,8 @@ public class HopGuiWorkflowUndoDelegate {
           WorkflowHopMeta hopMeta = (WorkflowHopMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           // Build a new hop:
-          ActionCopy from = workflowMeta.findAction( hopMeta.getFromEntry().getName() );
-          ActionCopy to = workflowMeta.findAction( hopMeta.getToEntry().getName() );
+          ActionCopy from = workflowMeta.findAction( hopMeta.getFromAction().getName() );
+          ActionCopy to = workflowMeta.findAction( hopMeta.getToAction().getName() );
           WorkflowHopMeta newHopMeta = new WorkflowHopMeta( from, to );
           workflowMeta.addWorkflowHop( idx, newHopMeta );
         }
@@ -328,19 +328,19 @@ public class HopGuiWorkflowUndoDelegate {
   }
 
   /**
-   * Gets jobGraph
+   * Gets workflowGraph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getJobGraph() {
-    return jobGraph;
+    return workflowGraph;
   }
 
   /**
-   * @param jobGraph The jobGraph to set
+   * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph jobGraph ) {
-    this.jobGraph = jobGraph;
+  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
   }
 
   /**

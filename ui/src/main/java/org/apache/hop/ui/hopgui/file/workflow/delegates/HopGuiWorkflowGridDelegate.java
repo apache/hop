@@ -58,7 +58,7 @@ public class HopGuiWorkflowGridDelegate {
   public static final long UPDATE_TIME_VIEW = 1000L;
   private static final String STRING_CHEF_LOG_TREE_NAME = "Workflow Log Tree";
 
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
   private CTabItem jobGridTab;
   private Tree wTree;
 
@@ -69,11 +69,11 @@ public class HopGuiWorkflowGridDelegate {
 
   /**
    * @param hopGui
-   * @param jobGraph
+   * @param workflowGraph
    */
-  public HopGuiWorkflowGridDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowGridDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
   }
 
   /**
@@ -83,18 +83,18 @@ public class HopGuiWorkflowGridDelegate {
 
     // First, see if we need to add the extra view...
     //
-    if ( jobGraph.extraViewComposite == null || jobGraph.extraViewComposite.isDisposed() ) {
-      jobGraph.addExtraView();
+    if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
+      workflowGraph.addExtraView();
     } else {
       if ( jobGridTab != null && !jobGridTab.isDisposed() ) {
         // just set this one active and get out...
         //
-        jobGraph.extraViewTabFolder.setSelection( jobGridTab );
+        workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
         return;
       }
     }
 
-    jobGridTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
+    jobGridTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
     jobGridTab.setImage( GuiResource.getInstance().getImageShowGrid() );
     jobGridTab.setText( BaseMessages.getString( PKG, "HopGui.PipelineGraph.GridTab.Name" ) );
 
@@ -102,7 +102,7 @@ public class HopGuiWorkflowGridDelegate {
 
     jobGridTab.setControl( wTree );
 
-    jobGraph.extraViewTabFolder.setSelection( jobGridTab );
+    workflowGraph.extraViewTabFolder.setSelection( jobGridTab );
   }
 
   /**
@@ -111,7 +111,7 @@ public class HopGuiWorkflowGridDelegate {
   private void addControls() {
 
     // Create the tree table...
-    wTree = new Tree( jobGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
+    wTree = new Tree( workflowGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
     wTree.setHeaderVisible( true );
     TreeMemory.addTreeListener( wTree, STRING_CHEF_LOG_TREE_NAME );
 
@@ -150,10 +150,10 @@ public class HopGuiWorkflowGridDelegate {
     fdTree.bottom = new FormAttachment( 100, 0 );
     wTree.setLayoutData( fdTree );
 
-    final Timer tim = new Timer( "JobGrid: " + jobGraph.getMeta().getName() );
+    final Timer tim = new Timer( "JobGrid: " + workflowGraph.getMeta().getName() );
     TimerTask timtask = new TimerTask() {
       public void run() {
-        Display display = jobGraph.getDisplay();
+        Display display = workflowGraph.getDisplay();
         if ( display != null && !display.isDisposed() ) {
           display.asyncExec( new Runnable() {
             public void run() {
@@ -172,7 +172,7 @@ public class HopGuiWorkflowGridDelegate {
     };
     tim.schedule( timtask, 10L, 2000L ); // refresh every 2 seconds...
 
-    jobGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( new DisposeListener() {
+    workflowGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( new DisposeListener() {
       public void widgetDisposed( DisposeEvent disposeEvent ) {
         tim.cancel();
       }
@@ -271,7 +271,7 @@ public class HopGuiWorkflowGridDelegate {
         treeItem.setExpanded( true );
       }
     } catch ( Exception e ) {
-      jobGraph.getLogChannel().logError( Const.getStackTracker( e ) );
+      workflowGraph.getLogChannel().logError( Const.getStackTracker( e ) );
     }
   }
 

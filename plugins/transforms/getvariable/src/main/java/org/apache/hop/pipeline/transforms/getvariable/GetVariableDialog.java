@@ -338,7 +338,8 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
       GetVariableMeta oneMeta = new GetVariableMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+        oneMeta, wTransformName.getText() );
 
       // We always just want to preview a single output row
       //

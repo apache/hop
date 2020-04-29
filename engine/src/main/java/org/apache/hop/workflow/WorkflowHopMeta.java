@@ -38,7 +38,7 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
+public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneable {
   private static Class<?> PKG = WorkflowHopMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_FROM_TAG = "from";
@@ -48,7 +48,13 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
   private boolean unconditional;
 
   public WorkflowHopMeta() {
-    this( (ActionCopy) null, (ActionCopy) null );
+    super( false, null, null, true, true, false );
+  }
+
+  public WorkflowHopMeta( WorkflowHopMeta hop ) {
+    super( hop.isSplit(), hop.getFromAction(), hop.getToAction(), hop.isEnabled(), hop.hasChanged(), hop.isErrorHop() );
+    evaluation = hop.evaluation;
+    unconditional = hop.unconditional;
   }
 
   public WorkflowHopMeta( ActionCopy from, ActionCopy to ) {
@@ -80,6 +86,18 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     }
   }
 
+  @Override public WorkflowHopMeta clone() {
+    return new WorkflowHopMeta( this );
+  }
+
+  @Override public String toString() {
+    String strFrom = ( this.from == null ) ? "(empty)" : this.from.getName();
+    String strTo = ( this.to == null ) ? "(empty)" : this.to.getName();
+    String strEnabled = enabled ? "enabled" : "disabled";
+    String strEvaluation = unconditional ? "unconditional" : evaluation ? "success" : "failure";
+    return strFrom + " --> " + strTo + " [" + strEnabled + ", " + strEvaluation + ")";
+  }
+
   private ActionCopy searchEntry( List<ActionCopy> actions, String name ) {
     for ( ActionCopy action : actions ) {
       if ( action.getName().equalsIgnoreCase( name ) ) {
@@ -89,34 +107,33 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     return null;
   }
 
-  public WorkflowHopMeta( Node hopnode, WorkflowMeta workflow ) throws HopXmlException {
+  public WorkflowHopMeta( Node hopNode, WorkflowMeta workflow ) throws HopXmlException {
     try {
-      String from_name = XmlHandler.getTagValue( hopnode, XML_FROM_TAG );
-      String to_name = XmlHandler.getTagValue( hopnode, XML_TO_TAG );
-      String sfrom_nr = XmlHandler.getTagValue( hopnode, "from_nr" );
-      String sto_nr = XmlHandler.getTagValue( hopnode, "to_nr" );
-      String senabled = XmlHandler.getTagValue( hopnode, "enabled" );
-      String sevaluation = XmlHandler.getTagValue( hopnode, "evaluation" );
-      String sunconditional = XmlHandler.getTagValue( hopnode, "unconditional" );
+      String fromName = XmlHandler.getTagValue( hopNode, XML_FROM_TAG );
+      String toName = XmlHandler.getTagValue( hopNode, XML_TO_TAG );
+      String sFromNr = XmlHandler.getTagValue( hopNode, "from_nr" );
+      String sToNr = XmlHandler.getTagValue( hopNode, "to_nr" );
+      String sEnabled = XmlHandler.getTagValue( hopNode, "enabled" );
+      String sEvaluation = XmlHandler.getTagValue( hopNode, "evaluation" );
+      String sUnconditional = XmlHandler.getTagValue( hopNode, "unconditional" );
 
-      int from_nr, to_nr;
-      from_nr = Const.toInt( sfrom_nr, 0 );
-      to_nr = Const.toInt( sto_nr, 0 );
+      int fromNr = Const.toInt( sFromNr, 0 );
+      int toNr = Const.toInt( sToNr, 0 );
 
-      this.from = workflow.findAction( from_name, from_nr );
-      this.to = workflow.findAction( to_name, to_nr );
+      this.from = workflow.findAction( fromName, fromNr );
+      this.to = workflow.findAction( toName, toNr );
 
-      if ( senabled == null ) {
+      if ( sEnabled == null ) {
         enabled = true;
       } else {
-        enabled = "Y".equalsIgnoreCase( senabled );
+        enabled = "Y".equalsIgnoreCase( sEnabled );
       }
-      if ( sevaluation == null ) {
+      if ( sEvaluation == null ) {
         evaluation = true;
       } else {
-        evaluation = "Y".equalsIgnoreCase( sevaluation );
+        evaluation = "Y".equalsIgnoreCase( sEvaluation );
       }
-      unconditional = "Y".equalsIgnoreCase( sunconditional );
+      unconditional = "Y".equalsIgnoreCase( sUnconditional );
     } catch ( Exception e ) {
       throw new HopXmlException(
         BaseMessages.getString( PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfoXML" ), e );
@@ -176,17 +193,6 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     return unconditional;
   }
 
-  public void setSplit( boolean split ) {
-    if ( this.split != split ) {
-      setChanged();
-    }
-    this.split = split;
-  }
-
-  public boolean isSplit() {
-    return split;
-  }
-
   public String getDescription() {
     if ( isUnconditional() ) {
       return BaseMessages.getString( PKG, "WorkflowHopMeta.Msg.ExecNextActionUncondition" );
@@ -199,26 +205,22 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> {
     }
   }
 
-  public String toString() {
-    return getDescription();
-    // return from_entry.getName()+"."+from_entry.getNr()+" --> "+to_entry.getName()+"."+to_entry.getNr();
-  }
 
-  public ActionCopy getFromEntry() {
+  public ActionCopy getFromAction() {
     return this.from;
   }
 
-  public void setFromEntry( ActionCopy fromEntry ) {
-    this.from = fromEntry;
+  public void setFromAction( ActionCopy fromAction ) {
+    this.from = fromAction;
     changed = true;
   }
 
-  public ActionCopy getToEntry() {
+  public ActionCopy getToAction() {
     return this.to;
   }
 
-  public void setToEntry( ActionCopy toEntry ) {
-    this.to = toEntry;
+  public void setToAction( ActionCopy toAction ) {
+    this.to = toAction;
     changed = true;
   }
 

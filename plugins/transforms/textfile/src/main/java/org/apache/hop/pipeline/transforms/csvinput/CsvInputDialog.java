@@ -902,10 +902,8 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     CsvInputMeta oneMeta = new CsvInputMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta =
-      PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, oneMeta, wTransformName.getText() );
-    pipelineMeta.getVariable( "Internal.Pipeline.Filename.Directory" );
-    previewMeta.getVariable( "Internal.Pipeline.Filename.Directory" );
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
       new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString(
@@ -976,7 +974,8 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
         meta.getFields( rowMeta, transformName, null, null, pipelineMeta, metaStore );
 
-        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, meta, transformName );
+        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+          meta, transformName );
         final Pipeline pipeline = new LocalPipelineEngine( previewPipelineMeta );
         pipeline.prepareExecution();
         ITransform transform = pipeline.getRunThread( transformName, 0 );

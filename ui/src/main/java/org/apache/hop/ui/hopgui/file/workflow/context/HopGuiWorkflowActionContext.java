@@ -112,7 +112,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
   /**
    * Gets workflow graph
    *
-   * @return value of jobGraph
+   * @return value of workflowGraph
    */
   public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;

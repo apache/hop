@@ -73,7 +73,7 @@ public class HopGuiWorkflowMetricsDelegate {
   // private static final LogWriter log = LogWriter.getInstance();
 
   private HopGui hopGui;
-  private HopGuiWorkflowGraph jobGraph;
+  private HopGuiWorkflowGraph workflowGraph;
 
   private CTabItem jobMetricsTab;
 
@@ -88,34 +88,34 @@ public class HopGuiWorkflowMetricsDelegate {
 
   /**
    * @param hopGui
-   * @param jobGraph
+   * @param workflowGraph
    */
-  public HopGuiWorkflowMetricsDelegate( HopGui hopGui, HopGuiWorkflowGraph jobGraph ) {
+  public HopGuiWorkflowMetricsDelegate( HopGui hopGui, HopGuiWorkflowGraph workflowGraph ) {
     this.hopGui = hopGui;
-    this.jobGraph = jobGraph;
+    this.workflowGraph = workflowGraph;
   }
 
   public void addJobMetrics() {
     // First, see if we need to add the extra view...
     //
-    if ( jobGraph.extraViewComposite == null || jobGraph.extraViewComposite.isDisposed() ) {
-      jobGraph.addExtraView();
+    if ( workflowGraph.extraViewComposite == null || workflowGraph.extraViewComposite.isDisposed() ) {
+      workflowGraph.addExtraView();
     } else {
       if ( jobMetricsTab != null && !jobMetricsTab.isDisposed() ) {
         // just set this one active and get out...
         //
-        jobGraph.extraViewTabFolder.setSelection( jobMetricsTab );
+        workflowGraph.extraViewTabFolder.setSelection( jobMetricsTab );
         return;
       }
     }
 
     // Add a pipelineMetricsTab : displays the metrics information in a graphical way...
     //
-    jobMetricsTab = new CTabItem( jobGraph.extraViewTabFolder, SWT.NONE );
+    jobMetricsTab = new CTabItem( workflowGraph.extraViewTabFolder, SWT.NONE );
     jobMetricsTab.setImage( GuiResource.getInstance().getImageGantt() );
     jobMetricsTab.setText( BaseMessages.getString( PKG, "HopGui.JobGraph.MetricsTab.Name" ) );
 
-    sMetricsComposite = new ScrolledComposite( jobGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
+    sMetricsComposite = new ScrolledComposite( workflowGraph.extraViewTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
     sMetricsComposite.setLayout( new FillLayout() );
 
     // Create a composite, slam everything on there like it was in the history tab.
@@ -136,9 +136,9 @@ public class HopGuiWorkflowMetricsDelegate {
 
     jobMetricsTab.setControl( sMetricsComposite );
 
-    jobGraph.extraViewTabFolder.setSelection( jobMetricsTab );
+    workflowGraph.extraViewTabFolder.setSelection( jobMetricsTab );
 
-    jobGraph.extraViewTabFolder.addSelectionListener( new SelectionAdapter() {
+    workflowGraph.extraViewTabFolder.addSelectionListener( new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent arg0 ) {
         layoutMetricsComposite();
@@ -190,7 +190,7 @@ public class HopGuiWorkflowMetricsDelegate {
 
       public void paintControl( PaintEvent event ) {
 
-        if ( jobGraph.getWorkflow() != null && ( jobGraph.getWorkflow().isFinished() || jobGraph.getWorkflow().isStopped() ) ) {
+        if ( workflowGraph.getWorkflow() != null && ( workflowGraph.getWorkflow().isFinished() || workflowGraph.getWorkflow().isStopped() ) ) {
           refreshImage( event.gc );
 
           if ( image != null && !image.isDisposed() ) {
@@ -274,13 +274,13 @@ public class HopGuiWorkflowMetricsDelegate {
     } else {
       jobMetricsTab.dispose();
 
-      jobGraph.checkEmptyExtraView();
+      workflowGraph.checkEmptyExtraView();
     }
   }
 
   public void updateGraph() {
 
-    jobGraph.getDisplay().asyncExec( new Runnable() {
+    workflowGraph.getDisplay().asyncExec( new Runnable() {
       public void run() {
         if ( metricsComposite != null && !metricsComposite.isDisposed() && canvas != null && !canvas.isDisposed()
           && jobMetricsTab != null && !jobMetricsTab.isDisposed() ) {
@@ -299,7 +299,7 @@ public class HopGuiWorkflowMetricsDelegate {
   }
 
   private void refreshImage( GC canvasGc ) {
-    List<MetricsDuration> durations = MetricsUtil.getAllDurations( jobGraph.getWorkflow().getLogChannelId() );
+    List<MetricsDuration> durations = MetricsUtil.getAllDurations( workflowGraph.getWorkflow().getLogChannelId() );
     if ( Utils.isEmpty( durations ) ) {
       // In case of an empty durations or null there is nothing to draw
       return;
@@ -318,7 +318,7 @@ public class HopGuiWorkflowMetricsDelegate {
       return;
     }
 
-    if ( jobGraph.getWorkflow() == null ) {
+    if ( workflowGraph.getWorkflow() == null ) {
       image = null;
       return;
     }

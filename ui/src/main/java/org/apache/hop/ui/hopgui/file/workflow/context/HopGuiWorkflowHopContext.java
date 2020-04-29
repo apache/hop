@@ -26,27 +26,28 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.workflow.WorkflowHopMeta;
+import org.apache.hop.workflow.WorkflowMeta;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements IGuiContextHandler {
+public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
-  public static final String CONTEXT_ID = "HopGuiWorkflowNoteContext";
+  public static final String CONTEXT_ID = "HopGuiWorkflowHopContext";
 
   private WorkflowMeta workflowMeta;
-  private NotePadMeta notePadMeta;
+  private WorkflowHopMeta hopMeta;
   private HopGuiWorkflowGraph workflowGraph;
   private Point click;
-  private GuiActionLambdaBuilder<HopGuiWorkflowNoteContext> lambdaBuilder;
+  private GuiActionLambdaBuilder<HopGuiWorkflowHopContext> lambdaBuilder;
 
-  public HopGuiWorkflowNoteContext( WorkflowMeta workflowMeta, NotePadMeta notePadMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
+  public HopGuiWorkflowHopContext( WorkflowMeta workflowMeta, WorkflowHopMeta hopMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
     this.workflowMeta = workflowMeta;
-    this.notePadMeta = notePadMeta;
+    this.hopMeta = hopMeta;
     this.workflowGraph = workflowGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
@@ -58,6 +59,7 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
 
   /**
    * Create a list of supported actions on a workflow note.
+   * These are picked up from the annotations, mostly in WorkflowGraph. Plugins can add actions as well.
    *
    * @return The list of supported actions
    */
@@ -93,19 +95,19 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
   }
 
   /**
-   * Gets notePadMeta
+   * Gets hopMeta
    *
-   * @return value of notePadMeta
+   * @return value of hopMeta
    */
-  public NotePadMeta getNotePadMeta() {
-    return notePadMeta;
+  public WorkflowHopMeta getHopMeta() {
+    return hopMeta;
   }
 
   /**
-   * @param notePadMeta The notePadMeta to set
+   * @param hopMeta The hopMeta to set
    */
-  public void setNotePadMeta( NotePadMeta notePadMeta ) {
-    this.notePadMeta = notePadMeta;
+  public void setHopMeta( WorkflowHopMeta hopMeta ) {
+    this.hopMeta = hopMeta;
   }
 
   /**
@@ -113,14 +115,14 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
    *
    * @return value of pipelineGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
+  public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;
   }
 
   /**
    * @param workflowGraph The pipelineGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
     this.workflowGraph = workflowGraph;
   }
 
