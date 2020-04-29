@@ -46,17 +46,15 @@ import java.sql.ResultSet;
  * @since 19-11-2009
  */
 
-public class TableCompare extends BaseTransform implements ITransform {
+public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> implements ITransform<TableCompareMeta, TableCompareData> {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
 
   public TableCompare( TransformMeta transformMeta, TableCompareMeta meta, TableCompareData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
-
   }
 
   public boolean processRow() throws HopException {
-
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
 

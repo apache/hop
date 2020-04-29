@@ -36,10 +36,14 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * Business logic for the NumberRange
  *
  */
-public class NumberRange extends BaseTransform implements ITransform {
+public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData> implements ITransform<NumberRangeMeta, NumberRangeData> {
   private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
 
   private NumberRangeSet numberRange;
+
+  public NumberRange( TransformMeta transformMeta, NumberRangeMeta meta, NumberRangeData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
+  }
 
   /**
    * Column number where the input value is stored
@@ -104,10 +108,6 @@ public class NumberRange extends BaseTransform implements ITransform {
     }
 
     return true;
-  }
-
-  public NumberRange( TransformMeta s, NumberRangeMeta meta, ITransformData data, int c, PipelineMeta t, Pipeline dis ) {
-    super( s, meta, data, c, t, dis );
   }
 
   public boolean init() {
