@@ -2915,7 +2915,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta);
 
-      if ( StringUtils.isEmpty( workflow.getFilename() ) ) {
+      if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
         throw new HopException( "Please give the workflow a filename" );
       }
       String xml = workflowMeta.getXml();
