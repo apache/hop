@@ -24,7 +24,6 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GuiOption;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
@@ -114,8 +113,6 @@ public class EnterOptionsDialog extends Dialog {
   private Text wMaxNrLogLines;
 
   private Text wMaxLogLineTimeout;
-
-  private Text wMaxNrHistLines;
 
   private Text wMiddlePct;
 
@@ -243,7 +240,6 @@ public class EnterOptionsDialog extends Dialog {
     wDefaultPreview.addSelectionListener( lsDef );
     wMaxNrLogLines.addSelectionListener( lsDef );
     wMaxLogLineTimeout.addSelectionListener( lsDef );
-    wMaxNrHistLines.addSelectionListener( lsDef );
     wGridSize.addSelectionListener( lsDef );
 
     // Detect [X] or ALT-F4 or something that kills this window...
@@ -920,23 +916,6 @@ public class EnterOptionsDialog extends Dialog {
     fdMaxLogLineTimeout.top = new FormAttachment( wlMaxLogLineTimeout, 0, SWT.CENTER );
     wMaxLogLineTimeout.setLayoutData( fdMaxLogLineTimeout );
 
-    // Max Nr of history lines
-    Label wlMaxNrHistLines = new Label( wGeneralComp, SWT.RIGHT );
-    wlMaxNrHistLines.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.MaxNrHistLinesSize.Label" ) );
-    props.setLook( wlMaxNrHistLines );
-    FormData fdlMaxNrHistLines = new FormData();
-    fdlMaxNrHistLines.left = new FormAttachment( 0, 0 );
-    fdlMaxNrHistLines.right = new FormAttachment( middle, -margin );
-    fdlMaxNrHistLines.top = new FormAttachment( wMaxLogLineTimeout, margin );
-    wlMaxNrHistLines.setLayoutData( fdlMaxNrHistLines );
-    wMaxNrHistLines = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wMaxNrHistLines.setText( Integer.toString( props.getMaxNrLinesInHistory() ) );
-    props.setLook( wMaxNrHistLines );
-    FormData fdMaxNrHistLines = new FormData();
-    fdMaxNrHistLines.left = new FormAttachment( middle, 0 );
-    fdMaxNrHistLines.right = new FormAttachment( 100, -margin );
-    fdMaxNrHistLines.top = new FormAttachment( wlMaxNrHistLines, 0, SWT.CENTER );
-    wMaxNrHistLines.setLayoutData( fdMaxNrHistLines );
 
     // Use DB Cache?
     Label wlUseCache = new Label( wGeneralComp, SWT.RIGHT );
@@ -944,7 +923,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlUseCache );
     FormData fdlUseCache = new FormData();
     fdlUseCache.left = new FormAttachment( 0, 0 );
-    fdlUseCache.top = new FormAttachment( wMaxNrHistLines, margin );
+    fdlUseCache.top = new FormAttachment( wMaxLogLineTimeout, margin );
     fdlUseCache.right = new FormAttachment( middle, -margin );
     wlUseCache.setLayoutData( fdlUseCache );
     wUseCache = new Button( wGeneralComp, SWT.CHECK );
@@ -1158,54 +1137,6 @@ public class EnterOptionsDialog extends Dialog {
 
     wGeneralTab.setControl( sGeneralComp );
 
-    // editables
-    Label refLabel = new Label( wGeneralComp, SWT.RIGHT );
-    refLabel = tooltipLbl;
-    Button lastbtn = closeAllFilesBtn;
-    for ( final GuiOption<Object> e : PropsUi.getInstance().getRegisteredEditableComponents() ) {
-      if ( e.getLabelText() == null ) {
-        continue;
-      }
-      Label wlMaxNrLogLines1 = new Label( wGeneralComp, SWT.RIGHT );
-      wlMaxNrLogLines1.setText( e.getLabelText() );
-      props.setLook( wlMaxNrLogLines1 );
-      FormData fdlMaxNrLogLinesTemp = new FormData();
-      fdlMaxNrLogLinesTemp.left = new FormAttachment( 0, 0 );
-      fdlMaxNrLogLinesTemp.right = new FormAttachment( middle, -margin );
-      fdlMaxNrLogLinesTemp.top = new FormAttachment( refLabel, margin );
-      wlMaxNrLogLines1.setLayoutData( fdlMaxNrLogLinesTemp );
-      switch ( e.getType() ) {
-        case TEXT_FIELD: // TODO: IMPLEMENT!
-          break;
-        case CHECK_BOX:
-          final Button btn = new Button( wGeneralComp, SWT.CHECK );
-          props.setLook( btn );
-          btn.setSelection( new Boolean( e.getLastValue().toString() ).booleanValue() );
-          btn.setText( e.getLabelText() );
-          FormData btnData = new FormData();
-          btnData.left = new FormAttachment( middle, 0 );
-          btnData.top = new FormAttachment( lastbtn, margin );
-          btnData.right = new FormAttachment( 100, 0 );
-          btn.setLayoutData( btnData );
-
-          btn.addSelectionListener( new SelectionListener() {
-
-            public void widgetDefaultSelected( SelectionEvent arg0 ) {
-            }
-
-            public void widgetSelected( SelectionEvent ev ) {
-              e.setValue( btn.getSelection() );
-
-            }
-          } );
-
-          lastbtn = btn;
-          break;
-        default:
-          break;
-      }
-
-    }
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -1315,9 +1246,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setDefaultPreviewSize( Const.toInt( wDefaultPreview.getText(), props.getDefaultPreviewSize() ) );
 
     props.setMaxNrLinesInLog( Const.toInt( wMaxNrLogLines.getText(), Const.MAX_NR_LOG_LINES ) );
-    props.setMaxLogLineTimeoutMinutes( Const.toInt(
-      wMaxLogLineTimeout.getText(), Const.MAX_LOG_LINE_TIMEOUT_MINUTES ) );
-    props.setMaxNrLinesInHistory( Const.toInt( wMaxNrHistLines.getText(), Const.MAX_NR_HISTORY_LINES ) );
+    props.setMaxLogLineTimeoutMinutes( Const.toInt( wMaxLogLineTimeout.getText(), Const.MAX_LOG_LINE_TIMEOUT_MINUTES ) );
 
     props.setUseDBCache( wUseCache.getSelection() );
     props.setOpenLastFile( wOpenLast.getSelection() );

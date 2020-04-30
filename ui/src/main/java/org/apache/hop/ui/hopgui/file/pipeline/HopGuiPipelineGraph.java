@@ -507,26 +507,26 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     impact = new ArrayList<>();
     impactFinished = false;
 
-    hori = canvas.getHorizontalBar();
-    vert = canvas.getVerticalBar();
+    horizontalScrollBar = canvas.getHorizontalBar();
+    verticalScrollBar = canvas.getVerticalBar();
 
-    hori.addSelectionListener( new SelectionAdapter() {
+    horizontalScrollBar.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
         redraw();
       }
     } );
-    vert.addSelectionListener( new SelectionAdapter() {
+    verticalScrollBar.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
         redraw();
       }
     } );
-    hori.setThumb( 100 );
-    vert.setThumb( 100 );
+    horizontalScrollBar.setThumb( 100 );
+    verticalScrollBar.setThumb( 100 );
 
-    hori.setVisible( true );
-    vert.setVisible( true );
+    horizontalScrollBar.setVisible( true );
+    verticalScrollBar.setVisible( true );
 
     setVisible( true );
     newProps();
@@ -913,7 +913,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               previous_transform_locations = pipelineMeta.getSelectedTransformLocations();
 
               Point p = transformMeta.getLocation();
-              iconoffset = new Point( real.x - p.x, real.y - p.y );
+              iconOffset = new Point( real.x - p.x, real.y - p.y );
             }
             redraw();
             break;
@@ -926,7 +926,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             previous_note_locations = pipelineMeta.getSelectedNoteLocations();
 
-            noteoffset = new Point( real.x - loc.x, real.y - loc.y );
+            noteOffset = new Point( real.x - loc.x, real.y - loc.y );
 
             redraw();
             break;
@@ -991,11 +991,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     NotePadMeta singleClickNote = null;
     PipelineHopMeta singleClickHop = null;
 
-    if ( iconoffset == null ) {
-      iconoffset = new Point( 0, 0 );
+    if ( iconOffset == null ) {
+      iconOffset = new Point( 0, 0 );
     }
     Point real = screen2real( e.x, e.y );
-    Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
+    Point icon = new Point( real.x - iconOffset.x, real.y - iconOffset.y );
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
     try {
@@ -1306,15 +1306,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     lastMove = real;
 
-    if ( iconoffset == null ) {
-      iconoffset = new Point( 0, 0 );
+    if ( iconOffset == null ) {
+      iconOffset = new Point( 0, 0 );
     }
-    Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
+    Point icon = new Point( real.x - iconOffset.x, real.y - iconOffset.y );
 
-    if ( noteoffset == null ) {
-      noteoffset = new Point( 0, 0 );
+    if ( noteOffset == null ) {
+      noteOffset = new Point( 0, 0 );
     }
-    Point note = new Point( real.x - noteoffset.x, real.y - noteoffset.y );
+    Point note = new Point( real.x - noteOffset.x, real.y - noteOffset.y );
 
     // Moved over an area?
     //
@@ -1948,7 +1948,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     candidate = null;
     last_hop_split = null;
     lastButton = 0;
-    iconoffset = null;
+    iconOffset = null;
     startHopTransform = null;
     endHopTransform = null;
     endHopLocation = null;
@@ -2921,13 +2921,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int gridSize =
       PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
-    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ),
+    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ),
       candidate, drop_candidate, selectionRegion, areaOwners,
       PropsUi.getInstance().getIconSize(), PropsUi.getInstance().getLineWidth(), gridSize,
       PropsUi.getInstance().getNoteFont().getName(), PropsUi.getInstance()
       .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor() );
 
-    // correct the magnifacation with the overall zoom factor
+    // correct the magnification with the overall zoom factor
     //
     float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 

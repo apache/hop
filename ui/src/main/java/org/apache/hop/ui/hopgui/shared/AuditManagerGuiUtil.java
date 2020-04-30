@@ -63,7 +63,7 @@ public class AuditManagerGuiUtil {
       while (list.getNames().size()>20) {
         list.getNames().remove( list.getNames().size()-1 );
       }
-      auditManager.storeList( list );
+      auditManager.storeList( hopGui.getNamespace(), type, list );
     } catch(Exception e) {
       LogChannel.UI.logError( "Unable to store list using audit manager with type: "+type+" in group "+hopGui.getNamespace(), e );
     }

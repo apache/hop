@@ -96,14 +96,6 @@ public class Metrics implements IMetrics {
 
   // Plugin registry...
   //
-  public static Metrics METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS", "Register all plugin extensions" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS", "Register all plugin extensions" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION_START = new Metrics(
-    MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION", "Register a plugin extension" );
-  public static Metrics METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION_STOP = new Metrics(
-    MetricsSnapshotType.STOP, "METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION", "Register a plugin extension" );
   public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START = new Metrics(
     MetricsSnapshotType.START, "METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION", "Register plugins" );
   public static Metrics METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_STOP = new Metrics(

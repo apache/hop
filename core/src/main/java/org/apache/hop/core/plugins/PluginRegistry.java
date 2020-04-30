@@ -537,24 +537,6 @@ public class PluginRegistry {
   public static synchronized void init( boolean keepCache ) throws HopPluginException {
     final PluginRegistry registry = getInstance();
 
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_START );
-
-    // Find pluginRegistry extensions
-    try {
-      registry.registerType( PluginRegistryPluginType.getInstance() );
-      List<IPlugin> plugins = registry.getPlugins( PluginRegistryPluginType.class );
-      for ( IPlugin extensionPlugin : plugins ) {
-        log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSION_START, extensionPlugin.getName() );
-        IPluginRegistryExtension extension = (IPluginRegistryExtension) registry.loadClass( extensionPlugin );
-        extension.init( registry );
-        extensions.add( extension );
-        log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_STOP, extensionPlugin.getName() );
-      }
-    } catch ( HopPluginException e ) {
-      e.printStackTrace();
-    }
-    log.snap( Metrics.METRIC_PLUGIN_REGISTRY_REGISTER_EXTENSIONS_STOP );
-
     log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_REGISTRATION_START );
     for ( final IPluginType pluginType : pluginTypes ) {
       log.snap( Metrics.METRIC_PLUGIN_REGISTRY_PLUGIN_TYPE_REGISTRATION_START, pluginType.getName() );

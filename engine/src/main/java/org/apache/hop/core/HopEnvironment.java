@@ -28,12 +28,10 @@ import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.lifecycle.HopLifecycleSupport;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
 import org.apache.hop.core.plugins.ActionPluginType;
-import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginType;
@@ -63,7 +61,6 @@ public class HopEnvironment {
    * Indicates whether the Hop environment has been initialized.
    */
   private static AtomicReference<SettableFuture<Boolean>> initialized = new AtomicReference<>( null );
-  private static HopLifecycleSupport hopLifecycleSupport;
 
   /**
    * Initializes the Hop environment. This method performs the following operations:
@@ -86,7 +83,6 @@ public class HopEnvironment {
       PartitionerPluginType.getInstance(),
       ActionPluginType.getInstance(),
       ActionDialogFragmentType.getInstance(),
-      LifecyclePluginType.getInstance(),
       HopLifecyclePluginType.getInstance(),
       HopServerPluginType.getInstance(),
       CompressionPluginType.getInstance(),
@@ -122,9 +118,6 @@ public class HopEnvironment {
         //
         HopVariablesList.init();
 
-        // Initialize the Lifecycle Listeners
-        //
-        initLifecycleListeners();
         ready.set( true );
       } catch ( Throwable t ) {
         ready.setException( t );
@@ -150,14 +143,10 @@ public class HopEnvironment {
    * @throws HopException when a lifecycle listener throws an exception
    */
   private static void initLifecycleListeners() throws HopException {
-    hopLifecycleSupport = new HopLifecycleSupport();
-    hopLifecycleSupport.onEnvironmentInit();
-    final HopLifecycleSupport s = hopLifecycleSupport;
-
     // Register a shutdown hook to invoke the listener's onExit() methods
     Runtime.getRuntime().addShutdownHook( new Thread() {
       public void run() {
-        shutdown( s );
+        shutdown();
       }
     } );
 
@@ -165,19 +154,6 @@ public class HopEnvironment {
 
   // Shutdown the Hop environment programmatically
   public static void shutdown() {
-    shutdown( hopLifecycleSupport );
-  }
-
-  private static void shutdown( HopLifecycleSupport kettleLifecycleSupport ) {
-    if ( isInitialized() ) {
-      try {
-        kettleLifecycleSupport.onEnvironmentShutdown();
-      } catch ( Throwable t ) {
-        System.err.println( BaseMessages.getString( PKG,
-          "LifecycleSupport.ErrorInvokingHopEnvironmentShutdownListeners" ) );
-        t.printStackTrace();
-      }
-    }
   }
 
   /**

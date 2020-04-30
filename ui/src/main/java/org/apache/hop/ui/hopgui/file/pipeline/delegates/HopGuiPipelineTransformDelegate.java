@@ -264,9 +264,8 @@ public class HopGuiPipelineTransformDelegate {
             pipelineMeta.addTransform( transformMeta );
             hopGui.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
 
-            // Also store it in the pluginHistory list...
-            hopGui.getProps().increasePluginHistory( transformPlugin.getIds()[ 0 ] );
-
+            // Also store the event in the plugin history list...
+            hopGui.auditDelegate.registerEvent( "transform", transformPlugin.getIds()[ 0 ], "create" );
           } else {
             return null; // Cancel pressed in dialog.
           }

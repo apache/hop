@@ -25,6 +25,8 @@ package org.apache.hop.ui.hopgui.file;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 
+import java.util.Map;
+
 /**
  * This describes the main file operations for a supported Hop file
  */
@@ -176,4 +178,12 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    * Redo a change to the file
    */
   void redo();
+
+  /**
+   * Describe the state properties of the file being handled: zoomLevel, scrollX, scrollY, active, ...
+   * @return The state properties
+   */
+  Map<String, Object> getStateProperties();
+
+  void applyStateProperties(Map<String, Object> stateProperties);
 }

@@ -141,6 +141,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		return null; // Not handling anything really
 	}
 
+	@Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
+	}
+
 	@Override
 	public List<IHopFileType> getSupportedHopFileTypes() {
 		return Collections.emptyList();

@@ -391,24 +391,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectedEntries = null;
     selectedNote = null;
 
-    hori = canvas.getHorizontalBar();
-    vert = canvas.getVerticalBar();
+    horizontalScrollBar = canvas.getHorizontalBar();
+    verticalScrollBar = canvas.getVerticalBar();
 
-    hori.addSelectionListener( new SelectionAdapter() {
+    horizontalScrollBar.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         redraw();
       }
     } );
-    vert.addSelectionListener( new SelectionAdapter() {
+    verticalScrollBar.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         redraw();
       }
     } );
-    hori.setThumb( 100 );
-    vert.setThumb( 100 );
+    horizontalScrollBar.setThumb( 100 );
+    verticalScrollBar.setThumb( 100 );
 
-    hori.setVisible( true );
-    vert.setVisible( true );
+    horizontalScrollBar.setVisible( true );
+    verticalScrollBar.setVisible( true );
 
     setVisible( true );
 
@@ -718,7 +718,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               previous_transform_locations = workflowMeta.getSelectedLocations();
 
               Point p = actionCopy.getLocation();
-              iconoffset = new Point( real.x - p.x, real.y - p.y );
+              iconOffset = new Point( real.x - p.x, real.y - p.y );
             }
             updateGui();
             break;
@@ -731,7 +731,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
             previous_note_locations = workflowMeta.getSelectedNoteLocations();
 
-            noteoffset = new Point( real.x - loc.x, real.y - loc.y );
+            noteOffset = new Point( real.x - loc.x, real.y - loc.y );
 
             updateGui();
             break;
@@ -793,11 +793,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     NotePadMeta singleClickNote = null;
     WorkflowHopMeta singleClickHop = null;
 
-    if ( iconoffset == null ) {
-      iconoffset = new Point( 0, 0 );
+    if ( iconOffset == null ) {
+      iconOffset = new Point( 0, 0 );
     }
     Point real = screen2real( e.x, e.y );
-    Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
+    Point icon = new Point( real.x - iconOffset.x, real.y - iconOffset.y );
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
     // Quick new hop option? (drag from one transform to another)
@@ -1063,15 +1063,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     lastMove = real;
 
-    if ( iconoffset == null ) {
-      iconoffset = new Point( 0, 0 );
+    if ( iconOffset == null ) {
+      iconOffset = new Point( 0, 0 );
     }
-    Point icon = new Point( real.x - iconoffset.x, real.y - iconoffset.y );
+    Point icon = new Point( real.x - iconOffset.x, real.y - iconOffset.y );
 
-    if ( noteoffset == null ) {
-      noteoffset = new Point( 0, 0 );
+    if ( noteOffset == null ) {
+      noteOffset = new Point( 0, 0 );
     }
-    Point note = new Point( real.x - noteoffset.x, real.y - noteoffset.y );
+    Point note = new Point( real.x - noteOffset.x, real.y - noteOffset.y );
 
     // Moved over an area?
     //
@@ -1631,7 +1631,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     lastButton = 0;
     startHopEntry = null;
     endHopEntry = null;
-    iconoffset = null;
+    iconOffset = null;
     workflowMeta.unselectAll();
     for ( int i = 0; i < workflowMeta.nrWorkflowHops(); i++ ) {
       workflowMeta.getWorkflowHop( i ).setSplit( false );
@@ -2485,7 +2485,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
     WorkflowPainter workflowPainter =
-      new WorkflowPainter( gc, workflowMeta, new Point( x, y ), new SwtScrollBar( hori ), new SwtScrollBar( vert ), hopCandidate,
+      new WorkflowPainter( gc, workflowMeta, new Point( x, y ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ), hopCandidate,
         dropCandidate, selectionRegion, areaOwners, PropsUi.getInstance().getIconSize(),
         PropsUi.getInstance().getLineWidth(), gridSize, PropsUi.getInstance().getNoteFont().getName(),
         PropsUi.getInstance().getNoteFont().getHeight(), PropsUi.getInstance().getZoomFactor() );

@@ -24,18 +24,25 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditState;
+import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class HopGuiAuditDelegate {
+
+  public static final String STATE_PROPERTY_ACTIVE = "active";
 
   private HopGui hopGui;
 
@@ -79,6 +86,7 @@ public class HopGuiAuditDelegate {
     List<IHopPerspective> perspectives = hopGui.getPerspectiveManager().getPerspectives();
     for ( IHopPerspective perspective : perspectives ) {
       List<TabItemHandler> tabItems = perspective.getItems();
+      IHopFileTypeHandler activeFileTypeHandler = null;
       if ( tabItems != null ) {
         // This perspective has the ability to handle multiple files.
         // Lets's load the files in the previously saved order...
@@ -87,18 +95,43 @@ public class HopGuiAuditDelegate {
         try {
           auditList = hopGui.getAuditManager().retrieveList( hopGui.getNamespace(), perspective.getId() );
         } catch ( Exception e ) {
-          new ErrorDialog(hopGui.getShell(), "Error", "Error reading audit list of perspective " + perspective.getId(), e);
-          break;
+          hopGui.getLog().logError( "Error reading audit list of perspective " + perspective.getId(), e);
+          auditList = new AuditList();
+        }
+
+        AuditStateMap auditStateMap;
+        try {
+          auditStateMap = hopGui.getAuditManager().loadAuditStateMap( hopGui.getNamespace(), perspective.getId() );
+        } catch ( HopException e ) {
+          hopGui.getLog().logError( "Error loading audit state map of perspective "+perspective.getId(), e );
+          auditStateMap = new AuditStateMap();
         }
 
         for (String filename : auditList.getNames()) {
           try {
             if (StringUtils.isNotEmpty( filename )) {
-              hopGui.fileDelegate.fileOpen( filename );
+              IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen( filename );
+
+              // Restore zoom, scroll and so on
+              AuditState auditState = auditStateMap.get( filename );
+              if (auditState!=null && fileTypeHandler!=null) {
+                fileTypeHandler.applyStateProperties( auditState.getStateMap() );
+
+                Boolean bActive = (Boolean) auditState.getStateMap().get( STATE_PROPERTY_ACTIVE );
+                if (bActive!=null && bActive.booleanValue()) {
+                  activeFileTypeHandler = fileTypeHandler;
+                }
+              }
             }
           } catch(Exception e) {
             new ErrorDialog(hopGui.getShell(), "Error", "Error opening file '"+filename+"'", e);
           }
+        }
+
+        // The active file in the perspective
+        //
+        if (activeFileTypeHandler!=null) {
+          perspective.setActiveFileTypeHandler(activeFileTypeHandler);
         }
       }
     }
@@ -114,24 +147,56 @@ public class HopGuiAuditDelegate {
 
     List<IHopPerspective> perspectives = hopGui.getPerspectiveManager().getPerspectives();
     for ( IHopPerspective perspective : perspectives ) {
+      IHopFileTypeHandler activeFileTypeHandler = perspective.getActiveFileTypeHandler();
       List<TabItemHandler> tabItems = perspective.getItems();
       if ( tabItems != null ) {
         // This perspective has the ability to handle multiple files.
         // Lets's save the files in the given order...
         //
+        AuditStateMap auditStateMap = new AuditStateMap();
+
         List<String> files = new ArrayList<>();
         for ( TabItemHandler tabItem : tabItems ) {
-          if (StringUtils.isNotEmpty(tabItem.getTypeHandler().getFilename())) {
-            files.add( tabItem.getTypeHandler().getFilename() );
+          IHopFileTypeHandler typeHandler = tabItem.getTypeHandler();
+          String filename = typeHandler.getFilename();
+          if (StringUtils.isNotEmpty(filename)) {
+            files.add( filename );
+
+            // Also save the state : active, zoom, ...
+            //
+            Map<String, Object> stateProperties = typeHandler.getStateProperties();
+            boolean active = activeFileTypeHandler!=null && activeFileTypeHandler.getFilename().equals( filename );
+            stateProperties.put( STATE_PROPERTY_ACTIVE, active );
+
+            auditStateMap.add( new AuditState(filename, stateProperties) );
           }
         }
-        AuditList auditList = new AuditList( hopGui.getNamespace(), perspective.getId(), files );
+        AuditList auditList = new AuditList( files );
         try {
-          hopGui.getAuditManager().storeList( auditList );
+          hopGui.getAuditManager().storeList( hopGui.getNamespace(), perspective.getId(), auditList );
+          hopGui.getAuditManager().saveAuditStateMap( hopGui.getNamespace(), perspective.getId(), auditStateMap );
         } catch ( Exception e ) {
           hopGui.getLog().logError( "Error writing audit list of perspective " + perspective.getId(), e );
         }
       }
+    }
+  }
+
+  public void storeState( String type, String name, Map<String, Object> stateProperties ) {
+    AuditState auditState = new AuditState(name, stateProperties);
+    try {
+      hopGui.getAuditManager().storeState( hopGui.getNamespace(), type, auditState );
+    } catch ( Exception e ) {
+      hopGui.getLog().logError( "Error writing audit state of type " + type, e );
+    }
+  }
+
+  public AuditState retrieveState( String type, String name ) {
+    try {
+      return hopGui.getAuditManager().retrieveState( hopGui.getNamespace(), type, name );
+    } catch(Exception e) {
+      hopGui.getLog().logError( "Error retrieving state of type "+type );
+      return null;
     }
   }
 }

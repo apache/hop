@@ -30,6 +30,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * This class stores information about a screen, window, etc.
  *
@@ -39,25 +43,43 @@ import org.eclipse.swt.widgets.Shell;
 public class WindowProperty {
   private String name;
   private boolean maximized;
-  private Rectangle rectangle;
+  private int x;
+  private int y;
+  private int width;
+  private int height;
 
-  public WindowProperty( String name, boolean maximized, Rectangle rectangle ) {
-    this.name = name;
-    this.maximized = maximized;
-    this.rectangle = rectangle;
+  public WindowProperty() {
+    name = null;
+    maximized = false;
+    x = -1;
+    y = -1;
+    width = -1;
+    height = -1;
   }
 
   public WindowProperty( String name, boolean maximized, int x, int y, int width, int height ) {
     this.name = name;
     this.maximized = maximized;
-    this.rectangle = new Rectangle( x, y, width, height );
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
   }
 
   public WindowProperty( Shell shell ) {
     name = shell.getText();
 
     maximized = shell.getMaximized();
-    rectangle = shell.getBounds();
+    Rectangle rectangle = shell.getBounds();
+    this.x = rectangle.x;
+    this.y = rectangle.y;
+    this.width = rectangle.width;
+    this.height = rectangle.height;
+  }
+
+  public WindowProperty( String windowName, Map<String, Object> stateProperties ) {
+    this.name = windowName;
+    setStateProperties( stateProperties );
   }
 
   public void setShell( Shell shell ) {
@@ -71,6 +93,57 @@ public class WindowProperty {
   public void setShell( Shell shell, int minWidth, int minHeight ) {
     setShell( shell, false, minWidth, minHeight );
   }
+
+  @Override public boolean equals( Object o ) {
+    if ( this == o ) {
+      return true;
+    }
+    if ( o == null || getClass() != o.getClass() ) {
+      return false;
+    }
+    WindowProperty that = (WindowProperty) o;
+    return Objects.equals( name, that.name );
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash( name );
+  }
+
+  public boolean hasSize() {
+    return width>0 && height>0;
+  }
+
+  public boolean hasPosition() {
+    return x>0 && y>0;
+  }
+
+  public Map<String, Object> getStateProperties() {
+    Map<String, Object> map = new HashMap<>();
+    map.put( "max", maximized );
+    map.put( "x", x );
+    map.put( "y", y );
+    map.put( "width", width );
+    map.put( "height", height );
+    return map;
+  }
+
+  public void setStateProperties(Map<String, Object> map) {
+    Boolean bMaximized = (Boolean) map.get("max");
+    maximized = bMaximized==null ? false : bMaximized.booleanValue();
+
+    Integer iX = (Integer)map.get("x");
+    x = iX == null ? -1 : iX.intValue();
+
+    Integer iY = (Integer)map.get("y");
+    y = iY == null ? -1 : iY.intValue();
+
+    Integer iWidth = (Integer)map.get("width");
+    width = iWidth == null ? -1 : iWidth.intValue();
+
+    Integer iHeight = (Integer)map.get("height");
+    height = iHeight == null ? -1 : iHeight.intValue();
+  }
+
 
   /**
    * Performs calculations to size and position a dialog If the size passed in is too large for the primary monitor
@@ -86,7 +159,7 @@ public class WindowProperty {
    */
   public void setShell( Shell shell, boolean onlyPosition, int minWidth, int minHeight ) {
     shell.setMaximized( maximized );
-    shell.setBounds( rectangle );
+    shell.setBounds( new Rectangle(x, y, width, height) );
 
     if ( minWidth > 0 || minHeight > 0 ) {
       Rectangle bounds = shell.getBounds();
@@ -185,52 +258,99 @@ public class WindowProperty {
     return isClipped;
   }
 
+  /**
+   * Gets name
+   *
+   * @return value of name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * @param name The name to set
+   */
   public void setName( String name ) {
     this.name = name;
   }
 
+  /**
+   * Gets maximized
+   *
+   * @return value of maximized
+   */
   public boolean isMaximized() {
     return maximized;
   }
 
+  /**
+   * @param maximized The maximized to set
+   */
   public void setMaximized( boolean maximized ) {
     this.maximized = maximized;
   }
 
-  public Rectangle getRectangle() {
-    return rectangle;
-  }
-
-  public void setRectangle( Rectangle rectangle ) {
-    this.rectangle = rectangle;
-  }
-
+  /**
+   * Gets x
+   *
+   * @return value of x
+   */
   public int getX() {
-    return rectangle.x;
+    return x;
   }
 
+  /**
+   * @param x The x to set
+   */
+  public void setX( int x ) {
+    this.x = x;
+  }
+
+  /**
+   * Gets y
+   *
+   * @return value of y
+   */
   public int getY() {
-    return rectangle.y;
+    return y;
   }
 
+  /**
+   * @param y The y to set
+   */
+  public void setY( int y ) {
+    this.y = y;
+  }
+
+  /**
+   * Gets width
+   *
+   * @return value of width
+   */
   public int getWidth() {
-    return rectangle.width;
+    return width;
   }
 
+  /**
+   * @param width The width to set
+   */
+  public void setWidth( int width ) {
+    this.width = width;
+  }
+
+  /**
+   * Gets height
+   *
+   * @return value of height
+   */
   public int getHeight() {
-    return rectangle.height;
+    return height;
   }
 
-  public int hashCode() {
-    return name.hashCode();
+  /**
+   * @param height The height to set
+   */
+  public void setHeight( int height ) {
+    this.height = height;
   }
-
-  public boolean equal( Object obj ) {
-    return ( (WindowProperty) obj ).getName().equalsIgnoreCase( name );
-  }
-
 }

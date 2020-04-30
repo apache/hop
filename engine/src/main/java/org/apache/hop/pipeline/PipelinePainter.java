@@ -62,8 +62,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private static Class<?> PKG = PipelinePainter.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_PARTITIONING_CURRENT_TRANSFORM = "PartitioningCurrentTransform";
-  public static final String STRING_REMOTE_INPUT_TRANSFORMS = "RemoteInputTransforms";
-  public static final String STRING_REMOTE_OUTPUT_TRANSFORMS = "RemoteOutputTransforms";
   public static final String STRING_TRANSFORM_ERROR_LOG = "TransformErrorLog";
   public static final String STRING_HOP_TYPE_COPY = "HopTypeCopy";
   public static final String STRING_ROW_DISTRIBUTION = "RowDistribution";
