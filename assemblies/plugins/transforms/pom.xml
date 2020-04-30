@@ -84,6 +84,7 @@
         <module>sql</module>
         <module>streamlookup</module>
         <module>syslog</module>
+        <module>systemdata</module>
         <module>switchcase</module>
         <module>tablecompare</module>
         <module>tableexists</module>
