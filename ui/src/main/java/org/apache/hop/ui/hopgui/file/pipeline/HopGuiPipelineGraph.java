@@ -553,7 +553,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     canvas.addMouseMoveListener( this );
     canvas.addMouseTrackListener( this );
     canvas.addMouseWheelListener( this );
-    canvas.addKeyListener( this );
+    // canvas.addKeyListener( this );
 
     // Drag & Drop for transforms
     Transfer[] ttypes = new Transfer[] { XMLTransfer.getInstance() };
@@ -1727,7 +1727,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   )
   public void zoomLevel() {
     readMagnification();
-    setFocus();
+    redraw();
   }
 
   public List<String> getZoomLevels() {
@@ -1775,12 +1775,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * Allows for magnifying to any percentage entered by the user...
    */
   private void readMagnification() {
+    float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
     if ( zoomLabel == null ) {
       return;
     }
-    String possibleText = zoomLabel.getText();
-    possibleText = possibleText.replace( "%", "" );
+    String possibleText = zoomLabel.getText().replace( "%", "" );
 
     float possibleFloatMagnification;
     try {
@@ -1794,6 +1794,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         BaseMessages.getString( PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Message", zoomLabel.getText() ),
         SWT.YES | SWT.ICON_ERROR );
     }
+
+    // When zooming out we want to correct the scroll bars.
+    //
+    float factor = magnification / oldMagnification;
+    int newHThumb = Math.min((int)( horizontalScrollBar.getThumb() / factor), 100);
+    horizontalScrollBar.setThumb( newHThumb );
+    horizontalScrollBar.setSelection( (int)( horizontalScrollBar.getSelection()*factor ));
+    int newVThumb = Math.min((int)( verticalScrollBar.getThumb() / factor), 100);
+    verticalScrollBar.setThumb( newVThumb );
+    verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
+
+    canvas.setFocus();
     redraw();
   }
 
@@ -1807,11 +1819,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     helpTip.setTitle( tipTitle );
     helpTip.setMessage( tipMessage.replaceAll( "\n", Const.CR ) );
-    helpTip
-      .setCheckBoxMessage( BaseMessages.getString( PKG, "PipelineGraph.HelpToolTip.DoNotShowAnyMoreCheckBox.Message" ) );
+    helpTip.setCheckBoxMessage( BaseMessages.getString( PKG, "PipelineGraph.HelpToolTip.DoNotShowAnyMoreCheckBox.Message" ) );
 
-    // helpTip.hide();
-    // int iconSize = spoon.props.getIconSize();
     org.eclipse.swt.graphics.Point location = new org.eclipse.swt.graphics.Point( x - 5, y - 5 );
 
     helpTip.show( location );
@@ -1859,35 +1868,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void keyPressed( KeyEvent e ) {
-
-    // CTRL-UP : allignTop();
-    if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignTop();
-    }
-    // CTRL-DOWN : allignBottom();
-    if ( e.keyCode == SWT.ARROW_DOWN && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignBottom();
-    }
-    // CTRL-LEFT : allignleft();
-    if ( e.keyCode == SWT.ARROW_LEFT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignLeft();
-    }
-    // CTRL-RIGHT : allignRight();
-    if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignRight();
-    }
-    // ALT-RIGHT : distributeHorizontal();
-    if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributeHorizontal();
-    }
-    // ALT-UP : distributeVertical();
-    if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributeVertical();
-    }
-    // ALT-HOME : snap to grid
-    if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
-      snapToGrid( ConstUi.GRID_SIZE );
-    }
 
     if ( e.character == 'E' && ( e.stateMask & SWT.CTRL ) != 0 ) {
       checkErrorVisuals();
@@ -2898,9 +2878,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display disp = hopDisplay();
+    Display display = hopDisplay();
 
-    Image img = getPipelineImage( disp, area.x, area.y, magnification );
+    Image img = getPipelineImage( display, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( pipelineMeta.nrTransforms() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
@@ -3079,6 +3059,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/snap-to-grid.svg",
     disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.HOME )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.HOME )
   public void snapToGrid() {
     snapToGrid( ConstUi.GRID_SIZE );
   }
@@ -3090,11 +3072,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_LEFT,
-    // label = "Left-align selected transforms",
     toolTip = "Align the transforms with the left-most transform in your selection",
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_LEFT )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_LEFT )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -3102,11 +3085,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_RIGHT,
-    // label = "Right-align selected transforms",
     toolTip = "Align the transforms with the right-most transform in your selection",
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_RIGHT )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -3114,11 +3098,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_ALIGN_TOP,
-    // label = "Top-align selected transforms",
     toolTip = "Align the transforms with the top-most transform in your selection",
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_UP )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -3131,6 +3116,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_DOWN )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_DOWN )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -3143,6 +3130,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
+  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -3155,6 +3144,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
+  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }

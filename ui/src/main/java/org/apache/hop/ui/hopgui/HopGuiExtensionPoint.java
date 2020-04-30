@@ -30,6 +30,9 @@ public enum HopGuiExtensionPoint {
   HopGuiFileOpenDialog( "Allows you to modify the file open dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
   HopGuiFileSaveDialog( "Allows you to modify the file save dialog before it's shown. If you want to show your own, set doIt to false", HopGuiFileDialogExtension.class ),
   HopGuiNewPipelineTab( "Determine the tab name of a pipeline", HopGuiPipelineGraph.class ),
+
+  HopGuiFileDirectoryDialog( "Called before a DirectoryDialog is presented", HopGuiFileDialogExtension.class ),
+
   ;
 
   public String id;

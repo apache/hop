@@ -300,17 +300,15 @@ public class HopGui implements IActionContextHandlersProvider {
         hopGui.getLog().logError( "Error calling extension point plugin(s) for HopGuiInit", e);
       }
 
-      boolean quit = false;
-      while (!quit) {
-        try {
-          hopGui.open();
-          quit = hopGui.getShell().isDisposed();
-        } catch ( Throwable e ) {
-          originalSystemErr.println( "Serious error detected in the Hop GUI: " + e.getMessage() );
-        }
+      boolean errors = false;
+      try {
+        hopGui.open();
+      } catch ( Throwable e ) {
+        originalSystemErr.println( "Serious error detected in the Hop GUI: " + e.getMessage()+Const.CR+Const.getStackTracker( e ) );
+        errors = true;
       }
 
-      System.exit( 0 );
+      System.exit( errors ? 1 : 0 );
     } catch ( Throwable e ) {
       originalSystemErr.println( "Error starting the Hop GUI: " + e.getMessage() );
       e.printStackTrace( originalSystemErr );
@@ -356,10 +354,17 @@ public class HopGui implements IActionContextHandlersProvider {
     if (openingLastFiles) {
       auditDelegate.openLastFiles();
     }
-
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
+    boolean retry = true;
+    while(retry) {
+      try {
+        while ( !shell.isDisposed() ) {
+          if ( !display.readAndDispatch() ) {
+            display.sleep();
+          }
+        }
+        retry=false;
+      } catch ( Throwable throwable ) {
+        System.err.println("Error in the Hop GUI : "+throwable.getMessage()+Const.CR+Const.getClassicStackTrace( throwable ));
       }
     }
     display.dispose();

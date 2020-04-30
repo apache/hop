@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -1159,7 +1160,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
    * @throws HopException
    */
   @Override
-  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
     return loadWorkflowMeta( this, metaStore, variables );
   }
 

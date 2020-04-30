@@ -22,14 +22,22 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.workflow.action.IAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +74,27 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
   @Override public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
+    // Put references at the start since we use those things a lot
+    //
+    ITransformMeta iTransformMeta = transformMeta.getTransformMetaInterface();
+
+    String[] objectDescriptions = iTransformMeta.getReferencedObjectDescriptions();
+    for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {
+      final String objectDescription = objectDescriptions[ i ];
+      if ( iTransformMeta.isReferencedObjectEnabled()[ i ] ) {
+        final int index = i;
+        GuiAction openReferencedAction = new GuiAction(
+          "transform-open-referenced-"+objectDescription,
+          GuiActionType.Info,
+          "open: " + objectDescription,
+          "This opens up the file referenced in the transform",
+          "ui/images/open.svg",
+          ( shiftAction, controlAction, t ) -> openReferencedObject( iTransformMeta, objectDescription, index )
+        );
+        actions.add( openReferencedAction );
+      }
+    }
+
     // Get the actions from the plugins, sorted by ID...
     //
     List<GuiAction> pluginActions = getPluginActions( true );
@@ -77,6 +106,28 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
 
     return actions;
   }
+
+  private void openReferencedObject( ITransformMeta iTransformMeta, String objectDescription, int index ) {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      IHasFilename hasFilename = iTransformMeta.loadReferencedObject( index, pipelineMeta.getMetaStore(), pipelineMeta );
+      if ( hasFilename != null ) {
+        String filename = pipelineMeta.environmentSubstitute( hasFilename.getFilename() );
+
+        // Is this object already loaded?
+        //
+        TabItemHandler tabItemHandler = HopDataOrchestrationPerspective.getInstance().findTabItemHandlerWithFilename( filename );
+        if ( tabItemHandler != null ) {
+          HopDataOrchestrationPerspective.getInstance().switchToTab( tabItemHandler );
+        } else {
+          hopGui.fileDelegate.fileOpen( filename );
+        }
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error opening referenced object '" + objectDescription + "'", e );
+    }
+  }
+
 
 
   /**

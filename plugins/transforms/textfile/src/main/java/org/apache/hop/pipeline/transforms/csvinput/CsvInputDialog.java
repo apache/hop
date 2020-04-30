@@ -28,12 +28,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -44,34 +46,51 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
-import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.*;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareTransformDialog;
 import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDialog;
-import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -83,10 +102,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @PluginDialog(
-        id = "CSVInput",
-        image = "textfileinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/csvinput.html"
+  id = "CSVInput",
+  image = "textfileinput.svg",
+  pluginType = PluginDialog.PluginType.TRANSFORM,
+  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/csvinput.html"
 )
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
@@ -201,7 +220,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       // The filename field ...
       //
       Label wlFilename = new Label( shell, SWT.RIGHT );
-      wlFilename.setText( BaseMessages.getString( PKG, "CsvInputDialog.FilenameField.Label"  ) );
+      wlFilename.setText( BaseMessages.getString( PKG, "CsvInputDialog.FilenameField.Label" ) );
       props.setLook( wlFilename );
       FormData fdlFilename = new FormData();
       fdlFilename.top = new FormAttachment( lastControl, margin );
@@ -281,7 +300,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // delimiter
     Label wlDelimiter = new Label( shell, SWT.RIGHT );
-    wlDelimiter.setText( BaseMessages.getString( PKG, "CsvInputDialog.Delimiter.Label"  ) );
+    wlDelimiter.setText( BaseMessages.getString( PKG, "CsvInputDialog.Delimiter.Label" ) );
     props.setLook( wlDelimiter );
     FormData fdlDelimiter = new FormData();
     fdlDelimiter.top = new FormAttachment( lastControl, margin );
@@ -308,7 +327,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     // enclosure
     Label wlEnclosure = new Label( shell, SWT.RIGHT );
-    wlEnclosure.setText( BaseMessages.getString( PKG, "CsvInputDialog.Enclosure.Label"  ) );
+    wlEnclosure.setText( BaseMessages.getString( PKG, "CsvInputDialog.Enclosure.Label" ) );
     props.setLook( wlEnclosure );
     FormData fdlEnclosure = new FormData();
     fdlEnclosure.top = new FormAttachment( lastControl, margin );
@@ -368,7 +387,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     // header row?
     //
     Label wlHeaderPresent = new Label( shell, SWT.RIGHT );
-    wlHeaderPresent.setText( BaseMessages.getString( PKG, "CsvInputDialog.HeaderPresent.Label"  ) );
+    wlHeaderPresent.setText( BaseMessages.getString( PKG, "CsvInputDialog.HeaderPresent.Label" ) );
     props.setLook( wlHeaderPresent );
     FormData fdlHeaderPresent = new FormData();
     fdlHeaderPresent.top = new FormAttachment( lastControl, margin );
@@ -605,23 +624,30 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     if ( wbbFilename != null ) {
       // Listen to the browse button next to the file name
       wbbFilename.addSelectionListener( new SelectionAdapter() {
-        public void widgetSelected( SelectionEvent e ) {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          dialog.setFilterExtensions( new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" } );
+        public void widgetSelected( SelectionEvent event ) {
+          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN );
+          fileDialog.setFilterExtensions( new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" } );
           if ( wFilename.getText() != null ) {
             String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFileName( fname );
+            fileDialog.setFileName( fname );
           }
 
-          dialog.setFilterNames( new String[] {
+          fileDialog.setFilterNames( new String[] {
             BaseMessages.getString( PKG, "System.FileType.CSVFiles" ) + ", "
               + BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
             BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
             BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
             BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
 
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
+          try {
+            HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( null, fileDialog, HopGui.getInstance() );
+            ExtensionPointHandler.callExtensionPoint( log, HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openExtension );
+          } catch ( Exception xe ) {
+            new ErrorDialog( shell, "Error", "Error handling extension point 'HopGuiFileOpenDialog'", xe );
+          }
+
+          if ( fileDialog.open() != null ) {
+            String str = fileDialog.getFilterPath() + System.getProperty( "file.separator" ) + fileDialog.getFileName();
             wFilename.setText( str );
           }
         }

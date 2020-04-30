@@ -169,7 +169,7 @@ import java.util.UUID;
  * @author Matt Created on 17-may-2003
  */
 public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
-  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
+  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener,
   IHasLogChannel, ILogParentProvided,
   IHopFileTypeHandler,
   IGuiRefresher {
@@ -558,7 +558,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
     } );
 
-    canvas.addKeyListener( this );
+    hopGui.replaceKeyboardShortcutListeners( this );
 
     setBackground( GuiResource.getInstance().getColorBackground() );
 
@@ -1504,6 +1504,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    * Allows for magnifying to any percentage entered by the user...
    */
   private void readMagnification() {
+    float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
     if ( zoomLabel == null ) {
       return;
@@ -1525,55 +1526,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       mb.setText( BaseMessages.getString( PKG, "PipelineGraph.Dialog.InvalidZoomMeasurement.Title" ) );
       mb.open();
     }
+
+    // When zooming out we want to correct the scroll bars.
+    //
+    float factor = magnification / oldMagnification;
+    int newHThumb = Math.min((int)( horizontalScrollBar.getThumb() / factor), 100);
+    horizontalScrollBar.setThumb( newHThumb );
+    horizontalScrollBar.setSelection( (int)( horizontalScrollBar.getSelection()*factor ));
+    int newVThumb = Math.min((int)( verticalScrollBar.getThumb() / factor), 100);
+    verticalScrollBar.setThumb( newVThumb );
+    verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
+
     redraw();
-  }
-
-  public void keyPressed( KeyEvent e ) {
-
-    // Delete
-    if ( e.keyCode == SWT.DEL ) {
-      List<ActionCopy> copies = workflowMeta.getSelectedEntries();
-      if ( copies != null && copies.size() > 0 ) {
-        workflowEntryDelegate.deleteJobEntryCopies( workflowMeta, copies );
-      }
-    }
-
-    // CTRL-UP : allignTop();
-    if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignTop();
-    }
-    // CTRL-DOWN : allignBottom();
-    if ( e.keyCode == SWT.ARROW_DOWN && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignBottom();
-    }
-    // CTRL-LEFT : allignleft();
-    if ( e.keyCode == SWT.ARROW_LEFT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignLeft();
-    }
-    // CTRL-RIGHT : allignRight();
-    if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.MOD1 ) != 0 ) {
-      alignRight();
-    }
-    // ALT-RIGHT : distributeHorizontal();
-    if ( e.keyCode == SWT.ARROW_RIGHT && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributeHorizontal();
-    }
-    // ALT-UP : distributeVertical();
-    if ( e.keyCode == SWT.ARROW_UP && ( e.stateMask & SWT.ALT ) != 0 ) {
-      distributeVertical();
-    }
-    // ALT-HOME : snap to grid
-    if ( e.keyCode == SWT.HOME && ( e.stateMask & SWT.ALT ) != 0 ) {
-      snapToGrid( ConstUi.GRID_SIZE );
-    }
-    // CTRL-W or CTRL-F4 : close tab
-    if ( ( e.keyCode == 'w' && ( e.stateMask & SWT.MOD1 ) != 0 )
-      || ( e.keyCode == SWT.F4 && ( e.stateMask & SWT.MOD1 ) != 0 ) ) {
-      close();
-    }
-  }
-
-  public void keyReleased( KeyEvent e ) {
   }
 
   public void selectInRect( WorkflowMeta workflowMeta, org.apache.hop.core.gui.Rectangle rect ) {
@@ -2459,9 +2423,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display disp = hopDisplay();
+    Display display = hopDisplay();
 
-    Image img = getJobImage( disp, area.x, area.y, magnification );
+    Image img = getJobImage( display, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( workflowMeta.nrActions() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
@@ -2716,6 +2680,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_LEFT )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_LEFT )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -2727,6 +2693,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_RIGHT )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -2738,6 +2706,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_UP )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -2749,6 +2719,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
+  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_DOWN )
+  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_DOWN )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -2760,6 +2732,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
+  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -2771,29 +2745,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
+  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
 
-  protected void drawRect( GC gc, Rectangle rect ) {
-    if ( rect == null ) {
-      return;
-    }
-
-    gc.setLineStyle( SWT.LINE_DASHDOT );
-    gc.setLineWidth( 1 );
-    gc.setForeground( GuiResource.getInstance().getColorDarkGray() );
-    // PDI-2619: SWT on Windows doesn't cater for negative rect.width/height so handle here.
-    Point s = new Point( rect.x + offset.x, rect.y + offset.y );
-    if ( rect.width < 0 ) {
-      s.x = s.x + rect.width;
-    }
-    if ( rect.height < 0 ) {
-      s.y = s.y + rect.height;
-    }
-    gc.drawRoundRectangle( s.x, s.y, Math.abs( rect.width ), Math.abs( rect.height ), 3, 3 );
-    gc.setLineStyle( SWT.LINE_SOLID );
-  }
 
   @GuiContextAction(
     id = "workflow-graph-action-10100-action-detach",

@@ -150,21 +150,6 @@ public abstract class HopGuiAbstractGraph extends Composite {
     return area;
   }
 
-  protected <T extends IGuiPosition> void doRightClickSelection( T clicked, List<T> selection ) {
-    if ( selection.contains( clicked ) ) {
-      return;
-    }
-    if ( !selection.isEmpty() ) {
-      for ( IGuiPosition selected : selection ) {
-        selected.setSelected( false );
-      }
-      selection.clear();
-    }
-    clicked.setSelected( true );
-    selection.add( clicked );
-    redraw();
-  }
-
   public abstract boolean hasChanged();
 
   public void redraw() {
