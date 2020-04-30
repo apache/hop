@@ -118,6 +118,7 @@
         <module>streamlookup</module>
         <module>switchcase</module>
         <module>syslog</module>
+        <module>systemdata</module>
         <module>tablecompare</module>
         <module>tableexists</module>
         <module>tableoutput</module>
