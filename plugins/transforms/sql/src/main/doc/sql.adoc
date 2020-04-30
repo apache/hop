@@ -2,3 +2,27 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/sql/src/main/doc/sql.adoc
 = Execute SQL
+
+== Description
+
+You can execute SQL scripts with this transform, either once, during the initialization phase of the pipeline, or once for every input-row that the transform is given. The second option can be used to use parameters in SQL scripts.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; This name has to be unique in a single pipeline
+|Connection|Select a database connection to use
+|SQL script to execute|Specify the SQL to execute. Separate statements by ; and use question marks as place holders for parameter.
+|Execute for each row?|Select this option to execute the SQL for each incoming row. In this case paramters can be used. When this option is unchecked, the SQL statement is executed at the transform initialization phase.
+|Execute as a single statement|This option does not split the statements by ; and will send the whole SQL to the database.
+|Variable substitution|In case you want to use variables in the SQL, e.g. ${table_name}, this option needs to be checked.
+|Bind parameters?|Check this option to bind parameters using prepared statements, otherwise this transform will perform a literal string replacement of the parameters.
+|Quote Strings?|This option adds quotes around the string according to the database dialect and also escapes special characters like CR, LF and the quote character itself.
+|Parameters|The list of used parameters that will replace the question marks in the query in the given order. So the first question mark will be replaced by the first parameter, the second question mark by the second parameter etc.
+|Field to contain insert stats|Optional: If you want to get an additional field in our stream with the number or records that where inserted, please define the field name here.
+|Field to contain update stats|Same as insert stats, but for updated rows.
+|Field to contain delete stats|Same as insert stats, but for deleted rows.
+|Field to contain read stats|Same as insert stats, but for read rows.
+|===
