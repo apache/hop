@@ -142,8 +142,13 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       ext = new Point( 10, 10 ); // Empty note
     } else {
 
-      gc.setFont( Const.NVL( notePadMeta.getFontName(), noteFontName ), notePadMeta.getFontSize() == -1
-        ? noteFontHeight : notePadMeta.getFontSize(), notePadMeta.isFontBold(), notePadMeta.isFontItalic() );
+      int fontHeight;
+      if (notePadMeta.getFontSize()>0) {
+        fontHeight = notePadMeta.getFontSize();
+      } else {
+        fontHeight = noteFontHeight;
+      }
+      gc.setFont( Const.NVL( notePadMeta.getFontName(), noteFontName ), (int)((double)fontHeight/zoomFactor), notePadMeta.isFontBold(), notePadMeta.isFontItalic() );
 
       ext = gc.textExtent( notePadMeta.getNote() );
     }
@@ -162,7 +167,10 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       height = p.y;
     }
 
-    int[] noteshape = new int[] {
+    Rectangle noteShape = new Rectangle( note.x, note.y, width, height );
+
+    /*
+    int[] noteShape = new int[] {
       note.x, note.y, // Top left
       note.x + width + 2 * margin, note.y, // Top right
       note.x + width + 2 * margin, note.y + height, // bottom right 1
@@ -172,18 +180,16 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       note.x + width, note.y + height + 2 * margin, // bottom right 2
       note.x, note.y + height + 2 * margin // bottom left
     };
+     */
 
-    gc.setBackground( notePadMeta.getBackGroundColorRed(), notePadMeta.getBackGroundColorGreen(), notePadMeta
-      .getBackGroundColorBlue() );
-    gc.setForeground( notePadMeta.getBorderColorRed(), notePadMeta.getBorderColorGreen(), notePadMeta
-      .getBorderColorBlue() );
+    gc.setBackground( notePadMeta.getBackGroundColorRed(), notePadMeta.getBackGroundColorGreen(), notePadMeta.getBackGroundColorBlue() );
+    gc.setForeground( notePadMeta.getBorderColorRed(), notePadMeta.getBorderColorGreen(), notePadMeta.getBorderColorBlue() );
 
-    gc.fillPolygon( noteshape );
-    gc.drawPolygon( noteshape );
+    gc.fillRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, (int)(margin*zoomFactor), (int)(margin*zoomFactor) );
+    gc.drawRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, (int)(margin*zoomFactor), (int)(margin*zoomFactor) );
 
     if ( !Utils.isEmpty( notePadMeta.getNote() ) ) {
-      gc.setForeground( notePadMeta.getFontColorRed(), notePadMeta.getFontColorGreen(), notePadMeta
-        .getFontColorBlue() );
+      gc.setForeground( notePadMeta.getFontColorRed(), notePadMeta.getFontColorGreen(), notePadMeta.getFontColorBlue() );
       gc.drawText( notePadMeta.getNote(), note.x + margin, note.y + margin, true );
     }
 
@@ -198,7 +204,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     // Add to the list of areas...
     //
-    areaOwners.add( new AreaOwner( AreaType.NOTE, note.x, note.y, width, height, offset, subject, notePadMeta ) );
+    areaOwners.add( new AreaOwner( AreaType.NOTE, noteShape.x, noteShape.y, noteShape.width, noteShape.height, offset, subject, notePadMeta ) );
   }
 
   protected int translateTo1To1( int value ) {

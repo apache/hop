@@ -39,35 +39,35 @@ import org.w3c.dom.Node;
 public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
   public static final String XML_TAG = "notepad";
 
-  public static final int COLOR_RGB_BLACK_RED = 0;
-  public static final int COLOR_RGB_BLACK_GREEN = 0;
-  public static final int COLOR_RGB_BLACK_BLUE = 0;
+  public static final int COLOR_RGB_BLACK_RED = 14;
+  public static final int COLOR_RGB_BLACK_GREEN = 58;
+  public static final int COLOR_RGB_BLACK_BLUE = 90;
 
-  public static final int COLOR_RGB_DEFAULT_BG_RED = 255;
-  public static final int COLOR_RGB_DEFAULT_BG_GREEN = 205;
-  public static final int COLOR_RGB_DEFAULT_BG_BLUE = 112;
+  public static final int COLOR_RGB_DEFAULT_BG_RED = 201;
+  public static final int COLOR_RGB_DEFAULT_BG_GREEN = 232;
+  public static final int COLOR_RGB_DEFAULT_BG_BLUE = 251;
 
-  public static final int COLOR_RGB_DEFAULT_BORDER_RED = 100;
-  public static final int COLOR_RGB_DEFAULT_BORDER_GREEN = 100;
-  public static final int COLOR_RGB_DEFAULT_BORDER_BLUE = 100;
+  public static final int COLOR_RGB_DEFAULT_BORDER_RED = 14;
+  public static final int COLOR_RGB_DEFAULT_BORDER_GREEN = 58;
+  public static final int COLOR_RGB_DEFAULT_BORDER_BLUE = 90;
 
   private String note;
-  private String fontname;
-  private int fontsize;
-  private boolean fontbold;
-  private boolean fontitalic;
+  private String fontName;
+  private int fontSize;
+  private boolean fontBold;
+  private boolean fontItalic;
 
-  private int fontcolorred;
-  private int fontcolorgreen;
-  private int fontcolorblue;
+  private int fontColorRed;
+  private int fontColorGreen;
+  private int fontColorBlue;
 
-  private int backgroundcolorred;
-  private int backgroundcolorgreen;
-  private int backgroundcolorblue;
+  private int backgroundColorRed;
+  private int backgroundColorGreen;
+  private int backgroundColorBlue;
 
-  private int bordercolorred;
-  private int bordercolorgreen;
-  private int bordercolorblue;
+  private int borderColorRed;
+  private int borderColorGreen;
+  private int borderColorBlue;
 
   private Point location;
   public int width, height;
@@ -76,29 +76,29 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
   private boolean changed;
 
   public NotePadMeta() {
-    note = null;
-    location = new Point( -1, -1 );
-    width = -1;
-    height = -1;
-    selected = false;
-    setDefaultFont();
+    this.note = null;
+    this.location = new Point( -1, -1 );
+    this.width = -1;
+    this.height = -1;
+    this.selected = false;
 
-    backgroundcolorred = 0xFF;
-    backgroundcolorgreen = 0xA5;
-    backgroundcolorblue = 0x00;
-  }
+    this.backgroundColorRed = COLOR_RGB_DEFAULT_BG_RED;
+    this.backgroundColorGreen = COLOR_RGB_DEFAULT_BG_GREEN;
+    this.backgroundColorBlue = COLOR_RGB_DEFAULT_BG_BLUE;
 
-  public NotePadMeta( String n, int xl, int yl, int w, int h ) {
-    note = n;
-    location = new Point( xl, yl );
-    width = w;
-    height = h;
-    selected = false;
     setDefaultFont();
   }
 
-  public NotePadMeta( String n, int xl, int yl, int w, int h, String fontname, int fontsize, boolean fontbold,
-                      boolean fontitalic, int fontColorRed, int fontColorGreen, int fontColorBlue, int backGrounColorRed,
+  public NotePadMeta( String note, int locationX, int locationY, int width, int height ) {
+    this();
+    this.note = note;
+    this.location = new Point( locationX, locationY );
+    this.width = width;
+    this.height = height;
+  }
+
+  public NotePadMeta( String n, int xl, int yl, int w, int h, String fontName, int fontSize, boolean fontBold,
+                      boolean fontItalic, int fontColorRed, int fontColorGreen, int fontColorBlue, int backGrounColorRed,
                       int backGrounColorGreen, int backGrounColorBlue, int borderColorRed, int borderColorGreen,
                       int borderColorBlue ) {
     this.note = n;
@@ -106,28 +106,28 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
     this.width = w;
     this.height = h;
     this.selected = false;
-    this.fontname = fontname;
-    this.fontsize = fontsize;
-    this.fontbold = fontbold;
-    this.fontitalic = fontitalic;
+    this.fontName = fontName;
+    this.fontSize = fontSize;
+    this.fontBold = fontBold;
+    this.fontItalic = fontItalic;
     // font color
-    this.fontcolorred = fontColorRed;
-    this.fontcolorgreen = fontColorGreen;
-    this.fontcolorblue = fontColorBlue;
+    this.fontColorRed = fontColorRed;
+    this.fontColorGreen = fontColorGreen;
+    this.fontColorBlue = fontColorBlue;
     // background color
-    this.backgroundcolorred = backGrounColorRed;
-    this.backgroundcolorgreen = backGrounColorGreen;
-    this.backgroundcolorblue = backGrounColorBlue;
+    this.backgroundColorRed = backGrounColorRed;
+    this.backgroundColorGreen = backGrounColorGreen;
+    this.backgroundColorBlue = backGrounColorBlue;
     // border color
-    this.bordercolorred = borderColorRed;
-    this.bordercolorgreen = borderColorGreen;
-    this.bordercolorblue = borderColorBlue;
+    this.borderColorRed = borderColorRed;
+    this.borderColorGreen = borderColorGreen;
+    this.borderColorBlue = borderColorBlue;
   }
 
   public NotePadMeta( NotePadMeta n ) {
-    this( n.note, n.location.x, n.location.y, n.width, n.height, n.fontname, n.fontsize, n.fontbold, n.fontitalic,
-      n.fontcolorred, n.backgroundcolorgreen, n.fontcolorblue, n.backgroundcolorred,
-      n.backgroundcolorgreen, n.backgroundcolorblue, n.bordercolorred, n.bordercolorgreen, n.bordercolorblue );
+    this( n.note, n.location.x, n.location.y, n.width, n.height, n.fontName, n.fontSize, n.fontBold, n.fontItalic,
+      n.fontColorRed, n.backgroundColorGreen, n.fontColorBlue, n.backgroundColorRed,
+      n.backgroundColorGreen, n.backgroundColorBlue, n.borderColorRed, n.borderColorGreen, n.borderColorBlue );
   }
 
   public NotePadMeta( Node notepadnode ) throws HopXmlException {
@@ -143,29 +143,29 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
       this.width = Const.toInt( swidth, 0 );
       this.height = Const.toInt( sheight, 0 );
       this.selected = false;
-      this.fontname = XmlHandler.getTagValue( notepadnode, "fontname" );
-      this.fontsize = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontsize" ), -1 );
-      this.fontbold = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontbold" ) );
-      this.fontitalic = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontitalic" ) );
+      this.fontName = XmlHandler.getTagValue( notepadnode, "fontname" );
+      this.fontSize = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontsize" ), -1 );
+      this.fontBold = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontbold" ) );
+      this.fontItalic = "Y".equalsIgnoreCase( XmlHandler.getTagValue( notepadnode, "fontitalic" ) );
       // font color
-      this.fontcolorred = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorred" ), COLOR_RGB_BLACK_RED );
-      this.fontcolorgreen =
+      this.fontColorRed = Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorred" ), COLOR_RGB_BLACK_RED );
+      this.fontColorGreen =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorgreen" ), COLOR_RGB_BLACK_GREEN );
-      this.fontcolorblue =
+      this.fontColorBlue =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "fontcolorblue" ), COLOR_RGB_BLACK_BLUE );
       // background color
-      this.backgroundcolorred =
+      this.backgroundColorRed =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorred" ), COLOR_RGB_DEFAULT_BG_RED );
-      this.backgroundcolorgreen =
+      this.backgroundColorGreen =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorgreen" ), COLOR_RGB_DEFAULT_BG_GREEN );
-      this.backgroundcolorblue =
+      this.backgroundColorBlue =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "backgroundcolorblue" ), COLOR_RGB_DEFAULT_BG_BLUE );
       // border color
-      this.bordercolorred =
+      this.borderColorRed =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorred" ), COLOR_RGB_DEFAULT_BORDER_RED );
-      this.bordercolorgreen =
+      this.borderColorGreen =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorgreen" ), COLOR_RGB_DEFAULT_BORDER_GREEN );
-      this.bordercolorblue =
+      this.borderColorBlue =
         Const.toInt( XmlHandler.getTagValue( notepadnode, "bordercolorblue" ), COLOR_RGB_DEFAULT_BORDER_BLUE );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to read Notepad info from XML", e );
@@ -206,63 +206,63 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
    * @param red the border red color.
    */
   public void setBorderColorRed( int red ) {
-    this.bordercolorred = red;
+    this.borderColorRed = red;
   }
 
   /**
    * @param green the border color green.
    */
   public void setBorderColorGreen( int green ) {
-    this.bordercolorgreen = green;
+    this.borderColorGreen = green;
   }
 
   /**
    * @param blue the border blue color.
    */
   public void setBorderColorBlue( int blue ) {
-    this.bordercolorblue = blue;
+    this.borderColorBlue = blue;
   }
 
   /**
    * @parm red the backGround red color.
    */
   public void setBackGroundColorRed( int red ) {
-    this.backgroundcolorred = red;
+    this.backgroundColorRed = red;
   }
 
   /**
    * @parm green the backGround green color.
    */
   public void setBackGroundColorGreen( int green ) {
-    this.backgroundcolorgreen = green;
+    this.backgroundColorGreen = green;
   }
 
   /**
    * @parm green the backGround blue color.
    */
   public void setBackGroundColorBlue( int blue ) {
-    this.backgroundcolorblue = blue;
+    this.backgroundColorBlue = blue;
   }
 
   /**
    * @returns the font color red.
    */
   public void setFontColorRed( int red ) {
-    this.fontcolorred = red;
+    this.fontColorRed = red;
   }
 
   /**
    * @param green the font color green.
    */
   public void setFontColorGreen( int green ) {
-    this.fontcolorgreen = green;
+    this.fontColorGreen = green;
   }
 
   /**
    * @param blue the font color blue.
    */
   public void setFontColorBlue( int blue ) {
-    this.fontcolorblue = blue;
+    this.fontColorBlue = blue;
   }
 
   /**
@@ -316,22 +316,22 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
     retval.append( "      " ).append( XmlHandler.addTagValue( "width", width ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "heigth", height ) );
     // Font
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontname", fontname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontsize", fontsize ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontbold", fontbold ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontitalic", fontitalic ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontname", fontName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontsize", fontSize ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontbold", fontBold ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontitalic", fontItalic ) );
     // Font color
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorred", fontcolorred ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorgreen", fontcolorgreen ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorblue", fontcolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorred", fontColorRed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorgreen", fontColorGreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "fontcolorblue", fontColorBlue ) );
     // Background color
-    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorred", backgroundcolorred ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorgreen", backgroundcolorgreen ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorblue", backgroundcolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorred", backgroundColorRed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorgreen", backgroundColorGreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "backgroundcolorblue", backgroundColorBlue ) );
     // border color
-    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorred", bordercolorred ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorgreen", bordercolorgreen ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorblue", bordercolorblue ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorred", borderColorRed ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorgreen", borderColorGreen ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "bordercolorblue", borderColorBlue ) );
     retval.append( "    </notepad>" ).append( Const.CR );
 
     return retval.toString();
@@ -369,140 +369,140 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
    * @return Returns the font name.
    */
   public String getFontName() {
-    return this.fontname;
+    return this.fontName;
   }
 
   /**
    * @param fontname The font name.
    */
   public void setFontName( String fontname ) {
-    this.fontname = fontname;
+    this.fontName = fontname;
   }
 
   /**
    * @return Returns the font size.
    */
   public int getFontSize() {
-    return this.fontsize;
+    return this.fontSize;
   }
 
   /**
    * @param fontbold The font bold.
    */
   public void setFontBold( boolean fontbold ) {
-    this.fontbold = fontbold;
+    this.fontBold = fontbold;
   }
 
   /**
    * @return Returns the font bold.
    */
   public boolean isFontBold() {
-    return this.fontbold;
+    return this.fontBold;
   }
 
   /**
    * @param fontitalic The font italic.
    */
   public void setFontItalic( boolean fontitalic ) {
-    this.fontitalic = fontitalic;
+    this.fontItalic = fontitalic;
   }
 
   /**
    * @return Returns the font italic.
    */
   public boolean isFontItalic() {
-    return this.fontitalic;
+    return this.fontItalic;
   }
 
   /**
    * @return Returns the backGround color red.
    */
   public int getBorderColorRed() {
-    return this.bordercolorred;
+    return this.borderColorRed;
   }
 
   /**
    * @return Returns the backGround color green.
    */
   public int getBorderColorGreen() {
-    return this.bordercolorgreen;
+    return this.borderColorGreen;
   }
 
   /**
    * @return Returns the backGround color blue.
    */
   public int getBorderColorBlue() {
-    return this.bordercolorblue;
+    return this.borderColorBlue;
   }
 
   /**
    * @return Returns the backGround color red.
    */
   public int getBackGroundColorRed() {
-    return this.backgroundcolorred;
+    return this.backgroundColorRed;
   }
 
   /**
    * @return Returns the backGround color green.
    */
   public int getBackGroundColorGreen() {
-    return this.backgroundcolorgreen;
+    return this.backgroundColorGreen;
   }
 
   /**
    * @return Returns the backGround color blue.
    */
   public int getBackGroundColorBlue() {
-    return this.backgroundcolorblue;
+    return this.backgroundColorBlue;
   }
 
   /**
    * @return Returns the font color red.
    */
   public int getFontColorRed() {
-    return this.fontcolorred;
+    return this.fontColorRed;
   }
 
   /**
    * @return Returns the font color green.
    */
   public int getFontColorGreen() {
-    return this.fontcolorgreen;
+    return this.fontColorGreen;
   }
 
   /**
    * @return Returns the font color blue.
    */
   public int getFontColorBlue() {
-    return this.fontcolorblue;
+    return this.fontColorBlue;
   }
 
   /**
    * @param fontsize The font name.
    */
   public void setFontSize( int fontsize ) {
-    this.fontsize = fontsize;
+    this.fontSize = fontsize;
   }
 
   private void setDefaultFont() {
-    this.fontname = null;
-    this.fontsize = -1;
-    this.fontbold = false;
-    this.fontitalic = false;
+    this.fontName = null;
+    this.fontSize = -1;
+    this.fontBold = false;
+    this.fontItalic = false;
 
     // font color black
-    this.fontcolorred = COLOR_RGB_BLACK_RED;
-    this.fontcolorgreen = COLOR_RGB_BLACK_GREEN;
-    this.fontcolorblue = COLOR_RGB_BLACK_BLUE;
+    this.fontColorRed = COLOR_RGB_BLACK_RED;
+    this.fontColorGreen = COLOR_RGB_BLACK_GREEN;
+    this.fontColorBlue = COLOR_RGB_BLACK_BLUE;
 
     // background yellow
-    this.backgroundcolorred = COLOR_RGB_DEFAULT_BG_RED;
-    this.backgroundcolorgreen = COLOR_RGB_DEFAULT_BG_GREEN;
-    this.backgroundcolorblue = COLOR_RGB_DEFAULT_BG_BLUE;
+    this.backgroundColorRed = COLOR_RGB_DEFAULT_BG_RED;
+    this.backgroundColorGreen = COLOR_RGB_DEFAULT_BG_GREEN;
+    this.backgroundColorBlue = COLOR_RGB_DEFAULT_BG_BLUE;
 
     // border gray
-    this.bordercolorred = COLOR_RGB_DEFAULT_BORDER_RED;
-    this.bordercolorgreen = COLOR_RGB_DEFAULT_BORDER_GREEN;
-    this.bordercolorblue = COLOR_RGB_DEFAULT_BORDER_BLUE;
+    this.borderColorRed = COLOR_RGB_DEFAULT_BORDER_RED;
+    this.borderColorGreen = COLOR_RGB_DEFAULT_BORDER_GREEN;
+    this.borderColorBlue = COLOR_RGB_DEFAULT_BORDER_BLUE;
   }
 }
