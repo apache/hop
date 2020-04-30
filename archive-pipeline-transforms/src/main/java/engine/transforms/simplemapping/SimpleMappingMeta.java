@@ -377,7 +377,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   @Deprecated
-  public Object loadReferencedObject( int index, iVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, iVariables variables ) throws HopException {
     return loadReferencedObject( index, null, variables );
   }
 
@@ -390,7 +390,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, IMetaStore metaStore, iVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, iVariables variables ) throws HopException {
     return loadMappingMeta( this, metaStore, variables );
   }
 

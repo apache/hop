@@ -29,11 +29,9 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -41,12 +39,14 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -160,7 +160,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // A tab folder covers the complete area...
     //
-    tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER  );
+    tabFolder = new CTabFolder( composite, SWT.MULTI | SWT.BORDER );
     props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
@@ -306,7 +306,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Set the tab name
     //
-    updateTabLabel(tabItem, pipelineMeta.getFilename(), pipelineMeta.getName());
+    updateTabLabel( tabItem, pipelineMeta.getFilename(), pipelineMeta.getName() );
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
@@ -334,7 +334,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   }
 
   public void updateTabLabel( CTabItem tabItem, String filename, String name ) {
-    if (!tabItem.isDisposed()) {
+    if ( !tabItem.isDisposed() ) {
       tabItem.setText( Const.NVL( name, "<>" ) );
       tabItem.setToolTipText( filename );
     }
@@ -354,7 +354,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Set the tab name
     //
-    updateTabLabel(tabItem, workflowMeta.getFilename(), workflowMeta.getName());
+    updateTabLabel( tabItem, workflowMeta.getFilename(), workflowMeta.getName() );
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
@@ -406,17 +406,17 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       HopGuiKeyHandler.getInstance().removeParentObjectToHandle( typeHandler );
       hopGui.getMainHopGuiComposite().setFocus();
 
-      if (typeHandler.getSubject()!=null) {
-        if (typeHandler.getSubject() instanceof PipelineMeta) {
+      if ( typeHandler.getSubject() != null ) {
+        if ( typeHandler.getSubject() instanceof PipelineMeta ) {
           try {
             ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiPipelineAfterClose.id, typeHandler.getSubject() );
-          } catch(Exception e) {
+          } catch ( Exception e ) {
             hopGui.getLog().logError( "Error calling extension point 'HopGuiPipelineAfterClose'", e );
           }
-        } else if (typeHandler.getSubject() instanceof WorkflowMeta) {
+        } else if ( typeHandler.getSubject() instanceof WorkflowMeta ) {
           try {
             ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiWorkflowAfterClose.id, typeHandler.getSubject() );
-          } catch(Exception e) {
+          } catch ( Exception e ) {
             hopGui.getLog().logError( "Error calling extension point 'HopGuiWorkflowAfterClose'", e );
           }
         }
@@ -441,11 +441,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   @Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
     TabItemHandler tabItemHandler = findTabItemHandler( activeFileTypeHandler );
-    if (tabItemHandler==null) {
+    if ( tabItemHandler == null ) {
       return; // Can't find the file
     }
     // Select the tab
     //
+    switchToTab( tabItemHandler );
+  }
+
+  public void switchToTab( TabItemHandler tabItemHandler ) {
     tabFolder.setSelection( tabItemHandler.getTabItem() );
     tabFolder.showItem( tabItemHandler.getTabItem() );
     tabFolder.setFocus();
@@ -505,10 +509,22 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * Update all the tab labels...
    */
   public void updateTabs() {
-    for (TabItemHandler item : items) {
+    for ( TabItemHandler item : items ) {
       IHopFileTypeHandler typeHandler = item.getTypeHandler();
       updateTabLabel( item.getTabItem(), typeHandler.getFilename(), typeHandler.getName() );
     }
+  }
+
+  public TabItemHandler findTabItemHandlerWithFilename( String filename ) {
+    if ( filename == null ) {
+      return null;
+    }
+    for ( TabItemHandler item : items ) {
+      if ( item.getTypeHandler().getFilename().equals( filename ) ) {
+        return item;
+      }
+    }
+    return null;
   }
 
   /**
@@ -640,5 +656,4 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public HopWorkflowFileType<WorkflowMeta> getWorkflowFileType() {
     return workflowFileType;
   }
-
 }

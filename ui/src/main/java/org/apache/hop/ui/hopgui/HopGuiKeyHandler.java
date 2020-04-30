@@ -65,9 +65,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
     //
     for ( Object parentObject : parentObjects ) {
       List<KeyboardShortcut> shortcuts = GuiRegistry.getInstance().getKeyboardShortcuts( parentObject.getClass().getName() );
-      for ( KeyboardShortcut shortcut : shortcuts ) {
-        if ( handleKey( parentObject, e, shortcut ) ) {
-          return; // This key is handled.
+      if (shortcuts!=null) {
+        for ( KeyboardShortcut shortcut : shortcuts ) {
+          if ( handleKey( parentObject, e, shortcut ) ) {
+            return; // This key is handled.
+          }
         }
       }
     }

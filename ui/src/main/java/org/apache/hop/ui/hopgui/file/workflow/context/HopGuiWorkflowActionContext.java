@@ -22,14 +22,21 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
-import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.IAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +72,26 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
   @Override public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
+    // Put references at the start since we use those things a lot
+    //
+    IAction action = actionCopy.getEntry();
+    String[] objectDescriptions = action.getReferencedObjectDescriptions();
+    for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {
+      final String objectDescription = objectDescriptions[ i ];
+      if ( action.isReferencedObjectEnabled()[ i ] ) {
+        final int index = i;
+        GuiAction openReferencedAction = new GuiAction(
+          "action-open-referenced-"+objectDescription,
+          GuiActionType.Info,
+          "open: " + objectDescription,
+          "This opens up the file referenced in the action",
+          "ui/images/open.svg",
+          ( shiftAction, controlAction, t ) -> openReferencedObject( action, objectDescription, index )
+        );
+        actions.add( openReferencedAction );
+      }
+    }
+
     // Get the actions from the plugins, sorted by ID...
     //
     List<GuiAction> pluginActions = getPluginActions( true );
@@ -76,6 +103,29 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
 
     return actions;
   }
+
+  private void openReferencedObject( IAction action, String objectDescription, int index ) {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      IHasFilename hasFilename = action.loadReferencedObject( index, workflowMeta.getMetaStore(), workflowMeta );
+      if ( hasFilename != null ) {
+        String filename = workflowMeta.environmentSubstitute( hasFilename.getFilename() );
+
+        // Is this object already loaded?
+        //
+        TabItemHandler tabItemHandler = HopDataOrchestrationPerspective.getInstance().findTabItemHandlerWithFilename(filename);
+        if (tabItemHandler!=null) {
+          HopDataOrchestrationPerspective.getInstance().switchToTab(tabItemHandler);
+        } else {
+          hopGui.fileDelegate.fileOpen(filename);
+        }
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error opening referenced object '" + objectDescription + "'", e );
+    }
+  }
+
+
 
   /**
    * Gets workflowMeta

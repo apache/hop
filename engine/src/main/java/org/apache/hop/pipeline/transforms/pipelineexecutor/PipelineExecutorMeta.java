@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -914,7 +915,7 @@ public class PipelineExecutorMeta
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables )
+  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables )
     throws HopException {
     return loadMappingMeta( this, metaStore, variables );
   }

@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -376,7 +377,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @return the referenced object once loaded
    * @throws HopException
    */
-  Object loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException;
+  IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException;
 
   /**
    * Action remove hop exiting this transform
