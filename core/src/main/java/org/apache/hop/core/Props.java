@@ -87,7 +87,6 @@ public class Props implements Cloneable {
   public static final String STRING_ZOOM_FACTOR = "ZoomFactor";
   public static final String STRING_ICON_SIZE = "IconSize";
   public static final String STRING_LINE_WIDTH = "LineWidth";
-  public static final String STRING_SHADOW_SIZE = "ShadowSize";
   public static final String STRING_LOG_LEVEL = "LogLevel";
   public static final String STRING_LOG_FILTER = "LogFilter";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
@@ -98,15 +97,6 @@ public class Props implements Cloneable {
   public static final String STRING_LAST_PREVIEW_SIZE = "LastPreviewSize";
 
   public static final String STRING_MAX_UNDO = "MaxUndo";
-
-  public static final String STRING_SIZE_MAX = "SizeMax";
-  public static final String STRING_SIZE_X = "SizeX";
-  public static final String STRING_SIZE_Y = "SizeY";
-  public static final String STRING_SIZE_W = "SizeW";
-  public static final String STRING_SIZE_H = "SizeH";
-
-  public static final String STRING_SASH_W1 = "SashWeight1";
-  public static final String STRING_SASH_W2 = "SashWeight2";
 
   public static final String STRING_AUTO_SAVE = "AutoSave";
   public static final String STRING_SAVE_CONF = "SaveConfirmation";
@@ -121,8 +111,6 @@ public class Props implements Cloneable {
   public static final String STRING_SHOW_OS_LOOK = "ShowOSLook";
   public static final String STRING_LAST_ARGUMENT = "LastArgument";
 
-  public static final String STRING_ARGUMENT_NAME_PREFIX = "Argument ";
-
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";
 
   public static final String STRING_PLUGIN_HISTORY = "PluginHistory";
@@ -130,16 +118,10 @@ public class Props implements Cloneable {
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
 
   private static final String STRING_MAX_NR_LINES_IN_LOG = "MaxNrOfLinesInLog";
-  private static final String STRING_MAX_NR_LINES_IN_HISTORY = "MaxNrOfLinesInHistory";
-  private static final String STRING_LINES_IN_HISTORY_FETCH_SIZE = "LinesInHistoryFetchSize";
-  public static final String STRING_DISABLE_INITIAL_EXECUTION_HISTORY = "DisableInitialExecutionHistory";
   private static final String STRING_MAX_LOG_LINE_TIMEOUT_MINUTES = "MaxLogLineTimeOutMinutes";
-  public static final String STRING_RECENT_SEARCHES = "RecentSearches";
 
   protected ILogChannel log;
   protected Properties properties;
-
-  protected ArrayList<ObjectUsageCount> pluginHistory;
 
   protected String filename;
 
@@ -201,12 +183,9 @@ public class Props implements Cloneable {
     filename = getFilename();
     createLogChannel();
     properties = new Properties();
-    pluginHistory = new ArrayList<>();
 
     loadProps();
     addDefaultEntries();
-
-    loadPluginHistory();
 
   }
 
@@ -343,119 +322,6 @@ public class Props implements Cloneable {
     }
   }
 
-  /**
-   * Convert "argument 1" to 1
-   *
-   * @param value The value to determine the argument number for
-   * @return The argument number
-   */
-  public static final int getArgumentNumber( IValueMeta value ) {
-    if ( value != null && value.getName().startsWith( Props.STRING_ARGUMENT_NAME_PREFIX ) ) {
-      return Const.toInt( value.getName().substring( Props.STRING_ARGUMENT_NAME_PREFIX.length() ), -1 );
-    }
-    return -1;
-  }
-
-  public static final String[] convertArguments( RowMetaAndData row ) {
-    String[] args = new String[ 10 ];
-    for ( int i = 0; i < row.size(); i++ ) {
-      IValueMeta valueMeta = row.getValueMeta( i );
-      int argNr = getArgumentNumber( valueMeta );
-      if ( argNr >= 0 && argNr < 10 ) {
-        try {
-          args[ argNr ] = row.getString( i, "" );
-        } catch ( HopValueException e ) {
-          args[ argNr ] = ""; // Should never happen
-        }
-      }
-    }
-    return args;
-  }
-
-  /**
-   * Set the last arguments so that we can recall it the next time...
-   *
-   * @param args the arguments to save
-   */
-  public void setLastArguments( String[] args ) {
-    for ( int i = 0; i < args.length; i++ ) {
-      if ( args[ i ] != null ) {
-        properties.setProperty( STRING_LAST_ARGUMENT + "_" + i, args[ i ] );
-      }
-    }
-  }
-
-  /**
-   * Get the last entered arguments...
-   *
-   * @return the last entered arguments...
-   */
-  public String[] getLastArguments() {
-    String[] args = new String[ 10 ];
-    for ( int i = 0; i < args.length; i++ ) {
-      args[ i ] = properties.getProperty( STRING_LAST_ARGUMENT + "_" + i );
-    }
-    return args;
-  }
-
-  /**
-   * Get the list of recently used transform
-   *
-   * @return a list of strings: the plug-in IDs
-   */
-  public List<ObjectUsageCount> getPluginHistory() {
-    return pluginHistory;
-  }
-
-  public int increasePluginHistory( String pluginID ) {
-    for ( int i = 0; i < pluginHistory.size(); i++ ) {
-      ObjectUsageCount usage = pluginHistory.get( i );
-      if ( usage.getObjectName().equalsIgnoreCase( pluginID ) ) {
-        int uses = usage.increment();
-        Collections.sort( pluginHistory );
-        savePluginHistory();
-        return uses;
-      }
-    }
-    addPluginHistory( pluginID, 1 );
-    Collections.sort( pluginHistory );
-    savePluginHistory();
-
-    return 1;
-  }
-
-  /*
-   * /** Set the last plugin used in the plugin history
-   *
-   * @param pluginID The last plugin ID
-   */
-  public void addPluginHistory( String pluginID, int uses ) {
-    // Add at the front
-    pluginHistory.add( new ObjectUsageCount( pluginID, uses ) );
-  }
-
-  /**
-   * Load the plugin history from the properties file
-   */
-  protected void loadPluginHistory() {
-    pluginHistory = new ArrayList<>();
-    int i = 0;
-    String string = properties.getProperty( STRING_PLUGIN_HISTORY + "_" + i );
-    while ( string != null ) {
-      pluginHistory.add( ObjectUsageCount.fromString( string ) );
-      i++;
-      string = properties.getProperty( STRING_PLUGIN_HISTORY + "_" + i );
-    }
-
-    Collections.sort( pluginHistory );
-  }
-
-  private void savePluginHistory() {
-    for ( int i = 0; i < pluginHistory.size(); i++ ) {
-      ObjectUsageCount usage = pluginHistory.get( i );
-      properties.setProperty( STRING_PLUGIN_HISTORY + "_" + i, usage.toString() );
-    }
-  }
 
   public int getMaxNrLinesInLog() {
     String lines = properties.getProperty( STRING_MAX_NR_LINES_IN_LOG );
@@ -464,33 +330,6 @@ public class Props implements Cloneable {
 
   public void setMaxNrLinesInLog( int maxNrLinesInLog ) {
     properties.setProperty( STRING_MAX_NR_LINES_IN_LOG, Integer.toString( maxNrLinesInLog ) );
-  }
-
-  public int getMaxNrLinesInHistory() {
-    String lines = properties.getProperty( STRING_MAX_NR_LINES_IN_HISTORY );
-    return Const.toInt( lines, Const.MAX_NR_HISTORY_LINES );
-  }
-
-  public int getLinesInHistoryFetchSize() {
-    String fetchSize = properties.getProperty( STRING_LINES_IN_HISTORY_FETCH_SIZE );
-    return Const.toInt( fetchSize, Const.HISTORY_LINES_FETCH_SIZE );
-  }
-
-  public boolean disableInitialExecutionHistory() {
-    String disable = properties.getProperty( STRING_DISABLE_INITIAL_EXECUTION_HISTORY, "N" );
-    return "Y".equalsIgnoreCase( disable );
-  }
-
-  public void setMaxNrLinesInHistory( int maxNrLinesInHistory ) {
-    properties.setProperty( STRING_MAX_NR_LINES_IN_HISTORY, Integer.toString( maxNrLinesInHistory ) );
-  }
-
-  public void setLinesInHistoryFetchSize( int linesInHistoryFetchSize ) {
-    properties.setProperty( STRING_LINES_IN_HISTORY_FETCH_SIZE, Integer.toString( linesInHistoryFetchSize ) );
-  }
-
-  public void setDisableInitialExecutionHistory( boolean disable ) {
-    properties.setProperty( STRING_DISABLE_INITIAL_EXECUTION_HISTORY, disable ? "Y" : "N" );
   }
 
   public int getMaxLogLineTimeoutMinutes() {
@@ -505,7 +344,6 @@ public class Props implements Cloneable {
   public void reset() {
     props = null;
     properties.clear();
-    pluginHistory.clear();
   }
 
 }

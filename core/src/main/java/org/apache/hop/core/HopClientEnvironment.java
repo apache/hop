@@ -114,7 +114,6 @@ public class HopClientEnvironment {
     HopLogStore.init();
 
     // Add console output so that folks see what's going on...
-    // TODO: make this configurable...
     //
     if ( !"Y".equalsIgnoreCase( System.getProperty( Const.HOP_DISABLE_CONSOLE_LOGGING, "N" ) ) ) {
       HopLogStore.getAppender().addLoggingEventListener( new ConsoleLoggingEventListener() );

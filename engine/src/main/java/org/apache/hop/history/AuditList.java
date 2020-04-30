@@ -32,52 +32,14 @@ import java.util.List;
  */
 public class AuditList {
 
-  private String group;
-
-  private String type;
-
   private List<String> names;
 
   public AuditList() {
     names = new ArrayList<>();
   }
 
-  public AuditList( String group, String type, List<String> names ) {
-    this.group = group;
-    this.type = type;
+  public AuditList( List<String> names ) {
     this.names = names;
-  }
-
-  /**
-   * Gets group
-   *
-   * @return value of group
-   */
-  public String getGroup() {
-    return group;
-  }
-
-  /**
-   * @param group The group to set
-   */
-  public void setGroup( String group ) {
-    this.group = group;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType( String type ) {
-    this.type = type;
   }
 
   /**

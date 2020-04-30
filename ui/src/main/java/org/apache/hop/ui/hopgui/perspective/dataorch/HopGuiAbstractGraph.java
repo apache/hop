@@ -36,7 +36,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -44,15 +46,26 @@ import java.util.UUID;
  */
 public abstract class HopGuiAbstractGraph extends Composite {
 
+  public static final String STATE_MAGNIFICATION = "magnification";
+  public static final String STATE_SCROLL_X_THUMB = "scroll-x-thumb";
+  public static final String STATE_SCROLL_X_SELECTION = "scroll-x-selection";
+  public static final String STATE_SCROLL_X_MIN = "scroll-x-min";
+  public static final String STATE_SCROLL_X_MAX = "scroll-x-max";
+  public static final String STATE_SCROLL_Y_THUMB = "scroll-y-thumb";
+  public static final String STATE_SCROLL_Y_SELECTION = "scroll-y-selection";
+  public static final String STATE_SCROLL_Y_MIN = "scroll-y-min";
+  public static final String STATE_SCROLL_Y_MAX = "scroll-y-max";
+
   protected HopGui hopGui;
 
   protected Composite parentComposite;
 
   protected CTabItem parentTabItem;
 
-  protected Point offset, iconoffset, noteoffset;
+  protected Point offset, iconOffset, noteOffset;
 
-  protected ScrollBar vert, hori;
+  protected ScrollBar verticalScrollBar;
+  protected ScrollBar horizontalScrollBar;
 
   protected Canvas canvas;
 
@@ -86,7 +99,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected Point getOffset( Point thumb, Point area ) {
     Point p = new Point( 0, 0 );
-    Point sel = new Point( hori.getSelection(), vert.getSelection() );
+    Point sel = new Point( horizontalScrollBar.getSelection(), verticalScrollBar.getSelection() );
 
     if ( thumb.x == 0 || thumb.y == 0 ) {
       return p;
@@ -263,5 +276,63 @@ public abstract class HopGuiAbstractGraph extends Composite {
    */
   public String getId() {
     return id;
+  }
+
+  public Map<String, Object> getStateProperties() {
+    Map<String,Object> map = new HashMap<>();
+    map.put( STATE_MAGNIFICATION, magnification );
+
+    map.put( STATE_SCROLL_X_THUMB, horizontalScrollBar.getThumb() );
+    map.put( STATE_SCROLL_X_SELECTION, horizontalScrollBar.getSelection());
+    map.put( STATE_SCROLL_X_MIN, horizontalScrollBar.getMinimum());
+    map.put( STATE_SCROLL_X_MAX, horizontalScrollBar.getMaximum());
+
+    map.put( STATE_SCROLL_Y_THUMB, verticalScrollBar.getThumb() );
+    map.put( STATE_SCROLL_Y_SELECTION, verticalScrollBar.getSelection());
+    map.put( STATE_SCROLL_Y_MIN, verticalScrollBar.getMinimum());
+    map.put( STATE_SCROLL_Y_MAX, verticalScrollBar.getMaximum());
+    return map;
+  }
+
+  public void applyStateProperties( Map<String, Object> stateProperties ) {
+    Double fMagnification = (Double) stateProperties.get( STATE_MAGNIFICATION );
+    magnification = fMagnification==null ? 1.0f : fMagnification.floatValue();
+    setZoomLabel();
+
+    Integer scrollXMin = (Integer) stateProperties.get( STATE_SCROLL_X_MIN );
+    if (scrollXMin!=null) {
+      horizontalScrollBar.setMinimum( scrollXMin.intValue() );
+    }
+    Integer scrollXMax = (Integer) stateProperties.get( STATE_SCROLL_X_MAX );
+    if (scrollXMax!=null) {
+      horizontalScrollBar.setMaximum( scrollXMax.intValue() );
+    }
+    Integer scrollXThumb = (Integer) stateProperties.get( STATE_SCROLL_X_THUMB );
+    if (scrollXThumb!=null) {
+      horizontalScrollBar.setThumb( scrollXThumb.intValue() );
+    }
+    Integer scrollXSelection = (Integer) stateProperties.get( STATE_SCROLL_X_SELECTION );
+    if (scrollXSelection!=null) {
+      horizontalScrollBar.setSelection( scrollXSelection.intValue() );
+    }
+
+    Integer scrollYMin = (Integer) stateProperties.get( STATE_SCROLL_Y_MIN );
+    if (scrollYMin!=null) {
+      verticalScrollBar.setMinimum( scrollYMin.intValue() );
+    }
+    Integer scrollYMax = (Integer) stateProperties.get( STATE_SCROLL_Y_MAX );
+    if (scrollYMax!=null) {
+      verticalScrollBar.setMaximum( scrollYMax.intValue() );
+    }
+    Integer scrollYThumb = (Integer) stateProperties.get( STATE_SCROLL_Y_THUMB );
+    if (scrollYThumb!=null) {
+      verticalScrollBar.setThumb( scrollYThumb.intValue() );
+    }
+    Integer scrollYSelection = (Integer) stateProperties.get( STATE_SCROLL_Y_SELECTION );
+    if (scrollYSelection!=null) {
+      verticalScrollBar.setSelection( scrollYSelection.intValue() );
+    }
+
+    redraw();
   }
 }

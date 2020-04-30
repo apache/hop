@@ -50,10 +50,12 @@ public interface IAuditManager {
 
   /**
    * Store a list
+   * @param group The group to which the list belongs
+   * @param type The type of list you want to store
    * @param auditList The list to be stored
    * @throws HopException
    */
-  void storeList( AuditList auditList) throws HopException;
+  void storeList( String group, String type, AuditList auditList) throws HopException;
 
   /**
    * Retrieve a list of items of a certain group and type
@@ -64,5 +66,41 @@ public interface IAuditManager {
    */
   AuditList retrieveList(String group, String type) throws HopException;
 
+  /**
+   * Store the state of an object
+   * @param group the group to which the state belongs (namespace, environment, ...)
+   * @param type the type of state (shell, perspective, ...)
+   * @param auditState The audit state
+   * @throws HopException In case something goes wrong
+   */
+  void storeState(String group, String type, AuditState auditState ) throws HopException;
 
+  /**
+   * Retrieve the state of an object with a particular name
+   * @param group The group (namespace, environment)
+   * @param type The type (file, window, perspective,...)
+   * @param name filename, shell name, ...
+   * @return The state
+   * @throws HopException in case something goes wrong
+   */
+  AuditState retrieveState(String group, String type, String name) throws HopException;
+
+  /**
+   * Load the audit state map of a map of objects
+   *
+   * @param group
+   * @param type
+   * @return
+   * @throws HopException
+   */
+  AuditStateMap loadAuditStateMap( String group, String type ) throws HopException;
+
+  /**
+   * Save the given audit state map for a map of objects.
+   * @param group
+   * @param type
+   * @param auditStateMap
+   * @throws HopException
+   */
+  void saveAuditStateMap( String group, String type, AuditStateMap auditStateMap ) throws HopException;
 }

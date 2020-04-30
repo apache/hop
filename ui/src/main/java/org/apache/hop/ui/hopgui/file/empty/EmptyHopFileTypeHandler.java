@@ -28,7 +28,9 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
 
@@ -123,6 +125,13 @@ public class EmptyHopFileTypeHandler implements IHopFileTypeHandler {
   }
 
   @Override public void redo() {
+  }
+
+  @Override public Map<String, Object> getStateProperties() {
+    return Collections.emptyMap();
+  }
+
+  @Override public void applyStateProperties( Map<String, Object> stateProperties ) {
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

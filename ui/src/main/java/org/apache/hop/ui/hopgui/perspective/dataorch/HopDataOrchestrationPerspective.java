@@ -439,6 +439,19 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return activeItem.getTypeHandler();
   }
 
+  @Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
+    TabItemHandler tabItemHandler = findTabItemHandler( activeFileTypeHandler );
+    if (tabItemHandler==null) {
+      return; // Can't find the file
+    }
+    // Select the tab
+    //
+    tabFolder.setSelection( tabItemHandler.getTabItem() );
+    tabFolder.showItem( tabItemHandler.getTabItem() );
+    tabFolder.setFocus();
+    activeItem = tabItemHandler;
+  }
+
   public List<IHopFileType> getSupportedHopFileTypes() {
     return Arrays.asList( pipelineFileType, workflowFileType );
   }

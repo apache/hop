@@ -24,19 +24,18 @@ package org.apache.hop.ui.core;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ObjectUsageCount;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.gui.GuiOption;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.LifecyclePluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.history.AuditState;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.PaintEvent;
@@ -60,7 +59,6 @@ import org.eclipse.swt.widgets.TableItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
@@ -84,15 +82,7 @@ public class PropsUi extends Props {
   private static Display display;
   private static double nativeZoomFactor;
 
-  private Hashtable<String, WindowProperty> screens;
-
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING = "ShowCopyOrDistributeWarning";
-
-  private static final String STRING_SHOW_WELCOME_PAGE_ON_STARTUP = "ShowWelcomePageOnStartup";
-
-  private static final String STRING_SHOW_BRANDING_GRAPHICS = "ShowBrandingGraphics";
-
-  private static final String STRING_ONLY_SHOW_ACTIVE_FILE = "OnlyShowActiveFileInTree";
 
   private static final String SHOW_TOOL_TIPS = "ShowToolTips";
 
@@ -103,8 +93,6 @@ public class PropsUi extends Props {
   private static final String LEGACY_PERSPECTIVE_MODE = "LegacyPerspectiveMode";
 
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
-
-  private static List<GuiOption<Object>> editables;
 
   /**
    * Initialize the properties: load from disk.
@@ -154,15 +142,6 @@ public class PropsUi extends Props {
     }
   }
 
-  /**
-   * Check to see whether the Hop properties where loaded.
-   *
-   * @return true if the Hop properties where loaded.
-   */
-  public static boolean isInitialized() {
-    return props != null;
-  }
-
   public static PropsUi getInstance() {
     if ( props != null ) {
       return (PropsUi) props;
@@ -182,62 +161,25 @@ public class PropsUi extends Props {
     initialize();
   }
 
-  @SuppressWarnings( "unchecked" )
   @Override
   protected synchronized void initialize() {
     super.createLogChannel();
     super.initialize();
     properties = new Properties();
-    pluginHistory = new ArrayList<ObjectUsageCount>();
 
     setDefault();
     loadProps();
     addDefaultEntries();
-
-    loadPluginHistory();
-
-    loadScreens();
-    resetRecentSearches();
-
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = registry.getPlugins( LifecyclePluginType.class );
-    List<GuiOption<Object>> leditables = new ArrayList<GuiOption<Object>>();
-    for ( IPlugin plugin : plugins ) {
-      if ( !plugin.getClassMap().keySet().contains( GuiOption.class ) ) {
-        continue;
-      }
-
-      try {
-        GuiOption<Object> loaded = registry.loadClass( plugin, GuiOption.class );
-        if ( loaded != null ) {
-          leditables.add( loaded );
-        }
-      } catch ( ClassCastException cce ) {
-        // Not all Lifecycle plugins implement GuiOption, keep calm and carry on
-        LogChannel.GENERAL.logDebug( "Plugin " + plugin.getIds()[ 0 ]
-          + " does not implement GuiOption, it will not be editable" );
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Unexpected error loading class for plugin " + plugin.getName(), e );
-      }
-    }
-
-    editables = Collections.unmodifiableList( leditables );
-
   }
 
   public void setDefault() {
-    FontData fd;
-    RGB col;
-
-    screens = new Hashtable<String, WindowProperty>();
 
     properties.setProperty( STRING_LOG_LEVEL, getLogLevel() );
     properties.setProperty( STRING_LOG_FILTER, getLogFilter() );
 
     if ( display != null ) {
       // Set Default Look for all dialogs and sizes.
-      String prop =
-        BasePropertyHandler.getProperty( "Default_UI_Properties_Resource", "org.apache.hop.ui.core.default" );
+      String prop = BasePropertyHandler.getProperty( "Default_UI_Properties_Resource", "org.apache.hop.ui.core.default" );
       try {
         ResourceBundle bundle = PropertyResourceBundle.getBundle( prop );
         if ( bundle != null ) {
@@ -253,94 +195,50 @@ public class PropsUi extends Props {
         ex.printStackTrace();
       }
 
-      fd = getFixedFont();
-      properties.setProperty( STRING_FONT_FIXED_NAME, fd.getName() );
-      properties.setProperty( STRING_FONT_FIXED_SIZE, "" + fd.getHeight() );
-      properties.setProperty( STRING_FONT_FIXED_STYLE, "" + fd.getStyle() );
+      FontData fontData = getFixedFont();
+      properties.setProperty( STRING_FONT_FIXED_NAME, fontData.getName() );
+      properties.setProperty( STRING_FONT_FIXED_SIZE, "" + fontData.getHeight() );
+      properties.setProperty( STRING_FONT_FIXED_STYLE, "" + fontData.getStyle() );
 
-      fd = getDefaultFont();
-      properties.setProperty( STRING_FONT_DEFAULT_NAME, fd.getName() );
-      properties.setProperty( STRING_FONT_DEFAULT_SIZE, "" + fd.getHeight() );
-      properties.setProperty( STRING_FONT_DEFAULT_STYLE, "" + fd.getStyle() );
+      fontData = getDefaultFont();
+      properties.setProperty( STRING_FONT_DEFAULT_NAME, fontData.getName() );
+      properties.setProperty( STRING_FONT_DEFAULT_SIZE, "" + fontData.getHeight() );
+      properties.setProperty( STRING_FONT_DEFAULT_STYLE, "" + fontData.getStyle() );
 
-      fd = getDefaultFont();
-      properties.setProperty( STRING_FONT_GRAPH_NAME, fd.getName() );
-      properties.setProperty( STRING_FONT_GRAPH_SIZE, "" + fd.getHeight() );
-      properties.setProperty( STRING_FONT_GRAPH_STYLE, "" + fd.getStyle() );
+      fontData = getDefaultFont();
+      properties.setProperty( STRING_FONT_GRAPH_NAME, fontData.getName() );
+      properties.setProperty( STRING_FONT_GRAPH_SIZE, "" + fontData.getHeight() );
+      properties.setProperty( STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle() );
 
-      fd = getDefaultFont();
-      properties.setProperty( STRING_FONT_GRID_NAME, fd.getName() );
-      properties.setProperty( STRING_FONT_GRID_SIZE, "" + fd.getHeight() );
-      properties.setProperty( STRING_FONT_GRID_STYLE, "" + fd.getStyle() );
+      fontData = getDefaultFont();
+      properties.setProperty( STRING_FONT_GRID_NAME, fontData.getName() );
+      properties.setProperty( STRING_FONT_GRID_SIZE, "" + fontData.getHeight() );
+      properties.setProperty( STRING_FONT_GRID_STYLE, "" + fontData.getStyle() );
 
-      fd = getDefaultFont();
-      properties.setProperty( STRING_FONT_NOTE_NAME, fd.getName() );
-      properties.setProperty( STRING_FONT_NOTE_SIZE, "" + fd.getHeight() );
-      properties.setProperty( STRING_FONT_NOTE_STYLE, "" + fd.getStyle() );
+      fontData = getDefaultFont();
+      properties.setProperty( STRING_FONT_NOTE_NAME, fontData.getName() );
+      properties.setProperty( STRING_FONT_NOTE_SIZE, "" + fontData.getHeight() );
+      properties.setProperty( STRING_FONT_NOTE_STYLE, "" + fontData.getStyle() );
 
-      col = getBackgroundRGB();
-      properties.setProperty( STRING_BACKGROUND_COLOR_R, "" + col.red );
-      properties.setProperty( STRING_BACKGROUND_COLOR_G, "" + col.green );
-      properties.setProperty( STRING_BACKGROUND_COLOR_B, "" + col.blue );
+      RGB color = getBackgroundRGB();
+      properties.setProperty( STRING_BACKGROUND_COLOR_R, "" + color.red );
+      properties.setProperty( STRING_BACKGROUND_COLOR_G, "" + color.green );
+      properties.setProperty( STRING_BACKGROUND_COLOR_B, "" + color.blue );
 
-      col = getGraphColorRGB();
-      properties.setProperty( STRING_GRAPH_COLOR_R, "" + col.red );
-      properties.setProperty( STRING_GRAPH_COLOR_G, "" + col.green );
-      properties.setProperty( STRING_GRAPH_COLOR_B, "" + col.blue );
+      color = getGraphColorRGB();
+      properties.setProperty( STRING_GRAPH_COLOR_R, "" + color.red );
+      properties.setProperty( STRING_GRAPH_COLOR_G, "" + color.green );
+      properties.setProperty( STRING_GRAPH_COLOR_B, "" + color.blue );
 
       properties.setProperty( STRING_ICON_SIZE, "" + getIconSize() );
       properties.setProperty( STRING_LINE_WIDTH, "" + getLineWidth() );
       properties.setProperty( STRING_MAX_UNDO, "" + getMaxUndo() );
-
-      setSashWeights( getSashWeights() );
     }
   }
 
-  public void storeScreens() {
-    // Add screens hash table to properties..
-    //
-    Enumeration<String> keys = screens.keys();
-    int nr = 1;
-    while ( keys.hasMoreElements() ) {
-      String name = keys.nextElement();
-      properties.setProperty( "ScreenName" + nr, name );
 
-      WindowProperty winprop = screens.get( name );
-      properties.setProperty( STRING_SIZE_MAX + nr, winprop.isMaximized() ? YES : NO );
-      if ( winprop.getRectangle() != null ) {
-        properties.setProperty( STRING_SIZE_X + nr, "" + winprop.getX() );
-        properties.setProperty( STRING_SIZE_Y + nr, "" + winprop.getY() );
-        properties.setProperty( STRING_SIZE_W + nr, "" + winprop.getWidth() );
-        properties.setProperty( STRING_SIZE_H + nr, "" + winprop.getHeight() );
-      }
-
-      nr++;
-    }
-  }
-
-  public void loadScreens() {
-    screens = new Hashtable<String, WindowProperty>();
-
-    int nr = 1;
-
-    String name = properties.getProperty( "ScreenName" + nr );
-    while ( name != null ) {
-      boolean max = YES.equalsIgnoreCase( properties.getProperty( STRING_SIZE_MAX + nr ) );
-      int x = Const.toInt( properties.getProperty( STRING_SIZE_X + nr ), 0 );
-      int y = Const.toInt( properties.getProperty( STRING_SIZE_Y + nr ), 0 );
-      int w = Const.toInt( properties.getProperty( STRING_SIZE_W + nr ), 320 );
-      int h = Const.toInt( properties.getProperty( STRING_SIZE_H + nr ), 200 );
-
-      WindowProperty winprop = new WindowProperty( name, max, x, y, w, h );
-      screens.put( name, winprop );
-
-      nr++;
-      name = properties.getProperty( "ScreenName" + nr );
-    }
-  }
 
   public void saveProps() {
-    storeScreens();
     super.saveProps();
   }
 
@@ -593,28 +491,21 @@ public class PropsUi extends Props {
     return Const.toInt( properties.getProperty( STRING_MIDDLE_PCT ), Const.MIDDLE_PCT );
   }
 
-  public void setScreen( WindowProperty winprop ) {
-    screens.put( winprop.getName(), winprop );
+  public void setScreen( WindowProperty windowProperty ) {
+    HopGui.getInstance().auditDelegate.storeState( "shells", windowProperty.getName(), windowProperty.getStateProperties() );
   }
 
-  public WindowProperty getScreen( String windowname ) {
-    if ( windowname == null ) {
+  public WindowProperty getScreen( String windowName ) {
+    if ( windowName == null ) {
       return null;
     }
-    return screens.get( windowname );
+    AuditState auditState = HopGui.getInstance().auditDelegate.retrieveState("shells", windowName);
+    if (auditState==null) {
+      return null;
+    }
+    return new WindowProperty(windowName, auditState.getStateMap());
   }
 
-  public void setSashWeights( int[] w ) {
-    properties.setProperty( STRING_SASH_W1, "" + w[ 0 ] );
-    properties.setProperty( STRING_SASH_W2, "" + w[ 1 ] );
-  }
-
-  public int[] getSashWeights() {
-    int w1 = Const.toInt( properties.getProperty( STRING_SASH_W1 ), 25 );
-    int w2 = Const.toInt( properties.getProperty( STRING_SASH_W2 ), 75 );
-
-    return new int[] { w1, w2 };
-  }
 
   public void setOpenLastFile( boolean open ) {
     properties.setProperty( STRING_OPEN_LAST_FILE, open ? YES : NO );
@@ -884,10 +775,6 @@ public class PropsUi extends Props {
     properties.setProperty( SHOW_TOOL_TIPS, show ? YES : NO );
   }
 
-  public List<GuiOption<Object>> getRegisteredEditableComponents() {
-    return editables;
-  }
-
   public boolean isShowingHelpToolTips() {
     return YES.equalsIgnoreCase( properties.getProperty( SHOW_HELP_TOOL_TIPS, YES ) );
   }
@@ -957,20 +844,6 @@ public class PropsUi extends Props {
 
   public void setIndicateSlowPipelineTransformsEnabled( boolean indicate ) {
     properties.setProperty( STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS, indicate ? YES : NO );
-  }
-
-  private void resetRecentSearches() {
-    if ( properties.containsKey( STRING_RECENT_SEARCHES ) ) {
-      properties.remove( STRING_RECENT_SEARCHES );
-    }
-  }
-
-  public void setRecentSearches( String recentSearches ) {
-    properties.setProperty( STRING_RECENT_SEARCHES, recentSearches );
-  }
-
-  public String getRecentSearches() {
-    return properties.getProperty( STRING_RECENT_SEARCHES );
   }
 
   /**

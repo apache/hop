@@ -46,6 +46,13 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
   IHopFileTypeHandler getActiveFileTypeHandler();
 
   /**
+   * Set the focus on the given file type handler.
+   *
+   * @param activeFileTypeHandler
+   */
+  void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler );
+
+  /**
    * Get a list of supported file types for this perspective
    *
    * @return The list of supported file types

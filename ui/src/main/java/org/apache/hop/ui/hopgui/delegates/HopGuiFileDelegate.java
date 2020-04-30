@@ -96,7 +96,7 @@ public class HopGuiFileDelegate {
     }
   }
 
-  public void fileOpen( String filename ) throws Exception {
+  public IHopFileTypeHandler fileOpen( String filename ) throws Exception {
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
     IHopFileType hopFile = fileRegistry.findHopFileType( filename );
@@ -104,12 +104,14 @@ public class HopGuiFileDelegate {
       throw new HopException( "We looked at " + fileRegistry.getFileTypes().size() + " different Hop GUI file types but none know how to open file '" + filename + "'" );
     }
 
-    hopFile.openFile( hopGui, filename, hopGui.getVariables() );
+    IHopFileTypeHandler fileTypeHandler = hopFile.openFile( hopGui, filename, hopGui.getVariables() );
     hopGui.handleFileCapabilities( hopFile, false, false );
 
     // Keep track of this...
     //
     hopGui.auditDelegate.registerEvent( "file", filename, "open" );
+
+    return fileTypeHandler;
   }
 
   /**
