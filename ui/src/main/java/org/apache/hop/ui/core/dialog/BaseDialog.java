@@ -148,7 +148,7 @@ public abstract class BaseDialog extends Dialog {
 
       try {
         HopGuiFileOpenedExtension openedExtension = new HopGuiFileOpenedExtension( dialog, variables, filename );
-        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openedExtension );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, openedExtension );
         if (openedExtension.filename!=null) {
           filename = openedExtension.filename;
         }
