@@ -109,6 +109,8 @@
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
+        <module>propertyinput</module>
+        <module>propertyoutput</module>
         <module>rest</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
