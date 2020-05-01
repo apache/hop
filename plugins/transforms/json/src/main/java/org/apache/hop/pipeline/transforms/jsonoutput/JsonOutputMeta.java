@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -47,17 +47,20 @@ import java.util.List;
 
 /**
  * This class knows how to handle the MetaData for the Json output transform
- * 
+ *
  * @since 14-june-2010
- * 
  */
 @Transform( id = "JsonOutput", image = "JSO.svg", i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsonoutput",
-    name = "JsonOutput.name", description = "JsonOutput.description",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/JSON+output", categoryDescription = "JsonOutput.category" )
+  name = "JsonOutput.name", description = "JsonOutput.description",
+  categoryDescription = "JsonOutput.category",
+  keywords = { "json", "javascript", "object", "notation" }
+  )
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
   private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** Operations type */
+  /**
+   * Operations type
+   */
   private int operationType;
 
   /**
@@ -79,31 +82,45 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
   public static final int OPERATION_TYPE_BOTH = 2;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   private String encoding;
 
-  /** The name value containing the resulting Json fragment */
+  /**
+   * The name value containing the resulting Json fragment
+   */
   private String outputValue;
 
-  /** The name of the json bloc */
+  /**
+   * The name of the json bloc
+   */
   private String jsonBloc;
 
   private String nrRowsInBloc;
 
   /* THE FIELD SPECIFICATIONS ... */
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   private JsonOutputField[] outputFields;
 
   private boolean AddToResult;
 
-  /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+  /**
+   * Flag to indicate the we want to append to the end of an existing file (if it exists)
+   */
   private boolean fileAppended;
 
-  /** Flag to indicate whether or not to create JSON structures compatible with pre PDI-4.3.0 */
+  /**
+   * Flag to indicate whether or not to create JSON structures compatible with pre PDI-4.3.0
+   */
   private boolean compatibilityMode;
 
-  /** Flag: create parent folder if needed */
+  /**
+   * Flag: create parent folder if needed
+   */
   private boolean createparentfolder;
 
   private boolean DoNotOpenNewFileInit;
@@ -128,8 +145,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   /**
-   * @param createparentfolder
-   *          The create parent folder flag to set.
+   * @param createparentfolder The create parent folder flag to set.
    */
   public void setCreateParentFolder( boolean createparentfolder ) {
     this.createparentfolder = createparentfolder;
@@ -143,24 +159,21 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   /**
-   * @param fileAppended
-   *          The fileAppended to set.
+   * @param fileAppended The fileAppended to set.
    */
   public void setFileAppended( boolean fileAppended ) {
     this.fileAppended = fileAppended;
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
@@ -183,7 +196,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     }
 
     for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -197,9 +210,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
   public static String getOperationTypeDesc( int i ) {
     if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[0];
+      return operationTypeDesc[ 0 ];
     }
-    return operationTypeDesc[i];
+    return operationTypeDesc[ i ];
   }
 
   private static int getOperationTypeByCode( String tt ) {
@@ -208,7 +221,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     }
 
     for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[i].equalsIgnoreCase( tt ) ) {
+      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -223,8 +236,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   /**
-   * @param outputFields
-   *          The outputFields to set.
+   * @param outputFields The outputFields to set.
    */
   public void setOutputFields( JsonOutputField[] outputFields ) {
     this.outputFields = outputFields;
@@ -235,7 +247,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   public void allocate( int nrfields ) {
-    outputFields = new JsonOutputField[nrfields];
+    outputFields = new JsonOutputField[ nrfields ];
   }
 
   public Object clone() {
@@ -245,15 +257,14 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.outputFields[i] = (JsonOutputField) outputFields[i].clone();
+      retval.outputFields[ i ] = (JsonOutputField) outputFields[ i ].clone();
     }
 
     return retval;
   }
 
   /**
-   * @param AddToResult
-   *          The Add file to result to set.
+   * @param AddToResult The Add file to result to set.
    */
   public void setAddToResult( boolean AddToResult ) {
     this.AddToResult = AddToResult;
@@ -286,9 +297,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        outputFields[i] = new JsonOutputField();
-        outputFields[i].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
-        outputFields[i].setElementName( XmlHandler.getTagValue( fnode, "element" ) );
+        outputFields[ i ] = new JsonOutputField();
+        outputFields[ i ].setFieldName( XmlHandler.getTagValue( fnode, "name" ) );
+        outputFields[ i ].setElementName( XmlHandler.getTagValue( fnode, "element" ) );
       }
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load transform info from Xml", e );
@@ -307,18 +318,18 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      outputFields[i] = new JsonOutputField();
-      outputFields[i].setFieldName( "field" + i );
-      outputFields[i].setElementName( "field" + i );
+      outputFields[ i ] = new JsonOutputField();
+      outputFields[ i ].setFieldName( "field" + i );
+      outputFields[ i ].setElementName( "field" + i );
     }
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-      IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables space, IMetaStore metaStore ) throws HopTransformException {
 
     if ( getOperationType() != OPERATION_TYPE_WRITE_TO_FILE ) {
       IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( this.getOutputValue() ) );
+        new ValueMetaString( space.environmentSubstitute( this.getOutputValue() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -326,9 +337,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
   private static String getOperationTypeCode( int i ) {
     if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[0];
+      return operationTypeCode[ 0 ];
     }
-    return operationTypeCode[i];
+    return operationTypeCode[ i ];
   }
 
   public String getXml() {
@@ -354,7 +365,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
-      JsonOutputField field = outputFields[i];
+      JsonOutputField field = outputFields[ i ];
 
       if ( field.getFieldName() != null && field.getFieldName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
@@ -369,30 +380,30 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-      String[] input, String[] output, IRowMeta info, IVariables space,
-      IMetaStore metaStore ) {
+                     String[] input, String[] output, IRowMeta info, IVariables space,
+                     IMetaStore metaStore ) {
 
     CheckResult cr;
     if ( getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE ) {
       // We need to have output field name
       if ( Utils.isEmpty( transMeta.environmentSubstitute( getOutputValue() ) ) ) {
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "JsonOutput.Error.MissingOutputFieldName" ), transformMeta );
+          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "JsonOutput.Error.MissingOutputFieldName" ), transformMeta );
         remarks.add( cr );
       }
     }
     if ( Utils.isEmpty( transMeta.environmentSubstitute( getFileName() ) ) ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "JsonOutput.Error.MissingTargetFilename" ), transformMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "JsonOutput.Error.MissingTargetFilename" ), transformMeta );
       remarks.add( cr );
     }
     // Check output fields
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "JsonOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "JsonOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
       String error_message = "";
@@ -400,9 +411,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
-        int idx = prev.indexOfValue( outputFields[i].getFieldName() );
+        int idx = prev.indexOfValue( outputFields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          error_message += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
           error_found = true;
         }
       }
@@ -412,8 +423,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
         remarks.add( cr );
       } else {
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "JsonOutputMeta.CheckResult.AllFieldsFound" ), transformMeta );
+          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            "JsonOutputMeta.CheckResult.AllFieldsFound" ), transformMeta );
         remarks.add( cr );
       }
     }
@@ -421,25 +432,25 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "JsonOutputMeta.CheckResult.ExpectedInputOk" ), transformMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "JsonOutputMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "JsonOutputMeta.CheckResult.ExpectedInputError" ), transformMeta );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "JsonOutputMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
 
     cr =
-        new CheckResult( CheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
-            "JsonOutputMeta.CheckResult.FilesNotChecked" ), transformMeta );
+      new CheckResult( CheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
+        "JsonOutputMeta.CheckResult.FilesNotChecked" ), transformMeta );
     remarks.add( cr );
   }
 
   @Override
   public JsonOutput createTransform( TransformMeta transformMeta, JsonOutputData data, int cnr, PipelineMeta transMeta,
-      Pipeline pipeline ) {
+                                     Pipeline pipeline ) {
     return new JsonOutput( transformMeta, this, data, cnr, transMeta, pipeline );
   }
 
@@ -463,8 +474,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   /**
-   * @param jsonBloc
-   *          The root node to set.
+   * @param jsonBloc The root node to set.
    */
   public void setJsonBloc( String jsonBloc ) {
     this.jsonBloc = jsonBloc;
@@ -478,8 +488,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   /**
-   * @param nrRowsInBloc
-   *          The nrRowsInBloc.
+   * @param nrRowsInBloc The nrRowsInBloc.
    */
   public void setNrRowsInBloc( String nrRowsInBloc ) {
     this.nrRowsInBloc = nrRowsInBloc;
@@ -514,7 +523,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   public boolean writesToFile() {
-    return  getOperationType() == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
+    return getOperationType() == JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE
       || getOperationType() == JsonOutputMeta.OPERATION_TYPE_BOTH;
   }
 }
