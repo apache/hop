@@ -1,0 +1,4 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/pgpfiles/src/main/doc/pgpfiles.adoc
+= PGP Files
