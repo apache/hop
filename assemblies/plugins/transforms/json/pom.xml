@@ -38,7 +38,7 @@
   <dependencies>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-plugins-transforms-json</artifactId>
+      <artifactId>hop-transforms-json</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
