@@ -112,6 +112,8 @@
         <module>rest</module>
         <module>rowgenerator</module>
         <module>selectvalues</module>
+        <module>setvalueconstant</module>
+        <module>setvaluefield</module>
         <module>sort</module>
         <module>sortedmerge</module>
         <module>sql</module>
