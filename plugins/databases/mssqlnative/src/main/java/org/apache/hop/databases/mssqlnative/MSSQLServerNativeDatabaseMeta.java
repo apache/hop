@@ -162,4 +162,21 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta imple
   public boolean isMSSQLServerNativeVariant() {
     return true;
   }
+
+  @Override
+  public String getStartQuote(){ return ""; }
+
+  @Override
+  public String getEndQuote(){ return ""; }
+
+  @Override
+  public String getSchemaTableCombination( String schemaName, String tablePart ) {
+    // Something special for MSSQL
+    //
+    if ( isUsingDoubleDecimalAsSchemaTableSeparator() ) {
+      return schemaName + ".." + tablePart;
+    } else {
+      return '[' + schemaName + ']' + "." + tablePart;
+    }
+  }
 }

@@ -591,4 +591,10 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return true;
   }
 
+  @Override
+  public String getStartQuote(){ return ""; }
+
+  @Override
+  public String getEndQuote(){ return ""; }
+
 }

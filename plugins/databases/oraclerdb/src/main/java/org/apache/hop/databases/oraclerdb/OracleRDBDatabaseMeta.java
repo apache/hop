@@ -323,4 +323,10 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return null; // commit handles the unlocking!
   }
 
+  @Override
+  public String getStartQuote(){ return ""; }
+
+  @Override
+  public String getEndQuote(){ return ""; }
+
 }
