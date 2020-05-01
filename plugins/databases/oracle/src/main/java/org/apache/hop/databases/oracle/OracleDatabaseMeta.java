@@ -645,4 +645,10 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public boolean isOracleVariant() {
 	return true;
   }
+
+  @Override
+  public String getStartQuote(){ return ""; }
+
+  @Override
+  public String getEndQuote(){ return ""; }
 }

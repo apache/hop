@@ -18,7 +18,8 @@
     <dependencySet>
       <includes>
         <include>org.hop:hop-assemblies-static:zip</include>
-        <include>org.hop:hop-assemblies-samples:zip</include>
+<!--        TODO: Reactivate when we have new samples-->
+<!--        <include>org.hop:hop-assemblies-samples:zip</include>-->
         <include>org.hop:hop-assemblies-libs:zip</include>
         <include>org.hop:hop-assemblies-plugins-dist:zip</include>
       </includes>
