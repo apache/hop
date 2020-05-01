@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -184,19 +185,9 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
       }
     } );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+          new String[] { "*" }, FILETYPES, true )
+    );
 
     wlAbortExists = new Label( shell, SWT.RIGHT );
     wlAbortExists.setText( BaseMessages.getString( PKG, "JobCreateFile.FailIfExists.Label" ) );

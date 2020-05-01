@@ -26,8 +26,13 @@ import com.enterprisedt.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -64,6 +69,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.net.InetAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTP Get action settings.
@@ -818,28 +824,11 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     fdbTargetDirectory.right = new FormAttachment( 100, 0 );
     fdbTargetDirectory.top = new FormAttachment( wRemoteSettings, margin );
     wbTargetDirectory.setLayoutData( fdbTargetDirectory );
-    wbTargetDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wTargetDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wTargetDirectory.getText() ) );
-        }
 
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wTargetDirectory.setText( dir );
-        }
+    wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, workflowMeta ) );
 
-      }
-    } );
-
-    wTargetDirectory =
-      new TextVar( workflowMeta, wLocalSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
-        PKG, "JobFTP.TargetDir.Tooltip" ) );
+    wTargetDirectory = new TextVar( workflowMeta, wLocalSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+      BaseMessages.getString( PKG, "JobFTP.TargetDir.Tooltip" ) );
     props.setLook( wTargetDirectory );
     wTargetDirectory.addModifyListener( lsMod );
     fdTargetDirectory = new FormData();

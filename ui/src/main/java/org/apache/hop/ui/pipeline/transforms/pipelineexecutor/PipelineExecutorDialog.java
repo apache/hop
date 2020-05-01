@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -387,16 +388,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
       root = HopVfs.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
 
-      FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-      fileDialog.setText( "Select file" );
-      fileDialog.setFilterNames( fileType.getFilterNames() );
-      fileDialog.setFilterExtensions( fileType.getFilterExtensions() );
-      if ( root != null ) {
-        fileDialog.setFileName( HopVfs.getFilename( root ) );
-      }
-      String filename = fileDialog.open();
+      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, root, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
-
         loadPipelineFile( filename );
         if ( parentFolder != null && filename.startsWith( parentFolder ) ) {
           filename = filename.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );

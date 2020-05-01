@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorMeta;
 import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutorParameters;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
@@ -74,7 +75,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -385,14 +385,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
       root = HopVfs.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
 
-      FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-      fileDialog.setText( "Select file" );
-      fileDialog.setFilterNames( fileType.getFilterNames() );
-      fileDialog.setFilterExtensions( fileType.getFilterExtensions() );
-      if ( root != null ) {
-        fileDialog.setFileName( HopVfs.getFilename( root ) );
-      }
-      String filename = fileDialog.open();
+      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, root, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
 
         loadWorkflowFile( filename );
@@ -403,8 +396,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       }
     } catch ( Exception e ) {
       new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "WorkflowExecutorDialog.ErrorLoadingJobformation.DialogTitle" ),
-        BaseMessages.getString( PKG, "WorkflowExecutorDialog.ErrorLoadingJobformation.DialogMessage" ), e );
+        BaseMessages.getString( PKG, "WorkflowExecutorDialog.ErrorLoadingWorkflow.DialogTitle" ),
+        BaseMessages.getString( PKG, "WorkflowExecutorDialog.ErrorLoadingWorkflow.DialogMessage" ), e );
     }
   }
 

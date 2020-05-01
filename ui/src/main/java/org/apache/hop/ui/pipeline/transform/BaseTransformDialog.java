@@ -26,8 +26,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
@@ -57,11 +57,11 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -589,12 +589,10 @@ public class BaseTransformDialog extends Dialog {
    * @param textField the text field
    * @return the modify listener tooltip text
    */
-  public static final ModifyListener getModifyListenerTooltipText( final Text textField ) {
-    return new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        // maybe replace this with extra arguments
-        textField.setToolTipText( variables.environmentSubstitute( textField.getText() ) );
-      }
+  public static final ModifyListener getModifyListenerTooltipText( final TextVar textField ) {
+    return e -> {
+      // maybe replace this with extra arguments
+      textField.setToolTipText( variables.environmentSubstitute( textField.getText() ) );
     };
   }
 

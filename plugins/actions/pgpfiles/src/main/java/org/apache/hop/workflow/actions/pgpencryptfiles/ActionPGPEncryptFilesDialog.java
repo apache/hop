@@ -25,8 +25,13 @@ package org.apache.hop.workflow.actions.pgpencryptfiles;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -63,6 +68,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Move Files action settings.
@@ -350,20 +357,9 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbbGpgExe.top = new FormAttachment( wName, margin );
     wbbGpgExe.setLayoutData( fdbbGpgExe );
 
-    wbbGpgExe.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wSourceFileFolder.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wGpgExe.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wGpgExe.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGpgExe, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     wGpgExe = new TextVar( workflowMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wGpgExe.setToolTipText( BaseMessages.getString( PKG, "JobPGPEncryptFiles.GpgExe.Tooltip" ) );
@@ -477,26 +473,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbSourceDirectory.right = new FormAttachment( 100, 0 );
     fdbSourceDirectory.top = new FormAttachment( wSettings, margin );
     wbSourceDirectory.setLayoutData( fdbSourceDirectory );
+    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSourceFileFolder, workflowMeta ) );
 
-    wbSourceDirectory.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wSourceFileFolder.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wSourceFileFolder.setText( dir );
-        }
-
-      }
-    } );
 
     // Browse Source files button ...
     wbSourceFileFolder = new Button( wGeneralComp, SWT.PUSH | SWT.CENTER );
@@ -529,27 +507,11 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wSourceFileFolder.setLayoutData( fdSourceFileFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
-      }
-    } );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) ) );
 
-    wbSourceFileFolder.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wSourceFileFolder.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wSourceFileFolder.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     // Destination
     wlDestinationFileFolder = new Label( wGeneralComp, SWT.RIGHT );
@@ -570,26 +532,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbDestinationDirectory.right = new FormAttachment( 100, 0 );
     fdbDestinationDirectory.top = new FormAttachment( wSourceFileFolder, margin );
     wbDestinationDirectory.setLayoutData( fdbDestinationDirectory );
+    wbDestinationDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFileFolder, workflowMeta ) );
 
-    wbDestinationDirectory.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wDestinationFileFolder.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wDestinationFileFolder.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wDestinationFileFolder.setText( dir );
-        }
-
-      }
-    } );
 
     // Browse Destination file browse button ...
     wbDestinationFileFolder = new Button( wGeneralComp, SWT.PUSH | SWT.CENTER );
@@ -611,20 +555,9 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdDestinationFileFolder.right = new FormAttachment( wbSourceFileFolder, -55 );
     wDestinationFileFolder.setLayoutData( fdDestinationFileFolder );
 
-    wbDestinationFileFolder.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wDestinationFileFolder.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wDestinationFileFolder.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wDestinationFileFolder.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbDestinationFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wDestinationFileFolder, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     // Buttons to the right of the screen...
     wbdSourceFileFolder = new Button( wGeneralComp, SWT.PUSH | SWT.CENTER );
@@ -1104,27 +1037,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wDestinationFolder.setLayoutData( fdDestinationFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDestinationFolder.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) );
-      }
-    } );
-
-    wbDestinationFolder.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wDestinationFolder.getText() != null ) {
-          dialog.setFilterPath( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) );
-        }
-
-        String dir = dialog.open();
-        if ( dir != null ) {
-          wDestinationFolder.setText( dir );
-        }
-      }
-    } );
+    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) ) );
+    wbDestinationFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
 
     // Create destination folder/parent folder
     wlCreateMoveToFolder = new Label( wMoveToGroup, SWT.RIGHT );

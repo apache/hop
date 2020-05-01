@@ -29,6 +29,7 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -309,7 +310,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wbDetachedFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         try {
-          FileObject detachedFilename = null;
+          FileObject detachedFilename;
 
           try {
             String curFile = wDetachedFilename.getText();
@@ -328,17 +329,8 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
               HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-          fileDialog.setText( "Select file" );
-          fileDialog.setFilterNames( FILETYPES );
-          fileDialog.setFilterExtensions( EXTENSIONS );
-          if ( detachedFilename != null ) {
-            fileDialog.setFileName( HopVfs.getFilename( detachedFilename ) );
-          }
-          String filename = fileDialog.open();
-          if ( filename != null ) {
-            wDetachedFilename.setText( filename );
-          }
+          BaseDialog.presentFileDialog( shell, wDetachedFilename, detachedFilename, EXTENSIONS, FILETYPES, false );
+
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }
@@ -372,17 +364,8 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
             fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-          fileDialog.setText( "Select file" );
-          fileDialog.setFilterNames( FILETYPES );
-          fileDialog.setFilterExtensions( EXTENSIONS );
-          if ( fileName != null ) {
-            fileDialog.setFileName( HopVfs.getFilename( fileName ) );
-          }
-          String filename = fileDialog.open();
-          if ( filename != null ) {
-            wFilename.setText( filename );
-          }
+          BaseDialog.presentFileDialog( shell, wFilename, fileName, EXTENSIONS, FILETYPES, false );
+
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }
@@ -415,17 +398,8 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
             fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-          fileDialog.setText( "Select file" );
-          fileDialog.setFilterNames( FILETYPES );
-          fileDialog.setFilterExtensions( EXTENSIONS );
-          if ( fileName != null ) {
-            fileDialog.setFileName( HopVfs.getFilename( fileName ) );
-          }
-          String filename = fileDialog.open();
-          if ( filename != null ) {
-            wGPGLocation.setText( filename );
-          }
+          BaseDialog.presentFileDialog( shell, wGPGLocation, fileName, EXTENSIONS, FILETYPES, false );
+
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }

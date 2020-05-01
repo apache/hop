@@ -52,6 +52,7 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -623,35 +624,17 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
     if ( wbbFilename != null ) {
       // Listen to the browse button next to the file name
-      wbbFilename.addSelectionListener( new SelectionAdapter() {
-        public void widgetSelected( SelectionEvent event ) {
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN );
-          fileDialog.setFilterExtensions( new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" } );
-          if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            fileDialog.setFileName( fname );
-          }
-
-          fileDialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "System.FileType.CSVFiles" ) + ", "
-              + BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          try {
-            HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( null, fileDialog, HopGui.getInstance() );
-            ExtensionPointHandler.callExtensionPoint( log, HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openExtension );
-          } catch ( Exception xe ) {
-            new ErrorDialog( shell, "Error", "Error handling extension point 'HopGuiFileOpenDialog'", xe );
-          }
-
-          if ( fileDialog.open() != null ) {
-            String str = fileDialog.getFilterPath() + System.getProperty( "file.separator" ) + fileDialog.getFileName();
-            wFilename.setText( str );
-          }
-        }
-      } );
+      //
+      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+        new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" },
+        new String[] {
+          BaseMessages.getString( PKG, "System.FileType.CSVFiles" ) + ", "
+            + BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+          BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
+          BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+        true )
+      );
     }
 
     // Detect X or ALT-F4 or something that kills this window...

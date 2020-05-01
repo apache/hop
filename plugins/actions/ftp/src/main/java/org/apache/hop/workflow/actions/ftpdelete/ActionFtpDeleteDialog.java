@@ -32,6 +32,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -553,25 +554,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wKeyFilename.setLayoutData( fdKeyFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wKeyFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wKeyFilename.setToolTipText( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) );
-      }
-    } );
+    wKeyFilename.addModifyListener( e -> wKeyFilename.setToolTipText( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) ) );
 
-    wbKeyFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.pem", "*" } );
-        if ( wKeyFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wKeyFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
+      new String[] { "*.pem", "*" }, FILETYPES, true )
+    );
 
     // keyfilePass line
     wkeyfilePass =

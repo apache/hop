@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.FileDialog;
 
 public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialogExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiFileDialogExtension ext ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, HopGuiFileDialogExtension ext ) {
 
     // Is there an active environment?
     //

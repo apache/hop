@@ -26,16 +26,17 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -47,10 +48,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -64,11 +63,11 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since 06-05-2007
  */
-@PluginDialog( 
-		  id = "DELETE_FILES", 
-		  image = "DeleteFiles.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+@PluginDialog(
+  id = "DELETE_FILES",
+  image = "DeleteFiles.svg",
+  pluginType = PluginDialog.PluginType.ACTION,
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class ActionDeleteFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFiles.class; // for i18n purposes, needed by Translator!!
@@ -243,24 +242,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdbDirectory.top = new FormAttachment( wSettings, margin );
     wbDirectory.setLayoutData( fdbDirectory );
 
-    wbDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wFilename.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wFilename.setText( dir );
-        }
-
-      }
-    } );
+    wbDirectory.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFilename, workflowMeta ) );
 
     wbFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbFilename );
@@ -289,23 +271,13 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( ( ModifyEvent e ) -> { 
-    	wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-    });
-    
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
+    wFilename.addModifyListener( ( ModifyEvent e ) -> {
+      wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
     } );
+
+    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     // Filemask
     wlFilemask = new Label( shell, SWT.RIGHT );
@@ -428,11 +400,15 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     Button wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wOk.addListener( SWT.Selection, ( Event e ) -> {
+      ok();
+    } );
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> {
+      cancel();
+    } );
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 

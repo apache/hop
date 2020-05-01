@@ -26,7 +26,9 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
@@ -36,6 +38,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -44,6 +47,8 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -76,6 +81,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginDialog(
         id = "LoadFileInput",
@@ -1042,36 +1048,17 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
     wbbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFilterPath( fpath );
-          }
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
+          BaseDialog.presentDirectoryDialog( shell, wFilename, pipelineMeta );
         } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-
-          dialog.setFilterExtensions( new String[] { "*.txt;", "*.csv", "*.TRT", "*" } );
-
-          if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
-
-          dialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-            BaseMessages.getString( PKG, "LoadFileInputDialog.FileType.TextAndCSVFiles" ),
-            BaseMessages.getString( PKG, "LoadFileInput.FileType.TRTFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
+          BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+            new String[] { "*.txt;", "*.csv", "*.TRT", "*" },
+            new String[] {
+              BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+              BaseMessages.getString( PKG, "LoadFileInputDialog.FileType.TextAndCSVFiles" ),
+              BaseMessages.getString( PKG, "LoadFileInput.FileType.TRTFiles" ),
+              BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+            true
+          );
         }
       }
     } );

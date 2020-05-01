@@ -25,6 +25,8 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -32,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -39,6 +42,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -65,6 +70,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginDialog(
         id = "GetSubFolders",
@@ -555,18 +562,15 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wFoldername.addSelectionListener( selA );
 
     // Delete files from the list of files...
-    wbdFoldername.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
+    wbdFoldername.addListener( SWT.Selection, e-> {
         int[] idx = wFoldernameList.getSelectionIndices();
         wFoldernameList.remove( idx );
         wFoldernameList.removeEmptyRows();
         wFoldernameList.setRowNums();
-      }
-    } );
+      } );
 
     // Edit the selected file & remove from the list...
-    wbeFoldername.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
+    wbeFoldername.addListener(SWT.Selection, e-> {
         int idx = wFoldernameList.getSelectionIndex();
         if ( idx >= 0 ) {
           String[] string = wFoldernameList.getItem( idx );
@@ -575,26 +579,9 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
         }
         wFoldernameList.removeEmptyRows();
         wFoldernameList.setRowNums();
-      }
-    } );
+      } );
 
-    // Listen to the Browse... button
-    wbbFoldername.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-
-        DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wFoldername.getText() != null ) {
-          String fpath = pipelineMeta.environmentSubstitute( wFoldername.getText() );
-          dialog.setFilterPath( fpath );
-        }
-
-        if ( dialog.open() != null ) {
-          String str = dialog.getFilterPath();
-          wFoldername.setText( str );
-        }
-
-      }
-    } );
+    wbbFoldername.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, pipelineMeta ) );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

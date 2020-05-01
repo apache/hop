@@ -25,8 +25,13 @@ package org.apache.hop.workflow.actions.unzip;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -60,6 +65,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Unzip action settings.
@@ -333,24 +340,8 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdbSourceDirectory.top = new FormAttachment( wArgsPrevious, margin );
     wbSourceDirectory.setLayoutData( fdbSourceDirectory );
 
-    wbSourceDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wZipFilename.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wZipFilename.getText() ) );
-        }
+    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wZipFilename, workflowMeta ) );
 
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wZipFilename.setText( dir );
-        }
-
-      }
-    } );
 
     // Browse files...
     wbZipFilename = new Button( wSource, SWT.PUSH | SWT.CENTER );
@@ -372,26 +363,11 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wZipFilename.setLayoutData( fdZipFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wZipFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wZipFilename.setToolTipText( workflowMeta.environmentSubstitute( wZipFilename.getText() ) );
-      }
-    } );
+    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( workflowMeta.environmentSubstitute( wZipFilename.getText() ) ) );
 
-    wbZipFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        // dialog.setFilterExtensions(new String[] {"*"});
-        dialog.setFilterExtensions( new String[] { "*.zip;*.ZIP", "*.jar;*.JAR", "*" } );
-        if ( wZipFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wZipFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wZipFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, workflowMeta,
+      new String[] { "*.zip;*.ZIP", "*.jar;*.JAR", "*" }, FILETYPES, true )
+    );
 
     // WildcardSource line
     wlWildcardSource = new Label( wSource, SWT.RIGHT );
@@ -1008,43 +984,9 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
       }
     };
 
-    wbTargetDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wTargetDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wTargetDirectory.getText() ) );
-        }
+    wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, workflowMeta ) );
+    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wMovetoDirectory, workflowMeta ) );
 
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wTargetDirectory.setText( dir );
-        }
-
-      }
-    } );
-
-    wbMovetoDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wMovetoDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wMovetoDirectory.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wMovetoDirectory.setText( dir );
-        }
-
-      }
-    } );
 
     wName.addSelectionListener( lsDef );
     wZipFilename.addSelectionListener( lsDef );

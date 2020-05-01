@@ -25,6 +25,8 @@ package org.apache.hop.pipeline.transforms.sort;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -33,11 +35,14 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
@@ -51,6 +56,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginDialog(
         id = "SortRows",
@@ -174,25 +180,10 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     fdSortDir.right = new FormAttachment( wbSortDir, -margin );
     wSortDir.setLayoutData( fdSortDir );
 
-    wbSortDir.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        DirectoryDialog dd = new DirectoryDialog( shell, SWT.NONE );
-        dd.setFilterPath( wSortDir.getText() );
-        String dir = dd.open();
-        if ( dir != null ) {
-          wSortDir.setText( dir );
-        }
-      }
-    } );
-
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) );
-      }
-    } );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) ) );
+
+    wbSortDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSortDir, pipelineMeta ) );
 
     // Prefix of temporary file
     wlPrefix = new Label( shell, SWT.RIGHT );

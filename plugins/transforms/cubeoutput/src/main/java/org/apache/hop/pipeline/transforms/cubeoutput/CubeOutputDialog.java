@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -233,22 +234,13 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     wTransformName.addSelectionListener( lsDef );
     wFilename.addSelectionListener( lsDef );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*.cube", "*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( wFilename.getText() );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "CubeOutputDialog.FilterNames.Options.CubeFiles" ),
-          BaseMessages.getString( PKG, "CubeOutputDialog.FilterNames.Options.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      new String[] { "*.cube", "*" },
+      new String[] {
+      BaseMessages.getString( PKG, "CubeOutputDialog.FilterNames.Options.CubeFiles" ),
+      BaseMessages.getString( PKG, "CubeOutputDialog.FilterNames.Options.AllFiles" ) },
+      true )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

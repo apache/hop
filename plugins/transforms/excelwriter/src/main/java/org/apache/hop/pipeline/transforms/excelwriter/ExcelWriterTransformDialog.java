@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -1447,51 +1448,25 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       }
     } );
 
-    wProtectedBy.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wProtectedBy.setToolTipText( pipelineMeta.environmentSubstitute( wProtectedBy.getText() )
-          + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) );
-      }
-    } );
+    wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( pipelineMeta.environmentSubstitute( wProtectedBy.getText() )
+      + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) ) );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*.xls", "*.xlsx", "*.*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
-          BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLSX.Label" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
-
-    wbTemplateFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.xls", "*.xlsx", "*.*" } );
-        if ( wTemplateFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
-          BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLSX.Label" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wTemplateFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      new String[] { "*.xls", "*.xlsx", "*.*" },
+      new String[] {
+        BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
+        BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLSX.Label" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
+    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, pipelineMeta,
+      new String[] { "*.xls", "*.xlsx", "*.*" },
+      new String[] {
+        BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
+        BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLSX.Label" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

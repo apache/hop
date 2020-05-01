@@ -22,11 +22,24 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -34,17 +47,22 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A base dialog class containing a body and a configurable button panel.
  */
 public abstract class BaseDialog extends Dialog {
+
+  private static Class<?> PKG = BaseDialog.class;
 
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;
@@ -75,6 +93,115 @@ public abstract class BaseDialog extends Dialog {
     this.props = PropsUi.getInstance();
     this.title = title;
     this.width = width;
+  }
+
+  public static final String presentFileDialog( Shell shell, String[] filterExtensions, String[] filterNames, boolean folderAndFile ) {
+    return presentFileDialog( shell, null, null, null, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( Shell shell, TextVar textVar,
+                                                FileObject fileObject, String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    return presentFileDialog( shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,
+                                                String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    return presentFileDialog( shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,
+                                                FileObject fileObject, String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    FileDialog dialog = new FileDialog( shell, SWT.OPEN );
+    dialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenFile" ) );
+    if ( filterExtensions == null || filterNames == null ) {
+      dialog.setFilterExtensions( new String[] { "*.*" } );
+      dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
+    } else {
+      dialog.setFilterExtensions( filterExtensions );
+      dialog.setFilterNames( filterNames );
+    }
+    if ( fileObject != null ) {
+      dialog.setFileName( HopVfs.getFilename( fileObject ) );
+    }
+    if ( variables != null && textVar != null && textVar.getText() != null ) {
+      dialog.setFileName( variables.environmentSubstitute( textVar.getText() ) );
+    }
+
+    AtomicBoolean doIt = new AtomicBoolean( true );
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenDialog.id,
+        new HopGuiFileDialogExtension( doIt, dialog ) );
+    } catch ( Exception xe ) {
+      LogChannel.UI.logError( "Error handling extension point 'HopGuiFileOpenDialog'", xe );
+    }
+
+    String filename = null;
+    if ( !doIt.get() || dialog.open() != null ) {
+      if ( folderAndFile ) {
+        filename = FilenameUtils.concat( dialog.getFilterPath(), dialog.getFileName() );
+      } else {
+        filename = dialog.getFileName();
+      }
+
+      try {
+        HopGuiFileOpenedExtension openedExtension = new HopGuiFileOpenedExtension( dialog, variables, filename );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, openedExtension );
+        if (openedExtension.filename!=null) {
+          filename = openedExtension.filename;
+        }
+      } catch ( Exception xe ) {
+        LogChannel.UI.logError( "Error handling extension point 'HopGuiFileOpenDialog'", xe );
+      }
+
+      if ( textVar != null ) {
+        textVar.setText( filename );
+      }
+    }
+    return filename;
+  }
+
+  public static String presentDirectoryDialog( Shell shell, IVariables variables ) {
+    return presentDirectoryDialog( shell, null, null );
+  }
+
+  public static String presentDirectoryDialog( Shell shell, TextVar textVar, IVariables variables ) {
+    DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
+    directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" )  );
+    if ( textVar !=null && variables!=null && textVar.getText() != null ) {
+      directoryDialog.setFilterPath( variables.environmentSubstitute( textVar.getText() ) );
+    }
+    String directoryName = null;
+
+    AtomicBoolean doIt = new AtomicBoolean( true );
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileDirectoryDialog.id,
+        new HopGuiDirectoryDialogExtension( doIt, directoryDialog ) );
+    } catch(Exception xe) {
+      LogChannel.UI.logError( "Error handling extension point 'HopGuiFileDirectoryDialog'", xe );
+    }
+
+    if ( !doIt.get() || directoryDialog.open()!=null ) {
+      directoryName = directoryDialog.getFilterPath();
+      try {
+        HopGuiDirectorySelectedExtension ext = new HopGuiDirectorySelectedExtension( directoryDialog, variables, directoryName );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiDirectorySelected.id, ext );
+        if (ext.folderName!=null) {
+          directoryName = ext.folderName;
+        }
+      } catch(Exception xe) {
+        LogChannel.UI.logError( "Error handling extension point 'HopGuiDirectorySelected'", xe );
+      }
+
+      // Set the text box to the new selection
+      if (directoryName!=null) {
+        textVar.setText( directoryName );
+      }
+    }
+
+    return directoryName;
   }
 
   /**

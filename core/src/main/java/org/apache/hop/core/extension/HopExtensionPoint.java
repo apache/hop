@@ -121,6 +121,8 @@ public enum HopExtensionPoint {
 
   HopGuiPipelineAfterClose("Called after a pipeline is closed in the Hop GUI (PipelineMeta)"),
   HopGuiWorkflowAfterClose("Called after a workflow is closed in the Hop GUI (WorkflowMeta)"),
+
+  GetFieldsExtension( "Get Fields dialog" ),
   ;
 
   public String id;

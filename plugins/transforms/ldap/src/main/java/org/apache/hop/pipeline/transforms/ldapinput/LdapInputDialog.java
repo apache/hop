@@ -43,6 +43,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapInputField;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocol;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -522,20 +523,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
     fdbFilename.top = new FormAttachment( wsetTrustStore, margin );
     wbbFilename.setLayoutData( fdbFilename );
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        if ( wTrustStorePath.getText() != null ) {
-          String fpath = pipelineMeta.environmentSubstitute( wTrustStorePath.getText() );
-          dialog.setFileName( fpath );
-        }
 
-        if ( dialog.open() != null ) {
-          String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-          wTrustStorePath.setText( str );
-        }
-      }
-    } );
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTrustStorePath, pipelineMeta,
+      new String[] { "*" }, new String[] { "All files" }, true )
+    );
 
     wTrustStorePath = new TextVar( pipelineMeta, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTrustStorePath );

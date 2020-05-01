@@ -645,21 +645,13 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wLayoutPaged.addSelectionListener( lsFlags );
     wAccFilenames.addSelectionListener( lsFlags );
 
-    // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog fileDialog = new FileDialog(shell, SWT.OPEN | SWT.OK | SWT.CANCEL);
-        fileDialog.setText("Select file");
-        fileDialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        fileDialog.setFilterExtensions( new String[] { "*.txt", "*.csv", "*" } );
-        String filename = fileDialog.open();
-        if (filename!=null) {
-          wFilename.setText( filename );
-        }
-      }
-    } );
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      new String[] { "*.txt", "*.csv", "*" },
+      new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
+        BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      false )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -1812,11 +1804,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wWarnDestDir.setLayoutData( fdBadDestDir );
 
     // Listen to the Browse... button
-    wbbWarnDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wWarnDestDir
-      .getTextWidget() ) );
+    wbbWarnDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wWarnDestDir ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wWarnDestDir.addModifyListener( getModifyListenerTooltipText( wWarnDestDir.getTextWidget() ) );
+    wWarnDestDir.addModifyListener( getModifyListenerTooltipText( wWarnDestDir ) );
 
     // Error lines files directory + extension
     previous = wWarnDestDir;
@@ -1867,11 +1858,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wErrorDestDir.setLayoutData( fdErrorDestDir );
 
     // Listen to the Browse... button
-    wbbErrorDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wErrorDestDir
-      .getTextWidget() ) );
+    wbbErrorDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wErrorDestDir ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir.getTextWidget() ) );
+    wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir ) );
 
     // Data Error lines files directory + extension
     previous = wErrorDestDir;
@@ -1923,10 +1913,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
     // Listen to the Browse... button
     wbbLineNrDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell,
-      wLineNrDestDir.getTextWidget() ) );
+      wLineNrDestDir ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir.getTextWidget() ) );
+    wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir ) );
 
     fdErrorComp = new FormData();
     fdErrorComp.left = new FormAttachment( 0, 0 );

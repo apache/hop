@@ -27,10 +27,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -71,6 +76,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Copy Files action settings.
@@ -461,53 +467,11 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   protected SelectionAdapter getFileSelectionAdapter() {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-
-        FileObject selectedFile = null;
-
-        try {
-          // Get current file
-          FileObject rootFile = null;
-          FileObject initialFile = null;
-          FileObject defaultInitialFile = null;
-
-          String original = wFields.getActiveTableItem().getText( wFields.getActiveTableColumn() );
-
-          if ( original != null ) {
-
-            String fileName = workflowMeta.environmentSubstitute( original );
-
-            if ( fileName != null && !fileName.equals( "" ) ) {
-              try {
-                initialFile = HopVfs.getFileObject( fileName );
-              } catch ( HopException ex ) {
-                initialFile = HopVfs.getFileObject( "" );
-              }
-              defaultInitialFile = HopVfs.getFileObject( "file:///c:/" );
-              rootFile = initialFile.getFileSystem().getRoot();
-            } else {
-              defaultInitialFile = null; // HopVfs.getFileObject( HopUi.getInstance().getLastFileOpened() ); TODO get last file per type from history mananger
-            }
-          }
-
-          if ( rootFile == null ) {
-            rootFile = defaultInitialFile.getFileSystem().getRoot();
-            initialFile = defaultInitialFile;
-          }
-
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-          fileDialog.setText( "Select file" );
-          fileDialog.setFilterNames( new String[] { "file" } );
-          fileDialog.setFilterExtensions( new String[] { "*.*" } );
-          if ( initialFile != null ) {
-            fileDialog.setFileName( HopVfs.getFilename( initialFile ) );
-          }
-          String filename = fileDialog.open();
-          if ( filename != null ) {
+          String filename = BaseDialog.presentFileDialog( shell, null, null, true ); // all files
+          if (filename!=null ) {
             wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), filename );
           }
-        } catch ( Exception ex ) {
-          // TODO: handle exception!!!
-        }
+
       }
     };
   }

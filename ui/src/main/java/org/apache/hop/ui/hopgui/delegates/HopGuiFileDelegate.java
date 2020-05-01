@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.history.AuditEvent;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -69,27 +70,10 @@ public class HopGuiFileDelegate {
       //
       HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
 
-      FileDialog fileDialog = new FileDialog( hopGui.getShell(), SWT.OPEN | SWT.OK | SWT.CANCEL );
-      fileDialog.setText( "Open file..." );  // TODO i18n
-      fileDialog.setFilterNames( fileRegistry.getFilterNames() );
-      fileDialog.setFilterExtensions( fileRegistry.getFilterExtensions() );
-
-      AtomicBoolean doIt = new AtomicBoolean( true );
-      try {
-        HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( doIt, fileDialog, hopGui );
-        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopGuiExtensionPoint.HopGuiFileOpenDialog.id, openExtension );
-      } catch ( Exception e ) {
-        throw new HopException( "Error calling extension point on the file dialog", e );
-      }
-      if ( !doIt.get() ) {
-        return;
-      }
-
-      String filename = fileDialog.open();
+      String filename = BaseDialog.presentFileDialog(hopGui.getShell(), fileRegistry.getFilterExtensions(), fileRegistry.getFilterNames(), true);
       if ( filename == null ) {
         return;
       }
-
       fileOpen( filename );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
@@ -129,23 +113,7 @@ public class HopGuiFileDelegate {
         return;
       }
 
-      FileDialog fileDialog = new FileDialog( hopGui.getShell(), SWT.SAVE | SWT.OK | SWT.CANCEL );
-      fileDialog.setText( "Save as ..." ); // TODO i18n
-      fileDialog.setFilterNames( fileType.getFilterNames() );
-      fileDialog.setFilterExtensions( fileType.getFilterExtensions() );
-
-      AtomicBoolean doIt = new AtomicBoolean( true );
-      try {
-        HopGuiFileDialogExtension openExtension = new HopGuiFileDialogExtension( doIt, fileDialog, hopGui );
-        ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopGuiExtensionPoint.HopGuiFileSaveDialog.id, openExtension );
-      } catch ( Exception e ) {
-        throw new HopException( "Error calling extension point on the file dialog", e );
-      }
-      if ( !doIt.get() ) {
-        return;
-      }
-
-      String filename = fileDialog.open();
+      String filename = BaseDialog.presentFileDialog( hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename == null ) {
         return;
       }

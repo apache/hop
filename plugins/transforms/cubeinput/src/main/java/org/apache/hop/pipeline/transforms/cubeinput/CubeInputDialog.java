@@ -29,6 +29,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -205,22 +206,13 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.cube", "*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( wFilename.getText() );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "CubeInputDialog.FilterNames.CubeFiles" ),
-          BaseMessages.getString( PKG, "CubeInputDialog.FilterNames.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      new String[] { "*.cube", "*" },
+      new String[] {
+        BaseMessages.getString( PKG, "CubeInputDialog.FilterNames.CubeFiles" ),
+        BaseMessages.getString( PKG, "CubeInputDialog.FilterNames.AllFiles" ) },
+      true )
+    );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -25,8 +25,13 @@ package org.apache.hop.workflow.actions.sftpput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -65,6 +70,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.net.InetAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTP Put action settings.
@@ -450,19 +456,9 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdKeyFilename.right = new FormAttachment( wbKeyFilename, -margin );
     wKeyFilename.setLayoutData( fdKeyFilename );
 
-    wbKeyFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.pem", "*" } );
-        if ( wKeyFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wKeyFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
+      new String[] { "*.pem", "*" }, FILETYPES, true )
+    );
 
     // keyfilePass line
     wkeyfilePass =
@@ -706,24 +702,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdbLocalDirectory.right = new FormAttachment( 100, 0 );
     fdbLocalDirectory.top = new FormAttachment( wgetPreviousFiles, margin );
     wbLocalDirectory.setLayoutData( fdbLocalDirectory );
-    wbLocalDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wLocalDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wLocalDirectory.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wLocalDirectory.setText( dir );
-        }
-
-      }
-    } );
+    wbLocalDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wLocalDirectory, workflowMeta ) );
 
     wLocalDirectory = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLocalDirectory );
@@ -823,27 +802,9 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdbMovetoDirectory.top = new FormAttachment( wAfterFTPPut, margin );
     wbMovetoDirectory.setLayoutData( fdbMovetoDirectory );
 
-    wbMovetoDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wDestinationFolder.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) );
-        }
+    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
 
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wDestinationFolder.setText( dir );
-        }
-
-      }
-    } );
-
-    wDestinationFolder =
-      new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+    wDestinationFolder = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSFTPPUT.DestinationFolder.Tooltip" ) );
     props.setLook( wDestinationFolder );
     wDestinationFolder.addModifyListener( lsMod );

@@ -28,6 +28,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -541,25 +542,11 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wUploadFile.setLayoutData( fdUploadFile );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wUploadFile.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wUploadFile.setToolTipText( workflowMeta.environmentSubstitute( wUploadFile.getText() ) );
-      }
-    } );
+    wUploadFile.addModifyListener( e -> wUploadFile.setToolTipText( workflowMeta.environmentSubstitute( wUploadFile.getText() ) ) );
 
-    wbUploadFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wUploadFile.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wUploadFile.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wUploadFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbUploadFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wUploadFile, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     fdUpLoadFile = new FormData();
     fdUpLoadFile.left = new FormAttachment( 0, margin );
@@ -610,19 +597,9 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdTargetFile.right = new FormAttachment( wbTargetFile, -margin );
     wTargetFile.setLayoutData( fdTargetFile );
 
-    wbTargetFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wTargetFile.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wTargetFile.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wTargetFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbTargetFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTargetFile, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     // Append line
     wlAppend = new Label( wTargetFileGroup, SWT.RIGHT );

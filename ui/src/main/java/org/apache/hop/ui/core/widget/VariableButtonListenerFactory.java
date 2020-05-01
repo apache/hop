@@ -37,13 +37,13 @@ public class VariableButtonListenerFactory {
   private static Class<?> PKG = VariableButtonListenerFactory.class; // for i18n purposes, needed by Translator!!
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
+  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final TextVar destination,
                                                             final IVariables variables ) {
     return getSelectionAdapter( composite, destination, null, null, variables );
   }
 
   // Listen to the Variable... button
-  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
+  public static final SelectionAdapter getSelectionAdapter( final Composite composite, final TextVar destination,
                                                             final IGetCaretPosition getCaretPositionInterface, final IInsertText insertTextInterface,
                                                             final IVariables variables ) {
     return new SelectionAdapter() {
@@ -58,7 +58,7 @@ public class VariableButtonListenerFactory {
         if ( variableName != null ) {
           String var = "${" + variableName + "}";
           if ( insertTextInterface == null ) {
-            destination.insert( var );
+            destination.getTextWidget().insert( var );
             e.doit = false;
           } else {
             insertTextInterface.insertText( var, position );

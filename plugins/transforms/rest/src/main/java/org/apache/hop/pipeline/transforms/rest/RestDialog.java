@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -806,20 +807,11 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdbTrustStoreFile.top = new FormAttachment( 0, 0 );
     wbTrustStoreFile.setLayoutData( fdbTrustStoreFile );
 
-    wbTrustStoreFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*.*" } );
-        if ( wTrustStoreFile.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wTrustStoreFile.getText() ) );
-        }
-        dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wTrustStoreFile.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbTrustStoreFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTrustStoreFile, pipelineMeta,
+      new String[] { "*.)" },
+      new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
 
     wTrustStoreFile = new TextVar( pipelineMeta, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTrustStoreFile );

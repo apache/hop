@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.FileDialog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,12 +29,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HopGuiFileDialogExtension {
   public AtomicBoolean doIt;
   public FileDialog fileDialog;
-  public HopGui hopGui;
 
-  public HopGuiFileDialogExtension( AtomicBoolean doIt, FileDialog fileDialog, HopGui hopGui ) {
+  public HopGuiFileDialogExtension( AtomicBoolean doIt, FileDialog fileDialog ) {
     this.doIt = doIt;
     this.fileDialog = fileDialog;
-    this.hopGui = hopGui;
   }
 
   /**
@@ -68,21 +65,5 @@ public class HopGuiFileDialogExtension {
    */
   public void setFileDialog( FileDialog fileDialog ) {
     this.fileDialog = fileDialog;
-  }
-
-  /**
-   * Gets hopGui
-   *
-   * @return value of hopGui
-   */
-  public HopGui getHopGui() {
-    return hopGui;
-  }
-
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui( HopGui hopGui ) {
-    this.hopGui = hopGui;
   }
 }

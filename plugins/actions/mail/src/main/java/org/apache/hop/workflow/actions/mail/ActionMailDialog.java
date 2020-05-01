@@ -26,8 +26,13 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -71,6 +76,7 @@ import org.eclipse.swt.widgets.TableItem;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Dialog that allows you to edit a ActionMail object.
@@ -1112,27 +1118,19 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wImageFilename.setToolTipText( workflowMeta.environmentSubstitute( wImageFilename.getText() ) );
-      }
-    } );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( workflowMeta.environmentSubstitute( wImageFilename.getText() ) ) );
 
-    wbImageFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" } );
-        if ( wImageFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wImageFilename.getText() ) );
-        }
-        dialog.setFilterNames( IMAGES_FILE_TYPES );
-        if ( dialog.open() != null ) {
-          wImageFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-          Random randomgen = new Random();
-          wContentID.setText( Long.toString( Math.abs( randomgen.nextLong() ), 32 ) );
+    wbImageFilename.addListener( SWT.Selection, e-> {
+        String filename = BaseDialog.presentFileDialog( shell, wImageFilename, workflowMeta,
+          new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" },
+          IMAGES_FILE_TYPES,
+          true);
+        if ( filename != null ) {
+          Random random = new Random();
+          wContentID.setText( Long.toString( Math.abs( random.nextLong() ), 32 ) );
         }
       }
-    } );
+     );
 
     // ContentID
     wlContentID = new Label( wEmbeddedImagesGroup, SWT.RIGHT );

@@ -28,6 +28,7 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -682,22 +683,9 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wName.addSelectionListener( lsDef );
     wFilename.addSelectionListener( lsDef );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.sh;*.bat;*.BAT", "*;*.*" } );
-        dialog.setFilterNames( FILEFORMATS );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+      new String[] { "*.sh;*.bat;*.BAT", "*;*.*" }, FILEFORMATS, true ));
 
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( wFilename.getText() );
-        }
-
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-          wName.setText( dialog.getFileName() );
-        }
-      }
-    } );
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

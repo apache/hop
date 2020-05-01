@@ -35,6 +35,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -922,16 +923,15 @@ public class Translator {
         }
 
         // Ask for the target filename if we're still here...
-
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.zip", "*" } );
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "System.FileType.ZIPFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          String zipFilename =
-            dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-
+        // Keep this FileDialog as is
+        //
+        String zipFilename = BaseDialog.presentFileDialog( shell,
+          new String[] { "*.zip", "*" },
+          new String[] {
+            BaseMessages.getString( PKG, "System.FileType.ZIPFiles" ),
+            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+          true );
+        if ( zipFilename != null ) {
           try {
             ZipOutputStream out = new ZipOutputStream( new FileOutputStream( zipFilename ) );
             byte[] buf = new byte[ 1024 ];
@@ -951,9 +951,7 @@ public class Translator {
               shell, BaseMessages.getString( PKG, "i18n.UnexpectedError" ),
               "There was an error saving the changed messages files:", e );
           }
-
         }
-
       }
     }
   }
