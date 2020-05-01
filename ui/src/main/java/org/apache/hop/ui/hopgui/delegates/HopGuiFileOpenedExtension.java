@@ -22,33 +22,20 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
+import org.apache.hop.core.variables.IVariables;
 import org.eclipse.swt.widgets.FileDialog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HopGuiFileDialogExtension {
-  public AtomicBoolean doIt;
+public class HopGuiFileOpenedExtension {
   public FileDialog fileDialog;
+  public IVariables variables;
+  public String filename;
 
-  public HopGuiFileDialogExtension( AtomicBoolean doIt, FileDialog fileDialog ) {
-    this.doIt = doIt;
+  public HopGuiFileOpenedExtension( FileDialog fileDialog, IVariables variables, String filename ) {
     this.fileDialog = fileDialog;
-  }
-
-  /**
-   * Gets doIt
-   *
-   * @return value of doIt
-   */
-  public AtomicBoolean getDoIt() {
-    return doIt;
-  }
-
-  /**
-   * @param doIt The doIt to set
-   */
-  public void setDoIt( AtomicBoolean doIt ) {
-    this.doIt = doIt;
+    this.variables = variables;
+    this.filename = filename;
   }
 
   /**
@@ -65,5 +52,37 @@ public class HopGuiFileDialogExtension {
    */
   public void setFileDialog( FileDialog fileDialog ) {
     this.fileDialog = fileDialog;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * @param variables The variables to set
+   */
+  public void setVariables( IVariables variables ) {
+    this.variables = variables;
+  }
+
+  /**
+   * Gets filename
+   *
+   * @return value of filename
+   */
+  public String getFilename() {
+    return filename;
+  }
+
+  /**
+   * @param filename The filename to set
+   */
+  public void setFilename( String filename ) {
+    this.filename = filename;
   }
 }

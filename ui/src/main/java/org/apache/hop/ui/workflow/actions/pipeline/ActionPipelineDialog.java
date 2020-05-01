@@ -32,6 +32,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -230,65 +231,9 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     HopPipelineFileType<PipelineMeta> pipelineFileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
 
-    FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-    dialog.setFilterExtensions( pipelineFileType.getFilterExtensions() );
-    dialog.setFilterNames( pipelineFileType.getFilterNames() );
-    String prevName = workflowMeta.environmentSubstitute( wPath.getText() );
-    String parentFolder = null;
-    try {
-      parentFolder = HopVfs.getFilename( HopVfs.getFileObject( workflowMeta.environmentSubstitute( workflowMeta.getFilename() ) ).getParent() );
-    } catch ( Exception e ) {
-      // not that important
-    }
-    if ( !Utils.isEmpty( prevName ) ) {
-      try {
-        if ( HopVfs.fileExists( prevName ) ) {
-          dialog.setFilterPath( HopVfs.getFilename( HopVfs.getFileObject( prevName ).getParent() ) );
-        } else {
-
-          if ( !prevName.endsWith( ".hpl" ) ) {
-            prevName = getEntryName( Const.trim( wPath.getText() ) + ".hpl" );
-          }
-          if ( HopVfs.fileExists( prevName ) ) {
-            wPath.setText( prevName );
-            return;
-          } else {
-            // File specified doesn't exist. Ask if we should create the file...
-            //
-            MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-            mb.setMessage( BaseMessages.getString( PKG, "ActionPipeline.Dialog.CreatePipelineQuestion.Message" ) );
-            mb.setText( BaseMessages.getString( PKG, "ActionPipeline.Dialog.CreatePipelineQuestion.Title" ) ); // Sorry!
-            int answer = mb.open();
-            if ( answer == SWT.YES ) {
-
-              HopGui hopGui = HopGui.getInstance();
-              IHopFileTypeHandler fileTypeHandler = HopDataOrchestrationPerspective.getInstance().getPipelineFileType().newFile( hopGui, hopGui.getVariables() );
-              fileTypeHandler.setFilename( workflowMeta.environmentSubstitute( prevName ) );
-              wPath.setText( prevName );
-              hopGui.fileDelegate.fileSave();
-              return;
-            }
-          }
-        }
-      } catch ( Exception e ) {
-        dialog.setFilterPath( parentFolder );
-      }
-    } else if ( !Utils.isEmpty( parentFolder ) ) {
-      dialog.setFilterPath( parentFolder );
-    }
-
-    String fname = dialog.open();
-    if ( fname != null ) {
-      File file = new File( fname );
-      String name = file.getName();
-      String parentFolderSelection = file.getParentFile().toString();
-
-      if ( !Utils.isEmpty( parentFolder ) && parentFolder.equals( parentFolderSelection ) ) {
-        wPath.setText( getEntryName( name ) );
-      } else {
-        wPath.setText( fname );
-      }
-
+    String filename = BaseDialog.presentFileDialog( shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true );
+    if ( filename != null ) {
+      wPath.setText( filename );
     }
   }
 

@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -242,81 +243,13 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected void pickFileVFS() {
-
-    HopWorkflowFileType<WorkflowMeta> jobFileType = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType();
-
-    FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-    dialog.setFilterExtensions( jobFileType.getFilterExtensions() );
-    dialog.setFilterNames( jobFileType.getFilterNames() );
-    String prevName = workflowMeta.environmentSubstitute( getPath() );
-    String parentFolder = null;
-    try {
-      parentFolder =
-        HopVfs.getFilename( HopVfs
-          .getFileObject( workflowMeta.environmentSubstitute( workflowMeta.getFilename() ) ).getParent() );
-    } catch ( Exception e ) {
-      // not that important
-    }
-    if ( !Utils.isEmpty( prevName ) ) {
-      try {
-        if ( HopVfs.fileExists( prevName ) ) {
-          dialog.setFilterPath( HopVfs.getFilename( HopVfs.getFileObject( prevName ).getParent() ) );
-        } else {
-
-          if ( !prevName.endsWith( ".hwf" ) ) {
-            prevName = getEntryName( Const.trim( getPath() ) + ".hwf" );
-          }
-          if ( HopVfs.fileExists( prevName ) ) {
-            wPath.setText( prevName );
-            return;
-          } else {
-            // File specified doesn't exist. Ask if we should create the file...
-            //
-            MessageBox mb = new MessageBox( shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-            mb.setMessage( BaseMessages.getString( PKG, "ActionWorkflow.Dialog.CreateJobQuestion.Message" ) );
-            mb.setText( BaseMessages.getString( PKG, "ActionWorkflow.Dialog.CreateJobQuestion.Title" ) ); // Sorry!
-            int answer = mb.open();
-            if ( answer == SWT.YES ) {
-
-              HopGui hopGui = HopGui.getInstance();
-              IHopFileTypeHandler typeHandler = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType().newFile( hopGui, hopGui.getVariables() );
-              typeHandler.setFilename( workflowMeta.environmentSubstitute( prevName ) );
-              wPath.setText( prevName );
-              hopGui.fileDelegate.fileSave();
-              return;
-            }
-          }
-        }
-      } catch ( Exception e ) {
-        dialog.setFilterPath( parentFolder );
-      }
-    } else if ( !Utils.isEmpty( parentFolder ) ) {
-      dialog.setFilterPath( parentFolder );
-    }
-
-    String fname = dialog.open();
-    if ( fname != null ) {
-      File file = new File( fname );
-      String name = file.getName();
-      String parentFolderSelection = file.getParentFile().toString();
-
-      if ( !Utils.isEmpty( parentFolder ) && parentFolder.equals( parentFolderSelection ) ) {
-        wPath.setText( getEntryName( name ) );
-      } else {
-        wPath.setText( fname );
-      }
-
-    }
-  }
-
-  String getEntryName( String name ) {
-    return "${"
-      + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + name;
+    HopWorkflowFileType<WorkflowMeta> workflowFileType = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType();
+    BaseDialog.presentFileDialog( shell, wPath, workflowMeta, workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
   }
 
   public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
+    WindowProperty windowProperty = new WindowProperty( shell );
+    props.setScreen( windowProperty );
     shell.dispose();
   }
 

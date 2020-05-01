@@ -24,12 +24,17 @@ package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -49,6 +54,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginDialog(
         id = "BlockingTransform",
@@ -183,23 +190,10 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     fdSpoolDir.right = new FormAttachment( wbSpoolDir, -margin );
     wSpoolDir.setLayoutData( fdSpoolDir );
 
-    wbSpoolDir.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        DirectoryDialog dd = new DirectoryDialog( shell, SWT.NONE );
-        dd.setFilterPath( wSpoolDir.getText() );
-        String dir = dd.open();
-        if ( dir != null ) {
-          wSpoolDir.setText( dir );
-        }
-      }
-    } );
-
     // Whenever something changes, set the tooltip to the expanded version:
-    wSpoolDir.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wSpoolDir.setToolTipText( pipelineMeta.environmentSubstitute( wSpoolDir.getText() ) );
-      }
-    } );
+    wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( pipelineMeta.environmentSubstitute( wSpoolDir.getText() ) ) );
+
+    wbSpoolDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSpoolDir, pipelineMeta ) );
 
     // Prefix of temporary file
     wlPrefix = new Label( shell, SWT.RIGHT );

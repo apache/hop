@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -1259,22 +1260,14 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdbImage.right = new FormAttachment( 100, 0 );
     fdbImage.top = new FormAttachment( wHeaderAlignment, margin );
     wbImage.setLayoutData( fdbImage );
-    wbImage.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.png", "*.*" } );
-        if ( wImage.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wImage.getText() ) );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "ExcelOutputDialog.FileType.PNGFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wImage.setText( dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbImage.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wImage, pipelineMeta,
+      new String[] { "*.png", "*.*" },
+      new String[] {
+        BaseMessages.getString( PKG, "ExcelOutputDialog.FileType.PNGFiles" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
+
 
     // Image line
     wlImage = new Label( wFontHeaderGroup, SWT.RIGHT );
@@ -1577,48 +1570,22 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
         wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
       }
     } );
-    wTemplateFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) );
-      }
-    } );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) ) );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-        dialog.setFilterExtensions( new String[] { "*.xls", "*.*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
-
-    wbTemplateFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.xls", "*.*" } );
-        if ( wTemplateFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) );
-        }
-        dialog.setFilterNames( new String[] {
-          BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
-          BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-        if ( dialog.open() != null ) {
-          wTemplateFilename.setText( dialog.getFilterPath()
-            + System.getProperty( "file.separator" ) + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      new String[] { "*.xls", "*.*" },
+      new String[] {
+        BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
+    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, pipelineMeta,
+      new String[] { "*.xls", "*.*" },
+      new String[] {
+        BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
+        BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+      true )
+    );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

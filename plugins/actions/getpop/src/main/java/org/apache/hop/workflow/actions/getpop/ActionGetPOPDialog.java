@@ -27,10 +27,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -72,6 +76,7 @@ import org.eclipse.swt.widgets.Text;
 import javax.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Get POP action settings.
@@ -701,24 +706,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdbDirectory.right = new FormAttachment( 100, -margin );
     fdbDirectory.top = new FormAttachment( wServerSettings, margin );
     wbDirectory.setLayoutData( fdbDirectory );
-
-    wbDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wOutputDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wOutputDirectory.getText() ) );
-        }
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wOutputDirectory.setText( dir );
-        }
-
-      }
-    } );
+    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wOutputDirectory, workflowMeta ) );
 
     wOutputDirectory = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOutputDirectory );
@@ -868,24 +856,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdbAttachmentFolder.right = new FormAttachment( 100, -margin );
     fdbAttachmentFolder.top = new FormAttachment( wDifferentFolderForAttachment, margin );
     wbAttachmentFolder.setLayoutData( fdbAttachmentFolder );
-
-    wbAttachmentFolder.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wAttachmentFolder.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wAttachmentFolder.getText() ) );
-        }
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wAttachmentFolder.setText( dir );
-        }
-
-      }
-    } );
+    wbAttachmentFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wAttachmentFolder, workflowMeta ) );
 
     wAttachmentFolder = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAttachmentFolder );

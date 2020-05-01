@@ -34,6 +34,7 @@ import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -567,17 +568,13 @@ public abstract class ActionBaseDialog extends ActionDialog {
   }
 
   protected void selectLogFile( String[] filters ) {
-    FileDialog dialog = new FileDialog( shell, SWT.SAVE );
-    dialog.setFilterExtensions( new String[] { "*.txt", "*.log", "*" } );
-    dialog.setFilterNames( filters );
 
-    if ( wLogfile.getText() != null ) {
-      dialog.setFileName( workflowMeta.environmentSubstitute( wLogfile.getText() ) );
-    }
-
-    if ( dialog.open() != null ) {
-      wLogfile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-      String filename = dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName();
+    String filename = BaseDialog.presentFileDialog(shell, wLogfile, workflowMeta,
+      new String[] { "*.txt", "*.log", "*" },
+      filters,
+      true
+      );
+    if ( filename != null ) {
       FileObject file = null;
       try {
         file = HopVfs.getFileObject( filename );

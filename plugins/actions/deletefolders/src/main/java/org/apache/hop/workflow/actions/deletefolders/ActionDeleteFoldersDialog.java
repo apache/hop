@@ -24,8 +24,13 @@ package org.apache.hop.workflow.actions.deletefolders;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -57,6 +62,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Delete Folders action settings.
@@ -288,24 +295,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdbDirectory.top = new FormAttachment( wSuccessOn, margin );
     wbDirectory.setLayoutData( fdbDirectory );
 
-    wbDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wFilename.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wFilename.setText( dir );
-        }
-
-      }
-    } );
+    wbDirectory.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wFilename, workflowMeta ));
     
     // Button Add or change
     wbaFilename = new Button( shell, SWT.PUSH | SWT.CENTER );

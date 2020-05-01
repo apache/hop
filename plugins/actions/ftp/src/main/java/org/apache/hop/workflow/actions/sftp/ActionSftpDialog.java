@@ -25,8 +25,13 @@ package org.apache.hop.workflow.actions.sftp;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -64,6 +69,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.net.InetAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the SFTP action settings.
@@ -448,26 +454,13 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     fdKeyFilename.right = new FormAttachment( wbKeyFilename, -margin );
     wKeyFilename.setLayoutData( fdKeyFilename );
 
-    // Whenever something changes, set the tooltip to the expanded version:
-    wbKeyFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.pem", "*" } );
-        if ( wKeyFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wKeyFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
+      new String[] { "*.pem", "*" }, FILETYPES, true )
+    );
 
     // keyfilePass line
-    wkeyfilePass =
-      new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.keyfilePass.Label" ), BaseMessages
-        .getString( PKG, "JobSFTP.keyfilePass.Tooltip" ), true );
+    wkeyfilePass = new LabelTextVar( workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTP.keyfilePass.Label" ),
+      BaseMessages.getString( PKG, "JobSFTP.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
     fdkeyfilePass = new FormData();
@@ -764,27 +757,9 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     fdbTargetDirectory.right = new FormAttachment( 100, 0 );
     fdbTargetDirectory.top = new FormAttachment( wSourceFiles, margin );
     wbTargetDirectory.setLayoutData( fdbTargetDirectory );
-    wbTargetDirectory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wTargetDirectory.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wTargetDirectory.getText() ) );
-        }
+    wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, workflowMeta ) );
 
-        // Calling open() will open and run the dialog.
-        // It will return the selected directory, or
-        // null if user cancels
-        String dir = ddialog.open();
-        if ( dir != null ) {
-          // Set the text box to the new selection
-          wTargetDirectory.setText( dir );
-        }
-
-      }
-    } );
-
-    wTargetDirectory =
-      new TextVar( workflowMeta, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+    wTargetDirectory = new TextVar( workflowMeta, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSFTP.TargetDir.Tooltip" ) );
     props.setLook( wTargetDirectory );
     wTargetDirectory.addModifyListener( lsMod );

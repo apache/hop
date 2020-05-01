@@ -36,9 +36,9 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.IKCell;
-import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,7 +49,13 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterListDialog;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -61,22 +67,39 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 @PluginDialog(
-        id = "ExcelInput",
-        image = "excelinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+  id = "ExcelInput",
+  image = "excelinput.svg",
+  pluginType = PluginDialog.PluginType.TRANSFORM,
+  documentationUrl = ""
 )
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
@@ -208,7 +231,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Label wlWarningDestDir;
   private Button wbbWarningDestDir; // Browse: add file or directory
   private Button wbvWarningDestDir; // Variable
-  private Text wWarningDestDir;
+  private TextVar wWarningDestDir;
   private FormData fdlWarningDestDir, fdbWarningDestDir, fdbvWarningDestDir, fdWarningDestDir;
   private Label wlWarningExt;
   private Text wWarningExt;
@@ -218,7 +241,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Label wlErrorDestDir;
   private Button wbbErrorDestDir; // Browse: add file or directory
   private Button wbvErrorDestDir; // Variable
-  private Text wErrorDestDir;
+  private TextVar wErrorDestDir;
   private FormData fdlErrorDestDir, fdbErrorDestDir, fdbvErrorDestDir, fdErrorDestDir;
   private Label wlErrorExt;
   private Text wErrorExt;
@@ -228,7 +251,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Label wlLineNrDestDir;
   private Button wbbLineNrDestDir; // Browse: add file or directory
   private Button wbvLineNrDestDir; // Variable
-  private Text wLineNrDestDir;
+  private TextVar wLineNrDestDir;
   private FormData fdlLineNrDestDir, fdbLineNrDestDir, fdbvLineNrDestDir, fdLineNrDestDir;
   private Label wlLineNrExt;
   private Text wLineNrExt;
@@ -1104,55 +1127,35 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFilterPath( fpath );
-          }
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
-        } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          String[] extentions = new String[] { "*.xls;*.XLS", "*" };
-          SpreadSheetType type = SpreadSheetType.getStpreadSheetTypeByDescription( wSpreadSheetType.getText() );
-          switch ( type ) {
-            case POI:
-              extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX", "*" };
-              break;
-            case SAX_POI:
-              extentions = new String[] { "*.xlsx;*.XLSX", "*" };
-              break;
-            case ODS:
-              extentions = new String[] { "*.ods;*.ODS;", "*" };
-              break;
-            case JXL:
-            default:
-              extentions = new String[] { "*.xls;*.XLS", "*" };
-              break;
-          }
-
-          dialog.setFilterExtensions( extentions );
-          if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
-
-          dialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "ExcelInputDialog.FilterNames.ExcelFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
+    wbbFilename.addListener( SWT.Selection, e -> {
+      if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
+        BaseDialog.presentDirectoryDialog( shell, wFilename, pipelineMeta );
+      } else {
+        String[] extentions;
+        SpreadSheetType type = SpreadSheetType.getStpreadSheetTypeByDescription( wSpreadSheetType.getText() );
+        switch ( type ) {
+          case POI:
+            extentions = new String[] { "*.xls;*.XLS;*.xlsx;*.XLSX", "*" };
+            break;
+          case SAX_POI:
+            extentions = new String[] { "*.xlsx;*.XLSX", "*" };
+            break;
+          case ODS:
+            extentions = new String[] { "*.ods;*.ODS;", "*" };
+            break;
+          case JXL:
+          default:
+            extentions = new String[] { "*.xls;*.XLS", "*" };
+            break;
         }
+
+        BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+          extentions,
+          new String[] {
+            BaseMessages.getString( PKG, "ExcelInputDialog.FilterNames.ExcelFiles" ),
+            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+          true
+        );
       }
     } );
 
@@ -1661,7 +1664,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlWarningDestExt.right = new FormAttachment( wWarningExt, -margin );
     wlWarningExt.setLayoutData( fdlWarningDestExt );
 
-    wWarningDestDir = new Text( wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWarningDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWarningDestDir );
     wWarningDestDir.addModifyListener( lsMod );
     fdWarningDestDir = new FormData();
@@ -1671,8 +1674,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wWarningDestDir.setLayoutData( fdWarningDestDir );
 
     // Listen to the Browse... button
-    wbbWarningDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter(
-      shell, wWarningDestDir ) );
+    wbbWarningDestDir.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wWarningDestDir, pipelineMeta) );
 
     // Listen to the Variable... button
     wbvWarningDestDir.addSelectionListener( VariableButtonListenerFactory.getSelectionAdapter(
@@ -1729,7 +1731,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlErrorDestExt.right = new FormAttachment( wErrorExt, -margin );
     wlErrorExt.setLayoutData( fdlErrorDestExt );
 
-    wErrorDestDir = new Text( wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorDestDir );
     wErrorDestDir.addModifyListener( lsMod );
     fdErrorDestDir = new FormData();
@@ -1797,7 +1799,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlLineNrDestExt.right = new FormAttachment( wLineNrExt, -margin );
     wlLineNrExt.setLayoutData( fdlLineNrDestExt );
 
-    wLineNrDestDir = new Text( wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineNrDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineNrDestDir );
     wLineNrDestDir.addModifyListener( lsMod );
     fdLineNrDestDir = new FormData();

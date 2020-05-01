@@ -128,6 +128,14 @@ public class Environment implements IHopMetaStoreElement<Environment> {
     }
   }
 
+  public String getActualHomeFolder(IVariables variables) {
+    if (StringUtils.isNotEmpty(environmentHomeFolder)) {
+      return variables.environmentSubstitute( environmentHomeFolder );
+    } else {
+      return variables.environmentSubstitute( variables.getVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME ) );
+    }
+  }
+
   /**
    * Gets name
    *

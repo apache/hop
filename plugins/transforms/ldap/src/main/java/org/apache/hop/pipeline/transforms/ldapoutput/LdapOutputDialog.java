@@ -28,6 +28,8 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -41,6 +43,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocol;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.apache.hop.pipeline.transforms.ldapoutput.LdapOutputMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -49,6 +52,8 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -84,6 +89,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PluginDialog(id = "LDAPOutput", image = "ldapoutput.svg", pluginType = PluginDialog.PluginType.TRANSFORM)
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -584,20 +590,8 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdbFilename.top = new FormAttachment( wsetTrustStore, margin );
     wbbFilename.setLayoutData( fdbFilename );
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wTrustStorePath.getText() != null ) {
-          String fpath = pipelineMeta.environmentSubstitute( wTrustStorePath.getText() );
-          dialog.setFilterPath( fpath );
-        }
 
-        if ( dialog.open() != null ) {
-          String str = dialog.getFilterPath();
-          wTrustStorePath.setText( str );
-        }
-      }
-    } );
+    wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTrustStorePath, pipelineMeta ) );
 
     wTrustStorePath = new TextVar( pipelineMeta, wCertificateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTrustStorePath );

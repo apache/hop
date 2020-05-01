@@ -24,6 +24,7 @@ package org.apache.hop.ui.core;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.util.Assert;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -105,16 +106,8 @@ public class SimpleFileSelection extends SelectionAdapter {
    */
   @Override
   public void widgetSelected( final SelectionEvent event ) {
-    final FileDialog dialog = new FileDialog( this.shell, SWT.OPEN );
-    dialog.setFilterExtensions( this.filterExtensions );
-    dialog.setFilterNames( this.filterNames );
-    if ( this.textVar.getText() != null ) {
-      dialog.setFileName( this.textVar.getText() );
-    }
-    if ( dialog.open() != null ) {
-      final String filename = FilenameUtils.concat( dialog.getFilterPath(), dialog.getFileName() );
-      this.textVar.setText( filename );
-    }
+    BaseDialog.presentFileDialog( shell, textVar, null, null, filterExtensions, filterNames, true );
+
   }
 
 }

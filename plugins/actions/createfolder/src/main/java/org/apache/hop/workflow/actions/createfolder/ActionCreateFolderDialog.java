@@ -24,8 +24,13 @@ package org.apache.hop.workflow.actions.createfolder;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -53,6 +58,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the Create Folder action settings.
@@ -171,25 +178,9 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wFoldername.setLayoutData( fdFoldername );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) );
-      }
-    } );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
 
-    wbFoldername.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wFoldername.getText() != null ) {
-          dialog.setFilterPath( workflowMeta.environmentSubstitute( wFoldername.getText() ) );
-        }
-
-        String dir = dialog.open();
-        if ( dir != null ) {
-          wFoldername.setText( dir );
-        }
-      }
-    } );
+    wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ) );
 
     wlAbortExists = new Label( shell, SWT.RIGHT );
     wlAbortExists.setText( BaseMessages.getString( PKG, "JobCreateFolder.FailIfExists.Label" ) );

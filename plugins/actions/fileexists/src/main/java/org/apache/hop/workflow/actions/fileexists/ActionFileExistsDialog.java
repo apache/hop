@@ -29,6 +29,7 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -194,34 +195,22 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     wbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         try {
-          FileObject fileName = null;
+          FileObject fileName;
 
           try {
             String curFile = wFilename.getText();
 
             if ( curFile.trim().length() > 0 ) {
-              fileName =
-                HopVfs.getInstance().getFileSystemManager().resolveFile(
-                  workflowMeta.environmentSubstitute( wFilename.getText() ) );
+              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( workflowMeta.environmentSubstitute( wFilename.getText() ) );
             } else {
               fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
             }
-
           } catch ( FileSystemException ex ) {
             fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
           }
 
-          FileDialog fileDialog = new FileDialog( shell, SWT.OPEN | SWT.OK | SWT.CANCEL );
-          fileDialog.setText( "Select file" );
-          fileDialog.setFilterNames( FILETYPES );
-          fileDialog.setFilterExtensions( EXTENSIONS );
-          if ( fileName != null ) {
-            fileDialog.setFileName( HopVfs.getFilename( fileName ) );
-          }
-          String filename = fileDialog.open();
-          if ( filename != null ) {
-            wFilename.setText( filename );
-          }
+          BaseDialog.presentFileDialog(shell, wFilename, fileName, EXTENSIONS, FILETYPES, false);
+
         } catch ( FileSystemException ex ) {
           ex.printStackTrace();
         }

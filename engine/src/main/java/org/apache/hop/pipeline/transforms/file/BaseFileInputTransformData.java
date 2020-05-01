@@ -84,5 +84,4 @@ public class BaseFileInputTransformData extends BaseTransformData {
   public String uriName;
   public String rootUriName;
   public Long size;
-
 }

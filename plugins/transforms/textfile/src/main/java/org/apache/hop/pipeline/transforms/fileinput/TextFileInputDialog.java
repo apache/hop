@@ -31,10 +31,12 @@ import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.ITextFileInputField;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -48,6 +50,7 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -57,6 +60,8 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.jface.wizard.Wizard;
@@ -104,6 +109,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
@@ -667,20 +673,9 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wbbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         if ( wFilemask.getText() != null && wFilemask.getText().length() > 0 ) { // A mask: a directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFilterPath( fpath );
-          }
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
+          BaseDialog.presentDirectoryDialog( shell, wFilename, pipelineMeta );
         } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          ICompressionProvider provider =
-            CompressionProviderFactory.getInstance().getCompressionProviderByName( wCompression.getText() );
+          ICompressionProvider provider = CompressionProviderFactory.getInstance().getCompressionProviderByName( wCompression.getText() );
 
           List<String> filterExtensions = new ArrayList<>();
           List<String> filterNames = new ArrayList<>();
@@ -698,19 +693,12 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           filterNames.add( BaseMessages.getString( PKG, "System.FileType.TextFiles" ) );
           filterExtensions.add( "*" );
           filterNames.add( BaseMessages.getString( PKG, "System.FileType.AllFiles" ) );
-          dialog.setFilterExtensions( filterExtensions.toArray( new String[ filterExtensions.size() ] ) );
 
-          if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
-
-          dialog.setFilterNames( filterNames.toArray( new String[ filterNames.size() ] ) );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
+          BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+            filterExtensions.toArray( new String[ filterExtensions.size() ] ),
+            filterNames.toArray( new String[ filterNames.size() ] ),
+            true
+          );
         }
       }
     } );
@@ -1845,12 +1833,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wWarnDestDir.setLayoutData( fdBadDestDir );
 
     // Listen to the Browse... button
-    wbbWarnDestDir
-      .addSelectionListener(
-        DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell, wWarnDestDir.getTextWidget() ) );
+    wbbWarnDestDir.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wWarnDestDir, pipelineMeta ));
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wWarnDestDir.addModifyListener( getModifyListenerTooltipText( wWarnDestDir.getTextWidget() ) );
+    wWarnDestDir.addModifyListener( getModifyListenerTooltipText( wWarnDestDir ) );
 
     // Error lines files directory + extension
     previous = wWarnDestDir;
@@ -1901,11 +1887,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wErrorDestDir.setLayoutData( fdErrorDestDir );
 
     // Listen to the Browse... button
-    wbbErrorDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell,
-      wErrorDestDir.getTextWidget() ) );
+    wbbErrorDestDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wErrorDestDir, pipelineMeta ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir.getTextWidget() ) );
+    wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir ) );
 
     // Data Error lines files directory + extension
     previous = wErrorDestDir;
@@ -1956,11 +1941,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wLineNrDestDir.setLayoutData( fdLineNrDestDir );
 
     // Listen to the Browse... button
-    wbbLineNrDestDir.addSelectionListener( DirectoryDialogButtonListenerFactory.getSelectionAdapter( shell,
-      wLineNrDestDir.getTextWidget() ) );
+    wbbLineNrDestDir.addListener(SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wLineNrDestDir, pipelineMeta ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
-    wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir.getTextWidget() ) );
+    wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir ) );
 
     fdErrorComp = new FormData();
     fdErrorComp.left = new FormAttachment( 0, 0 );

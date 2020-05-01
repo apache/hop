@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -176,25 +177,11 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wFilename1.setLayoutData( fdFilename1 );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename1.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename1.setToolTipText( workflowMeta.environmentSubstitute( wFilename1.getText() ) );
-      }
-    } );
+    wFilename1.addModifyListener( e -> wFilename1.setToolTipText( workflowMeta.environmentSubstitute( wFilename1.getText() ) ) );
 
-    wbFilename1.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wFilename1.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFilename1.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFilename1.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename1.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename1, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
 
     // Filename 2 line
     wlFilename2 = new Label( shell, SWT.RIGHT );
@@ -222,25 +209,12 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wFilename2.setLayoutData( fdFilename2 );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename2.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename2.setToolTipText( workflowMeta.environmentSubstitute( wFilename2.getText() ) );
-      }
-    } );
+    wFilename2.addModifyListener( e -> wFilename2.setToolTipText( workflowMeta.environmentSubstitute( wFilename2.getText() ) ) );
 
-    wbFilename2.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wFilename2.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFilename2.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFilename2.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename2.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename2, workflowMeta,
+      new String[] { "*" }, FILETYPES, true )
+    );
+
     // Add filename to result filenames
     wlAddFilenameResult = new Label( shell, SWT.RIGHT );
     wlAddFilenameResult.setText( BaseMessages.getString( PKG, "JobFileCompare.AddFilenameResult.Label" ) );

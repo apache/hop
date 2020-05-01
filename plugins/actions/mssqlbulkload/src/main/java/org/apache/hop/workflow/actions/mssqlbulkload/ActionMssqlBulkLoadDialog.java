@@ -29,9 +29,14 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -69,6 +74,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Dialog class for the MSSqlBulkLoader.
@@ -452,25 +459,11 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.txt", "*.csv", "*" } );
-        if ( wFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+      new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
+    );
 
     // Data file type
     wlDataFiletype = new Label( wDataFileGroup, SWT.RIGHT );
@@ -657,25 +650,11 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFormatFilename.setLayoutData( fdFormatFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFormatFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFormatFilename.setToolTipText( workflowMeta.environmentSubstitute( wFormatFilename.getText() ) );
-      }
-    } );
+    wFormatFilename.addModifyListener( e -> wFormatFilename.setToolTipText( workflowMeta.environmentSubstitute( wFormatFilename.getText() ) ) );
 
-    wbFormatFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*.txt", "*.csv", "*" } );
-        if ( wFormatFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wFormatFilename.getText() ) );
-        }
-        dialog.setFilterNames( FILETYPES );
-        if ( dialog.open() != null ) {
-          wFormatFilename.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbFormatFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFormatFilename, workflowMeta,
+      new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
+    );
 
     // Fire Triggers?
     wlFireTriggers = new Label( wAdvancedComp, SWT.RIGHT );
@@ -915,25 +894,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wErrorFilename.setLayoutData( fdErrorFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wErrorFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wErrorFilename.setToolTipText( workflowMeta.environmentSubstitute( wErrorFilename.getText() ) );
-      }
-    } );
-
-    wbErrorFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( wErrorFilename.getText() != null ) {
-          dialog.setFilterPath( workflowMeta.environmentSubstitute( wErrorFilename.getText() ) );
-        }
-
-        String dir = dialog.open();
-        if ( dir != null ) {
-          wErrorFilename.setText( dir );
-        }
-      }
-    } );
+    wErrorFilename.addModifyListener( e -> wErrorFilename.setToolTipText( workflowMeta.environmentSubstitute( wErrorFilename.getText() ) ) );
+    wbErrorFilename.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wErrorFilename, workflowMeta ) );
 
     // Add Date time
     wlAddDateTime = new Label( wAdvancedComp, SWT.RIGHT );
