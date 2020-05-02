@@ -98,7 +98,7 @@ public class FtpsConnectionTest {
     }
 
     @Override
-    protected FTPConnection getSecureDataFTPConnection( FTPConnection connection, String password, int timeout )
+    protected FTPConnection getSecureDataFtpConnection(FTPConnection connection, String password, int timeout )
       throws ConfigurationException {
       return new SecureDataFtpConnection( connection, password, timeout ) {
         private Reply dummyReply = new Reply();

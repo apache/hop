@@ -41,7 +41,7 @@ import java.io.InputStreamReader;
  *
  * @author sflatley
  */
-public class HTTPProtocol {
+public class HttpProtocol {
 
   /*
    * Array of HTTP request headers- this list is incomplete and more headers can be added as needed.

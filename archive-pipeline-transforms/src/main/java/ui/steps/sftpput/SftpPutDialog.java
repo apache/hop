@@ -77,7 +77,7 @@ import java.net.UnknownHostException;
  * @author Samatar Hassan
  * @since 30-April-2012
  */
-public class SFTPPutDialog extends BaseTransformDialog implements ITransformDialog {
+public class SftpPutDialog extends BaseTransformDialog implements ITransformDialog {
   //for i18n purposes, needed by Translator!!
   private static Class<?> PKG = org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta.class;
 
@@ -190,9 +190,9 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
   private CCombo wCompression;
   private FormData fdCompression;
 
-  private Label wlAfterFTPPut;
-  private CCombo wAfterFTPPut;
-  private FormData fdlAfterFTPPut, fdAfterFTPPut;
+  private Label wlAfterFtpPut;
+  private CCombo wAfterFtpPut;
+  private FormData fdlAfterFtpPut, fdAfterFtpPut;
 
   private Label wlCreateDestinationFolder;
   private Button wCreateDestinationFolder;
@@ -208,7 +208,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
 
   private SFTPClient sftpclient = null;
 
-  public SFTPPutDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SftpPutDialog(Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SFTPPutMeta) in;
   }
@@ -673,28 +673,28 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     wAddFilenameToResult.setLayoutData( fdAddFilenameToResult );
 
     // After FTP Put
-    wlAfterFTPPut = new Label( wSourceFiles, SWT.RIGHT );
-    wlAfterFTPPut.setText( BaseMessages.getString( PKG, "SFTPPUT.AfterFTPPut.Label" ) );
-    props.setLook( wlAfterFTPPut );
-    fdlAfterFTPPut = new FormData();
-    fdlAfterFTPPut.left = new FormAttachment( 0, 0 );
-    fdlAfterFTPPut.right = new FormAttachment( middle, -margin );
-    fdlAfterFTPPut.top = new FormAttachment( wAddFilenameToResult, 2 * margin );
-    wlAfterFTPPut.setLayoutData( fdlAfterFTPPut );
-    wAfterFTPPut = new CCombo( wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.DoNothing.Label" ) );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.Delete.Label" ) );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.Move.Label" ) );
-    wAfterFTPPut.select( 0 ); // +1: starts at -1
-    props.setLook( wAfterFTPPut );
-    fdAfterFTPPut = new FormData();
-    fdAfterFTPPut.left = new FormAttachment( middle, 0 );
-    fdAfterFTPPut.top = new FormAttachment( wAddFilenameToResult, 2 * margin );
-    fdAfterFTPPut.right = new FormAttachment( 100, -margin );
-    wAfterFTPPut.setLayoutData( fdAfterFTPPut );
-    wAfterFTPPut.addSelectionListener( new SelectionAdapter() {
+    wlAfterFtpPut = new Label( wSourceFiles, SWT.RIGHT );
+    wlAfterFtpPut.setText( BaseMessages.getString( PKG, "SFTPPUT.AfterFTPPut.Label" ) );
+    props.setLook(wlAfterFtpPut);
+    fdlAfterFtpPut = new FormData();
+    fdlAfterFtpPut.left = new FormAttachment( 0, 0 );
+    fdlAfterFtpPut.right = new FormAttachment( middle, -margin );
+    fdlAfterFtpPut.top = new FormAttachment( wAddFilenameToResult, 2 * margin );
+    wlAfterFtpPut.setLayoutData(fdlAfterFtpPut);
+    wAfterFtpPut = new CCombo( wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.DoNothing.Label" ) );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.Delete.Label" ) );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "SFTPPUT.AfterSFTP.Move.Label" ) );
+    wAfterFtpPut.select( 0 ); // +1: starts at -1
+    props.setLook(wAfterFtpPut);
+    fdAfterFtpPut = new FormData();
+    fdAfterFtpPut.left = new FormAttachment( middle, 0 );
+    fdAfterFtpPut.top = new FormAttachment( wAddFilenameToResult, 2 * margin );
+    fdAfterFtpPut.right = new FormAttachment( 100, -margin );
+    wAfterFtpPut.setLayoutData(fdAfterFtpPut);
+    wAfterFtpPut.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        AfterFTPPutActivate();
+        AfterFtpPutActivate();
 
       }
     } );
@@ -705,7 +705,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wlDestinationFolderFieldName );
     fdlDestinationFolderFieldName = new FormData();
     fdlDestinationFolderFieldName.left = new FormAttachment( 0, 0 );
-    fdlDestinationFolderFieldName.top = new FormAttachment( wAfterFTPPut, margin );
+    fdlDestinationFolderFieldName.top = new FormAttachment(wAfterFtpPut, margin );
     fdlDestinationFolderFieldName.right = new FormAttachment( middle, -margin );
     wlDestinationFolderFieldName.setLayoutData( fdlDestinationFolderFieldName );
 
@@ -716,7 +716,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     wDestinationFolderFieldName.addModifyListener( lsMod );
     fdDestinationFolderFieldName = new FormData();
     fdDestinationFolderFieldName.left = new FormAttachment( middle, 0 );
-    fdDestinationFolderFieldName.top = new FormAttachment( wAfterFTPPut, margin );
+    fdDestinationFolderFieldName.top = new FormAttachment(wAfterFtpPut, margin );
     fdDestinationFolderFieldName.right = new FormAttachment( 100, -margin );
     wDestinationFolderFieldName.setLayoutData( fdDestinationFolderFieldName );
 
@@ -969,7 +969,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
 
     getData();
     activeUseKey();
-    AfterFTPPutActivate();
+    AfterFtpPutActivate();
     setInputStream();
     input.setChanged( changed );
 
@@ -1006,7 +1006,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     wProxyPassword.setText( Const.NVL( input.getProxyPassword(), "" ) );
     wCreateRemoteFolder.setSelection( input.isCreateRemoteFolder() );
 
-    wAfterFTPPut.setText( JobEntrySFTPPUT.getAfterSFTPPutDesc( input.getAfterFTPS() ) );
+    wAfterFtpPut.setText( JobEntrySFTPPUT.getAfterSFTPPutDesc( input.getAfterFTPS() ) );
     wDestinationFolderFieldName.setText( Const.NVL( input.getDestinationFolderFieldName(), "" ) );
     wCreateDestinationFolder.setSelection( input.isCreateDestinationFolder() );
     wRemoteFileName.setText( Const.NVL( input.getRemoteFilenameFieldName(), "" ) );
@@ -1017,7 +1017,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
 
   private void cancel() {
     // Close open connections
-    closeFTPConnections();
+    closeFtpConnections();
     transformName = null;
     input.setChanged( changed );
     dispose();
@@ -1048,7 +1048,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     input.setProxyUsername( wProxyUsername.getText() );
     input.setProxyPassword( wProxyPassword.getText() );
     input.setCreateRemoteFolder( wCreateRemoteFolder.getSelection() );
-    input.setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) );
+    input.setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFtpPut.getText() ) );
     input.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
     input.setDestinationFolderFieldName( wDestinationFolderFieldName.getText() );
     input.setInputStream( wInputIsStream.getSelection() );
@@ -1073,11 +1073,11 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     }
   }
 
-  private void AfterFTPPutActivate() {
+  private void AfterFtpPutActivate() {
     boolean moveFile =
-      JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) == JobEntrySFTPPUT.AFTER_FTPSPUT_MOVE;
+      JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFtpPut.getText() ) == JobEntrySFTPPUT.AFTER_FTPSPUT_MOVE;
     boolean doNothing =
-      JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING;
+      JobEntrySFTPPUT.getAfterSFTPPutByDesc( wAfterFtpPut.getText() ) == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING;
 
     wlDestinationFolderFieldName.setEnabled( moveFile );
     wDestinationFolderFieldName.setEnabled( moveFile );
@@ -1097,7 +1097,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
 
   private void test() {
 
-    if ( connectToSFTP( false, null ) ) {
+    if ( connectToSftp( false, null ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "SFTPPUT.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "SFTPPUT.Connected.Title.Ok" ) );
@@ -1113,11 +1113,11 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
   }
 
   @VisibleForTesting
-  boolean connectToSFTP( boolean checkFolder, String Remotefoldername ) {
+  boolean connectToSftp(boolean checkFolder, String Remotefoldername ) {
     boolean retval = true;
     try {
       if ( sftpclient == null || input.hasChanged() ) {
-        sftpclient = createSFTPClient();
+        sftpclient = createSftpClient();
       }
       if ( checkFolder ) {
         retval = sftpclient.folderExists( Remotefoldername );
@@ -1135,7 +1135,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     return retval;
   }
 
-  SFTPClient createSFTPClient() throws UnknownHostException, HopJobException {
+  SFTPClient createSftpClient() throws UnknownHostException, HopJobException {
     // Create sftp client to host ...
     sftpclient =
       new SFTPClient(
@@ -1204,7 +1204,7 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     }
   }
 
-  private void closeFTPConnections() {
+  private void closeFtpConnections() {
     // Close SecureFTP connection if necessary
     if ( sftpclient != null ) {
       try {
@@ -1222,8 +1222,8 @@ public class SFTPPutDialog extends BaseTransformDialog implements ITransformDial
     if ( wInputIsStream.getSelection() ) {
       wAddFilenameToResult.setSelection( false );
     }
-    wlAfterFTPPut.setEnabled( !wInputIsStream.getSelection() );
-    wAfterFTPPut.setEnabled( !wInputIsStream.getSelection() );
+    wlAfterFtpPut.setEnabled( !wInputIsStream.getSelection() );
+    wAfterFtpPut.setEnabled( !wInputIsStream.getSelection() );
     wDestinationFolderFieldName.setEnabled( !wInputIsStream.getSelection() );
     wlDestinationFolderFieldName.setEnabled( !wInputIsStream.getSelection() );
     wlCreateDestinationFolder.setEnabled( !wInputIsStream.getSelection() );

@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 
-public class WorkflowEntryFTPSGetTest {
+public class WorkflowEntryFtpsGetTest {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {

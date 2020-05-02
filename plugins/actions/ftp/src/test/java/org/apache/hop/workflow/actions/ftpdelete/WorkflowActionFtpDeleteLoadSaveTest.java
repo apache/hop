@@ -47,14 +47,14 @@ public class WorkflowActionFtpDeleteLoadSaveTest extends WorkflowActionLoadSaveT
     return Arrays.asList( new String[] { "protocol", "serverName", "port", "userName", "password",
       "ftpDirectory", "wildcard", "timeout", "activeConnection", "useProxy", "proxyHost", "proxyPort",
       "proxyUsername", "proxyPassword", "usePublicKey", "keyFilename", "keyFilePass", "limitSuccess",
-      "successCondition", "copyPrevious", "fTPSConnectionType", "socksProxyHost", "socksProxyPort",
+      "successCondition", "copyPrevious", "FtpsConnectionType", "socksProxyHost", "socksProxyPort",
       "socksProxyUsername", "socksProxyPassword" } );
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "fTPSConnectionType", new IntLoadSaveValidator( FtpsConnection.connection_type_Code.length ) );
+    validators.put( "FtpsConnectionType", new IntLoadSaveValidator( FtpsConnection.connection_type_Code.length ) );
 
     return validators;
   }

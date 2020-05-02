@@ -56,15 +56,15 @@ public class WorkflowEntryFtpsPutTest {
    */
   @Test
   public void testBinaryModeSetAfterConnectionSuccess() throws Exception {
-    ActionFtpsPut workflow = new ActionFTPSPUTCustom();
+    ActionFtpsPut workflow = new ActionFtpsPutCustom();
     FtpsConnection connection = Mockito.mock( FtpsConnection.class );
     InOrder inOrder = Mockito.inOrder( connection );
-    workflow.buildFTPSConnection( connection );
+    workflow.buildFtpsConnection( connection );
     inOrder.verify( connection ).connect();
     inOrder.verify( connection ).setBinaryMode( Mockito.anyBoolean() );
   }
 
-  class ActionFTPSPUTCustom extends ActionFtpsPut {
+  class ActionFtpsPutCustom extends ActionFtpsPut {
     @Override
     public boolean isBinaryMode() {
       return true;

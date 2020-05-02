@@ -348,7 +348,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @return true if this action performs an FTP operation, false otherwise
    */
-  public boolean isFTP() {
+  public boolean isFtp() {
     return "FTP".equals( configId );
   }
 
@@ -357,7 +357,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @return true if this action performs an SFTP operation, false otherwise
    */
-  public boolean isSFTP() {
+  public boolean isSftp() {
     return "SFTP".equals( configId );
   }
 
@@ -366,7 +366,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @return true if this action performs an HTTP operation, false otherwise
    */
-  public boolean isHTTP() {
+  public boolean isHttp() {
     return "HTTP".equals( configId );
   }
 

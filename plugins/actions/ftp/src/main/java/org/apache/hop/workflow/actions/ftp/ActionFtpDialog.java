@@ -26,13 +26,9 @@ import com.enterprisedt.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -59,7 +55,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -69,7 +64,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.net.InetAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTP Get action settings.
@@ -1345,7 +1339,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   }
 
   private void test() {
-    if ( connectToFTP( false, false ) ) {
+    if ( connectToFtp( false, false ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "JobFTP.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobFTP.Connected.Title.Ok" ) );
@@ -1353,9 +1347,9 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void checkRemoteFolder( boolean FTPFolfer, boolean checkMoveFolder, String foldername ) {
+  private void checkRemoteFolder( boolean FtpFolfer, boolean checkMoveFolder, String foldername ) {
     if ( !Utils.isEmpty( foldername ) ) {
-      if ( connectToFTP( FTPFolfer, checkMoveFolder ) ) {
+      if ( connectToFtp( FtpFolfer, checkMoveFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
         mb.setMessage( BaseMessages.getString( PKG, "JobFTP.FolderExists.OK", foldername ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobFTP.FolderExists.Title.Ok" ) );
@@ -1364,7 +1358,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToFTP( boolean checkfolder, boolean checkmoveToFolder ) {
+  private boolean connectToFtp(boolean checkfolder, boolean checkmoveToFolder ) {
     boolean retval = false;
     String realServername = null;
     try {
@@ -1481,7 +1475,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   }
 
   public void dispose() {
-    closeFTPConnection();
+    closeFtpConnection();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();
@@ -1624,7 +1618,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     dispose();
   }
 
-  private void closeFTPConnection() {
+  private void closeFtpConnection() {
     // Close FTP connection if necessary
     if ( ftpclient != null && ftpclient.connected() ) {
       try {

@@ -91,7 +91,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
-  private Object[] callHTTPPOST( Object[] rowData ) throws HopException {
+  private Object[] callHttpPOST(Object[] rowData ) throws HopException {
     HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
 
     if ( data.realConnectionTimeout > -1 ) {
@@ -461,7 +461,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> implemen
     } // end if first
 
     try {
-      Object[] outputRowData = callHTTPPOST( r );
+      Object[] outputRowData = callHttpPOST( r );
       putRow( data.outputRowMeta, outputRowData ); // copy row to output rowset(s);
 
       if ( checkFeedback( getLinesRead() ) ) {

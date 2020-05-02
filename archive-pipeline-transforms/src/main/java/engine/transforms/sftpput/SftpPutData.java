@@ -32,7 +32,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * @author Samatar Hassan
  * @since 30-April-2012
  */
-public class SFTPPutData extends BaseTransformData implements ITransformData {
+public class SftpPutData extends BaseTransformData implements ITransformData {
 
   // SFTP connection
   public SFTPClient sftpclient;
@@ -45,7 +45,7 @@ public class SFTPPutData extends BaseTransformData implements ITransformData {
   // index of remote filename
   public int indexOfRemoteFilename;
 
-  public SFTPPutData() {
+  public SftpPutData() {
     super();
     this.indexOfSourceFileFieldName = -1;
     this.indexOfRemoteDirectory = -1;

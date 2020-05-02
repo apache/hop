@@ -53,14 +53,14 @@ import java.net.UnknownHostException;
  * @author Samatar Hassan
  * @since 30-April-2012
  */
-public class SFTPPut extends BaseTransform implements ITransform {
+public class SftpPut extends BaseTransform implements ITransform {
   private static Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
 
   private SFTPPutMeta meta;
   private SFTPPutData data;
 
-  public SFTPPut( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
-                  Pipeline pipeline ) {
+  public SftpPut(TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+                 Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 

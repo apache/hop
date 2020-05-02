@@ -43,7 +43,7 @@ import static org.mockito.Mockito.spy;
 /**
  * @author Andrey Khayrutdinov
  */
-public class SFTPPutTest {
+public class SftpPutTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private SFTPPut transform;

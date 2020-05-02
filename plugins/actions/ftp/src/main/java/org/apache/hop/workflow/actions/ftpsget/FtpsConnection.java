@@ -166,7 +166,7 @@ public class FtpsConnection implements FTPListener {
       if ( connection.getConnectionType() == FTPConnection.IMPLICIT_SSL_WITH_CRYPTED_DATA_FTP_CONNECTION
         || connection.getConnectionType() == FTPConnection.IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION ) {
         // need to upgrade to our custom connection to force crypted data channel
-        connection = getSecureDataFTPConnection( connection, passWord, timeOut );
+        connection = getSecureDataFtpConnection( connection, passWord, timeOut );
       }
       connection.addFTPStatusListener( this );
       connection.connect();
@@ -177,7 +177,7 @@ public class FtpsConnection implements FTPListener {
   }
 
   @VisibleForTesting
-  protected FTPConnection getSecureDataFTPConnection( FTPConnection connection, String password, int timeout )
+  protected FTPConnection getSecureDataFtpConnection(FTPConnection connection, String password, int timeout )
     throws ConfigurationException {
     return new SecureDataFtpConnection( connection, password, timeout );
   }

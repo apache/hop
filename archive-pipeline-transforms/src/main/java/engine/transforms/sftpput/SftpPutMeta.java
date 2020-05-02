@@ -51,7 +51,7 @@ import java.util.List;
  * @since 30-April-2012
  */
 
-public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
+public class SftpPutMeta extends BaseTransformMeta implements ITransform {
   private static Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
@@ -76,10 +76,10 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
 
   private String destinationfolderFieldName;
   private boolean createDestinationFolder;
-  private int afterFTPS;
+  private int afterFtps;
   private String remoteFilenameFieldName;
 
-  public SFTPPutMeta() {
+  public SftpPutMeta() {
     super(); // allocate BaseTransformMeta
   }
 
@@ -118,10 +118,10 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
       createRemoteFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "createRemoteFolder" ) );
 
       boolean remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "remove" ) );
-      setAfterFTPS( JobEntrySFTPPUT.getAfterSFTPPutByCode( Const.NVL( XmlHandler.getTagValue(
+      setAfterFtps( JobEntrySFTPPUT.getAfterSFTPPutByCode( Const.NVL( XmlHandler.getTagValue(
         transformNode, "aftersftpput" ), "" ) ) );
-      if ( remove && getAfterFTPS() == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING ) {
-        setAfterFTPS( JobEntrySFTPPUT.AFTER_FTPSPUT_DELETE );
+      if ( remove && getAfterFtps() == JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING ) {
+        setAfterFtps( JobEntrySFTPPUT.AFTER_FTPSPUT_DELETE );
       }
       destinationfolderFieldName = XmlHandler.getTagValue( transformNode, "destinationfolderFieldName" );
       createDestinationFolder =
@@ -147,7 +147,7 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
     proxyUsername = null;
     proxyPassword = null;
     createRemoteFolder = false;
-    afterFTPS = JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING;
+    afterFtps = JobEntrySFTPPUT.AFTER_FTPSPUT_NOTHING;
     destinationfolderFieldName = null;
     createDestinationFolder = false;
     remoteFilenameFieldName = null;
@@ -179,7 +179,7 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
       XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
     retval.append( "      " ).append(
-      XmlHandler.addTagValue( "aftersftpput", JobEntrySFTPPUT.getAfterSFTPPutCode( getAfterFTPS() ) ) );
+      XmlHandler.addTagValue( "aftersftpput", JobEntrySFTPPUT.getAfterSFTPPutCode( getAfterFtps() ) ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "destinationfolderFieldName", destinationfolderFieldName ) );
     retval
@@ -279,15 +279,15 @@ public class SFTPPutMeta extends BaseTransformMeta implements ITransform {
   /**
    * @return Returns the afterFTPS.
    */
-  public int getAfterFTPS() {
-    return afterFTPS;
+  public int getAfterFtps() {
+    return afterFtps;
   }
 
   /**
    * @param value The afterFTPS to set.
    */
-  public void setAfterFTPS( int value ) {
-    this.afterFTPS = value;
+  public void setAfterFtps(int value ) {
+    this.afterFtps = value;
   }
 
   public String getServerPort() {

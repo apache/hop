@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SFTPPutMetaTest {
+public class SftpPutMetaTest {
   LoadSaveTester loadSaveTester;
   Class<SFTPPutMeta> testMetaClass = SFTPPutMeta.class;
   ThreadLocal<SFTPPutMeta> testingMeta = new ThreadLocal<SFTPPutMeta>(); // here for validating afterFTPS
