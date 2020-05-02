@@ -272,7 +272,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // Send the zip file over to the slave server...
         //
         String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_PIPELINE, topLevelResource.getBaseResourceName() );
-        WebResult webResult = WebResult.fromXMLString( result );
+        WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported pipeline to the remote server: "
             + Const.CR + webResult.getMessage() );
@@ -283,8 +283,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // Now send it off to the remote server...
         //
         String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXml();
-        String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
-        WebResult webResult = WebResult.fromXMLString( reply );
+        String reply = slaveServer.sendXml( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
+        WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the pipeline on the remote server: " + Const.CR
             + webResult.getMessage() );
@@ -295,7 +295,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // Prepare the pipeline
       //
       String reply = slaveServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
-      WebResult webResult = WebResult.fromXMLString( reply );
+      WebResult webResult = WebResult.fromXmlString( reply );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error preparing the pipeline for execution on the remote server: " + Const.CR + webResult.getMessage() );
       }
@@ -315,7 +315,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // Start the pipeline
       //
       String reply = slaveServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
-      WebResult webResult = WebResult.fromXMLString( reply );
+      WebResult webResult = WebResult.fromXmlString( reply );
       if ( WebResult.STRING_OK.equals( webResult.getResult() ) ) {
         // Inform anyone that wants to know that the show has started
         //

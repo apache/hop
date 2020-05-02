@@ -69,7 +69,7 @@ public class SlaveServerWorkflowStatusTest {
     Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );
+      SlaveServerWorkflowStatus.fromXml( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
       XmlHandler.countNodes( newJobStatus, "log_date" ) );
     assertTrue( "The \"log_date\" node should have a null value",
@@ -88,7 +88,7 @@ public class SlaveServerWorkflowStatusTest {
     Node newJobStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerWorkflowStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerWorkflowStatus.fromXML( resultXML ).getXml() );
+      SlaveServerWorkflowStatus.fromXml( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
       XmlHandler.countNodes( newJobStatus, "log_date" ) );
     assertEquals( "The \"log_date\" node should match the original value", XmlHandler.date2string( logDate ),

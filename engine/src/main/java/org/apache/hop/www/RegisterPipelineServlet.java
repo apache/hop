@@ -49,7 +49,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
 
     // Parse the XML, create a pipeline configuration
     IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
-    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml, metaStore );
+    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml, metaStore );
 
     IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
 

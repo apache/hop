@@ -242,7 +242,7 @@ public class SlaveServerConfigTest {
 
   private String getConfig( Map<String, String> jettyOptions ) {
     StringBuilder xml = new StringBuilder( 50 );
-    xml.append( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+    xml.append( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     xml.append( "<" + XML_TAG_SLAVE_CONFIG + ">" ).append( Const.CR );
     if ( jettyOptions != null ) {
       xml.append( "<" + XML_TAG_JETTY_OPTIONS + ">" ).append( Const.CR );

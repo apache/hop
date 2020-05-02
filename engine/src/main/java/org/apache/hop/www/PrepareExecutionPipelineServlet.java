@@ -27,7 +27,6 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -76,7 +75,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
     PrintWriter out = response.getWriter();
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     } else {
 
       response.setCharacterEncoding( "UTF-8" );

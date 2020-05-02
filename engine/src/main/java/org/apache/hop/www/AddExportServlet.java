@@ -100,7 +100,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
     String load = request.getParameter( PARAMETER_LOAD ); // the resource to load
 
     response.setContentType( "text/xml" );
-    out.print( XmlHandler.getXMLHeader() );
+    out.print( XmlHandler.getXmlHeader() );
 
     response.setStatus( HttpServletResponse.SC_OK );
 

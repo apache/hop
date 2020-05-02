@@ -81,7 +81,7 @@ public class HopGuiPipelineClipboardDelegate {
     }
   }
 
-  public void pasteXML( PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
+  public void pasteXml(PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
 
     try {
       Document doc = XmlHandler.loadXmlString( clipcontent );
@@ -234,7 +234,7 @@ public class HopGuiPipelineClipboardDelegate {
       return;
     }
 
-    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXMLHeader() );
+    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXmlHeader() );
     try {
       xml.append( XmlHandler.openTag( XML_TAG_PIPELINE_TRANSFORMS ) ).append( Const.CR );
 

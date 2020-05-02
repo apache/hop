@@ -2775,19 +2775,6 @@ public class Const {
   }
 
   /**
-   * Escape XML content. i.e. replace characters with &values;
-   *
-   * @param content content
-   * @return escaped content
-   */
-  public static String escapeXML( String content ) {
-    if ( Utils.isEmpty( content ) ) {
-      return content;
-    }
-    return StringEscapeUtils.escapeXml( content );
-  }
-
-  /**
    * Escape HTML content. i.e. replace characters with &values;
    *
    * @param content content
@@ -3017,7 +3004,7 @@ public class Const {
    * @param content content
    * @return protected content
    */
-  public static String protectXMLCDATA( String content ) {
+  public static String protectXmlCdata(String content ) {
     if ( Utils.isEmpty( content ) ) {
       return content;
     }

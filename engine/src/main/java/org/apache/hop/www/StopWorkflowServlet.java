@@ -70,7 +70,7 @@ public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       if ( useXML ) {
         response.setContentType( "text/xml" );
         response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
       } else {
         response.setContentType( "text/html;charset=UTF-8" );
         out.println( "<HTML>" );

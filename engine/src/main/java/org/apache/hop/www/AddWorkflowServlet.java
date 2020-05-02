@@ -77,7 +77,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XmlHandler.getXMLHeader() );
+      out.print( XmlHandler.getXmlHeader() );
     } else {
       response.setContentType( "text/html" );
       out.println( "<HTML>" );

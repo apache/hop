@@ -106,7 +106,7 @@ public class HopServerSingleton {
           //
           try {
             SlaveServerDetection slaveServerDetection = new SlaveServerDetection( client );
-            master.sendXML( slaveServerDetection.getXml(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
+            master.sendXml( slaveServerDetection.getXml(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
             log.logBasic( "Registered this slave server to master slave server ["
               + master.toString() + "] on address [" + master.getServerAndPort() + "]" );
           } catch ( Exception e ) {

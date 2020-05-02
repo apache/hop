@@ -66,9 +66,9 @@ public class RowBuffer {
 
   public String getXml() throws IOException {
     String xml = XmlHandler.openTag( XML_TAG );
-    xml+=rowMeta.getMetaXML();
+    xml+=rowMeta.getMetaXml();
     for (Object[] row : buffer) {
-      xml+=rowMeta.getDataXML( row );
+      xml+=rowMeta.getDataXml( row );
     }
     xml += XmlHandler.closeTag( XML_TAG );
 

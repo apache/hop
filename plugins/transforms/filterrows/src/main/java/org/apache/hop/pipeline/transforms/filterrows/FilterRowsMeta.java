@@ -415,7 +415,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
       .findFirst().map( Object::toString ).orElse( null );
   }
 
-  public String getConditionXML() {
+  public String getConditionXml() {
     String conditionXML = null;
     try {
       conditionXML = condition.getXml();
@@ -426,9 +426,9 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Injection( name = "CONDITION" )
-  public void setConditionXML( String conditionXML ) {
+  public void setConditionXml( String conditionXml ) {
     try {
-      this.condition = new Condition( conditionXML );
+      this.condition = new Condition( conditionXml );
     } catch ( HopXmlException e ) {
       log.logError( e.getMessage() );
     }

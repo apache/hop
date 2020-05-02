@@ -54,7 +54,7 @@ public class SlaveServerWorkflowStatusLoadSaveTester extends LoadSaveBase<SlaveS
       createValidatorMapAndInvokeSetters( xmlAttributes, metaToSave );
 
     String xml = metaToSave.getXml();
-    SlaveServerWorkflowStatus metaLoaded = SlaveServerWorkflowStatus.fromXML( xml );
+    SlaveServerWorkflowStatus metaLoaded = SlaveServerWorkflowStatus.fromXml( xml );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }
 }

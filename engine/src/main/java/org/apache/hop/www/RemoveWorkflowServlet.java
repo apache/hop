@@ -197,7 +197,7 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
       if ( useXML ) {
         response.setContentType( "text/xml" );
         response.setCharacterEncoding( Const.XML_ENCODING );
-        out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+        out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
         out.print( WebResult.OK.getXml() );
       } else {
         response.setContentType( "text/html;charset=UTF-8" );

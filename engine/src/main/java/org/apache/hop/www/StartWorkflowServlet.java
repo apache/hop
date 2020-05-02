@@ -28,7 +28,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -87,7 +86,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
     if ( useXML ) {
       response.setContentType( "text/xml" );
       response.setCharacterEncoding( Const.XML_ENCODING );
-      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     } else {
       response.setContentType( "text/html;charset=UTF-8" );
       out.println( "<HTML>" );

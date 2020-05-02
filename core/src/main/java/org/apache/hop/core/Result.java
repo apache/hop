@@ -614,9 +614,9 @@ public class Result implements Cloneable {
         if ( firstRow ) {
           firstRow = false;
           rowMeta = row.getRowMeta();
-          xml.append( rowMeta.getMetaXML() );
+          xml.append( rowMeta.getMetaXml() );
         }
-        xml.append( rowMeta.getDataXML( row.getData() ) );
+        xml.append( rowMeta.getDataXml( row.getData() ) );
       }
       xml.append( XmlHandler.closeTag( XML_ROWS_TAG ) );
 

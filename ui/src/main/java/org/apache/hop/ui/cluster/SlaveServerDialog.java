@@ -582,7 +582,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
 
       String xml = "<sample/>";
 
-      String reply = slaveServer.sendXML( xml, RegisterPipelineServlet.CONTEXT_PATH );
+      String reply = slaveServer.sendXml( xml, RegisterPipelineServlet.CONTEXT_PATH );
 
       String message =
         BaseMessages.getString( PKG, "SlaveServer.Replay.Info1" )

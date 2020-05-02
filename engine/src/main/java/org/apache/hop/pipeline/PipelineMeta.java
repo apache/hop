@@ -3955,11 +3955,11 @@ public class PipelineMeta extends AbstractMeta
    * @param filename The filename to save to
    * @throws HopXmlException in case something goes wrong.
    */
-  public void writeXML( String filename ) throws HopXmlException {
+  public void writeXml(String filename ) throws HopXmlException {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream( filename );
-      fos.write( XmlHandler.getXMLHeader().getBytes( Const.XML_ENCODING ) );
+      fos.write( XmlHandler.getXmlHeader().getBytes( Const.XML_ENCODING ) );
       fos.write( getXml().getBytes( Const.XML_ENCODING ) );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to save to XML file '" + filename + "'", e );

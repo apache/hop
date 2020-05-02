@@ -98,7 +98,7 @@ public class WebResult {
     this.message = message;
   }
 
-  public static WebResult fromXMLString( String xml ) throws HopXmlException {
+  public static WebResult fromXmlString(String xml ) throws HopXmlException {
     try {
       Document doc = XmlHandler.loadXmlString( xml );
       Node node = XmlHandler.getSubNode( doc, XML_TAG );

@@ -347,7 +347,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
         // Send the zip file over to the slave server...
         String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
-        WebResult webResult = WebResult.fromXMLString( result );
+        WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR+ webResult.getMessage() );
         }
@@ -355,8 +355,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       } else {
         String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration ).getXml();
 
-        String reply = slaveServer.sendXML( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
-        WebResult webResult = WebResult.fromXMLString( reply );
+        String reply = slaveServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
+        WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
         }

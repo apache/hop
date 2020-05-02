@@ -510,7 +510,7 @@ public interface IRowMeta extends Cloneable {
    * @return an XML representation of the row metadata
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
-  String getMetaXML() throws IOException;
+  String getMetaXml() throws IOException;
 
   /**
    * Gets the data xml.
@@ -519,7 +519,7 @@ public interface IRowMeta extends Cloneable {
    * @return an XML representation of the row data
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
-  String getDataXML( Object[] rowData ) throws IOException;
+  String getDataXml(Object[] rowData ) throws IOException;
 
   /**
    * Convert an XML node into binary data using the row metadata supplied.
