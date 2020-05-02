@@ -69,7 +69,7 @@ public class WebResultTest {
       UUID.randomUUID().toString() );
 
     String xml = original.getXml();
-    WebResult copy = WebResult.fromXMLString( xml );
+    WebResult copy = WebResult.fromXmlString( xml );
 
     assertNotNull( copy );
     assertNotSame( original, copy );

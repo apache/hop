@@ -22,7 +22,6 @@
 
 package org.apache.hop.www;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -32,12 +31,9 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
@@ -107,7 +103,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       // Parse the XML, create a transformation configuration
       //
       IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
-      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString(), metaStore );
+      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString(), metaStore );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );

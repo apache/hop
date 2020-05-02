@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -153,14 +152,14 @@ public class TransformStatus {
 
       if ( sampleRowMeta != null ) {
         xml.append( XmlHandler.openTag( "samples" ) );
-        xml.append( sampleRowMeta.getMetaXML() );
+        xml.append( sampleRowMeta.getMetaXml() );
         xml.append( Const.CR );
         if ( sampleRows != null ) {
           synchronized ( sampleRows ) {
             Iterator<Object[]> iterator = sampleRows.iterator();
             while ( iterator.hasNext() ) {
               Object[] sampleRow = iterator.next();
-              xml.append( sampleRowMeta.getDataXML( sampleRow ) );
+              xml.append( sampleRowMeta.getDataXml( sampleRow ) );
               xml.append( Const.CR );
             }
           }
@@ -209,7 +208,7 @@ public class TransformStatus {
     }
   }
 
-  public TransformStatus fromXML( String xml ) throws HopException {
+  public TransformStatus fromXml(String xml ) throws HopException {
     Document document = XmlHandler.loadXmlString( xml );
     return new TransformStatus( XmlHandler.getSubNode( document, XML_TAG ) );
   }

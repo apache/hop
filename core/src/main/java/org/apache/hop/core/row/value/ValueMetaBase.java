@@ -3153,7 +3153,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public String getMetaXML() throws IOException {
+  public String getMetaXml() throws IOException {
     StringBuilder xml = new StringBuilder();
 
     xml.append( XmlHandler.openTag( XML_META_TAG ) );
@@ -3211,7 +3211,7 @@ public class ValueMetaBase implements IValueMeta {
         //
         if ( storageMetadata != null ) {
           xml.append( XmlHandler.openTag( "storage-meta" ) );
-          xml.append( storageMetadata.getMetaXML() );
+          xml.append( storageMetadata.getMetaXml() );
           xml.append( XmlHandler.closeTag( "storage-meta" ) );
         }
         break;
@@ -3248,7 +3248,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public String getDataXML( Object object ) throws IOException {
+  public String getDataXml(Object object ) throws IOException {
     StringBuilder xml = new StringBuilder();
 
     String string;

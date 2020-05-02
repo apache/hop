@@ -31,7 +31,7 @@ import javax.xml.parsers.SAXParserFactory;
 import static org.junit.Assert.assertEquals;
 
 
-public class XMLUtilsTest {
+public class XmlUtilsTest {
   @Test
   public void secureFeatureEnabledAfterDocBuilderFactoryCreation() throws Exception {
     DocumentBuilderFactory documentBuilderFactory = XmlParserFactoryProducer.createSecureDocBuilderFactory();

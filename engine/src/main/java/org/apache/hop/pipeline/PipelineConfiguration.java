@@ -66,7 +66,7 @@ public class PipelineConfiguration {
     pipelineMeta = new PipelineMeta( pipelineNode, metaStore );
   }
 
-  public static final PipelineConfiguration fromXML( String xml, IMetaStore metaStore ) throws HopException {
+  public static final PipelineConfiguration fromXml(String xml, IMetaStore metaStore ) throws HopException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new PipelineConfiguration( configNode, metaStore );

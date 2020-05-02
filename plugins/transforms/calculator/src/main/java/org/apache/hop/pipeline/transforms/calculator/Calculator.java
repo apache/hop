@@ -36,8 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -440,7 +438,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_MASK_XML: // escapeXML( A )
-            calcData[ index ] = ValueDataUtil.escapeXML( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.escapeXml( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_USE_CDATA: // CDATA( A )
@@ -492,19 +490,19 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_UNESCAPE_XML: // UnescapeXML( A )
-            calcData[ index ] = ValueDataUtil.unEscapeXML( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.unEscapeXml( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_ESCAPE_HTML: // EscapeHTML( A )
-            calcData[ index ] = ValueDataUtil.escapeHTML( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.escapeHtml( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_UNESCAPE_HTML: // UnescapeHTML( A )
-            calcData[ index ] = ValueDataUtil.unEscapeHTML( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.unEscapeHtml( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_ESCAPE_SQL: // EscapeSQL( A )
-            calcData[ index ] = ValueDataUtil.escapeSQL( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.escapeSql( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_DATE_WORKING_DIFF: // DateWorkingDiff( A , B)
@@ -516,11 +514,11 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_CHECK_XML_FILE_WELL_FORMED: // Check if file A is well formed
-            calcData[ index ] = ValueDataUtil.isXMLFileWellFormed( metaA, dataA, meta.isFailIfNoFile() );
+            calcData[ index ] = ValueDataUtil.isXmlFileWellFormed( metaA, dataA, meta.isFailIfNoFile() );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_CHECK_XML_WELL_FORMED: // Check if xml A is well formed
-            calcData[ index ] = ValueDataUtil.isXMLWellFormed( metaA, dataA );
+            calcData[ index ] = ValueDataUtil.isXmlWellFormed( metaA, dataA );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_GET_FILE_ENCODING: // Get file encoding from a file A

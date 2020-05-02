@@ -27,19 +27,14 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
@@ -202,7 +197,7 @@ public class PipelineResource {
     PipelineConfiguration pipelineConfiguration;
     try {
       IMetaStore metaStore = HopServerSingleton.getInstance().getPipelineMap().getSlaveServerConfig().getMetaStore();
-      pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString(), metaStore );
+      pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString(), metaStore );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       PipelineExecutionConfiguration pipelineExecutionConfiguration =
         pipelineConfiguration.getPipelineExecutionConfiguration();

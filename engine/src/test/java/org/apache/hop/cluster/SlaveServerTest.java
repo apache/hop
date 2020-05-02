@@ -148,14 +148,14 @@ public class SlaveServerTest {
   }
 
   @Test( expected = HopException.class )
-  public void testSendXML() throws Exception {
+  public void testSendXml() throws Exception {
     slaveServer.setHostname( "hostNameStub" );
     slaveServer.setUsername( "userNAmeStub" );
     HttpPost httpPostMock = mock( HttpPost.class );
     URI uriMock = new URI( "fake" );
     doReturn( uriMock ).when( httpPostMock ).getURI();
-    doReturn( httpPostMock ).when( slaveServer ).buildSendXMLMethod( any( byte[].class ), anyString() );
-    slaveServer.sendXML( "", "" );
+    doReturn( httpPostMock ).when( slaveServer ).buildSendXmlMethod( any( byte[].class ), anyString() );
+    slaveServer.sendXml( "", "" );
     fail( "Incorrect connection details had been used, but no exception was thrown" );
   }
 

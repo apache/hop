@@ -28,11 +28,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -2088,9 +2086,9 @@ public class ConstTest {
   public void testEscapeUnescapeXML() {
     final String xml = "<xml xmlns:test=\"http://test\">";
     final String escaped = "&lt;xml xmlns:test=&quot;http://test&quot;&gt;";
-    assertNull( Const.escapeXML( null ) );
+    assertNull( Const.escapeXml( null ) );
     assertNull( Const.unEscapeXml( null ) );
-    assertEquals( escaped, Const.escapeXML( xml ) );
+    assertEquals( escaped, Const.escapeXml( xml ) );
     assertEquals( xml, Const.unEscapeXml( escaped ) );
   }
 
@@ -2179,9 +2177,9 @@ public class ConstTest {
 
   @Test
   public void testProtectXMLCDATA() {
-    assertEquals( null, Const.protectXMLCDATA( null ) );
-    assertEquals( "", Const.protectXMLCDATA( "" ) );
-    assertEquals( "<![CDATA[foo]]>", Const.protectXMLCDATA( "foo" ) );
+    assertEquals( null, Const.protectXmlCdata( null ) );
+    assertEquals( "", Const.protectXmlCdata( "" ) );
+    assertEquals( "<![CDATA[foo]]>", Const.protectXmlCdata( "foo" ) );
   }
 
   @Test

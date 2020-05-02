@@ -191,14 +191,14 @@ public class ValueMetaBaseTest  {
       new ValueMetaBase( String.valueOf( bigDecimal ), IValueMeta.TYPE_BIGNUMBER );
     assertEquals(
       "<value-data>" + Encode.forXml( String.valueOf( bigDecimal ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      valueDoubleMetaBase.getDataXML( bigDecimal ) );
+      valueDoubleMetaBase.getDataXml( bigDecimal ) );
 
     boolean valueBoolean = Boolean.TRUE;
     ValueMetaBase valueBooleanMetaBase =
       new ValueMetaBase( String.valueOf( valueBoolean ), IValueMeta.TYPE_BOOLEAN );
     assertEquals(
       "<value-data>" + Encode.forXml( String.valueOf( valueBoolean ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      valueBooleanMetaBase.getDataXML( valueBoolean ) );
+      valueBooleanMetaBase.getDataXml( valueBoolean ) );
 
     Date date = new Date( 0 );
     ValueMetaBase dateMetaBase =
@@ -206,30 +206,30 @@ public class ValueMetaBaseTest  {
     SimpleDateFormat formaterData = new SimpleDateFormat( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
     assertEquals(
       "<value-data>" + Encode.forXml( formaterData.format( date ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      dateMetaBase.getDataXML( date ) );
+      dateMetaBase.getDataXml( date ) );
 
     InetAddress inetAddress = InetAddress.getByName( "127.0.0.1" );
     ValueMetaBase inetAddressMetaBase =
       new ValueMetaBase( inetAddress.toString(), IValueMeta.TYPE_INET );
     assertEquals( "<value-data>" + Encode.forXml( inetAddress.toString() ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      inetAddressMetaBase.getDataXML( inetAddress ) );
+      inetAddressMetaBase.getDataXml( inetAddress ) );
 
     long value = Long.MAX_VALUE;
     ValueMetaBase integerMetaBase = new ValueMetaBase( String.valueOf( value ), IValueMeta.TYPE_INTEGER );
     assertEquals( "<value-data>" + Encode.forXml( String.valueOf( value ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      integerMetaBase.getDataXML( value ) );
+      integerMetaBase.getDataXml( value ) );
 
     String stringValue = "TEST_STRING";
     ValueMetaBase valueMetaBase = new ValueMetaString( stringValue );
     assertEquals( "<value-data>" + Encode.forXml( stringValue ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      valueMetaBase.getDataXML( stringValue ) );
+      valueMetaBase.getDataXml( stringValue ) );
 
     Timestamp timestamp = new Timestamp( 0 );
     ValueMetaBase valueMetaBaseTimeStamp = new ValueMetaTimestamp( timestamp.toString() );
     SimpleDateFormat formater = new SimpleDateFormat( ValueMetaBase.DEFAULT_TIMESTAMP_FORMAT_MASK );
     assertEquals(
       "<value-data>" + Encode.forXml( formater.format( timestamp ) ) + "</value-data>" + SystemUtils.LINE_SEPARATOR,
-      valueMetaBaseTimeStamp.getDataXML( timestamp ) );
+      valueMetaBaseTimeStamp.getDataXml( timestamp ) );
 
     byte[] byteTestValues = { 0, 1, 2, 3 };
     ValueMetaBase valueMetaBaseByteArray = new ValueMetaString( byteTestValues.toString() );
@@ -237,7 +237,7 @@ public class ValueMetaBaseTest  {
     assertEquals(
       "<value-data><binary-string>" + Encode.forXml( XmlHandler.encodeBinaryData( byteTestValues ) )
         + "</binary-string>" + Const.CR + "</value-data>",
-      valueMetaBaseByteArray.getDataXML( byteTestValues ) );
+      valueMetaBaseByteArray.getDataXml( byteTestValues ) );
   }
 
   @Test

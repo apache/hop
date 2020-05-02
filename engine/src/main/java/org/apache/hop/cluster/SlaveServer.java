@@ -485,7 +485,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendXMLMethod( byte[] content, String service ) throws Exception {
+  HttpPost buildSendXmlMethod(byte[] content, String service ) throws Exception {
     // Prepare HTTP put
     //
     String urlString = constructUrl( service );
@@ -504,8 +504,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return postMethod;
   }
 
-  public String sendXML( String xml, String service ) throws Exception {
-    HttpPost method = buildSendXMLMethod( xml.getBytes( Const.XML_ENCODING ), service );
+  public String sendXml(String xml, String service ) throws Exception {
+    HttpPost method = buildSendXmlMethod( xml.getBytes( Const.XML_ENCODING ), service );
     try {
       return executeAuth( method );
     } finally {
@@ -805,7 +805,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public SlaveServerStatus getStatus() throws Exception {
     String xml = execService( GetStatusServlet.CONTEXT_PATH + "/?xml=Y" );
-    return SlaveServerStatus.fromXML( xml );
+    return SlaveServerStatus.fromXml( xml );
   }
 
   public List<SlaveServerDetection> getSlaveServerDetections() throws Exception {
@@ -837,7 +837,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       query = query + "&" + GetPipelineStatusServlet.SEND_RESULT + "=Y";
     }
     String xml = execService( query, true );
-    return SlaveServerPipelineStatus.fromXML( xml );
+    return SlaveServerPipelineStatus.fromXml( xml );
   }
 
   public SlaveServerWorkflowStatus getWorkflowStatus( String workflowName, String serverObjectId, int startLogLineNr )
@@ -845,70 +845,70 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     String xml =
       execService( GetWorkflowStatusServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y&from=" + startLogLineNr, true );
-    return SlaveServerWorkflowStatus.fromXML( xml );
+    return SlaveServerWorkflowStatus.fromXml( xml );
   }
 
   public WebResult stopPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StopPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult pauseResumePipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( PausePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult removePipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( RemovePipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult removeWorkflow( String workflowName, String serverObjectId ) throws Exception {
     String xml =
       execService( RemoveWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult stopWorkflow( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StopWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( serverObjectId, "" ) );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult startPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( StartPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult startWorkflow( String workflowName, String serverObjectId ) throws Exception {
     String xml =
       execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( serverObjectId, "" ) );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult cleanupPipeline( String pipelineName, String serverObjectId ) throws Exception {
     String xml =
       execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public WebResult deAllocateServerSockets( String pipelineName, String clusteredRunId ) throws Exception {
     String xml =
       execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
         + Const.NVL( clusteredRunId, "" ) + "&xml=Y&sockets=Y" );
-    return WebResult.fromXMLString( xml );
+    return WebResult.fromXmlString( xml );
   }
 
   public Properties getHopProperties() throws Exception {

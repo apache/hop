@@ -114,7 +114,7 @@ public class StreamLookupMetaTest implements IInitializerInterface<ITransformMet
 
   //PDI-16110
   @Test
-  public void testGetXML() {
+  public void testGetXml() {
     StreamLookupMeta streamLookupMeta = new StreamLookupMeta();
     streamLookupMeta.setKeystream( new String[] { "testKeyStreamValue" } );
     streamLookupMeta.setKeylookup( new String[] { "testKeyLookupValue" } );

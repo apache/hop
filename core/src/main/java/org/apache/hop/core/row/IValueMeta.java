@@ -1123,7 +1123,7 @@ public interface IValueMeta extends Cloneable {
    * @return an XML representation of the row metadata
    * @throws IOException Thrown in case there is an (Base64/GZip) decoding problem
    */
-  String getMetaXML() throws IOException;
+  String getMetaXml() throws IOException;
 
   /**
    * Returns an XML representation of the row data.
@@ -1132,7 +1132,7 @@ public interface IValueMeta extends Cloneable {
    * @return an XML representation of the row data
    * @throws IOException Thrown in case there is an (Base64/GZip) decoding problem
    */
-  String getDataXML( Object value ) throws IOException;
+  String getDataXml(Object value ) throws IOException;
 
   /**
    * Convert a data XML node to an Object that corresponds to the metadata. This is basically String to Object

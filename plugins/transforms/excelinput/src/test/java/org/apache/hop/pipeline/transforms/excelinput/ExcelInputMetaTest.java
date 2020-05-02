@@ -297,7 +297,7 @@ public class ExcelInputMetaTest {
   }
 
   @Test
-  public void testGetXML() throws HopException {
+  public void testGetXml() throws HopException {
     Assert.assertEquals(
       "    <header>N</header>" + SystemUtils.LINE_SEPARATOR
         + "    <noempty>N</noempty>" + SystemUtils.LINE_SEPARATOR

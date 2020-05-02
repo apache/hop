@@ -66,7 +66,7 @@ public class SlaveServerPipelineStatusTest {
     Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );
+      SlaveServerPipelineStatus.fromXml( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
       XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
     assertTrue( "The \"log_date\" node should have a null value",
@@ -85,7 +85,7 @@ public class SlaveServerPipelineStatusTest {
     Node newPipelineStatus = XmlHandler.getSubNode( XmlHandler.loadXmlString( resultXML ), SlaveServerPipelineStatus.XML_TAG );
 
     assertEquals( "The XML document should match after rebuilding from XML", resultXML,
-      SlaveServerPipelineStatus.fromXML( resultXML ).getXml() );
+      SlaveServerPipelineStatus.fromXml( resultXML ).getXml() );
     assertEquals( "There should be one \"log_date\" node in the XML", 1,
       XmlHandler.countNodes( newPipelineStatus, "log_date" ) );
     assertEquals( "The \"log_date\" node should match the original value", XmlHandler.date2string( logDate ),

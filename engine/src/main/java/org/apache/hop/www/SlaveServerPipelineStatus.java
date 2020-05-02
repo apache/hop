@@ -175,7 +175,7 @@ public class SlaveServerPipelineStatus {
     }
   }
 
-  public static SlaveServerPipelineStatus fromXML( String xml ) throws HopException {
+  public static SlaveServerPipelineStatus fromXml(String xml ) throws HopException {
     Document document = XmlHandler.loadXmlString( xml );
     SlaveServerPipelineStatus status = new SlaveServerPipelineStatus( XmlHandler.getSubNode( document, XML_TAG ) );
     return status;

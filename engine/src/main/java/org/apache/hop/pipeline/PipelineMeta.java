@@ -3956,7 +3956,7 @@ public class PipelineMeta extends AbstractMeta
    * @param filename The filename to save to
    * @throws HopXmlException in case something goes wrong.
    */
-  public void writeXML( String filename ) throws HopXmlException {
+  public void writeXml(String filename ) throws HopXmlException {
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream( filename );
