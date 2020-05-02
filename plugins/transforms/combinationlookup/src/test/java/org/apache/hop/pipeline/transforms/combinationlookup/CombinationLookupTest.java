@@ -66,7 +66,7 @@ public class CombinationLookupTest {
     transformMeta = mock( TransformMeta.class );
     doReturn( "transform" ).when( transformMeta ).getName();
     doReturn( mock( TransformPartitioningMeta.class ) ).when( transformMeta ).getTargetTransformPartitioningMeta();
-    doReturn( combinationLookupMeta ).when( transformMeta ).getTransformMetaInterface();
+    doReturn( combinationLookupMeta ).when( transformMeta ).getTransform();
 
     Database db = mock( Database.class );
     doReturn( mock( Connection.class ) ).when( db ).getConnection();

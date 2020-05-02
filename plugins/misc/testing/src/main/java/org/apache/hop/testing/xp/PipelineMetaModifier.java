@@ -185,7 +185,7 @@ public class PipelineMetaModifier {
 
       // Only the transform metadata, type...
       //
-      transformMeta.setTransformMetaInterface( injectorMeta );
+      transformMeta.setTransform( injectorMeta );
       transformMeta.setTransformPluginId( PluginRegistry.getInstance().getPluginId( TransformPluginType.class, injectorMeta ) );
     }
   }
@@ -201,7 +201,7 @@ public class PipelineMetaModifier {
 
   private void replaceTransformWithDummy( ILogChannel log, TransformMeta transformMeta ) {
     DummyMeta dummyTransformMeta = new DummyMeta();
-    transformMeta.setTransformMetaInterface( dummyTransformMeta );
+    transformMeta.setTransform( dummyTransformMeta );
     transformMeta.setTransformPluginId( PluginRegistry.getInstance().getPluginId( TransformPluginType.class, dummyTransformMeta ) );
   }
 

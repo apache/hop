@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class BlockUntilTransformsFinishMetaTest implements IInitializerInterface<BlockUntilTransformsFinishMeta> {
+public class BlockUntilTransformsFinishMetaTest implements IInitializer<BlockUntilTransformsFinishMeta> {
   LoadSaveTester<BlockUntilTransformsFinishMeta> loadSaveTester;
   Class<BlockUntilTransformsFinishMeta> testMetaClass = BlockUntilTransformsFinishMeta.class;
 

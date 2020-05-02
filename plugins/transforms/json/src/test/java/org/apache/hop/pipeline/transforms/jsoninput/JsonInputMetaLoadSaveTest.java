@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class JsonInputMetaLoadSaveTest implements IInitializerInterface<ITransformMeta> {
+public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
   static final int FILE_COUNT = new Random().nextInt( 20 ) + 1;
   static final int FIELD_COUNT = new Random().nextInt( 20 ) + 1;

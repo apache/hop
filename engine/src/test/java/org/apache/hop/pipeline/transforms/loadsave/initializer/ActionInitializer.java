@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave.initializer;
 import org.apache.hop.workflow.action.IAction;
 
 public abstract class ActionInitializer<T extends IAction>
-  implements IInitializerInterface<IAction> {
+  implements IInitializer<IAction> {
 
   @Override
   public abstract void modify( IAction object );

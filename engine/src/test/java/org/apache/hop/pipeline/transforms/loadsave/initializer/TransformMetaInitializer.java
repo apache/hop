@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.loadsave.initializer;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
 public abstract class TransformMetaInitializer<T extends ITransformMeta>
-  implements IInitializerInterface<ITransformMeta> {
+  implements IInitializer<ITransformMeta> {
 
   @Override
   public abstract void modify( ITransformMeta object );

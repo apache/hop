@@ -710,7 +710,7 @@ public class SwingGc implements IGc {
         image = imageDummy;
       }
     } else {
-      String configId = actionCopy.getEntry().getPluginId();
+      String configId = actionCopy.getAction().getPluginId();
       if ( configId != null ) {
         image = entryImages.get( configId );
       }

@@ -87,7 +87,7 @@ public class TransformMeta implements
 
   private String name;
 
-  private ITransformMeta transformMetaInterface;
+  private ITransformMeta transform;
 
   private boolean selected;
 
@@ -122,10 +122,10 @@ public class TransformMeta implements
   /**
    * @param transformId            The plugin ID of the transform
    * @param transformName          The name of the new transform
-   * @param transformMetaInterface The transform metadata interface to use (TextFileInputMeta, etc)
+   * @param transform The transform metadata interface to use (TextFileInputMeta, etc)
    */
-  public TransformMeta( String transformId, String transformName, ITransformMeta transformMetaInterface ) {
-    this( transformName, transformMetaInterface );
+  public TransformMeta( String transformId, String transformName, ITransformMeta transform ) {
+    this( transformName, transform );
     if ( this.transformPluginId == null ) {
       this.transformPluginId = transformId;
     }
@@ -133,16 +133,16 @@ public class TransformMeta implements
 
   /**
    * @param transformName          The name of the new transform
-   * @param transformMetaInterface The transform metadata interface to use (TextFileInputMeta, etc)
+   * @param transform The transform metadata interface to use (TextFileInputMeta, etc)
    */
-  public TransformMeta( String transformName, ITransformMeta transformMetaInterface ) {
-    if ( transformMetaInterface != null ) {
+  public TransformMeta( String transformName, ITransformMeta transform ) {
+    if ( transform != null ) {
       PluginRegistry registry = PluginRegistry.getInstance();
-      this.transformPluginId = registry.getPluginId( TransformPluginType.class, transformMetaInterface );
+      this.transformPluginId = registry.getPluginId( TransformPluginType.class, transform );
       setDeprecationAndSuggestedTransform();
     }
     this.name = transformName;
-    setTransformMetaInterface( transformMetaInterface );
+    setTransform( transform );
 
     selected = false;
     distributes = true;
@@ -163,7 +163,7 @@ public class TransformMeta implements
     return getXml( true );
   }
 
-  public String getXml( boolean includeInterface ) throws HopException {
+  public String getXml( boolean includeTransform ) throws HopException {
     StringBuilder retval = new StringBuilder( 200 );
 
     retval.append( "  " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
@@ -181,8 +181,8 @@ public class TransformMeta implements
         .append( XmlHandler.closeTag( "target_transform_partitioning" ) );
     }
 
-    if ( includeInterface ) {
-      retval.append( transformMetaInterface.getXml() );
+    if ( includeTransform ) {
+      retval.append( transform.getXml() );
     }
 
     retval.append( AttributesUtil.getAttributesXml( attributesMap ) );
@@ -216,18 +216,18 @@ public class TransformMeta implements
       IPlugin sp = registry.findPluginWithId( TransformPluginType.class, transformPluginId, true );
 
       if ( sp == null ) {
-        setTransformMetaInterface( new Missing( name, transformPluginId ) );
+        setTransform( new Missing( name, transformPluginId ) );
       } else {
-        setTransformMetaInterface( (ITransformMeta) registry.loadClass( sp ) );
+        setTransform( (ITransformMeta) registry.loadClass( sp ) );
       }
-      if ( this.transformMetaInterface != null ) {
+      if ( this.transform != null ) {
         if ( sp != null ) {
           transformPluginId = sp.getIds()[ 0 ]; // revert to the default in case we loaded an alternate version
         }
 
         // Load the specifics from XML...
-        if ( transformMetaInterface != null ) {
-          transformMetaInterface.loadXml( transformNode, metaStore );
+        if ( transform != null ) {
+          transform.loadXml( transformNode, metaStore );
         }
 
         /* Handle info general to all transform types... */
@@ -367,27 +367,27 @@ public class TransformMeta implements
   }
 
   public boolean hasChanged() {
-    ITransformMeta bsi = this.getTransformMetaInterface();
+    ITransformMeta bsi = this.getTransform();
     return bsi != null ? bsi.hasChanged() : false;
   }
 
   public void setChanged( boolean ch ) {
-    BaseTransformMeta bsi = (BaseTransformMeta) this.getTransformMetaInterface();
+    BaseTransformMeta bsi = (BaseTransformMeta) this.getTransform();
     if ( bsi != null ) {
       bsi.setChanged( ch );
     }
   }
 
   public void setChanged() {
-    ITransformMeta bsi = this.getTransformMetaInterface();
+    ITransformMeta bsi = this.getTransform();
     if ( bsi != null ) {
       bsi.setChanged();
     }
   }
 
   public boolean chosesTargetTransforms() {
-    if ( getTransformMetaInterface() != null ) {
-      List<IStream> targetStreams = getTransformMetaInterface().getTransformIOMeta().getTargetStreams();
+    if ( getTransform() != null ) {
+      List<IStream> targetStreams = getTransform().getTransformIOMeta().getTargetStreams();
       return targetStreams.isEmpty();
     }
     return false;
@@ -403,10 +403,10 @@ public class TransformMeta implements
   public void replaceMeta( TransformMeta transformMeta ) {
     this.transformPluginId = transformMeta.transformPluginId; // --> TransformPlugin.id
     this.name = transformMeta.name;
-    if ( transformMeta.transformMetaInterface != null ) {
-      setTransformMetaInterface( (ITransformMeta) transformMeta.transformMetaInterface.clone() );
+    if ( transformMeta.transform != null ) {
+      setTransform( (ITransformMeta) transformMeta.transform.clone() );
     } else {
-      this.transformMetaInterface = null;
+      this.transform = null;
     }
     this.selected = transformMeta.selected;
     this.distributes = transformMeta.distributes;
@@ -453,14 +453,14 @@ public class TransformMeta implements
     return result;
   }
 
-  public ITransformMeta getTransformMetaInterface() {
-    return transformMetaInterface;
+  public ITransformMeta getTransform() {
+    return transform;
   }
 
-  public void setTransformMetaInterface( ITransformMeta transformMetaInterface ) {
-    this.transformMetaInterface = transformMetaInterface;
-    if ( transformMetaInterface != null ) {
-      this.transformMetaInterface.setParentTransformMeta( this );
+  public void setTransform( ITransformMeta transform ) {
+    this.transform = transform;
+    if ( transform != null ) {
+      this.transform.setParentTransformMeta( this );
     }
   }
 
@@ -540,7 +540,7 @@ public class TransformMeta implements
   @SuppressWarnings( "deprecation" )
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, IRowMeta prev, String[] input,
                      String[] output, IRowMeta info, IVariables variables, IMetaStore metaStore ) {
-    transformMetaInterface.check( remarks, pipelineMeta, this, prev, input, output, info, variables, metaStore );
+    transform.check( remarks, pipelineMeta, this, prev, input, output, info, variables, metaStore );
   }
 
   @Override
@@ -633,14 +633,14 @@ public class TransformMeta implements
   }
 
   public boolean supportsErrorHandling() {
-    return transformMetaInterface.supportsErrorHandling();
+    return transform.supportsErrorHandling();
   }
 
   /**
    * @return if error handling is supported for this transform, if error handling is defined and a target transform is set
    */
   public boolean isDoingErrorHandling() {
-    return transformMetaInterface.supportsErrorHandling() && transformErrorMeta != null && transformErrorMeta.getTargetTransform() != null
+    return transform.supportsErrorHandling() && transformErrorMeta != null && transformErrorMeta.getTargetTransform() != null
       && transformErrorMeta.isEnabled();
   }
 
@@ -690,7 +690,7 @@ public class TransformMeta implements
    * @return a list of all the resource dependencies that the transform is depending on
    */
   public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta ) {
-    return transformMetaInterface.getResourceDependencies( pipelineMeta, this );
+    return transform.getResourceDependencies( pipelineMeta, this );
   }
 
   @Override
@@ -701,7 +701,7 @@ public class TransformMeta implements
 
     // Compatibility with previous release...
     //
-    String resources = transformMetaInterface.exportResources( variables, definitions, iResourceNaming, metaStore );
+    String resources = transform.exportResources( variables, definitions, iResourceNaming, metaStore );
     if ( resources != null ) {
       return resources;
     }
@@ -710,7 +710,7 @@ public class TransformMeta implements
     // These can in turn add anything to the map in terms of resources, etc.
     // Even reference files, etc. For now it's just XML probably...
     //
-    return transformMetaInterface.exportResources( variables, definitions, iResourceNaming, metaStore );
+    return transform.exportResources( variables, definitions, iResourceNaming, metaStore );
   }
 
   /**
@@ -836,7 +836,7 @@ public class TransformMeta implements
   }
 
   public boolean isMissing() {
-    return this.transformMetaInterface instanceof Missing;
+    return this.transform instanceof Missing;
   }
 
   public boolean isDeprecated() {

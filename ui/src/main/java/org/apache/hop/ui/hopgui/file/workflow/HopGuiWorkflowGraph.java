@@ -121,8 +121,6 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -137,7 +135,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -906,7 +903,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
                   if ( workflowMeta.findWorkflowHop( hi.getFromAction(), selectedEntry, true ) == null ) {
                     WorkflowHopMeta newhop1 = new WorkflowHopMeta( hi.getFromAction(), selectedEntry );
-                    if ( hi.getFromAction().getEntry().isUnconditional() ) {
+                    if ( hi.getFromAction().getAction().isUnconditional() ) {
                       newhop1.setUnconditional();
                     }
                     workflowMeta.addWorkflowHop( newhop1 );
@@ -914,7 +911,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   }
                   if ( workflowMeta.findWorkflowHop( selectedEntry, hi.getToAction(), true ) == null ) {
                     WorkflowHopMeta newhop2 = new WorkflowHopMeta( selectedEntry, hi.getToAction() );
-                    if ( selectedEntry.getEntry().isUnconditional() ) {
+                    if ( selectedEntry.getAction().isUnconditional() ) {
                       newhop2.setUnconditional();
                     }
                     workflowMeta.addWorkflowHop( newhop2 );
@@ -2393,7 +2390,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void launchStuff( ActionCopy actionCopy ) {
-    String[] references = actionCopy.getEntry().getReferencedObjectDescriptions();
+    String[] references = actionCopy.getAction().getReferencedObjectDescriptions();
     if ( !Utils.isEmpty( references ) ) {
       loadReferencedObject( actionCopy, 0 );
     }
@@ -2401,7 +2398,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected void loadReferencedObject( ActionCopy actionCopy, int index ) {
     try {
-      IHasFilename referencedMeta = actionCopy.getEntry().loadReferencedObject( index, hopGui.getMetaStore(), workflowMeta );
+      IHasFilename referencedMeta = actionCopy.getAction().loadReferencedObject( index, hopGui.getMetaStore(), workflowMeta );
       if ( referencedMeta == null ) {
         return; // Sorry, nothing loaded
       }

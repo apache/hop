@@ -133,7 +133,7 @@ public class HopGuiPipelineHopDelegate {
       // when not looping, otherwise we get a loop with
       // StackOverflow there ;-)
       try {
-        if ( !newHop.getToTransform().getTransformMetaInterface().excludeFromRowLayoutVerification() ) {
+        if ( !newHop.getToTransform().getTransform().excludeFromRowLayoutVerification() ) {
           pipelineMeta.checkRowMixingStatically( newHop.getToTransform(), null );
         }
       } catch ( HopRowException re ) {
@@ -156,11 +156,11 @@ public class HopGuiPipelineHopDelegate {
     // don't show it for 3 or more hops, by then you should have had the
     // message
     if ( nrNextTransforms == 2 ) {
-      boolean distributes = fr.getTransformMetaInterface().excludeFromCopyDistributeVerification();
+      boolean distributes = fr.getTransform().excludeFromCopyDistributeVerification();
       boolean customDistribution = false;
 
       if ( props.showCopyOrDistributeWarning()
-        && !fr.getTransformMetaInterface().excludeFromCopyDistributeVerification() ) {
+        && !fr.getTransform().excludeFromCopyDistributeVerification() ) {
         MessageDialogWithToggle md =
           new MessageDialogWithToggle(
             hopGui.getShell(), BaseMessages.getString( PKG, "System.Warning" ), null, BaseMessages.getString(
@@ -218,9 +218,9 @@ public class HopGuiPipelineHopDelegate {
     TransformMeta beforeTo = (TransformMeta) toTransformMeta.clone();
     int indexTo = pipelineMeta.indexOfTransform( toTransformMeta );
 
-    boolean transformFromNeedAddUndoChange = fromTransformMeta.getTransformMetaInterface()
+    boolean transformFromNeedAddUndoChange = fromTransformMeta.getTransform()
       .cleanAfterHopFromRemove( pipelineHopMeta.getToTransform() );
-    boolean transformToNeedAddUndoChange = toTransformMeta.getTransformMetaInterface().cleanAfterHopToRemove( fromTransformMeta );
+    boolean transformToNeedAddUndoChange = toTransformMeta.getTransform().cleanAfterHopToRemove( fromTransformMeta );
 
     // If this is an error handling hop, disable it
     //

@@ -31,7 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -50,7 +50,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class CombinationLookupMetaTest implements IInitializerInterface<ITransformMeta> {
+public class CombinationLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<CombinationLookupMeta> testMetaClass = CombinationLookupMeta.class;
 

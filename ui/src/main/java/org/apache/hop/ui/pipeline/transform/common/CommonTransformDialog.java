@@ -450,7 +450,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   protected Image getImage() {
     final IPlugin plugin =
-      PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransformMetaInterface() );
+      PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransform() );
     final String id = plugin.getIds()[ 0 ];
     if ( id != null ) {
       return GuiResource.getInstance().getImagesTransforms().get( id ).getAsBitmapForSize( shell.getDisplay(),

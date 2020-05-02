@@ -910,7 +910,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
           // The meta-data
           combi.transformMeta = transformMeta;
-          combi.meta = transformMeta.getTransformMetaInterface();
+          combi.meta = transformMeta.getTransform();
 
           // Allocate the transform data
           ITransformData data = combi.meta.getTransformData();

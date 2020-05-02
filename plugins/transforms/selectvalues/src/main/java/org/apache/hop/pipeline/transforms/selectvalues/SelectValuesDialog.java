@@ -832,7 +832,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     TransformMeta outputTransformMeta = nextTransforms.get( 0 );
-    ITransformMeta transformMetaInterface = outputTransformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = outputTransformMeta.getTransform();
     try {
       nextTransformRequiredFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {
