@@ -29,7 +29,7 @@ case $( uname -s ) in
 		;;
 	Darwin)
 		CLASSPATH="lib/*:libswt/osx64/*"
-		OPTIONS="${OPTIONS} -XstartOnFirstThread"
+		HOP_OPTIONS="${HOP_OPTIONS} -XstartOnFirstThread"
 		;;
 esac
 
