@@ -6,8 +6,8 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.gui.EnvironmentGuiPlugin;
-import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -29,7 +29,7 @@ public class HopGuiEnvironmentUpdated extends HopGuiEnvironmentChanged implement
 
     // If this is the same environment as we're using, maybe we should reload things...
     //
-    if (environment.getName().equals( hopGui.getNamespace() )) {
+    if (environment.getName().equals( HopNamespace.getNamespace() )) {
       MessageBox messageBox = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
       messageBox.setText( "Switch?" );
       messageBox.setMessage( "Do you want to reload environment " + environment.getName() + "?" );

@@ -24,19 +24,18 @@ package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -48,32 +47,6 @@ public class HopGuiAuditDelegate {
 
   public HopGuiAuditDelegate( HopGui hopGui ) {
     this.hopGui = hopGui;
-  }
-
-  public void registerEvent( String type, String name, String operation ) throws HopException {
-    AuditEvent event = new AuditEvent( hopGui.getNamespace(), type, name, operation, new Date() );
-    hopGui.getAuditManager().storeEvent( event );
-  }
-
-  public List<AuditEvent> findEvents( String type, String operation, int maxNrEvents ) throws HopException {
-    List<AuditEvent> events = hopGui.getAuditManager().findEvents( hopGui.getNamespace(), type );
-
-    if ( operation == null ) {
-      return events;
-    }
-    // Filter out the specified operation only (File open)
-    //
-    List<AuditEvent> operationEvents = new ArrayList<>();
-    for ( AuditEvent event : events ) {
-      if ( event.getOperation().equalsIgnoreCase( operation ) ) {
-        operationEvents.add( event );
-
-        if ( maxNrEvents > 0 && operationEvents.size() >= maxNrEvents ) {
-          break;
-        }
-      }
-    }
-    return operationEvents;
   }
 
   public void openLastFiles() {
@@ -93,7 +66,7 @@ public class HopGuiAuditDelegate {
         //
         AuditList auditList;
         try {
-          auditList = hopGui.getAuditManager().retrieveList( hopGui.getNamespace(), perspective.getId() );
+          auditList = AuditManager.getActive().retrieveList( HopNamespace.getNamespace(), perspective.getId() );
         } catch ( Exception e ) {
           hopGui.getLog().logError( "Error reading audit list of perspective " + perspective.getId(), e);
           auditList = new AuditList();
@@ -101,7 +74,7 @@ public class HopGuiAuditDelegate {
 
         AuditStateMap auditStateMap;
         try {
-          auditStateMap = hopGui.getAuditManager().loadAuditStateMap( hopGui.getNamespace(), perspective.getId() );
+          auditStateMap = AuditManager.getActive().loadAuditStateMap( HopNamespace.getNamespace(), perspective.getId() );
         } catch ( HopException e ) {
           hopGui.getLog().logError( "Error loading audit state map of perspective "+perspective.getId(), e );
           auditStateMap = new AuditStateMap();
@@ -173,30 +146,12 @@ public class HopGuiAuditDelegate {
         }
         AuditList auditList = new AuditList( files );
         try {
-          hopGui.getAuditManager().storeList( hopGui.getNamespace(), perspective.getId(), auditList );
-          hopGui.getAuditManager().saveAuditStateMap( hopGui.getNamespace(), perspective.getId(), auditStateMap );
+          AuditManager.getActive().storeList( HopNamespace.getNamespace(), perspective.getId(), auditList );
+          AuditManager.getActive().saveAuditStateMap( HopNamespace.getNamespace(), perspective.getId(), auditStateMap );
         } catch ( Exception e ) {
           hopGui.getLog().logError( "Error writing audit list of perspective " + perspective.getId(), e );
         }
       }
-    }
-  }
-
-  public void storeState( String type, String name, Map<String, Object> stateProperties ) {
-    AuditState auditState = new AuditState(name, stateProperties);
-    try {
-      hopGui.getAuditManager().storeState( hopGui.getNamespace(), type, auditState );
-    } catch ( Exception e ) {
-      hopGui.getLog().logError( "Error writing audit state of type " + type, e );
-    }
-  }
-
-  public AuditState retrieveState( String type, String name ) {
-    try {
-      return hopGui.getAuditManager().retrieveState( hopGui.getNamespace(), type, name );
-    } catch(Exception e) {
-      hopGui.getLog().logError( "Error retrieving state of type "+type );
-      return null;
     }
   }
 }

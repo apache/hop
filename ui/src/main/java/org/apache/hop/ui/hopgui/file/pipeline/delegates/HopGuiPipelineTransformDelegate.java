@@ -32,6 +32,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.IPartitioner;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -43,6 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
@@ -265,7 +267,7 @@ public class HopGuiPipelineTransformDelegate {
             hopGui.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
 
             // Also store the event in the plugin history list...
-            hopGui.auditDelegate.registerEvent( "transform", transformPlugin.getIds()[ 0 ], "create" );
+            AuditManager.registerEvent( HopNamespace.getNamespace(), "transform", transformPlugin.getIds()[ 0 ], "create" );
           } else {
             return null; // Cancel pressed in dialog.
           }

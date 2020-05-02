@@ -12,9 +12,9 @@ import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.gui.EnvironmentGuiPlugin;
-import org.apache.hop.env.util.Defaults;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
@@ -50,7 +50,7 @@ public class HopGuiStartEnvironmentLoad implements IExtensionPoint {
 
           // What is the last used environment?
           //
-          List<AuditEvent> auditEvents = hopGui.getAuditManager().findEvents(
+          List<AuditEvent> auditEvents = AuditManager.getActive().findEvents(
             EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_GROUP,
             EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_TYPE
           );

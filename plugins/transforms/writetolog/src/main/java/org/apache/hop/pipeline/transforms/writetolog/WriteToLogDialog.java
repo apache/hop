@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.pipeline.transforms.writetolog;
+package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -75,7 +75,7 @@ import java.util.Set;
         documentationUrl = ""
 )
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
 
   private WriteToLogMeta input;
   private Label wlLoglevel;

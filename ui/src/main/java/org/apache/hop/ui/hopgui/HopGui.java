@@ -32,25 +32,23 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.history.IAuditManager;
-import org.apache.hop.history.local.LocalAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metastore.MetaStoreConst;
@@ -61,9 +59,10 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.core.widget.OsHelper;
@@ -71,13 +70,13 @@ import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
 import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
@@ -215,14 +214,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public HopGuiContextDelegate contextDelegate;
   public HopGuiAuditDelegate auditDelegate;
 
-  private IAuditManager auditManager;
-
   private boolean openingLastFiles;
-
-  /**
-   * This can be used to define which environment is active or any other way to group your work through plugins.
-   */
-  private String namespace;
 
   private HopGui( Display display ) {
     this.display = display;
@@ -257,9 +249,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
     metaStoreContext = new MetaStoreContext( this, metaStore );
 
-    auditManager = new LocalAuditManager();
-
-    namespace = DEFAULT_HOP_GUI_NAMESPACE;
+    HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
   }
 
   public static final HopGui getInstance() {
@@ -1204,38 +1194,6 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public void setPerspectivesToolbarWidgets( GuiToolbarWidgets perspectivesToolbarWidgets ) {
     this.perspectivesToolbarWidgets = perspectivesToolbarWidgets;
-  }
-
-  /**
-   * Gets auditManager
-   *
-   * @return value of auditManager
-   */
-  public IAuditManager getAuditManager() {
-    return auditManager;
-  }
-
-  /**
-   * @param auditManager The auditManager to set
-   */
-  public void setAuditManager( IAuditManager auditManager ) {
-    this.auditManager = auditManager;
-  }
-
-  /**
-   * Gets namespace
-   *
-   * @return value of namespace
-   */
-  public String getNamespace() {
-    return namespace;
-  }
-
-  /**
-   * @param namespace The namespace to set
-   */
-  public void setNamespace( String namespace ) {
-    this.namespace = namespace;
   }
 
   /**

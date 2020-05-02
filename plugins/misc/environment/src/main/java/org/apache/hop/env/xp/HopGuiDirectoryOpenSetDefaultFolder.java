@@ -7,11 +7,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
 
 @ExtensionPoint(
   id = "HopGuiDirectoryOpenSetDefaultFolder",
@@ -22,7 +21,7 @@ public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopG
 
   @Override public void callExtensionPoint( ILogChannel log, HopGuiDirectoryDialogExtension ext ) throws HopException {
     HopGui hopGui = HopGui.getInstance();
-    String environmentName = hopGui.getNamespace();
+    String environmentName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(environmentName)) {
       return;
     }

@@ -19,9 +19,11 @@ import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.metastore.MetaStoreManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Combo;
@@ -175,7 +177,7 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 
       // We store the environment in the HopGui namespace
       //
-      hopGui.setNamespace( environment.getName() );
+      HopNamespace.setNamespace( environment.getName() );
 
       // We need to change the currently set variables in the newly loaded files
       //
@@ -213,7 +215,7 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
         "open",
         new Date()
       );
-      hopGui.getAuditManager().storeEvent( envUsedEvent );
+      AuditManager.getActive().storeEvent( envUsedEvent );
 
     } catch ( Exception e ) {
       throw new HopException( "Error enabling environment '" + environment.getName() + "' in HopGui", e );

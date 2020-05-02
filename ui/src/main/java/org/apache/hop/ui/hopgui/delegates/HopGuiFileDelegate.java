@@ -25,30 +25,28 @@ package org.apache.hop.ui.hopgui.delegates;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.history.AuditEvent;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.FileDialog;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopGuiFileDelegate {
 
@@ -93,7 +91,7 @@ public class HopGuiFileDelegate {
 
     // Keep track of this...
     //
-    hopGui.auditDelegate.registerEvent( "file", filename, "open" );
+    AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "open" );
 
     return fileTypeHandler;
   }
@@ -120,7 +118,7 @@ public class HopGuiFileDelegate {
 
       typeHandler.saveAs( filename );
 
-      hopGui.auditDelegate.registerEvent( "file", filename, "save" );
+      AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "save" );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
     }
@@ -137,7 +135,7 @@ public class HopGuiFileDelegate {
           fileSaveAs();
         } else {
           typeHandler.save();
-          hopGui.auditDelegate.registerEvent( "file", typeHandler.getFilename(), "save" );
+          AuditManager.registerEvent( HopNamespace.getNamespace(), "file", typeHandler.getFilename(), "save" );
         }
       }
     } catch ( Exception e ) {
@@ -222,7 +220,7 @@ public class HopGuiFileDelegate {
     try {
       // Let's limit ourselves to 100 operations...
       //
-      List<AuditEvent> events = hopGui.auditDelegate.findEvents( "file", "open", 100 );
+      List<AuditEvent> events = AuditManager.findEvents( HopNamespace.getNamespace(), "file", "open", 100 );
       Set<String> filenames = new HashSet<>();
       List<RowMetaAndData> rows = new ArrayList<>();
       IRowMeta rowMeta = new RowMeta();

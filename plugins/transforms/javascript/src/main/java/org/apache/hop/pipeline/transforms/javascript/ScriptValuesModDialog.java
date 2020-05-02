@@ -1692,36 +1692,13 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
     } );
   }
 
-  /*
-   * private void rebuildInputFieldsTree(){ try{ String itemName = BaseMessages.getString(PKG,
-   * "ScriptValuesDialogMod.InputFields.Label");
-   *
-   * IRowMeta r = pipelineMeta.getPrevTransformFields(transformName); if (r!=null){ TreeItem item = null; for (TreeItem look
-   * : wTree.getItems()) { if (look.getText().equals(itemName)) { // This is the rebuild part! for (TreeItem child :
-   * look.getItems()) child.dispose(); // clear the children. item=look; break; } } if (item==null) item = new
-   * TreeItem(wTree, SWT.NULL); item.setText(itemName); String strItemToAdd=""; for (int i=0;i<r.size();i++){
-   * IValueMeta v = r.getValueMeta(i); if (wCompatible.getSelection()) { switch(v.getType()){ case
-   * IValueMeta.TYPE_STRING : strItemToAdd=v.getName()+".getString()"; break; case
-   * IValueMeta.TYPE_NUMBER : strItemToAdd=v.getName()+".getNumber()"; break; case
-   * IValueMeta.TYPE_INTEGER: strItemToAdd=v.getName()+".getInteger()"; break; case IValueMeta.TYPE_DATE
-   * : strItemToAdd=v.getName()+".getDate()"; break; case IValueMeta.TYPE_BOOLEAN:
-   * strItemToAdd=v.getName()+".getBoolean()"; break; case IValueMeta.TYPE_BIGNUMBER:
-   * strItemToAdd=v.getName()+".getBigNumber()"; break; case IValueMeta.TYPE_BINARY:
-   * strItemToAdd=v.getName()+".getBytes()"; break; case IValueMeta.TYPE_SERIALIZABLE:
-   * strItemToAdd=v.getName()+".getSerializable()"; break; default: strItemToAdd=v.getName(); break; } } else {
-   * strItemToAdd=v.getName(); } TreeItem itemInputFields = new TreeItem(item, SWT.NULL);
-   * itemInputFields.setText(strItemToAdd); itemInputFields.setData(strItemToAdd); } } }catch(HopException ke){ new
-   * ErrorDialog(shell, BaseMessages.getString(PKG, "ScriptValuesDialogMod.FailedToGetFields.DialogTitle"),
-   * BaseMessages.getString(PKG, "ScriptValuesDialogMod.FailedToGetFields.DialogMessage"), ke); } }
-   */
-
   // Adds the Current item to the current Position
   private void treeDblClick( Event event ) {
     StyledTextComp wScript = getStyledTextComp();
     Point point = new Point( event.x, event.y );
     TreeItem item = wTree.getItem( point );
 
-    // Qualifikation where the Click comes from
+    // Qualification where the Click comes from
     if ( item != null && item.getParentItem() != null ) {
       if ( item.getParentItem().equals( wTreeScriptsItem ) ) {
         setActiveCtab( item.getText() );

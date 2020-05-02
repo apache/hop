@@ -28,14 +28,13 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.PaintEvent;
@@ -56,10 +55,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -492,14 +488,14 @@ public class PropsUi extends Props {
   }
 
   public void setScreen( WindowProperty windowProperty ) {
-    HopGui.getInstance().auditDelegate.storeState( "shells", windowProperty.getName(), windowProperty.getStateProperties() );
+    AuditManager.storeState( LogChannel.UI, HopNamespace.getNamespace(), "shells", windowProperty.getName(), windowProperty.getStateProperties() );
   }
 
   public WindowProperty getScreen( String windowName ) {
     if ( windowName == null ) {
       return null;
     }
-    AuditState auditState = HopGui.getInstance().auditDelegate.retrieveState("shells", windowName);
+    AuditState auditState = AuditManager.retrieveState(LogChannel.UI, HopNamespace.getNamespace(), "shells", windowName);
     if (auditState==null) {
       return null;
     }
