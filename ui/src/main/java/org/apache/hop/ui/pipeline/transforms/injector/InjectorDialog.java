@@ -23,6 +23,7 @@
 package org.apache.hop.ui.pipeline.transforms.injector;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -52,6 +53,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "Injector",
+        image = "ui/images/INJ.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/injector.html"
+)
 public class InjectorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 

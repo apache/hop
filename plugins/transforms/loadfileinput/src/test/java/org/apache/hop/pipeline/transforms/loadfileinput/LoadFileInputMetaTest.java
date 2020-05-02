@@ -103,7 +103,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testGetXML() throws Exception {
+  public void testGetXml() throws Exception {
     LoadFileInputMeta testMeta = createMeta();
     String xml = testMeta.getXml();
     assertEquals( xmlOrig.replaceAll( "\n", "" ).replaceAll( "\r", "" ), xml.replaceAll( "\n", "" ).replaceAll( "\r",
@@ -111,7 +111,7 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testLoadXML() throws Exception {
+  public void testLoadXml() throws Exception {
     LoadFileInputMeta origMeta = createMeta();
     LoadFileInputMeta testMeta = new LoadFileInputMeta();
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

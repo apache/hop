@@ -23,40 +23,12 @@
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Injector</tooltip>
     <iconfile>ui/images/INJ.svg</iconfile>
   </transform>
-  <transform id="MappingInput">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingInput</description>
-    <classname>org.apache.hop.pipeline.transforms.mappinginput.MappingInputMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingInputSpecification</tooltip>
-    <iconfile>ui/images/MPI.svg</iconfile>
-  </transform>
-  <transform id="Mapping">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingSubPipeline</description>
-    <classname>org.apache.hop.pipeline.transforms.mapping.MappingMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingSubPipeline</tooltip>
-    <iconfile>ui/images/MAP.svg</iconfile>
-  </transform>
-  <transform id="MappingOutput">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.MappingOutput</description>
-    <classname>org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.MappingOutputSpecification</tooltip>
-    <iconfile>ui/images/MPO.svg</iconfile>
-  </transform>
   <transform id="GroupBy">
     <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.GroupBy</description>
     <classname>org.apache.hop.pipeline.transforms.groupby.GroupByMeta</classname>
     <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics</category>
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Groupby</tooltip>
     <iconfile>ui/images/GRP.svg</iconfile>
-  </transform>
-  <transform id="SingleThreader">
-    <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.SingleThreader</description>
-    <classname>org.apache.hop.pipeline.transforms.singlethreader.SingleThreaderMeta</classname>
-    <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
-    <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.SingleThreader</tooltip>
-    <iconfile>ui/images/MAP.svg</iconfile>
   </transform>
   <transform id="WorkflowExecutor">
     <description>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeLongDesc.WorkflowExecutor</description>

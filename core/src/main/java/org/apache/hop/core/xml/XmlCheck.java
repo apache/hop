@@ -42,10 +42,10 @@ public class XmlCheck {
    * @param file The file to check
    * @return true if the file is well formed.
    */
-  public static final boolean isXMLFileWellFormed( FileObject file ) throws HopException {
+  public static final boolean isXmlFileWellFormed(FileObject file ) throws HopException {
     boolean retval = false;
     try {
-      retval = isXMLWellFormed( file.getContent().getInputStream() );
+      retval = isXmlWellFormed( file.getContent().getInputStream() );
     } catch ( Exception e ) {
       throw new HopException( e );
     }
@@ -59,7 +59,7 @@ public class XmlCheck {
    * @param is inputstream
    * @return true if the xml is well formed.
    */
-  public static boolean isXMLWellFormed( InputStream is ) throws HopException {
+  public static boolean isXmlWellFormed(InputStream is ) throws HopException {
     boolean retval = false;
     try {
       SAXParserFactory factory = XmlParserFactoryProducer.createSecureSAXParserFactory();

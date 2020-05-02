@@ -129,7 +129,7 @@ public class SlaveServerWorkflowStatus {
     }
   }
 
-  public static SlaveServerWorkflowStatus fromXML( String xml ) throws HopException {
+  public static SlaveServerWorkflowStatus fromXml(String xml ) throws HopException {
     Document document = XmlHandler.loadXmlString( xml );
     SlaveServerWorkflowStatus status = new SlaveServerWorkflowStatus( XmlHandler.getSubNode( document, XML_TAG ) );
     return status;

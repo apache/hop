@@ -69,7 +69,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
     IRowMeta row = new RowMeta();
     row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
 
-    row.getMetaXML();
+    row.getMetaXml();
   }
 
   @Test

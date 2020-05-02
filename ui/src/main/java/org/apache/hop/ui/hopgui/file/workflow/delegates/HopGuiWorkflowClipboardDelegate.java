@@ -80,7 +80,7 @@ public class HopGuiWorkflowClipboardDelegate {
     }
   }
 
-  public void pasteXML( WorkflowMeta workflowMeta, String clipcontent, Point loc ) {
+  public void pasteXml(WorkflowMeta workflowMeta, String clipcontent, Point loc ) {
 
     try {
       Document doc = XmlHandler.loadXmlString( clipcontent );
@@ -196,7 +196,7 @@ public class HopGuiWorkflowClipboardDelegate {
       return;
     }
 
-    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXMLHeader() );
+    StringBuilder xml = new StringBuilder( 5000 ).append( XmlHandler.getXmlHeader() );
     try {
       xml.append( XmlHandler.openTag( XML_TAG_WORKFLOW_ACTIONS ) ).append( Const.CR );
 

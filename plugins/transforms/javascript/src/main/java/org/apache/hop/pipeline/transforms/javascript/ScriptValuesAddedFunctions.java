@@ -2692,7 +2692,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static String escapeXml( Context actualContext, Scriptable actualObject, Object[] ArgList,
                                   Function FunctionContext ) {
     if ( ArgList.length == 1 ) {
-      return Const.escapeXML( Context.toString( ArgList[ 0 ] ) );
+      return Const.escapeXml( Context.toString( ArgList[ 0 ] ) );
     } else {
       throw Context.reportRuntimeError( "The function call escapeXml requires 1 argument." );
 
@@ -2737,10 +2737,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     }
   }
 
-  public static String protectXMLCDATA( Context actualContext, Scriptable actualObject, Object[] ArgList,
+  public static String protectXmlCdata( Context actualContext, Scriptable actualObject, Object[] ArgList,
                                         Function FunctionContext ) {
     if ( ArgList.length == 1 ) {
-      return Const.protectXMLCDATA( Context.toString( ArgList[ 0 ] ) );
+      return Const.protectXmlCdata( Context.toString( ArgList[ 0 ] ) );
     } else {
       throw Context.reportRuntimeError( "The function call protectXMLCDATA requires 1 argument." );
 

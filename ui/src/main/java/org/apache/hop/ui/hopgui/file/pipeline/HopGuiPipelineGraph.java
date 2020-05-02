@@ -3341,7 +3341,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String xml = pipelineMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( pipelineMeta.getFilename(), false );
       try {
-        out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
+        out.write( XmlHandler.getXmlHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         pipelineMeta.clearChanged();
         updateGui();
@@ -4526,7 +4526,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void pasteFromClipboard( Point location ) {
     final String clipboard = pipelineClipboardDelegate.fromClipboard();
-    pipelineClipboardDelegate.pasteXML( pipelineMeta, clipboard, location );
+    pipelineClipboardDelegate.pasteXml( pipelineMeta, clipboard, location );
   }
 
   @GuiContextAction(

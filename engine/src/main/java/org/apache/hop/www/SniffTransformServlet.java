@@ -30,12 +30,10 @@ import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.ServletException;
@@ -44,7 +42,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -192,7 +189,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           //
           response.setContentType( "text/xml" );
           response.setCharacterEncoding( Const.XML_ENCODING );
-          out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+          out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
           out.println( rowBuffer.getXml() );
 
         } else {

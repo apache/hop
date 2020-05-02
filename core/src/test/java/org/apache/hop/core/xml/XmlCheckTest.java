@@ -48,7 +48,7 @@ public class XmlCheckTest {
         + "]>\n"
         + "<lolz>&lol9;</lolz>";
 
-    XmlCheck.isXMLWellFormed( new ByteArrayInputStream( maliciousXml.getBytes() ) );
+    XmlCheck.isXmlWellFormed( new ByteArrayInputStream( maliciousXml.getBytes() ) );
   }
 
 }

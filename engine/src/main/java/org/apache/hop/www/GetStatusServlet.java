@@ -210,7 +210,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();
 
     if ( useXML ) {
-      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
       SlaveServerStatus serverStatus = new SlaveServerStatus();
       serverStatus.setStatusDescription( "Online" );
 

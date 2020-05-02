@@ -101,7 +101,7 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
     PrintStream out = new PrintStream( response.getOutputStream() );
     final HopServer hopServer = HopServerSingleton.getHopServer();
     if ( useXML ) {
-      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
       out.print( XmlHandler.addTagValue( REQUEST_ACCEPTED, hopServer != null ) );
       out.flush();
     } else {

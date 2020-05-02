@@ -133,7 +133,7 @@ public class DragAndDropContainer implements IXml {
     try {
       StringBuilder xml = new StringBuilder( 100 );
 
-      xml.append( XmlHandler.getXMLHeader() ); // UFT-8 XML header
+      xml.append( XmlHandler.getXmlHeader() ); // UFT-8 XML header
       xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
       if ( id != null ) {

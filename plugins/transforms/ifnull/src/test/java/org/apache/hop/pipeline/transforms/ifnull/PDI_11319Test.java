@@ -51,7 +51,7 @@ public class PDI_11319Test {
    * Test forward compatibility - pipeline created in version 4 don't contain "set emtry" elements
    */
   @Test
-  public void testLoadXMLVersion4() throws Exception {
+  public void testLoadXmlVersion4() throws Exception {
     Node nullIfTransform = getNullIfTransform( xmlVersion4 );
     meta.loadXml( nullIfTransform, null );
 
@@ -69,7 +69,7 @@ public class PDI_11319Test {
    * Test pipeline created in Hop 5 - should work w/ and w/o the fix
    */
   @Test
-  public void testLoadXMLVersion5() throws Exception {
+  public void testLoadXmlVersion5() throws Exception {
     Node nullIfTransform = getNullIfTransform( xmlVersion5 );
     meta.loadXml( nullIfTransform, null );
 

@@ -130,7 +130,7 @@ public class ValueMetaAndDataTest {
 
   @Test
   @PrepareForTest( { EnvUtil.class } )
-  public void testLoadXML() throws HopValueException, HopPluginException, ParseException {
+  public void testLoadXml() throws HopValueException, HopPluginException, ParseException {
     PowerMockito.mockStatic( EnvUtil.class );
     Mockito.when( EnvUtil.getSystemProperty( Const.HOP_DEFAULT_DATE_FORMAT ) ).thenReturn( "yyyy-MM-dd HH:mm:ss.SSS" );
     ValueMetaAndData valueMetaAndData = new ValueMetaAndData( Mockito.mock( IValueMeta.class ), new Object() );

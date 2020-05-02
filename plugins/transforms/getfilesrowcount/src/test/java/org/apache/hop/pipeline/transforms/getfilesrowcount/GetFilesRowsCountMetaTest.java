@@ -115,7 +115,7 @@ public class GetFilesRowsCountMetaTest implements IInitializer<ITransformMeta> {
   }
 
   @Test
-  public void testLoadSaveXML() throws HopException {
+  public void testLoadSaveXml() throws HopException {
     loadSaveTester.testSerialization();
   }
 

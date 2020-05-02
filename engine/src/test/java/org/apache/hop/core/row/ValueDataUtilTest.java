@@ -335,69 +335,69 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void xmlFileWellFormedTest() {
+  public void xmlFileWellFormedTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource( "xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), xmlFilePath );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), xmlFilePath , true);
     assertTrue( wellFormed );
   }
 
   @Test
-  public void xmlFileBadlyFormedTest() {
+  public void xmlFileBadlyFormedTest() throws HopFileNotFoundException  {
     String invalidXmlFilePath = getClass().getResource( "invalid-xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), invalidXmlFilePath );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), invalidXmlFilePath , true);
     assertFalse( wellFormed );
   }
 
   @Test
   public void xmlFileWellFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource( "xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), xmlFilePath, true );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), xmlFilePath, true );
     assertTrue( wellFormed );
   }
 
   @Test
   public void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource( "xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), xmlFilePath, false );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), xmlFilePath, false );
     assertTrue( wellFormed );
   }
 
   @Test
   public void xmlFileBadlyFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource( "invalid-xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), invalidXmlFilePath, true );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), invalidXmlFilePath, true );
     assertFalse( wellFormed );
   }
 
   @Test
   public void xmlFileBadlyFormedWithNoFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource( "invalid-xml-sample.xml" ).getPath();
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), invalidXmlFilePath, false );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), invalidXmlFilePath, false );
     assertFalse( wellFormed );
   }
 
   @Test
   public void xmlFileWellFormedNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), nonExistingPath, false );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), nonExistingPath, false );
     assertFalse( wellFormed );
   }
 
   @Test( expected = HopFileNotFoundException.class )
   public void xmlFileWellFormedFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), nonExistingPath, true );
+    ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), nonExistingPath, true );
   }
 
   @Test
   public void xmlFileWellFormedNullPathNoFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), null, false );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), null, false );
     assertFalse( wellFormed );
   }
 
   @Test
   public void xmlFileWellFormedNullPathFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXMLFileWellFormed( new ValueMetaString(), null, true );
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed( new ValueMetaString(), null, true );
     assertFalse( wellFormed );
   }
 

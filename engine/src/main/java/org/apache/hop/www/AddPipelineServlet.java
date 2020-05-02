@@ -78,7 +78,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
     if ( useXML ) {
       response.setContentType( "text/xml" );
-      out.print( XmlHandler.getXMLHeader() );
+      out.print( XmlHandler.getXmlHeader() );
     } else {
       response.setContentType( "text/html" );
       out.println( "<HTML>" );
@@ -103,7 +103,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       // Parse the XML, create a transformation configuration
       //
       IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
-      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXML( xml.toString(), metaStore );
+      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString(), metaStore );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );

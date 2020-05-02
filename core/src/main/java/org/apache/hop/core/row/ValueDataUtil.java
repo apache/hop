@@ -266,35 +266,35 @@ public class ValueDataUtil {
     return dataA.toString().toLowerCase();
   }
 
-  public static String escapeXML( IValueMeta metaA, Object dataA ) {
+  public static String escapeXml(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
-    return Const.escapeXML( dataA.toString() );
+    return Const.escapeXml( dataA.toString() );
   }
 
-  public static String unEscapeXML( IValueMeta metaA, Object dataA ) {
+  public static String unEscapeXml(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.unEscapeXml( dataA.toString() );
   }
 
-  public static String escapeHTML( IValueMeta metaA, Object dataA ) {
+  public static String escapeHtml(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.escapeHtml( dataA.toString() );
   }
 
-  public static String unEscapeHTML( IValueMeta metaA, Object dataA ) {
+  public static String unEscapeHtml(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
     return Const.unEscapeHtml( dataA.toString() );
   }
 
-  public static String escapeSQL( IValueMeta metaA, Object dataA ) {
+  public static String escapeSql(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return null;
     }
@@ -1893,32 +1893,13 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA The IValueMeta
-   * @param dataA The value (filename)
-   * @return true if the file is well formed.
-   * @deprecated Use {@link ValueDataUtil#isXMLFileWellFormed(IValueMeta, Object, boolean)} instead
-   */
-  @Deprecated
-  public static boolean isXMLFileWellFormed( IValueMeta metaA, Object dataA ) {
-    boolean xmlWellFormed = false;
-    try {
-      xmlWellFormed = isXMLFileWellFormed( metaA, dataA, false );
-    } catch ( HopFileNotFoundException e ) {
-      // Ignore
-    }
-    return xmlWellFormed;
-  }
-
-  /**
-   * Checks an xml file is well formed.
-   *
    * @param metaA        The IValueMeta
    * @param dataA        The value (filename)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return true if the file is well formed.
    * @throws HopFileNotFoundException
    */
-  public static boolean isXMLFileWellFormed( IValueMeta metaA, Object dataA, boolean failIfNoFile )
+  public static boolean isXmlFileWellFormed(IValueMeta metaA, Object dataA, boolean failIfNoFile )
     throws HopFileNotFoundException {
     if ( dataA == null ) {
       return false;
@@ -1929,7 +1910,7 @@ public class ValueDataUtil {
     try {
       file = HopVfs.getFileObject( filename );
       throwsErrorOnFileNotFound( file );
-      return XmlCheck.isXMLFileWellFormed( file );
+      return XmlCheck.isXmlFileWellFormed( file );
     } catch ( HopFileNotFoundException e ) {
       if ( failIfNoFile ) {
         throw e;
@@ -1950,12 +1931,12 @@ public class ValueDataUtil {
    * @param dataA The value (filename)
    * @return true if the file is well formed.
    */
-  public static boolean isXMLWellFormed( IValueMeta metaA, Object dataA ) {
+  public static boolean isXmlWellFormed(IValueMeta metaA, Object dataA ) {
     if ( dataA == null ) {
       return false;
     }
     try {
-      return XmlCheck.isXMLWellFormed( new ByteArrayInputStream( metaA.getBinary( dataA ) ) );
+      return XmlCheck.isXmlWellFormed( new ByteArrayInputStream( metaA.getBinary( dataA ) ) );
     } catch ( Exception e ) {
       log.debug( e.getMessage() );
     }

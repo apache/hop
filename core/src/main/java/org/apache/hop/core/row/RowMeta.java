@@ -1156,7 +1156,7 @@ public class RowMeta implements IRowMeta {
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
   @Override
-  public String getMetaXML() throws IOException {
+  public String getMetaXml() throws IOException {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "<" ).append( XML_META_TAG ).append( ">" );
@@ -1164,7 +1164,7 @@ public class RowMeta implements IRowMeta {
     lock.readLock().lock();
     try {
       for ( int i = 0; i < size(); i++ ) {
-        xml.append( getValueMeta( i ).getMetaXML() );
+        xml.append( getValueMeta( i ).getMetaXml() );
       }
     } finally {
       lock.readLock().unlock();
@@ -1200,7 +1200,7 @@ public class RowMeta implements IRowMeta {
    * @throws IOException Thrown in case there is an (Base64/GZip) encoding problem
    */
   @Override
-  public String getDataXML( Object[] rowData ) throws IOException {
+  public String getDataXml(Object[] rowData ) throws IOException {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "<" ).append( XML_DATA_TAG ).append( ">" );
@@ -1208,7 +1208,7 @@ public class RowMeta implements IRowMeta {
     lock.readLock().lock();
     try {
       for ( int i = 0; i < size(); i++ ) {
-        xml.append( getValueMeta( i ).getDataXML( rowData[ i ] ) );
+        xml.append( getValueMeta( i ).getDataXml( rowData[ i ] ) );
       }
     } finally {
       lock.readLock().unlock();

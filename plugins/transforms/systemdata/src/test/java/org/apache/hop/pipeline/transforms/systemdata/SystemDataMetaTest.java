@@ -83,7 +83,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testLoadXML() throws Exception {
+  public void testLoadXml() throws Exception {
     SystemDataMeta systemDataMeta = new SystemDataMeta();
     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -95,7 +95,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   }
 
   @Test
-  public void testGetXML() throws Exception {
+  public void testGetXml() throws Exception {
     String generatedXML = expectedSystemDataMeta.getXml();
     assertEquals( expectedXML.replaceAll( "\n", "" ).replaceAll( "\r", "" ), generatedXML.replaceAll( "\n", "" )
       .replaceAll( "\r", "" ) );

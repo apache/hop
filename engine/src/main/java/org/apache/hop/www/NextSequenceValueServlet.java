@@ -153,7 +153,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
     response.setCharacterEncoding( Const.XML_ENCODING );
 
     PrintStream out = new PrintStream( response.getOutputStream() );
-    out.println( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+    out.println( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     out.println( XmlHandler.openTag( XML_TAG ) );
 
     try {

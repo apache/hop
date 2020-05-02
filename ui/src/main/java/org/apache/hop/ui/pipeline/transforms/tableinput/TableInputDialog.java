@@ -24,6 +24,7 @@ package org.apache.hop.ui.pipeline.transforms.tableinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -77,6 +78,12 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.List;
 
+@PluginDialog(
+        id = "TableInput",
+        image = "ui/images/TIP.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableinput.html"
+)
 public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
