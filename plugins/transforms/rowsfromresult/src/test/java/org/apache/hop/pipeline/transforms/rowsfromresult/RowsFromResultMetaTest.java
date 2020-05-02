@@ -28,7 +28,7 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RowsFromResultMetaTest implements IInitializerInterface<ITransformMeta> {
+public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<RowsFromResultMeta> testMetaClass = RowsFromResultMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
