@@ -543,14 +543,6 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     pipelineMeta.activateParameters();
   }
 
-  @Override public PipelineMeta getSubject() {
-    return pipelineMeta;
-  }
-
-  @Override public void setSubject( PipelineMeta pipelineMeta ) {
-    this.pipelineMeta = pipelineMeta;
-  }
-
   /**
    * Sets the parent logging object.
    *
@@ -910,7 +902,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
           // The meta-data
           combi.transformMeta = transformMeta;
-          combi.meta = transformMeta.getTransformMetaInterface();
+          combi.meta = transformMeta.getTransform();
 
           // Allocate the transform data
           ITransformData data = combi.meta.getTransformData();
@@ -1952,6 +1944,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return Returns the pipeline meta-data
    */
+  @Override
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
@@ -1961,6 +1954,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @param pipelineMeta The pipeline meta-data to set.
    */
+  @Override
   public void setPipelineMeta( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
   }

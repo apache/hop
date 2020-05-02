@@ -408,7 +408,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         // long iteration = 0;
 
         boolean isFirst = true;
-        ActionSpecial jes = (ActionSpecial) startpoint.getEntry();
+        ActionSpecial jes = (ActionSpecial) startpoint.getAction();
         while ( ( jes.isRepeat() || isFirst ) && !isStopped() ) {
           isFirst = false;
           res = executeFromStart( 0, null, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.Started" ) );
@@ -419,7 +419,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       } else {
         res = executeFromStart( 0, res, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.Started" ) );
         jerEnd =
-          new ActionResult( res, startpoint.getEntry().getLogChannel().getLogChannelId(), BaseMessages.getString(
+          new ActionResult( res, startpoint.getAction().getLogChannel().getLogChannelId(), BaseMessages.getString(
             PKG, "Workflow.Comment.WorkflowFinished" ), BaseMessages.getString( PKG, "Workflow.Reason.Finished" ), null, 0, null );
       }
       // Save this result...
@@ -465,7 +465,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       throw new HopWorkflowException( BaseMessages.getString( PKG, "Workflow.Log.CounldNotFindStartingPoint" ) );
     }
 
-    ActionSpecial jes = (ActionSpecial) startpoint.getEntry();
+    ActionSpecial jes = (ActionSpecial) startpoint.getAction();
     Result res;
     do {
       res = executeFromStart( nr, result, startpoint, null, BaseMessages.getString( PKG, "Workflow.Reason.StartOfAction" ) );
@@ -550,12 +550,12 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       }
 
       // Which entry is next?
-      IAction action = actionCopy.getEntry();
+      IAction action = actionCopy.getAction();
       action.getLogChannel().setLogLevel( logLevel );
 
       // Track the fact that we are going to launch the next action...
       ActionResult jerBefore = new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), reason,
-        actionCopy.getName(), actionCopy.getNr(), environmentSubstitute( actionCopy.getEntry().getFilename() ) );
+        actionCopy.getName(), actionCopy.getNr(), environmentSubstitute( actionCopy.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerBefore ) );
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -618,7 +618,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       ActionResult jerAfter =
         new ActionResult( newResult, cloneJei.getLogChannel().getLogChannelId(), BaseMessages.getString( PKG,
           "Workflow.Comment.WorkflowFinished" ), null, actionCopy.getName(), actionCopy.getNr(), environmentSubstitute(
-          actionCopy.getEntry().getFilename() ) );
+          actionCopy.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerAfter ) );
       synchronized ( actionResults ) {
         actionResults.add( jerAfter );

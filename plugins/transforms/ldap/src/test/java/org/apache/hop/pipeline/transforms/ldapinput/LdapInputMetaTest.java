@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class LdapInputMetaTest implements IInitializerInterface<LdapInputMeta> {
+public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
   LoadSaveTester<LdapInputMeta> loadSaveTester;
   Class<LdapInputMeta> testMetaClass = LdapInputMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

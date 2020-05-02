@@ -92,9 +92,9 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
   @Deprecated
   public ActionResult( Result result, String comment, String reason, ActionCopy copy ) {
 
-    this( result, copy.getEntry().getLogChannel().getLogChannelId(), comment, reason, copy != null ? copy
-      .getName() : null, copy != null ? copy.getNr() : 0, copy == null ? null : ( copy.getEntry() != null ? copy
-      .getEntry().getFilename() : null ) );
+    this( result, copy.getAction().getLogChannel().getLogChannelId(), comment, reason, copy != null ? copy
+      .getName() : null, copy != null ? copy.getNr() : 0, copy == null ? null : ( copy.getAction() != null ? copy
+      .getAction().getFilename() : null ) );
   }
 
   @Override

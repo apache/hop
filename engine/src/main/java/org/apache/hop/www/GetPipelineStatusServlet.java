@@ -462,7 +462,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           // out.print("<a href=\"" + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH) + "?name=" +
           // URLEncoder.encode(pipelineName, "UTF-8") + "&id="+id+"\">"
           // + BaseMessages.getString(PKG, "PipelineStatusServlet.GetPipelineImage") + "</a>");
-          Point max = pipeline.getSubject().getMaximum();
+          Point max = pipeline.getPipelineMeta().getMaximum();
           max.x += 20;
           max.y += 20;
           out.print( "<iframe height=\""

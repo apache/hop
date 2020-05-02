@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.checksum;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class CheckSumMetaTest implements IInitializerInterface<CheckSumMeta> {
+public class CheckSumMetaTest implements IInitializer<CheckSumMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   // Call the allocate method on the LoadSaveTester meta class

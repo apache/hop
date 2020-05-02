@@ -41,8 +41,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.utils.TestUtils;
@@ -432,7 +430,7 @@ public class TextFileOutputTest {
     meta.setEndedLine( "${endvar}" );
     meta.setDefault();
     meta.setEncoding( "UTF-8" );
-    transformMockHelper.transformMeta.setTransformMetaInterface( meta );
+    transformMockHelper.transformMeta.setTransform( meta );
     TextFileOutput textFileOutput =
       new TextFileOutputTestHandler( transformMockHelper.transformMeta, meta, data, 0, transformMockHelper.pipelineMeta,
         transformMockHelper.pipeline );

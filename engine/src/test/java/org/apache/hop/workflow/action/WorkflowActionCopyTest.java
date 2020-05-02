@@ -49,7 +49,7 @@ public class WorkflowActionCopyTest {
     originEntry = new ActionSpecial( "EntrySpecial", false, false );
     originEntry.setChanged( false );
 
-    originJobEntry.setEntry( originEntry );
+    originJobEntry.setAction( originEntry );
     originJobEntry.setAttribute( ATTRIBUTE_GROUP, ATTRIBUTE_KEY, ATTRIBUTE_VALUE );
   }
 
@@ -57,15 +57,15 @@ public class WorkflowActionCopyTest {
   public void testReplaceMetaCloneEntryOfOrigin() throws Exception {
 
     copyJobEntry.replaceMeta( originJobEntry );
-    assertNotSame( "Entry of origin and copy Action should be different objects: ", copyJobEntry.getEntry(),
-      originJobEntry.getEntry() );
+    assertNotSame( "Entry of origin and copy Action should be different objects: ", copyJobEntry.getAction(),
+      originJobEntry.getAction() );
   }
 
   @Test
   public void testReplaceMetaDoesNotChangeEntryOfOrigin() throws Exception {
 
     copyJobEntry.replaceMeta( originJobEntry );
-    assertEquals( "hasChanged in Entry of origin Action should not be changed. ", false, originJobEntry.getEntry()
+    assertEquals( "hasChanged in Entry of origin Action should not be changed. ", false, originJobEntry.getAction()
       .hasChanged() );
   }
 
@@ -73,7 +73,7 @@ public class WorkflowActionCopyTest {
   public void testReplaceMetaChangesEntryOfCopy() throws Exception {
 
     copyJobEntry.replaceMeta( originJobEntry );
-    assertEquals( "hasChanged in Entry of copy Action should be changed. ", true, copyJobEntry.getEntry()
+    assertEquals( "hasChanged in Entry of copy Action should be changed. ", true, copyJobEntry.getAction()
       .hasChanged() );
   }
 

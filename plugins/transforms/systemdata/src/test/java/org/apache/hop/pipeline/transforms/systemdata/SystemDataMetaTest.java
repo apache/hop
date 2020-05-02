@@ -27,10 +27,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -57,7 +55,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * User: Dzmitry Stsiapanau Date: 1/20/14 Time: 3:04 PM
  */
-public class SystemDataMetaTest implements IInitializerInterface<SystemDataMeta> {
+public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
   Class<SystemDataMeta> testMetaClass = SystemDataMeta.class;

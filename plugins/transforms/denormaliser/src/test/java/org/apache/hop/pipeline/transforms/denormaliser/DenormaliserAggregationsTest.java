@@ -72,7 +72,7 @@ public class DenormaliserAggregationsTest {
 
   @Before
   public void setUp() throws Exception {
-    Mockito.when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    Mockito.when( mockHelper.transformMeta.getTransform() ).thenReturn( meta );
     transform = new Denormaliser( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
   }
 

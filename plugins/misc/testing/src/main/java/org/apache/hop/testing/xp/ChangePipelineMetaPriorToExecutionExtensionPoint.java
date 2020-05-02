@@ -47,7 +47,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
 
   @Override
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
-    PipelineMeta pipelineMeta = pipeline.getSubject();
+    PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
     boolean runUnitTest = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( !runUnitTest ) {
@@ -90,7 +90,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
 
     // Now replace the metadata in the IPipelineEngine<PipelineMeta> object...
     //
-    pipeline.setSubject( copyPipelineMeta );
+    pipeline.setPipelineMeta( copyPipelineMeta );
 
     String testFilename = pipeline.environmentSubstitute( unitTest.getFilename() );
     if ( !StringUtil.isEmpty( testFilename ) ) {

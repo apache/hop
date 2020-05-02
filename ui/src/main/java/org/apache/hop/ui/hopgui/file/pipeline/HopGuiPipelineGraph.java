@@ -1238,23 +1238,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // In case transform A targets B then we now need to target C
         //
-        ITransformIOMeta fromIo = fromTransform.getTransformMetaInterface().getTransformIOMeta();
+        ITransformIOMeta fromIo = fromTransform.getTransform().getTransformIOMeta();
         for ( IStream stream : fromIo.getTargetStreams() ) {
           if ( stream.getTransformMeta() != null && stream.getTransformMeta().equals( toTransform ) ) {
             // This target stream was directed to B, now we need to direct it to C
             stream.setTransformMeta( selectedTransform );
-            fromTransform.getTransformMetaInterface().handleStreamSelection( stream );
+            fromTransform.getTransform().handleStreamSelection( stream );
           }
         }
 
         // In case transform B sources from A then we now need to source from C
         //
-        ITransformIOMeta toIo = toTransform.getTransformMetaInterface().getTransformIOMeta();
+        ITransformIOMeta toIo = toTransform.getTransform().getTransformIOMeta();
         for ( IStream stream : toIo.getInfoStreams() ) {
           if ( stream.getTransformMeta() != null && stream.getTransformMeta().equals( fromTransform ) ) {
             // This info stream was reading from B, now we need to direct it to C
             stream.setTransformMeta( selectedTransform );
-            toTransform.getTransformMetaInterface().handleStreamSelection( stream );
+            toTransform.getTransform().handleStreamSelection( stream );
           }
         }
 
@@ -1425,7 +1425,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if ( transformMeta != null
         && ( ( startHopTransform != null && !startHopTransform.equals( transformMeta ) ) || ( endHopTransform != null && !endHopTransform
         .equals( transformMeta ) ) ) ) {
-        ITransformIOMeta ioMeta = transformMeta.getTransformMetaInterface().getTransformIOMeta();
+        ITransformIOMeta ioMeta = transformMeta.getTransform().getTransformIOMeta();
         if ( candidate == null ) {
           // See if the transform accepts input. If not, we can't create a new hop...
           //
@@ -1544,13 +1544,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     List<IStream> streams = new ArrayList<>();
 
-    ITransformIOMeta fromIoMeta = fromTransform.getTransformMetaInterface().getTransformIOMeta();
+    ITransformIOMeta fromIoMeta = fromTransform.getTransform().getTransformIOMeta();
     List<IStream> targetStreams = fromIoMeta.getTargetStreams();
     if ( forward ) {
       streams.addAll( targetStreams );
     }
 
-    ITransformIOMeta toIoMeta = toTransform.getTransformMetaInterface().getTransformIOMeta();
+    ITransformIOMeta toIoMeta = toTransform.getTransform().getTransformIOMeta();
     List<IStream> infoStreams = toIoMeta.getInfoStreams();
     if ( !forward ) {
       streams.addAll( infoStreams );
@@ -1581,9 +1581,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Targets can be dynamically added to this transform...
     //
     if ( forward ) {
-      streams.addAll( fromTransform.getTransformMetaInterface().getOptionalStreams() );
+      streams.addAll( fromTransform.getTransform().getOptionalStreams() );
     } else {
-      streams.addAll( toTransform.getTransformMetaInterface().getOptionalStreams() );
+      streams.addAll( toTransform.getTransform().getOptionalStreams() );
     }
 
     // Show a list of options on the canvas...
@@ -1657,14 +1657,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         break;
       case INFO:
         stream.setTransformMeta( candidate.getFromTransform() );
-        candidate.getToTransform().getTransformMetaInterface().handleStreamSelection( stream );
+        candidate.getToTransform().getTransform().handleStreamSelection( stream );
         pipelineHopDelegate.newHop( pipelineMeta, candidate );
         break;
       case TARGET:
         // We connect a target of the source transform to an output transform...
         //
         stream.setTransformMeta( candidate.getToTransform() );
-        candidate.getFromTransform().getTransformMetaInterface().handleStreamSelection( stream );
+        candidate.getFromTransform().getTransform().handleStreamSelection( stream );
         pipelineHopDelegate.newHop( pipelineMeta, candidate );
         break;
       default:
@@ -2532,7 +2532,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // See what the target transforms are.
       // If one of the target transforms is our original transform, we can't start multiple copies
       //
-      String[] targetTransforms = prevTransform.getTransformMetaInterface().getTransformIOMeta().getTargetTransformNames();
+      String[] targetTransforms = prevTransform.getTransform().getTransformIOMeta().getTargetTransformNames();
       if ( targetTransforms != null ) {
         for ( int t = 0; t < targetTransforms.length && enabled; t++ ) {
           if ( !Utils.isEmpty( targetTransforms[ t ] ) && targetTransforms[ t ].equalsIgnoreCase( transformMeta.getName() ) ) {
@@ -3697,7 +3697,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Message" ), e );
         }
         if ( pipeline != null ) {
-          log.logMinimal( BaseMessages.getString( PKG, "PipelineLog.Log.LaunchingPipeline" ) + pipeline.getSubject().getName() + "]..." );
+          log.logMinimal( BaseMessages.getString( PKG, "PipelineLog.Log.LaunchingPipeline" ) + pipeline.getPipelineMeta().getName() + "]..." );
 
           // Launch the transform preparation in a different thread.
           // That way HopGui doesn't block anymore and that way we can follow the progress of the initialization
@@ -3952,7 +3952,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         initialized = true;
       } catch ( HopException e ) {
-        log.logError( pipeline.getSubject().getName() + ": preparing pipeline execution failed", e );
+        log.logError( pipeline.getPipelineMeta().getName() + ": preparing pipeline execution failed", e );
         checkErrorVisuals();
       }
 

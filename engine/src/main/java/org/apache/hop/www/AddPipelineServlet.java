@@ -22,7 +22,6 @@
 
 package org.apache.hop.www;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -32,12 +31,9 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
@@ -159,7 +155,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       getPipelineMap().addPipeline( pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );
       pipeline.setContainerId( serverObjectId );
 
-      String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + serverObjectId;
+      String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + serverObjectId;
 
       if ( useXML ) {
         // Return the log channel id as well
@@ -168,7 +164,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       } else {
         out.println( "<H1>" + message + "</H1>" );
         out.println( "<p><a href=\""
-          + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name=" + pipeline.getSubject().getName() + "&id="
+          + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name=" + pipeline.getPipelineMeta().getName() + "&id="
           + serverObjectId + "\">Go to the transformation status page</a><p>" );
       }
     } catch ( Exception ex ) {

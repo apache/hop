@@ -74,7 +74,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
 
     // Put references at the start since we use those things a lot
     //
-    IAction action = actionCopy.getEntry();
+    IAction action = actionCopy.getAction();
     String[] objectDescriptions = action.getReferencedObjectDescriptions();
     for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {
       final String objectDescription = objectDescriptions[ i ];

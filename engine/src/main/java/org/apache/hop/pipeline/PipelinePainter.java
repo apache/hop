@@ -43,7 +43,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.engine.EngineComponent;
-import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -751,7 +750,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Check to see if the source transform is an info transform for the target transform.
     //
-    ITransformIOMeta ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
+    ITransformIOMeta ioMeta = ts.getTransform().getTransformIOMeta();
     List<IStream> infoStreams = ioMeta.getInfoStreams();
     if ( !infoStreams.isEmpty() ) {
       // Check this situation, the source transform can't run in multiple copies!
@@ -845,10 +844,10 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       boolean errorHop = fs.isSendingErrorRowsToTransform( ts ) || ( startErrorHopTransform && fs.equals( startHopTransform ) );
       boolean targetHop =
-        Const.indexOfString( ts.getName(), fs.getTransformMetaInterface().getTransformIOMeta().getTargetTransformNames() ) >= 0;
+        Const.indexOfString( ts.getName(), fs.getTransform().getTransformIOMeta().getTargetTransformNames() ) >= 0;
 
       if ( targetHop ) {
-        ITransformIOMeta ioMeta = fs.getTransformMetaInterface().getTransformIOMeta();
+        ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
         IStream targetStream = ioMeta.findTargetStream( ts );
         if ( targetStream != null ) {
           EImage hopsIcon = BasePainter.getStreamIconImage( targetStream.getStreamIcon() );
@@ -891,7 +890,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         mx += 16;
       }
 
-      ITransformIOMeta ioMeta = ts.getTransformMetaInterface().getTransformIOMeta();
+      ITransformIOMeta ioMeta = ts.getTransform().getTransformIOMeta();
       String[] infoTransformNames = ioMeta.getInfoTransformNames();
 
       if ( ( candidateHopType == StreamType.INFO && ts.equals( endHopTransform ) && fs.equals( startHopTransform ) )

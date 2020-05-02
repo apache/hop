@@ -34,7 +34,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.getvariable.GetVariableMeta.FieldDefinition;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Before;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class GetVariableMetaTest implements IInitializerInterface<GetVariableMeta> {
+public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
   LoadSaveTester<GetVariableMeta> loadSaveTester;
   Class<GetVariableMeta> testMetaClass = GetVariableMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.initializer;
 
-public interface IInitializerInterface<T> {
+public interface IInitializer<T> {
 
   /**
    * Perform in-place modifications to the transformMeta before

@@ -31,7 +31,6 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 
 public class PipelineEngineFactory {
 
@@ -82,7 +81,7 @@ public class PipelineEngineFactory {
     IPipelineEngine<T> pipelineEngine = pluginRegistry.loadClass( plugin, IPipelineEngine.class );
     pipelineEngine.setPipelineRunConfiguration( pipelineRunConfiguration );
 
-    pipelineEngine.setSubject( pipelineMeta );
+    pipelineEngine.setPipelineMeta( pipelineMeta );
 
     return pipelineEngine;
   }

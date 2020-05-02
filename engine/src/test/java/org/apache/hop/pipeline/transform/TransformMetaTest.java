@@ -80,7 +80,7 @@ public class TransformMetaTest {
   public void transformMetaXmlConsistency() throws Exception {
     TransformMeta meta = new TransformMeta( "id", "name", null );
     ITransformMeta smi = new Missing( meta.getName(), meta.getTransformPluginId() );
-    meta.setTransformMetaInterface( smi );
+    meta.setTransform( smi );
     TransformMeta fromXml = TransformMeta.fromXml( meta.getXml() );
     assertThat( meta.getXml(), is( fromXml.getXml() ) );
   }

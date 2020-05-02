@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DefaultFieldLoadSaveValidatorFactory;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -56,7 +56,7 @@ public abstract class LoadSaveBase<T> {
   protected final List<String> xmlAttributes;
   protected final JavaBeanManipulator<T> manipulator;
   protected final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
-  protected final IInitializerInterface<T> initializer;
+  protected final IInitializer<T> initializer;
   protected IMetaStore metaStore;
 
   public LoadSaveBase( Class<T> clazz,
@@ -64,7 +64,7 @@ public abstract class LoadSaveBase<T> {
                        Map<String, String> getterMap, Map<String, String> setterMap,
                        Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                        Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                       IInitializerInterface<T> initializer ) {
+                       IInitializer<T> initializer ) {
     this.clazz = clazz;
     this.xmlAttributes = concat( commonAttributes, xmlAttributes );
     this.manipulator =

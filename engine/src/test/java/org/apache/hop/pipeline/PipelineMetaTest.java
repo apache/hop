@@ -148,7 +148,7 @@ public class PipelineMetaTest {
       any( IVariables.class ), any( IMetaStore.class ) );
 
     TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
-    when( thisTransform.getTransformMetaInterface() ).thenReturn( smi );
+    when( thisTransform.getTransform() ).thenReturn( smi );
 
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "value" ) );
@@ -168,7 +168,7 @@ public class PipelineMetaTest {
 
     TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
     TransformMeta nextTransform = mockTransformMeta( "nextTransform" );
-    when( thisTransform.getTransformMetaInterface() ).thenReturn( smi );
+    when( thisTransform.getTransform() ).thenReturn( smi );
 
     RowMeta row = new RowMeta();
     when( smi.getTableFields() ).thenReturn( row );
@@ -310,7 +310,7 @@ public class PipelineMetaTest {
   public void testAddTransformWithChangeListenerInterface() {
     TransformMeta transformMeta = mock( TransformMeta.class );
     TransformMetaChangeListenerInterfaceMock metaInterface = mock( TransformMetaChangeListenerInterfaceMock.class );
-    when( transformMeta.getTransformMetaInterface() ).thenReturn( metaInterface );
+    when( transformMeta.getTransform() ).thenReturn( metaInterface );
     assertEquals( 0, pipelineMeta.transforms.size() );
     assertEquals( 0, pipelineMeta.transformChangeListeners.size() );
     // should not throw exception if there are no transforms in transform meta

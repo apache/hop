@@ -382,7 +382,7 @@ public class ConstantMeta extends BaseTransformMeta implements ITransformMeta<Co
 
     // Check the constants...
     ConstantData data = new ConstantData();
-    ConstantMeta meta = (ConstantMeta) transformMeta.getTransformMetaInterface();
+    ConstantMeta meta = (ConstantMeta) transformMeta.getTransform();
     Constant.buildRow( meta, data, remarks );
   }
 

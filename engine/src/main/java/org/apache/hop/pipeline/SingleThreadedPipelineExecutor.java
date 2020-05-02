@@ -59,7 +59,7 @@ public class SingleThreadedPipelineExecutor {
     transformInfoStreams = new ArrayList<List<IStream>>();
     transformInfoRowSets = new ArrayList<List<IRowSet>>();
     for ( TransformMetaDataCombi combi : transforms ) {
-      List<IStream> infoStreams = combi.transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoStreams();
+      List<IStream> infoStreams = combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
       transformInfoStreams.add( infoStreams );
       List<IRowSet> infoRowSets = new ArrayList<IRowSet>();
       for ( IStream infoStream : infoStreams ) {

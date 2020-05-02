@@ -301,7 +301,7 @@ public class JsonOutputTest extends TestCase {
     // but first lets get a filename
     String jsonFileName = TestUtilities.createEmptyTempFile( "testJsonOutput1_" );
     TransformMeta jsonOutputTransform = createJsonOutputTransform( "json output transform", jsonFileName, registry );
-    ( (JsonOutputMeta) jsonOutputTransform.getTransformMetaInterface() ).setCompatibilityMode( compatibilityMode );
+    ( (JsonOutputMeta) jsonOutputTransform.getTransform() ).setCompatibilityMode( compatibilityMode );
     pipelineMeta.addTransform( jsonOutputTransform );
 
     // create a PipelineHopMeta for jsonOutputTransform and add it to the pipelineMeta
@@ -356,7 +356,7 @@ public class JsonOutputTest extends TestCase {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
         mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new JsonOutputMeta() );
+    when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 
     JsonOutput transform =
         new JsonOutput( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
@@ -373,7 +373,7 @@ public class JsonOutputTest extends TestCase {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
             mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new JsonOutputMeta() );
+    when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 
     JsonOutputData transformData = new JsonOutputData();
     transformData.writeToFile = true;
@@ -397,7 +397,7 @@ public class JsonOutputTest extends TestCase {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
             mockHelper.logChannelInterface );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
-    when( mockHelper.transformMeta.getTransformMetaInterface() ).thenReturn( new JsonOutputMeta() );
+    when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 
     JsonOutputData transformData = new JsonOutputData();
     transformData.writeToFile = true;

@@ -72,7 +72,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
 
   public ModPartitionerDialog( Shell parent, TransformMeta transformMeta, TransformPartitioningMeta partitioningMeta,
                                PipelineMeta pipelineMeta ) {
-    super( parent, (BaseTransformMeta) transformMeta.getTransformMetaInterface(), pipelineMeta, partitioningMeta
+    super( parent, (BaseTransformMeta) transformMeta.getTransform(), pipelineMeta, partitioningMeta
       .getPartitioner().getDescription() );
     this.transformMeta = transformMeta;
     this.partitioningMeta = partitioningMeta;

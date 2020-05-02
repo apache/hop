@@ -837,14 +837,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of subject
    */
-  @Override public PipelineMeta getSubject() {
+  @Override public PipelineMeta getPipelineMeta() {
     return subject;
   }
 
   /**
    * @param subject The subject to set
    */
-  @Override public void setSubject( PipelineMeta subject ) {
+  @Override public void setPipelineMeta( PipelineMeta subject ) {
     this.subject = subject;
   }
 

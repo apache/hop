@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class PropertyInputMetaTest implements IInitializerInterface<ITransformMeta> {
+public class PropertyInputMetaTest implements IInitializer<ITransformMeta> {
   Class<PropertyInputMeta> testMetaClass = PropertyInputMeta.class;
   LoadSaveTester loadSaveTester;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
