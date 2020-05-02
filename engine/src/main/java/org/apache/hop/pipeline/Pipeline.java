@@ -94,8 +94,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.TransformStatus;
-import org.apache.hop.pipeline.transforms.mappinginput.MappingInput;
-import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutput;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -2019,44 +2017,46 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    *
    * @return an array of MappingInputs
    */
-  public MappingInput[] findMappingInput() {
-    if ( transforms == null ) {
-      return null;
-    }
-
-    List<MappingInput> list = new ArrayList<>();
-
-    // Look in threads and find the MappingInput transform thread...
-    for ( int i = 0; i < transforms.size(); i++ ) {
-      TransformMetaDataCombi smdc = transforms.get( i );
-      ITransform transform = smdc.transform;
-      if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingInput" ) ) {
-        list.add( (MappingInput) transform );
-      }
-    }
-    return list.toArray( new MappingInput[ list.size() ] );
-  }
+// TODO: cleanup if no londer needed
+//  public MappingInput[] findMappingInput() {
+//    if ( transforms == null ) {
+//      return null;
+//    }
+//
+//    List<MappingInput> list = new ArrayList<>();
+//
+//    // Look in threads and find the MappingInput transform thread...
+//    for ( int i = 0; i < transforms.size(); i++ ) {
+//      TransformMetaDataCombi smdc = transforms.get( i );
+//      ITransform transform = smdc.transform;
+//      if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingInput" ) ) {
+//        list.add( (MappingInput) transform );
+//      }
+//    }
+//    return list.toArray( new MappingInput[ list.size() ] );
+//  }
 
   /**
    * Gets the mapping outputs for each transform in the pipeline.
    *
    * @return an array of MappingOutputs
    */
-  public MappingOutput[] findMappingOutput() {
-    List<MappingOutput> list = new ArrayList<>();
-
-    if ( transforms != null ) {
-      // Look in threads and find the MappingInput transform thread...
-      for ( int i = 0; i < transforms.size(); i++ ) {
-        TransformMetaDataCombi smdc = transforms.get( i );
-        ITransform transform = smdc.transform;
-        if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingOutput" ) ) {
-          list.add( (MappingOutput) transform );
-        }
-      }
-    }
-    return list.toArray( new MappingOutput[ list.size() ] );
-  }
+//  TODO: cleanup if no londer needed
+//  public MappingOutput[] findMappingOutput() {
+//    List<MappingOutput> list = new ArrayList<>();
+//
+//    if ( transforms != null ) {
+//      // Look in threads and find the MappingInput transform thread...
+//      for ( int i = 0; i < transforms.size(); i++ ) {
+//        TransformMetaDataCombi smdc = transforms.get( i );
+//        ITransform transform = smdc.transform;
+//        if ( transform.getTransformPluginId().equalsIgnoreCase( "MappingOutput" ) ) {
+//          list.add( (MappingOutput) transform );
+//        }
+//      }
+//    }
+//    return list.toArray( new MappingOutput[ list.size() ] );
+//  }
 
   /**
    * Find the ITransform (thread) by looking it up using the name.
