@@ -96,7 +96,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
     if ( !StringUtil.isEmpty( testFilename ) ) {
       try {
         OutputStream os = HopVfs.getOutputStream( testFilename, false );
-        os.write( XmlHandler.getXMLHeader().getBytes() );
+        os.write( XmlHandler.getXmlHeader().getBytes() );
         os.write( copyPipelineMeta.getXml().getBytes() );
         os.close();
       } catch ( Exception e ) {

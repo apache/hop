@@ -3959,7 +3959,7 @@ public class PipelineMeta extends AbstractMeta
     FileOutputStream fos = null;
     try {
       fos = new FileOutputStream( filename );
-      fos.write( XmlHandler.getXMLHeader().getBytes( Const.XML_ENCODING ) );
+      fos.write( XmlHandler.getXmlHeader().getBytes( Const.XML_ENCODING ) );
       fos.write( getXml().getBytes( Const.XML_ENCODING ) );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to save to XML file '" + filename + "'", e );

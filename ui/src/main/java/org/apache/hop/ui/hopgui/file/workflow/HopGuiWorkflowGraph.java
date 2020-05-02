@@ -1835,7 +1835,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOsxKeyboardShortcut( command = true, key = 'v' )
   @Override public void pasteFromClipboard() {
-    workflowClipboardDelegate.pasteXML( workflowMeta, workflowClipboardDelegate.fromClipboard(), new Point( 50, 50 ) );
+    workflowClipboardDelegate.pasteXml( workflowMeta, workflowClipboardDelegate.fromClipboard(), new Point( 50, 50 ) );
   }
 
   @GuiContextAction(
@@ -1847,7 +1847,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/CPY.svg"
   )
   public void pasteFromClipboard( HopGuiWorkflowContext context ) {
-    workflowClipboardDelegate.pasteXML( workflowMeta, workflowClipboardDelegate.fromClipboard(), context.getClick() );
+    workflowClipboardDelegate.pasteXml( workflowMeta, workflowClipboardDelegate.fromClipboard(), context.getClick() );
   }
 
   @GuiContextAction(
@@ -2945,7 +2945,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String xml = workflowMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( workflowMeta.getFilename(), false );
       try {
-        out.write( XmlHandler.getXMLHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
+        out.write( XmlHandler.getXmlHeader( Const.XML_ENCODING ).getBytes( Const.XML_ENCODING ) );
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         workflowMeta.clearChanged();
         updateGui();

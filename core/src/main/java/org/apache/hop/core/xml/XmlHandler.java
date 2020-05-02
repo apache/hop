@@ -94,8 +94,8 @@ public class XmlHandler {
    *
    * @return The XML header.
    */
-  public static String getXMLHeader() {
-    return getXMLHeader( Const.XML_ENCODING );
+  public static String getXmlHeader() {
+    return getXmlHeader( Const.XML_ENCODING );
   }
 
   /**
@@ -104,7 +104,7 @@ public class XmlHandler {
    * @param encoding The desired encoding to use in the XML file
    * @return The XML header.
    */
-  public static String getXMLHeader( String encoding ) {
+  public static String getXmlHeader(String encoding ) {
     return "<?xml version=\"1.0\" encoding=\"" + encoding + "\"?>" + Const.CR;
   }
 

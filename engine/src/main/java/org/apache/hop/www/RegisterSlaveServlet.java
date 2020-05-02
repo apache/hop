@@ -129,7 +129,7 @@ public class RegisterSlaveServlet extends BaseHttpServlet implements IHopServerP
     // We always use XML to reply here...
     //
     response.setContentType( "text/xml" );
-    out.print( XmlHandler.getXMLHeader() );
+    out.print( XmlHandler.getXmlHeader() );
     response.setStatus( HttpServletResponse.SC_OK );
 
     try {

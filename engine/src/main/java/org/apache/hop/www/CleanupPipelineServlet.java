@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.owasp.encoder.Encode;
@@ -74,7 +73,7 @@ public class CleanupPipelineServlet extends BaseHttpServlet implements IHopServe
     if ( useXML ) {
       response.setContentType( "text/xml" );
       response.setCharacterEncoding( Const.XML_ENCODING );
-      out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+      out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     } else {
       response.setContentType( "text/html;charset=UTF-8" );
       out.println( "<HTML>" );

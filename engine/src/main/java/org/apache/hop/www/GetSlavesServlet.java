@@ -139,7 +139,7 @@ public class GetSlavesServlet extends BaseHttpServlet implements IHopServerPlugi
     response.setCharacterEncoding( Const.XML_ENCODING );
     PrintStream out = new PrintStream( response.getOutputStream() );
 
-    out.print( XmlHandler.getXMLHeader( Const.XML_ENCODING ) );
+    out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
     out.println( XmlHandler.openTag( XML_TAG_SLAVESERVER_DETECTIONS ) );
 
     if ( getDetections() != null ) {
