@@ -113,6 +113,8 @@
         <module>propertyoutput</module>
         <module>rest</module>
         <module>rowgenerator</module>
+        <module>rowsfromresult</module>
+        <module>rowstoresult</module>
         <module>selectvalues</module>
         <module>setvalueconstant</module>
         <module>setvaluefield</module>
