@@ -111,7 +111,7 @@ public class DataGrid_EmptyStringVsNull_Test {
   }
 
   private DataGrid createAndInitTransform( DataGridMeta meta, DataGridData data ) {
-    when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    when( helper.transformMeta.getTransform() ).thenReturn( meta );
     DataGrid transform = new DataGrid( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
     transform.init();
     return transform;

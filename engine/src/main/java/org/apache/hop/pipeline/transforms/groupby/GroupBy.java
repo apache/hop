@@ -63,7 +63,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Groups informations based on aggregation rules. (sum, count, ...)
+ * Groups data based on aggregation rules. (sum, count, ...)
  *
  * @author Matt
  * @since 2-jun-2003

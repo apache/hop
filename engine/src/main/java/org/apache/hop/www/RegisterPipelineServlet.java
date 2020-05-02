@@ -53,7 +53,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
 
     IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
 
-    String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
+    String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
     return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerObjectId() );
   }
 

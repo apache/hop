@@ -143,7 +143,7 @@ public class LoadFileInputTest {
 
     transformLoadFileInput = new LoadFileInput( transformMeta, transformMetaInterface, iTransformData, transformCopyNr, pipelineMeta, pipeline );
 
-    assertSame( transformMetaInterface, transformMeta.getTransformMetaInterface() );
+    assertSame( transformMetaInterface, transformMeta.getTransform() );
 
     runtimeSMI = transformMetaInterface;
     runtimeSDI = runtimeSMI.getTransformData();

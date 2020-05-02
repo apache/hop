@@ -28,7 +28,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import javax.imageio.ImageIO;
@@ -93,7 +92,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
         // Generate xform image
         //
-        BufferedImage image = generatePipelineImage( pipeline.getSubject() );
+        BufferedImage image = generatePipelineImage( pipeline.getPipelineMeta() );
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
           ImageIO.write( image, "png", os );

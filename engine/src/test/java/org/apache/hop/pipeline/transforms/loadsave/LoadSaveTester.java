@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -50,7 +50,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                         IInitializerInterface<T> metaInitializerIFace ) {
+                         IInitializer<T> metaInitializerIFace ) {
     super( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }
@@ -76,7 +76,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
                          Map<String, String> getterMap, Map<String, String> setterMap,
                          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
                          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-                         IInitializerInterface<T> metaInitializerIFace ) {
+                         IInitializer<T> metaInitializerIFace ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap, metaInitializerIFace );
   }

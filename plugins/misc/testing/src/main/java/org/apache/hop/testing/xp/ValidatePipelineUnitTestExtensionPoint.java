@@ -53,7 +53,7 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
   @Override
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
-    final PipelineMeta pipelineMeta = pipeline.getSubject();
+    final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
     boolean runUnitTest = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( !runUnitTest ) {
       return;

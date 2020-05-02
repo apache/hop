@@ -177,7 +177,7 @@ public class HopGuiPipelineClipboardDelegate {
 
       // Set the source and target transforms ...
       for ( TransformMeta transform : transforms ) {
-        ITransformMeta smi = transform.getTransformMetaInterface();
+        ITransformMeta smi = transform.getTransform();
         smi.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
       }
 

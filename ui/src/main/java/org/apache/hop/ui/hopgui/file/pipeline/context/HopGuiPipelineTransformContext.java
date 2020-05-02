@@ -37,7 +37,6 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-import org.apache.hop.workflow.action.IAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +75,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
 
     // Put references at the start since we use those things a lot
     //
-    ITransformMeta iTransformMeta = transformMeta.getTransformMetaInterface();
+    ITransformMeta iTransformMeta = transformMeta.getTransform();
 
     String[] objectDescriptions = iTransformMeta.getReferencedObjectDescriptions();
     for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {

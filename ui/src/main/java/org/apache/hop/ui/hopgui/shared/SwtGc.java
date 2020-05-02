@@ -450,7 +450,7 @@ public class SwtGc implements IGc {
         swtImage = GuiResource.getInstance().getSwtImageDummy();
       }
     } else {
-      String configId = actionCopy.getEntry().getPluginId();
+      String configId = actionCopy.getAction().getPluginId();
       if ( configId != null ) {
         swtImage = GuiResource.getInstance().getImagesActions().get( configId );
       }

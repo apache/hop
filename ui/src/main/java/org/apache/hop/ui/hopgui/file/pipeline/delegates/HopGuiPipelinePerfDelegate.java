@@ -177,7 +177,7 @@ public class HopGuiPipelinePerfDelegate {
     // is called when the pipeline-graph is not running, so we check
     // early to make sure it won't happen (see PDI-5009)
     if ( !pipelineGraph.isRunning()
-      || pipelineGraph.pipeline == null || !pipelineGraph.pipeline.getSubject().isCapturingTransformPerformanceSnapShots() ) {
+      || pipelineGraph.pipeline == null || !pipelineGraph.pipeline.getPipelineMeta().isCapturingTransformPerformanceSnapShots() ) {
       showEmptyGraph();
       return; // TODO: display help text and rerty button
     }
@@ -196,8 +196,8 @@ public class HopGuiPipelinePerfDelegate {
 
     emptyGraph = false;
 
-    this.title = pipelineGraph.pipeline.getSubject().getName();
-    this.timeDifference = pipelineGraph.pipeline.getSubject().getTransformPerformanceCapturingDelay();
+    this.title = pipelineGraph.pipeline.getPipelineMeta().getName();
+    this.timeDifference = pipelineGraph.pipeline.getPipelineMeta().getTransformPerformanceCapturingDelay();
     this.transformPerformanceSnapShots = pipelineGraph.pipeline.getEngineMetrics().getComponentPerformanceSnapshots();
 
     // Wait a second for the first data to pour in...

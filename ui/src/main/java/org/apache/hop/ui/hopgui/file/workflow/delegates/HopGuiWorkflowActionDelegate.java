@@ -109,7 +109,7 @@ public class HopGuiWorkflowActionDelegate {
           IActionDialog d = getActionDialog( action, workflowMeta );
           if ( d != null && d.open() != null ) {
             ActionCopy jge = new ActionCopy();
-            jge.setEntry( action );
+            jge.setAction( action );
             if ( location != null ) {
               jge.setLocation( location.x, location.y );
             } else {
@@ -130,7 +130,7 @@ public class HopGuiWorkflowActionDelegate {
           }
         } else {
           ActionCopy jge = new ActionCopy();
-          jge.setEntry( action );
+          jge.setAction( action );
           if ( location != null ) {
             jge.setLocation( location.x, location.y );
           } else {
@@ -190,7 +190,7 @@ public class HopGuiWorkflowActionDelegate {
 
       ActionCopy before = (ActionCopy) action.cloneDeep();
 
-      IAction jei = action.getEntry();
+      IAction jei = action.getAction();
 
       IActionDialog d = getActionDialog( jei, workflowMeta );
       if ( d != null ) {

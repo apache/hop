@@ -62,7 +62,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -881,7 +880,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
-    ITransformMeta transformMetaInterface = transformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {

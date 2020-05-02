@@ -1196,7 +1196,7 @@ public class BaseTransformDialog extends Dialog {
   private void setShellImage( Shell shell ) {
     if ( transformMeta != null ) {
       IPlugin plugin =
-        PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransformMetaInterface() );
+        PluginRegistry.getInstance().getPlugin( TransformPluginType.class, transformMeta.getTransform() );
       createHelpButton( shell, transformMeta, plugin );
       String id = plugin.getIds()[ 0 ];
       if ( id != null ) {

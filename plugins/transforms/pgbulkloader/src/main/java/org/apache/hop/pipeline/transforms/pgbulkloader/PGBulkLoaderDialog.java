@@ -638,7 +638,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
-    ITransformMeta transformMetaInterface = transformMeta.getTransformMetaInterface();
+    ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
     } catch ( HopException e ) {

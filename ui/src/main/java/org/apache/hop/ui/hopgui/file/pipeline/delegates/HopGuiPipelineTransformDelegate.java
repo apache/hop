@@ -127,7 +127,7 @@ public class HopGuiPipelineTransformDelegate {
       // was...
       //
       TransformMeta before = (TransformMeta) transformMeta.clone();
-      ITransformDialog dialog = getTransformDialog( transformMeta.getTransformMetaInterface(), pipelineMeta, name );
+      ITransformDialog dialog = getTransformDialog( transformMeta.getTransform(), pipelineMeta, name );
       if ( dialog != null ) {
         dialog.setMetaStore( hopGui.getMetaStore() );
         transformName = dialog.open();
@@ -136,7 +136,7 @@ public class HopGuiPipelineTransformDelegate {
       if ( !Utils.isEmpty( transformName ) ) {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
-        transformMeta.getTransformMetaInterface().resetTransformIoMeta();
+        transformMeta.getTransform().resetTransformIoMeta();
 
         //
         // See if the new name the user enter, doesn't collide with

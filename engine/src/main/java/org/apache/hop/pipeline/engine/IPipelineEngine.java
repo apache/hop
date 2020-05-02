@@ -51,9 +51,9 @@ import java.util.Map;
  */
 public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILoggingObject, INamedParams {
 
-  T getSubject();
+  T getPipelineMeta();
 
-  void setSubject( T t );
+  void setPipelineMeta( T t );
 
   String getPluginId();
 

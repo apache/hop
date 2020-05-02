@@ -35,7 +35,6 @@ import org.apache.hop.core.Counter;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
@@ -469,7 +468,7 @@ public class PipelineMeta extends AbstractMeta
       }
       // PDI-15799: Transform references are original yet. Set them to the clones.
       for ( TransformMeta transform : pipelineMeta.getTransforms() ) {
-        final ITransformMeta transformMetaInterface = transform.getTransformMetaInterface();
+        final ITransformMeta transformMetaInterface = transform.getTransform();
         if ( transformMetaInterface != null ) {
           final ITransformIOMeta transformIOMeta = transformMetaInterface.getTransformIOMeta();
           if ( transformIOMeta != null ) {
@@ -554,7 +553,7 @@ public class PipelineMeta extends AbstractMeta
   public void addTransform( TransformMeta transformMeta ) {
     transforms.add( transformMeta );
     transformMeta.setParentPipelineMeta( this );
-    ITransformMeta iface = transformMeta.getTransformMetaInterface();
+    ITransformMeta iface = transformMeta.getTransform();
     if ( iface instanceof ITransformMetaChangeListener ) {
       addTransformChangeListener( (ITransformMetaChangeListener) iface );
     }
@@ -577,7 +576,7 @@ public class PipelineMeta extends AbstractMeta
       previous.replaceMeta( transformMeta );
     }
     transformMeta.setParentPipelineMeta( this );
-    ITransformMeta iface = transformMeta.getTransformMetaInterface();
+    ITransformMeta iface = transformMeta.getTransform();
     if ( index != -1 && iface instanceof ITransformMetaChangeListener ) {
       addTransformChangeListener( index, (ITransformMetaChangeListener) iface );
     }
@@ -608,9 +607,9 @@ public class PipelineMeta extends AbstractMeta
     transforms.add( p, transformMeta );
     transformMeta.setParentPipelineMeta( this );
     changedTransforms = true;
-    ITransformMeta iface = transformMeta.getTransformMetaInterface();
+    ITransformMeta iface = transformMeta.getTransform();
     if ( iface instanceof ITransformMetaChangeListener ) {
-      addTransformChangeListener( p, (ITransformMetaChangeListener) transformMeta.getTransformMetaInterface() );
+      addTransformChangeListener( p, (ITransformMetaChangeListener) transformMeta.getTransform() );
     }
     clearCaches();
   }
@@ -682,15 +681,15 @@ public class PipelineMeta extends AbstractMeta
     }
 
     TransformMeta removeTransform = transforms.get( i );
-    ITransformMeta iface = removeTransform.getTransformMetaInterface();
+    ITransformMeta iface = removeTransform.getTransform();
     if ( iface instanceof ITransformMetaChangeListener ) {
       removeTransformChangeListener( (ITransformMetaChangeListener) iface );
     }
 
     transforms.remove( i );
 
-    if ( removeTransform.getTransformMetaInterface() instanceof Missing ) {
-      removeMissingPipeline( (Missing) removeTransform.getTransformMetaInterface() );
+    if ( removeTransform.getTransform() instanceof Missing ) {
+      removeMissingPipeline( (Missing) removeTransform.getTransform() );
     }
 
     changedTransforms = true;
@@ -761,9 +760,9 @@ public class PipelineMeta extends AbstractMeta
    * @param transformMeta The transform meta-data to set
    */
   public void setTransform( int i, TransformMeta transformMeta ) {
-    ITransformMeta iface = transformMeta.getTransformMetaInterface();
+    ITransformMeta iface = transformMeta.getTransform();
     if ( iface instanceof ITransformMetaChangeListener ) {
-      addTransformChangeListener( i, (ITransformMetaChangeListener) transformMeta.getTransformMetaInterface() );
+      addTransformChangeListener( i, (ITransformMetaChangeListener) transformMeta.getTransform() );
     }
     transforms.set( i, transformMeta );
     transformMeta.setParentPipelineMeta( this );
@@ -948,7 +947,7 @@ public class PipelineMeta extends AbstractMeta
    * @return true if prevTransform if informative for thisTransform.
    */
   public boolean isTransformMetarmative( TransformMeta thisTransform, TransformMeta prevTransform ) {
-    String[] infoTransforms = thisTransform.getTransformMetaInterface().getTransformIOMeta().getInfoTransformNames();
+    String[] infoTransforms = thisTransform.getTransform().getTransformIOMeta().getInfoTransformNames();
     if ( infoTransforms == null ) {
       return false;
     }
@@ -1137,7 +1136,7 @@ public class PipelineMeta extends AbstractMeta
    * @return An array of the informational transforms found
    */
   public TransformMeta[] getInfoTransform( TransformMeta transformMeta ) {
-    String[] infoTransformName = transformMeta.getTransformMetaInterface().getTransformIOMeta().getInfoTransformNames();
+    String[] infoTransformName = transformMeta.getTransform().getTransformIOMeta().getInfoTransformNames();
     if ( infoTransformName == null ) {
       return null;
     }
@@ -1688,7 +1687,7 @@ public class PipelineMeta extends AbstractMeta
       monitor.subTask( BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingFieldsFromTransformTask.Title", name ) );
     }
 
-    ITransformMeta transformint = transformMeta.getTransformMetaInterface();
+    ITransformMeta transformint = transformMeta.getTransform();
     IRowMeta[] inform = null;
     TransformMeta[] lu = getInfoTransform( transformMeta );
     if ( Utils.isEmpty( lu ) ) {
@@ -1777,11 +1776,11 @@ public class PipelineMeta extends AbstractMeta
   private void setMetaStoreOnMappingTransforms() {
 
     for ( TransformMeta transform : transforms ) {
-      if ( transform.getTransformMetaInterface() instanceof WorkflowExecutorMeta ) {
-        ( (WorkflowExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransform() instanceof WorkflowExecutorMeta ) {
+        ( (WorkflowExecutorMeta) transform.getTransform() ).setMetaStore( metaStore );
       }
-      if ( transform.getTransformMetaInterface() instanceof PipelineExecutorMeta ) {
-        ( (PipelineExecutorMeta) transform.getTransformMetaInterface() ).setMetaStore( metaStore );
+      if ( transform.getTransform() instanceof PipelineExecutorMeta ) {
+        ( (PipelineExecutorMeta) transform.getTransform() ).setMetaStore( metaStore );
       }
     }
   }
@@ -2090,7 +2089,7 @@ public class PipelineMeta extends AbstractMeta
           transformMeta.setParentPipelineMeta( this ); // for tracing, retain hierarchy
 
           if ( transformMeta.isMissing() ) {
-            addMissingPipeline( (Missing) transformMeta.getTransformMetaInterface() );
+            addMissingPipeline( (Missing) transformMeta.getTransform() );
           }
           addOrReplaceTransform( transformMeta );
         }
@@ -2111,7 +2110,7 @@ public class PipelineMeta extends AbstractMeta
         //
         for ( int i = 0; i < nrTransforms(); i++ ) {
           TransformMeta transformMeta = getTransform( i );
-          ITransformMeta sii = transformMeta.getTransformMetaInterface();
+          ITransformMeta sii = transformMeta.getTransform();
           if ( sii != null ) {
             sii.searchInfoAndTargetTransforms( transforms );
           }
@@ -2997,7 +2996,7 @@ public class PipelineMeta extends AbstractMeta
       TransformMeta transformMeta = getTransform( i );
 
       IRowMeta prev = getPrevTransformFields( transformMeta );
-      ITransformMeta transformint = transformMeta.getTransformMetaInterface();
+      ITransformMeta transformint = transformMeta.getTransform();
       IRowMeta inform = null;
       TransformMeta[] lu = getInfoTransform( transformMeta );
       if ( lu != null ) {
@@ -3068,7 +3067,7 @@ public class PipelineMeta extends AbstractMeta
           BaseMessages.getString( PKG, "PipelineMeta.Monitor.GettingTheSQLForTransformTask.Title", "" + transformMeta ) );
       }
       IRowMeta prev = getPrevTransformFields( transformMeta );
-      SqlStatement sql = transformMeta.getTransformMetaInterface().getSqlStatements( this, transformMeta, prev, metaStore );
+      SqlStatement sql = transformMeta.getTransform().getSqlStatements( this, transformMeta, prev, metaStore );
       if ( sql.getSql() != null || sql.hasError() ) {
         stats.add( sql );
       }
@@ -3373,7 +3372,7 @@ public class PipelineMeta extends AbstractMeta
    */
   public void cancelQueries() throws HopDatabaseException {
     for ( int i = 0; i < nrTransforms(); i++ ) {
-      getTransform( i ).getTransformMetaInterface().cancelQueries();
+      getTransform( i ).getTransform().cancelQueries();
     }
   }
 
@@ -3401,7 +3400,7 @@ public class PipelineMeta extends AbstractMeta
           stringList.add( new StringSearchResult( transformMeta.getDescription(), transformMeta, this,
             BaseMessages.getString( PKG, "PipelineMeta.SearchMetadata.TransformDescription" ) ) );
         }
-        ITransformMeta metaInterface = transformMeta.getTransformMetaInterface();
+        ITransformMeta metaInterface = transformMeta.getTransform();
         StringSearcher.findMetaData( metaInterface, 1, stringList, transformMeta, this );
       }
     }
@@ -3552,7 +3551,7 @@ public class PipelineMeta extends AbstractMeta
           IRowMeta row = getTransformFields( previousTransform, monitor ); // Throws HopTransformException
           if ( referenceRow == null ) {
             referenceRow = row;
-          } else if ( !transformMeta.getTransformMetaInterface().excludeFromRowLayoutVerification() ) {
+          } else if ( !transformMeta.getTransform().excludeFromRowLayoutVerification() ) {
             BaseTransform.safeModeChecking( referenceRow, row );
           }
         } catch ( HopTransformException e ) {
@@ -4003,7 +4002,7 @@ public class PipelineMeta extends AbstractMeta
     int indexListener = -1;
     int indexListenerRemove = -1;
     TransformMeta rewriteTransform = transforms.get( p );
-    ITransformMeta iface = rewriteTransform.getTransformMetaInterface();
+    ITransformMeta iface = rewriteTransform.getTransform();
     if ( iface instanceof ITransformMetaChangeListener ) {
       for ( ITransformMetaChangeListener listener : transformChangeListeners ) {
         indexListener++;

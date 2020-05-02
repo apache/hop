@@ -113,7 +113,7 @@ public class FieldSplitter_EmptyStringVsNull_Test {
   }
 
   private FieldSplitter createAndInitTransform( FieldSplitterMeta meta, FieldSplitterData data ) throws Exception {
-    when( helper.transformMeta.getTransformMetaInterface() ).thenReturn( meta );
+    when( helper.transformMeta.getTransform() ).thenReturn( meta );
 
     FieldSplitter transform = new FieldSplitter( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
     transform.init();

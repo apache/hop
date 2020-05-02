@@ -32,7 +32,6 @@ import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -66,9 +65,9 @@ public class RowGeneratorUnitTest {
     when( meta.getFieldName() ).thenReturn( strings );
 
     TransformMeta transformMeta = new TransformMeta();
-    transformMeta.setTransformMetaInterface( transformMetaInterface );
+    transformMeta.setTransform( transformMetaInterface );
     transformMeta.setName( "ROW_TRANSFORM_META" );
-    RowGeneratorData data = (RowGeneratorData) transformMeta.getTransformMetaInterface().getTransformData();
+    RowGeneratorData data = (RowGeneratorData) transformMeta.getTransform().getTransformData();
 
     // add variable to pipeline variable space
     Map<String, String> map = new HashMap<>();

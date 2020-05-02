@@ -59,7 +59,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
 
     // Here we decide whether or not to build the structure in
     // compatible mode or fixed mode
-    JsonOutputMeta jsonOutputMeta = (JsonOutputMeta) ( transformMeta.getTransformMetaInterface() );
+    JsonOutputMeta jsonOutputMeta = (JsonOutputMeta) ( transformMeta.getTransform() );
     if ( jsonOutputMeta.isCompatibilityMode() ) {
       compatibilityFactory = new CompatibilityMode();
     } else {
