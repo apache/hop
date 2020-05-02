@@ -31,11 +31,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SetTransformDebugLevelExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   @Override public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
-    Map<String, String> transformLevelMap = pipeline.getSubject().getAttributesMap().get( Defaults.DEBUG_GROUP );
+    Map<String, String> transformLevelMap = pipeline.getPipelineMeta().getAttributesMap().get( Defaults.DEBUG_GROUP );
 
     if ( transformLevelMap != null ) {
 
-      log.logDetailed( "Set debug level information on pipeline : " + pipeline.getSubject().getName() );
+      log.logDetailed( "Set debug level information on pipeline : " + pipeline.getPipelineMeta().getName() );
 
       List<String> transformNames = new ArrayList<>();
       for ( String key : transformLevelMap.keySet() ) {

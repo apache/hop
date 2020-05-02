@@ -3697,7 +3697,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Message" ), e );
         }
         if ( pipeline != null ) {
-          log.logMinimal( BaseMessages.getString( PKG, "PipelineLog.Log.LaunchingPipeline" ) + pipeline.getSubject().getName() + "]..." );
+          log.logMinimal( BaseMessages.getString( PKG, "PipelineLog.Log.LaunchingPipeline" ) + pipeline.getPipelineMeta().getName() + "]..." );
 
           // Launch the transform preparation in a different thread.
           // That way HopGui doesn't block anymore and that way we can follow the progress of the initialization
@@ -3952,7 +3952,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         initialized = true;
       } catch ( HopException e ) {
-        log.logError( pipeline.getSubject().getName() + ": preparing pipeline execution failed", e );
+        log.logError( pipeline.getPipelineMeta().getName() + ": preparing pipeline execution failed", e );
         checkErrorVisuals();
       }
 

@@ -79,7 +79,7 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
 
     try {
       ResultFile resultFile =
-        new ResultFile( meta.getFileType(), HopVfs.getFileObject( filename, getPipelineMeta() ), getPipeline().getSubject().getName(), getTransformName() );
+        new ResultFile( meta.getFileType(), HopVfs.getFileObject( filename, getPipelineMeta() ), getPipeline().getPipelineMeta().getName(), getTransformName() );
 
       // Add all rows to rows buffer...
       data.filenames.add( resultFile );

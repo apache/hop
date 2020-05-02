@@ -22,17 +22,14 @@
 
 package org.apache.hop.www;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.Workflow;
@@ -199,7 +196,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // store it all in the map...
           //
           getPipelineMap().addPipeline(
-            pipeline.getSubject().getName(),
+            pipeline.getPipelineMeta().getName(),
             serverObjectId,
             pipeline,
             new PipelineConfiguration( pipelineMeta, executionConfiguration )

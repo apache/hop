@@ -23,7 +23,6 @@
 package org.apache.hop.cli;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
@@ -38,7 +37,6 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -222,7 +220,7 @@ public class HopRun implements Runnable {
       String pipelineRunConfigurationName = pipelineMeta.environmentSubstitute( configuration.getRunConfiguration() );
       IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfigurationName, metaStore, pipelineMeta );
       pipeline.initializeVariablesFrom( null );
-      pipeline.getSubject().setInternalHopVariables( pipeline );
+      pipeline.getPipelineMeta().setInternalHopVariables( pipeline );
       pipeline.injectVariables( configuration.getVariablesMap() );
 
       pipeline.setLogLevel( configuration.getLogLevel() );

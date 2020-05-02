@@ -65,7 +65,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
   @Override
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
-    final PipelineMeta pipelineMeta = pipeline.getSubject();
+    final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
     boolean writeToDataSet = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_WRITE_TO_DATASET ) );
     if ( !writeToDataSet ) {
       return;
@@ -95,7 +95,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
       // Replace all transforms with a golden data set, attached to a unit test, with a Dummy
       // Apply tweaks
       //
-      for ( final TransformMeta transformMeta : pipeline.getSubject().getTransforms() ) {
+      for ( final TransformMeta transformMeta : pipeline.getPipelineMeta().getTransforms() ) {
 
         // We might want to pass the data from this transform into a data set all by itself...
         // For this we want to attach a row listener which writes the data.

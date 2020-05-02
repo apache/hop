@@ -24,7 +24,6 @@ package org.apache.hop.www;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -54,7 +53,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
 
     IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
 
-    String message = "Pipeline '" + pipeline.getSubject().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
+    String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
     return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerObjectId() );
   }
 

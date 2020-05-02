@@ -34,8 +34,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.DataSet;
-import org.apache.hop.testing.DataSetCsvUtil;
-import org.apache.hop.testing.DataSetField;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.TestType;
@@ -107,7 +105,7 @@ public class DataSetConst {
     if ( collectionMap == null ) {
 
       String comment = "No transform output result data found to validate against";
-      results.add( new UnitTestResult( pipeline.getSubject().getName(), unitTest.getName(), null, null, false, comment ) );
+      results.add( new UnitTestResult( pipeline.getPipelineMeta().getName(), unitTest.getName(), null, null, false, comment ) );
       return nrErrors;
     }
 
@@ -116,7 +114,7 @@ public class DataSetConst {
       // Sometimes we deleted a transform and it's still in the list:
       // Simply skip that one
       //
-      if ( pipeline.getSubject().findTransform( location.getTransformName() ) == null ) {
+      if ( pipeline.getPipelineMeta().findTransform( location.getTransformName() ) == null ) {
         continue;
       }
 
@@ -131,7 +129,7 @@ public class DataSetConst {
 
         String comment = "WARNING: no test results found for transform '" + location.getTransformName() + "' : check disabled hops, input and so on.";
         results.add( new UnitTestResult(
-          pipeline.getSubject().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
+          pipeline.getPipelineMeta().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
           false, comment ) );
       }
       final IRowMeta resultRowMeta = resultCollection.getRowMeta();
@@ -150,7 +148,7 @@ public class DataSetConst {
         String comment =
           "Incorrect number of rows received from transform, golden data set '" + location.getDataSetName() + "' has " + goldenRows.size() + " rows in it and we received " + resultRows.size();
         results.add( new UnitTestResult(
-          pipeline.getSubject().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
+          pipeline.getPipelineMeta().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
           true, comment ) );
         nrLocationErrors++;
       } else {
@@ -279,7 +277,7 @@ public class DataSetConst {
                     + ": transform value [" + transformValueMeta.getString( transformValue )
                     + "] does not correspond to data set value [" + goldenValueMeta.getString( goldenValue ) + "]";
                   results.add( new UnitTestResult(
-                    pipeline.getSubject().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
+                    pipeline.getPipelineMeta().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
                     true, comment ) );
                   nrLocationErrors++;
                 }
@@ -293,7 +291,7 @@ public class DataSetConst {
         if ( nrLocationErrors == 0 ) {
           String comment = "Test passed succesfully against golden data set";
           results.add( new UnitTestResult(
-            pipeline.getSubject().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
+            pipeline.getPipelineMeta().getName(), unitTest.getName(), location.getDataSetName(), location.getTransformName(),
             false, comment ) );
         } else {
           nrErrors += nrLocationErrors;
@@ -304,7 +302,7 @@ public class DataSetConst {
     if ( nrErrors == 0 ) {
       String comment = "Test passed succesfully against unit test";
       results.add( new UnitTestResult(
-        pipeline.getSubject().getName(), unitTest.getName(), null, null,
+        pipeline.getPipelineMeta().getName(), unitTest.getName(), null, null,
         false, comment ) );
 
     }

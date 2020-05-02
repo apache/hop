@@ -23,7 +23,6 @@
 package org.apache.hop.testing.xp;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -37,7 +36,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
@@ -49,10 +47,8 @@ import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,7 +72,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
       throw new HopPluginException( "Unit tests can only run using a local pipeline engine type" );
     }
 
-    final PipelineMeta pipelineMeta = pipeline.getSubject();
+    final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
     boolean dataSetEnabled = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( log.isDetailed() ) {
       log.logDetailed( "Data Set enabled? " + dataSetEnabled );
@@ -110,7 +106,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
       // Replace all transforms with a golden data set, attached to a unit test, with a Dummy
       // Apply tweaks
       //
-      for ( final TransformMeta transformMeta : pipeline.getSubject().getTransforms() ) {
+      for ( final TransformMeta transformMeta : pipeline.getPipelineMeta().getTransforms() ) {
         String transformName = transformMeta.getName();
         PipelineUnitTestSetLocation inputLocation = unitTest.findInputLocation( transformName );
         if ( inputLocation != null && StringUtils.isNotEmpty( inputLocation.getDataSetName() ) ) {
