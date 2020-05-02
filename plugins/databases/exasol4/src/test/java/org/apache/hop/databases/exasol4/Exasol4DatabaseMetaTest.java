@@ -113,7 +113,7 @@ public class Exasol4DatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( " WHERE ROWNUM <= 15", nativeMeta.getLimitClause( 15 ) );
     assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT /*+FIRST_ROWS*/ * FROM FOO WHERE 1=0", nativeMeta.getSqlTableExists( "FOO" ) );

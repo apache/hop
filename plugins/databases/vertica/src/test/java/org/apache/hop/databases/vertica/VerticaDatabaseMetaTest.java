@@ -157,7 +157,7 @@ public class VerticaDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( " LIMIT 5", nativeMeta.getLimitClause( 5 ) );
     assertEquals( "--NOTE: Table cannot be altered unless all projections are dropped.\nALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );

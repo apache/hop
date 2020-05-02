@@ -83,7 +83,7 @@ public class GenericDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "SELECT * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );

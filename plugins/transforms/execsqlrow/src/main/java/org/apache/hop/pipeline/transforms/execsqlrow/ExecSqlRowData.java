@@ -35,13 +35,13 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class ExecSqlRowData extends BaseTransformData implements ITransformData {
   public Database db;
   public Result result;
-  public int indexOfSQLFieldname;
+  public int indexOfSqlFieldname;
   public IRowMeta outputRowMeta;
 
   public ExecSqlRowData() {
     super();
     db = null;
     result = null;
-    indexOfSQLFieldname = -1;
+    indexOfSqlFieldname = -1;
   }
 }

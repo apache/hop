@@ -25,7 +25,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
+import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
@@ -71,7 +71,7 @@ public class PGBulkLoaderTest {
   public void setUp() throws Exception {
 
     PluginRegistry.getInstance().registerPluginClass(
-      PostgreSQLDatabaseMeta.class.getName(),
+      PostgreSqlDatabaseMeta.class.getName(),
       DatabasePluginType.class,
       DatabaseMetaPlugin.class
     );

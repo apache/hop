@@ -23,7 +23,7 @@
 package org.apache.hop.workflow.actions.http;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HTTPProtocol;
+import org.apache.hop.core.HttpProtocol;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -723,7 +722,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
 
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobHTTP.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-          HTTPProtocol.getRequestHeaders(), false ),
+          HttpProtocol.getRequestHeaders(), false ),
 
         new ColumnInfo(
           BaseMessages.getString( PKG, "JobHTTP.ColumnInfo.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false ), };

@@ -25,13 +25,9 @@ package org.apache.hop.workflow.actions.sftpput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -58,10 +54,8 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -70,7 +64,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.net.InetAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTP Put action settings.
@@ -231,9 +224,9 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private LabelTextVar wProxyPassword;
   private FormData fdProxyPasswd;
 
-  private Label wlAfterFTPPut;
-  private CCombo wAfterFTPPut;
-  private FormData fdlAfterFTPPut, fdAfterFTPPut;
+  private Label wlAfterFtpPut;
+  private CCombo wAfterFtpPut;
+  private FormData fdlAfterFtpPut, fdAfterFtpPut;
 
   private Label wlCreateDestinationFolder;
   private Button wCreateDestinationFolder;
@@ -757,28 +750,28 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // After FTP Put
-    wlAfterFTPPut = new Label( wSourceFiles, SWT.RIGHT );
-    wlAfterFTPPut.setText( BaseMessages.getString( PKG, "JobSFTPPUT.AfterFTPPut.Label" ) );
-    props.setLook( wlAfterFTPPut );
-    fdlAfterFTPPut = new FormData();
-    fdlAfterFTPPut.left = new FormAttachment( 0, 0 );
-    fdlAfterFTPPut.right = new FormAttachment( middle, -margin );
-    fdlAfterFTPPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
-    wlAfterFTPPut.setLayoutData( fdlAfterFTPPut );
-    wAfterFTPPut = new CCombo( wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.DoNothing.Label" ) );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Delete.Label" ) );
-    wAfterFTPPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Move.Label" ) );
-    wAfterFTPPut.select( 0 ); // +1: starts at -1
-    props.setLook( wAfterFTPPut );
-    fdAfterFTPPut = new FormData();
-    fdAfterFTPPut.left = new FormAttachment( middle, 0 );
-    fdAfterFTPPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
-    fdAfterFTPPut.right = new FormAttachment( 100, -margin );
-    wAfterFTPPut.setLayoutData( fdAfterFTPPut );
-    wAfterFTPPut.addSelectionListener( new SelectionAdapter() {
+    wlAfterFtpPut = new Label( wSourceFiles, SWT.RIGHT );
+    wlAfterFtpPut.setText( BaseMessages.getString( PKG, "JobSFTPPUT.AfterFTPPut.Label" ) );
+    props.setLook(wlAfterFtpPut);
+    fdlAfterFtpPut = new FormData();
+    fdlAfterFtpPut.left = new FormAttachment( 0, 0 );
+    fdlAfterFtpPut.right = new FormAttachment( middle, -margin );
+    fdlAfterFtpPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
+    wlAfterFtpPut.setLayoutData(fdlAfterFtpPut);
+    wAfterFtpPut = new CCombo( wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.DoNothing.Label" ) );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Delete.Label" ) );
+    wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Move.Label" ) );
+    wAfterFtpPut.select( 0 ); // +1: starts at -1
+    props.setLook(wAfterFtpPut);
+    fdAfterFtpPut = new FormData();
+    fdAfterFtpPut.left = new FormAttachment( middle, 0 );
+    fdAfterFtpPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
+    fdAfterFtpPut.right = new FormAttachment( 100, -margin );
+    wAfterFtpPut.setLayoutData(fdAfterFtpPut);
+    wAfterFtpPut.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        AfterFTPPutActivate();
+        AfterFtpPutActivate();
 
       }
     } );
@@ -789,7 +782,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( wlDestinationFolder );
     fdlDestinationFolder = new FormData();
     fdlDestinationFolder.left = new FormAttachment( 0, 0 );
-    fdlDestinationFolder.top = new FormAttachment( wAfterFTPPut, margin );
+    fdlDestinationFolder.top = new FormAttachment(wAfterFtpPut, margin );
     fdlDestinationFolder.right = new FormAttachment( middle, -margin );
     wlDestinationFolder.setLayoutData( fdlDestinationFolder );
 
@@ -799,7 +792,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wbMovetoDirectory.setText( BaseMessages.getString( PKG, "JobSFTPPUT.BrowseFolders.Label" ) );
     fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment( 100, 0 );
-    fdbMovetoDirectory.top = new FormAttachment( wAfterFTPPut, margin );
+    fdbMovetoDirectory.top = new FormAttachment(wAfterFtpPut, margin );
     wbMovetoDirectory.setLayoutData( fdbMovetoDirectory );
 
     wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
@@ -810,7 +803,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wDestinationFolder.addModifyListener( lsMod );
     fdDestinationFolder = new FormData();
     fdDestinationFolder.left = new FormAttachment( middle, 0 );
-    fdDestinationFolder.top = new FormAttachment( wAfterFTPPut, margin );
+    fdDestinationFolder.top = new FormAttachment(wAfterFtpPut, margin );
     fdDestinationFolder.right = new FormAttachment( wbMovetoDirectory, -margin );
     wDestinationFolder.setLayoutData( fdDestinationFolder );
 
@@ -1028,7 +1021,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     getData();
     activeCopyFromPrevious();
     activeUseKey();
-    AfterFTPPutActivate();
+    AfterFtpPutActivate();
     BaseTransformDialog.setSize( shell );
 
     shell.open();
@@ -1052,7 +1045,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   private void test() {
 
-    if ( connectToSFTP( false, null ) ) {
+    if ( connectToSftp( false, null ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "JobSFTPPUT.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Connected.Title.Ok" ) );
@@ -1060,7 +1053,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void closeFTPConnections() {
+  private void closeFtpConnections() {
     // Close SecureFTP connection if necessary
     if ( sftpclient != null ) {
       try {
@@ -1072,7 +1065,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToSFTP( boolean checkFolder, String Remotefoldername ) {
+  private boolean connectToSftp(boolean checkFolder, String Remotefoldername ) {
     boolean retval = false;
     try {
       if ( sftpclient == null ) {
@@ -1124,11 +1117,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   }
 
   private void checkRemoteFolder() {
-    String changeFTPFolder = workflowMeta.environmentSubstitute( wScpDirectory.getText() );
-    if ( !Utils.isEmpty( changeFTPFolder ) ) {
-      if ( connectToSFTP( true, changeFTPFolder ) ) {
+    String changeFtpFolder = workflowMeta.environmentSubstitute( wScpDirectory.getText() );
+    if ( !Utils.isEmpty( changeFtpFolder ) ) {
+      if ( connectToSftp( true, changeFtpFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "JobSFTPPUT.FolderExists.OK", changeFTPFolder ) + Const.CR );
+        mb.setMessage( BaseMessages.getString( PKG, "JobSFTPPUT.FolderExists.OK", changeFtpFolder ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobSFTPPUT.FolderExists.Title.Ok" ) );
         mb.open();
       }
@@ -1137,7 +1130,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   public void dispose() {
     // Close open connections
-    closeFTPConnections();
+    closeFtpConnections();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();
@@ -1170,7 +1163,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wProxyPassword.setText( Const.NVL( action.getProxyPassword(), "" ) );
     wCreateRemoteFolder.setSelection( action.isCreateRemoteFolder() );
 
-    wAfterFTPPut.setText( ActionSftpPut.getAfterSFTPPutDesc( action.getAfterFTPS() ) );
+    wAfterFtpPut.setText( ActionSftpPut.getAfterSftpPutDesc( action.getAfterFtps() ) );
     wDestinationFolder.setText( Const.NVL( action.getDestinationFolder(), "" ) );
     wCreateDestinationFolder.setSelection( action.isCreateDestinationFolder() );
     wSuccessWhenNoFile.setSelection( action.isSuccessWhenNoFile() );
@@ -1215,7 +1208,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     action.setProxyUsername( wProxyUsername.getText() );
     action.setProxyPassword( wProxyPassword.getText() );
     action.setCreateRemoteFolder( wCreateRemoteFolder.getSelection() );
-    action.setAfterFTPS( ActionSftpPut.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) );
+    action.setAfterFtps( ActionSftpPut.getAfterSftpPutByDesc( wAfterFtpPut.getText() ) );
     action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
     action.setDestinationFolder( wDestinationFolder.getText() );
     action.setSuccessWhenNoFile( wSuccessWhenNoFile.getSelection() );
@@ -1253,11 +1246,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void AfterFTPPutActivate() {
+  private void AfterFtpPutActivate() {
     boolean moveFile =
-      ActionSftpPut.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) == ActionSftpPut.AFTER_FTPSPUT_MOVE;
+      ActionSftpPut.getAfterSftpPutByDesc( wAfterFtpPut.getText() ) == ActionSftpPut.AFTER_FTPSPUT_MOVE;
     boolean doNothing =
-      ActionSftpPut.getAfterSFTPPutByDesc( wAfterFTPPut.getText() ) == ActionSftpPut.AFTER_FTPSPUT_NOTHING;
+      ActionSftpPut.getAfterSftpPutByDesc( wAfterFtpPut.getText() ) == ActionSftpPut.AFTER_FTPSPUT_NOTHING;
 
     wlDestinationFolder.setEnabled( moveFile );
     wDestinationFolder.setEnabled( moveFile );

@@ -149,7 +149,7 @@ public class KingbaseESDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "SELECT currval('FOO')", nativeMeta.getSqlCurrentSequenceValue( "FOO" ) );
     assertEquals( "SELECT nextval('FOO')", nativeMeta.getSqlNextSequenceValue( "FOO" ) );
     assertEquals( "SELECT relname AS sequence_name FROM sys_class WHERE relname = 'foo'", nativeMeta.getSqlSequenceExists( "FoO" ) );

@@ -72,9 +72,9 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
   private Text wReadField;
   private FormData fdlReadField, fdReadField;
 
-  private Label wlSQLFieldName;
+  private Label wlSqlFieldName;
   private CCombo wSqlFieldName;
-  private FormData fdlSQLFieldName, fdSQLFieldName;
+  private FormData fdlSqlFieldName, fdSqlFieldName;
 
   private FormData fdAdditionalFields;
 
@@ -86,9 +86,9 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
 
   private ExecSqlRowMeta input;
 
-  private Label wlSQLFromFile;
+  private Label wlSqlFromFile;
   private Button wSqlFromFile;
-  private FormData fdlSQLFromFile, fdSQLFromFile;
+  private FormData fdlSqlFromFile, fdSqlFromFile;
 
   private Label wlSendOneStatement;
   private Button wSendOneStatement;
@@ -191,23 +191,23 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // SQLFieldName field
-    wlSQLFieldName = new Label( shell, SWT.RIGHT );
-    wlSQLFieldName.setText( BaseMessages.getString( PKG, "ExecSqlRowDialog.SQLFieldName.Label" ) );
-    props.setLook( wlSQLFieldName );
-    fdlSQLFieldName = new FormData();
-    fdlSQLFieldName.left = new FormAttachment( 0, 0 );
-    fdlSQLFieldName.right = new FormAttachment( middle, -margin );
-    fdlSQLFieldName.top = new FormAttachment( wSendOneStatement, 2 * margin );
-    wlSQLFieldName.setLayoutData( fdlSQLFieldName );
+    wlSqlFieldName = new Label( shell, SWT.RIGHT );
+    wlSqlFieldName.setText( BaseMessages.getString( PKG, "ExecSqlRowDialog.SQLFieldName.Label" ) );
+    props.setLook(wlSqlFieldName);
+    fdlSqlFieldName = new FormData();
+    fdlSqlFieldName.left = new FormAttachment( 0, 0 );
+    fdlSqlFieldName.right = new FormAttachment( middle, -margin );
+    fdlSqlFieldName.top = new FormAttachment( wSendOneStatement, 2 * margin );
+    wlSqlFieldName.setLayoutData(fdlSqlFieldName);
     wSqlFieldName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     wSqlFieldName.setEditable( true );
     props.setLook( wSqlFieldName );
     wSqlFieldName.addModifyListener( lsMod );
-    fdSQLFieldName = new FormData();
-    fdSQLFieldName.left = new FormAttachment( middle, 0 );
-    fdSQLFieldName.top = new FormAttachment( wSendOneStatement, 2 * margin );
-    fdSQLFieldName.right = new FormAttachment( 100, -margin );
-    wSqlFieldName.setLayoutData( fdSQLFieldName );
+    fdSqlFieldName = new FormData();
+    fdSqlFieldName.left = new FormAttachment( middle, 0 );
+    fdSqlFieldName.top = new FormAttachment( wSendOneStatement, 2 * margin );
+    fdSqlFieldName.right = new FormAttachment( 100, -margin );
+    wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -221,22 +221,22 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wlSQLFromFile = new Label( shell, SWT.RIGHT );
-    wlSQLFromFile.setText( BaseMessages.getString( PKG, "ExecSqlRowDialog.SQLFromFile.Label" ) );
-    props.setLook( wlSQLFromFile );
-    fdlSQLFromFile = new FormData();
-    fdlSQLFromFile.left = new FormAttachment( 0, 0 );
-    fdlSQLFromFile.top = new FormAttachment( wSqlFieldName, margin );
-    fdlSQLFromFile.right = new FormAttachment( middle, -margin );
-    wlSQLFromFile.setLayoutData( fdlSQLFromFile );
+    wlSqlFromFile = new Label( shell, SWT.RIGHT );
+    wlSqlFromFile.setText( BaseMessages.getString( PKG, "ExecSqlRowDialog.SQLFromFile.Label" ) );
+    props.setLook(wlSqlFromFile);
+    fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment( 0, 0 );
+    fdlSqlFromFile.top = new FormAttachment( wSqlFieldName, margin );
+    fdlSqlFromFile.right = new FormAttachment( middle, -margin );
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
     wSqlFromFile = new Button( shell, SWT.CHECK );
     wSqlFromFile.setToolTipText( BaseMessages.getString( PKG, "ExecSqlRowDialog.SQLFromFile.Tooltip" ) );
     props.setLook( wSqlFromFile );
-    fdSQLFromFile = new FormData();
-    fdSQLFromFile.left = new FormAttachment( middle, 0 );
-    fdSQLFromFile.top = new FormAttachment( wSqlFieldName, margin );
-    fdSQLFromFile.right = new FormAttachment( 100, 0 );
-    wSqlFromFile.setLayoutData( fdSQLFromFile );
+    fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment( middle, 0 );
+    fdSqlFromFile.top = new FormAttachment( wSqlFieldName, margin );
+    fdSqlFromFile.right = new FormAttachment( 100, 0 );
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();

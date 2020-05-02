@@ -4515,8 +4515,8 @@ public class ValueMetaBase implements IValueMeta {
 
   @SuppressWarnings( "fallthrough" )
   @Override
-  public IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
-                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
+                                        int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
     try {
       int length = -1;
       int precision = -1;
@@ -4611,7 +4611,7 @@ public class ValueMetaBase implements IValueMeta {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
-            if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
+            if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
               if ( precision >= length ) {
                 precision = -1;
                 length = -1;
@@ -4677,7 +4677,7 @@ public class ValueMetaBase implements IValueMeta {
         case java.sql.Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
-          if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
+          if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
             String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && rm.getColumnTypeName( index ).equalsIgnoreCase( "YEAR" ) ) {
@@ -4709,12 +4709,12 @@ public class ValueMetaBase implements IValueMeta {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = rm.getColumnDisplaySize( index );
-          } else if ( databaseMeta.isMySQLVariant()
+          } else if ( databaseMeta.isMySqlVariant()
             && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getIDatabase().isSQLiteVariant() ) {
+          } else if ( databaseMeta.getIDatabase().isSqliteVariant() ) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
             length = -1;
@@ -4754,7 +4754,7 @@ public class ValueMetaBase implements IValueMeta {
 
       IValueMeta newV = null;
       try {
-        newV = databaseMeta.getIDatabase().customizeValueFromSQLType( v, rm, index );
+        newV = databaseMeta.getIDatabase().customizeValueFromSqlType( v, rm, index );
       } catch ( SQLException e ) {
         throw new SQLException( e );
       }
@@ -4899,7 +4899,7 @@ public class ValueMetaBase implements IValueMeta {
 
             // MySQL: max resolution is double precision floating point (double)
             // The (12,31) that is given back is not correct
-            if ( databaseMeta.isMySQLVariant() ) {
+            if ( databaseMeta.isMySqlVariant() ) {
               if ( precision >= length ) {
                 precision = -1;
                 length = -1;
@@ -4969,7 +4969,7 @@ public class ValueMetaBase implements IValueMeta {
         case java.sql.Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
-          if ( databaseMeta.isMySQLVariant() ) {
+          if ( databaseMeta.isMySqlVariant() ) {
             String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && "YEAR".equalsIgnoreCase( originalColumnTypeName ) ) {
@@ -5005,12 +5005,12 @@ public class ValueMetaBase implements IValueMeta {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = originalColumnDisplaySize;
-          } else if ( databaseMeta.isMySQLVariant()
+          } else if ( databaseMeta.isMySqlVariant()
             && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
-          } else if ( databaseMeta.getIDatabase().isSQLiteVariant() ) {
+          } else if ( databaseMeta.getIDatabase().isSqliteVariant() ) {
             valtype = IValueMeta.TYPE_STRING;
           } else {
             length = -1;

@@ -73,7 +73,7 @@ public class MonetDBDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 

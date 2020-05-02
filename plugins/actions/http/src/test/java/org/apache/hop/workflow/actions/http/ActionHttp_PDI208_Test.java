@@ -64,16 +64,16 @@ public class ActionHttp_PDI208_Test {
   @BeforeClass
   public static void setupBeforeClass() throws HopException, IOException {
     HopClientEnvironment.init();
-    ActionHttp_PDI208_Test.startHTTPServer();
+    ActionHttp_PDI208_Test.startHttpServer();
   }
 
   @AfterClass
   public static void tearDown() {
-    ActionHttp_PDI208_Test.stopHTTPServer();
+    ActionHttp_PDI208_Test.stopHttpServer();
   }
 
   @Test
-  public void testHTTPResultDefaultRows() throws IOException {
+  public void testHttpResultDefaultRows() throws IOException {
     File localFileForUpload = getInputFile( "existingFile1", ".tmp" );
     File tempFileForDownload = File.createTempFile( "downloadedFile1", ".tmp" );
     localFileForUpload.deleteOnExit();
@@ -99,7 +99,7 @@ public class ActionHttp_PDI208_Test {
   }
 
   @Test
-  public void testHTTPResultCustomRows() throws IOException {
+  public void testHttpResultCustomRows() throws IOException {
     File localFileForUpload = getInputFile( "existingFile2", ".tmp" );
     File tempFileForDownload = File.createTempFile( "downloadedFile2", ".tmp" );
     localFileForUpload.deleteOnExit();
@@ -133,7 +133,7 @@ public class ActionHttp_PDI208_Test {
     return inputFile;
   }
 
-  private static void startHTTPServer() throws IOException {
+  private static void startHttpServer() throws IOException {
     httpServer = HttpServer.create( new InetSocketAddress( ActionHttp_PDI208_Test.HTTP_HOST, ActionHttp_PDI208_Test.HTTP_PORT ), 10 );
     httpServer.createContext( "/uploadFile", new HttpHandler() {
       @Override
@@ -156,7 +156,7 @@ public class ActionHttp_PDI208_Test {
     httpServer.start();
   }
 
-  private static void stopHTTPServer() {
+  private static void stopHttpServer() {
     httpServer.stop( 2 );
   }
 }

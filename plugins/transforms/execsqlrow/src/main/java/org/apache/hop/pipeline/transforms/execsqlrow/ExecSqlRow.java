@@ -37,8 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -112,9 +110,9 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> im
       }
 
       // cache the position of the field
-      if ( data.indexOfSQLFieldname < 0 ) {
-        data.indexOfSQLFieldname = this.getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
-        if ( data.indexOfSQLFieldname < 0 ) {
+      if ( data.indexOfSqlFieldname < 0 ) {
+        data.indexOfSqlFieldname = this.getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
+        if ( data.indexOfSqlFieldname < 0 ) {
           // The field is unreachable !
           throw new HopException( BaseMessages.getString( PKG, "ExecSqlRow.Exception.CouldnotFindField", meta
             .getSqlFieldName() ) );
@@ -124,7 +122,7 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> im
     }
 
     // get SQL
-    String sql = getInputRowMeta().getString( row, data.indexOfSQLFieldname );
+    String sql = getInputRowMeta().getString( row, data.indexOfSqlFieldname);
 
     try {
       if ( meta.isSqlFromfile() ) {

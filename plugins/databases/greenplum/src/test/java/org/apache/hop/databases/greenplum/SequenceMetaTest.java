@@ -60,7 +60,7 @@ public class SequenceMetaTest {
   }
 
   @Test
-  public void testSQL() {
+  public void testSql() {
 
     IDatabase iDatabase;
     final String sequenceName = "sequence_name";

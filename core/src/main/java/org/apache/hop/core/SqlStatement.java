@@ -136,7 +136,7 @@ public class SqlStatement {
    *
    * @return true if changes are present, false if this is not the case.
    */
-  public boolean hasSQL() {
+  public boolean hasSql() {
     return sql != null && sql.length() > 0;
   }
 }

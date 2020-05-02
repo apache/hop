@@ -33,8 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -218,7 +216,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           sql = environmentSubstitute( sql );
         }
         // Prepare the SQL statement
-        data.pstmt = data.db.prepareSQL( sql );
+        data.pstmt = data.db.prepareSql( sql );
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "DatabaseJoin.Log.SQLStatement", sql ) );
         }

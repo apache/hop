@@ -25,7 +25,7 @@ package org.apache.hop.databases.greenplum;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
+import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
 /**
  * Contains PostgreSQL specific information through static final members
@@ -39,7 +39,7 @@ import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
   typeDescription = "Greenplum"
 )
 @GuiPlugin( id = "GUI-GreenplumDatabaseMeta" )
-public class GreenplumDatabaseMeta extends PostgreSQLDatabaseMeta implements IDatabase {
+public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override
   public String[] getReservedWords() {
     String[] newWords = new String[] { "ERRORS" };

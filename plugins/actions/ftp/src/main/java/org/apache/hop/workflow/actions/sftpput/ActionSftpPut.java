@@ -75,13 +75,13 @@ import java.util.regex.Pattern;
 public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!
 
-  private int afterFTPS;
+  private int afterFtps;
 
-  public static final String[] afterFTPSDesc = new String[] {
+  public static final String[] afterFtpsDesc = new String[] {
     BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.DoNothing.Label" ),
     BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Delete.Label" ),
     BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Move.Label" ), };
-  public static final String[] afterFTPSCode = new String[] { "nothing", "delete", "move" };
+  public static final String[] afterFtpsCode = new String[] { "nothing", "delete", "move" };
 
   public static final int AFTER_FTPSPUT_NOTHING = 0;
   public static final int AFTER_FTPSPUT_DELETE = 1;
@@ -131,7 +131,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     proxyUsername = null;
     proxyPassword = null;
     createRemoteFolder = false;
-    afterFTPS = AFTER_FTPSPUT_NOTHING;
+    afterFtps = AFTER_FTPSPUT_NOTHING;
     destinationfolder = null;
     createDestinationFolder = false;
     successWhenNoFile = false;
@@ -175,7 +175,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
       XmlHandler.addTagValue( "proxyPassword", Encr.encryptPasswordIfNotUsingVariables( proxyPassword ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "createRemoteFolder", createRemoteFolder ) );
     retval.append( "      " ).append(
-      XmlHandler.addTagValue( "aftersftpput", getAfterSFTPPutCode( getAfterFTPS() ) ) );
+      XmlHandler.addTagValue( "aftersftpput", getAfterSftpPutCode( getAfterFtps() ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "destinationfolder", destinationfolder ) );
     retval
       .append( "      " ).append( XmlHandler.addTagValue( "createdestinationfolder", createDestinationFolder ) );
@@ -185,11 +185,11 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public static String getAfterSFTPPutCode( int i ) {
-    if ( i < 0 || i >= afterFTPSCode.length ) {
-      return afterFTPSCode[ 0 ];
+  public static String getAfterSftpPutCode(int i ) {
+    if ( i < 0 || i >= afterFtpsCode.length ) {
+      return afterFtpsCode[ 0 ];
     }
-    return afterFTPSCode[ i ];
+    return afterFtpsCode[ i ];
   }
 
   public void loadXml( Node entrynode,
@@ -221,9 +221,9 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
       createRemoteFolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createRemoteFolder" ) );
 
       boolean remove = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "remove" ) );
-      setAfterFTPS( getAfterSFTPPutByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "aftersftpput" ), "" ) ) );
-      if ( remove && getAfterFTPS() == AFTER_FTPSPUT_NOTHING ) {
-        setAfterFTPS( AFTER_FTPSPUT_DELETE );
+      setAfterFtps( getAfterSftpPutByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "aftersftpput" ), "" ) ) );
+      if ( remove && getAfterFtps() == AFTER_FTPSPUT_NOTHING ) {
+        setAfterFtps( AFTER_FTPSPUT_DELETE );
       }
       destinationfolder = XmlHandler.getTagValue( entrynode, "destinationfolder" );
       createDestinationFolder =
@@ -235,39 +235,39 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public static int getAfterSFTPPutByCode( String tt ) {
+  public static int getAfterSftpPutByCode(String tt ) {
     if ( tt == null ) {
       return 0;
     }
 
-    for ( int i = 0; i < afterFTPSCode.length; i++ ) {
-      if ( afterFTPSCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < afterFtpsCode.length; i++ ) {
+      if ( afterFtpsCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
     return 0;
   }
 
-  public static String getAfterSFTPPutDesc( int i ) {
-    if ( i < 0 || i >= afterFTPSDesc.length ) {
-      return afterFTPSDesc[ 0 ];
+  public static String getAfterSftpPutDesc(int i ) {
+    if ( i < 0 || i >= afterFtpsDesc.length ) {
+      return afterFtpsDesc[ 0 ];
     }
-    return afterFTPSDesc[ i ];
+    return afterFtpsDesc[ i ];
   }
 
-  public static int getAfterSFTPPutByDesc( String tt ) {
+  public static int getAfterSftpPutByDesc(String tt ) {
     if ( tt == null ) {
       return 0;
     }
 
-    for ( int i = 0; i < afterFTPSDesc.length; i++ ) {
-      if ( afterFTPSDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < afterFtpsDesc.length; i++ ) {
+      if ( afterFtpsDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
 
     // If this fails, try to match using the code.
-    return getAfterSFTPPutByCode( tt );
+    return getAfterSftpPutByCode( tt );
   }
 
   /**
@@ -309,15 +309,15 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
   /**
    * @return Returns the afterFTPS.
    */
-  public int getAfterFTPS() {
-    return afterFTPS;
+  public int getAfterFtps() {
+    return afterFtps;
   }
 
   /**
    * @param value The afterFTPS to set.
    */
-  public void setAfterFTPS( int value ) {
-    this.afterFTPS = value;
+  public void setAfterFtps(int value ) {
+    this.afterFtps = value;
   }
 
   /**
@@ -622,7 +622,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     try {
       // Let's perform some checks before starting
 
-      if ( getAfterFTPS() == AFTER_FTPSPUT_MOVE ) {
+      if ( getAfterFtps() == AFTER_FTPSPUT_MOVE ) {
         if ( Utils.isEmpty( realDestinationFolder ) ) {
           logError( BaseMessages.getString( PKG, "JobSSH2PUT.Log.DestinatFolderMissing" ) );
           result.setNrErrors( 1 );
@@ -798,7 +798,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
 
             // We successfully uploaded the file
             // what's next ...
-            switch ( getAfterFTPS() ) {
+            switch ( getAfterFtps() ) {
               case AFTER_FTPSPUT_DELETE:
                 myFile.delete();
                 if ( log.isDetailed() ) {

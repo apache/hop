@@ -1036,7 +1036,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   public String stripCR( StringBuffer sbsql ) {
     // DB2 Can't handle \n in SQL Statements...
-    if ( !supportsNewLinesInSQL() ) {
+    if ( !supportsNewLinesInSql() ) {
       // Remove CR's
       for ( int i = sbsql.length() - 1; i >= 0; i-- ) {
         if ( sbsql.charAt( i ) == '\n' || sbsql.charAt( i ) == '\r' ) {
@@ -1050,7 +1050,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   public String stripCR( StringBuilder sbsql ) {
     // DB2 Can't handle \n in SQL Statements...
-    if ( !supportsNewLinesInSQL() ) {
+    if ( !supportsNewLinesInSql() ) {
       // Remove CR's
       for ( int i = sbsql.length() - 1; i >= 0; i-- ) {
         if ( sbsql.charAt( i ) == '\n' || sbsql.charAt( i ) == '\r' ) {
@@ -1062,7 +1062,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return sbsql.toString();
   }
 
-  public String getSeqNextvalSQL( String sequenceName ) {
+  public String getSeqNextvalSql(String sequenceName ) {
     return iDatabase.getSqlNextSequenceValue( sequenceName );
   }
 
@@ -1614,7 +1614,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
       // SQL: Next sequence value
       r = new RowMetaAndData();
       r.addValue( par, IValueMeta.TYPE_STRING, "SQL: next sequence value" );
-      r.addValue( val, IValueMeta.TYPE_STRING, getSeqNextvalSQL( "SEQUENCE" ) );
+      r.addValue( val, IValueMeta.TYPE_STRING, getSeqNextvalSql( "SEQUENCE" ) );
       list.add( r );
       // is set fetch size supported
       r = new RowMetaAndData();
@@ -1899,15 +1899,15 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return The SQL to execute right after connecting
    */
-  public String getConnectSQL() {
-    return iDatabase.getConnectSQL();
+  public String getConnectSql() {
+    return iDatabase.getConnectSql();
   }
 
   /**
    * @param sql The SQL to execute right after connecting
    */
-  public void setConnectSQL( String sql ) {
-    iDatabase.setConnectSQL( sql );
+  public void setConnectSql(String sql ) {
+    iDatabase.setConnectSql( sql );
   }
 
   /**
@@ -2261,8 +2261,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.isSystemTable( tableName );
   }
 
-  private boolean supportsNewLinesInSQL() {
-    return iDatabase.supportsNewLinesInSQL();
+  private boolean supportsNewLinesInSql() {
+    return iDatabase.supportsNewLinesInSql();
   }
 
   public String getSqlListOfSchemas() {
@@ -2303,8 +2303,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.getSqlListOfSequences();
   }
 
-  public String quoteSQLString( String string ) {
-    return iDatabase.quoteSQLString( string );
+  public String quoteSqlString(String string ) {
+    return iDatabase.quoteSqlString( string );
   }
 
   /**
@@ -2314,8 +2314,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.generateColumnAlias( columnIndex, suggestedName );
   }
 
-  public boolean isMySQLVariant() {
-    return iDatabase.isMySQLVariant();
+  public boolean isMySqlVariant() {
+    return iDatabase.isMySqlVariant();
   }
 
   public Long getNextBatchId( Database ldb, String schemaName, String tableName, String fieldName ) throws HopDatabaseException {

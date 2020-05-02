@@ -30,7 +30,7 @@ import java.net.UnknownHostException;
 public class MockedActionFtp extends ActionFtp {
 
   @Override
-  protected FTPClient initFTPClient() {
+  protected FTPClient initFtpClient() {
     return new MockedFtpClient();
   }
 

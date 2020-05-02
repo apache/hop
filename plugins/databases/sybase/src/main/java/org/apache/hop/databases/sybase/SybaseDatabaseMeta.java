@@ -235,7 +235,7 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replace( "'", "''" );
     string = string.replace( "\\n", "\\0xd" );
     string = string.replace( "\\r", "\\0xa" );

@@ -896,7 +896,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       if ( databaseMeta.supportsSetMaxRows() ) {
         data.prepStatementLookup.setMaxRows( 1 ); // alywas get only 1 line back!
       }
-      if ( databaseMeta.getIDatabase().isMySQLVariant() ) {
+      if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
         data.prepStatementLookup.setFetchSize( 0 ); // Make sure to DISABLE Streaming Result sets
       }
       logDetailed( "Finished preparing dimension lookup statement." );

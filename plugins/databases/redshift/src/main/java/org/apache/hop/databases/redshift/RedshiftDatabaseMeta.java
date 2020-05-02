@@ -24,7 +24,7 @@ package org.apache.hop.databases.redshift;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
+import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
 /**
  * @author mbatchelor
@@ -34,7 +34,7 @@ import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
   typeDescription = "Redshift"
 )
 @GuiPlugin( id = "GUI-RedshiftDatabaseMeta" )
-public class RedshiftDatabaseMeta extends PostgreSQLDatabaseMeta {
+public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   public RedshiftDatabaseMeta() {
     addExtraOption( "REDSHIFT", "tcpKeepAlive", "true" );

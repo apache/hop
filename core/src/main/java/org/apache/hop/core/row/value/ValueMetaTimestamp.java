@@ -466,8 +466,8 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                        int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );

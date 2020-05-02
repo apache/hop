@@ -63,9 +63,9 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSQL;
+  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSQL, fdSQL;
+  private FormData fdlSql, fdSql;
 
   private Label wlLimit;
   private Text wLimit;
@@ -149,24 +149,24 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), lsMod );
 
     // SQL editor...
-    wlSQL = new Label( shell, SWT.NONE );
-    wlSQL.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.SQL.Label" ) );
-    props.setLook( wlSQL );
-    fdlSQL = new FormData();
-    fdlSQL.left = new FormAttachment( 0, 0 );
-    fdlSQL.top = new FormAttachment( wConnection, margin * 2 );
-    wlSQL.setLayoutData( fdlSQL );
+    wlSql = new Label( shell, SWT.NONE );
+    wlSql.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.SQL.Label" ) );
+    props.setLook(wlSql);
+    fdlSql = new FormData();
+    fdlSql.left = new FormAttachment( 0, 0 );
+    fdlSql.top = new FormAttachment( wConnection, margin * 2 );
+    wlSql.setLayoutData(fdlSql);
 
     wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    fdSQL = new FormData();
-    fdSQL.left = new FormAttachment( 0, 0 );
-    fdSQL.top = new FormAttachment( wlSQL, margin );
-    fdSQL.right = new FormAttachment( 100, -2 * margin );
-    fdSQL.bottom = new FormAttachment( 60, 0 );
-    wSql.setLayoutData( fdSQL );
+    fdSql = new FormData();
+    fdSql.left = new FormAttachment( 0, 0 );
+    fdSql.top = new FormAttachment(wlSql, margin );
+    fdSql.right = new FormAttachment( 100, -2 * margin );
+    fdSql.bottom = new FormAttachment( 60, 0 );
+    wSql.setLayoutData(fdSql);
 
     wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {

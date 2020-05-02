@@ -91,14 +91,14 @@ public class InfiniDbDatabaseMetaTest {
     assertFalse( nativeMeta.isSystemTable( "SysTest" ) );
     assertFalse( nativeMeta.isSystemTable( "dTproperties" ) );
     assertFalse( nativeMeta.isSystemTable( "Testsys" ) );
-    assertTrue( nativeMeta.isMySQLVariant() );
+    assertTrue( nativeMeta.isMySqlVariant() );
     assertFalse( nativeMeta.releaseSavepoint() );
     assertTrue( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertFalse( nativeMeta.isRequiringTransactionsOnQueries() );
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( " LIMIT 15", nativeMeta.getLimitClause( 15 ) );
     assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists( "FOO" ) );

@@ -345,7 +345,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
                   }
                 }
 
-                String SQLBULKLOAD =
+                String SqlBulkLoad =
                   "LOAD DATA "
                     + PriorityText + " " + LocalExec + " INFILE '" + realFilename.replace( '\\', '/' ) + "' "
                     + ReplaceIgnore + " INTO TABLE " + realTablename + " " + FieldTerminatedby + " "
@@ -353,7 +353,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
                 try {
                   // Run the SQL
-                  db.execStatement( SQLBULKLOAD );
+                  db.execStatement( SqlBulkLoad );
 
                   // Everything is OK...we can deconnect now
                   db.disconnect();

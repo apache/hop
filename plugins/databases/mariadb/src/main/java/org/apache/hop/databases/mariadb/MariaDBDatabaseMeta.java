@@ -24,7 +24,7 @@ package org.apache.hop.databases.mariadb;
 import com.google.common.collect.Sets;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
-import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
+import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
@@ -39,7 +39,7 @@ import java.util.Set;
   typeDescription = "MariaDB"
 )
 @GuiPlugin( id = "GUI-MariaDBDatabaseMeta" )
-public class MariaDBDatabaseMeta extends MySQLDatabaseMeta {
+public class MariaDBDatabaseMeta extends MySqlDatabaseMeta {
   private static final Class<?> PKG = MariaDBDatabaseMeta.class;
 
   private static final Set<String> SHORT_MESSAGE_EXCEPTIONS = Sets.newHashSet( "org.mariadb.jdbc.internal.stream.MaxAllowedPacketException" );

@@ -60,9 +60,9 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSQL;
+  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSQL, fdSQL;
+  private FormData fdlSql, fdSql;
 
   private Label wlLimit;
   private Text wLimit;
@@ -79,9 +79,9 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
   private Label wlPosition;
   private FormData fdlPosition;
 
-  private Label wlSQLFieldName;
+  private Label wlSqlFieldName;
   private CCombo wSqlFieldName;
-  private FormData fdlSQLFieldName, fdSQLFieldName;
+  private FormData fdlSqlFieldName, fdSqlFieldName;
 
   private Label wlqueryOnlyOnChange;
   private Button wqueryOnlyOnChange;
@@ -146,23 +146,23 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wConnection.addModifyListener( lsMod );
 
     // SQLFieldName field
-    wlSQLFieldName = new Label( shell, SWT.RIGHT );
-    wlSQLFieldName.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQLFieldName.Label" ) );
-    props.setLook( wlSQLFieldName );
-    fdlSQLFieldName = new FormData();
-    fdlSQLFieldName.left = new FormAttachment( 0, 0 );
-    fdlSQLFieldName.right = new FormAttachment( middle, -margin );
-    fdlSQLFieldName.top = new FormAttachment( wConnection, 2 * margin );
-    wlSQLFieldName.setLayoutData( fdlSQLFieldName );
+    wlSqlFieldName = new Label( shell, SWT.RIGHT );
+    wlSqlFieldName.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQLFieldName.Label" ) );
+    props.setLook(wlSqlFieldName);
+    fdlSqlFieldName = new FormData();
+    fdlSqlFieldName.left = new FormAttachment( 0, 0 );
+    fdlSqlFieldName.right = new FormAttachment( middle, -margin );
+    fdlSqlFieldName.top = new FormAttachment( wConnection, 2 * margin );
+    wlSqlFieldName.setLayoutData(fdlSqlFieldName);
     wSqlFieldName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     wSqlFieldName.setEditable( true );
     props.setLook( wSqlFieldName );
     wSqlFieldName.addModifyListener( lsMod );
-    fdSQLFieldName = new FormData();
-    fdSQLFieldName.left = new FormAttachment( middle, 0 );
-    fdSQLFieldName.top = new FormAttachment( wConnection, 2 * margin );
-    fdSQLFieldName.right = new FormAttachment( 100, -margin );
-    wSqlFieldName.setLayoutData( fdSQLFieldName );
+    fdSqlFieldName = new FormData();
+    fdSqlFieldName.left = new FormAttachment( middle, 0 );
+    fdSqlFieldName.top = new FormAttachment( wConnection, 2 * margin );
+    fdSqlFieldName.right = new FormAttachment( 100, -margin );
+    wSqlFieldName.setLayoutData(fdSqlFieldName);
     wSqlFieldName.addFocusListener( new FocusListener() {
       public void focusLost( FocusEvent e ) {
       }
@@ -272,23 +272,23 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // SQL editor...
-    wlSQL = new Label( shell, SWT.NONE );
-    wlSQL.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQL.Label" ) );
-    props.setLook( wlSQL );
-    fdlSQL = new FormData();
-    fdlSQL.left = new FormAttachment( 0, 0 );
-    fdlSQL.top = new FormAttachment( wqueryOnlyOnChange, margin );
-    wlSQL.setLayoutData( fdlSQL );
+    wlSql = new Label( shell, SWT.NONE );
+    wlSql.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQL.Label" ) );
+    props.setLook(wlSql);
+    fdlSql = new FormData();
+    fdlSql.left = new FormAttachment( 0, 0 );
+    fdlSql.top = new FormAttachment( wqueryOnlyOnChange, margin );
+    wlSql.setLayoutData(fdlSql);
 
     wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
-    fdSQL = new FormData();
-    fdSQL.left = new FormAttachment( 0, 0 );
-    fdSQL.top = new FormAttachment( wlSQL, margin );
-    fdSQL.right = new FormAttachment( 100, -2 * margin );
-    fdSQL.bottom = new FormAttachment( wOk, -4 * margin );
-    wSql.setLayoutData( fdSQL );
+    fdSql = new FormData();
+    fdSql.left = new FormAttachment( 0, 0 );
+    fdSql.top = new FormAttachment(wlSql, margin );
+    fdSql.right = new FormAttachment( 100, -2 * margin );
+    fdSql.bottom = new FormAttachment( wOk, -4 * margin );
+    wSql.setLayoutData(fdSql);
 
     wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {

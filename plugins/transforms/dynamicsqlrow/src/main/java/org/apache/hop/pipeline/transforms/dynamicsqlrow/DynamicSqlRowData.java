@@ -41,11 +41,11 @@ public class DynamicSqlRowData extends BaseTransformData implements ITransformDa
 
   public Object[] notfound; // Values in case nothing is found...
 
-  public int indexOfSQLField;
+  public int indexOfSqlField;
 
   public boolean skipPreviousRow;
 
-  public String previousSQL;
+  public String previousSql;
 
   public ArrayList<Object[]> previousrowbuffer;
 
@@ -56,9 +56,9 @@ public class DynamicSqlRowData extends BaseTransformData implements ITransformDa
 
     db = null;
     notfound = null;
-    indexOfSQLField = -1;
+    indexOfSqlField = -1;
     skipPreviousRow = false;
-    previousSQL = null;
+    previousSql = null;
     previousrowbuffer = new ArrayList<Object[]>();
   }
 }

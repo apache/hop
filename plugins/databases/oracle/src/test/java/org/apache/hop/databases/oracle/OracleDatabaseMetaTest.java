@@ -128,8 +128,8 @@ public class OracleDatabaseMetaTest {
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
     String quoteTest1 = "FOO 'BAR' \r TEST \n";
     String quoteTest2 = "FOO 'BAR' \\r TEST \\n";
-    assertEquals( "'FOO ''BAR'' '||chr(10)||' TEST '||chr(13)||''", nativeMeta.quoteSQLString( quoteTest1 ) );
-    assertEquals( "'FOO ''BAR'' \\r TEST \\n'", nativeMeta.quoteSQLString( quoteTest2 ) );
+    assertEquals( "'FOO ''BAR'' '||chr(10)||' TEST '||chr(13)||''", nativeMeta.quoteSqlString( quoteTest1 ) );
+    assertEquals( "'FOO ''BAR'' \\r TEST \\n'", nativeMeta.quoteSqlString( quoteTest2 ) );
     assertFalse( nativeMeta.releaseSavepoint() );
     Variables v = new Variables();
     v.setVariable( "FOOVARIABLE", "FOOVALUE" );
@@ -145,7 +145,7 @@ public class OracleDatabaseMetaTest {
   }
 
   @Test
-  public void testOverriddenSQLStatements() throws Exception {
+  public void testOverriddenSqlStatements() throws Exception {
     assertEquals( " WHERE ROWNUM <= 5", nativeMeta.getLimitClause( 5 ) );
     String reusedFieldsQuery = "SELECT * FROM FOO WHERE 1=0";
     assertEquals( reusedFieldsQuery, nativeMeta.getSqlQueryFields( "FOO" ) );
@@ -278,14 +278,14 @@ public class OracleDatabaseMetaTest {
 
   @Test
   public void testCheckIndexExists() throws Exception {
-    String expectedSQL = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = 'FOO'";
+    String expectedSql = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = 'FOO'";
     Database db = Mockito.mock( Database.class );
     IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
     Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenReturn( rowCnt < 2 );
-    Mockito.when( db.openQuery( expectedSQL ) ).thenReturn( rs );
+    Mockito.when( db.openQuery( expectedSql ) ).thenReturn( rs );
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );
     Mockito.when( rm.getString( row1, "COLUMN_NAME", "" ) ).thenReturn( "ROW1COL2" );
     Mockito.when( rm.getString( row2, "COLUMN_NAME", "" ) ).thenReturn( "ROW2COL2" );

@@ -511,7 +511,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         Object scmO = actualObject.get( "_transform_", actualObject );
         ScriptValuesMod scm = (ScriptValuesMod) Context.jsToJava( scmO, ScriptValuesMod.class );
         String strDBName = Context.toString( ArgList[ 0 ] );
-        String strSQL = Context.toString( ArgList[ 1 ] );
+        String strSql = Context.toString( ArgList[ 1 ] );
         DatabaseMeta ci = DatabaseMeta.findDatabase( scm.getPipelineMeta().getDatabases(), strDBName );
         if ( ci == null ) {
           throw Context.reportRuntimeError( "Database connection not found: " + strDBName );
@@ -523,7 +523,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           db.connect( scm.getPartitionId() );
 
-          ResultSet rs = db.openQuery( strSQL );
+          ResultSet rs = db.openQuery( strSql );
           ResultSetMetaData resultSetMetaData = rs.getMetaData();
           int columnCount = resultSetMetaData.getColumnCount();
           if ( rs != null ) {
@@ -2727,10 +2727,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     }
   }
 
-  public static String escapeSQL( Context actualContext, Scriptable actualObject, Object[] ArgList,
-                                  Function FunctionContext ) {
+  public static String escapeSql(Context actualContext, Scriptable actualObject, Object[] ArgList,
+                                 Function FunctionContext ) {
     if ( ArgList.length == 1 ) {
-      return Const.escapeSQL( Context.toString( ArgList[ 0 ] ) );
+      return Const.escapeSql( Context.toString( ArgList[ 0 ] ) );
     } else {
       throw Context.reportRuntimeError( "The function call escapeSQL requires 1 argument." );
 

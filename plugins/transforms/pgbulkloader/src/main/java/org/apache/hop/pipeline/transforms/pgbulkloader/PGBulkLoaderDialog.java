@@ -866,7 +866,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
       SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
       if ( !sql.hasError() ) {
-        if ( sql.hasSQL() ) {
+        if ( sql.hasSql() ) {
           SqlEditor sqledit =
             new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );

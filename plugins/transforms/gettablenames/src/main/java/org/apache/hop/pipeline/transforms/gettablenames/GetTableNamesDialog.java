@@ -78,9 +78,9 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
   private Label wlTablenameField;
   private Text wTablenameField;
   private FormData fdlTablenameField, fdTablenameField;
-  private Label wlSQLCreationField;
+  private Label wlSqlCreationField;
   private Text wSqlCreationField;
-  private FormData fdlSQLCreationField, fdSQLCreationField;
+  private FormData fdlSqlCreationField, fdSqlCreationField;
   private Button wincludeTable;
   private FormData fdincludeTable;
   private Label wlincludeTable;
@@ -544,24 +544,24 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wisSystemObjectField.setLayoutData( fdisSystemObjectField );
 
     // CreationSQL fieldname ...
-    wlSQLCreationField = new Label( wOutputFields, SWT.RIGHT );
-    wlSQLCreationField.setText( BaseMessages.getString( PKG, "GetTableNamesDialog.CreationSQLName.Label" ) );
-    props.setLook( wlSQLCreationField );
-    fdlSQLCreationField = new FormData();
-    fdlSQLCreationField.left = new FormAttachment( 0, 0 );
-    fdlSQLCreationField.right = new FormAttachment( middle, -margin );
-    fdlSQLCreationField.top = new FormAttachment( wisSystemObjectField, margin );
-    wlSQLCreationField.setLayoutData( fdlSQLCreationField );
+    wlSqlCreationField = new Label( wOutputFields, SWT.RIGHT );
+    wlSqlCreationField.setText( BaseMessages.getString( PKG, "GetTableNamesDialog.CreationSQLName.Label" ) );
+    props.setLook(wlSqlCreationField);
+    fdlSqlCreationField = new FormData();
+    fdlSqlCreationField.left = new FormAttachment( 0, 0 );
+    fdlSqlCreationField.right = new FormAttachment( middle, -margin );
+    fdlSqlCreationField.top = new FormAttachment( wisSystemObjectField, margin );
+    wlSqlCreationField.setLayoutData(fdlSqlCreationField);
     wSqlCreationField = new Text( wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSqlCreationField
       .setToolTipText( BaseMessages.getString( PKG, "GetTableNamesDialog.CreationSQLName.Tooltip" ) );
     props.setLook( wSqlCreationField );
     wSqlCreationField.addModifyListener( lsMod );
-    fdSQLCreationField = new FormData();
-    fdSQLCreationField.left = new FormAttachment( middle, 0 );
-    fdSQLCreationField.top = new FormAttachment( wisSystemObjectField, margin );
-    fdSQLCreationField.right = new FormAttachment( 100, 0 );
-    wSqlCreationField.setLayoutData( fdSQLCreationField );
+    fdSqlCreationField = new FormData();
+    fdSqlCreationField.left = new FormAttachment( middle, 0 );
+    fdSqlCreationField.top = new FormAttachment( wisSystemObjectField, margin );
+    fdSqlCreationField.right = new FormAttachment( 100, 0 );
+    wSqlCreationField.setLayoutData(fdSqlCreationField);
 
     FormData fdOutputFields = new FormData();
     fdOutputFields.left = new FormAttachment( 0, margin );

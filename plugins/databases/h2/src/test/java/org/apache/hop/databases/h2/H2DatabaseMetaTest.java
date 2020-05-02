@@ -71,7 +71,7 @@ public class H2DatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "TRUNCATE TABLE FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "SELECT * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT 1 FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );

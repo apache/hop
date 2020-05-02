@@ -25,13 +25,9 @@ package org.apache.hop.workflow.actions.ftpsput;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
@@ -58,7 +54,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -67,8 +62,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTPS Put action settings
@@ -838,7 +831,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
     return action;
   }
 
-  private void closeFTPSConnection() {
+  private void closeFtpsConnection() {
     // Close FTP connection if necessary
     if ( connection != null ) {
       try {
@@ -850,7 +843,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
   }
 
   private void test() {
-    if ( connectToFTP( false, null ) ) {
+    if ( connectToFtp( false, null ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "JobFTPSPUT.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobFTPSPUT.Connected.Title.Ok" ) );
@@ -860,7 +853,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
 
   private void checkRemoteFolder( String remoteFoldername ) {
     if ( !Utils.isEmpty( remoteFoldername ) ) {
-      if ( connectToFTP( true, remoteFoldername ) ) {
+      if ( connectToFtp( true, remoteFoldername ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
         mb.setMessage( BaseMessages.getString( PKG, "JobFTPSPUT.FolderExists.OK", remoteFoldername ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobFTPSPUT.FolderExists.Title.Ok" ) );
@@ -869,7 +862,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToFTP( boolean checkfolder, String remoteFoldername ) {
+  private boolean connectToFtp(boolean checkfolder, String remoteFoldername ) {
     String realServername = null;
     try {
       realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
@@ -934,7 +927,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
   }
 
   public void dispose() {
-    closeFTPSConnection();
+    closeFtpsConnection();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();

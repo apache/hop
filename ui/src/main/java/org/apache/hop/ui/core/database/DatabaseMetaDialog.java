@@ -626,22 +626,22 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
 
     // SQL Statements to run after connecting
     //
-    Label wlSQLStatements = new Label( wAdvancedComp, SWT.LEFT );
-    props.setLook( wlSQLStatements );
-    wlSQLStatements.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSQLStatements" ) );
-    FormData fdlSQLStatements = new FormData();
-    fdlSQLStatements.top = new FormAttachment( lastControl, margin );
-    fdlSQLStatements.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlSQLStatements.right = new FormAttachment( 100, 0 );
-    wlSQLStatements.setLayoutData( fdlSQLStatements );
+    Label wlSqlStatements = new Label( wAdvancedComp, SWT.LEFT );
+    props.setLook( wlSqlStatements );
+    wlSqlStatements.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionSQLStatements" ) );
+    FormData fdlSqlStatements = new FormData();
+    fdlSqlStatements.top = new FormAttachment( lastControl, margin );
+    fdlSqlStatements.left = new FormAttachment( 0, 0 ); // First one in the left top corner
+    fdlSqlStatements.right = new FormAttachment( 100, 0 );
+    wlSqlStatements.setLayoutData( fdlSqlStatements );
     wSqlStatements = new TextVar( databaseMeta, wAdvancedComp, SWT.MULTI | SWT.LEFT | SWT.BORDER );
     props.setLook( wSqlStatements );
-    FormData fdSQLStatements = new FormData();
-    fdSQLStatements.top = new FormAttachment( wlSQLStatements, margin );
-    fdSQLStatements.bottom = new FormAttachment( 100, 0 );
-    fdSQLStatements.left = new FormAttachment( 0, 0 ); // To the right of the label
-    fdSQLStatements.right = new FormAttachment( 100, 0 );
-    wSqlStatements.setLayoutData( fdSQLStatements );
+    FormData fdSqlStatements = new FormData();
+    fdSqlStatements.top = new FormAttachment( wlSqlStatements, margin );
+    fdSqlStatements.bottom = new FormAttachment( 100, 0 );
+    fdSqlStatements.left = new FormAttachment( 0, 0 ); // To the right of the label
+    fdSqlStatements.right = new FormAttachment( 100, 0 );
+    wSqlStatements.setLayoutData( fdSqlStatements );
     // lastControl = wSqlStatements;
 
     fdAdvancedComp = new FormData();
@@ -761,7 +761,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wForceUppercase.setSelection( workingMeta.isForcingIdentifiersToUpperCase() );
     wPreserveCase.setSelection( workingMeta.preserveReservedCase() );
     wPreferredSchema.setText( Const.NVL( workingMeta.getPreferredSchemaName(), "" ) );
-    wSqlStatements.setText( Const.NVL( workingMeta.getConnectSQL(), "" ) );
+    wSqlStatements.setText( Const.NVL( workingMeta.getConnectSql(), "" ) );
 
     wOptions.clearAll( false );
     Map<String, String> optionsMap = workingMeta.getExtraOptionsMap();
@@ -803,7 +803,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     meta.setForcingIdentifiersToUpperCase( wForceUppercase.getSelection() );
     meta.setPreserveReservedCase( wPreserveCase.getSelection() );
     meta.setPreferredSchemaName( wPreferredSchema.getText() );
-    meta.setConnectSQL( wSqlStatements.getText() );
+    meta.setConnectSql( wSqlStatements.getText() );
 
     meta.getExtraOptions().clear();
     for ( int i = 0; i < wOptions.nrNonEmpty(); i++ ) {

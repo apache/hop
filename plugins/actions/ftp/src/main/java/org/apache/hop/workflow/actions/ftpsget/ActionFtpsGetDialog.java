@@ -25,13 +25,9 @@ package org.apache.hop.workflow.actions.ftpsget;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -57,7 +53,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -65,8 +60,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the FTPS action settings.
@@ -99,11 +92,11 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
 
   private FormData fdPassword;
 
-  private TextVar wFTPSDirectory;
-  private Label wlFTPSDirectory;
+  private TextVar wFtpsDirectory;
+  private Label wlFtpsDirectory;
 
-  private FormData fdFTPSDirectory;
-  private FormData fdlFTPSDirectory;
+  private FormData fdFtpsDirectory;
+  private FormData fdlFtpsDirectory;
 
   private LabelTextVar wWildcard;
 
@@ -611,14 +604,14 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wRemoteSettings.setLayout( RemoteSettinsgroupLayout );
 
     // Move to directory
-    wlFTPSDirectory = new Label( wRemoteSettings, SWT.RIGHT );
-    wlFTPSDirectory.setText( BaseMessages.getString( PKG, "JobFTPS.RemoteDir.Label" ) );
-    props.setLook( wlFTPSDirectory );
-    fdlFTPSDirectory = new FormData();
-    fdlFTPSDirectory.left = new FormAttachment( 0, 0 );
-    fdlFTPSDirectory.top = new FormAttachment( 0, margin );
-    fdlFTPSDirectory.right = new FormAttachment( middle, 0 );
-    wlFTPSDirectory.setLayoutData( fdlFTPSDirectory );
+    wlFtpsDirectory = new Label( wRemoteSettings, SWT.RIGHT );
+    wlFtpsDirectory.setText( BaseMessages.getString( PKG, "JobFTPS.RemoteDir.Label" ) );
+    props.setLook(wlFtpsDirectory);
+    fdlFtpsDirectory = new FormData();
+    fdlFtpsDirectory.left = new FormAttachment( 0, 0 );
+    fdlFtpsDirectory.top = new FormAttachment( 0, margin );
+    fdlFtpsDirectory.right = new FormAttachment( middle, 0 );
+    wlFtpsDirectory.setLayoutData(fdlFtpsDirectory);
 
     // Test remote folder button ...
     wbTestChangeFolderExists = new Button( wRemoteSettings, SWT.PUSH | SWT.CENTER );
@@ -629,15 +622,15 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     fdbTestChangeFolderExists.top = new FormAttachment( 0, margin );
     wbTestChangeFolderExists.setLayoutData( fdbTestChangeFolderExists );
 
-    wFTPSDirectory = new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFTPSDirectory );
-    wFTPSDirectory.setToolTipText( BaseMessages.getString( PKG, "JobFTPS.RemoteDir.Tooltip" ) );
-    wFTPSDirectory.addModifyListener( lsMod );
-    fdFTPSDirectory = new FormData();
-    fdFTPSDirectory.left = new FormAttachment( middle, margin );
-    fdFTPSDirectory.top = new FormAttachment( 0, margin );
-    fdFTPSDirectory.right = new FormAttachment( wbTestChangeFolderExists, -margin );
-    wFTPSDirectory.setLayoutData( fdFTPSDirectory );
+    wFtpsDirectory = new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook(wFtpsDirectory);
+    wFtpsDirectory.setToolTipText( BaseMessages.getString( PKG, "JobFTPS.RemoteDir.Tooltip" ) );
+    wFtpsDirectory.addModifyListener( lsMod );
+    fdFtpsDirectory = new FormData();
+    fdFtpsDirectory.left = new FormAttachment( middle, margin );
+    fdFtpsDirectory.top = new FormAttachment( 0, margin );
+    fdFtpsDirectory.right = new FormAttachment( wbTestChangeFolderExists, -margin );
+    wFtpsDirectory.setLayoutData(fdFtpsDirectory);
 
     // Wildcard line
     wWildcard =
@@ -648,7 +641,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wWildcard.addModifyListener( lsMod );
     fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment( 0, 0 );
-    fdWildcard.top = new FormAttachment( wFTPSDirectory, 2 * margin );
+    fdWildcard.top = new FormAttachment(wFtpsDirectory, 2 * margin );
     fdWildcard.right = new FormAttachment( 100, 0 );
     wWildcard.setLayoutData( fdWildcard );
 
@@ -1181,7 +1174,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     };
     lsCheckChangeFolder = new Listener() {
       public void handleEvent( Event e ) {
-        checkRemoteFolder( true, false, wFTPSDirectory.getText() );
+        checkRemoteFolder( true, false, wFtpsDirectory.getText() );
       }
     };
 
@@ -1201,9 +1194,9 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wServerName.addSelectionListener( lsDef );
     wUserName.addSelectionListener( lsDef );
     wPassword.addSelectionListener( lsDef );
-    wFTPSDirectory.addSelectionListener( lsDef );
+    wFtpsDirectory.addSelectionListener( lsDef );
     wTargetDirectory.addSelectionListener( lsDef );
-    wFTPSDirectory.addSelectionListener( lsDef );
+    wFtpsDirectory.addSelectionListener( lsDef );
     wWildcard.addSelectionListener( lsDef );
     wTimeout.addSelectionListener( lsDef );
 
@@ -1241,7 +1234,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
 
   private void test() {
 
-    if ( connectToFTPS( false, false ) ) {
+    if ( connectToFtps( false, false ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "JobFTPS.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobFTPS.Connected.Title.Ok" ) );
@@ -1249,9 +1242,9 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void checkRemoteFolder( boolean FTPSFolfer, boolean checkMoveFolder, String foldername ) {
+  private void checkRemoteFolder( boolean FtpsFolfer, boolean checkMoveFolder, String foldername ) {
     if ( !Utils.isEmpty( foldername ) ) {
-      if ( connectToFTPS( FTPSFolfer, checkMoveFolder ) ) {
+      if ( connectToFtps( FtpsFolfer, checkMoveFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
         mb.setMessage( BaseMessages.getString( PKG, "JobFTPS.FolderExists.OK", foldername ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobFTPS.FolderExists.Title.Ok" ) );
@@ -1260,7 +1253,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToFTPS( boolean checkfolder, boolean checkmoveToFolder ) {
+  private boolean connectToFtps(boolean checkfolder, boolean checkmoveToFolder ) {
     boolean retval = true;
     String realServername = null;
     try {
@@ -1300,8 +1293,8 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
       }
 
       String realFTPSDirectory = null;
-      if ( !Utils.isEmpty( wFTPSDirectory.getText() ) ) {
-        realFTPSDirectory = workflowMeta.environmentSubstitute( wFTPSDirectory.getText() );
+      if ( !Utils.isEmpty( wFtpsDirectory.getText() ) ) {
+        realFTPSDirectory = workflowMeta.environmentSubstitute( wFtpsDirectory.getText() );
       }
 
       if ( checkfolder ) {
@@ -1384,7 +1377,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
   }
 
   public void dispose() {
-    closeFTPSConnection();
+    closeFtpsConnection();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();
@@ -1400,7 +1393,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     wPort.setText( Const.NVL( action.getPort(), "21" ) );
     wUserName.setText( Const.NVL( action.getUserName(), "" ) );
     wPassword.setText( Const.NVL( action.getPassword(), "" ) );
-    wFTPSDirectory.setText( Const.NVL( action.getFTPSDirectory(), "" ) );
+    wFtpsDirectory.setText( Const.NVL( action.getFTPSDirectory(), "" ) );
     wTargetDirectory.setText( Const.NVL( action.getTargetDirectory(), "" ) );
     wWildcard.setText( Const.NVL( action.getWildcard(), "" ) );
     wBinaryMode.setSelection( action.isBinaryMode() );
@@ -1467,7 +1460,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     action.setServerName( wServerName.getText() );
     action.setUserName( wUserName.getText() );
     action.setPassword( wPassword.getText() );
-    action.setFTPSDirectory( wFTPSDirectory.getText() );
+    action.setFTPSDirectory( wFtpsDirectory.getText() );
     action.setTargetDirectory( wTargetDirectory.getText() );
     action.setWildcard( wWildcard.getText() );
     action.setBinaryMode( wBinaryMode.getSelection() );
@@ -1510,7 +1503,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     dispose();
   }
 
-  private void closeFTPSConnection() {
+  private void closeFtpsConnection() {
     // Close FTPS connection if necessary
     if ( connection != null ) {
       try {

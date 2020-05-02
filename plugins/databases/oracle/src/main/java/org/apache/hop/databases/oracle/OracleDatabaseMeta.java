@@ -562,7 +562,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return A string that is properly quoted for use in an Oracle SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replaceAll( "'", "''" );
     string = string.replaceAll( "\\n", "'||chr(13)||'" );
     string = string.replaceAll( "\\r", "'||chr(10)||'" );

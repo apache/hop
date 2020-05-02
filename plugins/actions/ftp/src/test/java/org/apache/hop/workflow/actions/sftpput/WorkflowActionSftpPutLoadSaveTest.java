@@ -46,14 +46,14 @@ public class WorkflowActionSftpPutLoadSaveTest extends WorkflowActionLoadSaveTes
     return Arrays.asList( new String[] { "serverName", "serverPort", "userName", "password", "scpDirectory",
       "localDirectory", "wildcard", "copyPrevious", "copyPreviousFiles", "addFilenameResut", "useKeyFile",
       "keyFilename", "keyPassPhrase", "compression", "proxyType", "proxyHost", "proxyPort", "proxyUsername",
-      "proxyPassword", "createRemoteFolder", "afterFTPS", "destinationFolder", "createDestinationFolder",
+      "proxyPassword", "createRemoteFolder", "afterFtps", "destinationFolder", "createDestinationFolder",
       "successWhenNoFile" } );
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "afterFTPS", new IntLoadSaveValidator( ActionSftpPut.afterFTPSCode.length ) );
+    validators.put( "afterFtps", new IntLoadSaveValidator( ActionSftpPut.afterFtpsCode.length ) );
 
     return validators;
   }

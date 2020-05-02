@@ -159,7 +159,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for binary type
     IValueMeta binaryValueMeta =
-      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
+      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertNotNull( binaryValueMeta );
     assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == binaryValueMeta.getType() );
@@ -168,7 +168,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for varbinary type
     IValueMeta varbinaryValueMeta =
-      obj.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
     assertNotNull( varbinaryValueMeta );
     assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == varbinaryValueMeta.getType() );

@@ -45,7 +45,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -733,7 +732,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     return this.socksProxyPort;
   }
 
-  protected FTPClient initFTPClient() {
+  protected FTPClient initFtpClient() {
     return new FTPClient();
   }
 
@@ -771,7 +770,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
     try {
       // Create ftp client to host:port ...
-      ftpclient = initFTPClient();
+      ftpclient = initFtpClient();
       String realServername = environmentSubstitute( serverName );
       String realServerPort = environmentSubstitute( port );
       ftpclient.setRemoteAddr( getInetAddress( realServername ) );

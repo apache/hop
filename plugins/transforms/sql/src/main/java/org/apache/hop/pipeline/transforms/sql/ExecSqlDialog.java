@@ -86,11 +86,11 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSQL;
+  private Label wlSql;
 
   private StyledTextComp wSql;
 
-  private FormData fdlSQL, fdSQL;
+  private FormData fdlSql, fdSql;
 
   private Label wlEachRow;
   private Button wEachRow;
@@ -213,13 +213,13 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), lsMod );
 
     // Table line...
-    wlSQL = new Label( shell, SWT.LEFT );
-    wlSQL.setText( BaseMessages.getString( PKG, "ExecSqlDialog.SQL.Label" ) );
-    props.setLook( wlSQL );
-    fdlSQL = new FormData();
-    fdlSQL.left = new FormAttachment( 0, 0 );
-    fdlSQL.top = new FormAttachment( wConnection, margin * 2 );
-    wlSQL.setLayoutData( fdlSQL );
+    wlSql = new Label( shell, SWT.LEFT );
+    wlSql.setText( BaseMessages.getString( PKG, "ExecSqlDialog.SQL.Label" ) );
+    props.setLook(wlSql);
+    fdlSql = new FormData();
+    fdlSql.left = new FormAttachment( 0, 0 );
+    fdlSql.top = new FormAttachment( wConnection, margin * 2 );
+    wlSql.setLayoutData(fdlSql);
 
     wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
@@ -515,12 +515,12 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Finally, the SQL editor takes up all other space between the position and the SQL label
     //
-    fdSQL = new FormData();
-    fdSQL.left = new FormAttachment( 0, 0 );
-    fdSQL.top = new FormAttachment( wlSQL, margin );
-    fdSQL.right = new FormAttachment( 100, -2 * margin );
-    fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSql.setLayoutData( fdSQL );
+    fdSql = new FormData();
+    fdSql.left = new FormAttachment( 0, 0 );
+    fdSql.top = new FormAttachment(wlSql, margin );
+    fdSql.right = new FormAttachment( 100, -2 * margin );
+    fdSql.bottom = new FormAttachment( wlPosition, -margin );
+    wSql.setLayoutData(fdSql);
 
     // Search the fields in the background
     //

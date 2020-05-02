@@ -55,11 +55,11 @@ public class CacheDatabaseMetaTest {
     assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
     assertTrue( cdm.requiresCreateTablePrimaryKeyAppend() );
-    assertFalse( cdm.supportsNewLinesInSQL() );
+    assertFalse( cdm.supportsNewLinesInSql() );
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR VARCHAR(15) ) ",
       cdm.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN ( BAR TIMESTAMP ) ",

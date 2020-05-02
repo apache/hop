@@ -236,7 +236,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
    * @return true if the database supports newlines in a SQL statements.
    */
   @Override
-  public boolean supportsNewLinesInSQL() {
+  public boolean supportsNewLinesInSql() {
     return true;
   }
 

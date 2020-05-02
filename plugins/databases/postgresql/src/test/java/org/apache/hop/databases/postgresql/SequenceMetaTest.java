@@ -34,7 +34,7 @@ public class SequenceMetaTest {
   public void testSupport() {
 
     IDatabase[] support = new IDatabase[] {
-      new PostgreSQLDatabaseMeta(),
+      new PostgreSqlDatabaseMeta(),
     };
 
     for ( IDatabase db : support ) {
@@ -60,12 +60,12 @@ public class SequenceMetaTest {
   }
 
   @Test
-  public void testSQL() {
+  public void testSql() {
 
     IDatabase iDatabase;
     final String sequenceName = "sequence_name";
 
-    iDatabase = new PostgreSQLDatabaseMeta();
+    iDatabase = new PostgreSqlDatabaseMeta();
     assertEquals( "SELECT nextval('sequence_name')", iDatabase.getSqlNextSequenceValue( sequenceName ) );
     assertEquals( "SELECT currval('sequence_name')", iDatabase
       .getSqlCurrentSequenceValue( sequenceName ) );
