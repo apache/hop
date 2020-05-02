@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 public class ReleaseSavePointTest {
 
   IDatabase[] support = new IDatabase[] {
-    new PostgreSQLDatabaseMeta(),
+    new PostgreSqlDatabaseMeta(),
   };
 
   @Test

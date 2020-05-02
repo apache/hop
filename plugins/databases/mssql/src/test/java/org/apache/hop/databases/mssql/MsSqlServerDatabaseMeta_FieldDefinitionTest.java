@@ -32,8 +32,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MSSQLServerDatabaseMeta_FieldDefinitionTest {
-  private MSSQLServerDatabaseMeta dbMeta;
+public class MsSqlServerDatabaseMeta_FieldDefinitionTest {
+  private MsSqlServerDatabaseMeta dbMeta;
 
   private static final String DEFAULT_TABLE_NAME = "table";
 
@@ -47,7 +47,7 @@ public class MSSQLServerDatabaseMeta_FieldDefinitionTest {
 
   @Before
   public void init() {
-    dbMeta = new MSSQLServerDatabaseMeta();
+    dbMeta = new MsSqlServerDatabaseMeta();
   }
 
 

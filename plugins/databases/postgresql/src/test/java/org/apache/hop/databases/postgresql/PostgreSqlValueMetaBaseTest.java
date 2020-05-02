@@ -23,44 +23,28 @@
 package org.apache.hop.databases.postgresql;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.*;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.mockito.Spy;
-import org.owasp.encoder.Encode;
-import org.w3c.dom.Node;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.net.InetAddress;
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-public class PostgreSQLValueMetaBaseTest {
+public class PostgreSqlValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
@@ -125,7 +109,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void test_PDI_17126_Postgres() throws Exception {
     String data = StringUtils.repeat( "*", 10 );
-    initValueMeta( new PostgreSQLDatabaseMeta(), 20, data );
+    initValueMeta( new PostgreSqlDatabaseMeta(), 20, data );
 
     verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
   }
@@ -136,7 +120,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void test_Pdi_17126_postgres_DataLongerThanMetaLength() throws Exception {
     String data = StringUtils.repeat( "*", 20 );
-    initValueMeta( new PostgreSQLDatabaseMeta(), 10, data );
+    initValueMeta( new PostgreSqlDatabaseMeta(), 10, data );
 
     verify( preparedStatementMock, times( 1 ) ).setString( 0, data );
   }
@@ -150,7 +134,7 @@ public class PostgreSQLValueMetaBaseTest {
     List<HopLoggingEvent> events = listener.getEvents();
     assertEquals( 0, events.size() );
 
-    databaseMetaSpy.setIDatabase( new PostgreSQLDatabaseMeta() );
+    databaseMetaSpy.setIDatabase( new PostgreSqlDatabaseMeta() );
     doReturn( 1024 ).when( databaseMetaSpy ).getMaxTextFieldLength();
     doReturn( false ).when( databaseMetaSpy ).supportsSetCharacterStream();
 
@@ -176,12 +160,12 @@ public class PostgreSQLValueMetaBaseTest {
 
 
   @Test
-  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingPostgesSQL() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlNumericWithUndefinedSizeUsingPostgesSql() throws SQLException, HopDatabaseException {
     doReturn( Types.NUMERIC ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 0 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( PostgreSqlDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertFalse( valueMeta.isBigNumber() ); // TODO: VALIDATE!
     assertEquals( 0, valueMeta.getPrecision() ); // TODO: VALIDATE!
@@ -191,7 +175,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( PostgreSqlDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
@@ -199,7 +183,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.BLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( PostgreSqlDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
     assertTrue( valueMeta.isBinary() );
@@ -208,7 +192,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.VARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( PostgreSqlDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }
@@ -216,7 +200,7 @@ public class PostgreSQLValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlLongVarBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn( Types.LONGVARBINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( PostgreSQLDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( PostgreSqlDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBinary() );
   }

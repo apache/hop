@@ -51,8 +51,8 @@ import java.util.Set;
   typeDescription = "MySQL"
 )
 @GuiPlugin( id = "GUI-MySQLDatabaseMeta" )
-public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  private static final Class<?> PKG = MySQLDatabaseMeta.class;
+public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+  private static final Class<?> PKG = MySqlDatabaseMeta.class;
 
   @GuiWidgetElement(
     id = "resultStreaming",
@@ -438,7 +438,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
-  @Override public String quoteSQLString( String string ) {
+  @Override public String quoteSqlString(String string ) {
     string = string.replace( "'", "\\\\'" );
     string = string.replace( "\\n", "\\\\n" );
     string = string.replace( "\\r", "\\\\r" );
@@ -448,7 +448,7 @@ public class MySQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so on.
    */
-  @Override public boolean isMySQLVariant() {
+  @Override public boolean isMySqlVariant() {
     return true;
   }
 

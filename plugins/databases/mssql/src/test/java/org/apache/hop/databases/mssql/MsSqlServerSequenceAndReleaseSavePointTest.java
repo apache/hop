@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.databases.mssqlnative;
+package org.apache.hop.databases.mssql;
 
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
@@ -30,14 +30,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class MSSQLServerNativeSequenceAndReleaseSavePointTest {
+public class MsSqlServerSequenceAndReleaseSavePointTest {
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
 
   //Set these parameters for the test
-  IDatabase db = new MSSQLServerNativeDatabaseMeta();
+  IDatabase db = new MsSqlServerDatabaseMeta();
   Boolean sequenceSupport = true;
   Boolean savepointSupport = true;
 

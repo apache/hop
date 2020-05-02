@@ -69,7 +69,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     }
 
     // get dynamic SQL statement
-    String sqlTemp = getInputRowMeta().getString( rowData, data.indexOfSQLField );
+    String sqlTemp = getInputRowMeta().getString( rowData, data.indexOfSqlField);
     String sql = null;
     if ( meta.isVariableReplace() ) {
       sql = environmentSubstitute( sqlTemp );
@@ -83,12 +83,12 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
 
     if ( meta.isQueryOnlyOnChange() ) {
       if ( loadFromBuffer ) {
-        if ( data.previousSQL != null && !data.previousSQL.equals( sql ) ) {
+        if ( data.previousSql != null && !data.previousSql.equals( sql ) ) {
           loadFromBuffer = false;
         }
       }
       // Save current parameters value as previous ones
-      data.previousSQL = sql;
+      data.previousSql = sql;
     } else {
       loadFromBuffer = false;
     }
@@ -229,9 +229,9 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
       }
 
       // cache the position of the field
-      if ( data.indexOfSQLField < 0 ) {
-        data.indexOfSQLField = getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
-        if ( data.indexOfSQLField < 0 ) {
+      if ( data.indexOfSqlField < 0 ) {
+        data.indexOfSqlField = getInputRowMeta().indexOfValue( meta.getSqlFieldName() );
+        if ( data.indexOfSqlField < 0 ) {
           // The field is unreachable !
           throw new HopException( BaseMessages.getString( PKG, "DynamicSQLRow.Exception.FieldNotFound", meta
             .getSqlFieldName() ) );

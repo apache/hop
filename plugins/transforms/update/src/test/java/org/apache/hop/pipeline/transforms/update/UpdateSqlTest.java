@@ -30,7 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 import org.junit.Test;
 
-public class UpdateSQLTest extends TestCase {
+public class UpdateSqlTest extends TestCase {
 
   @Test
   public void testRowsTransform() {

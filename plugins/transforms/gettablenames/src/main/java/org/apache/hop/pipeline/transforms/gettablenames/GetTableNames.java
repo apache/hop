@@ -36,9 +36,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -159,7 +157,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
           outputRowSyn[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( synonym ) );
         }
-        if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+        if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
           outputRowSyn[ outputIndex++ ] = null;
         }
         data.rownr++;
@@ -188,7 +186,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
           outputRowProc[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( procName ) );
         }
-        if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+        if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
           outputRowProc[ outputIndex++ ] = null;
         }
         data.rownr++;
@@ -222,7 +220,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
             outputRowView[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( viewNameWithoutSchema ) );
           }
 
-          if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+          if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
             outputRowView[ outputIndex++ ] = null;
           }
           data.rownr++;
@@ -292,7 +290,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
             sql += ")" + Const.CR + ")" + Const.CR + ";";
           }
         }
-        if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+        if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
           outputRowTable[ outputIndex++ ] = sql;
         }
 
@@ -332,7 +330,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
           outputRowSchema[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( schemaName ) );
         }
-        if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+        if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
           outputRowSchema[ outputIndex++ ] = null;
         }
         data.rownr++;
@@ -367,7 +365,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         if ( !Utils.isEmpty( data.realIsSystemObjectFieldName ) ) {
           outputRowCatalog[ outputIndex++ ] = Boolean.valueOf( data.db.isSystemTable( catalogName ) );
         }
-        if ( !Utils.isEmpty( data.realSQLCreationFieldName ) ) {
+        if ( !Utils.isEmpty( data.realSqlCreationFieldName) ) {
           outputRowCatalog[ outputIndex++ ] = null;
         }
         data.rownr++;
@@ -404,7 +402,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       data.realTableNameFieldName = environmentSubstitute( meta.getTablenameFieldName() );
       data.realObjectTypeFieldName = environmentSubstitute( meta.getObjectTypeFieldName() );
       data.realIsSystemObjectFieldName = environmentSubstitute( meta.isSystemObjectFieldName() );
-      data.realSQLCreationFieldName = environmentSubstitute( meta.getSqlCreationFieldName() );
+      data.realSqlCreationFieldName = environmentSubstitute( meta.getSqlCreationFieldName() );
       if ( !meta.isIncludeCatalog()
         && !meta.isIncludeSchema() && !meta.isIncludeTable() && !meta.isIncludeView()
         && !meta.isIncludeProcedure() && !meta.isIncludeSynonym() ) {

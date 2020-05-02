@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
+import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,7 @@ import org.junit.Test;
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.PacketTooBigException;
 
-public class MySQLDatabaseLogExceptionFactoryTest {
+public class MySqlDatabaseLogExceptionFactoryTest {
 
   private ILogTableCore logTable;
   private static final String THROWABLE = "org.apache.hop.core.database.util.DatabaseLogExceptionFactory$ThrowableBehaviour";
@@ -78,7 +78,7 @@ public class MySQLDatabaseLogExceptionFactoryTest {
   @Test
   public void testExceptionStrategyWithPacketTooBigException() {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySqlDatabaseMeta());
     PacketTooBigException e = new PacketTooBigException();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
@@ -96,7 +96,7 @@ public class MySQLDatabaseLogExceptionFactoryTest {
    */
   @Test public void testExceptionStrategyWithMysqlDataTruncationException() {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySqlDatabaseMeta());
     MysqlDataTruncation e = new MysqlDataTruncation();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );
@@ -116,7 +116,7 @@ public class MySQLDatabaseLogExceptionFactoryTest {
     System.setProperty( DatabaseLogExceptionFactory.HOP_GLOBAL_PROP_NAME, PROPERTY_VALUE_TRUE );
 
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setIDatabase(new MySQLDatabaseMeta());
+    databaseMeta.setIDatabase(new MySqlDatabaseMeta());
     PacketTooBigException e = new PacketTooBigException();
 
     when( logTable.getDatabaseMeta() ).thenReturn( databaseMeta );

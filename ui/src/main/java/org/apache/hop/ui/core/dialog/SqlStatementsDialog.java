@@ -62,8 +62,8 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class SQLStatementsDialog extends Dialog {
-  private static Class<?> PKG = SQLStatementsDialog.class; // for i18n purposes, needed by Translator!!
+public class SqlStatementsDialog extends Dialog {
+  private static Class<?> PKG = SqlStatementsDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Statements Dialog", LoggingObjectType.HOP_GUI, null );
@@ -86,7 +86,7 @@ public class SQLStatementsDialog extends Dialog {
 
   private IVariables variables;
 
-  public SQLStatementsDialog( Shell parent, IVariables variables, int style, List<SqlStatement> stats ) {
+  public SqlStatementsDialog(Shell parent, IVariables variables, int style, List<SqlStatement> stats ) {
     super( parent, style );
     this.stats = stats;
     this.props = PropsUi.getInstance();
@@ -287,7 +287,7 @@ public class SQLStatementsDialog extends Dialog {
       sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Transform", stat.getTransformName() ) );
       sql.append( BaseMessages.getString( PKG, "SQLStatementDialog.Log.Connection", ( di != null
         ? di.getName() : BaseMessages.getString( PKG, "SQLStatementDialog.Log.Undefined" ) ) ) );
-      if ( stat.hasSQL() ) {
+      if ( stat.hasSql() ) {
         sql.append( "-- SQL                  : " );
         sql.append( stat.getSql() ).append( Const.CR );
       }

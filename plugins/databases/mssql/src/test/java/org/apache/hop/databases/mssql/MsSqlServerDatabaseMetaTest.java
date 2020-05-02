@@ -45,8 +45,8 @@ import java.sql.ResultSet;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
-public class MSSQLServerDatabaseMetaTest {
-  MSSQLServerDatabaseMeta nativeMeta, odbcMeta;
+public class MsSqlServerDatabaseMetaTest {
+  MsSqlServerDatabaseMeta nativeMeta, odbcMeta;
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
@@ -62,9 +62,9 @@ public class MSSQLServerDatabaseMetaTest {
 
   @Before
   public void setupOnce() throws Exception {
-    nativeMeta = new MSSQLServerDatabaseMeta();
+    nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new MSSQLServerDatabaseMeta();
+    odbcMeta = new MsSqlServerDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     databaseMeta = new DatabaseMeta();
     iDatabase = mock( IDatabase.class );
@@ -149,7 +149,7 @@ public class MSSQLServerDatabaseMetaTest {
 
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "SELECT TOP 1 * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
     String lineSep = System.getProperty( "line.separator" );
     assertEquals( "SELECT top 0 * FROM FOO WITH (UPDLOCK, HOLDLOCK);"

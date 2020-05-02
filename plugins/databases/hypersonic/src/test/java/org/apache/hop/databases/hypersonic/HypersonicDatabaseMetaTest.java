@@ -102,7 +102,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() throws Exception {
+  public void testSqlStatements() throws Exception {
     HypersonicDatabaseMeta nativeMeta = new HypersonicDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     HypersonicDatabaseMeta odbcMeta = new HypersonicDatabaseMeta();
@@ -208,7 +208,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSQLSequenceExists() throws Exception {
+  public void testGetSqlSequenceExists() throws Exception {
     String sql = hypersonicDatabaseMeta.getSqlSequenceExists( sequenceName );
     String expectedSql = "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
     assertEquals( expectedSql, sql );
@@ -219,7 +219,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSQLCurrentSequenceValue() throws Exception {
+  public void testGetSqlCurrentSequenceValue() throws Exception {
     String sql = hypersonicDatabaseMeta.getSqlCurrentSequenceValue( sequenceName );
     String expectedSql =
       "SELECT seQuence.currval FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
@@ -231,7 +231,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSQLNextSequenceValue() throws Exception {
+  public void testGetSqlNextSequenceValue() throws Exception {
     String sql = hypersonicDatabaseMeta.getSqlNextSequenceValue( sequenceName );
     String expectedSql =
       "SELECT NEXT VALUE FOR seQuence FROM INFORMATION_SCHEMA.SYSTEM_SEQUENCES WHERE SEQUENCE_NAME = 'seQuence'";
@@ -243,7 +243,7 @@ public class HypersonicDatabaseMetaTest {
   }
 
   @Test
-  public void testGetSQLQueryFields() throws Exception {
+  public void testGetSqlQueryFields() throws Exception {
     String sql = hypersonicDatabaseMeta.getSqlQueryFields( tableName );
     String expectedSql = "SELECT * FROM teST";
     assertEquals( expectedSql, sql );

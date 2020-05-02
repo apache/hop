@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
   typeDescription = "SQLite"
 )
 @GuiPlugin( id = "GUI-SQLiteDatabaseMeta" )
-public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
@@ -204,7 +204,7 @@ public class SQLiteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean isSQLiteVariant() {
+  public boolean isSqliteVariant() {
     return true;
   }
 

@@ -49,7 +49,7 @@ import java.sql.ResultSet;
   typeDescription = "MS SQL Server"
 )
 @GuiPlugin( id = "GUI-MSSQLServerDatabaseMeta" )
-public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
 
   @GuiWidgetElement(
@@ -550,7 +550,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
    * @return A string that is properly quoted for use in an Oracle SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replace( "'", "''" );
     string = string.replace( "\\n", "'+char(13)+'" );
     string = string.replace( "\\r", "'+char(10)+'" );
@@ -587,7 +587,7 @@ public class MSSQLServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   }
 
   @Override
-  public boolean isMSSQLServerVariant() {
+  public boolean isMsSqlServerVariant() {
     return true;
   }
 

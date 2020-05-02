@@ -21,18 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.databases.greenplum;
 
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMetaTest;
+import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
+import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMetaTest;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 
-public class GreeplumDatabaseMetaTest extends PostgreSQLDatabaseMetaTest {
+public class GreeplumDatabaseMetaTest extends PostgreSqlDatabaseMetaTest {
 
   @Test
   public void testPostgresqlOverrides() throws Exception {
-    PostgreSQLDatabaseMeta meta1 = new PostgreSQLDatabaseMeta();
+    PostgreSqlDatabaseMeta meta1 = new PostgreSqlDatabaseMeta();
     GreenplumDatabaseMeta meta2 = new GreenplumDatabaseMeta();
     String[] meta1Reserved = meta1.getReservedWords();
     String[] meta2Reserved = meta2.getReservedWords();

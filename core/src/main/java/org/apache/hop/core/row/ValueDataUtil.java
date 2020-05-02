@@ -298,7 +298,7 @@ public class ValueDataUtil {
     if ( dataA == null ) {
       return null;
     }
-    return Const.escapeSQL( dataA.toString() );
+    return Const.escapeSql( dataA.toString() );
   }
 
   public static String useCDATA( IValueMeta metaA, Object dataA ) {

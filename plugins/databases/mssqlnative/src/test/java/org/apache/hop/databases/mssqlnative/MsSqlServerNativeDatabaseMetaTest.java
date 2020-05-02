@@ -24,7 +24,7 @@ package org.apache.hop.databases.mssqlnative;
 
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
+import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -32,15 +32,15 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 
-public class MSSQLServerNativeDatabaseMetaTest {
+public class MsSqlServerNativeDatabaseMetaTest {
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  public void testMSSQLOverrides() throws Exception {
-    MSSQLServerNativeDatabaseMeta localNativeMeta = new MSSQLServerNativeDatabaseMeta();
+  public void testMsSqlOverrides() throws Exception {
+    MsSqlServerNativeDatabaseMeta localNativeMeta = new MsSqlServerNativeDatabaseMeta();
     localNativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    MSSQLServerNativeDatabaseMeta localOdbcMeta = new MSSQLServerNativeDatabaseMeta();
+    MsSqlServerNativeDatabaseMeta localOdbcMeta = new MsSqlServerNativeDatabaseMeta();
     localOdbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
 
     assertEquals( "com.microsoft.sqlserver.jdbc.SQLServerDriver", localNativeMeta.getDriverClass() );
@@ -64,9 +64,9 @@ public class MSSQLServerNativeDatabaseMetaTest {
   @Test
   public void setSqlServerInstanceTest() {
     DatabaseMeta dbmeta = new DatabaseMeta();
-    IDatabase mssqlServerDatabaseMeta = new MSSQLServerDatabaseMeta();
+    IDatabase mssqlServerDatabaseMeta = new MsSqlServerDatabaseMeta();
     mssqlServerDatabaseMeta.setPluginId( "MSSQL" );
-    IDatabase mssqlServerNativeDatabaseMeta = new MSSQLServerNativeDatabaseMeta();
+    IDatabase mssqlServerNativeDatabaseMeta = new MsSqlServerNativeDatabaseMeta();
     mssqlServerNativeDatabaseMeta.setPluginId( "MSSQLNATIVE" );
     dbmeta.setIDatabase( mssqlServerDatabaseMeta );
     dbmeta.setSqlServerInstance( "" );

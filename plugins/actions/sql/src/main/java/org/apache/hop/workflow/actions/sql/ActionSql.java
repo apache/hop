@@ -69,8 +69,8 @@ import java.util.List;
   image = "SQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting"
 )
-public class ActionSQL extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionSQL.class; // for i18n purposes, needed by Translator!!
+public class ActionSql extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!
 
   private String sql;
   private DatabaseMeta connection;
@@ -79,18 +79,18 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
   private String sqlfilename;
   private boolean sendOneStatement = false;
 
-  public ActionSQL( String n ) {
+  public ActionSql(String n ) {
     super( n, "" );
     sql = null;
     connection = null;
   }
 
-  public ActionSQL() {
+  public ActionSql() {
     this( "" );
   }
 
   public Object clone() {
-    ActionSQL je = (ActionSQL) super.clone();
+    ActionSql je = (ActionSql) super.clone();
     return je;
   }
 
@@ -195,10 +195,10 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
 
     if ( connection != null ) {
       Database db = new Database( this, connection );
-      FileObject SQLfile = null;
+      FileObject sqlFile = null;
       db.shareVariablesWith( this );
       try {
-        String theSQL = null;
+        String theSql = null;
         db.connect();
 
         if ( sqlfromfile ) {
@@ -208,8 +208,8 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
 
           try {
             String realfilename = environmentSubstitute( sqlfilename );
-            SQLfile = HopVfs.getFileObject( realfilename, this );
-            if ( !SQLfile.exists() ) {
+            sqlFile = HopVfs.getFileObject( realfilename, this );
+            if ( !sqlFile.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSQL.SQLFileNotExist", realfilename ) );
               throw new HopDatabaseException( BaseMessages.getString(
                 PKG, "JobSQL.SQLFileNotExist", realfilename ) );
@@ -218,7 +218,7 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
               logDetailed( BaseMessages.getString( PKG, "JobSQL.SQLFileExists", realfilename ) );
             }
 
-            InputStream IS = HopVfs.getInputStream( SQLfile );
+            InputStream IS = HopVfs.getInputStream( sqlFile );
             try {
               InputStreamReader BIS = new InputStreamReader( new BufferedInputStream( IS, 500 ) );
               StringBuilder lineSB = new StringBuilder( 256 );
@@ -226,13 +226,13 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
 
               BufferedReader buff = new BufferedReader( BIS );
               String sLine = null;
-              theSQL = Const.CR;
+              theSql = Const.CR;
 
               while ( ( sLine = buff.readLine() ) != null ) {
                 if ( Utils.isEmpty( sLine ) ) {
-                  theSQL = theSQL + Const.CR;
+                  theSql = theSql + Const.CR;
                 } else {
-                  theSQL = theSQL + Const.CR + sLine;
+                  theSql = theSql + Const.CR + sLine;
                 }
               }
             } finally {
@@ -243,20 +243,20 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
           }
 
         } else {
-          theSQL = sql;
+          theSql = sql;
         }
-        if ( !Utils.isEmpty( theSQL ) ) {
+        if ( !Utils.isEmpty( theSql ) ) {
           // let it run
           if ( useVariableSubstitution ) {
-            theSQL = environmentSubstitute( theSQL );
+            theSql = environmentSubstitute( theSql );
           }
           if ( isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "JobSQL.Log.SQlStatement", theSQL ) );
+            logDetailed( BaseMessages.getString( PKG, "JobSQL.Log.SQlStatement", theSql ) );
           }
           if ( sendOneStatement ) {
-            db.execStatement( theSQL );
+            db.execStatement( theSql );
           } else {
-            db.execStatements( theSQL );
+            db.execStatements( theSql );
           }
         }
       } catch ( HopDatabaseException je ) {
@@ -264,9 +264,9 @@ public class ActionSQL extends ActionBase implements Cloneable, IAction {
         logError( BaseMessages.getString( PKG, "JobSQL.ErrorRunAction", je.getMessage() ) );
       } finally {
         db.disconnect();
-        if ( SQLfile != null ) {
+        if ( sqlFile != null ) {
           try {
-            SQLfile.close();
+            sqlFile.close();
           } catch ( Exception e ) {
             // Ignore errors
           }

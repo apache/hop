@@ -33,25 +33,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionWaitForSQLLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionWaitForSQL> {
+public class WorkflowActionWaitForSqlLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionWaitForSql> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<ActionWaitForSQL> getActionClass() {
-    return ActionWaitForSQL.class;
+  protected Class<ActionWaitForSql> getActionClass() {
+    return ActionWaitForSql.class;
   }
 
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList( new String[] { "database", "schemaname", "tablename", "successCondition",
-      "rowsCountValue", "iscustomSQL", "isUseVars", "customSQL", "isAddRowsResult", "maximumTimeout",
+      "rowsCountValue", "iscustomSql", "isUseVars", "customSql", "isAddRowsResult", "maximumTimeout",
       "checkCycleTime", "successOnTimeout", "isClearResultList" } );
   }
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "successCondition", new IntLoadSaveValidator( ActionWaitForSQL.successConditionsCode.length ) );
+    validators.put( "successCondition", new IntLoadSaveValidator( ActionWaitForSql.successConditionsCode.length ) );
     return validators;
   }
 

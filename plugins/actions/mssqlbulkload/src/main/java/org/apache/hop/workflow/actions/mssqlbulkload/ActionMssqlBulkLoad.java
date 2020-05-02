@@ -420,72 +420,72 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Truncate table?
-                String SQLBULKLOAD = "";
+                String SqlBulkLoad = "";
                 if ( truncate ) {
-                  SQLBULKLOAD = "TRUNCATE TABLE " + realTablename + ";";
+                  SqlBulkLoad = "TRUNCATE TABLE " + realTablename + ";";
                 }
 
                 // Build BULK Command
-                SQLBULKLOAD =
-                  SQLBULKLOAD
+                SqlBulkLoad =
+                  SqlBulkLoad
                     + "BULK INSERT " + realTablename + " FROM " + "'" + realFilename.replace( '\\', '/' )
                     + "'";
-                SQLBULKLOAD = SQLBULKLOAD + " WITH (";
+                SqlBulkLoad = SqlBulkLoad + " WITH (";
                 if ( useFieldSeparator ) {
-                  SQLBULKLOAD = SQLBULKLOAD + FieldTerminatedby;
+                  SqlBulkLoad = SqlBulkLoad + FieldTerminatedby;
                 } else {
-                  SQLBULKLOAD = SQLBULKLOAD + "DATAFILETYPE ='" + datafiletype + "'";
+                  SqlBulkLoad = SqlBulkLoad + "DATAFILETYPE ='" + datafiletype + "'";
                 }
 
                 if ( LineTerminatedby.length() > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + "," + LineTerminatedby;
+                  SqlBulkLoad = SqlBulkLoad + "," + LineTerminatedby;
                 }
                 if ( TakeFirstNbrLines.length() > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + "," + TakeFirstNbrLines;
+                  SqlBulkLoad = SqlBulkLoad + "," + TakeFirstNbrLines;
                 }
                 if ( UseCodepage.length() > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + "," + UseCodepage;
+                  SqlBulkLoad = SqlBulkLoad + "," + UseCodepage;
                 }
                 String realFormatFile = environmentSubstitute( formatfilename );
                 if ( realFormatFile != null ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ", FORMATFILE='" + realFormatFile + "'";
+                  SqlBulkLoad = SqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
                 if ( firetriggers ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",FIRE_TRIGGERS";
+                  SqlBulkLoad = SqlBulkLoad + ",FIRE_TRIGGERS";
                 }
                 if ( keepnulls ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",KEEPNULLS";
+                  SqlBulkLoad = SqlBulkLoad + ",KEEPNULLS";
                 }
                 if ( keepidentity ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",KEEPIDENTITY";
+                  SqlBulkLoad = SqlBulkLoad + ",KEEPIDENTITY";
                 }
                 if ( checkconstraints ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",CHECK_CONSTRAINTS";
+                  SqlBulkLoad = SqlBulkLoad + ",CHECK_CONSTRAINTS";
                 }
                 if ( tablock ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",TABLOCK";
+                  SqlBulkLoad = SqlBulkLoad + ",TABLOCK";
                 }
                 if ( orderby != null ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ",ORDER ( " + orderby + " " + orderdirection + ")";
+                  SqlBulkLoad = SqlBulkLoad + ",ORDER ( " + orderby + " " + orderdirection + ")";
                 }
                 if ( ErrorfileName.length() > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ", " + ErrorfileName;
+                  SqlBulkLoad = SqlBulkLoad + ", " + ErrorfileName;
                 }
                 if ( maxerrors > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ", MAXERRORS=" + maxerrors;
+                  SqlBulkLoad = SqlBulkLoad + ", MAXERRORS=" + maxerrors;
                 }
                 if ( batchsize > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ", BATCHSIZE=" + batchsize;
+                  SqlBulkLoad = SqlBulkLoad + ", BATCHSIZE=" + batchsize;
                 }
                 if ( rowsperbatch > 0 ) {
-                  SQLBULKLOAD = SQLBULKLOAD + ", ROWS_PER_BATCH=" + rowsperbatch;
+                  SqlBulkLoad = SqlBulkLoad + ", ROWS_PER_BATCH=" + rowsperbatch;
                 }
                 // End of Bulk command
-                SQLBULKLOAD = SQLBULKLOAD + ")";
+                SqlBulkLoad = SqlBulkLoad + ")";
 
                 try {
                   // Run the SQL
-                  db.execStatement( SQLBULKLOAD );
+                  db.execStatement( SqlBulkLoad );
 
                   // Everything is OK...we can disconnect now
                   db.disconnect();

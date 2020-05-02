@@ -3094,7 +3094,7 @@ public class PipelineMeta extends AbstractMeta
     List<SqlStatement> stats = getSqlStatements();
     for ( int i = 0; i < stats.size(); i++ ) {
       SqlStatement stat = stats.get( i );
-      if ( !stat.hasError() && stat.hasSQL() ) {
+      if ( !stat.hasError() && stat.hasSql() ) {
         sql += stat.getSql();
       }
     }

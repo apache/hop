@@ -30,18 +30,14 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.databases.mssql.MSSQLServerDatabaseMeta;
+import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.ui.core.database.DatabaseMetaDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
-import org.apache.hop.ui.core.widget.TextVar;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @DatabaseMetaPlugin(
@@ -49,7 +45,7 @@ import java.util.List;
   typeDescription = "MS SQL Server (Native)"
 )
 @GuiPlugin( id = "GUI-MSSQLServerNativeDatabaseMeta" )
-public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta implements IGuiPluginCompositeWidgetsListener {
+public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta implements IGuiPluginCompositeWidgetsListener {
 
   public static final String ID_INTEGRATED_SECURITY_WIDGET = "usingIntegratedSecurity";
 
@@ -159,7 +155,7 @@ public class MSSQLServerNativeDatabaseMeta extends MSSQLServerDatabaseMeta imple
   }
 
   @Override
-  public boolean isMSSQLServerNativeVariant() {
+  public boolean isMsSqlServerNativeVariant() {
     return true;
   }
 

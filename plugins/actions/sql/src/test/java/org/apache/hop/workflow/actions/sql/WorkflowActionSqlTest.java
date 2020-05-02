@@ -30,12 +30,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionSQLTest extends WorkflowActionLoadSaveTestSupport<ActionSQL> {
+public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<ActionSQL> getActionClass() {
-    return ActionSQL.class;
+  protected Class<ActionSql> getActionClass() {
+    return ActionSql.class;
   }
 
   @Override

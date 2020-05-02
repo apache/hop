@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IValueMeta;
   typeDescription = "PostgreSQL"
 )
 @GuiPlugin( id = "GUI-PostgreSQLDatabaseMeta" )
-public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int GB_LIMIT = 1_073_741_824;
 
 
@@ -507,7 +507,7 @@ public class PostgreSQLDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replace( "'", "''" );
     string = string.replace( "\\n", "\\\\n" );
     string = string.replace( "\\r", "\\\\r" );

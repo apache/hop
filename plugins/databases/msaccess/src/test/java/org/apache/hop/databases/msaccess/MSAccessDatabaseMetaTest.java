@@ -99,7 +99,7 @@ public class MSAccessDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "DELETE FROM FOO",
       odbcMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR TEXT(15)",

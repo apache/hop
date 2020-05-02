@@ -79,12 +79,12 @@ public class SqlValuesHighlight implements LineStyleListener {
     scanner = new JavaScanner();
   }
 
-  public SqlValuesHighlight( String[] strArrSQLFunctions ) {
+  public SqlValuesHighlight( String[] strArrSqlFunctions ) {
     initializeColors();
     scriptStatements = new ArrayList<SqlScriptStatement>();
     scanner = new JavaScanner();
-    scanner.setSqlKeywords( strArrSQLFunctions );
-    scanner.initializeSQLFunctions();
+    scanner.setSqlKeywords( strArrSqlFunctions );
+    scanner.initializeSqlFunctions();
   }
 
   Color getColor( int type ) {
@@ -340,7 +340,7 @@ public class SqlValuesHighlight implements LineStyleListener {
 
     public JavaScanner() {
       initialize();
-      initializeSQLFunctions();
+      initializeSqlFunctions();
     }
 
     /**
@@ -369,7 +369,7 @@ public class SqlValuesHighlight implements LineStyleListener {
       return kfKeywords;
     }
 
-    public void initializeSQLFunctions() {
+    public void initializeSqlFunctions() {
       kfKeys = new Hashtable<String, Integer>();
       Integer k = new Integer( FUNCTIONS );
       for ( int i = 0; i < kfKeywords.length; i++ ) {
@@ -546,6 +546,6 @@ public class SqlValuesHighlight implements LineStyleListener {
     // List<String> keywords = new ArrayList<>(Arrays.asList(scanner.getSqlKeywords()));
     // keywords.addAll(Arrays.asList(reservedWords));
     scanner.setSqlKeywords( reservedWords );
-    scanner.initializeSQLFunctions();
+    scanner.initializeSqlFunctions();
   }
 }

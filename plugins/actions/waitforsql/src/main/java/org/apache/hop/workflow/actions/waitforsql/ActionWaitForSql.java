@@ -66,8 +66,8 @@ import java.util.List;
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility"
 )
-public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionWaitForSQL.class; // for i18n purposes, needed by Translator!!
+public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionWaitForSql.class; // for i18n purposes, needed by Translator!!
 
   public boolean isClearResultList;
 
@@ -75,9 +75,9 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
 
   public boolean isUseVars;
 
-  public boolean iscustomSQL;
+  public boolean iscustomSql;
 
-  public String customSQL;
+  public String customSql;
 
   private DatabaseMeta connection;
 
@@ -116,15 +116,15 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0"; // infinite timeout
   private static String DEFAULT_CHECK_CYCLE_TIME = "60"; // 1 minute
 
-  public ActionWaitForSQL( String n ) {
+  public ActionWaitForSql(String n ) {
     super( n, "" );
     isClearResultList = true;
     rowsCountValue = "0";
     successCondition = SUCCESS_CONDITION_ROWS_COUNT_GREATER;
-    iscustomSQL = false;
+    iscustomSql = false;
     isUseVars = false;
     isAddRowsResult = false;
-    customSQL = null;
+    customSql = null;
     schemaname = null;
     tablename = null;
     connection = null;
@@ -133,13 +133,13 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     successOnTimeout = false;
   }
 
-  public ActionWaitForSQL() {
+  public ActionWaitForSql() {
     this( "" );
   }
 
   @Override
   public Object clone() {
-    ActionWaitForSQL je = (ActionWaitForSQL) super.clone();
+    ActionWaitForSql je = (ActionWaitForSql) super.clone();
     return je;
   }
 
@@ -174,9 +174,9 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "rows_count_value", rowsCountValue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", iscustomSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", iscustomSql) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", isUseVars ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSql) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", isAddRowsResult ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "maximum_timeout", maximumTimeout ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "check_cycle_time", checkCycleTime ) );
@@ -253,9 +253,9 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
       successCondition =
         getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
       rowsCountValue = Const.NVL( XmlHandler.getTagValue( entrynode, "rows_count_value" ), "0" );
-      iscustomSQL = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
+      iscustomSql = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
       isUseVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSQL = XmlHandler.getTagValue( entrynode, "custom_sql" );
+      customSql = XmlHandler.getTagValue( entrynode, "custom_sql" );
       isAddRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
       maximumTimeout = XmlHandler.getTagValue( entrynode, "maximum_timeout" );
       checkCycleTime = XmlHandler.getTagValue( entrynode, "check_cycle_time" );
@@ -319,7 +319,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setResult( false );
     result.setNrErrors( 1 );
-    String realCustomSQL = null;
+    String realCustomSql = null;
     String realTablename = environmentSubstitute( tablename );
     String realSchemaname = environmentSubstitute( schemaname );
 
@@ -328,21 +328,21 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
       return result;
     }
 
-    if ( iscustomSQL ) {
+    if (iscustomSql) {
       // clear result list rows
       if ( isClearResultList ) {
         result.getRows().clear();
       }
 
-      realCustomSQL = customSQL;
+      realCustomSql = customSql;
       if ( isUseVars ) {
-        realCustomSQL = environmentSubstitute( realCustomSQL );
+        realCustomSql = environmentSubstitute( realCustomSql );
       }
       if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSQL ) );
+        logDebug( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql ) );
       }
 
-      if ( Utils.isEmpty( realCustomSQL ) ) {
+      if ( Utils.isEmpty( realCustomSql ) ) {
         logError( BaseMessages.getString( PKG, "ActionWaitForSQL.Error.NoCustomSQL" ) );
         return result;
       }
@@ -394,7 +394,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
 
       boolean continueLoop = true;
       while ( continueLoop && !parentWorkflow.isStopped() ) {
-        if ( SQLDataOK( result, nrRowsLimit, realSchemaname, realTablename, realCustomSQL ) ) {
+        if ( sqlDataOK( result, nrRowsLimit, realSchemaname, realTablename, realCustomSql ) ) {
           // SQL data exists, we're happy to exit
           logBasic( "Detected SQL data within timeout" );
           result.setResult( true );
@@ -454,8 +454,8 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  protected boolean SQLDataOK( Result result, long nrRowsLimit, String realSchemaName, String realTableName,
-                               String customSQL ) throws HopException {
+  protected boolean sqlDataOK(Result result, long nrRowsLimit, String realSchemaName, String realTableName,
+                              String customSql ) throws HopException {
     String countStatement = null;
     long rowsCount = 0;
     boolean successOK = false;
@@ -465,8 +465,8 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
     db.shareVariablesWith( this );
     try {
       db.connect();
-      if ( iscustomSQL ) {
-        countStatement = customSQL;
+      if (iscustomSql) {
+        countStatement = customSql;
       } else {
         if ( !Utils.isEmpty( realSchemaName ) ) {
           countStatement =
@@ -481,7 +481,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
           logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.RunSQLStatement", countStatement ) );
         }
 
-        if ( iscustomSQL ) {
+        if (iscustomSql) {
           ar = db.getRows( countStatement, 0 );
           if ( ar != null ) {
             rowsCount = ar.size();
@@ -503,22 +503,22 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
         }
 
         switch ( successCondition ) {
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_EQUAL:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_EQUAL:
             successOK = ( rowsCount == nrRowsLimit );
             break;
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_DIFFERENT:
             successOK = ( rowsCount != nrRowsLimit );
             break;
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_SMALLER:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_SMALLER:
             successOK = ( rowsCount < nrRowsLimit );
             break;
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_SMALLER_EQUAL:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_SMALLER_EQUAL:
             successOK = ( rowsCount <= nrRowsLimit );
             break;
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_GREATER:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_GREATER:
             successOK = ( rowsCount > nrRowsLimit );
             break;
-          case ActionWaitForSQL.SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL:
+          case ActionWaitForSql.SUCCESS_CONDITION_ROWS_COUNT_GREATER_EQUAL:
             successOK = ( rowsCount >= nrRowsLimit );
             break;
           default:
@@ -529,7 +529,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
       logError( BaseMessages.getString( PKG, "ActionWaitForSQL.Error.RunningEntry", dbe.getMessage() ) );
     } finally {
       if ( db != null ) {
-        if ( isAddRowsResult && iscustomSQL && ar != null ) {
+        if ( isAddRowsResult && iscustomSql && ar != null ) {
           rowMeta = db.getQueryFields( countStatement, false );
         }
         db.disconnect();
@@ -538,7 +538,7 @@ public class ActionWaitForSQL extends ActionBase implements Cloneable, IAction {
 
     if ( successOK ) {
       // ad rows to result
-      if ( isAddRowsResult && iscustomSQL && ar != null ) {
+      if ( isAddRowsResult && iscustomSql && ar != null ) {
         List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
         for ( int i = 0; i < ar.size(); i++ ) {
           rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );

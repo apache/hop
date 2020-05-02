@@ -61,7 +61,7 @@ public class IngresDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR VARCHAR(15)",

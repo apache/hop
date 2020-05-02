@@ -36,7 +36,7 @@ public class GetTableNamesData extends BaseTransformData implements ITransformDa
   public String realTableNameFieldName;
   public String realObjectTypeFieldName;
   public String realIsSystemObjectFieldName;
-  public String realSQLCreationFieldName;
+  public String realSqlCreationFieldName;
   public String realSchemaName;
 
   public IRowMeta outputRowMeta;
@@ -53,7 +53,7 @@ public class GetTableNamesData extends BaseTransformData implements ITransformDa
     realTableNameFieldName = null;
     realObjectTypeFieldName = null;
     realIsSystemObjectFieldName = null;
-    realSQLCreationFieldName = null;
+    realSqlCreationFieldName = null;
     rownr = 0;
     realSchemaName = null;
     totalpreviousfields = 0;

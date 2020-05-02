@@ -42,7 +42,7 @@ public class SqlStatementTest {
     SqlStatement statement = new SqlStatement( name, dbMeta, sql );
     assertSame( name, statement.getTransformName() );
     assertSame( dbMeta, statement.getDatabase() );
-    assertTrue( statement.hasSQL() );
+    assertTrue( statement.hasSql() );
     assertSame( sql, statement.getSql() );
     statement.setTransformName( null );
     assertNull( statement.getTransformName() );
@@ -50,7 +50,7 @@ public class SqlStatementTest {
     assertNull( statement.getDatabase() );
     statement.setSql( null );
     assertNull( statement.getSql() );
-    assertFalse( statement.hasSQL() );
+    assertFalse( statement.hasSql() );
     assertFalse( statement.hasError() );
     statement.setError( error );
     assertTrue( statement.hasError() );

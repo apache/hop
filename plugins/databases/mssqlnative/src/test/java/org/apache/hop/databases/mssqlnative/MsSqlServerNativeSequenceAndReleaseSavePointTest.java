@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.databases.sqlite;
+package org.apache.hop.databases.mssqlnative;
 
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.util.Utils;
@@ -30,23 +30,25 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SQLiteSequenceAndReleaseSavePointTest {
+public class MsSqlServerNativeSequenceAndReleaseSavePointTest {
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   final String sequenceName = "sequence_name";
 
   //Set these parameters for the test
-  IDatabase db = new SQLiteDatabaseMeta();
-  Boolean sequenceSupport = false;
+  IDatabase db = new MsSqlServerNativeDatabaseMeta();
+  Boolean sequenceSupport = true;
   Boolean savepointSupport = true;
 
 
   @Test
   public void testSequenceSupport() {
     assertSupports( db, sequenceSupport );
-    assertEquals( "", db.getSqlNextSequenceValue( sequenceName ) );
-    assertEquals( "", db.getSqlCurrentSequenceValue( sequenceName ) );
+    assertEquals( "SELECT NEXT VALUE FOR sequence_name", db.getSqlNextSequenceValue( sequenceName ) );
+    assertEquals( "SELECT current_value FROM sys.sequences WHERE name = 'sequence_name'", db.getSqlCurrentSequenceValue( sequenceName ) );
+    assertEquals( "SELECT name FROM sys.sequences", db.getSqlListOfSequences() );
+    assertEquals( "SELECT 1 FROM sys.sequences WHERE name = 'sequence_name'", db.getSqlSequenceExists( sequenceName ) );
   }
 
   @Test

@@ -1197,8 +1197,8 @@ public interface IValueMeta extends Cloneable {
    * @return The value metadata if this value should handle the SQL type at the specified index.
    * @throws HopDatabaseException In case something went wrong.
    */
-  IValueMeta getValueFromSQLType( DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                  int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException;
+  IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException;
 
   /**
    * This is a similar method to getValueFromSQLType, but it uses a

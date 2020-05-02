@@ -28,15 +28,15 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class PostgreSQLDatabaseMetaTest {
-  PostgreSQLDatabaseMeta nativeMeta, odbcMeta;
+public class PostgreSqlDatabaseMetaTest {
+  PostgreSqlDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupBefore() throws Exception {
 
-    nativeMeta = new PostgreSQLDatabaseMeta();
+    nativeMeta = new PostgreSqlDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new PostgreSQLDatabaseMeta();
+    odbcMeta = new PostgreSqlDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
@@ -144,7 +144,7 @@ public class PostgreSQLDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists( "FOO" ) );
     assertEquals( "SELECT FOO FROM BAR limit 1", nativeMeta.getSqlColumnExists( "FOO", "BAR" ) );

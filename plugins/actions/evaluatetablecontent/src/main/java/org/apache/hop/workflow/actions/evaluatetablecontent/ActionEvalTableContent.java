@@ -71,8 +71,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   private boolean addRowsResult;
   private boolean clearResultList;
   private boolean useVars;
-  private boolean useCustomSQL;
-  private String customSQL;
+  private boolean useCustomSql;
+  private String customSql;
   private DatabaseMeta connection;
   private String tablename;
   private String schemaname;
@@ -105,11 +105,11 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     super( n, "" );
     limit = "0";
     successCondition = SUCCESS_CONDITION_ROWS_COUNT_GREATER;
-    useCustomSQL = false;
+    useCustomSql = false;
     useVars = false;
     addRowsResult = false;
     clearResultList = true;
-    customSQL = null;
+    customSql = null;
     schemaname = null;
     tablename = null;
     connection = null;
@@ -155,9 +155,9 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "limit", limit ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", useCustomSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", useCustomSql) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "is_usevars", useVars ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSQL ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "custom_sql", customSql) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_rows_result", addRowsResult ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "clear_result_rows", clearResultList ) );
 
@@ -202,9 +202,9 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
       successCondition =
         getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
       limit = Const.NVL( XmlHandler.getTagValue( entrynode, "limit" ), "0" );
-      useCustomSQL = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
+      useCustomSql = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_custom_sql" ) );
       useVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "is_usevars" ) );
-      customSQL = XmlHandler.getTagValue( entrynode, "custom_sql" );
+      customSql = XmlHandler.getTagValue( entrynode, "custom_sql" );
       addRowsResult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_rows_result" ) );
       clearResultList = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "clear_result_rows" ) );
 
@@ -249,7 +249,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     // see PDI-10270, PDI-10644 for details
     boolean oldBehavior = "Y".equalsIgnoreCase( getVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" ) );
 
-    String countSQLStatement = null;
+    String countSqlStatement = null;
     long rowsCount = 0;
     long errCount = 0;
 
@@ -266,17 +266,17 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
       try {
         db.connect();
 
-        if ( useCustomSQL ) {
-          String realCustomSQL = customSQL;
+        if (useCustomSql) {
+          String realCustomSql = customSql;
           if ( useVars ) {
-            realCustomSQL = environmentSubstitute( realCustomSQL );
+            realCustomSql = environmentSubstitute( realCustomSql );
           }
           if ( log.isDebug() ) {
-            logDebug( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSQL ) );
+            logDebug( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSql ) );
           }
 
-          if ( !Utils.isEmpty( realCustomSQL ) ) {
-            countSQLStatement = realCustomSQL;
+          if ( !Utils.isEmpty( realCustomSql ) ) {
+            countSqlStatement = realCustomSql;
           } else {
             errCount++;
             logError( BaseMessages.getString( PKG, "ActionEvalTableContent.Error.NoCustomSQL" ) );
@@ -288,11 +288,11 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
           if ( !Utils.isEmpty( realTablename ) ) {
             if ( !Utils.isEmpty( realSchemaname ) ) {
-              countSQLStatement =
+              countSqlStatement =
                 selectCount
                   + db.getDatabaseMeta().getQuotedSchemaTableCombination( realSchemaname, realTablename );
             } else {
-              countSQLStatement = selectCount + db.getDatabaseMeta().quoteField( realTablename );
+              countSqlStatement = selectCount + db.getDatabaseMeta().quoteField( realTablename );
             }
           } else {
             errCount++;
@@ -300,29 +300,29 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           }
         }
 
-        if ( countSQLStatement != null ) {
+        if ( countSqlStatement != null ) {
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString(
-              PKG, "ActionEvalTableContent.Log.RunSQLStatement", countSQLStatement ) );
+              PKG, "ActionEvalTableContent.Log.RunSQLStatement", countSqlStatement ) );
           }
 
-          if ( useCustomSQL ) {
+          if (useCustomSql) {
             if ( clearResultList ) {
               result.getRows().clear();
             }
 
-            List<Object[]> ar = db.getRows( countSQLStatement, 0 );
+            List<Object[]> ar = db.getRows( countSqlStatement, 0 );
             if ( ar != null ) {
               rowsCount = ar.size();
 
               // ad rows to result
-              IRowMeta rowMeta = db.getQueryFields( countSQLStatement, false );
+              IRowMeta rowMeta = db.getQueryFields( countSqlStatement, false );
 
               List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
               for ( int i = 0; i < ar.size(); i++ ) {
                 rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );
               }
-              if ( addRowsResult && useCustomSQL ) {
+              if ( addRowsResult && useCustomSql) {
                 if ( rows != null ) {
                   result.getRows().addAll( rows );
                 }
@@ -330,12 +330,12 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
             } else {
               if ( log.isDebug() ) {
                 logDebug( BaseMessages.getString(
-                  PKG, "ActionEvalTableContent.Log.customSQLreturnedNothing", countSQLStatement ) );
+                  PKG, "ActionEvalTableContent.Log.customSQLreturnedNothing", countSqlStatement ) );
               }
             }
 
           } else {
-            RowMetaAndData row = db.getOneRow( countSQLStatement );
+            RowMetaAndData row = db.getOneRow( countSqlStatement );
             if ( row != null ) {
               rowsCount = row.getInteger( 0 );
             }
@@ -370,7 +370,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           if ( !successOK && oldBehavior ) {
             errCount++;
           }
-        } // end if countSQLStatement!=null
+        } // end if countSqlStatement!=null
       } catch ( HopException dbe ) {
         errCount++;
         logError( BaseMessages.getString( PKG, "ActionEvalTableContent.Error.RunningEntry", dbe.getMessage() ) );
@@ -437,20 +437,20 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     this.useVars = useVars;
   }
 
-  public boolean isUseCustomSQL() {
-    return useCustomSQL;
+  public boolean isUseCustomSql() {
+    return useCustomSql;
   }
 
-  public void setUseCustomSQL( boolean useCustomSQL ) {
-    this.useCustomSQL = useCustomSQL;
+  public void setUseCustomSql(boolean useCustomSql) {
+    this.useCustomSql = useCustomSql;
   }
 
-  public String getCustomSQL() {
-    return customSQL;
+  public String getCustomSql() {
+    return customSql;
   }
 
-  public void setCustomSQL( String customSQL ) {
-    this.customSQL = customSQL;
+  public void setCustomSql(String customSql) {
+    this.customSql = customSql;
   }
 
   public DatabaseMeta getConnection() {

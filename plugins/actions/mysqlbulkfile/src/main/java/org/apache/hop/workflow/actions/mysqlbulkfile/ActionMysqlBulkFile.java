@@ -335,7 +335,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                   logDetailed( FILEBulkFile );
                 }
                 // Run the SQL
-                PreparedStatement ps = db.prepareSQL( FILEBulkFile );
+                PreparedStatement ps = db.prepareSql( FILEBulkFile );
                 ps.execute();
 
                 // Everything is OK...we can disconnect now

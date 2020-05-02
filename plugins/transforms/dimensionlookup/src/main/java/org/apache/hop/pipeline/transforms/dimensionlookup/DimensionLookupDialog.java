@@ -1795,7 +1795,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       if ( message == null ) {
         SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
         if ( !sql.hasError() ) {
-          if ( sql.hasSQL() ) {
+          if ( sql.hasSql() ) {
             SqlEditor sqledit =
               new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
                 .getSql() );

@@ -28,13 +28,13 @@ package org.apache.hop.core.exception;
  * @author Matt
  * @since 29-JUN-2012
  */
-public class HopSQLException extends HopException {
+public class HopSqlException extends HopException {
   private static final long serialVersionUID = 2358671508821350095L;
 
   /**
    * Constructs a new throwable with null as its detail message.
    */
-  public HopSQLException() {
+  public HopSqlException() {
     super();
   }
 
@@ -43,7 +43,7 @@ public class HopSQLException extends HopException {
    *
    * @param message - the detail message. The detail message is saved for later retrieval by the getMessage() method.
    */
-  public HopSQLException( String message ) {
+  public HopSqlException(String message ) {
     super( message );
   }
 
@@ -54,7 +54,7 @@ public class HopSQLException extends HopException {
    * @param cause the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
    *              indicates that the cause is nonexistent or unknown.)
    */
-  public HopSQLException( Throwable cause ) {
+  public HopSqlException(Throwable cause ) {
     super( cause );
   }
 
@@ -65,7 +65,7 @@ public class HopSQLException extends HopException {
    * @param cause   the cause (which is saved for later retrieval by the getCause() method). (A null value is permitted, and
    *                indicates that the cause is nonexistent or unknown.)
    */
-  public HopSQLException( String message, Throwable cause ) {
+  public HopSqlException(String message, Throwable cause ) {
     super( message, cause );
   }
 }

@@ -59,7 +59,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -78,8 +77,8 @@ import org.eclipse.swt.widgets.Text;
 		  pluginType = PluginDialog.PluginType.ACTION,
 		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
-public class ActionSQLDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionSQL.class; // for i18n purposes, needed by Translator!!
+public class ActionSqlDialog extends ActionDialog implements IActionDialog {
+  private static Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobSQL.Filetype.Sql" ), BaseMessages.getString( PKG, "JobSQL.Filetype.Text" ),
@@ -99,17 +98,17 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private Button wSqlFromFile;
 
-  private Label wlSQLFromFile;
+  private Label wlSqlFromFile;
 
   private FormData fdlUseSubs, fdUseSubs;
 
-  private FormData fdlSQLFromFile, fdSQLFromFile;
+  private FormData fdlSqlFromFile, fdSqlFromFile;
 
-  private Label wlSQL;
+  private Label wlSql;
 
   private StyledTextComp wSql;
 
-  private FormData fdlSQL, fdSQL;
+  private FormData fdlSql, fdSql;
 
   private Label wlPosition;
 
@@ -119,7 +118,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
 
   private Listener lsOk, lsCancel;
 
-  private ActionSQL action;
+  private ActionSql action;
 
   private Shell shell;
 
@@ -139,9 +138,9 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
   private TextVar wFilename;
   private FormData fdlFilename, fdbFilename, fdFilename;
 
-  public ActionSQLDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+  public ActionSqlDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionSQL) action;
+    this.action = (ActionSql) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobSQL.Name.Default" ) );
     }
@@ -201,25 +200,25 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wConnection = addConnectionLine( shell, wName, action.getDatabase(), lsMod );
 
     // SQL from file?
-    wlSQLFromFile = new Label( shell, SWT.RIGHT );
-    wlSQLFromFile.setText( BaseMessages.getString( PKG, "JobSQL.SQLFromFile.Label" ) );
-    props.setLook( wlSQLFromFile );
-    fdlSQLFromFile = new FormData();
-    fdlSQLFromFile.left = new FormAttachment( 0, 0 );
-    fdlSQLFromFile.top = new FormAttachment( wConnection, 2 * margin );
-    fdlSQLFromFile.right = new FormAttachment( middle, -margin );
-    wlSQLFromFile.setLayoutData( fdlSQLFromFile );
+    wlSqlFromFile = new Label( shell, SWT.RIGHT );
+    wlSqlFromFile.setText( BaseMessages.getString( PKG, "JobSQL.SQLFromFile.Label" ) );
+    props.setLook(wlSqlFromFile);
+    fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment( 0, 0 );
+    fdlSqlFromFile.top = new FormAttachment( wConnection, 2 * margin );
+    fdlSqlFromFile.right = new FormAttachment( middle, -margin );
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
     wSqlFromFile = new Button( shell, SWT.CHECK );
     props.setLook( wSqlFromFile );
     wSqlFromFile.setToolTipText( BaseMessages.getString( PKG, "JobSQL.SQLFromFile.Tooltip" ) );
-    fdSQLFromFile = new FormData();
-    fdSQLFromFile.left = new FormAttachment( middle, 0 );
-    fdSQLFromFile.top = new FormAttachment( wConnection, 2 * margin );
-    fdSQLFromFile.right = new FormAttachment( 100, 0 );
-    wSqlFromFile.setLayoutData( fdSQLFromFile );
+    fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment( middle, 0 );
+    fdSqlFromFile.top = new FormAttachment( wConnection, 2 * margin );
+    fdSqlFromFile.right = new FormAttachment( 100, 0 );
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        activeSQLFromFile();
+        activeSqlFromFile();
         action.setChanged();
       }
     } );
@@ -317,23 +316,23 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wlPosition.setLayoutData( fdlPosition );
 
     // Script line
-    wlSQL = new Label( shell, SWT.NONE );
-    wlSQL.setText( BaseMessages.getString( PKG, "JobSQL.Script.Label" ) );
-    props.setLook( wlSQL );
-    fdlSQL = new FormData();
-    fdlSQL.left = new FormAttachment( 0, 0 );
-    fdlSQL.top = new FormAttachment( wUseSubs, margin );
-    wlSQL.setLayoutData( fdlSQL );
+    wlSql = new Label( shell, SWT.NONE );
+    wlSql.setText( BaseMessages.getString( PKG, "JobSQL.Script.Label" ) );
+    props.setLook(wlSql);
+    fdlSql = new FormData();
+    fdlSql.left = new FormAttachment( 0, 0 );
+    fdlSql.top = new FormAttachment( wUseSubs, margin );
+    wlSql.setLayoutData(fdlSql);
 
     wSql = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    fdSQL = new FormData();
-    fdSQL.left = new FormAttachment( 0, 0 );
-    fdSQL.top = new FormAttachment( wlSQL, margin );
-    fdSQL.right = new FormAttachment( 100, -10 );
-    fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSql.setLayoutData( fdSQL );
+    fdSql = new FormData();
+    fdSql.left = new FormAttachment( 0, 0 );
+    fdSql.top = new FormAttachment(wlSql, margin );
+    fdSql.right = new FormAttachment( 100, -10 );
+    fdSql.bottom = new FormAttachment( wlPosition, -margin );
+    wSql.setLayoutData(fdSql);
 
     // Add listeners
     lsCancel = new Listener() {
@@ -409,7 +408,7 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wSql.addLineStyleListener( new SqlValuesHighlight() );
 
     getData();
-    activeSQLFromFile();
+    activeSqlFromFile();
 
     BaseTransformDialog.setSize( shell );
 
@@ -468,12 +467,12 @@ public class ActionSQLDialog extends ActionDialog implements IActionDialog {
     wName.setFocus();
   }
 
-  private void activeSQLFromFile() {
+  private void activeSqlFromFile() {
     wlFilename.setEnabled( wSqlFromFile.getSelection() );
     wFilename.setEnabled( wSqlFromFile.getSelection() );
     wbFilename.setEnabled( wSqlFromFile.getSelection() );
     wSql.setEnabled( !wSqlFromFile.getSelection() );
-    wlSQL.setEnabled( !wSqlFromFile.getSelection() );
+    wlSql.setEnabled( !wSqlFromFile.getSelection() );
     wlPosition.setEnabled( !wSqlFromFile.getSelection() );
 
   }

@@ -28,15 +28,15 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class SQLiteDatabaseMetaTest {
+public class SqliteDatabaseMetaTest {
 
-  private SQLiteDatabaseMeta nativeMeta, odbcMeta;
+  private SqliteDatabaseMeta nativeMeta, odbcMeta;
 
   @Before
   public void setupBefore() {
-    nativeMeta = new SQLiteDatabaseMeta();
+    nativeMeta = new SqliteDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new SQLiteDatabaseMeta();
+    odbcMeta = new SqliteDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
@@ -63,7 +63,7 @@ public class SQLiteDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR TEXT",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );

@@ -2103,8 +2103,8 @@ public class ConstTest {
   }
 
   @Test
-  public void testEscapeSQL() {
-    assertEquals( "SELECT ''Let''s rock!'' FROM dual", Const.escapeSQL( "SELECT 'Let's rock!' FROM dual" ) );
+  public void testEscapeSql() {
+    assertEquals( "SELECT ''Let''s rock!'' FROM dual", Const.escapeSql( "SELECT 'Let's rock!' FROM dual" ) );
   }
 
   @Test

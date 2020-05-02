@@ -67,9 +67,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 
-public class MySQLDatabaseMetaTest {
-  MySQLDatabaseMeta nativeMeta;
-  MySQLDatabaseMeta odbcMeta;
+public class MySqlDatabaseMetaTest {
+  MySqlDatabaseMeta nativeMeta;
+  MySqlDatabaseMeta odbcMeta;
 
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -83,9 +83,9 @@ public class MySQLDatabaseMetaTest {
   
   @Before
   public void setupBefore() {
-    nativeMeta = new MySQLDatabaseMeta();
+    nativeMeta = new MySqlDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new MySQLDatabaseMeta();
+    odbcMeta = new MySqlDatabaseMeta();
     odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
@@ -139,14 +139,14 @@ public class MySQLDatabaseMetaTest {
     assertFalse( nativeMeta.isSystemTable( "SysTest" ) );
     assertFalse( nativeMeta.isSystemTable( "dTproperties" ) );
     assertFalse( nativeMeta.isSystemTable( "Testsys" ) );
-    assertTrue( nativeMeta.isMySQLVariant() );
+    assertTrue( nativeMeta.isMySqlVariant() );
     assertFalse( nativeMeta.releaseSavepoint() );
     assertTrue( nativeMeta.supportsErrorHandlingOnBatchUpdates() );
     assertFalse( nativeMeta.isRequiringTransactionsOnQueries() );
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( " LIMIT 15", nativeMeta.getLimitClause( 15 ) );
     assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT * FROM FOO LIMIT 0", nativeMeta.getSqlTableExists( "FOO" ) );
@@ -322,7 +322,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "NUMBER", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 1 ) );
+    assertEquals( "NUMBER", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 1 ) );
   }
 
   @Test
@@ -330,7 +330,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "NAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 2 ) );
+    assertEquals( "NAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 2 ) );
   }
 
   @Test
@@ -338,7 +338,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "LAST_NAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 3 ) );
+    assertEquals( "LAST_NAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 3 ) );
   }
 
   @Test
@@ -346,7 +346,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "FIRST_NAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 4 ) );
+    assertEquals( "FIRST_NAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 4 ) );
   }
 
   @Test
@@ -354,7 +354,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "DB", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 5 ) );
+    assertEquals( "DB", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 5 ) );
   }
 
   @Test
@@ -362,7 +362,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    assertEquals( "NoAliasText", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 6 ) );
+    assertEquals( "NoAliasText", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 6 ) );
   }
 
   @Test
@@ -370,7 +370,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "CUSTOMERNUMBER", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 1 ) );
+    assertEquals( "CUSTOMERNUMBER", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 1 ) );
   }
 
   @Test
@@ -378,7 +378,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "CUSTOMERNAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 2 ) );
+    assertEquals( "CUSTOMERNAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 2 ) );
   }
 
   @Test
@@ -386,7 +386,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "CONTACTLASTNAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 3 ) );
+    assertEquals( "CONTACTLASTNAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 3 ) );
   }
 
   @Test
@@ -394,15 +394,15 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "CONTACTFIRSTNAME", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 4 ) );
+    assertEquals( "CONTACTFIRSTNAME", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 4 ) );
   }
 
   @Test
-  public void testGetLegacyColumnNameDriverLessOrEqualToThreeFieldMySQL() throws Exception {
+  public void testGetLegacyColumnNameDriverLessOrEqualToThreeFieldMySql() throws Exception {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "MySQL", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 5 ) );
+    assertEquals( "MySQL", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 5 ) );
   }
 
   @Test
@@ -410,17 +410,17 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    assertEquals( "NoAliasText", new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 6 ) );
+    assertEquals( "NoAliasText", new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaData(), 6 ) );
   }
 
   @Test( expected = HopDatabaseException.class )
   public void testGetLegacyColumnNameNullDBMetaDataException() throws Exception {
-    new MySQLDatabaseMeta().getLegacyColumnName( null, getResultSetMetaData(), 1 );
+    new MySqlDatabaseMeta().getLegacyColumnName( null, getResultSetMetaData(), 1 );
   }
 
   @Test( expected = HopDatabaseException.class )
   public void testGetLegacyColumnNameNullRSMetaDataException() throws Exception {
-    new MySQLDatabaseMeta().getLegacyColumnName( mock( DatabaseMetaData.class ), null, 1 );
+    new MySqlDatabaseMeta().getLegacyColumnName( mock( DatabaseMetaData.class ), null, 1 );
   }
 
   @Test( expected = HopDatabaseException.class )
@@ -428,7 +428,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(5);
 
-    new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
+    new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
   }
 
   @Test( expected = HopDatabaseException.class )
@@ -436,7 +436,7 @@ public class MySQLDatabaseMetaTest {
     DatabaseMetaData databaseMetaData = mock( DatabaseMetaData.class );
     when( databaseMetaData.getDriverMajorVersion() ).thenReturn(3);
 
-    new MySQLDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
+    new MySqlDatabaseMeta().getLegacyColumnName( databaseMetaData, getResultSetMetaDataException(), 1 );
   }
 
   @Test
@@ -476,7 +476,7 @@ public class MySQLDatabaseMetaTest {
     when( ps.executeQuery() ).thenReturn( rs );
 
     DatabaseMeta meta = new DatabaseMeta();
-    meta.setIDatabase( new MySQLDatabaseMeta() );
+    meta.setIDatabase( new MySqlDatabaseMeta() );
 
     Database db = new Database( log, meta );
     db.setConnection( mockConnection( dbMetaData ) );
