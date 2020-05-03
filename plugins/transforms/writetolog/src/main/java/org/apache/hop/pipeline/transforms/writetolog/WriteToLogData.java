@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.pipeline.transforms.writetolog;
+package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.BaseTransformData;

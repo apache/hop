@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.pipeline.transforms.writetolog;
+package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -30,12 +30,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-
-import javax.xml.crypto.Data;
 
 /**
  * Write data to log.

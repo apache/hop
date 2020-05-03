@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.pipeline.transforms.writetolog;
+package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -39,7 +39,6 @@ import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.util.Arrays;
 import java.util.List;
 

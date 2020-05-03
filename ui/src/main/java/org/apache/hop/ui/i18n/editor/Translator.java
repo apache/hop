@@ -40,6 +40,7 @@ import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -66,7 +67,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
@@ -93,6 +93,7 @@ import java.util.zip.ZipOutputStream;
  * @author matt
  */
 public class Translator {
+  private static final String TRANSLATOR_NAMESPACE = "hop-translator";
   /**
    * for i18n purposes, needed by Translator!
    */
@@ -1255,6 +1256,8 @@ public class Translator {
     Display display = new Display();
     ILogChannel log = new LogChannel( APP_NAME );
     PropsUi.init( display );
+
+    HopNamespace.setNamespace( TRANSLATOR_NAMESPACE );
 
     Translator translator = new Translator( display );
     translator.loadConfiguration( configFile, sourceFolder );

@@ -8,6 +8,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 
@@ -26,7 +27,7 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
     // Is there an active environment?
     //
     HopGui hopGui = HopGui.getInstance();
-    String environmentName = hopGui.getNamespace();
+    String environmentName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(environmentName)) {
       return;
     }

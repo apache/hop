@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;

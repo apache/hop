@@ -3,7 +3,9 @@ package org.apache.hop.ui.hopgui.shared;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 
 import java.util.List;
@@ -25,13 +27,13 @@ public class AuditManagerGuiUtil {
     //
     HopGui hopGui = HopGui.getInstance();
     try {
-      AuditList list = hopGui.getAuditManager().retrieveList( hopGui.getNamespace(), type );
+      AuditList list = AuditManager.getActive().retrieveList( HopNamespace.getNamespace(), type );
       if (list==null || list.getNames()==null || list.getNames().isEmpty()) {
         return "";
       }
       return list.getNames().get( 0 );
     } catch(Exception e) {
-      LogChannel.UI.logError( "Unable to get list from audit manager type: "+type+" in group "+hopGui.getNamespace(), e );
+      LogChannel.UI.logError( "Unable to get list from audit manager type: "+type+" in group "+HopNamespace.getNamespace(), e );
       return "";
     }
   }
@@ -41,9 +43,9 @@ public class AuditManagerGuiUtil {
       return; // Not storing empty values
     }
     HopGui hopGui = HopGui.getInstance();
-    IAuditManager auditManager = hopGui.getAuditManager();
+    IAuditManager auditManager = AuditManager.getActive();
     try {
-      AuditList list = auditManager.retrieveList( hopGui.getNamespace(), type );
+      AuditList list = auditManager.retrieveList( HopNamespace.getNamespace(), type );
       if (list==null) {
         list = new AuditList();
       }
@@ -63,9 +65,9 @@ public class AuditManagerGuiUtil {
       while (list.getNames().size()>20) {
         list.getNames().remove( list.getNames().size()-1 );
       }
-      auditManager.storeList( hopGui.getNamespace(), type, list );
+      auditManager.storeList( HopNamespace.getNamespace(), type, list );
     } catch(Exception e) {
-      LogChannel.UI.logError( "Unable to store list using audit manager with type: "+type+" in group "+hopGui.getNamespace(), e );
+      LogChannel.UI.logError( "Unable to store list using audit manager with type: "+type+" in group "+HopNamespace.getNamespace(), e );
     }
   }
 }

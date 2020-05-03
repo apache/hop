@@ -38,7 +38,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.history.IAuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -58,7 +57,6 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -685,8 +683,6 @@ public class BaseTransformDialog extends Dialog {
    * @param packIt    true to pack the dialog components, false otherwise
    */
   public static void setSize( Shell shell, int minWidth, int minHeight, boolean packIt ) {
-    IAuditManager auditManager = HopGui.getInstance().getAuditManager();
-
     PropsUi props = PropsUi.getInstance();
 
     WindowProperty winprop = props.getScreen( shell.getText() );

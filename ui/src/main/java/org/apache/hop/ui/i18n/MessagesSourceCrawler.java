@@ -421,8 +421,12 @@ public class MessagesSourceCrawler {
         lookup.incrementOccurrences();
       }
     } else {
-      KeyOccurrence keyOccurrence = new KeyOccurrence( fileObject, sourceFolder, messagesPackage, row, column, key, arguments, line );
-      addKeyOccurrence( keyOccurrence );
+      if (messagesPackage==null) {
+        log.logError( "Could not calculate messages package in file: "+fileObject );
+      } else {
+        KeyOccurrence keyOccurrence = new KeyOccurrence( fileObject, sourceFolder, messagesPackage, row, column, key, arguments, line );
+        addKeyOccurrence( keyOccurrence );
+      }
     }
   }
 

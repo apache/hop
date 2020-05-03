@@ -92,6 +92,13 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
   public KeyOccurrence( FileObject fileObject, String sourceFolder, String messagesPackage, int row, int column,
                         String key, String arguments, String sourceLine ) {
     this();
+    if (fileObject == null) {
+      throw new RuntimeException("A key occurrence needs to have a file in which it occurs");
+    }
+    if (messagesPackage == null) {
+      throw new RuntimeException("A key occurrence needs to have a messages package in file '"+fileObject+"'");
+    }
+
     this.fileObject = fileObject;
     this.sourceFolder = sourceFolder;
     this.messagesPackage = messagesPackage;
