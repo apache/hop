@@ -57,7 +57,7 @@ public class UniVerseDatabaseMetaTest {
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsSynonyms() );
-    assertTrue( nativeMeta.supportsNewLinesInSQL() );
+    assertTrue( nativeMeta.supportsNewLinesInSql() );
     assertFalse( nativeMeta.supportsTimeStampToDateConversion() );
     assertArrayEquals( new String[] {
       "@NEW", "@OLD", "ACTION", "ADD", "AL", "ALL", "ALTER", "AND", "AR", "AS", "ASC", "ASSOC", "ASSOCIATED",
@@ -85,7 +85,7 @@ public class UniVerseDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(15)",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR", 15, 0 ), "", false, "", false ) );
 

@@ -241,7 +241,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testGetValueFromSQLTypeTypeOverride() throws Exception {
+  public void testGetValueFromSqlTypeTypeOverride() throws Exception {
     final int varbinaryColumnIndex = 2;
 
     ValueMetaBase valueMetaBase = new ValueMetaBase(),
@@ -251,9 +251,9 @@ public class ValueMetaBaseTest  {
     doReturn( iDatabase ).when( dbMeta ).getIDatabase();
 
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-    valueMetaBaseSpy.getValueFromSQLType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+    valueMetaBaseSpy.getValueFromSqlType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
 
-    verify( iDatabase, times( 1 ) ).customizeValueFromSQLType( any( IValueMeta.class ),
+    verify( iDatabase, times( 1 ) ).customizeValueFromSqlType( any( IValueMeta.class ),
       any( ResultSetMetaData.class ), anyInt() );
   }
 

@@ -181,7 +181,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
           if ( meta.isQuoteString() && ( valueMeta.getType() == IValueMeta.TYPE_STRING ) ) {
             // Have the database dialect do the quoting.
             // This also adds the quotes around the string
-            replaceValue = meta.getDatabaseMeta().quoteSQLString( replaceValue );
+            replaceValue = meta.getDatabaseMeta().quoteSqlString( replaceValue );
           }
           buf.replace( pos, pos + 1, replaceValue );
         }

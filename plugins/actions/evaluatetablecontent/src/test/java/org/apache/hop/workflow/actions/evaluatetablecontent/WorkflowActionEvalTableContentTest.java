@@ -35,7 +35,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -219,8 +218,8 @@ public class WorkflowActionEvalTableContentTest {
   public void testNrErrorsNoCustomSql() throws Exception {
     entry.setLimit( "5" );
     entry.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    entry.setUseCustomSQL( true );
-    entry.setCustomSQL( null );
+    entry.setUseCustomSql( true );
+    entry.setCustomSql( null );
 
     Result res = entry.execute( new Result(), 0 );
 

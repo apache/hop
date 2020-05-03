@@ -39,9 +39,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.PreparedStatement;
@@ -243,7 +241,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if ( log.isDetailed() ) {
         logDetailed( "Prepared statement : " + sql );
       }
-      insertStatement = data.db.prepareSQL( sql, meta.isReturningGeneratedKeys() );
+      insertStatement = data.db.prepareSql( sql, meta.isReturningGeneratedKeys() );
       data.preparedStatements.put( tableName, insertStatement );
     }
 

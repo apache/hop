@@ -44,7 +44,7 @@ public class WorkflowActionEvalTableContentLoadSaveTest extends WorkflowActionLo
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList( new String[] { "connection", "schemaname", "tablename", "successCondition",
-      "limit", "useCustomSQL", "useVars", "customSQL", "addRowsResult", "clearResultList" } );
+      "limit", "useCustomSql", "useVars", "customSql", "addRowsResult", "clearResultList" } );
   }
 
   @Override

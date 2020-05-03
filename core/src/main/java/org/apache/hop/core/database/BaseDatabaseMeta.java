@@ -1073,7 +1073,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return The SQL to execute right after connecting
    */
   @Override
-  public String getConnectSQL() {
+  public String getConnectSql() {
     return attributes.getProperty( ATTRIBUTE_SQL_CONNECT );
   }
 
@@ -1081,7 +1081,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @param sql The SQL to execute right after connecting
    */
   @Override
-  public void setConnectSQL( String sql ) {
+  public void setConnectSql(String sql ) {
     attributes.setProperty( ATTRIBUTE_SQL_CONNECT, sql );
   }
 
@@ -1355,7 +1355,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database supports newlines in a SQL statements.
    */
   @Override
-  public boolean supportsNewLinesInSQL() {
+  public boolean supportsNewLinesInSql() {
     return true;
   }
 
@@ -1409,7 +1409,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replaceAll( "'", "''" );
     string = string.replaceAll( "\\n", "\\\\n" );
     string = string.replaceAll( "\\r", "\\\\r" );
@@ -1578,7 +1578,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so on.
    */
   @Override
-  public boolean isMySQLVariant() {
+  public boolean isMySqlVariant() {
     return false;
   }
 
@@ -1642,7 +1642,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a MS SQL Server (native) variant.
    */
   @Override
-  public boolean isMSSQLServerNativeVariant() {
+  public boolean isMsSqlServerNativeVariant() {
     return false;
   }
 
@@ -1650,7 +1650,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a MS SQL Server variant.
    */
   @Override
-  public boolean isMSSQLServerVariant() {
+  public boolean isMsSqlServerVariant() {
     return false;
   }
 
@@ -1672,7 +1672,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return true if the database is a SQLite variant.
    */
   @Override
-  public boolean isSQLiteVariant() {
+  public boolean isSqliteVariant() {
     return false;
   }
 
@@ -1705,9 +1705,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return ldb.getNextSequenceValue( schemaName, sequenceName, null );
   }
 
-  public Long getNextBatchIdUsingAutoIncSQL( String autoIncSQL, DatabaseMeta dbm, Database ldb ) throws HopDatabaseException {
+  public Long getNextBatchIdUsingAutoIncSql(String autoIncSql, DatabaseMeta dbm, Database ldb ) throws HopDatabaseException {
     Long rtn = null;
-    PreparedStatement stmt = ldb.prepareSQL( autoIncSQL, true );
+    PreparedStatement stmt = ldb.prepareSql( autoIncSql, true );
     try {
       stmt.executeUpdate();
       RowMetaAndData rmad = ldb.getGeneratedKeys( stmt );
@@ -1770,12 +1770,12 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
     Map<String, String> connectionExtraOptions = this.getExtraOptions();
     String sequenceProp = this.getPluginId() + "." + SEQUENCE_FOR_BATCH_ID;
-    String autoIncSQLProp = this.getPluginId() + "." + AUTOINCREMENT_SQL_FOR_BATCH_ID;
+    String autoIncSqlProp = this.getPluginId() + "." + AUTOINCREMENT_SQL_FOR_BATCH_ID;
     if ( connectionExtraOptions != null ) {
       if ( this.supportsSequences() && connectionExtraOptions.containsKey( sequenceProp ) ) {
         return getNextBatchIdUsingSequence( connectionExtraOptions.get( sequenceProp ), schemaName, dbm, ldb );
-      } else if ( this.supportsAutoInc() && connectionExtraOptions.containsKey( autoIncSQLProp ) ) {
-        return getNextBatchIdUsingAutoIncSQL( connectionExtraOptions.get( autoIncSQLProp ), dbm, ldb );
+      } else if ( this.supportsAutoInc() && connectionExtraOptions.containsKey( autoIncSqlProp ) ) {
+        return getNextBatchIdUsingAutoIncSql( connectionExtraOptions.get( autoIncSqlProp ), dbm, ldb );
       }
     }
     return getNextBatchIdUsingLockTables( dbm, ldb, schemaName, tableName, fieldName );
@@ -1876,7 +1876,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
           // Have the database dialect do the quoting.
           // This also adds the single quotes around the string (thanks to PostgreSQL)
           //
-          string = quoteSQLString( string );
+          string = quoteSqlString( string );
           ins.append( string );
           break;
         case IValueMeta.TYPE_DATE:
@@ -1986,7 +1986,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return IValueMeta customized with the data base specific types
    */
   @Override
-  public IValueMeta customizeValueFromSQLType( IValueMeta v, java.sql.ResultSetMetaData rm, int index )
+  public IValueMeta customizeValueFromSqlType(IValueMeta v, java.sql.ResultSetMetaData rm, int index )
     throws SQLException {
     return null;
   }

@@ -126,7 +126,7 @@ public class DatabaseExplorerDialog extends Dialog {
   private Button bShow;
   private Button bDDL;
   private Button bDDL2;
-  private Button bSQL;
+  private Button bSql;
   private String activeSchemaTable;
   private Button bTruncate;
   FormData fdexpandAll, fdcollapseAll;
@@ -397,10 +397,10 @@ public class DatabaseExplorerDialog extends Dialog {
     ddl2Data.top = new FormAttachment( bDDL, props.getMargin() );
     bDDL2.setLayoutData( ddl2Data );
 
-    bSQL = new Button( buttonsComposite, SWT.PUSH );
-    bSQL.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", Const.NVL( activeSchemaTable, "?" ) ) );
-    bSQL.setEnabled( activeSchemaTable != null );
-    bSQL.addSelectionListener( new SelectionAdapter() {
+    bSql = new Button( buttonsComposite, SWT.PUSH );
+    bSql.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", Const.NVL( activeSchemaTable, "?" ) ) );
+    bSql.setEnabled( activeSchemaTable != null );
+    bSql.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSql( activeSchemaTable );
       }
@@ -409,7 +409,7 @@ public class DatabaseExplorerDialog extends Dialog {
     sqlData.left = new FormAttachment( 0, 0 );
     sqlData.right = new FormAttachment( 100, 0 );
     sqlData.top = new FormAttachment( bDDL2, props.getMargin() );
-    bSQL.setLayoutData( sqlData );
+    bSql.setLayoutData( sqlData );
 
     bTruncate = new Button( buttonsComposite, SWT.PUSH );
     bTruncate.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL( activeSchemaTable, "?" ) ) );
@@ -422,7 +422,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData truncateData = new FormData();
     truncateData.left = new FormAttachment( 0, 0 );
     truncateData.right = new FormAttachment( 100, 0 );
-    truncateData.top = new FormAttachment( bSQL, props.getMargin() * 7 );
+    truncateData.top = new FormAttachment(bSql, props.getMargin() * 7 );
     bTruncate.setLayoutData( truncateData );
 
     FormData fdComposite = new FormData();
@@ -460,8 +460,8 @@ public class DatabaseExplorerDialog extends Dialog {
     bDDL2.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.GenDDLOtherConn" ) );
     bDDL2.setEnabled( table != null );
 
-    bSQL.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", Const.NVL( table, "?" ) ) );
-    bSQL.setEnabled( table != null );
+    bSql.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", Const.NVL( table, "?" ) ) );
+    bSql.setEnabled( table != null );
 
     bTruncate.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.Truncate", Const.NVL( table, "?" ) ) );
     bTruncate.setEnabled( table != null );
@@ -688,9 +688,9 @@ public class DatabaseExplorerDialog extends Dialog {
         }
       } );
       miDDL2.setEnabled( databases != null );
-      MenuItem miSQL = new MenuItem( mTree, SWT.PUSH );
-      miSQL.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", table ) );
-      miSQL.addSelectionListener( new SelectionAdapter() {
+      MenuItem miSql = new MenuItem( mTree, SWT.PUSH );
+      miSql.setText( BaseMessages.getString( PKG, "DatabaseExplorerDialog.Menu.OpenSQL", table ) );
+      miSql.addSelectionListener( new SelectionAdapter() {
         public void widgetSelected( SelectionEvent e ) {
           getSql( table );
         }
@@ -899,7 +899,7 @@ public class DatabaseExplorerDialog extends Dialog {
           STRING_SYNONYMS.equalsIgnoreCase( path[ 1 ] ) ) {
           schemaName = null;
           tableName = table;
-          if ( dbMeta.getIDatabase().isMSSQLServerVariant() ) {
+          if ( dbMeta.getIDatabase().isMsSqlServerVariant() ) {
             String st[] = tableName.split( "\\.", 2 );
             if ( st.length > 1 ) { // we have a dot in there and need to separate
               schemaName = st[ 0 ];

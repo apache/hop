@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -349,7 +348,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wProtocol.setLayoutData( fdProtocol );
     wProtocol.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        activeFTPProtocol();
+        activeFtpProtocol();
         action.setChanged();
       }
     } );
@@ -987,7 +986,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     };
     lsCheckFolder = new Listener() {
       public void handleEvent( Event e ) {
-        checkFTPFolder();
+        checkFtpFolder();
       }
     };
 
@@ -1022,7 +1021,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     activeSuccessCondition();
     activeUsePublicKey();
     activeProxy();
-    activeFTPProtocol();
+    activeFtpProtocol();
     activeCopyFromPrevious();
 
     wTabFolder.setSelection( 0 );
@@ -1059,7 +1058,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wProxyUsername.setEnabled( wuseProxy.getSelection() );
   }
 
-  private void activeFTPProtocol() {
+  private void activeFtpProtocol() {
     wlConnectionType.setEnabled( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTPS ) );
     wConnectionType.setEnabled( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTPS ) );
     if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_SSH ) ) {
@@ -1099,7 +1098,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     }
   }
 
-  private void checkFTPFolder() {
+  private void checkFtpFolder() {
     boolean folderexists = false;
     String errmsg = "";
     try {
@@ -1155,11 +1154,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean connect() {
     boolean connexion = false;
     if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTP ) ) {
-      connexion = connectToFTP();
+      connexion = connectToFtp();
     } else if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTPS ) ) {
-      connexion = connectToFTPS();
+      connexion = connectToFtps();
     } else if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_SFTP ) ) {
-      connexion = connectToSFTP();
+      connexion = connectToSftp();
     } else if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_SSH ) ) {
       connexion = connectToSSH();
     }
@@ -1176,7 +1175,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     }
   }
 
-  private boolean connectToFTP() {
+  private boolean connectToFtp() {
     boolean retval = false;
     String realServername = null;
     try {
@@ -1234,7 +1233,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     return retval;
   }
 
-  private boolean connectToFTPS() {
+  private boolean connectToFtps() {
     boolean retval = false;
     try {
       if ( ftpsclient == null ) {
@@ -1290,7 +1289,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     return retval;
   }
 
-  private boolean connectToSFTP() {
+  private boolean connectToSftp() {
     boolean retval = false;
     try {
       if ( sftpclient == null ) {
@@ -1388,7 +1387,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   }
 
   public void dispose() {
-    closeFTPConnections();
+    closeFtpConnections();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();
@@ -1439,7 +1438,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wkeyfilePass.setText( Const.nullToEmpty( action.getKeyFilePass() ) );
 
     wgetPrevious.setSelection( action.isCopyPrevious() );
-    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( action.getFTPSConnectionType() ) );
+    wConnectionType.setText( FtpsConnection.getConnectionTypeDesc( action.getFtpsConnectionType() ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -1495,11 +1494,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     action.setKeyFilePass( wkeyfilePass.getText() );
 
     action.setCopyPrevious( wgetPrevious.getSelection() );
-    action.setFTPSConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
+    action.setFtpsConnectionType( FtpsConnection.getConnectionTypeByDesc( wConnectionType.getText() ) );
     dispose();
   }
 
-  private void closeFTPConnections() {
+  private void closeFtpConnections() {
     // Close FTP connection if necessary
     if ( ftpclient != null && ftpclient.connected() ) {
       try {

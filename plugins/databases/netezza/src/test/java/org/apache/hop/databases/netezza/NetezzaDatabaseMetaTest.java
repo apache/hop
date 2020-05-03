@@ -115,7 +115,7 @@ public class NetezzaDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( " limit 15", nativeMeta.getLimitClause( 15 ) );
     assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT * FROM FOO limit 1", nativeMeta.getSqlTableExists( "FOO" ) );

@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.databases.sqlite.SQLiteDatabaseMeta;
+import org.apache.hop.databases.sqlite.SqliteDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.mockito.Spy;
@@ -104,9 +104,9 @@ public class SQLiteValueMetaBaseTest {
 
   @Ignore
   @Test
-  public void testMetdataPreviewSqlBinaryToHopStringUsingSQLite() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBinaryToHopStringUsingSqlite() throws SQLException, HopDatabaseException {
     doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( SQLiteDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
+    doReturn( mock( SqliteDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }

@@ -345,9 +345,9 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
       r.addValueMeta( v );
     }
 
-    String realSQLCreation = variables.environmentSubstitute( sqlcreationfieldname );
-    if ( !Utils.isEmpty( realSQLCreation ) ) {
-      IValueMeta v = new ValueMetaString( realSQLCreation );
+    String realSqlCreation = variables.environmentSubstitute( sqlcreationfieldname );
+    if ( !Utils.isEmpty( realSqlCreation ) ) {
+      IValueMeta v = new ValueMetaString( realSqlCreation );
       v.setLength( 500 );
       v.setPrecision( -1 );
       v.setOrigin( name );

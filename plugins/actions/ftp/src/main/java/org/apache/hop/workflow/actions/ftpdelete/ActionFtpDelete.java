@@ -143,7 +143,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
   private boolean copyprevious;
 
-  private int FTPSConnectionType;
+  private int FtpsConnectionType;
 
   long NrErrors = 0;
 
@@ -175,7 +175,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     keyFilename = null;
     keyFilePass = null;
     serverName = null;
-    FTPSConnectionType = FtpsConnection.CONNECTION_TYPE_FTP;
+    FtpsConnectionType = FtpsConnection.CONNECTION_TYPE_FTP;
   }
 
   public ActionFtpDelete() {
@@ -218,7 +218,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
     retval.append( "      " ).append(
       XmlHandler
-        .addTagValue( "ftps_connection_type", FtpsConnection.getConnectionTypeCode( FTPSConnectionType ) ) );
+        .addTagValue( "ftps_connection_type", FtpsConnection.getConnectionTypeCode(FtpsConnectionType) ) );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_host", socksProxyHost ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "socksproxy_port", socksProxyPort ) );
@@ -259,7 +259,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
       nr_limit_success = XmlHandler.getTagValue( entrynode, "nr_limit_success" );
       success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
       copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
-      FTPSConnectionType =
+      FtpsConnectionType =
         FtpsConnection.getConnectionTypeByCode( Const.NVL( XmlHandler.getTagValue(
           entrynode, "ftps_connection_type" ), "" ) );
       socksProxyHost = XmlHandler.getTagValue( entrynode, "socksproxy_host" );
@@ -338,15 +338,15 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   /**
    * @return the connection type
    */
-  public int getFTPSConnectionType() {
-    return FTPSConnectionType;
+  public int getFtpsConnectionType() {
+    return FtpsConnectionType;
   }
 
   /**
    * @param type the connectionType to set
    */
-  public void setFTPSConnectionType( int type ) {
-    FTPSConnectionType = type;
+  public void setFtpsConnectionType(int type ) {
+    FtpsConnectionType = type;
   }
 
   public void setLimitSuccess( String nr_limit_successin ) {
@@ -611,7 +611,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
         }
 
         // establish the connection
-        FTPConnect(
+        FtpConnect(
           realservername, realUsername, realPassword, realserverport, realFtpDirectory, realproxyhost,
           realproxyusername, realproxypassword, realproxyport, timeout );
 
@@ -631,7 +631,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
         }
       } else if ( protocol.equals( PROTOCOL_FTPS ) ) {
         // establish the secure connection
-        FTPSConnect( realservername, realUsername, realserverport, realPassword, realFtpDirectory, timeout );
+        FtpsConnect( realservername, realUsername, realserverport, realPassword, realFtpDirectory, timeout );
         // Get all the files in the current directory...
         filelist = ftpsclient.getFileNames();
       } else if ( protocol.equals( PROTOCOL_SFTP ) ) {
@@ -882,7 +882,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   private void SFTPConnect( String realservername, String realusername, int realport, String realpassword,
-                            String realFTPDirectory ) throws Exception {
+                            String realFtpDirectory ) throws Exception {
     // Create sftp client to host ...
     sftpclient = new SftpClient( InetAddress.getByName( realservername ), realport, realusername );
 
@@ -890,20 +890,20 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     sftpclient.login( realpassword );
 
     // move to spool dir ...
-    if ( !Utils.isEmpty( realFTPDirectory ) ) {
-      sftpclient.chdir( realFTPDirectory );
+    if ( !Utils.isEmpty( realFtpDirectory ) ) {
+      sftpclient.chdir( realFtpDirectory );
       if ( isDetailed() ) {
-        logDetailed( "Changed to directory [" + realFTPDirectory + "]" );
+        logDetailed( "Changed to directory [" + realFtpDirectory + "]" );
       }
     }
 
   }
 
-  private void FTPSConnect( String realservername, String realusername, int realport, String realpassword,
-                            String realFTPDirectory, int realtimeout ) throws Exception {
+  private void FtpsConnect(String realservername, String realusername, int realport, String realpassword,
+                           String realFtpDirectory, int realtimeout ) throws Exception {
     // Create ftps client to host ...
     ftpsclient =
-      new FtpsConnection( getFTPSConnectionType(), realservername, realport, realusername, realpassword );
+      new FtpsConnection( getFtpsConnectionType(), realservername, realport, realusername, realpassword );
 
     if ( !Utils.isEmpty( proxyHost ) ) {
       String realProxy_host = environmentSubstitute( proxyHost );
@@ -954,17 +954,17 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     ftpsclient.connect();
 
     // move to spool dir ...
-    if ( !Utils.isEmpty( realFTPDirectory ) ) {
-      ftpsclient.changeDirectory( realFTPDirectory );
+    if ( !Utils.isEmpty( realFtpDirectory ) ) {
+      ftpsclient.changeDirectory( realFtpDirectory );
       if ( isDetailed() ) {
-        logDetailed( "Changed to directory [" + realFTPDirectory + "]" );
+        logDetailed( "Changed to directory [" + realFtpDirectory + "]" );
       }
     }
   }
 
-  private void FTPConnect( String realServername, String realusername, String realpassword, int realport,
-                           String realFtpDirectory, String realProxyhost, String realproxyusername, String realproxypassword,
-                           int realproxyport, int realtimeout ) throws Exception {
+  private void FtpConnect(String realServername, String realusername, String realpassword, int realport,
+                          String realFtpDirectory, String realProxyhost, String realproxyusername, String realproxypassword,
+                          int realproxyport, int realtimeout ) throws Exception {
 
     // Create ftp client to host:port ...
     ftpclient = new FTPClient();

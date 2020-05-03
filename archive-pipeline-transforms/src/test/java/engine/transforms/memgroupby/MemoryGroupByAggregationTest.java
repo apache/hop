@@ -308,7 +308,7 @@ public class MemoryGroupByAggregationTest {
   }
 
   @Test
-  public void testSQLCompatible() throws Exception {
+  public void testSqlCompatible() throws Exception {
     addColumn( new ValueMetaInteger( "value" ), null, -2L, null, 0L, null, 10L, null, null, 0L, null );
 
     RowMetaAndData output = runTransform();

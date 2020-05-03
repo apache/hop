@@ -96,11 +96,11 @@ public class WorkflowActionFtpsPutLoadSaveTest extends WorkflowActionLoadSaveTes
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidator = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    fieldLoadSaveValidator.put( "connection_type", new FTPSConnectionLoadSaveValidator() );
+    fieldLoadSaveValidator.put( "connection_type", new FtpsConnectionLoadSaveValidator() );
     return fieldLoadSaveValidator;
   }
 
-  public class FTPSConnectionLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
+  public class FtpsConnectionLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
     @Override
     public Integer getTestObject() {
       return new Random().nextInt( FtpsConnection.connection_type_Code.length );

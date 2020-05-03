@@ -159,12 +159,12 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
         errorMessage = e.toString();
         // CHE: Read the chained SQL exceptions and add them
         // to the errorMessage
-        SQLException nextSQLExOnChain = null;
+        SQLException nextSqlExOnChain = null;
         if ( ( e.getCause() != null ) && ( e.getCause() instanceof SQLException ) ) {
-          nextSQLExOnChain = ( (SQLException) e.getCause() ).getNextException();
-          while ( nextSQLExOnChain != null ) {
-            errorMessage = errorMessage + nextSQLExOnChain.getMessage() + Const.CR;
-            nextSQLExOnChain = nextSQLExOnChain.getNextException();
+          nextSqlExOnChain = ( (SQLException) e.getCause() ).getNextException();
+          while ( nextSqlExOnChain != null ) {
+            errorMessage = errorMessage + nextSqlExOnChain.getMessage() + Const.CR;
+            nextSqlExOnChain = nextSqlExOnChain.getNextException();
           }
         }
       } else {

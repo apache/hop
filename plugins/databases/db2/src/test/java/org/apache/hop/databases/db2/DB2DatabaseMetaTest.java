@@ -112,12 +112,12 @@ public class DB2DatabaseMetaTest {
     assertFalse( nativeMeta.supportsSequenceNoMaxValueOption() );
     assertTrue( nativeMeta.requiresCastToVariousForIsNull() );
     assertTrue( nativeMeta.isDisplaySizeTwiceThePrecision() );
-    assertFalse( nativeMeta.supportsNewLinesInSQL() );
+    assertFalse( nativeMeta.supportsNewLinesInSql() );
 
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "ALTER TABLE FOO ACTIVATE NOT LOGGED INITIALLY WITH EMPTY TABLE", nativeMeta.getTruncateTableStatement( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD COLUMN BAR CLOB",

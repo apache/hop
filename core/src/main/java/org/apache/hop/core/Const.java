@@ -2819,7 +2819,7 @@ public class Const {
    * @param content content
    * @return escaped content
    */
-  public static String escapeSQL( String content ) {
+  public static String escapeSql(String content ) {
     if ( Utils.isEmpty( content ) ) {
       return content;
     }

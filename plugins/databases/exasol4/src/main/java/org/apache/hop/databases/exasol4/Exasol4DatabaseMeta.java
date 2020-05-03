@@ -375,7 +375,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return A string that is properly quoted for use in an Exasol SQL statement (insert, update, delete, etc)
    */
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     string = string.replace( "'", "''" );
     string = string.replace( "\\n", "'||chr(13)||'" );
     string = string.replace( "\\r", "'||chr(10)||'" );

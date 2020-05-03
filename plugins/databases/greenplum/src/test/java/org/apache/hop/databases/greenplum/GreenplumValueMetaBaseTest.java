@@ -33,7 +33,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.databases.postgresql.PostgreSQLDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.mockito.Spy;

@@ -424,7 +424,7 @@ public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
       // Define a new connection
       connection = new FtpsConnection( getConnectionType(), realServerName, realPort, realUsername, realPassword );
 
-      this.buildFTPSConnection( connection );
+      this.buildFtpsConnection( connection );
 
       // move to spool dir ...
       if ( !Utils.isEmpty( realRemoteDirectory ) ) {
@@ -566,7 +566,7 @@ public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
       AndValidator.putValidators( ActionValidatorUtils.integerValidator() ) );
   }
 
-  void buildFTPSConnection( FtpsConnection connection ) throws Exception {
+  void buildFtpsConnection(FtpsConnection connection ) throws Exception {
     if ( !Utils.isEmpty( proxyHost ) ) {
       String realProxy_host = environmentSubstitute( proxyHost );
       String realProxy_username = environmentSubstitute( proxyUsername );

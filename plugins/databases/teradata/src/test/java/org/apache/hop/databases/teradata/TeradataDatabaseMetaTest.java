@@ -120,7 +120,7 @@ public class TeradataDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "show table FOO", nativeMeta.getSqlTableExists( "FOO" ) );
     assertEquals( "SELECT * FROM DBC.columns WHERE tablename =BAR AND columnname =FOO",
       nativeMeta.getSqlColumnExists( "FOO", "BAR" ) ); // Likely a bug - table/column not quoted.

@@ -25,13 +25,9 @@ package org.apache.hop.workflow.actions.sftp;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.annotations.PluginDialog;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -57,10 +53,8 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -69,7 +63,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.net.InetAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This dialog allows you to edit the SFTP action settings.
@@ -908,7 +901,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   }
 
   private void test() {
-    if ( connectToSFTP( false, null ) ) {
+    if ( connectToSftp( false, null ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
       mb.setMessage( BaseMessages.getString( PKG, "JobSFTP.Connected.OK", wServerName.getText() ) + Const.CR );
       mb.setText( BaseMessages.getString( PKG, "JobSFTP.Connected.Title.Ok" ) );
@@ -921,7 +914,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     wWildcard.setEnabled( !wgetPrevious.getSelection() );
   }
 
-  private void closeFTPConnections() {
+  private void closeFtpConnections() {
     // Close SecureFTP connection if necessary
     if ( sftpclient != null ) {
       try {
@@ -933,7 +926,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private boolean connectToSFTP( boolean checkFolder, String Remotefoldername ) {
+  private boolean connectToSftp(boolean checkFolder, String Remotefoldername ) {
     boolean retval = false;
     try {
       if ( sftpclient == null ) {
@@ -985,11 +978,11 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   }
 
   private void checkRemoteFolder() {
-    String changeFTPFolder = workflowMeta.environmentSubstitute( wScpDirectory.getText() );
-    if ( !Utils.isEmpty( changeFTPFolder ) ) {
-      if ( connectToSFTP( true, changeFTPFolder ) ) {
+    String changeFtpFolder = workflowMeta.environmentSubstitute( wScpDirectory.getText() );
+    if ( !Utils.isEmpty( changeFtpFolder ) ) {
+      if ( connectToSftp( true, changeFtpFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "JobSFTP.FolderExists.OK", changeFTPFolder ) + Const.CR );
+        mb.setMessage( BaseMessages.getString( PKG, "JobSFTP.FolderExists.OK", changeFtpFolder ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobSFTP.FolderExists.Title.Ok" ) );
         mb.open();
       }
@@ -997,7 +990,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   }
 
   public void dispose() {
-    closeFTPConnections();
+    closeFtpConnections();
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
     shell.dispose();

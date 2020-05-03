@@ -61,7 +61,7 @@ public class InformixDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlQueryFields( "FOO" ) );
     assertEquals( "SELECT FIRST 1 * FROM FOO", nativeMeta.getSqlTableExists( "FOO" ) );
     assertEquals( "SELECT FIRST 1 FOO FROM BAR", nativeMeta.getSqlQueryColumnFields( "FOO", "BAR" ) );

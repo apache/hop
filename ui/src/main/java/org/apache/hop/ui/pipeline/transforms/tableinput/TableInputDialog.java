@@ -89,9 +89,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSQL;
+  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSQL, fdSQL;
+  private FormData fdlSql, fdSql;
 
   private Label wlDatefrom;
   private CCombo wDatefrom;
@@ -310,13 +310,13 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wlPosition.setLayoutData( fdlPosition );
 
     // Table line...
-    wlSQL = new Label( shell, SWT.NONE );
-    wlSQL.setText( BaseMessages.getString( PKG, "TableInputDialog.SQL" ) );
-    props.setLook( wlSQL );
-    fdlSQL = new FormData();
-    fdlSQL.left = new FormAttachment( 0, 0 );
-    fdlSQL.top = new FormAttachment( wConnection, margin * 2 );
-    wlSQL.setLayoutData( fdlSQL );
+    wlSql = new Label( shell, SWT.NONE );
+    wlSql.setText( BaseMessages.getString( PKG, "TableInputDialog.SQL" ) );
+    props.setLook(wlSql);
+    fdlSql = new FormData();
+    fdlSql.left = new FormAttachment( 0, 0 );
+    fdlSql.top = new FormAttachment( wConnection, margin * 2 );
+    wlSql.setLayoutData(fdlSql);
 
     wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbTable );
@@ -330,12 +330,12 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    fdSQL = new FormData();
-    fdSQL.left = new FormAttachment( 0, 0 );
-    fdSQL.top = new FormAttachment( wbTable, margin );
-    fdSQL.right = new FormAttachment( 100, -2 * margin );
-    fdSQL.bottom = new FormAttachment( wlPosition, -margin );
-    wSql.setLayoutData( fdSQL );
+    fdSql = new FormData();
+    fdSql.left = new FormAttachment( 0, 0 );
+    fdSql.top = new FormAttachment( wbTable, margin );
+    fdSql.right = new FormAttachment( 100, -2 * margin );
+    fdSql.bottom = new FormAttachment( wlPosition, -margin );
+    wSql.setLayoutData(fdSql);
     wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setSqlToolTip();

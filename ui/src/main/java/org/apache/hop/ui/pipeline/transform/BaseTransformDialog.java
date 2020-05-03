@@ -134,7 +134,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * FormData for the common dialog buttons.
    */
-  protected FormData fdOk, fdGet, fdPreview, fdSQL, fdCreate, fdCancel;
+  protected FormData fdOk, fdGet, fdPreview, fdSql, fdCreate, fdCancel;
 
   /**
    * Listeners for the common dialog buttons.

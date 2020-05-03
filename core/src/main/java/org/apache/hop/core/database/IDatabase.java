@@ -609,12 +609,12 @@ public interface IDatabase extends Cloneable {
   /**
    * @return The SQL to execute right after connecting
    */
-  public String getConnectSQL();
+  public String getConnectSql();
 
   /**
    * @param sql The SQL to execute right after connecting
    */
-  public void setConnectSQL( String sql );
+  public void setConnectSql(String sql );
 
   /**
    * @return true if the database supports setting the maximum number of return rows in a resultset.
@@ -765,7 +765,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return true if the database supports newlines in a SQL statements.
    */
-  public boolean supportsNewLinesInSQL();
+  public boolean supportsNewLinesInSql();
 
   /**
    * @return the SQL to retrieve the list of schemas
@@ -809,7 +809,7 @@ public interface IDatabase extends Cloneable {
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete, etc)
    */
-  public String quoteSQLString( String string );
+  public String quoteSqlString(String string );
 
   /**
    * Returns the SQL Statement that counts the number of rows in the table.
@@ -847,7 +847,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return true if the database is a MySQL variant, like MySQL 5.1, InfiniDB, InfoBright, and so on.
    */
-  public boolean isMySQLVariant();
+  public boolean isMySqlVariant();
 
   /**
    * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift and so on.
@@ -882,12 +882,12 @@ public interface IDatabase extends Cloneable {
   /**
    * @return true if the database is a MS SQL Server (native) variant.
    */
-  public boolean isMSSQLServerNativeVariant();
+  public boolean isMsSqlServerNativeVariant();
 
   /**
    * @return true if the database is a MS SQL Server variant.
    */
-  public boolean isMSSQLServerVariant();
+  public boolean isMsSqlServerVariant();
 
 
   /**
@@ -903,7 +903,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @return true if the database is a SQLite variant.
    */
-  public boolean isSQLiteVariant();
+  public boolean isSqliteVariant();
 
   /**
    * @return true if the database is a Terradata variant.
@@ -1031,7 +1031,7 @@ public interface IDatabase extends Cloneable {
    * @param index the index to the column to customize
    * @return IValueMeta customized with the data base specific types
    */
-  public IValueMeta customizeValueFromSQLType( IValueMeta v, java.sql.ResultSetMetaData rm, int index )
+  public IValueMeta customizeValueFromSqlType(IValueMeta v, java.sql.ResultSetMetaData rm, int index )
     throws SQLException;
 
   /**

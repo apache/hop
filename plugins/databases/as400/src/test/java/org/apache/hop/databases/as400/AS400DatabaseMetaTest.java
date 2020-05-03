@@ -112,7 +112,7 @@ public class AS400DatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
     assertEquals( "ALTER TABLE FOO ADD BAR VARCHAR(100)", nativeMeta.getAddColumnStatement( "FOO", new ValueMetaString( "BAR",
       100, 0 ), "", false, "", false ) );

@@ -513,20 +513,20 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public IValueMeta customizeValueFromSQLType( IValueMeta v, java.sql.ResultSetMetaData rm, int index )
+  public IValueMeta customizeValueFromSqlType(IValueMeta v, java.sql.ResultSetMetaData rm, int index )
     throws SQLException {
     if ( databaseDialect != null ) {
-      return databaseDialect.customizeValueFromSQLType( v, rm, index );
+      return databaseDialect.customizeValueFromSqlType( v, rm, index );
     }
-    return super.customizeValueFromSQLType( v, rm, index );
+    return super.customizeValueFromSqlType( v, rm, index );
   }
 
   @Override
-  public boolean isMySQLVariant() {
+  public boolean isMySqlVariant() {
     if ( databaseDialect != null ) {
-      return databaseDialect.isMySQLVariant();
+      return databaseDialect.isMySqlVariant();
     }
-    return super.isMySQLVariant();
+    return super.isMySqlVariant();
   }
 
   @Override
@@ -538,11 +538,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String quoteSQLString( String string ) {
+  public String quoteSqlString(String string ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.quoteSQLString( string );
+      return databaseDialect.quoteSqlString( string );
     }
-    return super.quoteSQLString( string );
+    return super.quoteSqlString( string );
   }
 
   @Override
@@ -570,11 +570,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean supportsNewLinesInSQL() {
+  public boolean supportsNewLinesInSql() {
     if ( databaseDialect != null ) {
-      return databaseDialect.supportsNewLinesInSQL();
+      return databaseDialect.supportsNewLinesInSql();
     }
-    return super.supportsNewLinesInSQL();
+    return super.supportsNewLinesInSql();
   }
 
   @Override

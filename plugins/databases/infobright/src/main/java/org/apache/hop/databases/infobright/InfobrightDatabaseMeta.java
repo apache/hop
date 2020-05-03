@@ -25,14 +25,14 @@ package org.apache.hop.databases.infobright;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.databases.mysql.MySQLDatabaseMeta;
+import org.apache.hop.databases.mysql.MySqlDatabaseMeta;
 
 @DatabaseMetaPlugin(
   type = "INFOBRIGHT",
   typeDescription = "Infobright"
 )
 @GuiPlugin( id = "GUI-InfobrightDatabaseMeta" )
-public class InfobrightDatabaseMeta extends MySQLDatabaseMeta{
+public class InfobrightDatabaseMeta extends MySqlDatabaseMeta {
 
   @Override
   public int getDefaultDatabasePort() {

@@ -236,12 +236,12 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
     // First try without connecting to the database... (can be S L O W)
     // See if it's in the cache...
     IRowMeta add = null;
-    String realSQL = sql;
+    String realSql = sql;
     if ( replacevars ) {
-      realSQL = variables.environmentSubstitute( realSQL );
+      realSql = variables.environmentSubstitute( realSql );
     }
     try {
-      add = db.getQueryFields( realSQL, false );
+      add = db.getQueryFields( realSql, false );
     } catch ( HopDatabaseException dbe ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "DynamicSQLRowMeta.Exception.UnableToDetermineQueryFields" )
@@ -258,7 +258,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
       // No cache hit, connect to the database, do it the hard way...
       try {
         db.connect();
-        add = db.getQueryFields( realSQL, false );
+        add = db.getQueryFields( realSql, false );
         for ( int i = 0; i < add.size(); i++ ) {
           IValueMeta v = add.getValueMeta( i );
           v.setOrigin( name );

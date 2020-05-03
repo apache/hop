@@ -88,7 +88,7 @@ public class DerbyDatabaseMetaTest {
   }
 
   @Test
-  public void testSQLStatements() {
+  public void testSqlStatements() {
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
 
     assertEquals( "ALTER TABLE FOO ADD BAR TIMESTAMP",
