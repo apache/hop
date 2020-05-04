@@ -42,13 +42,12 @@ public class HopVariablesListTest {
   public void testInit() throws Exception {
     HopVariablesList variablesList = HopVariablesList.getInstance();
     variablesList.init();
-    //See PDI-14522
-    boolean actual = Boolean.valueOf( variablesList.getDefaultValueMap().get( Const.VFS_USER_DIR_IS_ROOT ) );
+
+    boolean actual = Boolean.valueOf( variablesList.getDefaultValueMap().get( Const.HOP_PASSWORD_ENCODER_PLUGIN ) );
     assertEquals( false, actual );
 
-    String vfsUserDirIsRootDefaultMessage =
-      "Set this variable to true if VFS should treat the user directory as the root directory when connecting via ftp. Defaults to false.";
-    assertEquals( variablesList.getDescriptionMap().get( Const.VFS_USER_DIR_IS_ROOT ), vfsUserDirIsRootDefaultMessage );
+    assertEquals( "Specifies the password encoder plugin to use by ID (Hop is the default).",
+      variablesList.getDescriptionMap().get( Const.HOP_PASSWORD_ENCODER_PLUGIN ) );
   }
 
   @Test

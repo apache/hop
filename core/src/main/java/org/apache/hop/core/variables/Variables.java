@@ -120,7 +120,7 @@ public class Variables implements IVariables {
     //
     Map<String, String> systemProperties = HopConfig.readSystemProperties();
     if (systemProperties!=null) {
-      properties.putAll(systemProperties);
+      getProperties().putAll(systemProperties);
     } else {
       throw new RuntimeException("The system properties haven't been initialized properly");
     }
@@ -129,7 +129,7 @@ public class Variables implements IVariables {
       copyVariablesFrom( parent );
     }
     if ( injection != null ) {
-      properties.putAll( injection );
+      getProperties().putAll( injection );
       injection = null;
     }
     initialized = true;
@@ -142,7 +142,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public void setVariable( String variableName, String variableValue ) {
+  public synchronized void setVariable( String variableName, String variableValue ) {
     if ( variableValue != null ) {
       properties.put( variableName, variableValue );
     } else {
@@ -151,7 +151,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public String environmentSubstitute( String aString ) {
+  public synchronized String environmentSubstitute( String aString ) {
     if ( aString == null || aString.length() == 0 ) {
       return aString;
     }

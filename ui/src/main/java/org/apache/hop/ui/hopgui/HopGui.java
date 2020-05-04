@@ -27,6 +27,7 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -660,7 +661,11 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_OPTIONS, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
   public void menuToolsOptions() {
     if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
-      // TODO warn the user about restarting
+      try {
+        HopConfig.saveToFile();
+      } catch(Exception e) {
+        new ErrorDialog( hopGui.getShell(), "Error", "Error saving the configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+      }
     }
   }
 

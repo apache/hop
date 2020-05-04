@@ -38,7 +38,7 @@
 
   <hop-variable>
     <description>The maximum number of workflow trackers kept in memory</description>
-    <variable>HOP_MAX_JOB_TRACKER_SIZE</variable>
+    <variable>HOP_MAX_WORKFLOW_TRACKER_SIZE</variable>
     <default-value>5000</default-value>
   </hop-variable>
 
@@ -106,12 +106,6 @@
     <description>The name of the environment variable that will contain the alternative location of the hop-workflow-actions.xml file.</description>
     <variable>HOP_CORE_WORKFLOW_ACTIONS_FILE</variable>
     <default-value></default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Experimental! Set this variable to Y if you want to test a more efficient batching row set. Use at your own risk.</description>
-    <variable>HOP_BATCHING_ROWSET</variable>
-    <default-value>N</default-value>
   </hop-variable>
 
   <hop-variable>
@@ -187,12 +181,6 @@
   </hop-variable>
 
   <hop-variable>
-    <description>Set this variable to Y to precede log lines with the mapping transform name and the mapping itself.</description>
-    <variable>HOP_LOG_MARK_MAPPINGS</variable>
-    <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>Set this variable to Y to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO.</description>
     <variable>HOP_AGGREGATION_MIN_NULL_IS_VALUED</variable>
     <default-value>N</default-value>
@@ -217,21 +205,9 @@
   </hop-variable>
 
   <hop-variable>
-    <description>Set this variable to Y to revert the Enterprise Repository node naming behavior back to the old mode. See https://jira.pentaho.com/browse/PDI-6394 for details.</description>
-    <variable>HOP_COMPATIBILITY_PUR_OLD_NAMING_MODE</variable>
-    <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed.</description>
     <variable>HOP_SYSTEM_HOSTNAME</variable>
     <default-value></default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Set this variable to Y for backward compatibility when importing a reference to a directory with a variable. When set to Y, a directory reference is always prefixed with the root path independently if variables are used or not.</description>
-    <variable>HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES</variable>
-    <default-value>N</default-value>
   </hop-variable>
 
   <hop-variable>
@@ -256,25 +232,6 @@
   </hop-variable>
 
   <hop-variable>
-    <description>Set this variable to true if VFS should treat the user directory as the root directory when connecting via ftp. Defaults to false.</description>
-    <variable>vfs.sftp.userDirIsRoot</variable>
-    <default-value>false</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Set this variable to Y to create S3 Object for upload based on a temporary file with data.</description>
-    <variable>s3.vfs.useTempFileOnUploadData</variable>
-    <default-value>N</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Set this variable to restore the directory loading behavior of the repository as it was before 6.1. Changing this to false will make
- repository loading more expensive</description>
-    <variable>HOP_LAZY_REPOSITORY</variable>
-    <default-value>true</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>Set this variable to false to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks.</description>
     <variable>HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE</variable>
     <default-value>false</default-value>
@@ -293,18 +250,6 @@
   </hop-variable>
 
   <hop-variable>
-    <description>A variable in ms to configure timeout inner http client data refinery plugin.</description>
-    <variable>HOP_DATA_REFINERY_HTTP_CLIENT_TIMEOUT</variable>
-    <default-value>2000</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>Set this variable to true to use a gateway for connecting to a Hadoop cluster.</description>
-    <variable>HOP_HADOOP_CLUSTER_GATEWAY_CONNECTION</variable>
-    <default-value>false</default-value>
-  </hop-variable>
-
-  <hop-variable>
     <description>This environment variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_COUNT</variable>
     <default-value>1024</default-value>
@@ -316,23 +261,5 @@
     <default-value>0</default-value>
   </hop-variable>
 
-  <hop-variable>
-    <description>This environment variable is used by the streaming data services. It defines the default limit in rows for the streaming window.
-    </description>
-    <variable>HOP_STREAMING_ROW_LIMIT</variable>
-    <default-value>5000</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>This environment variable is used by the streaming data services. It defines the default limit in time for the streaming window.</description>
-    <variable>HOP_STREAMING_TIME_LIMIT</variable>
-    <default-value>10000</default-value>
-  </hop-variable>
-
-  <hop-variable>
-    <description>A variable to configure Tab size</description>
-    <variable>HOP_MAX_TAB_LENGTH</variable>
-    <default-value>17</default-value>
-  </hop-variable>
 </hop-variables>
 

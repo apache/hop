@@ -160,7 +160,7 @@ public class Props implements Cloneable {
 
   protected void setProperty(String key, String value) {
     try {
-      HopConfig.saveOption( key, value );
+      HopConfig.setGuiProperty( key, value );
     } catch(Exception e) {
       throw new RuntimeException("Error saving hop config option key '"+key+"', value '"+value+"'", e);
     }

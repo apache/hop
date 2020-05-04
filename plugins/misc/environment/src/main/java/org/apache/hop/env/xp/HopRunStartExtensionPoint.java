@@ -1,16 +1,11 @@
 package org.apache.hop.env.xp;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cli.HopRun;
+import org.apache.hop.run.HopRun;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;

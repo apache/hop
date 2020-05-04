@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.cli;
+package org.apache.hop.run;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
@@ -118,7 +118,7 @@ public class HopRun implements Runnable {
       if ( isPipeline() ) {
         runPipeline( cmd, log );
       }
-      if ( isJob() ) {
+      if ( isWorkflow() ) {
         runWorkflow( cmd, log );
       }
 
@@ -328,7 +328,7 @@ public class HopRun implements Runnable {
     return filename.toLowerCase().endsWith( ".hpl" );
   }
 
-  private boolean isJob() {
+  private boolean isWorkflow() {
     if ( runWorkflow ) {
       return true;
     }

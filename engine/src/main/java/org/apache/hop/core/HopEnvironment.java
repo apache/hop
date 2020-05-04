@@ -27,6 +27,7 @@ import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
@@ -89,7 +90,8 @@ public class HopEnvironment {
       AuthenticationProviderPluginType.getInstance(),
       AuthenticationConsumerPluginType.getInstance(),
       PipelineEnginePluginType.getInstance(),
-      WorkflowEnginePluginType.getInstance()
+      WorkflowEnginePluginType.getInstance(),
+      ConfigPluginType.getInstance()
     );
   }
 

@@ -1,0 +1,8 @@
+<config-plugins>
+
+  <config-plugin id="SetSystemProperties">
+    <description>Set system properties</description>
+    <classname>org.apache.hop.config.SetSystemPropertyOption</classname>
+  </config-plugin>
+
+</config-plugins>

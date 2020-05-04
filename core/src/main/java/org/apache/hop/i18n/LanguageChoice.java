@@ -23,7 +23,6 @@
 package org.apache.hop.i18n;
 
 import org.apache.hop.core.config.HopConfig;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
 
 import java.util.Locale;
@@ -39,6 +38,7 @@ public class LanguageChoice {
     String defaultLocaleString = HopConfig.readOptionString( STRING_DEFAULT_LOCALE, null );
     if ( defaultLocaleString == null ) {
       defaultLocale = Locale.getDefault();
+      HopConfig.saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
     } else {
       defaultLocale = EnvUtil.createLocale( defaultLocaleString );
     }

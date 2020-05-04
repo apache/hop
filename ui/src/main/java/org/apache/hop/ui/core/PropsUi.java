@@ -180,7 +180,7 @@ public class PropsUi extends Props {
   public FontData getFixedFont() {
     FontData def = getDefaultFontData();
 
-    String name = getProperty( STRING_FONT_FIXED_NAME, "Courier" );
+    String name = getProperty( STRING_FONT_FIXED_NAME, "Monospaced" );
     int size = Const.toInt( getProperty( STRING_FONT_FIXED_SIZE ), def.getHeight() );
     int style = Const.toInt( getProperty( STRING_FONT_FIXED_STYLE ), def.getStyle() );
 

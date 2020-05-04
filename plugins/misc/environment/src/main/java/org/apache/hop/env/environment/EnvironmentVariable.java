@@ -2,6 +2,8 @@ package org.apache.hop.env.environment;
 
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 
+import java.util.Objects;
+
 public class EnvironmentVariable {
 
   @MetaStoreAttribute
@@ -20,6 +22,21 @@ public class EnvironmentVariable {
     this.name = name;
     this.value = value;
     this.description = description;
+  }
+
+  @Override public boolean equals( Object o ) {
+    if ( this == o ) {
+      return true;
+    }
+    if ( o == null || getClass() != o.getClass() ) {
+      return false;
+    }
+    EnvironmentVariable that = (EnvironmentVariable) o;
+    return Objects.equals( name, that.name );
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash( name );
   }
 
   /**

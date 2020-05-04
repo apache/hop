@@ -22,6 +22,10 @@ public class EnvironmentSingleton {
     this.location = location;
   }
 
+  public static boolean isInitialized() {
+    return environmentSingleton!=null;
+  }
+
   public static void initialize(String location) throws MetaStoreException {
     environmentSingleton = new EnvironmentSingleton( location );
   }

@@ -83,7 +83,7 @@ public class GuiCompositeWidgets {
       The developer wants to be informed of any change to the content of the widget
       We're just creating the widgets here so once the data is set it will generate a lot of modify listener events
      */
-    if (sourceData instanceof IGuiPluginCompositeWidgetsListener ) {
+    if (sourceData!=null && sourceData instanceof IGuiPluginCompositeWidgetsListener ) {
       compositeWidgetsListener = (IGuiPluginCompositeWidgetsListener) sourceData;
     }
 
@@ -129,8 +129,6 @@ public class GuiCompositeWidgets {
     // Do we add the element or the children?
     //
     if ( guiElements.getId() != null ) {
-
-
 
       // Add the label on the left hand side...
       //

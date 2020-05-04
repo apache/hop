@@ -504,11 +504,6 @@ public class Const {
   public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE = "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
 
   /**
-   * System wide flag to use the root path prefix for a directory reference. See PDI-6779 for details.
-   */
-  public static final String HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES = "HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES";
-
-  /**
    * System wide flag to set or not append and header options dependency on Text file output transform. See PDI-5252 for
    * details.
    */
@@ -759,6 +754,11 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
+   * The XML file that contains the list of native config plugins
+   */
+  public static final String XML_FILE_HOP_CONFIG_PLUGINS = "hop-config-plugins.xml";
+
+  /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
    */
   public static final String XML_FILE_HOP_GUI_PLUGINS = "hop-gui-plugins.xml";
@@ -787,11 +787,6 @@ public class Const {
    * The XML file that contains the list of native extension points (None by default, this is mostly for OEM purposes)
    */
   public static final String XML_FILE_HOP_EXTENSION_POINTS = "hop-extension-points.xml";
-
-  /**
-   * The XML file that contains the list of native extension points (None by default, this is mostly for OEM purposes)
-   */
-  public static final String XML_FILE_HOP_REGISTRY_EXTENSIONS = "hop-registry-extensions.xml";
 
   /**
    * The XML file that contains the list of lifecycle listeners
