@@ -1,7 +1,7 @@
 package org.apache.hop.env.xp;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cli.HopRun;
+import org.apache.hop.run.HopRun;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;

@@ -2171,11 +2171,6 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetHopPropertiesFileHeader() {
-    assertFalse( Const.getHopPropertiesFileHeader().isEmpty() );
-  }
-
-  @Test
   public void testProtectXMLCDATA() {
     assertEquals( null, Const.protectXmlCdata( null ) );
     assertEquals( "", Const.protectXmlCdata( "" ) );

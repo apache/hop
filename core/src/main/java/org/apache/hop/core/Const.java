@@ -27,16 +27,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.text.StrBuilder;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.version.BuildVersion;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -45,8 +43,6 @@ import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -76,19 +72,6 @@ import java.util.regex.Pattern;
  */
 public class Const {
   private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
-
-  /**
-   * Version number
-   *
-   * @deprecated Use {@link BuildVersion#getVersion()} instead
-   */
-  @Deprecated
-  public static final String VERSION = BuildVersion.getInstance().getVersion();
-
-  /**
-   * Copyright year
-   */
-  public static final String COPYRIGHT_YEAR = "2015";
 
   /**
    * Release Type
@@ -144,16 +127,6 @@ public class Const {
   public static final int FETCH_SIZE = 10000;
 
   /**
-   * Sort size: how many rows do we sort in memory at once?
-   */
-  public static final int SORT_SIZE = 5000;
-
-  /**
-   * workflow/pipeline heartbeat scheduled executor periodic interval ( in seconds )
-   */
-  public static final int HEARTBEAT_PERIODIC_INTERVAL_IN_SECS = 10;
-
-  /**
    * What's the file systems file separator on this operating system?
    */
   public static final String FILE_SEPARATOR = System.getProperty( "file.separator" );
@@ -168,10 +141,17 @@ public class Const {
    */
   public static final String CR = System.getProperty( "line.separator" );
 
-  /**
-   * DOSCR: MS-DOS specific Carriage Return
+  /*
+    The name of the history folder in which the Hop local audit manager saves data
    */
-  public static final String DOSCR = "\n\r";
+  public static final String HOP_AUDIT_DIRECTORY =  NVL( System.getProperty( "HOP_AUDIT_DIRECTORY" ),
+    System.getProperty( "user.dir" ) + File.separator + "audit" );
+
+  /*
+   The name of the history folder in which the Hop local audit manager saves data
+  */
+  public static final String HOP_CONFIG_DIRECTORY =  NVL( System.getProperty( "HOP_CONFIG_DIRECTORY" ),
+    System.getProperty( "user.dir" ) + File.separator + "config" );
 
   /**
    * An empty ("") String.
@@ -179,32 +159,9 @@ public class Const {
   public static final String EMPTY_STRING = "";
 
   /**
-   * The Java runtime version
-   */
-  public static final String JAVA_VERSION = System.getProperty( "java.vm.version" );
-
-  /**
-   * Path to the users home directory (keep this entry above references to getHopDirectory())
-   *
-   * @deprecated Use {@link Const#getUserHomeDirectory()} instead.
-   */
-  @Deprecated
-  public static final String USER_HOME_DIRECTORY = NVL( System.getProperty( "HOP_HOME" ), System
-    .getProperty( "user.home" ) );
-
-  /*
-   * The images directory
-   *
-   * public static final String IMAGE_DIRECTORY = "/ui/images/";
-   */
-
-  public static final String PLUGIN_BASE_FOLDERS_PROP = "HOP_PLUGIN_BASE_FOLDERS";
-  /**
    * the default comma separated list of base plugin folders.
    */
-  public static final String DEFAULT_PLUGIN_BASE_FOLDERS = "plugins,"
-    + ( Utils.isEmpty( getHopHomeDirectory() ) ? "" : getHopHomeDirectory() + FILE_SEPARATOR + "plugins," )
-    + getHopDirectory() + FILE_SEPARATOR + "plugins";
+  public static final String DEFAULT_PLUGIN_BASE_FOLDERS = "plugins";
 
   /**
    * Default minimum date range...
@@ -247,30 +204,9 @@ public class Const {
   public static final int MIDDLE_PCT = 35;
 
   /**
-   * The default width of an arrow in the Graphical Views
-   */
-  public static final int ARROW_WIDTH = 1;
-
-  /**
    * The horizontal and vertical margin of a dialog box.
    */
   public static final int FORM_MARGIN = 5;
-
-  /**
-   * The default shadow size on the graphical view.
-   */
-  public static final int SHADOW_SIZE = 0;
-
-  /**
-   * The size of relationship symbols
-   */
-  public static final int SYMBOLSIZE = 10;
-
-  /**
-   * Max nr. of files to remember
-   */
-  public static final int MAX_FILE_HIST = 9; // Having more than 9 files in the file history is not compatible with pre
-  // 5.0 versions
 
   /**
    * The default locale for the hop environment (system defined)
@@ -373,9 +309,9 @@ public class Const {
   public static final String XML_ENCODING = "UTF-8";
 
   /**
-   * Name of the hop parameters file
+   * Name of the hop configuration file
    */
-  public static final String HOP_PROPERTIES = "hop.properties";
+  public static final String HOP_CONFIG = "config.json";
 
   /**
    * The prefix that all internal hop variables should have
@@ -474,11 +410,6 @@ public class Const {
   public static final String INTERNAL_VARIABLE_TRANSFORM_PARTITION_NR = INTERNAL_VARIABLE_PREFIX + ".Transform.Partition.Number";
 
   /**
-   * The slave server name
-   */
-  public static final String INTERNAL_VARIABLE_SLAVE_SERVER_NAME = INTERNAL_VARIABLE_PREFIX + ".Slave.Server.Name";
-
-  /**
    * The transform name
    */
   public static final String INTERNAL_VARIABLE_TRANSFORM_NAME = INTERNAL_VARIABLE_PREFIX + ".Transform.Name";
@@ -571,11 +502,6 @@ public class Const {
    * System wide flag to ignore timezone while writing date/timestamp value to the database. See PDI-10749 for details.
    */
   public static final String HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE = "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE";
-
-  /**
-   * System wide flag to use the root path prefix for a directory reference. See PDI-6779 for details.
-   */
-  public static final String HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES = "HOP_COMPATIBILITY_IMPORT_PATH_ADDITION_ON_VARIABLES";
 
   /**
    * System wide flag to set or not append and header options dependency on Text file output transform. See PDI-5252 for
@@ -828,6 +754,11 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
+   * The XML file that contains the list of native config plugins
+   */
+  public static final String XML_FILE_HOP_CONFIG_PLUGINS = "hop-config-plugins.xml";
+
+  /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
    */
   public static final String XML_FILE_HOP_GUI_PLUGINS = "hop-gui-plugins.xml";
@@ -856,11 +787,6 @@ public class Const {
    * The XML file that contains the list of native extension points (None by default, this is mostly for OEM purposes)
    */
   public static final String XML_FILE_HOP_EXTENSION_POINTS = "hop-extension-points.xml";
-
-  /**
-   * The XML file that contains the list of native extension points (None by default, this is mostly for OEM purposes)
-   */
-  public static final String XML_FILE_HOP_REGISTRY_EXTENSIONS = "hop-registry-extensions.xml";
 
   /**
    * The XML file that contains the list of lifecycle listeners
@@ -1822,33 +1748,6 @@ public class Const {
   }
 
   /**
-   * Looks up the user's home directory (or HOP_HOME) for every invocation. This is no longer a static property so
-   * the value may be set after this class is loaded.
-   *
-   * @return The path to the users home directory, or the System property {@code HOP_HOME} if set.
-   */
-  public static String getUserHomeDirectory() {
-    return NVL( System.getenv( "HOP_HOME" ), NVL( System.getProperty( "HOP_HOME" ),
-      System.getProperty( "user.home" ) ) );
-  }
-
-  /**
-   * Determines the Hop absolute directory in the user's home directory.
-   *
-   * @return The Hop absolute directory.
-   */
-  public static String getHopDirectory() {
-    return getUserHomeDirectory() + System.getProperty( "file.separator" ) + BasePropertyHandler.getProperty( "userBaseDir", ".hop" );
-  }
-
-  /**
-   * Returns the value of HOP_HOME.
-   */
-  public static String getHopHomeDirectory() {
-    return System.getProperty( "HOP_HOME" );
-  }
-
-  /**
    * Returns the path to the Hop local (current directory) Hop Server password file:
    * <p>
    * ./pwd/hop.pwd<br>
@@ -1857,17 +1756,6 @@ public class Const {
    */
   public static String getHopLocalServerPasswordFile() {
     return "pwd/hop.pwd";
-  }
-
-  /**
-   * Returns the path to the Hop server password file in the home directory:
-   * <p>
-   * $HOP_HOME/.hop/hop.pwd<br>
-   *
-   * @return The hop server password file in the home directory.
-   */
-  public static String getHopServerPasswordFile() {
-    return getHopDirectory() + FILE_SEPARATOR + "hop.pwd";
   }
 
   /**
@@ -2977,25 +2865,6 @@ public class Const {
       FontName[ i ] = fonts[ i ].getFontName();
     }
     return FontName;
-  }
-
-  public static String getHopPropertiesFileHeader() {
-    StringBuilder out = new StringBuilder();
-
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line01", BuildVersion
-      .getInstance().getVersion() )
-      + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line02" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line03" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line04" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line05" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line06" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line07" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line08" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line09" ) + CR );
-    out.append( BaseMessages.getString( PKG, "Props.Hop.Properties.Sample.Line10" ) + CR );
-
-    return out.toString();
   }
 
   /**

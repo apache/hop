@@ -642,7 +642,6 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
     dispose();

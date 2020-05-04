@@ -22,8 +22,6 @@
 
 package org.apache.hop.history.local;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -37,14 +35,11 @@ import org.apache.hop.history.IAuditManager;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The local audit manager stores its history in the hop home directory (~/.hop) under the history folder
@@ -59,11 +54,7 @@ public class LocalAuditManager implements IAuditManager {
   private String rootFolder;
 
   public LocalAuditManager() {
-    this( Const.getHopDirectory() + File.separator + "history" );
-  }
-
-  public LocalAuditManager( String rootFolder ) {
-    this.rootFolder = rootFolder;
+    this.rootFolder = Const.HOP_AUDIT_DIRECTORY;
   }
 
   @Override public void storeEvent( AuditEvent event ) throws HopException {

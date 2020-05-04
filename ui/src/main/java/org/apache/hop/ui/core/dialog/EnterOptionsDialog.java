@@ -22,8 +22,14 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.config.plugin.ConfigPluginType;
+import org.apache.hop.core.gui.plugin.GuiPluginType;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
@@ -31,8 +37,10 @@ import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -42,7 +50,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
@@ -61,6 +68,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -71,6 +79,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import java.lang.reflect.Method;
+import java.util.List;
+
 /**
  * Allows you to set the configurable options for the Hop environment
  *
@@ -79,6 +90,8 @@ import org.eclipse.swt.widgets.Text;
  */
 public class EnterOptionsDialog extends Dialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
+
+  public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
   private Display display;
 
@@ -104,7 +117,9 @@ public class EnterOptionsDialog extends Dialog {
 
   private Canvas wTabColor;
 
-  private Text wIconsize;
+  private Text wFilename;
+
+  private Text wIconSize;
 
   private Text wLineWidth;
 
@@ -148,11 +163,8 @@ public class EnterOptionsDialog extends Dialog {
 
   private Button helptipBtn;
 
-  private Button closeAllFilesBtn;
-
   private Button autoCollapseBtn;
 
-  //private Button wIndicateSlowTransforms;
 
   /**
    * @deprecated Use CT without <i>props</i> parameter instead
@@ -194,6 +206,7 @@ public class EnterOptionsDialog extends Dialog {
 
     addGeneralTab();
     addLookTab();
+    addPluginTabs();
 
     // Some buttons
     Button wOk = new Button( shell, SWT.PUSH );
@@ -234,7 +247,7 @@ public class EnterOptionsDialog extends Dialog {
         ok();
       }
     };
-    wIconsize.addSelectionListener( lsDef );
+    wIconSize.addSelectionListener( lsDef );
     wLineWidth.addSelectionListener( lsDef );
     wMiddlePct.addSelectionListener( lsDef );
     wDefaultPreview.addSelectionListener( lsDef );
@@ -684,23 +697,23 @@ public class EnterOptionsDialog extends Dialog {
     fdTabColor.bottom = new FormAttachment( 0, ( nr + 1 ) * h + margin );
     wTabColor.setLayoutData( fdTabColor );
 
-    // Iconsize line
-    Label wlIconsize = new Label( wLookComp, SWT.RIGHT );
-    wlIconsize.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.IconSize.Label" ) );
-    props.setLook( wlIconsize );
-    FormData fdlIconsize = new FormData();
-    fdlIconsize.left = new FormAttachment( 0, 0 );
-    fdlIconsize.right = new FormAttachment( middle, -margin );
-    fdlIconsize.top = new FormAttachment( wTabColor, margin );
-    wlIconsize.setLayoutData( fdlIconsize );
-    wIconsize = new Text( wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wIconsize.setText( Integer.toString( props.getIconSize() ) );
-    props.setLook( wIconsize );
-    FormData fdIconsize = new FormData();
-    fdIconsize.left = new FormAttachment( middle, 0 );
-    fdIconsize.right = new FormAttachment( 100, -margin );
-    fdIconsize.top = new FormAttachment( wlIconsize, 0, SWT.CENTER );
-    wIconsize.setLayoutData( fdIconsize );
+    // IconSize line
+    Label wlIconSize = new Label( wLookComp, SWT.RIGHT );
+    wlIconSize.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.IconSize.Label" ) );
+    props.setLook( wlIconSize );
+    FormData fdlIconSize = new FormData();
+    fdlIconSize.left = new FormAttachment( 0, 0 );
+    fdlIconSize.right = new FormAttachment( middle, -margin );
+    fdlIconSize.top = new FormAttachment( wTabColor, margin );
+    wlIconSize.setLayoutData( fdlIconSize );
+    wIconSize = new Text( wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIconSize.setText( Integer.toString( props.getIconSize() ) );
+    props.setLook( wIconSize );
+    FormData fdIconSize = new FormData();
+    fdIconSize.left = new FormAttachment( middle, 0 );
+    fdIconSize.right = new FormAttachment( 100, -margin );
+    fdIconSize.top = new FormAttachment( wlIconSize, 0, SWT.CENTER );
+    wIconSize.setLayoutData( fdIconSize );
 
     // LineWidth line
     Label wlLineWidth = new Label( wLookComp, SWT.RIGHT );
@@ -709,7 +722,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlLineWidth = new FormData();
     fdlLineWidth.left = new FormAttachment( 0, 0 );
     fdlLineWidth.right = new FormAttachment( middle, -margin );
-    fdlLineWidth.top = new FormAttachment( wIconsize, margin );
+    fdlLineWidth.top = new FormAttachment( wIconSize, margin );
     wlLineWidth.setLayoutData( fdlLineWidth );
     wLineWidth = new Text( wLookComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLineWidth.setText( Integer.toString( props.getLineWidth() ) );
@@ -863,13 +876,34 @@ public class EnterOptionsDialog extends Dialog {
     wGeneralComp.setLayout( generalLayout );
 
     // Default preview size
+    Label wlFilename = new Label( wGeneralComp, SWT.RIGHT );
+    wlFilename.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ConfigFilename.Label" ) );
+    props.setLook( wlFilename );
+    FormData fdlFilename = new FormData();
+    fdlFilename.left = new FormAttachment( 0, 0 );
+    fdlFilename.right = new FormAttachment( middle, -margin );
+    fdlFilename.top = new FormAttachment( 0, margin );
+    wlFilename.setLayoutData( fdlFilename );
+    wFilename = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename.setText( Const.NVL( HopConfig.getInstance().getFilename(), "" ) );
+    wlFilename.setEnabled( false );
+    props.setLook( wFilename );
+    FormData fdFilename = new FormData();
+    fdFilename.left = new FormAttachment( middle, 0 );
+    fdFilename.right = new FormAttachment( 100, -margin );
+    fdFilename.top = new FormAttachment( 0, margin );
+    wFilename.setLayoutData( fdFilename );
+    Control lastControl = wFilename;
+
+
+    // Default preview size
     Label wlDefaultPreview = new Label( wGeneralComp, SWT.RIGHT );
     wlDefaultPreview.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.DefaultPreviewSize.Label" ) );
     props.setLook( wlDefaultPreview );
     FormData fdlDefaultPreview = new FormData();
     fdlDefaultPreview.left = new FormAttachment( 0, 0 );
     fdlDefaultPreview.right = new FormAttachment( middle, -margin );
-    fdlDefaultPreview.top = new FormAttachment( 0, margin );
+    fdlDefaultPreview.top = new FormAttachment( lastControl, margin );
     wlDefaultPreview.setLayoutData( fdlDefaultPreview );
     wDefaultPreview = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultPreview.setText( Integer.toString( props.getDefaultPreviewSize() ) );
@@ -877,8 +911,9 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdDefaultPreview = new FormData();
     fdDefaultPreview.left = new FormAttachment( middle, 0 );
     fdDefaultPreview.right = new FormAttachment( 100, -margin );
-    fdDefaultPreview.top = new FormAttachment( 0, margin );
+    fdDefaultPreview.top = new FormAttachment( wlDefaultPreview, 0, SWT.CENTER );
     wDefaultPreview.setLayoutData( fdDefaultPreview );
+    lastControl = wDefaultPreview;
 
     // Max Nr of log lines
     Label wlMaxNrLogLines = new Label( wGeneralComp, SWT.RIGHT );
@@ -887,7 +922,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlMaxNrLogLines = new FormData();
     fdlMaxNrLogLines.left = new FormAttachment( 0, 0 );
     fdlMaxNrLogLines.right = new FormAttachment( middle, -margin );
-    fdlMaxNrLogLines.top = new FormAttachment( wDefaultPreview, margin );
+    fdlMaxNrLogLines.top = new FormAttachment( lastControl, margin );
     wlMaxNrLogLines.setLayoutData( fdlMaxNrLogLines );
     wMaxNrLogLines = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wMaxNrLogLines.setText( Integer.toString( props.getMaxNrLinesInLog() ) );
@@ -897,6 +932,7 @@ public class EnterOptionsDialog extends Dialog {
     fdMaxNrLogLines.right = new FormAttachment( 100, -margin );
     fdMaxNrLogLines.top = new FormAttachment( wlMaxNrLogLines, 0, SWT.CENTER );
     wMaxNrLogLines.setLayoutData( fdMaxNrLogLines );
+    lastControl = wMaxNrLogLines;
 
     // Max log line timeout (minutes)
     Label wlMaxLogLineTimeout = new Label( wGeneralComp, SWT.RIGHT );
@@ -905,7 +941,7 @@ public class EnterOptionsDialog extends Dialog {
     FormData fdlMaxLogLineTimeout = new FormData();
     fdlMaxLogLineTimeout.left = new FormAttachment( 0, 0 );
     fdlMaxLogLineTimeout.right = new FormAttachment( middle, -margin );
-    fdlMaxLogLineTimeout.top = new FormAttachment( wMaxNrLogLines, margin );
+    fdlMaxLogLineTimeout.top = new FormAttachment( lastControl, margin );
     wlMaxLogLineTimeout.setLayoutData( fdlMaxLogLineTimeout );
     wMaxLogLineTimeout = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wMaxLogLineTimeout.setText( Integer.toString( props.getMaxLogLineTimeoutMinutes() ) );
@@ -915,6 +951,7 @@ public class EnterOptionsDialog extends Dialog {
     fdMaxLogLineTimeout.right = new FormAttachment( 100, -margin );
     fdMaxLogLineTimeout.top = new FormAttachment( wlMaxLogLineTimeout, 0, SWT.CENTER );
     wMaxLogLineTimeout.setLayoutData( fdMaxLogLineTimeout );
+    lastControl = wMaxLogLineTimeout;
 
 
     // Use DB Cache?
@@ -923,7 +960,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlUseCache );
     FormData fdlUseCache = new FormData();
     fdlUseCache.left = new FormAttachment( 0, 0 );
-    fdlUseCache.top = new FormAttachment( wMaxLogLineTimeout, margin );
+    fdlUseCache.top = new FormAttachment( lastControl, margin );
     fdlUseCache.right = new FormAttachment( middle, -margin );
     wlUseCache.setLayoutData( fdlUseCache );
     wUseCache = new Button( wGeneralComp, SWT.CHECK );
@@ -934,6 +971,7 @@ public class EnterOptionsDialog extends Dialog {
     fdUseCache.top = new FormAttachment( wlUseCache, 0, SWT.CENTER );
     fdUseCache.right = new FormAttachment( 100, 0 );
     wUseCache.setLayoutData( fdUseCache );
+    lastControl = wUseCache;
 
     // Auto load last file at startup?
     Label wlOpenLast = new Label( wGeneralComp, SWT.RIGHT );
@@ -941,7 +979,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlOpenLast );
     FormData fdlOpenLast = new FormData();
     fdlOpenLast.left = new FormAttachment( 0, 0 );
-    fdlOpenLast.top = new FormAttachment( wUseCache, margin );
+    fdlOpenLast.top = new FormAttachment( lastControl, 0, SWT.CENTER );
     fdlOpenLast.right = new FormAttachment( middle, -margin );
     wlOpenLast.setLayoutData( fdlOpenLast );
     wOpenLast = new Button( wGeneralComp, SWT.CHECK );
@@ -952,6 +990,7 @@ public class EnterOptionsDialog extends Dialog {
     fdOpenLast.top = new FormAttachment( wlOpenLast, 0, SWT.CENTER );
     fdOpenLast.right = new FormAttachment( 100, 0 );
     wOpenLast.setLayoutData( fdOpenLast );
+    lastControl = wOpenLast;
 
     // Auto save changed files?
     Label wlAutoSave = new Label( wGeneralComp, SWT.RIGHT );
@@ -959,7 +998,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlAutoSave );
     FormData fdlAutoSave = new FormData();
     fdlAutoSave.left = new FormAttachment( 0, 0 );
-    fdlAutoSave.top = new FormAttachment( wOpenLast, margin );
+    fdlAutoSave.top = new FormAttachment( lastControl, margin );
     fdlAutoSave.right = new FormAttachment( middle, -margin );
     wlAutoSave.setLayoutData( fdlAutoSave );
     wAutoSave = new Button( wGeneralComp, SWT.CHECK );
@@ -967,9 +1006,10 @@ public class EnterOptionsDialog extends Dialog {
     wAutoSave.setSelection( props.getAutoSave() );
     FormData fdAutoSave = new FormData();
     fdAutoSave.left = new FormAttachment( middle, 0 );
-    fdAutoSave.top = new FormAttachment( wlAutoSave, 0, SWT.CENTER);
+    fdAutoSave.top = new FormAttachment( wlAutoSave, 0, SWT.CENTER );
     fdAutoSave.right = new FormAttachment( 100, 0 );
     wAutoSave.setLayoutData( fdAutoSave );
+    lastControl = wAutoSave;
 
     // Automatically split hops?
     Label wlAutoSplit = new Label( wGeneralComp, SWT.RIGHT );
@@ -977,7 +1017,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlAutoSplit );
     FormData fdlAutoSplit = new FormData();
     fdlAutoSplit.left = new FormAttachment( 0, 0 );
-    fdlAutoSplit.top = new FormAttachment( wAutoSave, margin );
+    fdlAutoSplit.top = new FormAttachment( lastControl, margin );
     fdlAutoSplit.right = new FormAttachment( middle, -margin );
     wlAutoSplit.setLayoutData( fdlAutoSplit );
     wAutoSplit = new Button( wGeneralComp, SWT.CHECK );
@@ -986,9 +1026,10 @@ public class EnterOptionsDialog extends Dialog {
     wAutoSplit.setSelection( props.getAutoSplit() );
     FormData fdAutoSplit = new FormData();
     fdAutoSplit.left = new FormAttachment( middle, 0 );
-    fdAutoSplit.top = new FormAttachment( wlAutoSplit, 0, SWT.CENTER);
+    fdAutoSplit.top = new FormAttachment( wlAutoSplit, 0, SWT.CENTER );
     fdAutoSplit.right = new FormAttachment( 100, 0 );
     wAutoSplit.setLayoutData( fdAutoSplit );
+    lastControl = wAutoSplit;
 
     // Show warning for copy / distribute...
     Label wlCopyDistrib = new Label( wGeneralComp, SWT.RIGHT );
@@ -996,19 +1037,19 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlCopyDistrib );
     FormData fdlCopyDistrib = new FormData();
     fdlCopyDistrib.left = new FormAttachment( 0, 0 );
-    fdlCopyDistrib.top = new FormAttachment( wAutoSplit, margin );
+    fdlCopyDistrib.top = new FormAttachment( lastControl, margin );
     fdlCopyDistrib.right = new FormAttachment( middle, -margin );
     wlCopyDistrib.setLayoutData( fdlCopyDistrib );
     wCopyDistrib = new Button( wGeneralComp, SWT.CHECK );
     props.setLook( wCopyDistrib );
-    wCopyDistrib
-      .setToolTipText( BaseMessages.getString( PKG, "EnterOptionsDialog.CopyOrDistributeDialog.Tooltip" ) );
+    wCopyDistrib.setToolTipText( BaseMessages.getString( PKG, "EnterOptionsDialog.CopyOrDistributeDialog.Tooltip" ) );
     wCopyDistrib.setSelection( props.showCopyOrDistributeWarning() );
     FormData fdCopyDistrib = new FormData();
     fdCopyDistrib.left = new FormAttachment( middle, 0 );
     fdCopyDistrib.top = new FormAttachment( wlCopyDistrib, 0, SWT.CENTER );
     fdCopyDistrib.right = new FormAttachment( 100, 0 );
     wCopyDistrib.setLayoutData( fdCopyDistrib );
+    lastControl = wCopyDistrib;
 
     // Show exit warning?
     Label wlExitWarning = new Label( wGeneralComp, SWT.RIGHT );
@@ -1016,7 +1057,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlExitWarning );
     FormData fdlExitWarning = new FormData();
     fdlExitWarning.left = new FormAttachment( 0, 0 );
-    fdlExitWarning.top = new FormAttachment( wCopyDistrib, margin );
+    fdlExitWarning.top = new FormAttachment( lastControl, margin );
     fdlExitWarning.right = new FormAttachment( middle, -margin );
     wlExitWarning.setLayoutData( fdlExitWarning );
     wExitWarning = new Button( wGeneralComp, SWT.CHECK );
@@ -1027,6 +1068,7 @@ public class EnterOptionsDialog extends Dialog {
     fdExitWarning.top = new FormAttachment( wlExitWarning, 0, SWT.CENTER );
     fdExitWarning.right = new FormAttachment( 100, 0 );
     wExitWarning.setLayoutData( fdExitWarning );
+    lastControl = wExitWarning;
 
     // Clear custom parameters. (from transform)
     Label wlClearCustom = new Label( wGeneralComp, SWT.RIGHT );
@@ -1034,7 +1076,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( wlClearCustom );
     FormData fdlClearCustom = new FormData();
     fdlClearCustom.left = new FormAttachment( 0, 0 );
-    fdlClearCustom.top = new FormAttachment( wExitWarning, margin + 10 );
+    fdlClearCustom.top = new FormAttachment( lastControl, margin + 10 );
     fdlClearCustom.right = new FormAttachment( middle, -margin );
     wlClearCustom.setLayoutData( fdlClearCustom );
 
@@ -1044,7 +1086,7 @@ public class EnterOptionsDialog extends Dialog {
     fdClearCustom.width = fdClearCustom.width + 6;
     fdClearCustom.height = fdClearCustom.height + 18;
     fdClearCustom.left = new FormAttachment( middle, 0 );
-    fdClearCustom.top = new FormAttachment( wExitWarning, margin );
+    fdClearCustom.top = new FormAttachment( wlClearCustom, 0, SWT.CENTER );
     wClearCustom.setLayoutData( fdClearCustom );
     wClearCustom.setToolTipText( BaseMessages.getString( PKG, "EnterOptionsDialog.ClearCustomParameters.Tooltip" ) );
     wClearCustom.addSelectionListener( new SelectionAdapter() {
@@ -1055,13 +1097,13 @@ public class EnterOptionsDialog extends Dialog {
         int id = mb.open();
         if ( id == SWT.YES ) {
           props.clearCustomParameters();
-          props.saveProps();
           MessageBox ok = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
           ok.setMessage( BaseMessages.getString( PKG, "EnterOptionsDialog.ClearCustomParameters.Confirmation" ) );
           ok.open();
         }
       }
     } );
+    lastControl = wClearCustom;
 
     // Auto-collapse core objects tree branches?
     Label autoCollapseLbl = new Label( wGeneralComp, SWT.RIGHT );
@@ -1070,7 +1112,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( autoCollapseLbl );
     FormData fdautoCollapse = new FormData();
     fdautoCollapse.left = new FormAttachment( 0, 0 );
-    fdautoCollapse.top = new FormAttachment( wClearCustom, 2*margin  );
+    fdautoCollapse.top = new FormAttachment( lastControl, 2 * margin );
     fdautoCollapse.right = new FormAttachment( middle, -margin );
     autoCollapseLbl.setLayoutData( fdautoCollapse );
     autoCollapseBtn = new Button( wGeneralComp, SWT.CHECK );
@@ -1081,6 +1123,7 @@ public class EnterOptionsDialog extends Dialog {
     helpautoCollapse.top = new FormAttachment( autoCollapseLbl, 0, SWT.CENTER );
     helpautoCollapse.right = new FormAttachment( 100, 0 );
     autoCollapseBtn.setLayoutData( helpautoCollapse );
+    lastControl = autoCollapseBtn;
 
     // Tooltips
     Label tooltipLbl = new Label( wGeneralComp, SWT.RIGHT );
@@ -1088,7 +1131,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( tooltipLbl );
     FormData fdlToolTipData = new FormData();
     fdlToolTipData.left = new FormAttachment( 0, 0 );
-    fdlToolTipData.top = new FormAttachment( autoCollapseBtn, margin );
+    fdlToolTipData.top = new FormAttachment( lastControl, margin );
     fdlToolTipData.right = new FormAttachment( middle, -margin );
     tooltipLbl.setLayoutData( fdlToolTipData );
     tooltipBtn = new Button( wGeneralComp, SWT.CHECK );
@@ -1099,6 +1142,7 @@ public class EnterOptionsDialog extends Dialog {
     toolTipBtnData.top = new FormAttachment( tooltipLbl, 0, SWT.CENTER );
     toolTipBtnData.right = new FormAttachment( 100, 0 );
     tooltipBtn.setLayoutData( toolTipBtnData );
+    lastControl = tooltipBtn;
 
     // Help tool tips
     Label helptipLbl = new Label( wGeneralComp, SWT.RIGHT );
@@ -1106,7 +1150,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setLook( helptipLbl );
     FormData fdlHelpTipData = new FormData();
     fdlHelpTipData.left = new FormAttachment( 0, 0 );
-    fdlHelpTipData.top = new FormAttachment( tooltipLbl, margin );
+    fdlHelpTipData.top = new FormAttachment( lastControl, margin );
     fdlHelpTipData.right = new FormAttachment( middle, -margin );
     helptipLbl.setLayoutData( fdlHelpTipData );
     helptipBtn = new Button( wGeneralComp, SWT.CHECK );
@@ -1140,6 +1184,71 @@ public class EnterOptionsDialog extends Dialog {
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
+    // ///////////////////////////////////////////////////////////
+
+  }
+
+  private void addPluginTabs() {
+
+    // Add a new tab for every config plugin which is also a GuiPlugin
+    // Then simply add the widgets on a separate tab
+    //
+    HopGui hopGui = HopGui.getInstance();
+    PluginRegistry pluginRegistry = PluginRegistry.getInstance();
+
+    List<IPlugin> configPlugins = pluginRegistry.getPlugins( ConfigPluginType.class );
+    for ( IPlugin configPlugin : configPlugins ) {
+      String guiPluginId = configPlugin.getName(); // Mapped like that in ConfigPluginType
+      if ( StringUtils.isEmpty( guiPluginId ) ) {
+        continue;
+      }
+      IPlugin guiPlugin = pluginRegistry.findPluginWithId( GuiPluginType.class, guiPluginId );
+      if ( guiPlugin != null ) {
+        // Load the instance
+        //
+        try {
+          Object emptySourceData = pluginRegistry.loadClass( guiPlugin );
+          Method method = emptySourceData.getClass().getMethod( "getInstance" );
+          Object sourceData = method.invoke( null, null );
+
+          // This config plugin is also a GUI plugin
+          // Add a tab
+          //
+          CTabItem wPluginTab = new CTabItem( wTabFolder, SWT.NONE );
+          wPluginTab.setText( Const.NVL( guiPlugin.getDescription(), "" ) );
+
+          ScrolledComposite sOtherComp = new ScrolledComposite( wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
+          sOtherComp.setLayout( new FormLayout() );
+
+          Composite wPluginsComp = new Composite( sOtherComp, SWT.NONE );
+          props.setLook( wPluginsComp );
+          wPluginsComp.setLayout( new FormLayout() );
+
+          GuiCompositeWidgets compositeWidgets = new GuiCompositeWidgets( hopGui.getVariables(), 20 );
+          compositeWidgets.createCompositeWidgets( sourceData, null, wPluginsComp, guiPlugin.getIds()[ 0 ], null );
+          compositeWidgets.setWidgetsContents( sourceData, wPluginsComp, guiPlugin.getIds()[ 0 ] );
+
+          wPluginsComp.pack();
+
+          Rectangle bounds = wPluginsComp.getBounds();
+
+          sOtherComp.setContent( wPluginsComp );
+          sOtherComp.setExpandHorizontal( true );
+          sOtherComp.setExpandVertical( true );
+          sOtherComp.setMinWidth( bounds.width );
+          sOtherComp.setMinHeight( bounds.height );
+
+          wPluginTab.setControl( sOtherComp );
+
+        } catch ( Exception e ) {
+          new ErrorDialog( shell, "Error", "Error handling configuration options for GUI plugin " + guiPluginId, e );
+        }
+      }
+    }
+
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF PLUGINS TAB
     // ///////////////////////////////////////////////////////////
 
   }
@@ -1206,7 +1315,7 @@ public class EnterOptionsDialog extends Dialog {
     // Magnify to compensate for the same reduction elsewhere.
     //
     graphFontData = props.getGraphFont();
-    graphFontData.height*= PropsUi.getNativeZoomFactor();
+    graphFontData.height *= PropsUi.getNativeZoomFactor();
     graphFont = new Font( display, graphFontData );
 
     noteFontData = props.getNoteFont();
@@ -1238,7 +1347,7 @@ public class EnterOptionsDialog extends Dialog {
     props.setBackgroundRGB( backgroundRGB );
     props.setGraphColorRGB( graphColorRGB );
     props.setTabColorRGB( tabColorRGB );
-    props.setIconSize( Const.toInt( wIconsize.getText(), props.getIconSize() ) );
+    props.setIconSize( Const.toInt( wIconSize.getText(), props.getIconSize() ) );
     props.setLineWidth( Const.toInt( wLineWidth.getText(), props.getLineWidth() ) );
     props.setMiddlePct( Const.toInt( wMiddlePct.getText(), props.getMiddlePct() ) );
     props.setCanvasGridSize( Const.toInt( wGridSize.getText(), 1 ) );
@@ -1257,7 +1366,6 @@ public class EnterOptionsDialog extends Dialog {
     props.setExitWarningShown( wExitWarning.getSelection() );
     props.setOSLookShown( wOriginalLook.getSelection() );
     props.setShowToolTips( tooltipBtn.getSelection() );
-    // props.setIndicateSlowPipelineTransformsEnabled( wIndicateSlowTransforms.getSelection() );
     props.setAutoCollapseCoreObjectsTree( autoCollapseBtn.getSelection() );
     props.setShowingHelpToolTips( helptipBtn.getSelection() );
 
@@ -1270,10 +1378,6 @@ public class EnterOptionsDialog extends Dialog {
 
     String defaultLocale = GlobalMessages.localeCodes[ defaultLocaleIndex ];
     LanguageChoice.getInstance().setDefaultLocale( EnvUtil.createLocale( defaultLocale ) );
-
-    LanguageChoice.getInstance().saveSettings();
-
-    props.saveProps();
 
     dispose();
   }

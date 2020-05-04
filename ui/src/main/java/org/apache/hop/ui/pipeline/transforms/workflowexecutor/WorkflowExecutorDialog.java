@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.pipeline.transforms.workflowexecutor;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -372,8 +371,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   private void selectWorkflowFile() {
     String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
 
-    FileObject root = null;
-
     String parentFolder = null;
     try {
       parentFolder = HopVfs.getFileObject( pipelineMeta.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
@@ -382,10 +379,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     }
 
     try {
-
-      root = HopVfs.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
-
-      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, root, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
 
         loadWorkflowFile( filename );

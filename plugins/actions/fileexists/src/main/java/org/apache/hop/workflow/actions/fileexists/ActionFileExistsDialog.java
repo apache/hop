@@ -22,22 +22,19 @@
 
 package org.apache.hop.workflow.actions.fileexists;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -51,7 +48,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -186,36 +182,8 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
-
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        try {
-          FileObject fileName;
-
-          try {
-            String curFile = wFilename.getText();
-
-            if ( curFile.trim().length() > 0 ) {
-              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-            } else {
-              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-            }
-          } catch ( FileSystemException ex ) {
-            fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-          }
-
-          BaseDialog.presentFileDialog(shell, wFilename, fileName, EXTENSIONS, FILETYPES, false);
-
-        } catch ( FileSystemException ex ) {
-          ex.printStackTrace();
-        }
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog(shell, wFilename, workflowMeta, EXTENSIONS, FILETYPES, false));
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

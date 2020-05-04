@@ -34,15 +34,11 @@ import org.apache.hop.core.logging.ILoggingPlugin;
 import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.logging.Slf4jLoggingEventListener;
 import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.i18n.BaseMessages;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -103,11 +99,9 @@ public class HopClientEnvironment {
       HopClientEnvironment.instance = new HopClientEnvironment();
     }
 
-    createHopHome();
-
-    // Read the hop.properties file before anything else, set
+    // Check the Hop Configuration backend
     //
-    EnvUtil.environmentInit();
+
 
     // Initialize the logging back-end.
     //
@@ -187,27 +181,6 @@ public class HopClientEnvironment {
     return initialized != null;
   }
 
-  /**
-   * Creates the hop home area, which is a directory containing a default hop.properties file
-   */
-  public static void createHopHome() {
-
-    // Try to create the directory...
-    //
-    String directory = Const.getHopDirectory();
-    File dir = new File( directory );
-    try {
-      dir.mkdirs();
-
-      // Also create a file called hop.properties
-      //
-      createDefaultHopProperties( directory );
-    } catch ( Exception e ) {
-      // ignore - should likely propagate the error
-
-    }
-  }
-
   private static void initLogginPlugins( List<IPlugin> logginPlugins ) throws HopPluginException {
     for ( IPlugin plugin : logginPlugins ) {
       ILoggingPlugin loggingPlugin = (ILoggingPlugin) PluginRegistry.getInstance().loadClass( plugin );
@@ -215,27 +188,6 @@ public class HopClientEnvironment {
     }
   }
 
-  /**
-   * Creates the default hop properties file, containing the standard header.
-   *
-   * @param directory the directory
-   */
-  private static void createDefaultHopProperties( String directory ) {
-
-    String kpFile = directory + Const.FILE_SEPARATOR + Const.HOP_PROPERTIES;
-    File file = new File( kpFile );
-    if ( !file.exists() ) {
-      try ( FileOutputStream out = new FileOutputStream( file ) ) {
-        out.write( Const.getHopPropertiesFileHeader().getBytes() );
-      } catch ( IOException e ) {
-        System.err
-          .println( BaseMessages.getString(
-            PKG, "Props.Log.Error.UnableToCreateDefaultHopProperties.Message", Const.HOP_PROPERTIES,
-            kpFile ) );
-        System.err.println( e.getStackTrace() );
-      }
-    }
-  }
 
   public void setClient( ClientType client ) {
     this.client = client;

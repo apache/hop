@@ -50,11 +50,9 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -76,14 +74,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -374,7 +370,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private void selectFilePipeline() {
     String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
 
-    FileObject root = null;
+
 
     String parentFolder = null;
     try {
@@ -385,10 +381,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     try {
       HopPipelineFileType<PipelineMeta> fileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
-
-      root = HopVfs.getFileObject( curFile != null ? curFile : Const.getUserHomeDirectory() );
-
-      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, root, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
         loadPipelineFile( filename );
         if ( parentFolder != null && filename.startsWith( parentFolder ) ) {

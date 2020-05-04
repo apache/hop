@@ -421,7 +421,6 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
       MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
 

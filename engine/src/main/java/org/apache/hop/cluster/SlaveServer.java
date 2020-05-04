@@ -29,8 +29,8 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -47,27 +47,23 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.www.CleanupPipelineServlet;
-import org.apache.hop.www.GetWorkflowStatusServlet;
-import org.apache.hop.www.GetPropertiesServlet;
-import org.apache.hop.www.GetSlavesServlet;
-import org.apache.hop.www.GetStatusServlet;
 import org.apache.hop.www.GetPipelineStatusServlet;
+import org.apache.hop.www.GetStatusServlet;
+import org.apache.hop.www.GetWorkflowStatusServlet;
 import org.apache.hop.www.NextSequenceValueServlet;
 import org.apache.hop.www.PausePipelineServlet;
 import org.apache.hop.www.RegisterPackageServlet;
-import org.apache.hop.www.RemoveWorkflowServlet;
 import org.apache.hop.www.RemovePipelineServlet;
-import org.apache.hop.www.SlaveServerDetection;
-import org.apache.hop.www.SlaveServerWorkflowStatus;
-import org.apache.hop.www.SlaveServerStatus;
+import org.apache.hop.www.RemoveWorkflowServlet;
 import org.apache.hop.www.SlaveServerPipelineStatus;
+import org.apache.hop.www.SlaveServerStatus;
+import org.apache.hop.www.SlaveServerWorkflowStatus;
 import org.apache.hop.www.SniffTransformServlet;
 import org.apache.hop.www.SslConfiguration;
-import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.StartPipelineServlet;
-import org.apache.hop.www.StopWorkflowServlet;
+import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.StopPipelineServlet;
+import org.apache.hop.www.StopWorkflowServlet;
 import org.apache.hop.www.WebResult;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -95,19 +91,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
 @MetaStoreElementType(
@@ -808,21 +801,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return SlaveServerStatus.fromXml( xml );
   }
 
-  public List<SlaveServerDetection> getSlaveServerDetections() throws Exception {
-    String xml = execService( GetSlavesServlet.CONTEXT_PATH + "/" );
-    Document document = XmlHandler.loadXmlString( xml );
-    Node detectionsNode = XmlHandler.getSubNode( document, GetSlavesServlet.XML_TAG_SLAVESERVER_DETECTIONS );
-    int nrDetections = XmlHandler.countNodes( detectionsNode, SlaveServerDetection.XML_TAG );
-
-    List<SlaveServerDetection> detections = new ArrayList<SlaveServerDetection>();
-    for ( int i = 0; i < nrDetections; i++ ) {
-      Node detectionNode = XmlHandler.getSubNodeByNr( detectionsNode, SlaveServerDetection.XML_TAG, i );
-      SlaveServerDetection detection = new SlaveServerDetection( detectionNode );
-      detections.add( detection );
-    }
-    return detections;
-  }
-
   public SlaveServerPipelineStatus getPipelineStatus( String pipelineName, String serverObjectId, int startLogLineNr )
     throws Exception {
     return getPipelineStatus( pipelineName, serverObjectId, startLogLineNr, false );
@@ -895,29 +873,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
       execService( StartWorkflowServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( workflowName, "UTF-8" ) + "&xml=Y&id="
         + Const.NVL( serverObjectId, "" ) );
     return WebResult.fromXmlString( xml );
-  }
-
-  public WebResult cleanupPipeline( String pipelineName, String serverObjectId ) throws Exception {
-    String xml =
-      execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( serverObjectId, "" ) + "&xml=Y" );
-    return WebResult.fromXmlString( xml );
-  }
-
-  public WebResult deAllocateServerSockets( String pipelineName, String clusteredRunId ) throws Exception {
-    String xml =
-      execService( CleanupPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
-        + Const.NVL( clusteredRunId, "" ) + "&xml=Y&sockets=Y" );
-    return WebResult.fromXmlString( xml );
-  }
-
-  public Properties getHopProperties() throws Exception {
-    String xml = execService( GetPropertiesServlet.CONTEXT_PATH + "/?xml=Y" );
-    String decryptedXml = Encr.decryptPassword( xml );
-    InputStream in = new ByteArrayInputStream( decryptedXml.getBytes() );
-    Properties properties = new Properties();
-    properties.loadFromXML( in );
-    return properties;
   }
 
   public static SlaveServer findSlaveServer( List<SlaveServer> slaveServers, String name ) {
@@ -1164,20 +1119,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     }
 
     log.logMinimal( pipelineName, "The remote pipeline has finished." );
-
-    // Clean up the remote pipeline
-    //
-    try {
-      WebResult webResult = cleanupPipeline( pipelineName, serverObjectId );
-      if ( !WebResult.STRING_OK.equals( webResult.getResult() ) ) {
-        log.logError( pipelineName, "Unable to run clean-up on remote pipeline '" + pipelineName + "' : " + webResult
-          .getMessage() );
-        errors += 1;
-      }
-    } catch ( Exception e ) {
-      errors += 1;
-      log.logError( pipelineName, "Unable to contact slave server '" + this.getName() + "' to clean up pipeline : " + e.toString() );
-    }
   }
 
 

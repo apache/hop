@@ -2,6 +2,7 @@ package org.apache.hop.env.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -13,6 +14,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.env.config.EnvironmentConfig;
 import org.apache.hop.env.config.EnvironmentConfigDialog;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
@@ -84,7 +86,7 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
     EnvironmentConfigDialog dialog = new EnvironmentConfigDialog( hopGui.getShell(), EnvironmentConfigSingleton.getConfig() );
     if ( dialog.open() ) {
       try {
-        EnvironmentConfigSingleton.saveConfig();
+        HopConfig.saveOption( EnvironmentConfig.HOP_CONFIG_ENVIRONMENT_CONFIG, EnvironmentConfigSingleton.getConfig() );
       } catch ( Exception e ) {
         new ErrorDialog( hopGui.getShell(), "Error", "Error saving environment system configuration", e );
       }

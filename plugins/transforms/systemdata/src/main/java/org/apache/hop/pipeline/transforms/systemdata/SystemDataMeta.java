@@ -194,7 +194,6 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
         case TYPE_SYSTEM_INFO_NEXT_MONTH_START:
         case TYPE_SYSTEM_INFO_NEXT_MONTH_END:
         case TYPE_SYSTEM_INFO_MODIFIED_DATE:
-        case TYPE_SYSTEM_INFO_HOP_BUILD_DATE:
         case TYPE_SYSTEM_INFO_PREV_WEEK_START:
         case TYPE_SYSTEM_INFO_PREV_WEEK_END:
         case TYPE_SYSTEM_INFO_PREV_WEEK_OPEN_END:
@@ -230,8 +229,6 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
         case TYPE_SYSTEM_INFO_HOSTNAME:
         case TYPE_SYSTEM_INFO_HOSTNAME_REAL:
         case TYPE_SYSTEM_INFO_IP_ADDRESS:
-        case TYPE_SYSTEM_INFO_HOP_VERSION:
-        case TYPE_SYSTEM_INFO_HOP_BUILD_VERSION:
         case TYPE_SYSTEM_INFO_PREVIOUS_RESULT_LOG_TEXT:
           v = new ValueMetaString( fieldName[ i ] );
           break;

@@ -424,7 +424,6 @@ public class AnalyticQueryDialog extends BaseTransformDialog implements ITransfo
       MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
     dispose();

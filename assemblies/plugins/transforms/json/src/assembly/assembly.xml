@@ -32,7 +32,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>com.googlecode.json-simple:json-simple:jar</include>
                 <include>com.fasterxml.jackson.core:jackson-core:jar</include>
                 <include>org.apache.poi:poi:jar</include>
                 <include>com.jayway.jsonpath:json-path:jar</include>

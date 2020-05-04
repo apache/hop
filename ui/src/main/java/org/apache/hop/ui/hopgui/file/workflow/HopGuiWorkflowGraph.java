@@ -1768,7 +1768,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         md.open();
         hopGui.getProps().setCustomParameter( STRING_PARALLEL_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-        hopGui.getProps().saveProps();
       }
     }
     redraw();

@@ -420,7 +420,6 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
       MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_CHANGE_SEQUENCE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
     dispose();

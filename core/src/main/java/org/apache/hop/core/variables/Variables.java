@@ -23,17 +23,18 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.version.BuildVersion;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is an implementation of IVariables
@@ -50,27 +51,10 @@ public class Variables implements IVariables {
   private boolean initialized;
 
   public Variables() {
-    properties = new ConcurrentHashMap<>();
+    properties = Collections.synchronizedMap(new HashMap<>() );
     parent = null;
     injection = null;
     initialized = false;
-
-    // The Hop version
-    properties.put( Const.INTERNAL_VARIABLE_HOP_VERSION, BuildVersion.getInstance().getVersion() );
-
-    // The Hop build version
-    String revision = BuildVersion.getInstance().getRevision();
-    if ( revision == null ) {
-      revision = "";
-    }
-    properties.put( Const.INTERNAL_VARIABLE_HOP_BUILD_VERSION, revision );
-
-    // The Hop build date
-    String buildDate = BuildVersion.getInstance().getBuildDate();
-    if ( buildDate == null ) {
-      buildDate = "";
-    }
-    properties.put( Const.INTERNAL_VARIABLE_HOP_BUILD_DATE, buildDate );
   }
 
   @Override
@@ -126,16 +110,26 @@ public class Variables implements IVariables {
 
     // Clone the system properties to avoid ConcurrentModificationException while iterating
     // and then add all of them to properties variable.
+    //
     Set<String> systemPropertiesNames = System.getProperties().stringPropertyNames();
     for ( String key : systemPropertiesNames ) {
       getProperties().put( key, System.getProperties().getProperty( key ) );
+    }
+
+    // Also get the Hop system properties if they're available
+    //
+    Map<String, String> systemProperties = HopConfig.readSystemProperties();
+    if (systemProperties!=null) {
+      getProperties().putAll(systemProperties);
+    } else {
+      throw new RuntimeException("The system properties haven't been initialized properly");
     }
 
     if ( parent != null ) {
       copyVariablesFrom( parent );
     }
     if ( injection != null ) {
-      properties.putAll( injection );
+      getProperties().putAll( injection );
       injection = null;
     }
     initialized = true;
@@ -148,7 +142,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public void setVariable( String variableName, String variableValue ) {
+  public synchronized void setVariable( String variableName, String variableValue ) {
     if ( variableValue != null ) {
       properties.put( variableName, variableValue );
     } else {
@@ -157,7 +151,7 @@ public class Variables implements IVariables {
   }
 
   @Override
-  public String environmentSubstitute( String aString ) {
+  public synchronized String environmentSubstitute( String aString ) {
     if ( aString == null || aString.length() == 0 ) {
       return aString;
     }
@@ -228,7 +222,7 @@ public class Variables implements IVariables {
   }
 
   /**
-   * Get a default variable space as a placeholder. Everytime you will get a new instance.
+   * Get a default variable space as a placeholder. Every time you will get a new instance.
    *
    * @return a default variable space.
    */

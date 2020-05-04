@@ -472,7 +472,6 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
     // Remove any error hops coming out of UniqueRows when Reject Duplicate Rows checkbox is unselected.

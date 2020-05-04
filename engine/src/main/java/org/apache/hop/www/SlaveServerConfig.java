@@ -52,7 +52,6 @@ import java.util.Map.Entry;
 
 public class SlaveServerConfig {
   public static final String XML_TAG = "slave_config";
-  public static final String XML_TAG_MASTERS = "masters";
 
   public static final String XML_TAG_SEQUENCES = "sequences";
   public static final String XML_TAG_AUTOSEQUENCE = "autosequence";
@@ -62,11 +61,7 @@ public class SlaveServerConfig {
   public static final String XML_TAG_ACCEPT_QUEUE_SIZE = "acceptQueueSize";
   public static final String XML_TAG_LOW_RES_MAX_IDLE_TIME = "lowResourcesMaxIdleTime";
 
-  private List<SlaveServer> masters;
-
   private SlaveServer slaveServer;
-
-  private boolean reportingToMasters;
 
   private boolean joining;
 
@@ -90,8 +85,7 @@ public class SlaveServerConfig {
   private String passwordFile;
 
   public SlaveServerConfig() {
-    masters = new ArrayList<SlaveServer>();
-    databases = new ArrayList<DatabaseMeta>();
+    databases = new ArrayList<>();
     slaveSequences = new ArrayList<SlaveSequence>();
     automaticCreationAllowed = false;
     metaStore = new DelegatingMetaStore();
@@ -123,23 +117,11 @@ public class SlaveServerConfig {
     this.slaveServer = slaveServer;
   }
 
-  public SlaveServerConfig( List<SlaveServer> masters, boolean reportingToMasters, SlaveServer slaveServer ) {
-    this.masters = masters;
-    this.reportingToMasters = reportingToMasters;
-    this.slaveServer = slaveServer;
-  }
-
   public String getXml() {
 
     StringBuilder xml = new StringBuilder();
 
     xml.append( XmlHandler.openTag( XML_TAG ) );
-
-    for ( SlaveServer slaveServer : masters ) {
-      xml.append( slaveServer.getXml() );
-    }
-
-    XmlHandler.addTagValue( "report_to_masters", reportingToMasters );
 
     if ( slaveServer != null ) {
       xml.append( slaveServer.getXml() );
@@ -177,18 +159,6 @@ public class SlaveServerConfig {
       slaveServer = new SlaveServer( slaveNode );
       checkNetworkInterfaceSetting( log, slaveNode, slaveServer );
     }
-
-    Node mastersNode = XmlHandler.getSubNode( node, XML_TAG_MASTERS );
-    int nrMasters = XmlHandler.countNodes( mastersNode, SlaveServer.XML_TAG );
-    for ( int i = 0; i < nrMasters; i++ ) {
-      Node masterSlaveNode = XmlHandler.getSubNodeByNr( mastersNode, SlaveServer.XML_TAG, i );
-      SlaveServer masterSlaveServer = new SlaveServer( masterSlaveNode );
-      checkNetworkInterfaceSetting( log, masterSlaveNode, masterSlaveServer );
-      masterSlaveServer.setSslMode( slaveServer.isSslMode() );
-      masters.add( masterSlaveServer );
-    }
-
-    reportingToMasters = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "report_to_masters" ) );
 
     joining = "Y".equalsIgnoreCase( XmlHandler.getTagValue( node, "joining" ) );
     maxLogLines = Const.toInt( XmlHandler.getTagValue( node, "max_log_lines" ), 0 );
@@ -342,20 +312,6 @@ public class SlaveServerConfig {
     this.slaveServer = new SlaveServer( hostname + ":" + port, hostname, "" + port, null, null );
   }
 
-  /**
-   * @return the list of masters to report back to if the report to masters flag is enabled.
-   */
-  public List<SlaveServer> getMasters() {
-    return masters;
-  }
-
-  /**
-   * @param masters the list of masters to set. It is the list of masters to report back to if the report to masters flag is
-   *                enabled.
-   */
-  public void setMasters( List<SlaveServer> masters ) {
-    this.masters = masters;
-  }
 
   /**
    * @return the slave server.<br>
@@ -371,20 +327,6 @@ public class SlaveServerConfig {
    */
   public void setSlaveServer( SlaveServer slaveServer ) {
     this.slaveServer = slaveServer;
-  }
-
-  /**
-   * @return true if this slave reports to the masters
-   */
-  public boolean isReportingToMasters() {
-    return reportingToMasters;
-  }
-
-  /**
-   * @param reportingToMaster set to true if this slave should report to the masters
-   */
-  public void setReportingToMasters( boolean reportingToMaster ) {
-    this.reportingToMasters = reportingToMaster;
   }
 
   /**

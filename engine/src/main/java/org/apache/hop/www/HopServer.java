@@ -36,16 +36,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -55,9 +53,6 @@ import org.w3c.dom.Node;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HopServer {
   private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
@@ -83,7 +78,6 @@ public class HopServer {
     pipelineMap.setSlaveServerConfig( config );
     final WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
     workflowMap.setSlaveServerConfig( config );
-    List<SlaveServerDetection> detections = new CopyOnWriteArrayList<SlaveServerDetection>();
 
     SlaveServer slaveServer = config.getSlaveServer();
 
@@ -99,48 +93,6 @@ public class HopServer {
       }
     }
 
-    // TODO: see if we need to keep doing this on a periodic basis.
-    // The master might be dead or not alive yet at the time we send this message.
-    // Repeating the registration over and over every few minutes might harden this sort of problems.
-    //
-    Properties masterProperties = null;
-    if ( config.isReportingToMasters() ) {
-      String propertiesMaster = slaveServer.getPropertiesMasterName();
-      for ( final SlaveServer master : config.getMasters() ) {
-        // Here we use the username/password specified in the slave server section of the configuration.
-        // This doesn't have to be the same pair as the one used on the master!
-        //
-        try {
-          SlaveServerDetection slaveServerDetection = new SlaveServerDetection( slaveServer.getClient() );
-          master.sendXml( slaveServerDetection.getXml(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
-          log.logBasic( "Registered this slave server to master slave server [" + master.toString() + "] on address ["
-            + master.getServerAndPort() + "]" );
-        } catch ( Exception e ) {
-          log.logError( "Unable to register to master slave server [" + master.toString() + "] on address [" + master
-            .getServerAndPort() + "]" );
-          allOK = false;
-        }
-        try {
-          if ( !StringUtils.isBlank( propertiesMaster ) && propertiesMaster.equalsIgnoreCase( master.getName() ) ) {
-            if ( masterProperties != null ) {
-              log.logError( "More than one primary master server. Master name is " + propertiesMaster );
-            } else {
-              masterProperties = master.getHopProperties();
-              log.logBasic( "Got properties from master server [" + master.toString() + "], address [" + master
-                .getServerAndPort() + "]" );
-            }
-          }
-        } catch ( Exception e ) {
-          log.logError( "Unable to get properties from master server [" + master.toString() + "], address [" + master
-            .getServerAndPort() + "]" );
-          allOK = false;
-        }
-      }
-    }
-    if ( masterProperties != null ) {
-      EnvUtil.applyHopProperties( masterProperties, slaveServer.isOverrideExistingProperties() );
-    }
-
     // If we need to time out finished or idle objects, we should create a timer in the background to clean
     // this is done automatically now
     // HopServerSingleton.installPurgeTimer(config, log, pipelineMap, workflowMap);
@@ -151,7 +103,7 @@ public class HopServer {
         shouldJoin = joinOverride;
       }
 
-      this.webServer = new WebServer( log, pipelineMap, workflowMap, detections, hostname, port, shouldJoin, config.getPasswordFile(), slaveServer.getSslConfig() );
+      this.webServer = new WebServer( log, pipelineMap, workflowMap, hostname, port, shouldJoin, config.getPasswordFile(), slaveServer.getSslConfig() );
     }
   }
 

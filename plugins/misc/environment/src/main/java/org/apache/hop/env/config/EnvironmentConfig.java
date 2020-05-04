@@ -1,52 +1,23 @@
 package org.apache.hop.env.config;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-
-@MetaStoreElementType(
-  name = "Hop Environment Configuration",
-  description = "These options allow you to configure the environment system itself"
-)
 public class EnvironmentConfig {
 
-  public static final String SYSTEM_CONFIG_NAME = "system";
+  public static final String HOP_CONFIG_ENVIRONMENT_CONFIG = "environmentConfig";
 
-  @MetaStoreAttribute
-  private String name;
-
-  @MetaStoreAttribute
   private boolean enabled;
 
-  @MetaStoreAttribute
   private boolean openingLastEnvironmentAtStartup;
 
   public EnvironmentConfig() {
-    name = SYSTEM_CONFIG_NAME;
     enabled = true;
     openingLastEnvironmentAtStartup = true;
   }
 
   public EnvironmentConfig(EnvironmentConfig c) {
-    name = c.name;
     enabled = c.enabled;
     openingLastEnvironmentAtStartup = c.openingLastEnvironmentAtStartup;
   }
 
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
-  }
 
   /**
    * Gets enabled
@@ -79,4 +50,5 @@ public class EnvironmentConfig {
   public void setOpeningLastEnvironmentAtStartup( boolean openingLastEnvironmentAtStartup ) {
     this.openingLastEnvironmentAtStartup = openingLastEnvironmentAtStartup;
   }
+
 }
