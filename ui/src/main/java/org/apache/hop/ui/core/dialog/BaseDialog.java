@@ -96,16 +96,32 @@ public abstract class BaseDialog extends Dialog {
   }
 
   public static final String presentFileDialog( Shell shell, String[] filterExtensions, String[] filterNames, boolean folderAndFile ) {
+    return presentFileDialog( false, shell, null, null, null, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( boolean save, Shell shell, String[] filterExtensions, String[] filterNames, boolean folderAndFile ) {
     return presentFileDialog( shell, null, null, null, filterExtensions, filterNames, folderAndFile );
   }
 
   public static final String presentFileDialog( Shell shell, TextVar textVar,
                                                 FileObject fileObject, String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
-    return presentFileDialog( shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile );
+    return presentFileDialog( false, shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile );
   }
 
-  public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,
+  public static final String presentFileDialog( boolean save, Shell shell, TextVar textVar,
+                                                FileObject fileObject, String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    return presentFileDialog( save, shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog(Shell shell, TextVar textVar, IVariables variables,
+                                                String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    return presentFileDialog( false, shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( boolean save, Shell shell, TextVar textVar, IVariables variables,
                                                 String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
     return presentFileDialog( shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
@@ -114,7 +130,13 @@ public abstract class BaseDialog extends Dialog {
   public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,
                                                 FileObject fileObject, String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
-    FileDialog dialog = new FileDialog( shell, SWT.OPEN );
+    return presentFileDialog( false, shell, textVar, variables, fileObject, filterExtensions, filterNames, folderAndFile );
+  }
+
+  public static final String presentFileDialog( boolean save, Shell shell, TextVar textVar, IVariables variables,
+                                                FileObject fileObject, String[] filterExtensions, String[] filterNames,
+                                                boolean folderAndFile ) {
+    FileDialog dialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
     dialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenFile" ) );
     if ( filterExtensions == null || filterNames == null ) {
       dialog.setFilterExtensions( new String[] { "*.*" } );
@@ -149,7 +171,7 @@ public abstract class BaseDialog extends Dialog {
       try {
         HopGuiFileOpenedExtension openedExtension = new HopGuiFileOpenedExtension( dialog, variables, filename );
         ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, openedExtension );
-        if (openedExtension.filename!=null) {
+        if ( openedExtension.filename != null ) {
           filename = openedExtension.filename;
         }
       } catch ( Exception xe ) {
@@ -169,8 +191,8 @@ public abstract class BaseDialog extends Dialog {
 
   public static String presentDirectoryDialog( Shell shell, TextVar textVar, IVariables variables ) {
     DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
-    directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" )  );
-    if ( textVar !=null && variables!=null && textVar.getText() != null ) {
+    directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" ) );
+    if ( textVar != null && variables != null && textVar.getText() != null ) {
       directoryDialog.setFilterPath( variables.environmentSubstitute( textVar.getText() ) );
     }
     String directoryName = null;
@@ -179,24 +201,24 @@ public abstract class BaseDialog extends Dialog {
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileDirectoryDialog.id,
         new HopGuiDirectoryDialogExtension( doIt, directoryDialog ) );
-    } catch(Exception xe) {
+    } catch ( Exception xe ) {
       LogChannel.UI.logError( "Error handling extension point 'HopGuiFileDirectoryDialog'", xe );
     }
 
-    if ( !doIt.get() || directoryDialog.open()!=null ) {
+    if ( !doIt.get() || directoryDialog.open() != null ) {
       directoryName = directoryDialog.getFilterPath();
       try {
         HopGuiDirectorySelectedExtension ext = new HopGuiDirectorySelectedExtension( directoryDialog, variables, directoryName );
         ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiDirectorySelected.id, ext );
-        if (ext.folderName!=null) {
+        if ( ext.folderName != null ) {
           directoryName = ext.folderName;
         }
-      } catch(Exception xe) {
+      } catch ( Exception xe ) {
         LogChannel.UI.logError( "Error handling extension point 'HopGuiDirectorySelected'", xe );
       }
 
       // Set the text box to the new selection
-      if (directoryName!=null) {
+      if ( directoryName != null ) {
         textVar.setText( directoryName );
       }
     }

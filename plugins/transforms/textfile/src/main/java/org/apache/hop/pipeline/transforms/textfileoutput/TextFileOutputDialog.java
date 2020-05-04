@@ -67,7 +67,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -1201,7 +1200,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( true, shell, wFilename, pipelineMeta,
       new String[] {"*.txt", "*.csv", "*" },
       new String[] {
         BaseMessages.getString( PKG, "System.FileType.TextFiles" ),

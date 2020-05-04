@@ -111,7 +111,7 @@ public class HopGuiFileDelegate {
         return;
       }
 
-      String filename = BaseDialog.presentFileDialog( hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+      String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename == null ) {
         return;
       }
