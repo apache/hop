@@ -22,21 +22,9 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.SortedFileOutputStream;
-import org.apache.hop.i18n.BaseMessages;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import org.apache.hop.core.logging.LogChannel;
 
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors, fonts, positions of
@@ -87,8 +75,6 @@ public class Props implements Cloneable {
   public static final String STRING_ZOOM_FACTOR = "ZoomFactor";
   public static final String STRING_ICON_SIZE = "IconSize";
   public static final String STRING_LINE_WIDTH = "LineWidth";
-  public static final String STRING_LOG_LEVEL = "LogLevel";
-  public static final String STRING_LOG_FILTER = "LogFilter";
   public static final String STRING_MIDDLE_PCT = "MiddlePct";
   public static final String STRING_INDICATE_SLOW_PIPELINE_TRANSFORMS = "IndicateSlowPipelineTransforms";
 
@@ -109,11 +95,8 @@ public class Props implements Cloneable {
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
   public static final String STRING_SHOW_OS_LOOK = "ShowOSLook";
-  public static final String STRING_LAST_ARGUMENT = "LastArgument";
 
   public static final String STRING_CUSTOM_PARAMETER = "CustomParameter";
-
-  public static final String STRING_PLUGIN_HISTORY = "PluginHistory";
 
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
 
@@ -121,9 +104,6 @@ public class Props implements Cloneable {
   private static final String STRING_MAX_LOG_LINE_TIMEOUT_MINUTES = "MaxLogLineTimeOutMinutes";
 
   protected ILogChannel log;
-  protected Properties properties;
-
-  protected String filename;
 
   public static final int WIDGET_STYLE_DEFAULT = 0;
   public static final int WIDGET_STYLE_FIXED = 1;
@@ -146,19 +126,6 @@ public class Props implements Cloneable {
   }
 
   /**
-   * Initialize the properties: load from disk.
-   *
-   * @param filename the filename to use
-   */
-  public static final void init( String filename ) {
-    if ( props == null ) {
-      props = new Props( filename );
-    } else {
-      throw new RuntimeException( "The properties systems settings are already initialised!" );
-    }
-  }
-
-  /**
    * Check to see whether the Hop properties where loaded.
    *
    * @return true if the Hop properties where loaded.
@@ -176,23 +143,7 @@ public class Props implements Cloneable {
   }
 
   protected Props() {
-    initialize();
-  }
-
-  protected void initialize() {
-    filename = getFilename();
-    createLogChannel();
-    properties = new Properties();
-
-    loadProps();
-    addDefaultEntries();
-
-  }
-
-  protected Props( String filename ) {
-    properties = new Properties();
-    this.filename = filename;
-    init();
+    log = new LogChannel( STRING_USER_PREFERENCES );
   }
 
   @Override
@@ -200,97 +151,43 @@ public class Props implements Cloneable {
     return STRING_USER_PREFERENCES;
   }
 
-  protected void createLogChannel() {
-    log = new LogChannel( STRING_USER_PREFERENCES );
-  }
 
-  public String getFilename() {
-    String directory = Const.getHopDirectory();
-    return directory + Const.FILE_SEPARATOR + ".hoprc";
-  }
-
-  public boolean fileExists() {
-    File f = new File( filename );
-    return f.exists();
-  }
-
-  public boolean loadProps() {
-    try ( FileInputStream fis = new FileInputStream( filename ) ) {
-      properties.load( fis );
-    } catch ( Exception e ) {
-      return false;
-    }
-    return true;
-  }
-
-  protected void addDefaultEntries() {
-    if ( !properties.containsKey( "WorkflowDialogStyle" ) ) {
-      properties.setProperty( "WorkflowDialogStyle", "RESIZE,MAX,MIN" );
+  protected void setDefault() {
+    if ( !containsKey( "WorkflowDialogStyle" ) ) {
+      setProperty( "WorkflowDialogStyle", "RESIZE,MAX,MIN" );
     }
   }
 
-  public void saveProps() {
-
-    File spoonRc = new File( filename );
+  protected void setProperty(String key, String value) {
     try {
-      // FileOutputStream fos = new FileOutputStream(spoonRc);
-
-      SortedFileOutputStream fos = new SortedFileOutputStream( spoonRc );
-      fos.setLogger( log );
-      properties.store( fos, "Hop Properties file" );
-      fos.close();
-      log.logDetailed( BaseMessages.getString( PKG, "HopGui.Log.SaveProperties" ) );
-    } catch ( IOException e ) {
-      // If saving fails this could be a known Java bug: If running HopGui on windows the spoon
-      // config file gets created with the 'hidden' attribute set. Some Java JREs cannot open
-      // FileOutputStreams on files with that attribute set. The user has to unset that attribute
-      // manually.
-      //
-      // Note that we don't really want to throw an exception here, that would prevent usage of Hop on read-only
-      // systems.
-      //
-      if ( spoonRc.isHidden() && filename.indexOf( '\\' ) != -1 ) {
-        // If filename contains a backslash we consider HopGui as running on Windows
-        log.logError( BaseMessages.getString( PKG, "HopGui.Log.SavePropertiesFailedWindowsBugAttr", filename ) );
-      } else {
-        // Another reason why the save failed
-        log.logError( BaseMessages.getString( PKG, "HopGui.Log.SavePropertiesFailed" ) + e.getMessage() );
-      }
+      HopConfig.saveOption( key, value );
+    } catch(Exception e) {
+      throw new RuntimeException("Error saving hop config option key '"+key+"', value '"+value+"'", e);
     }
-  }
-
-  public void setLogLevel( String level ) {
-    properties.setProperty( STRING_LOG_LEVEL, level );
-  }
-
-  public String getLogLevel() {
-    return properties.getProperty( STRING_LOG_LEVEL, "Basic" );
-  }
-
-  public void setLogFilter( String filter ) {
-    properties.setProperty( STRING_LOG_FILTER, Const.NVL( filter, "" ) );
-  }
-
-  public String getLogFilter() {
-    return properties.getProperty( STRING_LOG_FILTER, "" );
-  }
-
-  public void setUseDBCache( boolean use ) {
-    properties.setProperty( STRING_USE_DB_CACHE, use ? "Y" : "N" );
-  }
-
-  public boolean useDBCache() {
-    String use = properties.getProperty( STRING_USE_DB_CACHE );
-    return !"N".equalsIgnoreCase( use );
-  }
-
-  public void setProperty( String propertyName, String value ) {
-    properties.setProperty( propertyName, value );
   }
 
   public String getProperty( String propertyName ) {
-    return properties.getProperty( propertyName );
+    return getProperty( propertyName, null );
   }
+
+  public String getProperty( String propertyName, String defaultValue ) {
+    return HopConfig.readOptionString( propertyName, defaultValue );
+  }
+
+  public boolean containsKey(String key) {
+    return HopConfig.getConfigMap().containsKey( key );
+  }
+
+  public void setUseDBCache( boolean use ) {
+    setProperty( STRING_USE_DB_CACHE, use ? "Y" : "N" );
+  }
+
+  public boolean useDBCache() {
+    String use = getProperty( STRING_USE_DB_CACHE );
+    return !"N".equalsIgnoreCase( use );
+  }
+
+
 
   /**
    * @param parameterName The parameter name
@@ -298,7 +195,7 @@ public class Props implements Cloneable {
    * @return The custom parameter
    */
   public String getCustomParameter( String parameterName, String defaultValue ) {
-    return properties.getProperty( STRING_CUSTOM_PARAMETER + parameterName, defaultValue );
+    return getProperty( STRING_CUSTOM_PARAMETER + parameterName, defaultValue );
   }
 
   /**
@@ -308,42 +205,45 @@ public class Props implements Cloneable {
    * @param value         The value to be stored in the properties file.
    */
   public void setCustomParameter( String parameterName, String value ) {
-    properties.setProperty( STRING_CUSTOM_PARAMETER + parameterName, value );
+    setProperty( STRING_CUSTOM_PARAMETER + parameterName, value );
   }
 
   public void clearCustomParameters() {
-    Enumeration<Object> keys = properties.keys();
-    while ( keys.hasMoreElements() ) {
-      String key = (String) keys.nextElement();
+
+    for (String key : HopConfig.getConfigMap().keySet() ) {
       if ( key.startsWith( STRING_CUSTOM_PARAMETER ) ) {
         // Clear this one
-        properties.remove( key );
+        HopConfig.getConfigMap().remove( key );
       }
     }
   }
 
-
   public int getMaxNrLinesInLog() {
-    String lines = properties.getProperty( STRING_MAX_NR_LINES_IN_LOG );
+    String lines = getProperty( STRING_MAX_NR_LINES_IN_LOG );
     return Const.toInt( lines, Const.MAX_NR_LOG_LINES );
   }
 
   public void setMaxNrLinesInLog( int maxNrLinesInLog ) {
-    properties.setProperty( STRING_MAX_NR_LINES_IN_LOG, Integer.toString( maxNrLinesInLog ) );
+    setProperty( STRING_MAX_NR_LINES_IN_LOG, Integer.toString( maxNrLinesInLog ) );
   }
 
   public int getMaxLogLineTimeoutMinutes() {
-    String minutes = properties.getProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES );
+    String minutes = getProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES );
     return Const.toInt( minutes, Const.MAX_LOG_LINE_TIMEOUT_MINUTES );
   }
 
   public void setMaxLogLineTimeoutMinutes( int maxLogLineTimeoutMinutes ) {
-    properties.setProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES, Integer.toString( maxLogLineTimeoutMinutes ) );
+    setProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES, Integer.toString( maxLogLineTimeoutMinutes ) );
   }
 
   public void reset() {
     props = null;
-    properties.clear();
+    clear();
   }
+
+  private void clear() {
+    HopConfig.getConfigMap().clear();
+  }
+
 
 }

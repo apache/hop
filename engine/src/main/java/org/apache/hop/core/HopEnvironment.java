@@ -26,18 +26,18 @@ import com.google.common.util.concurrent.SettableFuture;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.plugins.HopLifecyclePluginType;
-import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
 import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.HopLifecyclePluginType;
+import org.apache.hop.core.plugins.HopServerPluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.TransformDialogFragmentType;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
@@ -98,8 +98,10 @@ public class HopEnvironment {
     SettableFuture<Boolean> ready;
     if ( initialized.compareAndSet( null, ready = SettableFuture.create() ) ) {
 
-      // Swaps out System Properties for a thread safe version.  This is needed so Karaf can spawn multiple instances.
-      // See https://jira.pentaho.com/browse/PDI-17496
+      // Swaps out System Properties for a thread safe version.
+      // This is not that important since we're no longer using System properties
+      // However, plugins might still make use of it so keep it around
+      //
       System.setProperties( ConcurrentMapProperties.convertProperties( System.getProperties() ) );
 
       try {
@@ -117,6 +119,12 @@ public class HopEnvironment {
         // Also read the list of variables.
         //
         HopVariablesList.init();
+
+        // If the HopConfig system properties is empty, initialize with the variables...
+        //
+        if ( HopConfig.readSystemProperties().isEmpty() ) {
+          HopConfig.saveSystemProperties( HopVariablesList.getInstance().getDefaultValueMap() );
+        }
 
         ready.set( true );
       } catch ( Throwable t ) {

@@ -22,22 +22,19 @@
 
 package org.apache.hop.workflow.actions.pgpverify;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -51,7 +48,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -307,104 +303,16 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
       }
     } );
 
-    wbDetachedFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        try {
-          FileObject detachedFilename;
-
-          try {
-            String curFile = wDetachedFilename.getText();
-
-            if ( curFile.trim().length() > 0 ) {
-              detachedFilename =
-                HopVfs.getInstance().getFileSystemManager().resolveFile(
-                  workflowMeta.environmentSubstitute( wDetachedFilename.getText() ) );
-            } else {
-              detachedFilename =
-                HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-            }
-
-          } catch ( FileSystemException ex ) {
-            detachedFilename =
-              HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-          }
-
-          BaseDialog.presentFileDialog( shell, wDetachedFilename, detachedFilename, EXTENSIONS, FILETYPES, false );
-
-        } catch ( FileSystemException ex ) {
-          ex.printStackTrace();
-        }
-      }
-    } );
+    wbDetachedFilename.addListener( SWT.Selection, e->  BaseDialog.presentFileDialog( shell, wDetachedFilename, workflowMeta, EXTENSIONS, FILETYPES, false ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta, EXTENSIONS, FILETYPES, false ) );
 
-    wbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        try {
-          FileObject fileName = null;
-
-          try {
-            String curFile = wFilename.getText();
-
-            if ( curFile.trim().length() > 0 ) {
-              fileName =
-                HopVfs.getInstance().getFileSystemManager().resolveFile(
-                  workflowMeta.environmentSubstitute( wFilename.getText() ) );
-            } else {
-              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-            }
-
-          } catch ( FileSystemException ex ) {
-            fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-          }
-
-          BaseDialog.presentFileDialog( shell, wFilename, fileName, EXTENSIONS, FILETYPES, false );
-
-        } catch ( FileSystemException ex ) {
-          ex.printStackTrace();
-        }
-      }
-    } );
     // Whenever something changes, set the tooltip to the expanded version:
-    wGPGLocation.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wGPGLocation.setToolTipText( workflowMeta.environmentSubstitute( wGPGLocation.getText() ) );
-      }
-    } );
-
-    wbGPGLocation.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        try {
-          FileObject fileName = null;
-
-          try {
-            String curFile = wGPGLocation.getText();
-
-            if ( curFile.trim().length() > 0 ) {
-              fileName =
-                HopVfs.getInstance().getFileSystemManager().resolveFile(
-                  workflowMeta.environmentSubstitute( wGPGLocation.getText() ) );
-            } else {
-              fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-            }
-
-          } catch ( FileSystemException ex ) {
-            fileName = HopVfs.getInstance().getFileSystemManager().resolveFile( Const.getUserHomeDirectory() );
-          }
-
-          BaseDialog.presentFileDialog( shell, wGPGLocation, fileName, EXTENSIONS, FILETYPES, false );
-
-        } catch ( FileSystemException ex ) {
-          ex.printStackTrace();
-        }
-      }
-    } );
+    wGPGLocation.addModifyListener( e -> wGPGLocation.setToolTipText( workflowMeta.environmentSubstitute( wGPGLocation.getText() ) ) );
+    wbGPGLocation.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, workflowMeta, EXTENSIONS, FILETYPES, false ) );
+    
     fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );
     fdSettings.top = new FormAttachment( wName, margin );

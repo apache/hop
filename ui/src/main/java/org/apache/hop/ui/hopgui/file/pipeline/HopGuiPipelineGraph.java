@@ -812,12 +812,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Hide the tooltip!
     hideToolTips();
 
-    // Set the pop-up menu
-    if ( e.button == 3 ) {
-      setMenu( real.x, real.y );
-      return;
-    }
-
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseDown.id, new HopGuiPipelineGraphExtension( this, e, real ) );
     } catch ( Exception ex ) {
@@ -871,12 +865,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           case TRANSFORM_INJECT_ICON:
             modalMessageDialog( BaseMessages.getString( PKG, "PipelineGraph.TransformInjectionSupported.Title" ),
               BaseMessages.getString( PKG, "PipelineGraph.TransformInjectionSupported.Tooltip" ), SWT.OK | SWT.ICON_INFORMATION );
-            break;
-
-          case TRANSFORM_MENU_ICON:
-            clearSettings();
-            transformMeta = (TransformMeta) areaOwner.getParent();
-            setMenu( transformMeta.getLocation().x, transformMeta.getLocation().y );
             break;
 
           case TRANSFORM_ICON:
@@ -2505,25 +2493,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PropsUi.setLocation( transformMeta, currentMouseX, currentMouseY );
     updateGui();
   }
-
-  /**
-   * This sets the popup-menu on the background of the canvas based on the xy coordinate of the mouse. This method is
-   * called after a mouse-click.
-   *
-   * @param x X-coordinate on screen
-   * @param y Y-coordinate on screen
-   */
-  private synchronized void setMenu( int x, int y ) {
-    try {
-      currentMouseX = x;
-      currentMouseY = y;
-
-
-    } catch ( Throwable t ) {
-      new ErrorDialog( hopShell(), "Error", "Error showing context menu", t );
-    }
-  }
-
 
   private boolean checkNumberOfCopies( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
     boolean enabled = true;

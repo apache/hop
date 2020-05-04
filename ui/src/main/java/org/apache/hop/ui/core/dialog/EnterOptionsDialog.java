@@ -42,7 +42,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
@@ -1055,7 +1054,6 @@ public class EnterOptionsDialog extends Dialog {
         int id = mb.open();
         if ( id == SWT.YES ) {
           props.clearCustomParameters();
-          props.saveProps();
           MessageBox ok = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
           ok.setMessage( BaseMessages.getString( PKG, "EnterOptionsDialog.ClearCustomParameters.Confirmation" ) );
           ok.open();
@@ -1270,10 +1268,6 @@ public class EnterOptionsDialog extends Dialog {
 
     String defaultLocale = GlobalMessages.localeCodes[ defaultLocaleIndex ];
     LanguageChoice.getInstance().setDefaultLocale( EnvUtil.createLocale( defaultLocale ) );
-
-    LanguageChoice.getInstance().saveSettings();
-
-    props.saveProps();
 
     dispose();
   }

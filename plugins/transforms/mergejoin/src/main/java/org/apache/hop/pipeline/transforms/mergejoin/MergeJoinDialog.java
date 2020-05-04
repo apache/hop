@@ -440,7 +440,6 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
       MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
 
     transformName = wTransformName.getText(); // return value

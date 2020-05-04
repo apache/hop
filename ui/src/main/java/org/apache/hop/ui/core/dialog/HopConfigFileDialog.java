@@ -24,9 +24,7 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVariablesList;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -48,28 +46,18 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
- * Allows the user to edit the hop.properties file.
+ * Allows the user to edit the hop.config file.
  *
  * @author Matt
  */
-public class HopPropertiesFileDialog extends Dialog {
-  private static Class<?> PKG = HopPropertiesFileDialog.class; // for i18n purposes, needed by Translator!!
+public class HopConfigFileDialog extends Dialog {
+  private static Class<?> PKG = HopConfigFileDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;
   private TableView wFields;
@@ -91,7 +79,7 @@ public class HopPropertiesFileDialog extends Dialog {
    * @param parent  The parent shell to link to
    * @param style   The style in which we want to draw this shell.
    */
-  public HopPropertiesFileDialog( Shell parent, int style ) {
+  public HopConfigFileDialog( Shell parent, int style ) {
     super( parent, style );
     props = PropsUi.getInstance();
     kettleProperties = null;
@@ -206,55 +194,16 @@ public class HopPropertiesFileDialog extends Dialog {
    */
   public void getData() {
     try {
-      // Load the Hop properties file...
-      //
-      Properties properties = EnvUtil.readProperties( getHopPropertiesFilename() );
-
       // These are the standard Hop variables...
       //
       HopVariablesList variablesList = HopVariablesList.getInstance();
 
-      // Add the standard variables to the properties if they are not in there already
-      //
-      for ( String key : variablesList.getDescriptionMap().keySet() ) {
-        if ( Utils.isEmpty( (String) properties.get( key ) ) ) {
-          String defaultValue = variablesList.getDefaultValueMap().get( key );
-          properties.put( key, Const.NVL( defaultValue, "" ) );
-        }
-      }
-
       // Obtain and sort the list of keys...
       //
-      List<String> keys = new ArrayList<>();
-      Enumeration<Object> keysEnum = properties.keys();
-      while ( keysEnum.hasMoreElements() ) {
-        keys.add( (String) keysEnum.nextElement() );
-      }
-      Collections.sort( keys );
+      List<String> keys = HopConfig.getSortedKeys();
 
-      // Populate the grid...
+      // TODO: populate dialog with GuiPlugin widgets from configuration plugins
       //
-      for ( int i = 0; i < keys.size(); i++ ) {
-        String key = keys.get( i );
-        String value = properties.getProperty( key, "" );
-        String description = Const.NVL( variablesList.getDescriptionMap().get( key ), "" );
-
-        TableItem item = new TableItem( wFields.table, SWT.NONE );
-        item.setBackground( 3, GuiResource.getInstance().getColorLightGray() );
-
-        int pos = 1;
-        item.setText( pos++, key );
-        item.setText( pos++, value );
-        item.setText( pos++, description );
-      }
-
-      wFields.removeEmptyRows();
-      wFields.setRowNums();
-      wFields.optWidth( true );
-
-      //saves the properties keys at the moment this method was called
-      previousHopPropertiesKeys = new HashSet<>();
-      previousHopPropertiesKeys.addAll( Arrays.asList( properties.keySet().toArray( new String[ 0 ] ) ) );
 
     } catch ( Exception e ) {
       new ErrorDialog( shell,
@@ -263,60 +212,13 @@ public class HopPropertiesFileDialog extends Dialog {
     }
   }
 
-  private String getHopPropertiesFilename() {
-    return Const.getHopDirectory() + "/" + Const.HOP_PROPERTIES;
-  }
-
   private void cancel() {
     kettleProperties = null;
     dispose();
   }
 
   private void ok() {
-    Properties properties = new Properties();
-    kettleProperties = new HashMap<>();
-
-    int nr = wFields.nrNonEmpty();
-    for ( int i = 0; i < nr; i++ ) {
-      TableItem item = wFields.getNonEmpty( i );
-      int pos = 1;
-      String variable = item.getText( pos++ );
-      String value = item.getText( pos++ );
-
-      if ( !Utils.isEmpty( variable ) ) {
-        properties.put( variable, value );
-        kettleProperties.put( variable, value );
-      }
-    }
-
-    // Save the properties file...
-    //
-    FileOutputStream out = null;
-    try {
-      out = new FileOutputStream( getHopPropertiesFilename() );
-      properties.store( out, Const.getHopPropertiesFileHeader() );
-    } catch ( Exception e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "HopPropertiesFileDialog.Exception.ErrorSavingData.Title" ),
-        BaseMessages.getString( PKG, "HopPropertiesFileDialog.Exception.ErrorSavingData.Message" ), e );
-    } finally {
-      try {
-        out.close();
-      } catch ( IOException e ) {
-        LogChannel.GENERAL.logError( BaseMessages.getString(
-          PKG, "HopPropertiesFileDialog.Exception.ErrorSavingData.Message", Const.HOP_PROPERTIES,
-          getHopPropertiesFilename() ), e );
-      }
-    }
-
-    if ( previousHopPropertiesKeys != null ) {
-      for ( String originalKey : previousHopPropertiesKeys ) {
-        if ( !kettleProperties.containsKey( originalKey ) ) {
-          EnvUtil.clearSystemProperty( originalKey );
-        }
-      }
-    }
-
+    // TODO : get info using GuiCompositeWidgets
     dispose();
   }
 }

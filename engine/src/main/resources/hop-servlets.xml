@@ -4,11 +4,9 @@
   <!-- NOTES:
 
        - The root servlet is handled separately
-       - As a convention, we use the service without "/kettle/" as the id of the plugin
+       - As a convention, we use the service without "/hop/" as the id of the plugin
 
   -->
-  <!-- <servlet id="root"> <description>Root servlet, index.html</description> <classname>org.apache.hop.www.GetRootServlet</classname> </servlet>  -->
-
 
   <!-- The pipeline handlers... -->
 
@@ -40,10 +38,6 @@
     <description>Stop a pipeline</description>
     <classname>org.apache.hop.www.StopPipelineServlet</classname>
   </servlet>
-  <servlet id="cleanupPipeline">
-    <description>Cleanup a pipeline: close remote sockets, ...</description>
-    <classname>org.apache.hop.www.CleanupPipelineServlet</classname>
-  </servlet>
   <servlet id="addPipeline">
     <description>Add a pipeline for execution</description>
     <classname>org.apache.hop.www.AddPipelineServlet</classname>
@@ -52,11 +46,7 @@
     <description>Remove a pipeline</description>
     <classname>org.apache.hop.www.RemovePipelineServlet</classname>
   </servlet>
-  <servlet id="listSocket">
-    <description>Lists server socket allocation information</description>
-    <classname>org.apache.hop.www.ListServerSocketServlet</classname>
-  </servlet>
-  <servlet id="sniffStep">
+  <servlet id="sniffTransform">
     <description>Sniff test a pipeline transform</description>
     <classname>org.apache.hop.www.SniffTransformServlet</classname>
   </servlet>
@@ -67,32 +57,32 @@
 
   <!-- The workflow handlers... -->
 
-  <servlet id="startJob">
+  <servlet id="startWorkflow">
     <description>Start a workflow</description>
     <classname>org.apache.hop.www.StartWorkflowServlet</classname>
   </servlet>
-  <servlet id="stopJob">
+  <servlet id="stopWorkflow">
     <description>Stop a workflow</description>
     <classname>org.apache.hop.www.StopWorkflowServlet</classname>
   </servlet>
-  <servlet id="jobStatus">
+  <servlet id="workflowStatus">
     <description>Get the status of a workflow</description>
     <classname>org.apache.hop.www.GetWorkflowStatusServlet</classname>
   </servlet>
-  <servlet id="addJob">
+  <servlet id="addWorkflow">
     <description>Add a workflow to the server</description>
     <classname>org.apache.hop.www.AddWorkflowServlet</classname>
   </servlet>
-  <servlet id="removeJob">
+  <servlet id="removeWorkflow">
     <description>Remove a workflow from the server</description>
     <classname>org.apache.hop.www.RemoveWorkflowServlet</classname>
   </servlet>
-  <servlet id="jobImage">
+  <servlet id="workflowImage">
     <description>Generate a PNG image of a workflow</description>
     <classname>org.apache.hop.www.GetWorkflowImageServlet</classname>
   </servlet>
 
-  <servlet id="registerJob">
+  <servlet id="registerWorkflow">
     <description>Add a workflow to the server</description>
     <classname>org.apache.hop.www.RegisterWorkflowServlet</classname>
   </servlet>
@@ -105,25 +95,11 @@
     <classname>org.apache.hop.www.RegisterPackageServlet</classname>
   </servlet>
 
-
-  <!-- The dynamic clustering ... -->
-
-  <servlet id="registerSlave">
-    <description>Register a slave server</description>
-    <classname>org.apache.hop.www.RegisterSlaveServlet</classname>
-  </servlet>
-  <servlet id="getSlaves">
-    <description>List all registered slave servers</description>
-    <classname>org.apache.hop.www.GetSlavesServlet</classname>
-  </servlet>
   <servlet id="stopHopServer">
     <description>Stop Hop Server</description>
     <classname>org.apache.hop.www.StopHopServerServlet</classname>
   </servlet>
-  <servlet id="properties">
-    <description>Get properties from kettle.properties</description>
-    <classname>org.apache.hop.www.GetPropertiesServlet</classname>
-  </servlet>
+
 
   <!-- Easier remote execution ... -->
 

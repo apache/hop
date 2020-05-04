@@ -28,7 +28,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.version.BuildVersion;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -124,8 +123,7 @@ public class DbCache {
   }
 
   public String getFilename() {
-    return Const.getHopDirectory()
-      + Const.FILE_SEPARATOR + "db.cache-" + BuildVersion.getInstance().getVersion();
+    return Const.HOP_AUDIT_DIRECTORY + Const.FILE_SEPARATOR + "db.cache";
   }
 
   private DbCache() throws HopFileException {

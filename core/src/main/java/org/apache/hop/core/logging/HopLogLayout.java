@@ -23,8 +23,6 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.version.BuildVersion;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

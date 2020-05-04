@@ -62,10 +62,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import javax.servlet.Servlet;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class WebServer {
 
@@ -80,12 +77,9 @@ public class WebServer {
 
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;
-  private List<SlaveServerDetection> detections;
 
   private String hostname;
   private int port;
-
-  private Timer slaveMonitoringTimer;
 
   private String passwordFile;
   private WebServerShutdownHook webServerShutdownHook;
@@ -94,28 +88,23 @@ public class WebServer {
   private SslConfiguration sslConfig;
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    List<SlaveServerDetection> detections, String hostname, int port, boolean join,
+                    String hostname, int port, boolean join,
                     String passwordFile ) throws Exception {
-    this( log, pipelineMap, workflowMap, detections, hostname, port, join, passwordFile, null );
+    this( log, pipelineMap, workflowMap, hostname, port, join, passwordFile, null );
   }
 
   public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    List<SlaveServerDetection> detections, String hostname, int port, boolean join,
+                    String hostname, int port, boolean join,
                     String passwordFile, SslConfiguration sslConfig ) throws Exception {
     this.log = log;
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
-    this.detections = detections;
     this.hostname = hostname;
     this.port = port;
     this.passwordFile = passwordFile;
     this.sslConfig = sslConfig;
 
     startServer();
-
-    // Start the monitoring of the registered slave servers...
-    //
-    startSlaveMonitoring();
 
     webServerShutdownHook = new WebServerShutdownHook( this );
     Runtime.getRuntime().addShutdownHook( webServerShutdownHook );
@@ -133,16 +122,12 @@ public class WebServer {
     }
   }
 
-  public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    List<SlaveServerDetection> slaveServers, String hostname, int port )
-    throws Exception {
-    this( log, pipelineMap, workflowMap, slaveServers, hostname, port, true );
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port ) throws Exception {
+    this( log, pipelineMap, workflowMap, hostname, port, true );
   }
 
-  public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap,
-                    List<SlaveServerDetection> detections, String hostname, int port,
-                    boolean join ) throws Exception {
-    this( log, pipelineMap, workflowMap, detections, hostname, port, join, null, null );
+  public WebServer( ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port, boolean join ) throws Exception {
+    this( log, pipelineMap, workflowMap, hostname, port, join, null, null );
   }
 
   public Server getServer() {
@@ -176,12 +161,7 @@ public class WebServer {
       } else {
         // See if there is a hop.pwd file in the HOP_HOME directory:
         if ( Utils.isEmpty( passwordFile ) ) {
-          File homePwdFile = new File( Const.getHopServerPasswordFile() );
-          if ( homePwdFile.exists() ) {
-            passwordFile = Const.getHopServerPasswordFile();
-          } else {
-            passwordFile = Const.getHopLocalServerPasswordFile();
-          }
+          passwordFile = Const.getHopLocalServerPasswordFile();
         }
         hashLoginService = new HashLoginService( "Hop" );
         PropertyUserStore userStore = new PropertyUserStore();
@@ -220,7 +200,7 @@ public class WebServer {
     for ( IPlugin plugin : plugins ) {
 
       IHopServerPlugin servlet = pluginRegistry.loadClass( plugin, IHopServerPlugin.class );
-      servlet.setup( pipelineMap, workflowMap, detections );
+      servlet.setup( pipelineMap, workflowMap );
       servlet.setJettyMode( true );
 
       ServletContextHandler servletContext =
@@ -296,13 +276,6 @@ public class WebServer {
 
     try {
       if ( server != null ) {
-
-        // Stop the monitoring timer
-        //
-        if ( slaveMonitoringTimer != null ) {
-          slaveMonitoringTimer.cancel();
-          slaveMonitoringTimer = null;
-        }
 
         // Stop the server...
         //
@@ -409,45 +382,6 @@ public class WebServer {
   public void setHostname( String hostname ) {
     this.hostname = hostname;
   }
-
-  /**
-   * @return the slave server detections
-   */
-  public List<SlaveServerDetection> getDetections() {
-    return detections;
-  }
-
-  /**
-   * This method registers a timer to check up on all the registered slave servers every X seconds.<br>
-   */
-  private void startSlaveMonitoring() {
-    slaveMonitoringTimer = new Timer( "WebServer Timer" );
-    TimerTask timerTask = new TimerTask() {
-
-      public void run() {
-        for ( SlaveServerDetection slaveServerDetection : detections ) {
-          SlaveServer slaveServer = slaveServerDetection.getSlaveServer();
-
-          // See if we can get a status...
-          //
-          try {
-            // TODO: consider making this lighter or retaining more information...
-            slaveServer.getStatus(); // throws the exception
-            slaveServerDetection.setActive( true );
-            slaveServerDetection.setLastActiveDate( new Date() );
-          } catch ( Exception e ) {
-            slaveServerDetection.setActive( false );
-            slaveServerDetection.setLastInactiveDate( new Date() );
-
-            // TODO: kick it out after a configurable period of time...
-          }
-        }
-      }
-    };
-    int detectionTime = defaultDetectionTimer();
-    slaveMonitoringTimer.schedule( timerTask, detectionTime, detectionTime );
-  }
-
   public String getPasswordFile() {
     return passwordFile;
   }
@@ -488,20 +422,8 @@ public class WebServer {
     this.port = port;
   }
 
-  public Timer getSlaveMonitoringTimer() {
-    return slaveMonitoringTimer;
-  }
-
-  public void setSlaveMonitoringTimer( Timer slaveMonitoringTimer ) {
-    this.slaveMonitoringTimer = slaveMonitoringTimer;
-  }
-
   public void setServer( Server server ) {
     this.server = server;
-  }
-
-  public void setDetections( List<SlaveServerDetection> detections ) {
-    this.detections = detections;
   }
 
   /**

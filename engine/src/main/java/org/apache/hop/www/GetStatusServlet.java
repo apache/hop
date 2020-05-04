@@ -674,20 +674,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println( "document.getElementById( 'stopActions' ).style.visibility = 'hidden';" );
       out.println( "}" );
 
-      // Click function for stop button
-      out.println( "function cleanupFunction( element ) {" );
-      out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );
-      out.println( "if( selectedPipelineRowIndex != -1 ) {" );
-      out.println( setupAjaxCall( setupPipelineURI( convertContextPath( CleanupPipelineServlet.CONTEXT_PATH ) ),
-        BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Title" ),
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Success.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
-          + " ' + selectedPipelineName + ' " + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Success.Body2" ) + "'",
-        "'" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Failure.Body1" ) + " " + BaseMessages.getString( PKG, "GetStatusServlet.ThePipeline.Label" )
-          + " ' + selectedPipelineName + '" + BaseMessages.getString( PKG, "GetStatusServlet.CleanupPipeline.Failure.Body2" ) + "'" ) );
-      out.println( "}" );
-      out.println( "}" );
-      out.println( "}" );
-
       // Click function for view button
       out.println( "function viewFunction( element ) {" );
       out.println( "if( !element.classList.contains('toolbar-button-disabled') ) {" );

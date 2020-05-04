@@ -16,7 +16,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 
 public class EnvironmentConfigDialog extends Dialog {
@@ -29,7 +28,6 @@ public class EnvironmentConfigDialog extends Dialog {
   private Shell shell;
   private final PropsUi props;
 
-  private Text wName;
   private Button wEnabled;
   private Button wAutoOpen;
 
@@ -61,31 +59,13 @@ public class EnvironmentConfigDialog extends Dialog {
     shell.setLayout( formLayout );
     shell.setText( "Environment Configuration" );
 
-    Label wlName = new Label( shell, SWT.RIGHT );
-    props.setLook( wlName );
-    wlName.setText( "Name " );
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment( 0, 0 );
-    fdlName.right = new FormAttachment( middle, 0 );
-    fdlName.top = new FormAttachment( 0, 0 );
-    wlName.setLayoutData( fdlName );
-    wName = new Text( shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    wName.setEditable( false );
-    props.setLook( wName );
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment( middle, margin );
-    fdName.right = new FormAttachment( 100, 0 );
-    fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
-    wName.setLayoutData( fdName );
-    Control lastControl = wName;
-
     Label wlEnabled = new Label( shell, SWT.RIGHT );
     props.setLook( wlEnabled );
     wlEnabled.setText( "Enable Hop Environment? " );
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment( 0, 0 );
     fdlEnabled.right = new FormAttachment( middle, 0 );
-    fdlEnabled.top = new FormAttachment( lastControl, margin );
+    fdlEnabled.top = new FormAttachment( 0, margin );
     wlEnabled.setLayoutData( fdlEnabled );
     wEnabled = new Button( shell, SWT.CHECK | SWT.LEFT );
     props.setLook( wEnabled );
@@ -94,7 +74,7 @@ public class EnvironmentConfigDialog extends Dialog {
     fdEnabled.right = new FormAttachment( 100, 0 );
     fdEnabled.top = new FormAttachment( wlEnabled, 0, SWT.CENTER );
     wEnabled.setLayoutData( fdEnabled );
-    lastControl = wEnabled;
+    Control lastControl = wEnabled;
 
     Label wlAutoOpen = new Label( shell, SWT.RIGHT );
     props.setLook( wlAutoOpen );
@@ -124,11 +104,6 @@ public class EnvironmentConfigDialog extends Dialog {
     // Buttons go at the bottom of the dialog
     //
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin * 3, lastControl );
-
-
-    // When enter is hit, close the dialog
-    //
-    wName.addListener( SWT.DefaultSelection, ( e ) -> ok() );
 
     // Set the shell size, based upon previous time...
     BaseTransformDialog.setSize( shell );
@@ -165,13 +140,11 @@ public class EnvironmentConfigDialog extends Dialog {
   }
 
   private void getData() {
-    wName.setText( Const.NVL( config.getName(), "" ) );
     wEnabled.setSelection( config.isEnabled() );
     wAutoOpen.setSelection( config.isOpeningLastEnvironmentAtStartup() );
   }
 
   private void getInfo( EnvironmentConfig conf ) {
-    conf.setName( wName.getText() );
     conf.setEnabled( wEnabled.getSelection() );
     conf.setOpeningLastEnvironmentAtStartup( wAutoOpen.getSelection() );
   }

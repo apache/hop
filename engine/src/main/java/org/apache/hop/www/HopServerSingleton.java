@@ -41,8 +41,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -60,7 +58,6 @@ public class HopServerSingleton {
 
   private PipelineMap pipelineMap;
   private WorkflowMap workflowMap;
-  private List<SlaveServerDetection> detections;
 
   private HopServerSingleton( SlaveServerConfig config ) throws HopException {
     HopEnvironment.init();
@@ -71,7 +68,6 @@ public class HopServerSingleton {
     pipelineMap.setSlaveServerConfig( config );
     workflowMap = new WorkflowMap();
     workflowMap.setSlaveServerConfig( config );
-    detections = new ArrayList<>();
 
     installPurgeTimer( config, log, pipelineMap, workflowMap );
 
@@ -84,35 +80,6 @@ public class HopServerSingleton {
         } catch ( Exception e ) {
           log.logError( BaseMessages.getString( PKG, "HopServer.Error.CanNotPartPort", slaveServer.getHostname(), ""
             + port ), e );
-        }
-      }
-
-      // TODO: see if we need to keep doing this on a periodic basis.
-      // The master might be dead or not alive yet at the time we send this
-      // message.
-      // Repeating the registration over and over every few minutes might
-      // harden this sort of problems.
-      //
-      if ( config.isReportingToMasters() ) {
-        String hostname = slaveServer.getHostname();
-        final SlaveServer client =
-          new SlaveServer( "Dynamic slave [" + hostname + ":" + port + "]", hostname, "" + port, slaveServer
-            .getUsername(), slaveServer.getPassword() );
-        for ( final SlaveServer master : config.getMasters() ) {
-          // Here we use the username/password specified in the slave
-          // server section of the configuration.
-          // This doesn't have to be the same pair as the one used on the
-          // master!
-          //
-          try {
-            SlaveServerDetection slaveServerDetection = new SlaveServerDetection( client );
-            master.sendXml( slaveServerDetection.getXml(), RegisterSlaveServlet.CONTEXT_PATH + "/" );
-            log.logBasic( "Registered this slave server to master slave server ["
-              + master.toString() + "] on address [" + master.getServerAndPort() + "]" );
-          } catch ( Exception e ) {
-            log.logError( "Unable to register to master slave server ["
-              + master.toString() + "] on address [" + master.getServerAndPort() + "]" );
-          }
         }
       }
     }
@@ -262,15 +229,7 @@ public class HopServerSingleton {
     this.workflowMap = workflowMap;
   }
 
-  public List<SlaveServerDetection> getDetections() {
-    return detections;
-  }
-
-  public void setDetections( List<SlaveServerDetection> detections ) {
-    this.detections = detections;
-  }
-
-  public static SlaveServerConfig getSlaveServerConfig() {
+   public static SlaveServerConfig getSlaveServerConfig() {
     return slaveServerConfig;
   }
 

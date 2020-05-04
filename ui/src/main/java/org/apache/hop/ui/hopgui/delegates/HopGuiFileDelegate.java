@@ -72,7 +72,7 @@ public class HopGuiFileDelegate {
       if ( filename == null ) {
         return;
       }
-      fileOpen( filename );
+      fileOpen( hopGui.getVariables().environmentSubstitute( filename ) );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
     }
@@ -116,7 +116,7 @@ public class HopGuiFileDelegate {
         return;
       }
 
-      typeHandler.saveAs( filename );
+      typeHandler.saveAs( hopGui.getVariables().environmentSubstitute( filename ) );
 
       AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "save" );
     } catch ( Exception e ) {
@@ -204,8 +204,6 @@ public class HopGuiFileDelegate {
     // Also save all the open files in a list
     //
     hopGui.auditDelegate.writeLastOpenFiles();
-
-    hopGui.getProps().saveProps();
 
     return true;
   }

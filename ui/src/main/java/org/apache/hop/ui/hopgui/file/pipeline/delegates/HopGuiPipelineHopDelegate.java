@@ -170,7 +170,6 @@ public class HopGuiPipelineHopDelegate {
         MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         int idx = md.open();
         props.setShowCopyOrDistributeWarning( !md.getToggleState() );
-        props.saveProps();
 
         distributes = idx == MESSAGE_DIALOG_WITH_TOGGLE_YES_BUTTON_ID;
         customDistribution = idx == MESSAGE_DIALOG_WITH_TOGGLE_CUSTOM_DISTRIBUTION_BUTTON_ID;

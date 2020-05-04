@@ -52,9 +52,6 @@ public enum SystemDataTypes {
   TYPE_SYSTEM_INFO_HOSTNAME( "Hostname", "HostnameNetworkSetup" ),
   TYPE_SYSTEM_INFO_HOSTNAME_REAL( "Hostname real", "Hostname" ),
   TYPE_SYSTEM_INFO_IP_ADDRESS( "IP address", "IPAddress" ),
-  TYPE_SYSTEM_INFO_HOP_VERSION( "hop version", "HopVersion" ),
-  TYPE_SYSTEM_INFO_HOP_BUILD_VERSION( "hop build version", "HopBuildVersion" ),
-  TYPE_SYSTEM_INFO_HOP_BUILD_DATE( "hop build date", "HopBuildDate" ),
   TYPE_SYSTEM_INFO_CURRENT_PID( "Current PID", "CurrentPID" ),
 
   TYPE_SYSTEM_INFO_JVM_MAX_MEMORY( "jvm max memory", "JVMMaxMemory" ),

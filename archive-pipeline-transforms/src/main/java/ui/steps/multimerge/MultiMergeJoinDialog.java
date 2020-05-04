@@ -596,7 +596,6 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
       MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_SORT_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
-      props.saveProps();
     }
     transformName = wTransformName.getText(); // return value
     dispose();

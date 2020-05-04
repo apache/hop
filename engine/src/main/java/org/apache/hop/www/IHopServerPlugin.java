@@ -24,11 +24,10 @@ package org.apache.hop.www;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 public interface IHopServerPlugin extends IHopServerServlet {
 
-  void setup( PipelineMap pipelineMap, WorkflowMap workflowMap, List<SlaveServerDetection> detections );
+  void setup( PipelineMap pipelineMap, WorkflowMap workflowMap );
 
   void doGet( HttpServletRequest request, HttpServletResponse response ) throws Exception;
 

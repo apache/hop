@@ -100,7 +100,6 @@ import org.eclipse.swt.widgets.ToolBar;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
@@ -427,7 +426,7 @@ public class HopGui implements IActionContextHandlersProvider {
     boolean doConsoleRedirect = !Boolean.getBoolean( "HopUi.Console.Redirect.Disabled" );
     if ( doConsoleRedirect ) {
       try {
-        Path parent = Paths.get( System.getProperty( "user.dir" ) + File.separator + "logs" );
+        Path parent = Paths.get( Const.HOP_AUDIT_DIRECTORY );
         Files.createDirectories( parent );
         Files.deleteIfExists( Paths.get( parent.toString(), "hopui.log" ) );
         Path path = Files.createFile( Paths.get( parent.toString(), "hopui.log" ) );
@@ -661,7 +660,6 @@ public class HopGui implements IActionContextHandlersProvider {
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_OPTIONS, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
   public void menuToolsOptions() {
     if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
-      props.saveProps();
       // TODO warn the user about restarting
     }
   }

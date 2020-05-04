@@ -38,13 +38,15 @@
         <databricks.version>4.0.0</databricks.version>
         <paho.version>1.2.0</paho.version>
         <bahir.version>2.1.1</bahir.version>
+        <jackson.version>2.10.2</jackson.version>
 
         <!-- Spring -->
         <springframework4.version>4.3.18</springframework4.version>
+
     </properties>
 
     <dependencies>
-        <!-- kettle -->
+        <!-- hop -->
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-core</artifactId>
@@ -199,6 +201,28 @@
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
             <version>${jsr311-api.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

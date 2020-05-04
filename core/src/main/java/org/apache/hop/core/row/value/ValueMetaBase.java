@@ -230,6 +230,7 @@ public class ValueMetaBase implements IValueMeta {
     this.outputPaddingEnabled = false;
     this.decimalSymbol = "" + Const.DEFAULT_DECIMAL_SEPARATOR;
     this.groupingSymbol = "" + Const.DEFAULT_GROUPING_SEPARATOR;
+    this.currencySymbol = "" + Const.DEFAULT_CURRENCY_SYMBOL;
     this.dateFormatLocale = Locale.getDefault();
     this.collatorDisabled = true;
     this.collatorLocale = Locale.getDefault();
@@ -238,14 +239,9 @@ public class ValueMetaBase implements IValueMeta {
     this.dateFormatTimeZone = TimeZone.getDefault();
     this.identicalFormat = true;
     this.bigNumberFormatting = true;
-    this.lenientStringToNumber =
-      convertStringToBoolean( Const.NVL( System.getProperty( Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N" ),
-        "N" ) );
-    this.ignoreTimezone =
-      convertStringToBoolean( Const.NVL( System.getProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" ),
-        "N" ) );
-    this.emptyStringAndNullAreDifferent = convertStringToBoolean(
-      Const.NVL( System.getProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" ), "N" ) );
+    this.lenientStringToNumber = convertStringToBoolean( Const.NVL( System.getProperty( Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N" ), "N" ) );
+    this.ignoreTimezone = convertStringToBoolean( Const.NVL( System.getProperty( Const.HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE, "N" ), "N" ) );
+    this.emptyStringAndNullAreDifferent = convertStringToBoolean( Const.NVL( System.getProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" ), "N" ) );
 
     this.comparator = comparator;
     determineSingleByteEncoding();

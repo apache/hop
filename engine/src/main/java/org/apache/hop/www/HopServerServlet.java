@@ -23,12 +23,12 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginTypeListener;
+import org.apache.hop.core.plugins.PluginRegistry;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -37,8 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +51,6 @@ public class HopServerServlet extends HttpServlet {
   private Map<String, IHopServerPlugin> hopServerPluginRegistry;
 
   private final ILogChannel log;
-  private List<SlaveServerDetection> detections;
 
   public HopServerServlet() {
     this.log = new LogChannel( STRING_HOP_SERVER_SERVLET );
@@ -96,7 +93,6 @@ public class HopServerServlet extends HttpServlet {
   @Override
   public void init( ServletConfig config ) throws ServletException {
     hopServerPluginRegistry = new ConcurrentHashMap<String, IHopServerPlugin>();
-    detections = Collections.synchronizedList( new ArrayList<SlaveServerDetection>() );
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     List<IPlugin> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );
@@ -166,7 +162,7 @@ public class HopServerServlet extends HttpServlet {
     WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
 
     hopServerPluginRegistry.put( getServletKey( servlet ), servlet );
-    servlet.setup( pipelineMap, workflowMap, detections );
+    servlet.setup( pipelineMap, workflowMap );
     servlet.setJettyMode( false );
   }
 }

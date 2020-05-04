@@ -12,6 +12,12 @@ OPTIONS='-Xmx64m'
 #
 # OPTIONS="${OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 
+if [ -n "${HOP_AUDIT_DIRECTORY}" ]; then
+    HOP_OPTIONS="${HOP_OPTIONS} -DHOP_AUDIT_DIRECTORY=${HOP_AUDIT_DIRECTORY}"
+fi
+if [ -n "${HOP_CONFIG_DIRECTORY}" ]; then
+    HOP_OPTIONS="${HOP_OPTIONS} -DHOP_CONFIG_DIRECTORY=${HOP_CONFIG_DIRECTORY}"
+fi
 
 case $( uname -s ) in
 	Linux) 
@@ -22,7 +28,6 @@ case $( uname -s ) in
 		OPTIONS="${OPTIONS} -XstartOnFirstThread"
 		;;
 esac
-
 
 java ${OPTIONS} -classpath "${CLASSPATH}" org.apache.hop.core.encryption.Encr $@
 EXITCODE=$?

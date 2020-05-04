@@ -429,7 +429,6 @@ public class Translator {
 
     WindowProperty winprop = new WindowProperty( shell );
     props.setScreen( winprop );
-    props.saveProps();
 
     shell.dispose();
     display.dispose();

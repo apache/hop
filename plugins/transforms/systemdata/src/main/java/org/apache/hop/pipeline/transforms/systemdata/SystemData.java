@@ -30,11 +30,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.version.BuildVersion;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -220,15 +217,6 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> im
           break;
         case TYPE_SYSTEM_INFO_FILENAME:
           row[ index ] = getPipelineMeta().getFilename();
-          break;
-        case TYPE_SYSTEM_INFO_HOP_VERSION:
-          row[ index ] = BuildVersion.getInstance().getVersion();
-          break;
-        case TYPE_SYSTEM_INFO_HOP_BUILD_VERSION:
-          row[ index ] = BuildVersion.getInstance().getVersion();
-          break;
-        case TYPE_SYSTEM_INFO_HOP_BUILD_DATE:
-          row[ index ] = BuildVersion.getInstance().getBuildDateAsLocalDate();
           break;
         case TYPE_SYSTEM_INFO_CURRENT_PID:
           row[ index ] = new Long( Management.getPID() );

@@ -37,18 +37,18 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.workflow.WorkflowExecutionConfiguration;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.MetaStoreConst;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
 import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.workflow.WorkflowExecutionConfiguration;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import picocli.CommandLine;
@@ -56,9 +56,7 @@ import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 public class HopRun implements Runnable {
 
@@ -160,14 +158,9 @@ public class HopRun implements Runnable {
   }
 
   private void buildVariableSpace() throws IOException {
-    // Load hop.properties before running.
+    // Also grabs the system properties from hop.config.
     //
     variables = Variables.getADefaultVariableSpace();
-    Properties hopProperties = new Properties();
-    hopProperties.load( new FileInputStream( Const.getHopDirectory() + "/hop.properties" ) );
-    for ( final String key : hopProperties.stringPropertyNames() ) {
-      variables.setVariable( key, hopProperties.getProperty( key ) );
-    }
   }
 
   private void runPipeline( CommandLine cmd, ILogChannel log ) {
