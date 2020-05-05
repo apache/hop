@@ -24,8 +24,9 @@ package org.apache.hop.pipeline.transforms.ldifinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -38,26 +39,31 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.Map;
 
-public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "LDIFInput",
+        name = "BaseTransform.TypeLongDesc.LDIFInput",
+        description = "BaseTransform.TypeTooltipDesc.LDIFInput",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.ldifinput",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        keywords = {"ldif","input"}
+)
+public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<LDIFInput, LDIFInputData> {
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
@@ -647,6 +653,11 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, LDIFInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new LDIFInput( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  }
+
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
@@ -802,7 +813,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       LDIFInputField field = inputFields[ i ];
@@ -906,7 +917,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public FileInputList getFiles( iVariables variables ) {
+  public FileInputList getFiles( IVariables variables ) {
     return FileInputList.createFileList(
       variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean() );
   }
@@ -920,8 +931,8 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
     return includeSubFolderBoolean;
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
     CheckResult cr;
 
@@ -952,14 +963,10 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public ITransformData getTransformData() {
+  public LDIFInputData getTransformData() {
     return new LDIFInputData();
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
-    return new LDIFInput( transformMeta, this, data, cnr, tr, pipeline );
-  }
 
   public boolean supportsErrorHandling() {
     return true;
@@ -977,7 +984,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
    * @param metaStore               the metaStore in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
@@ -985,7 +992,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransform {
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName[ i ] ), variables );
+          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ), variables );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

@@ -33,8 +33,9 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -53,13 +54,11 @@ import java.util.Enumeration;
  * @author Samatar
  * @since 24-05-2007
  */
-public class LDIFInput extends BaseTransform implements ITransform {
+public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> implements ITransform<LDIFInputMeta, LDIFInputData> {
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private LDIFInputMeta meta;
-  private LDIFInputData data;
 
-  public LDIFInput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public LDIFInput( TransformMeta transformMeta, LDIFInputMeta meta, LDIFInputData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -343,9 +342,9 @@ public class LDIFInput extends BaseTransform implements ITransform {
             .getDynamicFilenameField(), filename ) );
         }
 
-        data.file = HopVFS.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
       }
-      data.filename = HopVFS.getFilename( data.file );
+      data.filename = HopVfs.getFilename( data.file );
       // Add additional fields?
       if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
         data.shortFilename = data.file.getName().getBaseName();
@@ -353,7 +352,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
       try {
 
         if ( meta.getPathField() != null && meta.getPathField().length() > 0 ) {
-          data.path = HopVFS.getFilename( data.file.getParent() );
+          data.path = HopVfs.getFilename( data.file.getParent() );
         }
         if ( meta.isHiddenField() != null && meta.isHiddenField().length() > 0 ) {
           data.hidden = data.file.isHidden();
@@ -388,7 +387,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
         addResultFile( resultFile );
       }
 
-      data.InputLDIF = new LDIF( HopVFS.getFilename( data.file ) );
+      data.InputLDIF = new LDIF( HopVfs.getFilename( data.file ) );
 
       if ( isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "LDIFInput.Log.FileOpened", data.file.toString() ) );
@@ -440,8 +439,6 @@ public class LDIFInput extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (LDIFInputMeta) smi;
-    data = (LDIFInputData) sdi;
 
     if ( super.init() ) {
       if ( !meta.isFileField() ) {
@@ -463,7 +460,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
           data.multiValueSeparator = environmentSubstitute( meta.getMultiValuedSeparator() );
         } catch ( Exception e ) {
           logError( "Error initializing transform: " + e.toString() );
-          logError( Const.getStackTracker( e ) );
+           e.printStackTrace();
           return false;
         }
       }
@@ -474,9 +471,7 @@ public class LDIFInput extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void.dispose() {
-    meta = (LDIFInputMeta) smi;
-    data = (LDIFInputData) sdi;
+  public void dispose() {
     if ( data.file != null ) {
       try {
         data.file.close();
@@ -495,5 +490,8 @@ public class LDIFInput extends BaseTransform implements ITransform {
     }
     super.dispose();
   }
+
+
+
 
 }

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.ldifinput;
+package org.apache.hop.pipeline.transforms.ldifinput;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.util.LDIF;
@@ -29,12 +29,13 @@ import netscape.ldap.util.LDIFContent;
 import netscape.ldap.util.LDIFRecord;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -86,6 +87,7 @@ import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.HashSet;
 
+@PluginDialog(id = "LDIFInput", image = "ldifinput.svg", pluginType = PluginDialog.PluginType.TRANSFORM)
 public class LDIFInputDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
@@ -1167,7 +1169,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
       if ( inputList.getFiles().size() > 0 ) {
         // Open the file (only first file)...
 
-        LDIF InputLDIF = new LDIF( HopVFS.getFilename( inputList.getFile( 0 ) ) );
+        LDIF InputLDIF = new LDIF( HopVfs.getFilename( inputList.getFile( 0 ) ) );
 
         HashSet<String> attributeSet = new HashSet<String>();
 
@@ -1518,7 +1520,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewTransformation( pipelineMeta, oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "LDIFInputDialog.NumberRows.DialogTitle" ),
