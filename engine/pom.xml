@@ -56,7 +56,7 @@
 
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>metastore</artifactId>
+      <artifactId>hop-metastore</artifactId>
       <version>0.20-SNAPSHOT</version>
       <exclusions>
         <exclusion>
@@ -403,7 +403,7 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>metastore</artifactId>
+      <artifactId>hop-metastore</artifactId>
       <version>0.20-SNAPSHOT</version>
       <classifier>tests</classifier>
       <scope>test</scope>

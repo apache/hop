@@ -708,7 +708,7 @@
         </property>
       </activation>
       <modules>
-        <module>metastore</module>
+        <module>hop-metastore</module>
         <module>core</module>
         <module>engine</module>
         <module>ui</module>
