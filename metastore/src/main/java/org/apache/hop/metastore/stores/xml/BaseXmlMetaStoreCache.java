@@ -34,19 +34,14 @@ public abstract class BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
 
   private final Map<String, Long> processedFiles = new HashMap<String, Long>();
 
-  private final Map<String, Map<String, ElementType>> elementTypesMap = new HashMap<String, Map<String, ElementType>>();
+  private final Map<String, ElementType> elementTypesMap = new HashMap<String, ElementType>();
 
   @Override
-  public synchronized void registerElementTypeIdForName( String namespace, String elementTypeName, String elementId ) {
-    Map<String, ElementType> elementTypeNameToId = elementTypesMap.get( namespace );
-    if ( elementTypeNameToId == null ) {
-      elementTypeNameToId = createStorage();
-      elementTypesMap.put( namespace, elementTypeNameToId );
-    }
-    ElementType elementType = elementTypeNameToId.get( elementTypeName );
+  public synchronized void registerElementTypeIdForName( String elementTypeName, String elementId ) {
+    ElementType elementType = elementTypesMap.get( elementTypeName );
     if ( elementType == null ) {
       elementType = createElementType( elementId );
-      elementTypeNameToId.put( elementTypeName, elementType );
+      elementTypesMap.put( elementTypeName, elementType );
     } else if ( !elementType.getId().equals( elementId ) ) {
       elementType.unregisterElements();
       elementType.setId( elementId );
@@ -54,23 +49,15 @@ public abstract class BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
   }
 
   @Override
-  public synchronized String getElementTypeIdByName( String namespace, String elementTypeName ) {
-    Map<String, ElementType> elementTypeNameToId = elementTypesMap.get( namespace );
-    if ( elementTypeNameToId == null ) {
-      return null;
-    }
-
-    ElementType element = elementTypeNameToId.get( elementTypeName );
+  public synchronized String getElementTypeIdByName( String elementTypeName ) {
+    ElementType element = elementTypesMap.get( elementTypeName );
     return element == null ? null : element.getId();
   }
 
   @Override
-  public synchronized void unregisterElementTypeId( String namespace, String elementTypeId ) {
-    Map<String, ElementType> elementTypeNameToId = elementTypesMap.get( namespace );
-    if ( elementTypeNameToId == null ) {
-      return;
-    }
-    Iterator<Entry<String, ElementType>> iterator = elementTypeNameToId.entrySet().iterator();
+  public synchronized void unregisterElementTypeId( String elementTypeId ) {
+
+    Iterator<Entry<String, ElementType>> iterator = elementTypesMap.entrySet().iterator();
     while ( iterator.hasNext() ) {
       Entry<String, ElementType> elementType = iterator.next();
       if ( elementType.getValue().getId().equals( elementTypeId ) ) {
@@ -81,38 +68,25 @@ public abstract class BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
   }
 
   @Override
-  public synchronized void registerElementIdForName( String namespace, IMetaStoreElementType elementType, String elementName,
+  public synchronized void registerElementIdForName( IMetaStoreElementType elementType, String elementName,
                                                      String elementId ) {
-    Map<String, ElementType> nameToElementType = elementTypesMap.get( namespace );
-    if ( nameToElementType == null ) {
-      registerElementTypeIdForName( namespace, elementType.getName(), elementType.getId() );
-      nameToElementType = elementTypesMap.get( namespace );
-    }
-    ElementType type = nameToElementType.get( elementType.getName() );
+    ElementType type = elementTypesMap.get( elementType.getName() );
     if ( type == null ) {
-      registerElementTypeIdForName( namespace, elementType.getName(), elementType.getId() );
-      type = nameToElementType.get( elementType.getName() );
+      registerElementTypeIdForName( elementType.getName(), elementType.getId() );
+      type = elementTypesMap.get( elementType.getName() );
     }
     type.registerElementIdForName( elementName, elementId );
   }
 
   @Override
-  public synchronized String getElementIdByName( String namespace, IMetaStoreElementType elementType, String elementName ) {
-    Map<String, ElementType> elementTypeNameToId = elementTypesMap.get( namespace );
-    if ( elementTypeNameToId == null ) {
-      return null;
-    }
-    ElementType type = elementTypeNameToId.get( elementType.getName() );
+  public synchronized String getElementIdByName( IMetaStoreElementType elementType, String elementName ) {
+    ElementType type = elementTypesMap.get( elementType.getName() );
     return type == null ? null : type.getElementIdByName( elementName );
   }
 
   @Override
-  public synchronized void unregisterElementId( String namespace, IMetaStoreElementType elementType, String elementId ) {
-    Map<String, ElementType> elementTypeNameToId = elementTypesMap.get( namespace );
-    if ( elementTypeNameToId == null ) {
-      return;
-    }
-    ElementType type = elementTypeNameToId.get( elementType.getName() );
+  public synchronized void unregisterElementId( IMetaStoreElementType elementType, String elementId ) {
+    ElementType type = elementTypesMap.get( elementType.getName() );
     if ( type == null ) {
       return;
     }
@@ -136,11 +110,8 @@ public abstract class BaseXmlMetaStoreCache implements IXmlMetaStoreCache {
 
   public synchronized void clear() {
     processedFiles.clear();
-    for ( Map<String, ElementType> namespaceElementType : elementTypesMap.values() ) {
-      for ( ElementType elementType : namespaceElementType.values() ) {
-        elementType.unregisterElements();
-      }
-      namespaceElementType.clear();
+    for ( ElementType elementType : elementTypesMap.values() ) {
+      elementType.unregisterElements();
     }
     elementTypesMap.clear();
   }

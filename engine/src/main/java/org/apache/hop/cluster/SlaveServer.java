@@ -46,7 +46,6 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.www.GetPipelineStatusServlet;
 import org.apache.hop.www.GetStatusServlet;
 import org.apache.hop.www.GetWorkflowStatusServlet;
@@ -1237,6 +1236,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   }
 
   public static final MetaStoreFactory<SlaveServer> createFactory( IMetaStore metaStore ) {
-    return new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
+    return new MetaStoreFactory<>( SlaveServer.class, metaStore );
   }
 }

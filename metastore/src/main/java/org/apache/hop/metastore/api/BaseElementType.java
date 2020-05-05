@@ -42,14 +42,12 @@ package org.apache.hop.metastore.api;
  * @author nhudak
  */
 public abstract class BaseElementType implements IMetaStoreElementType {
-  private String namespace;
   private String id;
   private String name;
   private String description;
   private String metaStoreName;
 
-  public BaseElementType( String namespace ) {
-    this.namespace = namespace;
+  public BaseElementType() {
   }
 
   public void copyFrom( IMetaStoreElementType elementType ) {
@@ -59,19 +57,6 @@ public abstract class BaseElementType implements IMetaStoreElementType {
     this.metaStoreName = elementType.getMetaStoreName();
   }
 
-  /**
-   * @return the namespace
-   */
-  public String getNamespace() {
-    return namespace;
-  }
-
-  /**
-   * @param namespace the namespace to set
-   */
-  public void setNamespace( String namespace ) {
-    this.namespace = namespace;
-  }
 
   /**
    * @return the id

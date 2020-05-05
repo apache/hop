@@ -51,7 +51,6 @@ import org.apache.hop.metastore.api.security.IMetaStoreElementOwner;
 import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 import org.apache.hop.metastore.api.security.MetaStoreObjectPermission;
 import org.apache.hop.metastore.api.security.MetaStoreOwnerPermissions;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.junit.Ignore;
 
 import java.util.ArrayList;
@@ -64,10 +63,6 @@ public class MetaStoreTestBase extends TestCase {
   // MetaStore Name
   protected static String META_STORE_NAME = "TestMetaStore";
 
-  // Namespace: Hitachi Vantara
-  //
-  protected static String namespace = HopDefaults.NAMESPACE;
-
   // Element type: Shared Dimension
   //
   protected static final String SHARED_DIMENSION_NAME = "Shared Dimension";
@@ -78,24 +73,19 @@ public class MetaStoreTestBase extends TestCase {
   protected static final String CUSTOMER_DIMENSION_NAME = "Customer dimension";
 
   public void testFunctionality( IMetaStore metaStore ) throws MetaStoreException {
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      metaStore.createNamespace( namespace );
-    }
-    List<String> namespaces = metaStore.getNamespaces();
-    assertEquals( 1, namespaces.size() );
-
-    IMetaStoreElementType elementType = metaStore.newElementType( namespace );
+    
+    IMetaStoreElementType elementType = metaStore.newElementType( );
     elementType.setName( SHARED_DIMENSION_NAME );
     elementType.setDescription( SHARED_DIMENSION_DESCRIPTION );
-    metaStore.createElementType( namespace, elementType );
+    metaStore.createElementType( elementType );
     assertNotNull( elementType.getId() );
 
-    List<IMetaStoreElementType> elementTypes = metaStore.getElementTypes( namespace );
+    List<IMetaStoreElementType> elementTypes = metaStore.getElementTypes();
     assertEquals( 1, elementTypes.size() );
 
     try {
 
-      metaStore.createElementType( namespace, elementType );
+      metaStore.createElementType( elementType );
       fail( "Duplicate creation error expected!" );
     } catch ( MetaStoreElementTypeExistsException e ) {
       // OK!
@@ -104,28 +94,15 @@ public class MetaStoreTestBase extends TestCase {
       fail( "Create exception needs to be MetaStoreDataTypesExistException" );
     }
 
-    // Try to delete the namespace, should error out
-    //
-    try {
-      metaStore.deleteNamespace( namespace );
-      fail( "Expected error while deleting namespace with content!" );
-    } catch ( MetaStoreDependenciesExistsException e ) {
-      // OK!
-      List<String> dependencies = e.getDependencies();
-      assertNotNull( dependencies );
-      assertEquals( 1, dependencies.size() );
-      assertEquals( elementType.getId(), dependencies.get( 0 ) );
-    }
-
     IMetaStoreElement customerDimension = generateCustomerDimensionElement( metaStore, elementType );
     IMetaStoreElementOwner elementOwner = customerDimension.getOwner();
     assertNotNull( elementOwner );
     assertEquals( "joe", elementOwner.getName() );
     assertEquals( MetaStoreElementOwnerType.USER, elementOwner.getOwnerType() );
 
-    metaStore.createElement( namespace, elementType, customerDimension );
+    metaStore.createElement( elementType, customerDimension );
     assertNotNull( customerDimension.getId() );
-    List<IMetaStoreElement> elements = metaStore.getElements( namespace, elementType );
+    List<IMetaStoreElement> elements = metaStore.getElements( elementType );
     assertEquals( 1, elements.size() );
     assertNotNull( elements.get( 0 ) );
     assertEquals( CUSTOMER_DIMENSION_NAME, elements.get( 0 ).getName() );
@@ -133,7 +110,7 @@ public class MetaStoreTestBase extends TestCase {
     // Try to delete the data type, should error out
     //
     try {
-      metaStore.deleteElementType( namespace, elementType );
+      metaStore.deleteElementType( elementType );
       fail( "Expected error while deleting data type with content!" );
     } catch ( MetaStoreDependenciesExistsException e ) {
       // OK!
@@ -145,37 +122,33 @@ public class MetaStoreTestBase extends TestCase {
 
     // Some lookup-by-name tests...
     //
-    assertNotNull( metaStore.getElementTypeByName( namespace, SHARED_DIMENSION_NAME ) );
-    assertNotNull( metaStore.getElementByName( namespace, elementType, CUSTOMER_DIMENSION_NAME ) );
+    assertNotNull( metaStore.getElementTypeByName( SHARED_DIMENSION_NAME ) );
+    assertNotNull( metaStore.getElementByName( elementType, CUSTOMER_DIMENSION_NAME ) );
 
-    assertNotNull( metaStore.getElement( namespace, elementType, CUSTOMER_DIMENSION_NAME ) );
-    assertEquals( 1, metaStore.getElementIds( namespace, elementType ).size() );
-    assertEquals( SHARED_DIMENSION_NAME, metaStore.getElementType( namespace, SHARED_DIMENSION_NAME ).getId() );
-    assertEquals( 1, metaStore.getElementTypeIds( namespace ).size() );
-    assertEquals( 1, metaStore.getElementTypes( namespace ).size() );
+    assertNotNull( metaStore.getElement( elementType, CUSTOMER_DIMENSION_NAME ) );
+    assertEquals( 1, metaStore.getElementIds( elementType ).size() );
+    assertEquals( SHARED_DIMENSION_NAME, metaStore.getElementType( SHARED_DIMENSION_NAME ).getId() );
+    assertEquals( 1, metaStore.getElementTypeIds().size() );
+    assertEquals( 1, metaStore.getElementTypes().size() );
 
     // Some update tests...
     customerDimension.setValue( SHARED_DIMENSION_NAME );
-    metaStore.updateElement( namespace, elementType, CUSTOMER_DIMENSION_NAME, customerDimension );
-    assertNotNull( metaStore.getElementByName( namespace, elementType, CUSTOMER_DIMENSION_NAME ).getValue() );
+    metaStore.updateElement( elementType, CUSTOMER_DIMENSION_NAME, customerDimension );
+    assertNotNull( metaStore.getElementByName( elementType, CUSTOMER_DIMENSION_NAME ).getValue() );
 
     elementType.setDescription( CUSTOMER_DIMENSION_NAME );
-    metaStore.updateElementType( namespace, elementType );
-    assertNotNull( metaStore.getElementTypeByName( namespace, elementType.getName() ).getDescription() );
+    metaStore.updateElementType( elementType );
+    assertNotNull( metaStore.getElementTypeByName( elementType.getName() ).getDescription() );
 
     // Clean up shop!
     //
-    metaStore.deleteElement( namespace, elementType, customerDimension.getId() );
-    elements = metaStore.getElements( namespace, elementType );
+    metaStore.deleteElement( elementType, customerDimension.getId() );
+    elements = metaStore.getElements( elementType );
     assertEquals( 0, elements.size() );
 
-    metaStore.deleteElementType( namespace, elementType );
-    elementTypes = metaStore.getElementTypes( namespace );
+    metaStore.deleteElementType( elementType );
+    elementTypes = metaStore.getElementTypes();
     assertEquals( 0, elementTypes.size() );
-
-    metaStore.deleteNamespace( namespace );
-    namespaces = metaStore.getNamespaces();
-    assertEquals( 0, namespaces.size() );
   }
 
   private IMetaStoreElement generateCustomerDimensionElement( IMetaStore metaStore, IMetaStoreElementType elementType )
@@ -297,28 +270,26 @@ public class MetaStoreTestBase extends TestCase {
   }
 
   protected void parallelStoreRetrieve( final IMetaStore metaStore, final int index ) throws MetaStoreException {
-    String namespace = "ns-" + index;
-    metaStore.createNamespace( namespace );
 
     int nrTypes = 5;
     int nrElements = 20;
 
     for ( int typeNr = 50; typeNr < 50 + nrTypes; typeNr++ ) {
-      IMetaStoreElementType elementType = metaStore.newElementType( namespace );
+      IMetaStoreElementType elementType = metaStore.newElementType();
       String typeName = "type-name-" + index + "-" + typeNr;
       String typeDescription = "type-description-" + index + "-" + typeNr;
       elementType.setName( typeName );
       elementType.setDescription( typeDescription );
-      metaStore.createElementType( namespace, elementType );
+      metaStore.createElementType( elementType );
 
       assertNotNull( elementType.getId() );
 
-      IMetaStoreElementType verifyType = metaStore.getElementType( namespace, elementType.getId() );
+      IMetaStoreElementType verifyType = metaStore.getElementType( elementType.getId() );
       assertEquals( typeName, verifyType.getName() );
       assertEquals( typeDescription, verifyType.getDescription() );
       assertNotNull( verifyType.getId() );
 
-      verifyType = metaStore.getElementTypeByName( namespace, elementType.getName() );
+      verifyType = metaStore.getElementTypeByName( elementType.getName() );
       assertEquals( typeName, verifyType.getName() );
       assertEquals( typeDescription, verifyType.getDescription() );
       assertNotNull( verifyType.getId() );
@@ -328,12 +299,12 @@ public class MetaStoreTestBase extends TestCase {
       for ( int i = 100; i < 100 + nrElements; i++ ) {
         IMetaStoreElement element = populateElement( metaStore, "element-" + index + "-" + i );
         elements.add( element );
-        metaStore.createElement( namespace, elementType, element );
+        metaStore.createElement( elementType, element );
         assertNotNull( element.getId() );
       }
 
       try {
-        metaStore.deleteElementType( namespace, elementType );
+        metaStore.deleteElementType( elementType );
         fail( "Unable to detect dependencies" );
       } catch ( MetaStoreDependenciesExistsException e ) {
         // OK
@@ -343,10 +314,10 @@ public class MetaStoreTestBase extends TestCase {
 
     for ( int typeNr = 50; typeNr < 50 + nrTypes; typeNr++ ) {
       String typeName = "type-name-" + index + "-" + typeNr;
-      IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, typeName );
+      IMetaStoreElementType elementType = metaStore.getElementTypeByName( typeName );
       assertNotNull( elementType );
 
-      List<IMetaStoreElement> verifyElements = metaStore.getElements( namespace, elementType );
+      List<IMetaStoreElement> verifyElements = metaStore.getElements( elementType );
       assertEquals( nrElements, verifyElements.size() );
 
       // the elements come back in an unpredictable order
@@ -363,13 +334,13 @@ public class MetaStoreTestBase extends TestCase {
       for ( int i = 0; i < verifyElements.size(); i++ ) {
         IMetaStoreElement element = verifyElements.get( i );
         validateElement( element, "element-" + index + "-" + ( 100 + i ) );
-        metaStore.deleteElement( namespace, elementType, element.getId() );
+        metaStore.deleteElement( elementType, element.getId() );
       }
 
-      verifyElements = metaStore.getElements( namespace, elementType );
+      verifyElements = metaStore.getElements( elementType );
       assertEquals( 0, verifyElements.size() );
 
-      metaStore.deleteElementType( namespace, elementType );
+      metaStore.deleteElementType( elementType );
     }
   }
 

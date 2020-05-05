@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.hop</groupId>
-  <artifactId>metastore</artifactId>
+  <artifactId>hop-metastore</artifactId>
   <version>0.20-SNAPSHOT</version>
   <name>Hop ${project.artifactId}</name>
   <description>A flexible metadata, data and configuration information store</description>

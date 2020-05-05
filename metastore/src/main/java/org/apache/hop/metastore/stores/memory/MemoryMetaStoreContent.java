@@ -56,17 +56,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-public class MemoryMetaStoreNamespace {
+public class MemoryMetaStoreContent {
 
   private final ReadLock readLock;
   private final WriteLock writeLock;
 
-  private final String namespace;
   private final Map<String, MemoryMetaStoreElementType> typeMap;
 
-  public MemoryMetaStoreNamespace( String namespace ) {
-    this.namespace = namespace;
-    this.typeMap = new HashMap<String, MemoryMetaStoreElementType>();
+  public MemoryMetaStoreContent() {
+    this.typeMap = new HashMap<>();
 
     ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     readLock = lock.readLock();
@@ -74,19 +72,9 @@ public class MemoryMetaStoreNamespace {
 
   }
 
-  public String getNamespace() {
-    return namespace;
-  }
-
   public Map<String, MemoryMetaStoreElementType> getTypeMap() {
     return MetaStoreUtil.executeLockedOperationQuietly( readLock,
-      new Callable<Map<String, MemoryMetaStoreElementType>>() {
-
-        @Override
-        public Map<String, MemoryMetaStoreElementType> call() throws Exception {
-          return new HashMap<String, MemoryMetaStoreElementType>( typeMap );
-        }
-      } );
+      (Callable<Map<String, MemoryMetaStoreElementType>>) () -> new HashMap<>( typeMap ) );
   }
 
   private MemoryMetaStoreElementType getElementTypeByNameInternal( String elementTypeName ) {
@@ -109,16 +97,12 @@ public class MemoryMetaStoreNamespace {
   }
 
   public List<String> getElementTypeIds() {
-    return MetaStoreUtil.executeLockedOperationQuietly( readLock, new Callable<List<String>>() {
-
-      @Override
-      public List<String> call() throws Exception {
-        ArrayList<String> list = new ArrayList<>( typeMap.size() );
-        for ( MemoryMetaStoreElementType elementType : typeMap.values() ) {
-          list.add( elementType.getId() );
-        }
-        return list;
+    return MetaStoreUtil.executeLockedOperationQuietly( readLock, (Callable<List<String>>) () -> {
+      ArrayList<String> list = new ArrayList<>( typeMap.size() );
+      for ( MemoryMetaStoreElementType elementType : typeMap.values() ) {
+        list.add( elementType.getId() );
       }
+      return list;
     } );
   }
 

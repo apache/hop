@@ -42,7 +42,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -305,7 +304,7 @@ public class HopRun implements Runnable {
   }
 
   private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws MetaStoreException {
-    MetaStoreFactory<SlaveServer> slaveFactory = new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<SlaveServer> slaveFactory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
     SlaveServer slaveServer = slaveFactory.loadElement( name );
     if ( slaveServer == null ) {
       throw new ParameterException( cmd, "Unable to find slave server '" + name + "' in the metastore" );

@@ -30,8 +30,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.empty.EmptyWorkflowRunConfiguration;
@@ -101,7 +99,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
   public List<String> getSlaveServerNames( ILogChannel log, IMetaStore metaStore ) {
     List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
+      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
       names.addAll( factory.getElementNames() );
       Collections.sort( names );
     } catch ( Exception e ) {
@@ -113,7 +111,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
   public List<String> getRunConfigurationNames( ILogChannel log, IMetaStore metaStore ) {
     List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore, HopDefaults.NAMESPACE );
+      MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore );
       names.addAll( factory.getElementNames() );
       Collections.sort( names );
     } catch ( Exception e ) {

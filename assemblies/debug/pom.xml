@@ -45,7 +45,7 @@
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>metastore</artifactId>
+      <artifactId>hop-metastore</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>

@@ -49,20 +49,6 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 public interface IMetaStoreElementType {
 
   /**
-   * Gets the namespace associated with the element type.
-   *
-   * @return The namespace to which the element type belongs.
-   */
-  String getNamespace();
-
-  /**
-   * Associates the specified namespace for the element type.
-   *
-   * @param namespace The namespace to set.
-   */
-  void setNamespace( String namespace );
-
-  /**
    * @return The name of the IMetaStore this element type belongs to.
    */
   String getMetaStoreName();

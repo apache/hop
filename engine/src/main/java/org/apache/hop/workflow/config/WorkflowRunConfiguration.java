@@ -7,7 +7,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 
 @MetaStoreElementType(
   name = "Workflow Run Configuration",
@@ -54,7 +53,7 @@ public class WorkflowRunConfiguration extends Variables implements Cloneable, IV
   }
 
   public static final MetaStoreFactory<WorkflowRunConfiguration> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore );
     factory.setObjectFactory( new WorkflowRunConfigurationMetaStoreObjectFactory() );
     return factory;
   }

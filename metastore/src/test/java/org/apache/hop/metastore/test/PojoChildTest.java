@@ -80,7 +80,7 @@ public class PojoChildTest {
 
   public MetaStoreFactory<ParentElement> getMetaStoreFactory( IMetaStore metaStore ) {
 
-    MetaStoreFactory<ParentElement> factory = new MetaStoreFactory( ParentElement.class, metaStore, "hop" );
+    MetaStoreFactory<ParentElement> factory = new MetaStoreFactory( ParentElement.class, metaStore );
     return factory;
   }
 

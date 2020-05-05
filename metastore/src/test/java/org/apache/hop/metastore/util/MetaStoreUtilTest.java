@@ -48,7 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -66,20 +65,12 @@ public class MetaStoreUtilTest {
   private MetaStoreUtil metaStoreUtil;
   private IMetaStore mockMetaStore;
   private IMetaStoreAttribute mockIMetaStoreAttribute;
-  private String namespace = "test_namespace";
 
   @Before
   public void setUp() throws Exception {
     metaStoreUtil = new MetaStoreUtil();
     mockMetaStore = mock( IMetaStore.class );
     mockIMetaStoreAttribute = mock( IMetaStoreAttribute.class );
-  }
-
-  @Test
-  public void testVerifyNamespaceCreated() throws Exception {
-    when( mockMetaStore.namespaceExists( namespace ) ).thenReturn( false );
-    metaStoreUtil.verifyNamespaceCreated( mockMetaStore, namespace );
-    verify( mockMetaStore ).createNamespace( namespace );
   }
 
   @Test
@@ -105,10 +96,10 @@ public class MetaStoreUtilTest {
     IMetaStoreElement elem1 = mock( IMetaStoreElement.class );
     elements.add( elem1 );
 
-    when( mockMetaStore.getElements( namespace, metaStoreElementType ) ).thenReturn( elements );
+    when( mockMetaStore.getElements( metaStoreElementType ) ).thenReturn( elements );
     when( elem1.getName() ).thenReturn( "test" );
 
-    String[] names = metaStoreUtil.getElementNames( namespace, mockMetaStore, metaStoreElementType );
+    String[] names = metaStoreUtil.getElementNames( mockMetaStore, metaStoreElementType );
     assertEquals( names.length, 1 );
   }
 
@@ -119,7 +110,7 @@ public class MetaStoreUtilTest {
 
     MetaStoreUtil.copy( from, to );
 
-    assertEquals( from.getNamespaces().size(), to.getNamespaces().size() );
+    assertEquals( from.getElementTypes().size(), to.getElementTypes().size() );
   }
 
   @Test
@@ -127,7 +118,6 @@ public class MetaStoreUtilTest {
     IMetaStore from = mock( IMetaStore.class );
     IMetaStore to = mock( IMetaStore.class );
 
-    String[] namespaces = new String[] { "hop", "apache" };
     List<IMetaStoreElementType> penElementTypes = new ArrayList<>();
     IMetaStoreElementType type1 = mock( IMetaStoreElementType.class );
     IMetaStoreElementType type2 = mock( IMetaStoreElementType.class );
@@ -142,27 +132,20 @@ public class MetaStoreUtilTest {
     elements.add( elem2 );
     elements.add( elem3 );
 
-    when( from.getNamespaces() ).thenReturn( Arrays.asList( namespaces ) );
-    when( from.getElementTypes( "hop" ) ).thenReturn( penElementTypes );
-    when( from.getElements( "hop", type1 ) ).thenReturn( elements );
-    when( from.getElements( "hop", type2 ) ).thenReturn( elements );
+    when( from.getElementTypes() ).thenReturn( penElementTypes );
+    when( from.getElements(type1 ) ).thenReturn( elements );
+    when( from.getElements(type2 ) ).thenReturn( elements );
 
     MetaStoreUtil.copy( from, to );
 
-    verify( to ).createNamespace( "hop" );
-    verify( to ).createNamespace( "apache" );
-    verify( to ).createElementType( "hop", type1 );
-    verify( to ).createElementType( "hop", type2 );
-    verify( to ).createElement( "hop", type1, elem1 );
-    verify( to ).createElement( "hop", type1, elem2 );
-    verify( to ).createElement( "hop", type1, elem3 );
-    verify( to ).createElement( "hop", type2, elem1 );
-    verify( to ).createElement( "hop", type2, elem2 );
-    verify( to ).createElement( "hop", type2, elem3 );
-
-    verify( to, never() ).createElementType( eq( "apache" ), any( IMetaStoreElementType.class ) );
-    verify( to, never() )
-      .createElement( eq( "apache" ), any( IMetaStoreElementType.class ), any( IMetaStoreElement.class ) );
+    verify( to ).createElementType(type1 );
+    verify( to ).createElementType(type2 );
+    verify( to ).createElement(type1, elem1 );
+    verify( to ).createElement(type1, elem2 );
+    verify( to ).createElement(type1, elem3 );
+    verify( to ).createElement(type2, elem1 );
+    verify( to ).createElement(type2, elem2 );
+    verify( to ).createElement(type2, elem3 );
   }
 
   @Test
@@ -170,7 +153,6 @@ public class MetaStoreUtilTest {
     IMetaStore from = mock( IMetaStore.class );
     IMetaStore to = mock( IMetaStore.class );
 
-    String[] namespaces = new String[] { "hop", "apache" };
     List<IMetaStoreElementType> penElementTypes = new ArrayList<>();
     IMetaStoreElementType type1 = mock( IMetaStoreElementType.class );
     IMetaStoreElementType type2 = mock( IMetaStoreElementType.class );
@@ -187,41 +169,35 @@ public class MetaStoreUtilTest {
     elements.add( elem2 );
     elements.add( elem3 );
 
-    when( from.getNamespaces() ).thenReturn( Arrays.asList( namespaces ) );
-    when( from.getElementTypes( "hop" ) ).thenReturn( penElementTypes );
-    when( from.getElements( "hop", type1 ) ).thenReturn( elements );
-    when( from.getElements( "hop", type2 ) ).thenReturn( elements );
+    when( from.getElementTypes() ).thenReturn( penElementTypes );
+    when( from.getElements(type1 ) ).thenReturn( elements );
+    when( from.getElements(type2 ) ).thenReturn( elements );
 
     // set up an existing element type
     IMetaStoreElementType existingType = mock( IMetaStoreElementType.class );
-    when( to.getElementTypeByName( anyString(), anyString() ) ).thenReturn( existingType );
+    when( to.getElementTypeByName( anyString() ) ).thenReturn( existingType );
     when( existingType.getId() ).thenReturn( "existingID" );
 
     MetaStoreUtil.copy( from, to, false );
 
-    verify( to ).createNamespace( "hop" );
-    verify( to ).createNamespace( "apache" );
-    verify( to, never() ).createElementType( "hop", type1 );
-    verify( to, never() ).createElementType( "hop", type2 );
+    verify( to, never() ).createElementType(type1 );
+    verify( to, never() ).createElementType(type2 );
 
     verify( type1, never() ).setId( "existingID" );
     verify( type2, never() ).setId( "existingID" );
-    verify( to, never() ).updateElementType( "hop", type1 );
-    verify( to, never() ).updateElementType( "hop", type2 );
+    verify( to, never() ).updateElementType(type1 );
+    verify( to, never() ).updateElementType(type2 );
 
-    verify( to, never() ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem1 ) );
-    verify( to, never() ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem2 ) );
-    verify( to, never() ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem3 ) );
+    verify( to, never() ).createElement( any( IMetaStoreElementType.class ), eq( elem1 ) );
+    verify( to, never() ).createElement( any( IMetaStoreElementType.class ), eq( elem2 ) );
+    verify( to, never() ).createElement( any( IMetaStoreElementType.class ), eq( elem3 ) );
 
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem1 ) );
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
+    verify( to, never() ).updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem1 ) );
+    verify( to, never() ).updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
+    verify( to, never() ).updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
 
-    verify( to, never() ).createElementType( eq( "apache" ), any( IMetaStoreElementType.class ) );
-    verify( to, never() ).createElement( eq( "apache" ), any( IMetaStoreElementType.class ), any( IMetaStoreElement.class ) );
+    verify( to, never() ).createElementType( any( IMetaStoreElementType.class ) );
+    verify( to, never() ).createElement( any( IMetaStoreElementType.class ), any( IMetaStoreElement.class ) );
 
   }
 
@@ -230,7 +206,6 @@ public class MetaStoreUtilTest {
     IMetaStore from = mock( IMetaStore.class );
     IMetaStore to = mock( IMetaStore.class );
 
-    String[] namespaces = new String[] { "hop", "apache" };
     List<IMetaStoreElementType> penElementTypes = new ArrayList<>();
     IMetaStoreElementType type1 = mock( IMetaStoreElementType.class );
     IMetaStoreElementType type2 = mock( IMetaStoreElementType.class );
@@ -247,42 +222,34 @@ public class MetaStoreUtilTest {
     elements.add( elem2 );
     elements.add( elem3 );
 
-    when( from.getNamespaces() ).thenReturn( Arrays.asList( namespaces ) );
-    when( from.getElementTypes( "hop" ) ).thenReturn( penElementTypes );
-    when( from.getElements( "hop", type1 ) ).thenReturn( elements );
-    when( from.getElements( "hop", type2 ) ).thenReturn( elements );
+    when( from.getElementTypes() ).thenReturn( penElementTypes );
+    when( from.getElements(type1 ) ).thenReturn( elements );
+    when( from.getElements(type2 ) ).thenReturn( elements );
 
     // set up an existing element type
     IMetaStoreElementType existingType = mock( IMetaStoreElementType.class );
-    when( to.getElementTypeByName( anyString(), anyString() ) ).thenReturn( existingType );
+    when( to.getElementTypeByName( anyString() ) ).thenReturn( existingType );
     when( existingType.getId() ).thenReturn( "existingID" );
 
     MetaStoreUtil.copy( from, to, true );
 
-    verify( to ).createNamespace( "hop" );
-    verify( to ).createNamespace( "apache" );
-    verify( to, never() ).createElementType( "hop", type1 );
-    verify( to, never() ).createElementType( "hop", type2 );
+    verify( to, never() ).createElementType(type1 );
+    verify( to, never() ).createElementType(type2 );
 
     verify( type1 ).setId( "existingID" );
     verify( type2 ).setId( "existingID" );
-    verify( to ).updateElementType( "hop", type1 );
-    verify( to ).updateElementType( "hop", type2 );
+    verify( to ).updateElementType(type1 );
+    verify( to ).updateElementType(type2 );
 
-    verify( to, times( 2 ) ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem1 ) );
-    verify( to, times( 2 ) ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem2 ) );
-    verify( to, times( 2 ) ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem3 ) );
+    verify( to, times( 2 ) ).createElement( any( IMetaStoreElementType.class ), eq( elem1 ) );
+    verify( to, times( 2 ) ).createElement( any( IMetaStoreElementType.class ), eq( elem2 ) );
+    verify( to, times( 2 ) ).createElement( any( IMetaStoreElementType.class ), eq( elem3 ) );
 
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem1 ) );
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
-    verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
+    verify( to, never() ).updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem1 ) );
+    verify( to, never() ).updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
+    verify( to, never() ) .updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
 
-    verify( to, never() ).createElementType( eq( "apache" ), any( IMetaStoreElementType.class ) );
-    verify( to, never() ).createElement( eq( "apache" ), any( IMetaStoreElementType.class ), any( IMetaStoreElement.class ) );
-
+    verify( to, never() ).createElementType( any( IMetaStoreElementType.class ) );
   }
 
   @Test
@@ -290,7 +257,6 @@ public class MetaStoreUtilTest {
     IMetaStore from = mock( IMetaStore.class );
     IMetaStore to = mock( IMetaStore.class );
 
-    String[] namespaces = new String[] { "hop", "apache" };
     List<IMetaStoreElementType> penElementTypes = new ArrayList<>();
     IMetaStoreElementType type1 = mock( IMetaStoreElementType.class );
     when( type1.getName() ).thenReturn( "type1" );
@@ -306,37 +272,33 @@ public class MetaStoreUtilTest {
     elements.add( elem2 );
     elements.add( elem3 );
 
-    when( from.getNamespaces() ).thenReturn( Arrays.asList( namespaces ) );
-    when( from.getElementTypes( "hop" ) ).thenReturn( penElementTypes );
-    when( from.getElements( eq( "hop" ), any( IMetaStoreElementType.class ) ) ).thenReturn( elements );
+    when( from.getElementTypes() ).thenReturn( penElementTypes );
+    when( from.getElements( any( IMetaStoreElementType.class ) ) ).thenReturn( elements );
 
     // set up an existing element type
     IMetaStoreElementType existingType = mock( IMetaStoreElementType.class );
-    when( to.getElementTypeByName( anyString(), anyString() ) ).thenReturn( existingType );
+    when( to.getElementTypeByName( anyString() ) ).thenReturn( existingType );
     when( existingType.getId() ).thenReturn( "existingID" );
 
-    when( to.getElementByName( eq( "hop" ), any( IMetaStoreElementType.class ), eq( "elementName" ) ) ).thenReturn( elem1 );
+    when( to.getElementByName( any( IMetaStoreElementType.class ), eq( "elementName" ) ) ).thenReturn( elem1 );
 
     MetaStoreUtil.copy( from, to, true );
 
-    verify( to ).createNamespace( "hop" );
-    verify( to, never() ).createElementType( "hop", type1 );
+    verify( to, never() ).createElementType(type1 );
 
     verify( type1 ).setId( "existingID" );
-    verify( to ).updateElementType( "hop", type1 );
+    verify( to ).updateElementType(type1 );
 
-    verify( to, never() ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem1 ) );
-    verify( to ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem2 ) );
-    verify( to ).createElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( elem3 ) );
+    verify( to, never() ).createElement( any( IMetaStoreElementType.class ), eq( elem1 ) );
+    verify( to ).createElement( any( IMetaStoreElementType.class ), eq( elem2 ) );
+    verify( to ).createElement( any( IMetaStoreElementType.class ), eq( elem3 ) );
 
-    verify( to ).updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), eq( "elementID" ), eq( elem1 ) );
+    verify( to ).updateElement( any( IMetaStoreElementType.class ), eq( "elementID" ), eq( elem1 ) );
     verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
+      .updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem2 ) );
     verify( to, never() )
-      .updateElement( eq( "hop" ), any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
+      .updateElement( any( IMetaStoreElementType.class ), anyString(), eq( elem3 ) );
 
-    verify( to, never() ).createElementType( eq( "apache" ), any( IMetaStoreElementType.class ) );
-    verify( to, never() ).createElement( eq( "apache" ), any( IMetaStoreElementType.class ), any( IMetaStoreElement.class ) );
-
+    verify( to, never() ).createElementType( any( IMetaStoreElementType.class ) );
   }
 }

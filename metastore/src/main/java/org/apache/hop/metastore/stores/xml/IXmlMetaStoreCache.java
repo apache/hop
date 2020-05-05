@@ -48,59 +48,53 @@ import java.util.Map;
 public interface IXmlMetaStoreCache {
 
   /**
-   * Register elementType id in a namespace with elementTypeName
+   * Register elementType id with elementTypeName
    *
-   * @param namespace       the namespace to register the type in
    * @param elementTypeName the type's name
    * @param elementTypeId   the type's id
    */
-  void registerElementTypeIdForName( String namespace, String elementTypeName, String elementTypeId );
+  void registerElementTypeIdForName( String elementTypeName, String elementTypeId );
 
   /**
-   * Find an elementType id in a namespace by elementTypeName
+   * Find an elementType id by elementTypeName
    *
-   * @param namespace       the namespace to look in
    * @param elementTypeName the type's name
    * @return the type's id or null if the type name couldn't be found in cache
    */
-  String getElementTypeIdByName( String namespace, String elementTypeName );
+  String getElementTypeIdByName( String elementTypeName );
 
   /**
-   * Unregister an elementType id in namespace
+   * Unregister an elementType id
    *
-   * @param namespace     the namespace to look in
    * @param elementTypeId the id of the type to remove
    */
-  void unregisterElementTypeId( String namespace, String elementTypeId );
+  void unregisterElementTypeId( String elementTypeId );
 
   /**
-   * Register an element id in a namespace with elementType and elementTypeName
+   * Register an element id with elementType and elementTypeName
    *
-   * @param namespace   the namespace to reference
    * @param elementType the element type to use
    * @param elementName the element's name
    * @param elementId   the element's id. IXmlMetaStoreCache doesn't register element's id with null value.
    */
-  void registerElementIdForName( String namespace, IMetaStoreElementType elementType, String elementName, String elementId );
+  void registerElementIdForName( IMetaStoreElementType elementType, String elementName, String elementId );
 
   /**
-   * Find an element id in a namespace with elementType and elementTypeName
+   * Find an element id with elementType and elementTypeName
    *
-   * @param namespace   the namespace to look in
    * @param elementType the element type to search
    * @param elementName the element's name
    * @return the element's id or null if no element name could be matched
    */
-  String getElementIdByName( String namespace, IMetaStoreElementType elementType, String elementName );
+  String getElementIdByName( IMetaStoreElementType elementType, String elementName );
 
   /**
-   * Unregister an element id for namespace and elementType
+   * Unregister an element id an elementType
    *
-   * @param namespace   the namespace to reference
    * @param elementType the element type to use
    * @param elementId   the id of the element to remove
    */
-  void unregisterElementId( String namespace, IMetaStoreElementType elementType, String elementId );
+  void unregisterElementId( IMetaStoreElementType elementType, String elementId );
 
   /**
    * Register processed file with fullPath and last modified date
