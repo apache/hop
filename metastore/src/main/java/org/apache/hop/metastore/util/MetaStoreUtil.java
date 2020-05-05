@@ -44,7 +44,6 @@ import org.apache.hop.metastore.api.IMetaStoreAttribute;
 import org.apache.hop.metastore.api.IMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStoreElementType;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.api.exceptions.MetaStoreNamespaceExistsException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,19 +57,6 @@ import java.util.concurrent.locks.Lock;
  * @author matt
  */
 public class MetaStoreUtil {
-
-  /**
-   * Create the specified namespace if it doesn't exist.
-   *
-   * @param metaStore
-   * @param namespace
-   * @throws MetaStoreException
-   */
-  public static void verifyNamespaceCreated( IMetaStore metaStore, String namespace ) throws MetaStoreException {
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      metaStore.createNamespace( namespace );
-    }
-  }
 
   public static String getChildString( IMetaStoreAttribute attribute, String id ) {
     IMetaStoreAttribute child = attribute.getChild( id );
@@ -124,19 +110,18 @@ public class MetaStoreUtil {
   }
 
   /**
-   * Get a sorted list of element names for the specified element type in the given namespace.
+   * Get a sorted list of element names for the specified element type.
    *
-   * @param namespace
    * @param metaStore
    * @param elementType
    * @return
    * @throws MetaStoreException
    */
-  public String[] getElementNames( String namespace, IMetaStore metaStore, IMetaStoreElementType elementType )
+  public String[] getElementNames( IMetaStore metaStore, IMetaStoreElementType elementType )
     throws MetaStoreException {
     List<String> names = new ArrayList<>();
 
-    List<IMetaStoreElement> elements = metaStore.getElements( namespace, elementType );
+    List<IMetaStoreElement> elements = metaStore.getElements( elementType );
     for ( IMetaStoreElement element : elements ) {
       names.add( element.getName() );
     }
@@ -154,48 +139,38 @@ public class MetaStoreUtil {
 
   public static void copy( IMetaStore from, IMetaStore to, boolean overwrite ) throws MetaStoreException {
 
-    // get all of the namespace in the "from" metastore
-    List<String> namespaces = from.getNamespaces();
-    for ( String namespace : namespaces ) {
-      // create the sme namespace in the "to" metastore
-      try {
-        to.createNamespace( namespace );
-      } catch ( MetaStoreNamespaceExistsException e ) {
-        // already there
+
+    // get all of the element types defined in this namespace
+    List<IMetaStoreElementType> elementTypes = from.getElementTypes();
+    for ( IMetaStoreElementType elementType : elementTypes ) {
+      // See if it's already there
+      IMetaStoreElementType existingType = to.getElementTypeByName( elementType.getName() );
+      if ( existingType != null ) {
+        if ( overwrite ) {
+          // we looked it up by name, but need to update it by id
+          elementType.setId( existingType.getId() );
+          to.updateElementType( elementType );
+        } else {
+          elementType = existingType;
+        }
+      } else {
+        // create the elementType in the "to" metastore
+        to.createElementType( elementType );
       }
-      // get all of the element types defined in this namespace
-      List<IMetaStoreElementType> elementTypes = from.getElementTypes( namespace );
-      for ( IMetaStoreElementType elementType : elementTypes ) {
-        // See if it's already there
-        IMetaStoreElementType existingType = to.getElementTypeByName( namespace, elementType.getName() );
-        if ( existingType != null ) {
+
+      // get all of the elements defined for this type
+      List<IMetaStoreElement> elements = from.getElements( elementType );
+      for ( IMetaStoreElement element : elements ) {
+        IMetaStoreElement existingElement = to.getElementByName( elementType, element.getName() );
+        if ( existingElement != null ) {
+          element.setId( existingElement.getId() );
           if ( overwrite ) {
-            // we looked it up by name, but need to update it by id
-            elementType.setId( existingType.getId() );
-            to.updateElementType( namespace, elementType );
-          } else {
-            elementType = existingType;
+            to.updateElement( elementType, existingElement.getId(), element );
           }
         } else {
-          // create the elementType in the "to" metastore
-          to.createElementType( namespace, elementType );
-        }
-
-        // get all of the elements defined for this type
-        List<IMetaStoreElement> elements = from.getElements( namespace, elementType );
-        for ( IMetaStoreElement element : elements ) {
-          IMetaStoreElement existingElement = to.getElementByName( namespace, elementType, element.getName() );
-          if ( existingElement != null ) {
-            element.setId( existingElement.getId() );
-            if ( overwrite ) {
-              to.updateElement( namespace, elementType, existingElement.getId(), element );
-            }
-          } else {
-            to.createElement( namespace, elementType, element );
-          }
+          to.createElement( elementType, element );
         }
       }
     }
-
   }
 }

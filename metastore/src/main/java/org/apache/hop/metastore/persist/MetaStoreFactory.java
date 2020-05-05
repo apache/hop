@@ -52,7 +52,6 @@ public class MetaStoreFactory<T> {
 
   protected IMetaStore metaStore;
   protected final Class<T> clazz;
-  protected String namespace;
 
   protected Map<String, List<?>> nameListMap;
   protected Map<String, MetaStoreFactory<?>> nameFactoryMap;
@@ -62,13 +61,12 @@ public class MetaStoreFactory<T> {
 
   private volatile SimpleDateFormat DATE_FORMAT = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" );
 
-  public MetaStoreFactory( Class<T> clazz, IMetaStore metaStore, String namespace ) {
+  public MetaStoreFactory( Class<T> clazz, IMetaStore metaStore ) {
     this.metaStore = metaStore;
     this.clazz = clazz;
-    this.namespace = namespace;
-    nameListMap = new HashMap<String, List<?>>();
-    filenameListMap = new HashMap<String, List<?>>();
-    nameFactoryMap = new HashMap<String, MetaStoreFactory<?>>();
+    nameListMap = new HashMap<>();
+    filenameListMap = new HashMap<>();
+    nameFactoryMap = new HashMap<>();
   }
 
   public void addNameList( String nameListKey, List<?> nameList ) {
@@ -92,18 +90,14 @@ public class MetaStoreFactory<T> {
       throw new MetaStoreException( "You need to specify the name of an element to load" );
     }
 
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      return null;
-    }
-
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
 
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
       return null;
     }
 
-    IMetaStoreElement element = metaStore.getElementByName( namespace, elementType, name );
+    IMetaStoreElement element = metaStore.getElementByName( elementType, name );
     if ( element == null ) {
       return null;
     }
@@ -350,8 +344,8 @@ public class MetaStoreFactory<T> {
       Method listGetMethod = parentClass.getMethod( listGetter );
       @SuppressWarnings( "unchecked" )
       List<Object> list = (List<Object>) listGetMethod.invoke( parentObject );
-      if (list==null) {
-        throw new MetaStoreException( "List attribute '"+field.getName()+"' in class '"+parentClass.getName()+"' is not pre-initialized. It will not be possible to add values" );
+      if ( list == null ) {
+        throw new MetaStoreException( "List attribute '" + field.getName() + "' in class '" + parentClass.getName() + "' is not pre-initialized. It will not be possible to add values" );
       }
       String childClassName = parentElement.getValue().toString();
 
@@ -540,7 +534,7 @@ public class MetaStoreFactory<T> {
 
   /**
    * Save the specified class into the metastore.
-   * Create the namespace and element type if needed...
+   * Create the element type if needed...
    *
    * @param t The element to store...
    * @throws MetaStoreException
@@ -549,20 +543,14 @@ public class MetaStoreFactory<T> {
 
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
 
-    // Make sure the namespace exists...
-
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      metaStore.createNamespace( namespace );
-    }
-
     // Make sure the element type exists...
-
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    //
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
-      elementType = metaStore.newElementType( namespace );
+      elementType = metaStore.newElementType();
       elementType.setName( elementTypeAnnotation.name() );
       elementType.setDescription( elementTypeAnnotation.description() );
-      metaStore.createElementType( namespace, elementType );
+      metaStore.createElementType( elementType );
     }
 
     // Now store the element itself
@@ -585,11 +573,11 @@ public class MetaStoreFactory<T> {
     // Now that we have the element populated, do a quick check to see if we need to update the element
     // or simply create a new element in the metastore.
 
-    IMetaStoreElement existingElement = metaStore.getElementByName( namespace, elementType, name );
+    IMetaStoreElement existingElement = metaStore.getElementByName( elementType, name );
     if ( existingElement == null ) {
-      metaStore.createElement( namespace, elementType, element );
+      metaStore.createElement( elementType, element );
     } else {
-      metaStore.updateElement( namespace, elementType, existingElement.getId(), element );
+      metaStore.updateElement( elementType, existingElement.getId(), element );
     }
   }
 
@@ -845,20 +833,14 @@ public class MetaStoreFactory<T> {
    */
   public List<T> getElements() throws MetaStoreException {
 
-    // Return empty list in case the namespace doesn't exist
-    //
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      return Collections.emptyList();
-    }
-
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
 
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
       return Collections.emptyList();
     }
 
-    List<IMetaStoreElement> elements = metaStore.getElements( namespace, elementType );
+    List<IMetaStoreElement> elements = metaStore.getElements( elementType );
     List<T> list = new ArrayList<T>( elements.size() );
     for ( IMetaStoreElement metaStoreElement : elements ) {
       list.add( loadElement( metaStoreElement ) );
@@ -875,7 +857,7 @@ public class MetaStoreFactory<T> {
   public T deleteElement( String name ) throws MetaStoreException {
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
 
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
       throw new MetaStoreException( "The element type '" + elementTypeAnnotation.name() + "' does not exist so the element with name '" + name + "' can not be deleted" );
     }
@@ -885,7 +867,7 @@ public class MetaStoreFactory<T> {
       throw new MetaStoreException( "The element with name '" + name + "' does not exists so it can not be deleted" );
     }
 
-    metaStore.deleteElement( namespace, elementType, name );
+    metaStore.deleteElement( elementType, name );
 
     return element;
   }
@@ -897,20 +879,14 @@ public class MetaStoreFactory<T> {
   public List<String> getElementNames() throws MetaStoreException {
     List<String> names = new ArrayList<>();
 
-    // Return empty list in case the namespace doesn't exist
-    //
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      return names;
-    }
-
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
 
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
       return names;
     }
 
-    List<IMetaStoreElement> elements = metaStore.getElements( namespace, elementType );
+    List<IMetaStoreElement> elements = metaStore.getElements( elementType );
     for ( IMetaStoreElement element : elements ) {
       names.add( element.getName() );
     }
@@ -924,7 +900,7 @@ public class MetaStoreFactory<T> {
    */
   public IMetaStoreElementType getElementType() throws MetaStoreException {
     MetaStoreElementType elementTypeAnnotation = getElementTypeAnnotation();
-    return metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    return metaStore.getElementTypeByName( elementTypeAnnotation.name() );
   }
 
   private AttributeType determineAttributeType( Field field, MetaStoreAttribute annotation ) throws MetaStoreException {
@@ -1047,14 +1023,6 @@ public class MetaStoreFactory<T> {
 
   public void setMetaStore( IMetaStore metaStore ) {
     this.metaStore = metaStore;
-  }
-
-  public String getNamespace() {
-    return namespace;
-  }
-
-  public void setNamespace( String namespace ) {
-    this.namespace = namespace;
   }
 
   public Map<String, List<?>> getNamedListMap() {

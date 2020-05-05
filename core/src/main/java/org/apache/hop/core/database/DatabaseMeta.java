@@ -50,7 +50,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -182,7 +181,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
   public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore );
     factory.setObjectFactory( new DatabaseMetaStoreObjectFactory() );
     return factory;
   }

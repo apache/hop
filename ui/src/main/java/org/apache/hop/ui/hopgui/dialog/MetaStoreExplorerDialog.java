@@ -170,9 +170,8 @@ public class MetaStoreExplorerDialog {
           int depth = ConstUi.getTreeLevel( treeItem );
           if ( depth == 3 ) {
             final String metaStoreName = labels[ 0 ];
-            final String namespace = labels[ 1 ];
-            final String elementTypeName = labels[ 2 ];
-            final String elementName = labels[ 3 ];
+            final String elementTypeName = labels[ 2];
+            final String elementName = labels[ 2 ];
 
             Menu menu = new Menu( tree );
 
@@ -183,7 +182,7 @@ public class MetaStoreExplorerDialog {
             editItem.addSelectionListener( new SelectionAdapter() {
               @Override
               public void widgetSelected( SelectionEvent arg0 ) {
-                editElement( metaStoreName, namespace, elementTypeName, elementName );
+                editElement( metaStoreName, elementTypeName, elementName );
               }
             } );
 
@@ -192,7 +191,7 @@ public class MetaStoreExplorerDialog {
             removeItem.addSelectionListener( new SelectionAdapter() {
               @Override
               public void widgetSelected( SelectionEvent arg0 ) {
-                removeElement( metaStoreName, namespace, elementTypeName, elementName );
+                removeElement( metaStoreName, elementTypeName, elementName );
               }
             } );
 
@@ -229,36 +228,36 @@ public class MetaStoreExplorerDialog {
     }
   }
 
-  private void editElement( String metaStoreName, String namespace, String elementTypeName, String elementName ) {
-    // TODO
+  private void editElement( String metaStoreName, String elementTypeName, String elementName ) {
+    // TODO see if there's a plugin handling this type
   }
 
-  private void removeElement( String metaStoreName, String namespace, String elementTypeName, String elementName ) {
+  private void removeElement( String metaStoreName, String elementTypeName, String elementName ) {
 
     try {
       IMetaStore metaStore = findMetaStore( metaStoreName );
       if ( metaStore == null ) {
         throw new MetaStoreException( "Unable to find metastore '" + metaStoreName + "'" );
       }
-      IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeName );
+      IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeName );
       if ( elementType == null ) {
         throw new MetaStoreException( "Unable to find element type '"
-          + elementTypeName + "' from metastore '" + metaStoreName + "' in namespace '" + namespace + "'" );
+          + elementTypeName + "' from metastore '" + metaStoreName + "'" );
       }
-      IMetaStoreElement element = metaStore.getElementByName( namespace, elementType, elementName );
+      IMetaStoreElement element = metaStore.getElementByName( elementType, elementName );
       if ( element == null ) {
         throw new MetaStoreException( "Unable to find element '"
           + elementName + "' of type '" + elementTypeName + "' from metastore '" + metaStoreName
-          + "' in namespace '" + namespace + "'" );
+          + "'" );
       }
-      metaStore.deleteElement( namespace, elementType, element.getId() );
+      metaStore.deleteElement( elementType, element.getId() );
 
       refreshTree();
 
     } catch ( MetaStoreException e ) {
       new ErrorDialog( shell, "Error removing element", "There was an error removing the element '"
         + elementName + "' of type '" + elementTypeName + "' from metastore '" + metaStoreName
-        + "' in namespace '" + namespace + "'", e );
+        + "'", e );
     }
 
   }
@@ -289,46 +288,37 @@ public class MetaStoreExplorerDialog {
       metaStoreItem.setText( 0, Const.NVL( metaStore.getName(), "metastore-" + ( m + 1 ) ) );
       metaStoreItem.setText( 1, Const.NVL( metaStore.getDescription(), "" ) );
 
-      // level: Namespace
+      // level: element type
       //
-      List<String> namespaces = metaStore.getNamespaces();
-      for ( String namespace : namespaces ) {
-        TreeItem namespaceItem = new TreeItem( metaStoreItem, SWT.NONE );
+      List<IMetaStoreElementType> elementTypes = metaStore.getElementTypes();
+      for ( IMetaStoreElementType elementType : elementTypes ) {
+        TreeItem elementTypeItem = new TreeItem( metaStoreItem, SWT.NONE );
 
-        namespaceItem.setText( 0, Const.NVL( namespace, "" ) );
+        elementTypeItem.setText( 0, Const.NVL( elementType.getName(), "" ) );
+        elementTypeItem.setText( 1, Const.NVL( elementType.getDescription(), "" ) );
 
-        // level: element type
+        // level: element
         //
-        List<IMetaStoreElementType> elementTypes = metaStore.getElementTypes( namespace );
-        for ( IMetaStoreElementType elementType : elementTypes ) {
-          TreeItem elementTypeItem = new TreeItem( namespaceItem, SWT.NONE );
+        List<IMetaStoreElement> elements = metaStore.getElements( elementType );
+        for ( final IMetaStoreElement element : elements ) {
+          TreeItem elementItem = new TreeItem( elementTypeItem, SWT.NONE );
 
-          elementTypeItem.setText( 0, Const.NVL( elementType.getName(), "" ) );
-          elementTypeItem.setText( 1, Const.NVL( elementType.getDescription(), "" ) );
+          elementItem.setText( 0, Const.NVL( element.getName(), "" ) );
+          elementItem.setText( 2, Const.NVL( element.getId(), "" ) );
 
-          // level: element
-          //
-          List<IMetaStoreElement> elements = metaStore.getElements( namespace, elementType );
-          for ( final IMetaStoreElement element : elements ) {
-            TreeItem elementItem = new TreeItem( elementTypeItem, SWT.NONE );
+          elementItem.addListener( SWT.Selection, new Listener() {
 
-            elementItem.setText( 0, Const.NVL( element.getName(), "" ) );
-            elementItem.setText( 2, Const.NVL( element.getId(), "" ) );
+            @Override
+            public void handleEvent( Event event ) {
+              log.logBasic( "Selected : " + element.getName() );
+            }
+          } );
 
-            elementItem.addListener( SWT.Selection, new Listener() {
-
-              @Override
-              public void handleEvent( Event event ) {
-                log.logBasic( "Selected : " + element.getName() );
-              }
-            } );
-
-            addAttributesToTree( elementItem, element );
-          }
-
+          addAttributesToTree( elementItem, element );
         }
       }
     }
+
     TreeUtil.setOptimalWidthOnColumns( tree );
     TreeMemory.setExpandedFromMemory( tree, META_STORE_EXPLORER_DIALOG_TREE );
   }

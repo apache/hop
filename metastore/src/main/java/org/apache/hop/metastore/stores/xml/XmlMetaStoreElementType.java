@@ -64,13 +64,12 @@ public class XmlMetaStoreElementType extends BaseElementType {
   private String filename;
 
   /**
-   * @param namespace
    * @param id
    * @param name
    * @param description
    */
-  public XmlMetaStoreElementType( String namespace, String id, String name, String description ) {
-    super( namespace );
+  public XmlMetaStoreElementType( String id, String name, String description ) {
+    super();
     setId( id );
     setName( name );
     setDescription( description );
@@ -79,11 +78,10 @@ public class XmlMetaStoreElementType extends BaseElementType {
   /**
    * Load an XML meta data store data type from file.
    *
-   * @param namespace the namespace
    * @param filename  the file to load from
    */
-  public XmlMetaStoreElementType( String namespace, String filename ) throws MetaStoreException {
-    super( namespace );
+  public XmlMetaStoreElementType( String filename ) throws MetaStoreException {
+    super( );
 
     File file = new File( filename );
     this.setId( file.getParentFile().getName() );

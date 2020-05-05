@@ -83,8 +83,7 @@ public class MultiLevelListTest {
   public MetaStoreFactory<Level1Element> getMetaStoreFactory() {
 
     MetaStoreFactory<Level1Element>
-      factory =
-      new MetaStoreFactory( Level1Element.class, this.metaStore, "hop" );
+      factory = new MetaStoreFactory( Level1Element.class, this.metaStore );
     return factory;
   }
 
@@ -126,7 +125,7 @@ public class MultiLevelListTest {
 
   @Test( expected = MetaStoreException.class )
   public void testError() throws Exception {
-    MetaStoreFactory<Level4Element> factory = new MetaStoreFactory( Level4Element.class, this.metaStore, "hop" );
+    MetaStoreFactory<Level4Element> factory = new MetaStoreFactory( Level4Element.class, this.metaStore );
 
     MyOtherElement myElement = new MyOtherElement();
     myElement.setName( "myElementName" );

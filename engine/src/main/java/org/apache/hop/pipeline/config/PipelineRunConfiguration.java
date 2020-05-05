@@ -22,12 +22,6 @@
 
 package org.apache.hop.pipeline.config;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
@@ -35,9 +29,7 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 
-import java.util.Map;
 import java.util.Objects;
 
 @MetaStoreElementType(
@@ -95,7 +87,7 @@ public class PipelineRunConfiguration extends Variables implements Cloneable, IV
   }
 
   public static final MetaStoreFactory<PipelineRunConfiguration> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<PipelineRunConfiguration> factory = new MetaStoreFactory<>( PipelineRunConfiguration.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<PipelineRunConfiguration> factory = new MetaStoreFactory<>( PipelineRunConfiguration.class, metaStore );
     factory.setObjectFactory( new PipelineRunConfigurationMetaStoreObjectFactory() );
     return factory;
   }

@@ -67,8 +67,8 @@ public class MemoryMetaStoreElementType extends BaseElementType {
     writeLock = lock.writeLock();
   }
 
-  public MemoryMetaStoreElementType( String namespace ) {
-    super( namespace );
+  public MemoryMetaStoreElementType() {
+    super();
   }
 
   /**
@@ -77,7 +77,7 @@ public class MemoryMetaStoreElementType extends BaseElementType {
    * @param elementType The type to copy over.
    */
   public MemoryMetaStoreElementType( IMetaStoreElementType elementType ) {
-    this( elementType.getNamespace() );
+    this();
     copyFrom( elementType );
   }
 

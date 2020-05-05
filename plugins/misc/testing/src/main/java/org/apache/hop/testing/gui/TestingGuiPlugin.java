@@ -23,7 +23,6 @@
 package org.apache.hop.testing.gui;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -43,13 +42,11 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -1055,7 +1052,7 @@ public class TestingGuiPlugin {
   }
 
   public static List<PipelineUnitTest> findPipelineUnitTest( PipelineMeta pipelineMeta, IMetaStore metaStore ) {
-    MetaStoreFactory<PipelineUnitTest> factory = new MetaStoreFactory<>( PipelineUnitTest.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<PipelineUnitTest> factory = new MetaStoreFactory<>( PipelineUnitTest.class, metaStore );
     List<PipelineUnitTest> tests = new ArrayList<>();
 
     try {

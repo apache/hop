@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.engines.remote;
 
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -31,7 +30,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
@@ -101,7 +99,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   public List<String> getSlaveServerNames( ILogChannel log, IMetaStore metaStore ) {
     List<String> names = new ArrayList<>(  );
     try {
-      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore, HopDefaults.NAMESPACE );
+      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
       names.addAll(factory.getElementNames());
       Collections.sort( names );
     } catch(Exception e) {
@@ -113,7 +111,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   public List<String> getRunConfigurationNames( ILogChannel log, IMetaStore metaStore ) {
     List<String> names = new ArrayList<>(  );
     try {
-      MetaStoreFactory<PipelineRunConfiguration> factory = new MetaStoreFactory<>( PipelineRunConfiguration.class, metaStore, HopDefaults.NAMESPACE );
+      MetaStoreFactory<PipelineRunConfiguration> factory = new MetaStoreFactory<>( PipelineRunConfiguration.class, metaStore );
       names.addAll(factory.getElementNames());
       Collections.sort( names );
     } catch(Exception e) {

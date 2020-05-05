@@ -68,16 +68,16 @@ public abstract class XmlMetaStoreCacheTestBase {
 
   @Test
   public void registerElementTypeIdForName() {
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", "testElementTypeName", "testElementTypeId" );
-    String actualElementId = simpleXmlMetaStoreCache.getElementTypeIdByName( "testNamespace", "testElementTypeName" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testElementTypeName", "testElementTypeId" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementTypeIdByName( "testElementTypeName" );
     assertEquals( "testElementTypeId", actualElementId );
   }
 
   @Test
   public void unregisterElementTypeIdForName() {
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", "testElementTypeName", "testElementTypeId" );
-    simpleXmlMetaStoreCache.unregisterElementTypeId( "testNamespace", "testElementTypeId" );
-    String actualElementId = simpleXmlMetaStoreCache.getElementTypeIdByName( "testNamespace", "testElementTypeName" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testElementTypeName", "testElementTypeId" );
+    simpleXmlMetaStoreCache.unregisterElementTypeId( "testElementTypeId" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementTypeIdByName( "testElementTypeName" );
     assertNull( actualElementId );
   }
 
@@ -85,39 +85,39 @@ public abstract class XmlMetaStoreCacheTestBase {
   public void registerElementIdForName() {
     IMetaStoreElementType testElementType = createTestElementType( "testElementTypeName", "testElementTypeId" );
     IMetaStoreElementType secondElementType = createTestElementType( "secondElementTypeName", "secondElementTypeId" );
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", testElementType.getName(), testElementType.getId() );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", testElementType, "testElementName", "testElementId" );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", secondElementType, "secondElementName", "secondElementId" );
-    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", testElementType, "testElementName" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( testElementType.getName(), testElementType.getId() );
+    simpleXmlMetaStoreCache.registerElementIdForName( testElementType, "testElementName", "testElementId" );
+    simpleXmlMetaStoreCache.registerElementIdForName( secondElementType, "secondElementName", "secondElementId" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( testElementType, "testElementName" );
     assertEquals( "testElementId", actualElementId );
-    String actualSecondElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", secondElementType, "secondElementName" );
+    String actualSecondElementId = simpleXmlMetaStoreCache.getElementIdByName( secondElementType, "secondElementName" );
     assertEquals( "secondElementId", actualSecondElementId );
   }
 
   @Test
   public void registerElementIdForName_for_null_id() {
     IMetaStoreElementType testElementType = createTestElementType( "testElementTypeName", "testElementTypeId" );
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", testElementType.getName(), testElementType.getId() );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", testElementType, "testElementName", null );
-    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", testElementType, "testElementName" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( testElementType.getName(), testElementType.getId() );
+    simpleXmlMetaStoreCache.registerElementIdForName( testElementType, "testElementName", null );
+    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( testElementType, "testElementName" );
     assertNull( actualElementId );
   }
 
   @Test
   public void registerElementIdForName_for_non_registered_type() {
     IMetaStoreElementType testElementType = createTestElementType( "testElementTypeName", "testElementTypeId" );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", testElementType, "testElementName", "testElementId" );
-    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", testElementType, "testElementName" );
+    simpleXmlMetaStoreCache.registerElementIdForName( testElementType, "testElementName", "testElementId" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( testElementType, "testElementName" );
     assertEquals( "testElementId", actualElementId );
   }
 
   @Test
   public void unregisterElementIdForName() {
     IMetaStoreElementType testElementType = createTestElementType( "testElementTypeName", "testElementTypeId" );
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", testElementType.getName(), testElementType.getId() );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", testElementType, "testElementName", "testElementId" );
-    simpleXmlMetaStoreCache.unregisterElementId( "testNamespace", testElementType, "testElementId" );
-    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", testElementType, "testElementName" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( testElementType.getName(), testElementType.getId() );
+    simpleXmlMetaStoreCache.registerElementIdForName( testElementType, "testElementName", "testElementId" );
+    simpleXmlMetaStoreCache.unregisterElementId( testElementType, "testElementId" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( testElementType, "testElementName" );
     assertNull( "testElementId", actualElementId );
   }
 
@@ -141,12 +141,12 @@ public abstract class XmlMetaStoreCacheTestBase {
   public void clear() {
     simpleXmlMetaStoreCache.registerProcessedFile( "/test/full/Path", 1L );
     IMetaStoreElementType testElementType = createTestElementType( "testElementTypeName", "testElementTypeId" );
-    simpleXmlMetaStoreCache.registerElementTypeIdForName( "testNamespace", testElementType.getName(), testElementType.getId() );
-    simpleXmlMetaStoreCache.registerElementIdForName( "testNamespace", testElementType, "testElementName", "testElementId" );
+    simpleXmlMetaStoreCache.registerElementTypeIdForName( testElementType.getName(), testElementType.getId() );
+    simpleXmlMetaStoreCache.registerElementIdForName( testElementType, "testElementName", "testElementId" );
     simpleXmlMetaStoreCache.clear();
     Map<String, Long> actualProcessedFiles = simpleXmlMetaStoreCache.getProcessedFiles();
     assertThat( actualProcessedFiles.size(), equalTo( 0 ) );
-    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( "testNamespace", testElementType, "testElementName" );
+    String actualElementId = simpleXmlMetaStoreCache.getElementIdByName( testElementType, "testElementName" );
     assertThat( actualElementId, is( nullValue() ) );
   }
 

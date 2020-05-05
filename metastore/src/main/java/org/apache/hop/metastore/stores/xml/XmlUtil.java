@@ -67,20 +67,20 @@ public class XmlUtil {
     return null;
   }
 
-  public static String getNamespaceFolder( String rootFolder, String namespace ) {
-    return rootFolder + File.separator + namespace;
+  public static String getRootFolder( String rootFolder ) {
+    return rootFolder;
   }
 
-  public static String getElementTypeFolder( String rootFolder, String namespace, String elementTypeId ) {
-    return getNamespaceFolder( rootFolder, namespace ) + File.separator + elementTypeId;
+  public static String getElementTypeFolder( String rootFolder, String elementTypeId ) {
+    return getRootFolder( rootFolder ) + File.separator + elementTypeId;
   }
 
-  public static String getElementTypeFile( String rootFolder, String namespace, String elementTypeId ) {
-    return getElementTypeFolder( rootFolder, namespace, elementTypeId ) + File.separator + ELEMENT_TYPE_FILE_NAME;
+  public static String getElementTypeFile( String rootFolder, String elementTypeId ) {
+    return getElementTypeFolder( rootFolder, elementTypeId ) + File.separator + ELEMENT_TYPE_FILE_NAME;
   }
 
-  public static String getElementFile( String rootFolder, String namespace, String elementTypeId, String elementId ) {
-    return getElementTypeFolder( rootFolder, namespace, elementTypeId ) + File.separator + elementId + ".xml";
+  public static String getElementFile( String rootFolder, String elementTypeId, String elementId ) {
+    return getElementTypeFolder( rootFolder, elementTypeId ) + File.separator + elementId + ".xml";
   }
 
   public static DocumentBuilderFactory createSafeDocumentBuilderFactory() throws ParserConfigurationException {

@@ -39,7 +39,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -251,7 +250,7 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
   }
 
   public static final MetaStoreFactory<DataSet> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<DataSet> setFactory = new MetaStoreFactory<>( DataSet.class, metaStore, HopDefaults.NAMESPACE );
+    MetaStoreFactory<DataSet> setFactory = new MetaStoreFactory<>( DataSet.class, metaStore );
     return setFactory;
   }
 

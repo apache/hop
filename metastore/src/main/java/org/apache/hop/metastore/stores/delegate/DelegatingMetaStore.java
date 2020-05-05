@@ -47,7 +47,6 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreDependenciesExistsExcept
 import org.apache.hop.metastore.api.exceptions.MetaStoreElementExistException;
 import org.apache.hop.metastore.api.exceptions.MetaStoreElementTypeExistsException;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.api.exceptions.MetaStoreNamespaceExistsException;
 import org.apache.hop.metastore.api.security.Base64TwoWayPasswordEncoder;
 import org.apache.hop.metastore.api.security.IMetaStoreElementOwner;
 import org.apache.hop.metastore.api.security.ITwoWayPasswordEncoder;
@@ -55,10 +54,8 @@ import org.apache.hop.metastore.api.security.MetaStoreElementOwnerType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class can be used as a wrapper around one or more meta stores. For example, if you have a local XML metastore, a
@@ -93,12 +90,12 @@ public class DelegatingMetaStore implements IMetaStore {
   protected ITwoWayPasswordEncoder passwordEncoder;
 
   public DelegatingMetaStore() {
-    metaStoreList = new ArrayList<IMetaStore>();
+    metaStoreList = new ArrayList<>();
     passwordEncoder = new Base64TwoWayPasswordEncoder();
   }
 
   public DelegatingMetaStore( IMetaStore... stores ) {
-    metaStoreList = new ArrayList<IMetaStore>( Arrays.asList( stores ) );
+    metaStoreList = new ArrayList<>( Arrays.asList( stores ) );
     passwordEncoder = new Base64TwoWayPasswordEncoder();
   }
 
@@ -180,42 +177,6 @@ public class DelegatingMetaStore implements IMetaStore {
     return null;
   }
 
-  @Override
-  public boolean namespaceExists( String namespace ) throws MetaStoreException {
-    for ( IMetaStore metaStore : getReadMetaStoreList() ) {
-      if ( metaStore.namespaceExists( namespace ) ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public List<String> getNamespaces() throws MetaStoreException {
-    Set<String> namespaceSet = new HashSet<String>();
-    List<String> namespaces = new ArrayList<>();
-    for ( IMetaStore metaStore : getReadMetaStoreList() ) {
-      for ( String namespace : metaStore.getNamespaces() ) {
-        if ( namespaceSet.add( namespace ) ) {
-          namespaces.add( namespace );
-        }
-      }
-    }
-    return namespaces;
-  }
-
-  @Override
-  public void createNamespace( String namespace ) throws MetaStoreException, MetaStoreNamespaceExistsException {
-    IMetaStore metaStore = getWriteMetaStore();
-    metaStore.createNamespace( namespace );
-  }
-
-  @Override
-  public void deleteNamespace( String namespace ) throws MetaStoreException {
-    IMetaStore metaStore = getWriteMetaStore();
-    metaStore.deleteNamespace( namespace );
-  }
-
   private IMetaStoreElementType getElementTypeByName( List<IMetaStoreElementType> types, String name ) {
     for ( IMetaStoreElementType type : types ) {
       if ( type.getName().equalsIgnoreCase( name ) ) {
@@ -226,10 +187,10 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public List<IMetaStoreElementType> getElementTypes( String namespace ) throws MetaStoreException {
+  public List<IMetaStoreElementType> getElementTypes() throws MetaStoreException {
     List<IMetaStoreElementType> elementTypes = new ArrayList<IMetaStoreElementType>();
     for ( IMetaStore metaStore : getReadMetaStoreList() ) {
-      for ( IMetaStoreElementType elementType : metaStore.getElementTypes( namespace ) ) {
+      for ( IMetaStoreElementType elementType : metaStore.getElementTypes() ) {
         if ( getElementTypeByName( elementTypes, elementType.getName() ) == null ) {
           elementTypes.add( elementType );
         }
@@ -239,17 +200,17 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public List<String> getElementTypeIds( String namespace ) throws MetaStoreException {
+  public List<String> getElementTypeIds() throws MetaStoreException {
     List<String> elementTypeIds = new ArrayList<>();
-    for ( IMetaStoreElementType elementType : getElementTypes( namespace ) ) {
+    for ( IMetaStoreElementType elementType : getElementTypes() ) {
       elementTypeIds.add( elementType.getId() );
     }
     return elementTypeIds;
   }
 
   @Override
-  public IMetaStoreElementType getElementType( String namespace, String elementTypeId ) throws MetaStoreException {
-    for ( IMetaStoreElementType type : getElementTypes( namespace ) ) {
+  public IMetaStoreElementType getElementType( String elementTypeId ) throws MetaStoreException {
+    for ( IMetaStoreElementType type : getElementTypes() ) {
       if ( type.getId().equals( elementTypeId ) ) {
         return type;
       }
@@ -258,29 +219,29 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public IMetaStoreElementType getElementTypeByName( String namespace, String elementTypeName )
+  public IMetaStoreElementType getElementTypeByName( String elementTypeName )
     throws MetaStoreException {
-    return getElementTypeByName( getElementTypes( namespace ), elementTypeName );
+    return getElementTypeByName( getElementTypes(), elementTypeName );
   }
 
   @Override
-  public void createElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
+  public void createElementType( IMetaStoreElementType elementType ) throws MetaStoreException,
     MetaStoreElementTypeExistsException {
     IMetaStore metaStore = getWriteMetaStore();
-    metaStore.createElementType( namespace, elementType );
+    metaStore.createElementType( elementType );
   }
 
   @Override
-  public void updateElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException {
+  public void updateElementType( IMetaStoreElementType elementType ) throws MetaStoreException {
     IMetaStore metaStore = getWriteMetaStore();
-    metaStore.updateElementType( namespace, elementType );
+    metaStore.updateElementType( elementType );
   }
 
   @Override
-  public void deleteElementType( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException,
+  public void deleteElementType( IMetaStoreElementType elementType ) throws MetaStoreException,
     MetaStoreDependenciesExistsException {
     IMetaStore metaStore = getWriteMetaStore();
-    metaStore.deleteElementType( namespace, elementType );
+    metaStore.deleteElementType( elementType );
   }
 
   private IMetaStoreElement getElementByName( List<IMetaStoreElement> elements, String name ) {
@@ -293,13 +254,13 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public List<IMetaStoreElement> getElements( String namespace, IMetaStoreElementType elementType )
+  public List<IMetaStoreElement> getElements( IMetaStoreElementType elementType )
     throws MetaStoreException {
     List<IMetaStoreElement> elements = new ArrayList<IMetaStoreElement>();
     for ( IMetaStore metaStore : getReadMetaStoreList() ) {
-      IMetaStoreElementType localElementType = metaStore.getElementTypeByName( namespace, elementType.getName() );
+      IMetaStoreElementType localElementType = metaStore.getElementTypeByName( elementType.getName() );
       if ( localElementType != null ) {
-        for ( IMetaStoreElement element : metaStore.getElements( namespace, localElementType ) ) {
+        for ( IMetaStoreElement element : metaStore.getElements( localElementType ) ) {
           if ( getElementByName( elements, element.getName() ) == null ) {
             elements.add( element );
           }
@@ -310,22 +271,22 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public List<String> getElementIds( String namespace, IMetaStoreElementType elementType ) throws MetaStoreException {
+  public List<String> getElementIds( IMetaStoreElementType elementType ) throws MetaStoreException {
     List<String> elementIds = new ArrayList<>();
-    for ( IMetaStoreElement element : getElements( namespace, elementType ) ) {
+    for ( IMetaStoreElement element : getElements( elementType ) ) {
       elementIds.add( element.getId() );
     }
     return elementIds;
   }
 
   @Override
-  public IMetaStoreElement getElement( String namespace, IMetaStoreElementType elementType, String elementId )
+  public IMetaStoreElement getElement( IMetaStoreElementType elementType, String elementId )
     throws MetaStoreException {
     for ( IMetaStore localStore : getReadMetaStoreList() ) {
       if ( elementType.getMetaStoreName() == null || elementType.getMetaStoreName().equals( localStore.getName() ) ) {
-        IMetaStoreElementType localType = localStore.getElementTypeByName( namespace, elementType.getName() );
+        IMetaStoreElementType localType = localStore.getElementTypeByName( elementType.getName() );
         if ( localType != null ) {
-          for ( IMetaStoreElement element : localStore.getElements( namespace, localType ) ) {
+          for ( IMetaStoreElement element : localStore.getElements( localType ) ) {
             if ( element.getId().equals( elementId ) ) {
               return element;
             }
@@ -337,32 +298,32 @@ public class DelegatingMetaStore implements IMetaStore {
   }
 
   @Override
-  public IMetaStoreElement getElementByName( String namespace, IMetaStoreElementType elementType, String name )
+  public IMetaStoreElement getElementByName( IMetaStoreElementType elementType, String name )
     throws MetaStoreException {
-    return getElementByName( getElements( namespace, elementType ), name );
+    return getElementByName( getElements( elementType ), name );
   }
 
   @Override
-  public void createElement( String namespace, IMetaStoreElementType elementType, IMetaStoreElement element )
+  public void createElement( IMetaStoreElementType elementType, IMetaStoreElement element )
     throws MetaStoreException, MetaStoreElementExistException {
-    getWriteMetaStore().createElement( namespace, elementType, element );
+    getWriteMetaStore().createElement( elementType, element );
   }
 
   @Override
-  public void deleteElement( String namespace, IMetaStoreElementType elementType, String elementId )
+  public void deleteElement( IMetaStoreElementType elementType, String elementId )
     throws MetaStoreException {
-    getWriteMetaStore().deleteElement( namespace, elementType, elementId );
+    getWriteMetaStore().deleteElement( elementType, elementId );
   }
 
   @Override
-  public void updateElement( String namespace, IMetaStoreElementType elementType, String elementId,
+  public void updateElement( IMetaStoreElementType elementType, String elementId,
                              IMetaStoreElement element ) throws MetaStoreException {
-    getWriteMetaStore().updateElement( namespace, elementType, elementId, element );
+    getWriteMetaStore().updateElement( elementType, elementId, element );
   }
 
   @Override
-  public IMetaStoreElementType newElementType( String namespace ) throws MetaStoreException {
-    return getWriteMetaStore().newElementType( namespace );
+  public IMetaStoreElementType newElementType() throws MetaStoreException {
+    return getWriteMetaStore().newElementType();
   }
 
   @Override

@@ -40,7 +40,6 @@ import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.apache.hop.testing.util.DataSetConst;
 
 import java.io.File;
@@ -481,7 +480,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
   }
 
   public static final MetaStoreFactory<PipelineUnitTest> createFactory(IMetaStore metaStore) {
-    return new MetaStoreFactory<>( PipelineUnitTest.class, metaStore, HopDefaults.NAMESPACE );
+    return new MetaStoreFactory<>( PipelineUnitTest.class, metaStore );
   }
 
   public void setRelativeFilename( String referencePipelineFilename ) throws MetaStoreException {

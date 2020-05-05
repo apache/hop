@@ -37,7 +37,6 @@ import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.util.HopDefaults;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -289,6 +288,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   }
 
   public static final MetaStoreFactory<PartitionSchema> createFactory( IMetaStore metaStore ) {
-    return new MetaStoreFactory<>( PartitionSchema.class, metaStore, HopDefaults.NAMESPACE );
+    return new MetaStoreFactory<>( PartitionSchema.class, metaStore );
   }
 }

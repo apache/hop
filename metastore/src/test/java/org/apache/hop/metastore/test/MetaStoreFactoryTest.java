@@ -101,7 +101,6 @@ public class MetaStoreFactoryTest extends TestCase {
   @Test
   public void testIDMigration() throws Exception {
 
-    String namespace = "custom";
     String pipelineName = "Pipeline Name";
     String transformName = "Transform Name";
     String elementName = "migration";
@@ -113,22 +112,18 @@ public class MetaStoreFactoryTest extends TestCase {
 
     IMetaStore metaStore = new MemoryMetaStore();
 
-    MetaStoreFactory<MyMigrationElement> factory =
-      new MetaStoreFactory<MyMigrationElement>( MyMigrationElement.class, metaStore, namespace );
+    MetaStoreFactory<MyMigrationElement> factory = new MetaStoreFactory<MyMigrationElement>( MyMigrationElement.class, metaStore );
 
-    if ( !metaStore.namespaceExists( namespace ) ) {
-      metaStore.createNamespace( namespace );
-    }
 
     MetaStoreElementType elementTypeAnnotation = MyMigrationElement.class.getAnnotation( MetaStoreElementType.class );
 
     // Make sure the element type exists...
-    IMetaStoreElementType elementType = metaStore.getElementTypeByName( namespace, elementTypeAnnotation.name() );
+    IMetaStoreElementType elementType = metaStore.getElementTypeByName( elementTypeAnnotation.name() );
     if ( elementType == null ) {
-      elementType = metaStore.newElementType( namespace );
+      elementType = metaStore.newElementType();
       elementType.setName( elementTypeAnnotation.name() );
       elementType.setDescription( elementTypeAnnotation.description() );
-      metaStore.createElementType( namespace, elementType );
+      metaStore.createElementType( elementType );
     }
 
     // Create an element with the old keys we want to migrate
@@ -144,7 +139,7 @@ public class MetaStoreFactoryTest extends TestCase {
     element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_TARGET_FIELD_NAME, targetFieldName ) );
     element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_PARAMETER_NAME, parameterName ) );
 
-    metaStore.createElement( namespace, elementType, element );
+    metaStore.createElement( elementType, element );
 
     MyMigrationElement loadedElement = factory.loadElement( elementName );
 
@@ -164,7 +159,7 @@ public class MetaStoreFactoryTest extends TestCase {
 
     element.addChild( metaStore.newAttribute( MyMigrationElement.MY_MIGRATION_TRANSFORM_NAME, transformName ) );
 
-    metaStore.createElement( namespace, elementType, element );
+    metaStore.createElement( elementType, element );
 
     loadedElement = factory.loadElement( elementName );
 
@@ -201,8 +196,8 @@ public class MetaStoreFactoryTest extends TestCase {
     MyOtherElement myOtherElement = new MyOtherElement( "other", "other attribute" );
     me.setMyOtherElement( myOtherElement );
 
-    MetaStoreFactory<MyOtherElement> otherFactory = new MetaStoreFactory<MyOtherElement>( MyOtherElement.class, metaStore, "custom" );
-    MetaStoreFactory<MyElement> factory = new MetaStoreFactory<MyElement>( MyElement.class, metaStore, "custom" );
+    MetaStoreFactory<MyOtherElement> otherFactory = new MetaStoreFactory<>( MyOtherElement.class, metaStore );
+    MetaStoreFactory<MyElement> factory = new MetaStoreFactory<>( MyElement.class, metaStore );
 
     // For loading, specify the name, filename lists or factory that we're referencing...
     //
@@ -220,7 +215,7 @@ public class MetaStoreFactoryTest extends TestCase {
 
     // Verify list element details...
     //
-    IMetaStoreElement element = metaStore.getElementByName( "custom", factory.getElementType(), NAME );
+    IMetaStoreElement element = metaStore.getElementByName( factory.getElementType(), NAME );
     assertNotNull( element );
 
     // Verify the general idea
@@ -239,7 +234,6 @@ public class MetaStoreFactoryTest extends TestCase {
 
     // verify the details...
     //
-    assertTrue( metaStore.namespaceExists( "custom" ) );
     IMetaStoreElementType elementType = factory.getElementType();
     assertNotNull( elementType );
     assertEquals( "My element type", elementType.getName() );
@@ -298,8 +292,8 @@ public class MetaStoreFactoryTest extends TestCase {
   @Test
   public void testFactoryShared() throws Exception {
     IMetaStore metaStore = new MemoryMetaStore();
-    MetaStoreFactory<A> factoryA = new MetaStoreFactory<A>( A.class, metaStore, "hop" );
-    MetaStoreFactory<B> factoryB = new MetaStoreFactory<B>( B.class, metaStore, "hop" );
+    MetaStoreFactory<A> factoryA = new MetaStoreFactory<A>( A.class, metaStore );
+    MetaStoreFactory<B> factoryB = new MetaStoreFactory<B>( B.class, metaStore );
     factoryA.addNameFactory( A.FACTORY_B, factoryB );
 
     // Construct test-class
@@ -336,8 +330,8 @@ public class MetaStoreFactoryTest extends TestCase {
   @Test
   public void testFactory() throws Exception {
     IMetaStore metaStore = new MemoryMetaStore();
-    MetaStoreFactory<X> factoryX = new MetaStoreFactory<X>( X.class, metaStore, "hop" );
-    MetaStoreFactory<Y> factoryY = new MetaStoreFactory<Y>( Y.class, metaStore, "hop" );
+    MetaStoreFactory<X> factoryX = new MetaStoreFactory<X>( X.class, metaStore );
+    MetaStoreFactory<Y> factoryY = new MetaStoreFactory<Y>( Y.class, metaStore );
     factoryX.addNameFactory( X.FACTORY_Y, factoryY );
 
     // Construct test-class
@@ -381,8 +375,8 @@ public class MetaStoreFactoryTest extends TestCase {
   @Test
   public void testCube() throws Exception {
     IMetaStore metaStore = new MemoryMetaStore();
-    MetaStoreFactory<Cube> factoryCube = new MetaStoreFactory<Cube>( Cube.class, metaStore, "hop" );
-    MetaStoreFactory<Dimension> factoryDimension = new MetaStoreFactory<Dimension>( Dimension.class, metaStore, "hop" );
+    MetaStoreFactory<Cube> factoryCube = new MetaStoreFactory<Cube>( Cube.class, metaStore );
+    MetaStoreFactory<Dimension> factoryDimension = new MetaStoreFactory<Dimension>( Dimension.class, metaStore );
     factoryCube.addNameFactory( Cube.DIMENSION_FACTORY_KEY, factoryDimension );
     IMetaStoreObjectFactory objectFactory = mock( IMetaStoreObjectFactory.class );
     factoryCube.setObjectFactory( objectFactory );
@@ -531,7 +525,7 @@ public class MetaStoreFactoryTest extends TestCase {
 
   public void testSanitizeName() throws Exception {
     IMetaStore metaStore = new MemoryMetaStore();
-    MetaStoreFactory<MyOtherElement> factory = new MetaStoreFactory<MyOtherElement>( MyOtherElement.class, metaStore, "custom" );
+    MetaStoreFactory<MyOtherElement> factory = new MetaStoreFactory<MyOtherElement>( MyOtherElement.class, metaStore );
     MyOtherElement element = new MyOtherElement( null, ATTR );
 
     try {
