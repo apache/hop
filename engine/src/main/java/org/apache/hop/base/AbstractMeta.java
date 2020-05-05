@@ -24,10 +24,9 @@ package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.changed.ChangedFlag;
@@ -35,15 +34,15 @@ import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.IUndo;
+import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
@@ -54,7 +53,6 @@ import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
@@ -347,7 +345,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
       return null;
     }
     try {
-      return DatabaseMeta.createFactory( metaStore ).loadElement( name );
+      DatabaseMeta databaseMeta = DatabaseMeta.createFactory( metaStore ).loadElement( name );
+      databaseMeta.initializeVariablesFrom( this );
+      return databaseMeta;
     } catch ( MetaStoreException e ) {
       throw new RuntimeException( "Unable to load database with name '" + name + "' from the metastore", e );
     }

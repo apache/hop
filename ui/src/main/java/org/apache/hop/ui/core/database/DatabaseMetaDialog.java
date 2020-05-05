@@ -149,6 +149,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     this.metaStore = metaStore;
     this.databaseMeta = databaseMeta;
     this.workingMeta = new DatabaseMeta( databaseMeta );
+    this.workingMeta.initializeVariablesFrom( this.databaseMeta );
     props = PropsUi.getInstance();
     metaMap = populateMetaMap();
     metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
@@ -736,7 +737,10 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   }
 
   private void test( Event event ) {
-    testConnection( shell, getInfo( new DatabaseMeta() ) );
+    DatabaseMeta meta = new DatabaseMeta();
+    meta.initializeVariablesFrom( this.databaseMeta );
+    getInfo(meta);
+    testConnection( shell, meta );
   }
 
   /**
