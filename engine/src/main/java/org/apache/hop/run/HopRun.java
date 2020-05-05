@@ -78,12 +78,6 @@ public class HopRun implements Runnable {
   @Option( names = { "-r", "--runconfig" }, description = "The name of the Run Configuration to use" )
   private String runConfigurationName = null;
 
-  @Option( names = { "-t", "--pipeline" }, description = "Force execution of a pipeline" )
-  private boolean runPipeline = false;
-
-  @Option( names = { "-w", "--workflow" }, description = "Force execution of a workflow" )
-  private boolean runWorkflow = false;
-
   @Option( names = { "-o", "--printoptions" }, description = "Print the used options" )
   private boolean printingOptions = false;
 
@@ -319,23 +313,29 @@ public class HopRun implements Runnable {
   }
 
   private boolean isPipeline() {
-    if ( runPipeline ) {
-      return true;
-    }
     if ( StringUtils.isEmpty( filename ) ) {
       return false;
     }
-    return filename.toLowerCase().endsWith( ".hpl" );
+    if (filename.toLowerCase().endsWith( ".hpl" )) {
+      return true;
+    }
+    if (filename.toLowerCase().endsWith( ".hwf" )) {
+      return false;
+    }
+    return false;
   }
 
   private boolean isWorkflow() {
-    if ( runWorkflow ) {
-      return true;
-    }
     if ( StringUtils.isEmpty( filename ) ) {
       return false;
     }
-    return filename.toLowerCase().endsWith( ".hwf" );
+    if (filename.toLowerCase().endsWith( ".hwf" )) {
+      return true;
+    }
+    if (filename.toLowerCase().endsWith( ".hpl" )) {
+      return false;
+    }
+    return false;
   }
 
 
@@ -549,38 +549,6 @@ public class HopRun implements Runnable {
    */
   public void setRunConfigurationName( String runConfigurationName ) {
     this.runConfigurationName = runConfigurationName;
-  }
-
-  /**
-   * Gets runPipeline
-   *
-   * @return value of runPipeline
-   */
-  public boolean isRunPipeline() {
-    return runPipeline;
-  }
-
-  /**
-   * @param runPipeline The runPipeline to set
-   */
-  public void setRunPipeline( boolean runPipeline ) {
-    this.runPipeline = runPipeline;
-  }
-
-  /**
-   * Are we running a workflow
-   *
-   * @return true if a workflow is run
-   */
-  public boolean isRunWorkflow() {
-    return runWorkflow;
-  }
-
-  /**
-   * @param runWorkflow true if you want to force execution of a workflow
-   */
-  public void setRunWorkflow( boolean runWorkflow ) {
-    this.runWorkflow = runWorkflow;
   }
 
   /**
