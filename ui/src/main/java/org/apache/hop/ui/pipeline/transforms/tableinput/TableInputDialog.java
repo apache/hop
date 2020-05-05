@@ -89,40 +89,23 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSql, fdSql;
 
-  private Label wlDatefrom;
   private CCombo wDatefrom;
-  private FormData fdlDatefrom, fdDatefrom;
-  private Listener lsDatefrom;
 
-  private Label wlLimit;
   private TextVar wLimit;
-  private FormData fdlLimit, fdLimit;
 
   private Label wlEachRow;
   private Button wEachRow;
-  private FormData fdlEachRow, fdEachRow;
 
-  private Label wlVariables;
   private Button wVariables;
-  private FormData fdlVariables, fdVariables;
 
-  private Label wlLazyConversion;
   private Button wLazyConversion;
-  private FormData fdlLazyConversion, fdLazyConversion;
 
-  private Button wbTable;
-  private FormData fdbTable;
-  private Listener lsbTable;
-
-  private TableInputMeta input;
+  private final TableInputMeta input;
   private boolean changedInDialog;
 
   private Label wlPosition;
-  private FormData fdlPosition;
 
   public TableInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -189,10 +172,10 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
 
     // Limit input ...
-    wlLimit = new Label( shell, SWT.RIGHT );
+    Label wlLimit = new Label( shell, SWT.RIGHT );
     wlLimit.setText( BaseMessages.getString( PKG, "TableInputDialog.LimitSize" ) );
     props.setLook( wlLimit );
-    fdlLimit = new FormData();
+    FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.bottom = new FormAttachment( wOk, -2 * margin );
@@ -200,7 +183,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wLimit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
-    fdLimit = new FormData();
+    FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
     fdLimit.right = new FormAttachment( 100, 0 );
     fdLimit.bottom = new FormAttachment( wOk, -2 * margin );
@@ -210,14 +193,14 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wlEachRow = new Label( shell, SWT.RIGHT );
     wlEachRow.setText( BaseMessages.getString( PKG, "TableInputDialog.ExecuteForEachRow" ) );
     props.setLook( wlEachRow );
-    fdlEachRow = new FormData();
+    FormData fdlEachRow = new FormData();
     fdlEachRow.left = new FormAttachment( 0, 0 );
     fdlEachRow.right = new FormAttachment( middle, -margin );
     fdlEachRow.bottom = new FormAttachment( wLimit, -margin );
     wlEachRow.setLayoutData( fdlEachRow );
     wEachRow = new Button( shell, SWT.CHECK );
     props.setLook( wEachRow );
-    fdEachRow = new FormData();
+    FormData fdEachRow = new FormData();
     fdEachRow.left = new FormAttachment( middle, 0 );
     fdEachRow.right = new FormAttachment( 100, 0 );
     fdEachRow.bottom = new FormAttachment( wLimit, -margin );
@@ -230,10 +213,10 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wEachRow.addSelectionListener( lsSelMod );
 
     // Read date from...
-    wlDatefrom = new Label( shell, SWT.RIGHT );
+    Label wlDatefrom = new Label( shell, SWT.RIGHT );
     wlDatefrom.setText( BaseMessages.getString( PKG, "TableInputDialog.InsertDataFromTransform" ) );
     props.setLook( wlDatefrom );
-    fdlDatefrom = new FormData();
+    FormData fdlDatefrom = new FormData();
     fdlDatefrom.left = new FormAttachment( 0, 0 );
     fdlDatefrom.right = new FormAttachment( middle, -margin );
     fdlDatefrom.bottom = new FormAttachment( wEachRow, -margin );
@@ -247,7 +230,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     wDatefrom.addModifyListener( lsMod );
-    fdDatefrom = new FormData();
+    FormData fdDatefrom = new FormData();
     fdDatefrom.left = new FormAttachment( middle, 0 );
     fdDatefrom.right = new FormAttachment( 100, 0 );
     fdDatefrom.bottom = new FormAttachment( wEachRow, -margin );
@@ -255,17 +238,17 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     // Replace variables in SQL?
     //
-    wlVariables = new Label( shell, SWT.RIGHT );
+    Label wlVariables = new Label( shell, SWT.RIGHT );
     wlVariables.setText( BaseMessages.getString( PKG, "TableInputDialog.ReplaceVariables" ) );
     props.setLook( wlVariables );
-    fdlVariables = new FormData();
+    FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment( 0, 0 );
     fdlVariables.right = new FormAttachment( middle, -margin );
     fdlVariables.bottom = new FormAttachment( wDatefrom, -margin );
     wlVariables.setLayoutData( fdlVariables );
     wVariables = new Button( shell, SWT.CHECK );
     props.setLook( wVariables );
-    fdVariables = new FormData();
+    FormData fdVariables = new FormData();
     fdVariables.left = new FormAttachment( middle, 0 );
     fdVariables.right = new FormAttachment( 100, 0 );
     fdVariables.bottom = new FormAttachment( wDatefrom, -margin );
@@ -279,17 +262,17 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     // Lazy conversion?
     //
-    wlLazyConversion = new Label( shell, SWT.RIGHT );
+    Label wlLazyConversion = new Label( shell, SWT.RIGHT );
     wlLazyConversion.setText( BaseMessages.getString( PKG, "TableInputDialog.LazyConversion" ) );
     props.setLook( wlLazyConversion );
-    fdlLazyConversion = new FormData();
+    FormData fdlLazyConversion = new FormData();
     fdlLazyConversion.left = new FormAttachment( 0, 0 );
     fdlLazyConversion.right = new FormAttachment( middle, -margin );
     fdlLazyConversion.bottom = new FormAttachment( wVariables, -margin );
     wlLazyConversion.setLayoutData( fdlLazyConversion );
     wLazyConversion = new Button( shell, SWT.CHECK );
     props.setLook( wLazyConversion );
-    fdLazyConversion = new FormData();
+    FormData fdLazyConversion = new FormData();
     fdLazyConversion.left = new FormAttachment( middle, 0 );
     fdLazyConversion.right = new FormAttachment( 100, 0 );
     fdLazyConversion.bottom = new FormAttachment( wVariables, -margin );
@@ -303,25 +286,25 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
     wlPosition = new Label( shell, SWT.NONE );
     props.setLook( wlPosition );
-    fdlPosition = new FormData();
+    FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.right = new FormAttachment( 100, 0 );
     fdlPosition.bottom = new FormAttachment( wLazyConversion, -margin );
     wlPosition.setLayoutData( fdlPosition );
 
     // Table line...
-    wlSql = new Label( shell, SWT.NONE );
+    Label wlSql = new Label( shell, SWT.NONE );
     wlSql.setText( BaseMessages.getString( PKG, "TableInputDialog.SQL" ) );
-    props.setLook(wlSql);
-    fdlSql = new FormData();
+    props.setLook( wlSql );
+    FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment( 0, 0 );
     fdlSql.top = new FormAttachment( wConnection, margin * 2 );
-    wlSql.setLayoutData(fdlSql);
+    wlSql.setLayoutData( fdlSql );
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
+    Button wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbTable );
     wbTable.setText( BaseMessages.getString( PKG, "TableInputDialog.GetSQLAndSelectStatement" ) );
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wConnection, margin * 2 );
     wbTable.setLayoutData( fdbTable );
@@ -330,12 +313,12 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    fdSql = new FormData();
+    FormData fdSql = new FormData();
     fdSql.left = new FormAttachment( 0, 0 );
     fdSql.top = new FormAttachment( wbTable, margin );
     fdSql.right = new FormAttachment( 100, -2 * margin );
     fdSql.bottom = new FormAttachment( wlPosition, -margin );
-    wSql.setLayoutData(fdSql);
+    wSql.setLayoutData( fdSql );
     wSql.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
         setSqlToolTip();
@@ -394,12 +377,12 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
         ok();
       }
     };
-    lsbTable = new Listener() {
+    Listener lsbTable = new Listener() {
       public void handleEvent( Event e ) {
         getSql();
       }
     };
-    lsDatefrom = new Listener() {
+    Listener lsDatefrom = new Listener() {
       public void handleEvent( Event e ) {
         setFlags();
       }

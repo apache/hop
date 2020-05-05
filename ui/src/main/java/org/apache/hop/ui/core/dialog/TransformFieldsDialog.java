@@ -47,9 +47,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -64,33 +62,17 @@ import org.eclipse.swt.widgets.Text;
 public class TransformFieldsDialog extends Dialog {
   private static Class<?> PKG = TransformFieldsDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlTransformName;
-
-  private Text wTransformName;
-
-  private FormData fdlTransformName, fdTransformName;
-
-  private Label wlFields;
-
   private TableView wFields;
 
-  private FormData fdlFields, fdFields;
-
-  private Button wEdit, wCancel, wClose;
-
-  private Listener lsEdit, lsCancel;
-
-  private IRowMeta input;
+  private final IRowMeta input;
 
   private Shell shell;
 
-  private PropsUi props;
+  private final PropsUi props;
 
   private String transformName;
 
-  private SelectionAdapter lsDef;
-
-  private IVariables variables;
+  private final IVariables variables;
 
   private String shellText;
 
@@ -127,27 +109,49 @@ public class TransformFieldsDialog extends Dialog {
 
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    //
+    Button[] buttons;
+    if ( showEditButton ) {
+      Button wEdit = new Button( shell, SWT.PUSH );
+      wEdit.setText( BaseMessages.getString( PKG, "TransformFieldsDialog.Buttons.EditOrigin" ) );
+      wEdit.addListener( SWT.Selection, e -> edit() );
+      Button wCancel = new Button( shell, SWT.PUSH );
+      wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+      wCancel.addListener( SWT.Selection, e -> cancel() );
+
+      buttons = new Button[] { wEdit, wCancel };
+    } else {
+      Button wClose = new Button( shell, SWT.PUSH );
+      wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
+      wClose.addListener( SWT.Selection, e -> cancel() );
+      buttons = new Button[] { wClose };
+    }
+
+    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
+
+
     // Filename line
-    wlTransformName = new Label( shell, SWT.NONE );
+    Label wlTransformName = new Label( shell, SWT.NONE );
     wlTransformName.setText( originText );
     props.setLook( wlTransformName );
-    fdlTransformName = new FormData();
+    FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
     fdlTransformName.top = new FormAttachment( 0, margin );
     wlTransformName.setLayoutData( fdlTransformName );
-    wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.READ_ONLY );
+    Text wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.READ_ONLY );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
-    fdTransformName = new FormData();
+    FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment( wlTransformName, margin );
     fdTransformName.top = new FormAttachment( 0, margin );
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "TransformFieldsDialog.Fields.Label" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wlTransformName, margin );
     wlFields.setLayoutData( fdlFields );
@@ -199,47 +203,17 @@ public class TransformFieldsDialog extends Dialog {
         null, props );
     wFields.optWidth( true );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
+    fdFields.bottom = new FormAttachment( buttons[0], -margin*2 );
     wFields.setLayoutData( fdFields );
 
-    // Add listeners
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsEdit = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        edit();
-      }
-    };
 
-    Button[] buttons;
-    if ( showEditButton ) {
-      wEdit = new Button( shell, SWT.PUSH );
-      wEdit.setText( BaseMessages.getString( PKG, "TransformFieldsDialog.Buttons.EditOrigin" ) );
-      wEdit.addListener( SWT.Selection, lsEdit );
-      wCancel = new Button( shell, SWT.PUSH );
-      wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-      wCancel.addListener( SWT.Selection, lsCancel );
 
-      buttons = new Button[] { wEdit, wCancel };
-    } else {
-      wClose = new Button( shell, SWT.PUSH );
-      wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
-      wClose.addListener( SWT.Selection, lsCancel );
-      buttons = new Button[] { wClose };
-    }
 
-    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, wFields );
-
-    lsDef = new SelectionAdapter() {
+    SelectionAdapter lsDef = new SelectionAdapter() {
       @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
         edit();

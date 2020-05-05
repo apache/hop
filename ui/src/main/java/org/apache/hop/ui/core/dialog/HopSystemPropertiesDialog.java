@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopVariablesList;
 import org.apache.hop.core.config.HopConfig;
@@ -219,9 +220,11 @@ public class HopSystemPropertiesDialog extends Dialog {
   private void ok() {
     for (int i=0;i<wFields.nrNonEmpty();i++) {
       TableItem item = wFields.getNonEmpty( i );
-      String key = item.getText(2);
-      String value = item.getText(3);
-      systemProperties.put( key, value );
+      String key = item.getText(1);
+      String value = item.getText(2);
+      if ( StringUtils.isNotEmpty(key)) {
+        systemProperties.put( key, Const.NVL(value, "") );
+      }
     }
 
     dispose();

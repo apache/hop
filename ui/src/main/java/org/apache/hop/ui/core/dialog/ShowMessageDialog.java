@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -204,7 +205,7 @@ public class ShowMessageDialog extends Dialog {
     if ( scroll ) {
       wlDesc = new Text( shell, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL );
       shell.setSize( 550, 350 );
-      fdlDesc.bottom = new FormAttachment( 100, -50 );
+      fdlDesc.bottom = new FormAttachment( 100, -70 );
       fdlDesc.right = new FormAttachment( 100, 0 );
     } else {
       wlDesc = new Text( shell, SWT.MULTI | SWT.READ_ONLY );
@@ -216,8 +217,8 @@ public class ShowMessageDialog extends Dialog {
 
     wlDesc.setLayoutData( fdlDesc );
 
-    buttons = new ArrayList<Button>();
-    adapters = new ArrayList<SelectionAdapter>();
+    buttons = new ArrayList<>();
+    adapters = new ArrayList<>();
 
     for ( Map.Entry<Integer, String> entry : buttonTextByFlag.entrySet() ) {
       Integer buttonFlag = entry.getKey();
@@ -244,9 +245,9 @@ public class ShowMessageDialog extends Dialog {
       }
     } );
 
-    shell.layout();
+
     if ( !scroll ) {
-      shell.pack( true );
+      BaseTransformDialog.setSize( shell );
     }
 
     final Button button = buttons.get( 0 );
@@ -275,6 +276,7 @@ public class ShowMessageDialog extends Dialog {
   }
 
   public void dispose() {
+    props.setScreen( new WindowProperty(shell) );
     shell.dispose();
   }
 

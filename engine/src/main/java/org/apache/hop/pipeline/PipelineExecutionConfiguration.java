@@ -173,7 +173,9 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
+      if (StringUtils.isNotEmpty(keys[i])) {
+        sp.put( keys[ i ], Const.NVL(variables.getVariable( keys[ i ] ), "") );
+      }
     }
 
     List<String> vars = pipelineMeta.getUsedVariables();
