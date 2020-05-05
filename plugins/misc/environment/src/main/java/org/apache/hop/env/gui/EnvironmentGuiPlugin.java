@@ -2,21 +2,14 @@ package org.apache.hop.env.gui;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.env.config.EnvironmentConfig;
-import org.apache.hop.env.config.EnvironmentConfigDialog;
-import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
 import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
@@ -71,26 +64,6 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
    * The methods below are called on the instance given by getInstance().
    */
   public EnvironmentGuiPlugin() {
-  }
-
-  @GuiMenuElement(
-    root = HopGui.ID_MAIN_MENU,
-    id = ID_MENU_TOOLS_CONFIGURE_ENVIRONMENTS,
-    label = "Configure environments",
-    parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID
-  )
-  @GuiKeyboardShortcut( control = true, key = 'e' )
-  @GuiOsxKeyboardShortcut( command = true, key = 'e' )
-  public void menuToolsEnvironmentConfig() {
-    HopGui hopGui = HopGui.getInstance();
-    EnvironmentConfigDialog dialog = new EnvironmentConfigDialog( hopGui.getShell(), EnvironmentConfigSingleton.getConfig() );
-    if ( dialog.open() ) {
-      try {
-        HopConfig.saveOption( EnvironmentConfig.HOP_CONFIG_ENVIRONMENT_CONFIG, EnvironmentConfigSingleton.getConfig() );
-      } catch ( Exception e ) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving environment system configuration", e );
-      }
-    }
   }
 
   @GuiToolbarElement(
