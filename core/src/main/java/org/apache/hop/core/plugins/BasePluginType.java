@@ -327,6 +327,17 @@ public abstract class BasePluginType implements IPluginType {
     }
   }
 
+  protected static String[] getTranslations( String[] strings, String packageName, String altPackageName, Class<?> resourceClass) {
+    if (strings==null) {
+      return null;
+    }
+    String[] translations = new String[strings.length];
+    for (int i=0;i<translations.length;i++) {
+      translations[i] = getTranslation( strings[i], packageName, altPackageName, resourceClass );
+    }
+    return translations;
+  }
+
   protected static String getTranslation( String string, String packageName, String altPackageName,
                                           Class<?> resourceClass ) {
     if ( string == null ) {
@@ -818,7 +829,7 @@ public abstract class BasePluginType implements IPluginType {
     String forumUrl = extractForumUrl( annotation );
     String suggestion = getTranslation( extractSuggestion( annotation ), packageName, altPackageName, clazz );
     String classLoaderGroup = extractClassLoaderGroup( annotation );
-    String[] keywords = extractKeywords( annotation );
+    String[] keywords = getTranslations(extractKeywords( annotation ), packageName, altPackageName, clazz);
 
     name += addDeprecation( category );
 
