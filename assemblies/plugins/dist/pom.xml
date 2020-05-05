@@ -1474,7 +1474,20 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-ldifinput</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-loadfileinput</artifactId>

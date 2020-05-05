@@ -25,10 +25,11 @@ package org.apache.hop.pipeline.transforms.ldifinput;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
 import org.junit.Before;
@@ -43,7 +44,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
+public class LDIFInputMetaTest implements IInitializer<ITransformMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
   LoadSaveTester loadSaveTester;
 
@@ -119,16 +120,16 @@ public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
         put( "inputFields", "setInputFields" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
-    FieldLoadSaveValidator<LDIFInputField[]> liflsv =
+    IFieldLoadSaveValidator<LDIFInputField[]> liflsv =
       new ArrayLoadSaveValidator<LDIFInputField>( new LDIFInputFieldLoadSaveValidator(), 5 );
 
-    FieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new YNLoadSaveValidator(), 5 );
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
@@ -136,7 +137,7 @@ public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "inputFields", liflsv );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( LDIFInputMeta.class, attributes, new ArrayList<>(),
@@ -145,7 +146,7 @@ public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( ITransform someMeta ) {
+  public void modify( ITransformMeta someMeta ) {
     if ( someMeta instanceof LDIFInputMeta ) {
       ( (LDIFInputMeta) someMeta ).allocate( 5, 5 );
     }
@@ -156,7 +157,7 @@ public class LDIFInputMetaTest implements InitializerInterface<ITransform> {
     loadSaveTester.testSerialization();
   }
 
-  public class LDIFInputFieldLoadSaveValidator implements FieldLoadSaveValidator<LDIFInputField> {
+  public class LDIFInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<LDIFInputField> {
     final Random rand = new Random();
 
     @Override
