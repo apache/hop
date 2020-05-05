@@ -23,7 +23,6 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.IExecutionConfiguration;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -149,7 +148,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
+      sp.put( keys[ i ], Const.NVL(variables.getVariable( keys[ i ] ), "") );
     }
 
     List<String> vars = workflowMeta.getUsedVariables();

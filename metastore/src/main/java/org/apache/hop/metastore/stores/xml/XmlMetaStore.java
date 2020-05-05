@@ -518,7 +518,7 @@ public class XmlMetaStore extends BaseMetaStore implements IMetaStore {
    * @return the non-hidden folders in the specified folder
    */
   protected File[] listFolders( File folder ) {
-    File[] folders = folder.listFiles( file -> !file.isHidden() && file.isDirectory() );
+    File[] folders = folder.listFiles( file -> !file.isHidden() && file.isDirectory() && !"hop".equals(file.getName()) );
     if ( folders == null ) {
       folders = new File[] {};
     }
