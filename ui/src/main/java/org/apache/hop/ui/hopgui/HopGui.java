@@ -60,6 +60,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.HopSystemPropertiesDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -113,6 +114,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @GuiPlugin(
   description = "The main hop graphical user interface"
@@ -157,6 +159,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
   public static final String ID_MAIN_MENU_TOOLS_OPTIONS   = "40010-menu-tools-options";
+  public static final String ID_MAIN_MENU_TOOLS_SYSPROPS  = "40020-menu-tools-system-properties";
 
 
   // The main toolbar IDs
@@ -665,6 +668,19 @@ public class HopGui implements IActionContextHandlersProvider {
         HopConfig.saveToFile();
       } catch(Exception e) {
         new ErrorDialog( hopGui.getShell(), "Error", "Error saving the configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+      }
+    }
+  }
+
+  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_SYSPROPS, label = "Edit system properties...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
+  public void menuToolsSystemSettings() {
+    HopSystemPropertiesDialog dialog = new HopSystemPropertiesDialog( shell );
+    Map<String, String> systemSettings = dialog.open();
+    if (systemSettings!=null) {
+      try {
+        HopConfig.saveSystemProperties( systemSettings );
+      } catch(Exception e) {
+        new ErrorDialog( hopGui.getShell(), "Error", "Error saving system properties to configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
       }
     }
   }

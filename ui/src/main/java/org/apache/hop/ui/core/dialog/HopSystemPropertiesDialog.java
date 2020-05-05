@@ -42,47 +42,39 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Allows the user to edit the hop.config file.
+ * Allows the user to edit the system settings of the hop.config file.
  *
  * @author Matt
  */
-public class HopConfigFileDialog extends Dialog {
-  private static Class<?> PKG = HopConfigFileDialog.class; // for i18n purposes, needed by Translator!!
+public class HopSystemPropertiesDialog extends Dialog {
+  private static Class<?> PKG = HopSystemPropertiesDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
-  private PropsUi props;
+  private final PropsUi props;
 
-  private Map<String, String> kettleProperties;
-
-  private Set<String> previousHopPropertiesKeys;
+  private Map<String, String> systemProperties;
 
   /**
    * Constructs a new dialog
    *
    * @param parent  The parent shell to link to
-   * @param style   The style in which we want to draw this shell.
    */
-  public HopConfigFileDialog( Shell parent, int style ) {
-    super( parent, style );
+  public HopSystemPropertiesDialog( Shell parent ) {
+    super( parent, SWT.NONE );
     props = PropsUi.getInstance();
-    kettleProperties = null;
+    systemProperties = null;
   }
 
   public Map<String, String> open() {
@@ -102,20 +94,31 @@ public class HopConfigFileDialog extends Dialog {
 
     int margin = props.getMargin();
 
-    // Message line
+    // The buttons at the bottom
     //
-    wlFields = new Label( shell, SWT.NONE );
+    Button wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+
+    Button wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
+
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
+
+    // Message line at the top
+    //
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "HopPropertiesFileDialog.Message" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( 0, margin );
     wlFields.setLayoutData( fdlFields );
 
     int FieldsRows = 0;
 
-    ColumnInfo[] colinf =
-      new ColumnInfo[] {
+    ColumnInfo[] columns = {
         new ColumnInfo(
           BaseMessages.getString( PKG, "HopPropertiesFileDialog.Name.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
@@ -125,44 +128,23 @@ public class HopConfigFileDialog extends Dialog {
         new ColumnInfo(
           BaseMessages.getString( PKG, "HopPropertiesFileDialog.Description.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false, true ), };
-    colinf[ 2 ].setDisabledListener( rowNr -> false );
+    columns[ 2 ].setDisabledListener( rowNr -> false );
 
-    wFields =
-      new TableView(
-        Variables.getADefaultVariableSpace(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf,
+    // Fields between the label and the buttons
+    //
+    wFields = new TableView( Variables.getADefaultVariableSpace(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns,
         FieldsRows, null, props );
 
     wFields.setReadonly( false );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, 30 );
+    fdFields.top = new FormAttachment( wlFields, 2*margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
+    fdFields.bottom = new FormAttachment( wOk, -2*margin );
     wFields.setLayoutData( fdFields );
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
-
-    // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -181,7 +163,7 @@ public class HopConfigFileDialog extends Dialog {
         display.sleep();
       }
     }
-    return kettleProperties;
+    return systemProperties;
   }
 
   public void dispose() {
@@ -198,12 +180,29 @@ public class HopConfigFileDialog extends Dialog {
       //
       HopVariablesList variablesList = HopVariablesList.getInstance();
 
+      // Here are the current properties...
+      //
+      systemProperties = HopConfig.readSystemProperties();
+
       // Obtain and sort the list of keys...
       //
-      List<String> keys = HopConfig.getSortedKeys();
+      List<String> keys = new ArrayList<>(systemProperties.keySet() );
+      Collections.sort(keys);
 
-      // TODO: populate dialog with GuiPlugin widgets from configuration plugins
-      //
+      for (String key : keys) {
+        TableItem item = new TableItem(wFields.table, SWT.NONE);
+        int col=1;
+        String value = systemProperties.get( key );
+        String description = variablesList.getDescriptionMap().get( key );
+
+        item.setText( col++, Const.NVL(key, "") );
+        item.setText( col++, Const.NVL(value, "") );
+        item.setText( col++, Const.NVL(description, "") );
+      }
+
+      wFields.removeEmptyRows();
+      wFields.setRowNums();
+      wFields.optWidth( true );
 
     } catch ( Exception e ) {
       new ErrorDialog( shell,
@@ -213,12 +212,18 @@ public class HopConfigFileDialog extends Dialog {
   }
 
   private void cancel() {
-    kettleProperties = null;
+    systemProperties = null;
     dispose();
   }
 
   private void ok() {
-    // TODO : get info using GuiCompositeWidgets
+    for (int i=0;i<wFields.nrNonEmpty();i++) {
+      TableItem item = wFields.getNonEmpty( i );
+      String key = item.getText(2);
+      String value = item.getText(3);
+      systemProperties.put( key, value );
+    }
+
     dispose();
   }
 }
