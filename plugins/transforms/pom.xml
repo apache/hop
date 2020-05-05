@@ -100,7 +100,10 @@
         <module>httppost</module>
         <module>ifnull</module>
         <module>insertupdate</module>
+        <module>janino</module>
+        <module>javafilter</module>
         <module>javascript</module>
+        <module>joinrows</module>
         <module>ldap</module>
         <module>loadfileinput</module>
         <module>memgroupby</module>
