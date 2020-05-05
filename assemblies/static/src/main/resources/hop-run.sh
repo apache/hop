@@ -42,7 +42,7 @@ case $( uname -s ) in
 esac
 
 
-"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH  -classpath "${CLASSPATH}" org.apache.hop.cli.HopRun "$@"
+"$_HOP_JAVA" ${HOP_OPTIONS} -Djava.library.path=$LIBPATH  -classpath "${CLASSPATH}" org.apache.hop.run.HopRun "$@"
 EXITCODE=$?
 
 cd ${ORIGINDIR}
