@@ -5,7 +5,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-plugins-databases</artifactId>
-  <version>0.20-SNAPSHOT</version>
+  <version>0.20</version>
     <modules>
     </modules>
     <packaging>pom</packaging>
@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.20-SNAPSHOT</version>
+    <version>0.20</version>
   </parent>
 
   <properties>
@@ -105,7 +105,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.20-SNAPSHOT</version>
+      <version>0.20</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

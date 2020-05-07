@@ -7,7 +7,7 @@
     <parent>
         <artifactId>hop-assemblies-plugins</artifactId>
         <groupId>org.hop</groupId>
-        <version>0.20-SNAPSHOT</version>
+        <version>0.20</version>
     </parent>
     <packaging>pom</packaging>
 
