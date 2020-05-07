@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>hop-plugins-misc-testing</artifactId>
-  <version>0.20-SNAPSHOT</version>
+  <version>0.30-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Miscellaneous Testing</name>
@@ -12,7 +12,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins-misc</artifactId>
-    <version>0.20-SNAPSHOT</version>
+    <version>0.30-SNAPSHOT</version>
   </parent>
 
   <dependencies>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.20-SNAPSHOT</version>
+      <version>0.30-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
