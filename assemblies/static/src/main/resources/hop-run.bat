@@ -21,10 +21,11 @@ set HOP_OPTIONS=%HOP_OPTIONS% "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:
 REM Pass HOP variables if they're set.
 if not "%HOP_AUDIT_DIRECTORY%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_AUDIT_DIRECTORY="%HOP_AUDIT_DIRECTORY%
-}
+)
 if not "%HOP_CONFIG_DIRECTORY%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_CONFIG_DIRECTORY="%HOP_CONFIG_DIRECTORY%
-}
+)
+
 @echo on
 %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* "-Djava.library.path=%LIBSPATH%" %HOP_OPTIONS% org.apache.hop.run.HopRun
 @echo off
