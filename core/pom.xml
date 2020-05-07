@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-core</artifactId>
-  <version>0.20</version>
+  <version>0.21</version>
   <packaging>jar</packaging>
 
   <name>Hop Core</name>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.20</version>
+    <version>0.21</version>
   </parent>
 
   <properties>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-metastore</artifactId>
-      <version>0.20</version>
+      <version>0.21</version>
     </dependency>
 
     <!-- Third-party dependencies -->

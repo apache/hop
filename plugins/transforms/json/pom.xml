@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins-transforms</artifactId>
-    <version>0.20</version>
+    <version>0.21</version>
   </parent>
 
   <artifactId>hop-transforms-json</artifactId>
@@ -115,19 +115,19 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-rowgenerator</artifactId>
-      <version>0.20</version>
+      <version>0.21</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-sort</artifactId>
-      <version>0.20</version>
+      <version>0.21</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-sort</artifactId>
-      <version>0.20</version>
+      <version>0.21</version>
       <scope>test</scope>
     </dependency>
 

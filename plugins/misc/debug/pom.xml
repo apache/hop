@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>hop-plugins-misc-debug</artifactId>
-  <version>0.20</version>
+  <version>0.21</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Miscellaneous Debug</name>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-plugins-misc</artifactId>
-    <version>0.20</version>
+    <version>0.21</version>
   </parent>
 
   <dependencies>
@@ -31,7 +31,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.20</version>
+      <version>0.21</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

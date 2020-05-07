@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop</artifactId>
-  <version>0.20</version>
+  <version>0.21</version>
   <modules>
     <module>plugins/transforms/json</module>
     <module>assemblies/plugins/transforms/json</module>
