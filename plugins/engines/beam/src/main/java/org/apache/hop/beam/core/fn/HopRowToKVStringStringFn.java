@@ -1,0 +1,79 @@
+package org.apache.hop.beam.core.fn;
+
+import org.apache.beam.sdk.metrics.Counter;
+import org.apache.beam.sdk.metrics.Metrics;
+import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.values.KV;
+import org.apache.hop.beam.core.BeamHop;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.beam.core.util.JsonRowMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String,String>> {
+
+  private String rowMetaJson;
+  private String transformName;
+  private int keyIndex;
+  private int valueIndex;
+  private List<String> stepPluginClasses;
+  private List<String> xpPluginClasses;
+
+  private static final Logger LOG = LoggerFactory.getLogger( HopRowToKVStringStringFn.class );
+  private final Counter numErrors = Metrics.counter( "main", "BeamSubscribeTransformErrors" );
+
+  private IRowMeta rowMeta;
+  private transient Counter initCounter;
+  private transient Counter inputCounter;
+  private transient Counter writtenCounter;
+
+  public HopRowToKVStringStringFn( String transformName, int keyIndex, int valueIndex, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    this.transformName = transformName;
+    this.keyIndex = keyIndex;
+    this.valueIndex = valueIndex;
+    this.rowMetaJson = rowMetaJson;
+    this.stepPluginClasses = stepPluginClasses;
+    this.xpPluginClasses = xpPluginClasses;
+  }
+
+  @Setup
+  public void setUp() {
+    try {
+      inputCounter = Metrics.counter( "input", transformName );
+      writtenCounter = Metrics.counter( "written", transformName );
+
+      // Initialize Kettle Beam
+      //
+      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      rowMeta = JsonRowMeta.fromJson( rowMetaJson );
+
+      Metrics.counter( "init", transformName ).inc();
+    } catch ( Exception e ) {
+      numErrors.inc();
+      LOG.error( "Error in setup of HopRow to KV<String,String> function", e );
+      throw new RuntimeException( "Error in setup of HopRow to KV<String,String> function", e );
+    }
+  }
+
+  @ProcessElement
+  public void processElement( ProcessContext processContext ) {
+    try {
+      HopRow kettleRow = processContext.element();
+      inputCounter.inc();
+
+      String key = rowMeta.getString(kettleRow.getRow(), keyIndex);
+      String value = rowMeta.getString(kettleRow.getRow(), valueIndex);
+
+      processContext.output( KV.of( key, value ) );
+      writtenCounter.inc();
+
+    } catch ( Exception e ) {
+      numErrors.inc();
+      LOG.error( "Error in HopRow to KV<String,String> function", e );
+      throw new RuntimeException( "Error in HopRow to KV<String,String> function", e );
+    }
+  }
+}
