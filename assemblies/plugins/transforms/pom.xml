@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hop-assemblies-plugins</artifactId>
         <groupId>org.hop</groupId>
-        <version>0.20-SNAPSHOT</version>
+        <version>0.30-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -67,8 +67,12 @@
         <module>httppost</module>
         <module>insertupdate</module>
         <module>ifnull</module>
+        <module>janino</module>
+        <module>javafilter</module>
         <module>javascript</module>
+        <module>joinrows</module>
         <module>ldap</module>
+        <module>ldifinput</module>
         <module>loadfileinput</module>
         <module>memgroupby</module>
         <module>mergejoin</module>

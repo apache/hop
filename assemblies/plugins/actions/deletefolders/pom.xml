@@ -7,11 +7,11 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-assemblies-plugins-actions</artifactId>
-        <version>0.20-SNAPSHOT</version>
+        <version>0.30-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins-action-deletefolders</artifactId>
-    <version>0.20-SNAPSHOT</version>
+    <version>0.30-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Actions Delete folders</name>
     <description></description>
