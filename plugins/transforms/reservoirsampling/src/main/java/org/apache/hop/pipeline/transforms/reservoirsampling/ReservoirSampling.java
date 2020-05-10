@@ -36,10 +36,8 @@ import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingDat
 import java.util.Arrays;
 import java.util.List;
 
-public class ReservoirSampling extends BaseTransform implements ITransform {
+public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, ReservoirSamplingData> implements ITransform<ReservoirSamplingMeta, ReservoirSamplingData> {
 
-  private ReservoirSamplingMeta m_meta;
-  private ReservoirSamplingData m_data;
 
   /**
    * Creates a new <code>ReservoirSampling</code> instance.
@@ -55,12 +53,12 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
    * 1985. Pages 37-57.
    *
    * @param transformMeta          holds the transform's meta data
-   * @param iTransformData holds the transform's temporary data
+   * @param ReservoirSamplingData holds the transform's temporary data
    * @param copyNr            the number assigned to the transform
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
    */
-  public ReservoirSampling( TransformMeta transformMeta, ITransformData data, int copyNr,
+  public ReservoirSampling( TransformMeta transformMeta, ReservoirSamplingMeta meta, ReservoirSamplingData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -68,21 +66,16 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
   /**
    * Process an incoming row of data.
    *
-   * @param smi a <code>ITransform</code> value
-   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    * @throws HopException if an error occurs
    */
   public boolean processRow() throws HopException {
 
-    if ( m_data.getProcessingMode() == PROC_MODE.DISABLED ) {
+    if ( data.getProcessingMode() == PROC_MODE.DISABLED ) {
       setOutputDone();
-      m_data.cleanUp();
+      data.cleanUp();
       return ( false );
     }
-
-    m_meta = (ReservoirSamplingMeta) smi;
-    m_data = (ReservoirSamplingData) sdi;
 
     Object[] r = getRow();
 
@@ -96,36 +89,36 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
       }
 
       // Initialize the data object
-      m_data.setOutputRowMeta( getInputRowMeta().clone() );
-      String sampleSize = getPipelineMeta().environmentSubstitute( m_meta.getSampleSize() );
-      String seed = getPipelineMeta().environmentSubstitute( m_meta.getSeed() );
-      m_data.initialize( Integer.valueOf( sampleSize ), Integer.valueOf( seed ) );
+      data.setOutputRowMeta( getInputRowMeta().clone() );
+      String sampleSize = getPipelineMeta().environmentSubstitute( meta.getSampleSize() );
+      String seed = getPipelineMeta().environmentSubstitute( meta.getSeed() );
+      data.initialize( Integer.valueOf( sampleSize ), Integer.valueOf( seed ) );
 
       // no real reason to determine the output fields here
       // as we don't add/delete any fields
     } // end (if first)
 
-    if ( m_data.getProcessingMode() == PROC_MODE.PASSTHROUGH ) {
+    if ( data.getProcessingMode() == PROC_MODE.PASSTHROUGH ) {
       if ( r == null ) {
         setOutputDone();
-        m_data.cleanUp();
+        data.cleanUp();
         return ( false );
       }
-      putRow( m_data.getOutputRowMeta(), r );
-    } else if ( m_data.getProcessingMode() == PROC_MODE.SAMPLING ) {
+      putRow( data.getOutputRowMeta(), r );
+    } else if ( data.getProcessingMode() == PROC_MODE.SAMPLING ) {
       if ( r == null ) {
         // Output the rows in the sample
-        List<Object[]> samples = m_data.getSample();
+        List<Object[]> samples = data.getSample();
 
         int numRows = ( samples != null ) ? samples.size() : 0;
         logBasic( this.getTransformName()
-          + " Actual/Sample: " + numRows + "/" + m_data.m_k + " Seed:"
-          + getPipelineMeta().environmentSubstitute( m_meta.m_randomSeed ) );
+          + " Actual/Sample: " + numRows + "/" + data.m_k + " Seed:"
+          + getPipelineMeta().environmentSubstitute( meta.m_randomSeed ) );
         if ( samples != null ) {
           for ( int i = 0; i < samples.size(); i++ ) {
             Object[] sample = samples.get( i );
             if ( sample != null ) {
-              putRow( m_data.getOutputRowMeta(), sample );
+              putRow( data.getOutputRowMeta(), sample );
             } else {
               // user probably requested more rows in
               // the sample than there were in total
@@ -135,13 +128,13 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
           }
         }
         setOutputDone();
-        m_data.cleanUp();
+        data.cleanUp();
         return false;
       }
 
       // just pass the row to the data class for possible caching
       // in the sample
-      m_data.processRow( r );
+      data.processRow( r );
     }
 
     if ( log.isRowLevel() ) {
@@ -162,16 +155,14 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
    * @return a <code>boolean</code> value
    */
   public boolean init() {
-    m_meta = (ReservoirSamplingMeta) smi;
-    m_data = (ReservoirSamplingData) sdi;
 
     if ( super.init() ) {
 
-      boolean remoteInput = getTransformMeta().getRemoteInputTransforms().size() > 0;
+//      boolean remoteInput = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
-      if ( !remoteInput && ( previous == null || previous.size() <= 0 ) ) {
-        m_data.setProcessingMode( PROC_MODE.DISABLED );
-      }
+//      if ( !remoteInput && ( previous == null || previous.size() <= 0 ) ) {
+//        data.setProcessingMode( PROC_MODE.DISABLED );
+//      }
       return true;
     }
     return false;
@@ -184,7 +175,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
     logBasic( "Starting to run..." );
     try {
       // Wait
-      while (.processRow() {
+      while (processRow()) {
         if ( isStopped() ) {
           break;
         }
@@ -195,7 +186,7 @@ public class ReservoirSampling extends BaseTransform implements ITransform {
       setErrors( 1 );
       stopAll();
     } finally {
-      dispose( m_meta, m_data );
+      dispose();
       logBasic( "Finished, processing " + getLinesRead() + " rows" );
       markStop();
     }
