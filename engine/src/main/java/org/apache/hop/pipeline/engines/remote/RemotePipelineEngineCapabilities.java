@@ -9,6 +9,6 @@ public class RemotePipelineEngineCapabilities extends PipelineEngineCapabilities
    * However it does allow you to sniff test transform output remotely
    */
   public RemotePipelineEngineCapabilities() {
-    super(false, false, true);
+    super(false, false, true, true);
   }
 }

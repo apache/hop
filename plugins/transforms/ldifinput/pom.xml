@@ -18,8 +18,8 @@
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>metastore</artifactId>
-            <version>0.20-SNAPSHOT</version>
+            <artifactId>hop-metastore</artifactId>
+            <version>0.30-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

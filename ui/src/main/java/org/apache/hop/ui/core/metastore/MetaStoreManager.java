@@ -23,17 +23,13 @@
 package org.apache.hop.ui.core.metastore;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
@@ -55,7 +51,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This is a utility class which allows you to create or edit metastore elements in a generic fashion
@@ -276,7 +271,16 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     try {
       dialogClass = (Class<IMetaStoreDialog>) classLoader.loadClass( dialogClassName );
     } catch ( ClassNotFoundException e1 ) {
-      dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
+      String simpleDialogClassName = calculateSimpleDialogClassname();
+      try {
+        dialogClass = (Class<IMetaStoreDialog>) classLoader.loadClass( simpleDialogClassName );
+      } catch(ClassNotFoundException e2) {
+        try {
+          dialogClass = (Class<IMetaStoreDialog>) Class.forName( dialogClassName );
+        } catch(ClassNotFoundException e3) {
+          dialogClass = (Class<IMetaStoreDialog>) Class.forName( simpleDialogClassName );
+        }
+      }
     }
     Constructor<IMetaStoreDialog> constructor;
     try {
@@ -355,6 +359,18 @@ public class MetaStoreManager<T extends IHopMetaStoreElement> {
     } else {
       dialogClassName = managedClass.getName();
       dialogClassName = dialogClassName.replaceFirst( "\\.hop\\.", ".hop.ui." );
+      dialogClassName += "Dialog";
+    }
+    return dialogClassName;
+  }
+
+  public String calculateSimpleDialogClassname() {
+    String dialogClassName;
+    MetaStoreElementType elementType = managedClass.getAnnotation( MetaStoreElementType.class );
+    if ( elementType != null && StringUtils.isNotEmpty( elementType.dialogClassname() ) ) {
+      dialogClassName = elementType.dialogClassname();
+    } else {
+      dialogClassName = managedClass.getName();
       dialogClassName += "Dialog";
     }
     return dialogClassName;

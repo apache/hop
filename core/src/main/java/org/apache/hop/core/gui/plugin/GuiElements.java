@@ -27,19 +27,19 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * This represents a list of GUI elements under a certain heading or ID
  */
-public class GuiElements extends BaseGuiElements {
+public class GuiElements extends BaseGuiElements implements Comparable<GuiElements> {
 
   private String id;
+
+  private String order;
 
   private String parentId;
 
@@ -97,7 +97,7 @@ public class GuiElements extends BaseGuiElements {
     } else {
       this.id = guiElement.id();
     }
-
+    this.order = guiElement.order();
     this.type = guiElement.type();
     this.parentId = guiElement.parentId();
     this.fieldName = fieldName;
@@ -129,7 +129,7 @@ public class GuiElements extends BaseGuiElements {
    * If no sort field is available we use the ID
    */
   public void sortChildren() {
-    Collections.sort( children, Comparator.comparing( o -> o.id ) );
+    Collections.sort( children );
   }
 
   public GuiElements findChild( String id ) {
@@ -156,6 +156,14 @@ public class GuiElements extends BaseGuiElements {
     return Objects.hash( id );
   }
 
+  @Override public int compareTo( GuiElements e ) {
+    if (StringUtils.isNotEmpty( order ) && StringUtils.isNotEmpty( e.id )) {
+      return order.compareTo( e.order );
+    } else {
+      return id.compareTo( e.id );
+    }
+  }
+
   /**
    * Gets id
    *
@@ -170,6 +178,22 @@ public class GuiElements extends BaseGuiElements {
    */
   public void setId( String id ) {
     this.id = id;
+  }
+
+  /**
+   * Gets order
+   *
+   * @return value of order
+   */
+  public String getOrder() {
+    return order;
+  }
+
+  /**
+   * @param order The order to set
+   */
+  public void setOrder( String order ) {
+    this.order = order;
   }
 
   /**
@@ -507,4 +531,6 @@ public class GuiElements extends BaseGuiElements {
   public void setClassLoader( ClassLoader classLoader ) {
     this.classLoader = classLoader;
   }
+
+
 }

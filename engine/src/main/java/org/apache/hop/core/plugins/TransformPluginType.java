@@ -92,12 +92,12 @@ public class TransformPluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String getMainTag() {
+  public String getMainTag() {
     return "transforms";
   }
 
   @Override
-  protected String getSubTag() {
+  public String getSubTag() {
     return "transform";
   }
 

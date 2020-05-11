@@ -2479,5 +2479,18 @@
       </exclusions>
     </dependency>
 
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
+      <version>0.30-SNAPSHOT</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
   </dependencies>
 </project>

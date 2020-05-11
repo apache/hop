@@ -27,10 +27,9 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.history.AuditList;
+import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
@@ -39,14 +38,21 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -59,8 +65,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +106,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
   private String returnValue;
 
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
+  private TableView wVariables;
 
   /**
    * @param parent           The parent shell
@@ -170,12 +179,30 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     Button[] buttons = new Button[] { wOk, wCancel };
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
+    CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
+    props.setLook( wTabFolder );
+    wTabFolder.setSimple( false );
+
+    CTabItem wMainTab = new CTabItem( wTabFolder, SWT.NONE );
+    wMainTab.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.MainTab.TabTitle" ) );
+
+    ScrolledComposite wMainSComp = new ScrolledComposite( wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
+    wMainSComp.setLayout( new FillLayout() );
+
+    Composite wMainComp = new Composite( wMainSComp, SWT.NONE );
+    props.setLook( wMainComp );
+
+    FormLayout mainLayout = new FormLayout();
+    mainLayout.marginWidth = 3;
+    mainLayout.marginHeight = 3;
+    wMainComp.setLayout( mainLayout );
+
 
     // The generic widgets: name, description and pipeline engine type
     //
     // What's the name
     //
-    Label wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label( wMainComp, SWT.RIGHT );
     props.setLook( wlName );
     wlName.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.label.name" ) );
     FormData fdlName = new FormData();
@@ -183,7 +210,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     fdlName.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlName.right = new FormAttachment( middle, 0 );
     wlName.setLayoutData( fdlName );
-    wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wName = new Text( wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     FormData fdName = new FormData();
     fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
@@ -192,7 +219,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     wName.setLayoutData( fdName );
     Control lastControl = wName;
 
-    Label wlDescription = new Label( shell, SWT.RIGHT );
+    Label wlDescription = new Label( wMainComp, SWT.RIGHT );
     props.setLook( wlDescription );
     wlDescription.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.label.Description" ) );
     FormData fdlDescription = new FormData();
@@ -200,7 +227,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     fdlDescription.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlDescription.right = new FormAttachment( middle, 0 );
     wlDescription.setLayoutData( fdlDescription );
-    wDescription = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDescription = new Text( wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDescription );
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment( wlDescription, 0, SWT.CENTER );
@@ -211,7 +238,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
 
     // What's the type of engine?
     //
-    Label wlPluginType = new Label( shell, SWT.RIGHT );
+    Label wlPluginType = new Label( wMainComp, SWT.RIGHT );
     props.setLook( wlPluginType );
     wlPluginType.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.label.EngineType" ) );
     FormData fdlPluginType = new FormData();
@@ -219,7 +246,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     fdlPluginType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlPluginType.right = new FormAttachment( middle, 0 );
     wlPluginType.setLayoutData( fdlPluginType );
-    wPluginType = new ComboVar( runConfiguration, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPluginType = new ComboVar( runConfiguration, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPluginType );
     wPluginType.setItems( getPluginTypes() );
     FormData fdPluginType = new FormData();
@@ -232,25 +259,107 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
 
     // Add a composite area
     //
-    wPluginSpecificComp = new Composite( shell, SWT.BACKGROUND );
+    wPluginSpecificComp = new Composite( wMainComp, SWT.BACKGROUND );
     props.setLook( wPluginSpecificComp );
     wPluginSpecificComp.setLayout( new FormLayout() );
     FormData fdPluginSpecificComp = new FormData();
     fdPluginSpecificComp.left = new FormAttachment( 0, 0 );
     fdPluginSpecificComp.right = new FormAttachment( 100, 0 );
     fdPluginSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
-    fdPluginSpecificComp.bottom = new FormAttachment( lastControl, (int) ( props.getZoomFactor() * 400 ) );
+    fdPluginSpecificComp.bottom = new FormAttachment( 100, 0 );
     wPluginSpecificComp.setLayoutData( fdPluginSpecificComp );
 
     // Now add the run configuration plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 8 ); // max 8 lines
+    guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25 ); // max 8 lines
 
     // Add the plugin specific widgets
     //
     addGuiCompositeWidgets();
 
+    FormData fdMainComp = new FormData();
+    fdMainComp.left = new FormAttachment( 0, 0 );
+    fdMainComp.top = new FormAttachment( 0, 0 );
+    fdMainComp.right = new FormAttachment( 100, 0 );
+    fdMainComp.bottom = new FormAttachment( 100, 0 );
+    wMainComp.setLayoutData( fdMainComp );
+
+    wMainComp.pack();
+    Rectangle mainBounds = wMainComp.getBounds();
+
+    wMainSComp.setContent( wMainComp );
+    wMainSComp.setExpandHorizontal( true );
+    wMainSComp.setExpandVertical( true );
+    wMainSComp.setMinWidth( mainBounds.width );
+    wMainSComp.setMinHeight( mainBounds.height );
+
+    wMainTab.setControl( wMainSComp );
+    
+    
+    
+
+    // Add the variables tab
+    //
+    CTabItem wVariablesTab = new CTabItem( wTabFolder, SWT.NONE );
+    wVariablesTab.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.VariablesTab.TabTitle" ) );
+
+    ScrolledComposite wVariablesSComp = new ScrolledComposite( wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL );
+    wVariablesSComp.setLayout( new FillLayout() );
+
+    Composite wVariablesComp = new Composite( wVariablesSComp, SWT.NONE );
+    props.setLook( wVariablesComp );
+
+    FormLayout variablesLayout = new FormLayout();
+    variablesLayout.marginWidth = 3;
+    variablesLayout.marginHeight = 3;
+    wVariablesComp.setLayout( variablesLayout );
+
+
+    ColumnInfo[] columns = {
+      new ColumnInfo( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.Variables.Column.Name" ), ColumnInfo.COLUMN_TYPE_TEXT ),
+      new ColumnInfo( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.Variables.Column.Value" ), ColumnInfo.COLUMN_TYPE_TEXT ),
+      new ColumnInfo( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.Variables.Column.Description" ), ColumnInfo.COLUMN_TYPE_TEXT ),
+    };
+
+    wVariables = new TableView( workingConfiguration, wVariablesComp, SWT.NONE, columns, workingConfiguration.getConfigurationVariables().size(), null, props );
+    props.setLook( wVariables );
+    FormData fdVariables = new FormData();
+    fdVariables.top = new FormAttachment( 0, 0 );
+    fdVariables.left = new FormAttachment( 0, 0 );
+    fdVariables.bottom = new FormAttachment( 100, 0 );
+    fdVariables.right = new FormAttachment( 100, 0 );
+    wVariables.setLayoutData( fdVariables );
+
+    FormData fdVariablesComp = new FormData();
+    fdVariablesComp.left = new FormAttachment( 0, 0 );
+    fdVariablesComp.top = new FormAttachment( 0, 0 );
+    fdVariablesComp.right = new FormAttachment( 100, 0 );
+    fdVariablesComp.bottom = new FormAttachment( 100, 0 );
+    wVariablesComp.setLayoutData( fdVariablesComp );
+
+    wVariablesComp.pack();
+    Rectangle variablesBound = wVariablesComp.getBounds();
+
+    wVariablesSComp.setContent( wVariablesComp );
+    wVariablesSComp.setExpandHorizontal( true );
+    wVariablesSComp.setExpandVertical( true );
+    wVariablesSComp.setMinWidth( variablesBound.width );
+    wVariablesSComp.setMinHeight( variablesBound.height );
+
+    wVariablesTab.setControl( wVariablesSComp );
+    
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment( 0, 0 );
+    fdTabFolder.top = new FormAttachment( 0, 0 );
+    fdTabFolder.right = new FormAttachment( 100, 0 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -margin * 2 );
+    wTabFolder.setLayoutData( fdTabFolder );
+
+
     getData();
+
+    wTabFolder.setSelection( 0 );
 
     // Add listeners...
     //
@@ -283,7 +392,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     }
 
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
-      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 8 );
+      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25);
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
       for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
         control.addListener( SWT.DefaultSelection, okListener );
@@ -355,6 +464,17 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     } else {
       wPluginType.setText( "" );
     }
+
+    for ( int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++ ) {
+      VariableValueDescription vvd = workingConfiguration.getConfigurationVariables().get( i );
+      TableItem item = wVariables.table.getItem( i );
+      int col = 1;
+      item.setText( col++, Const.NVL( vvd.getName(), "" ) );
+      item.setText( col++, Const.NVL( vvd.getValue(), "" ) );
+      item.setText( col++, Const.NVL( vvd.getDescription(), "" ) );
+    }
+    wVariables.setRowNums();
+    wVariables.optWidth( true );
   }
 
   private PipelineRunConfiguration getInfo( PipelineRunConfiguration meta ) {
@@ -366,6 +486,17 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     //
     if ( meta.getEngineRunConfiguration() != null && guiCompositeWidgets != null && !guiCompositeWidgets.getWidgetsMap().isEmpty() ) {
       guiCompositeWidgets.getWidgetsContents( meta.getEngineRunConfiguration(), PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    }
+
+    // The variables
+    //
+    meta.getConfigurationVariables().clear();
+    for ( int i = 0; i < wVariables.nrNonEmpty(); i++ ) {
+      TableItem item = wVariables.getNonEmpty( i );
+      String name = item.getText( 1 );
+      String value = item.getText( 2 );
+      String description = item.getText( 3 );
+      meta.getConfigurationVariables().add( new VariableValueDescription( name, value, description ) );
     }
 
     return meta;
@@ -382,7 +513,6 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
       meta.setEngineRunConfiguration( null );
     }
   }
-
 
   private String[] getPluginTypes() {
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -404,7 +534,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     HopEnvironment.init();
     HopGuiEnvironment.init();
     // LocalWorkflowRunConfiguration localConfig = new LocalWorkflowRunConfiguration( "Local", "Local pipeline engine", "5000" );
-    PipelineRunConfiguration configuration = new PipelineRunConfiguration( "test", "A test run config", null );
+    PipelineRunConfiguration configuration = new PipelineRunConfiguration( "test", "A test run config", new ArrayList<>(), null );
     PipelineRunConfigurationDialog dialog = new PipelineRunConfigurationDialog( shell, null, configuration );
     String name = dialog.open();
     if ( name != null ) {

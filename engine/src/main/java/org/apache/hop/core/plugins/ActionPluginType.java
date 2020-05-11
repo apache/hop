@@ -80,13 +80,11 @@ public class ActionPluginType extends BasePluginType implements IPluginType {
     return Const.HOP_CORE_WORKFLOW_ACTIONS_FILE;
   }
 
-  @Override
-  protected String getMainTag() {
+  @Override public String getMainTag() {
     return "workflow-actions";
   }
 
-  @Override
-  protected String getSubTag() {
+  @Override public String getSubTag() {
     return "workflow-action";
   }
 

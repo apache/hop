@@ -24,18 +24,18 @@ package org.apache.hop.pipeline.engines.local;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+
+import java.util.ArrayList;
 
 public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
@@ -66,7 +66,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
   }
 
   private void setDefaultRunConfiguration() {
-    setPipelineRunConfiguration( new PipelineRunConfiguration( "local", "", createDefaultPipelineEngineRunConfiguration() ) );
+    setPipelineRunConfiguration( new PipelineRunConfiguration( "local", "", new ArrayList<>(), createDefaultPipelineEngineRunConfiguration() ) );
   }
 
   @Override public void prepareExecution() throws HopException {
