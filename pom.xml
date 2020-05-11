@@ -7,10 +7,7 @@
   <groupId>org.hop</groupId>
   <artifactId>hop</artifactId>
   <version>0.30-SNAPSHOT</version>
-  <modules>
-    <module>plugins/transforms/json</module>
-    <module>assemblies/plugins/transforms/json</module>
-  </modules>
+
 
   <packaging>pom</packaging>
 

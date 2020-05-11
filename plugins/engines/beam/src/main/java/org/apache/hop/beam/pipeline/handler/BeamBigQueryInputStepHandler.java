@@ -5,23 +5,23 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamBQInputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.transforms.bq.BeamBQInputMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.List;
 import java.util.Map;
 
 public class BeamBigQueryInputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamBigQueryInputStepHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamBigQueryInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -35,7 +35,7 @@ public class BeamBigQueryInputStepHandler extends BeamBaseStepHandler implements
     // Output rows (fields selection)
     //
     IRowMeta outputRowMeta = new RowMeta();
-    beamInputMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null, null );
+    beamInputMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null );
 
     BeamBQInputTransform beamInputTransform = new BeamBQInputTransform(
       transformMeta.getName(),

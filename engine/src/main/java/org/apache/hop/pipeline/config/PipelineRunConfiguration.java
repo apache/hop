@@ -22,14 +22,19 @@
 
 package org.apache.hop.pipeline.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metastore.IHopMetaStoreElement;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
 import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.pipeline.PipelineMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @MetaStoreElementType(
@@ -47,14 +52,20 @@ public class PipelineRunConfiguration extends Variables implements Cloneable, IV
   private String description;
 
   @MetaStoreAttribute
+  private List<VariableValueDescription> configurationVariables;
+
+  @MetaStoreAttribute
   private IPipelineEngineRunConfiguration engineRunConfiguration;
 
   public PipelineRunConfiguration() {
+    configurationVariables = new ArrayList<>();
   }
 
-  public PipelineRunConfiguration( String name, String description, IPipelineEngineRunConfiguration engineRunConfiguration ) {
+  public PipelineRunConfiguration( String name, String description, List<VariableValueDescription> configurationVariables,
+                                   IPipelineEngineRunConfiguration engineRunConfiguration ) {
     this.name = name;
     this.description = description;
+    this.configurationVariables = configurationVariables;
     this.engineRunConfiguration = engineRunConfiguration;
   }
 
@@ -62,6 +73,7 @@ public class PipelineRunConfiguration extends Variables implements Cloneable, IV
     this();
     this.name = runConfiguration.name;
     this.description = runConfiguration.description;
+    this.configurationVariables.addAll(runConfiguration.getConfigurationVariables());
     if ( runConfiguration.getEngineRunConfiguration() != null ) {
       this.engineRunConfiguration = runConfiguration.engineRunConfiguration.clone();
     }
@@ -125,6 +137,22 @@ public class PipelineRunConfiguration extends Variables implements Cloneable, IV
   }
 
   /**
+   * Gets configurationVariables
+   *
+   * @return value of configurationVariables
+   */
+  public List<VariableValueDescription> getConfigurationVariables() {
+    return configurationVariables;
+  }
+
+  /**
+   * @param configurationVariables The configurationVariables to set
+   */
+  public void setConfigurationVariables( List<VariableValueDescription> configurationVariables ) {
+    this.configurationVariables = configurationVariables;
+  }
+
+  /**
    * Gets engineRunConfiguration
    *
    * @return value of engineRunConfiguration
@@ -138,5 +166,13 @@ public class PipelineRunConfiguration extends Variables implements Cloneable, IV
    */
   public void setEngineRunConfiguration( IPipelineEngineRunConfiguration engineRunConfiguration ) {
     this.engineRunConfiguration = engineRunConfiguration;
+  }
+
+  public <T extends PipelineMeta> void applyToVariables( IVariables variables ) {
+    for (VariableValueDescription vvd : configurationVariables) {
+      if ( StringUtils.isNotEmpty(vvd.getName())) {
+        variables.setVariable( vvd.getName(), variables.environmentSubstitute(vvd.getValue()) );
+      }
+    }
   }
 }

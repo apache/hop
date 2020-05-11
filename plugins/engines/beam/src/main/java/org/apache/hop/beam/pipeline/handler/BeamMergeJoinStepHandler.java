@@ -10,18 +10,18 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.AssemblerFn;
 import org.apache.hop.beam.core.fn.KettleKeyValueFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamMergeJoinStepHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamMergeJoinStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
   }
 
   public boolean isInput() {

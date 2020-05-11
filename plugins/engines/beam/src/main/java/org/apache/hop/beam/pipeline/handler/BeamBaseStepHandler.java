@@ -1,8 +1,8 @@
 package org.apache.hop.beam.pipeline.handler;
 
-import org.apache.hop.beam.metastore.BeamJobConfig;
-import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.PipelineMeta;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ public class BeamBaseStepHandler {
   protected List<String> xpPluginClasses;
   protected boolean input;
   protected boolean output;
-  protected BeamJobConfig beamJobConfig;
+  protected IBeamPipelineEngineRunConfiguration runConfiguration;
 
-  public BeamBaseStepHandler( BeamJobConfig beamJobConfig, boolean input, boolean output, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    this.beamJobConfig = beamJobConfig;
+  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    this.runConfiguration = runConfiguration;
     this.input = input;
     this.output = output;
     this.metaStore = metaStore;

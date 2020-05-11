@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 
-public class BasePipelineTest extends org.apache.hop.beam.transform.PipelineTestBase {
+public class BasePipelineTest extends PipelineTestBase {
 
   @Test
   public void testBasicPipeline() throws Exception {

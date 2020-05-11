@@ -12,6 +12,7 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
@@ -69,7 +70,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
   // Log and count errors.
   protected static final Logger LOG = LoggerFactory.getLogger( TransformTransform.class );
-  protected static final Counter numErrors = Metrics.counter( "main", "StepErrors" );
+  protected static final Counter numErrors = Metrics.counter( "main", "TransformErrors" );
 
   public TransformTransform() {
     variableValues = new ArrayList<>();
@@ -182,7 +183,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     protected List<PCollection<HopRow>> infoCollections;
 
     // Log and count parse errors.
-    private final Counter numErrors = Metrics.counter( "main", "StepProcessErrors" );
+    private final Counter numErrors = Metrics.counter( "main", "TransformProcessErrors" );
 
     private transient PipelineMeta pipelineMeta;
     private transient TransformMeta transformMeta;
@@ -275,6 +276,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
+          pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
           pipelineMeta.setMetaStore( metaStore );
 
           // Give transforms variables from above
@@ -450,9 +452,9 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           //
           executor.init();
 
-          initCounter = Metrics.counter( "init", transformName );
-          readCounter = Metrics.counter( "read", transformName );
-          writtenCounter = Metrics.counter( "written", transformName );
+          initCounter = Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName );
+          readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+          writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
 
           initCounter.inc();
 
@@ -500,7 +502,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
       } catch ( Exception e ) {
         numErrors.inc();
         LOG.info( "Transform execution error :" + e.getMessage() );
-        throw new RuntimeException( "Error executing StepFn", e );
+        throw new RuntimeException( "Error executing TransformFn", e );
       }
     }
 

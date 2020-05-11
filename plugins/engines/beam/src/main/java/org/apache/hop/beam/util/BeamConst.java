@@ -1,24 +1,15 @@
 package org.apache.hop.beam.util;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.apache.beam.sdk.io.FileSystemRegistrar;
-import org.apache.beam.sdk.util.common.ReflectHelpers;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 public class BeamConst {
@@ -36,11 +27,10 @@ public class BeamConst {
   public static final String STRING_BEAM_KAFKA_CONSUME_PLUGIN_ID = "BeamKafkaConsume";
   public static final String STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID = "BeamKafkaProduce";
 
-  public static final String STRING_KETTLE_BEAM = "Kettle Beam";
+  public static final String STRING_HOP_BEAM = "Hop Beam";
 
   public static final String STRING_STEP_FLAG_BATCH = "Batch";
   public static final String STRING_STEP_FLAG_SINGLE_THREADED = "SingleThreaded";
-
 
   private static List<String[]> gcpWorkerCodeDescriptions = Arrays.asList(
     new String[] { "n1-standard-1", "Standard machine type with 1 vCPU and 3.75 GB of memory." },
@@ -127,80 +117,84 @@ public class BeamConst {
   }
 
 
-  public static final List<String> findLibraryFilesToStage( String baseFolder, String pluginFolders, boolean includeParent, boolean includeBeam ) throws IOException {
+  public static final List<String> findLibraryFilesToStage( String baseFolder, String pluginFolders, boolean includeParent, boolean includeBeam ) throws HopException {
 
-    File base;
-    if ( baseFolder == null ) {
-      base = new File( "." );
-    } else {
-      base = new File( baseFolder );
-    }
-
-    Set<String> uniqueNames = new HashSet<>();
-    List<String> libraries = new ArrayList<>();
-
-    // A unique list of plugin folders
-    //
-    Set<String> pluginFoldersSet = new HashSet<>();
-    if ( StringUtils.isNotEmpty( pluginFolders ) ) {
-      String[] folders = pluginFolders.split( "," );
-      for ( String folder : folders ) {
-        pluginFoldersSet.add( folder );
+    try {
+      File base;
+      if ( baseFolder == null ) {
+        base = new File( "." );
+      } else {
+        base = new File( baseFolder );
       }
-    }
-    if (includeBeam) {
-      // TODO: make this plugin folder configurable
+
+      Set<String> uniqueNames = new HashSet<>();
+      List<String> libraries = new ArrayList<>();
+
+      // A unique list of plugin folders
       //
-      pluginFoldersSet.add("kettle-beam");
-    }
+      Set<String> pluginFoldersSet = new HashSet<>();
+      if ( StringUtils.isNotEmpty( pluginFolders ) ) {
+        String[] folders = pluginFolders.split( "," );
+        for ( String folder : folders ) {
+          pluginFoldersSet.add( folder );
+        }
+      }
+      if ( includeBeam ) {
+        // TODO: make this plugin folder configurable
+        //
+        pluginFoldersSet.add( "engines/beam" );
+      }
 
-    // Now the selected plugins libs...
-    //
-    for ( String pluginFolder : pluginFoldersSet ) {
-      File pluginsFolder = new File( base.toString() + "/plugins/" + pluginFolder );
-      if (pluginsFolder.exists()) {
-        Collection<File> pluginFiles = FileUtils.listFiles( pluginsFolder, new String[] { "jar" }, true );
-        if ( pluginFiles != null ) {
-          for ( File file : pluginFiles ) {
-            String shortName = file.getName();
-            if ( !uniqueNames.contains( shortName ) ) {
-              uniqueNames.add( shortName );
-              libraries.add( file.getCanonicalPath() );
+      // Now the selected plugins libs...
+      //
+      for ( String pluginFolder : pluginFoldersSet ) {
+        File pluginsFolder = new File( base.toString() + "/plugins/" + pluginFolder );
+        if ( pluginsFolder.exists() ) {
+          Collection<File> pluginFiles = FileUtils.listFiles( pluginsFolder, new String[] { "jar" }, true );
+          if ( pluginFiles != null ) {
+            for ( File file : pluginFiles ) {
+              String shortName = file.getName();
+              if ( !uniqueNames.contains( shortName ) ) {
+                uniqueNames.add( shortName );
+                libraries.add( file.getCanonicalPath() );
+              }
             }
           }
+        } else {
+          System.out.println( "Warning: couldn't find plugins folder: " + pluginsFolder );
         }
-      } else {
-        System.out.println("Warning: couldn't find plugins folder: "+pluginsFolder);
       }
-    }
 
-    // Add all the jar files in lib/ to the classpath.
-    //
-    if (includeParent) {
+      // Add all the jar files in lib/ to the classpath.
+      //
+      if ( includeParent ) {
 
-      File libFolder = new File( base.toString() + "/lib" );
+        File libFolder = new File( base.toString() + "/lib" );
 
-      if (libFolder.exists()) {
+        if ( libFolder.exists() ) {
 
-        Collection<File> files = FileUtils.listFiles( libFolder, new String[] { "jar" }, true );
-        if ( files != null ) {
-          for ( File file : files ) {
-            String shortName = file.getName();
-            if ( !uniqueNames.contains( shortName ) ) {
-              uniqueNames.add( shortName );
-              libraries.add( file.getCanonicalPath() );
-              // System.out.println( "Adding library : " + file.getAbsolutePath() );
+          Collection<File> files = FileUtils.listFiles( libFolder, new String[] { "jar" }, true );
+          if ( files != null ) {
+            for ( File file : files ) {
+              String shortName = file.getName();
+              if ( !uniqueNames.contains( shortName ) ) {
+                uniqueNames.add( shortName );
+                libraries.add( file.getCanonicalPath() );
+                // System.out.println( "Adding library : " + file.getAbsolutePath() );
+              }
             }
           }
+        } else {
+          System.out.println( "Warning: couldn't find hop lib folder: " + libFolder );
+
         }
-      } else {
-        System.out.println("Warning: couldn't find kettle lib folder: "+libFolder);
-
       }
+
+      // Collections.sort(libraries);
+
+      return libraries;
+    } catch(Exception e) {
+      throw new HopException("Error finding libraries to stage", e);
     }
-
-    // Collections.sort(libraries);
-
-    return libraries;
   }
 }

@@ -31,8 +31,8 @@ public class KettleBeamUtil {
   }
 
 
-  public static final HopRow copyHopRow( HopRow kettleRow, IRowMeta rowMeta ) throws HopException {
-    Object[] newRow = RowDataUtil.createResizedCopy(kettleRow.getRow(), rowMeta.size());
+  public static final HopRow copyHopRow( HopRow hopRow, IRowMeta rowMeta ) throws HopException {
+    Object[] newRow = RowDataUtil.createResizedCopy(hopRow.getRow(), rowMeta.size());
     return new HopRow(newRow);
   }
 

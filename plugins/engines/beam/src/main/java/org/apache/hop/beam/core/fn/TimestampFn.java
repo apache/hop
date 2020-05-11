@@ -4,6 +4,7 @@ import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.pipeline.Pipeline;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
@@ -59,9 +60,9 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
 
       inputRowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      readCounter = Metrics.counter( "read", transformName );
-      writtenCounter = Metrics.counter( "written", transformName );
-      errorCounter = Metrics.counter( "error", transformName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
       fieldIndex = -1;
       if ( !getTimestamp && StringUtils.isNotEmpty( fieldName ) ) {
@@ -72,7 +73,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
         fieldValueMeta = inputRowMeta.getValueMeta( fieldIndex );
       }
 
-      Metrics.counter( "init", transformName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch(Exception e) {
       errorCounter.inc();
       LOG.error( "Error in setup of adding timestamp to rows : " + e.getMessage() );
@@ -86,7 +87,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
 
     try {
 
-      HopRow kettleRow = processContext.element();
+      HopRow hopRow = processContext.element();
       readCounter.inc();
 
       // The instant
@@ -98,18 +99,18 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
 
         // Add one row to the stream.
         //
-        Object[] outputRow = RowDataUtil.createResizedCopy( kettleRow.getRow(), inputRowMeta.size() + 1 );
+        Object[] outputRow = RowDataUtil.createResizedCopy( hopRow.getRow(), inputRowMeta.size() + 1 );
 
         // Kettle "Date" type field output: java.util.Date.
         // Use the last field in the output
         //
         outputRow[ inputRowMeta.size() ] = instant.toDate();
-        kettleRow = new HopRow( outputRow );
+        hopRow = new HopRow( outputRow );
       } else {
         if ( fieldIndex < 0 ) {
           instant = Instant.now();
         } else {
-          Object fieldData = kettleRow.getRow()[ fieldIndex ];
+          Object fieldData = hopRow.getRow()[ fieldIndex ];
           if ( IValueMeta.TYPE_TIMESTAMP == fieldValueMeta.getType() ) {
             java.sql.Timestamp timestamp = ( (ValueMetaTimestamp) fieldValueMeta ).getTimestamp( fieldData );
             instant = new Instant( timestamp.toInstant() );
@@ -125,7 +126,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
 
       // Pass the row to the process context
       //
-      processContext.outputWithTimestamp( kettleRow, instant );
+      processContext.outputWithTimestamp( hopRow, instant );
       writtenCounter.inc();
 
     } catch ( Exception e ) {

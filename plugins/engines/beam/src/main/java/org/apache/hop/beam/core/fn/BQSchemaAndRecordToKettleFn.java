@@ -14,6 +14,7 @@ import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +59,9 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
 
       if ( rowMeta == null ) {
 
-        inputCounter = Metrics.counter( "input", transformName );
-        writtenCounter = Metrics.counter( "written", transformName );
-        errorCounter = Metrics.counter( "error", transformName );
+        inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
+        writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+        errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
         // Initialize Kettle
         //
@@ -100,7 +101,7 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
         simpleDateTimeFormat.setLenient( true );
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd" );
         simpleDateFormat.setLenient( true );
-        Metrics.counter( "init", transformName ).inc();
+        Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
       }
 
       inputCounter.inc();
@@ -172,19 +173,19 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
     DATETIME(IValueMeta.TYPE_DATE),
     ;
 
-    private int kettleType;
+    private int hopType;
 
-    private AvroType(int kettleType) {
-      this.kettleType = kettleType;
+    private AvroType(int hopType) {
+      this.hopType = hopType;
     }
 
     /**
-     * Gets kettleType
+     * Gets hopType
      *
-     * @return value of kettleType
+     * @return value of hopType
      */
     public int getKettleType() {
-      return kettleType;
+      return hopType;
     }
   }
 

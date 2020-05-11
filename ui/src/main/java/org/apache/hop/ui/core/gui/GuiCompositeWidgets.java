@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +125,6 @@ public class GuiCompositeWidgets {
     PropsUi props = PropsUi.getInstance();
     Label label = null;
     Control control = null;
-    ToolItem separator = null;
 
     // Do we add the element or the children?
     //
@@ -136,10 +136,13 @@ public class GuiCompositeWidgets {
         label = new Label( parent, SWT.RIGHT | SWT.SINGLE );
         props.setLook( label );
         label.setText( Const.NVL( guiElements.getLabel(), "" ) );
+        if (StringUtils.isNotEmpty( guiElements.getToolTip() )) {
+          label.setToolTipText( guiElements.getToolTip() );
+        }
         FormData fdLabel = new FormData();
         fdLabel.left = new FormAttachment( 0, 0 );
         if ( lastControl == null ) {
-          fdLabel.top = new FormAttachment( 0, 0 );
+          fdLabel.top = new FormAttachment( 0, props.getMargin() );
         } else {
           fdLabel.top = new FormAttachment( lastControl, props.getMargin() );
         }
@@ -223,6 +226,11 @@ public class GuiCompositeWidgets {
     // Add the children
     //
     Control previousControl = lastControl;
+    List<GuiElements> children = guiElements.getChildren();
+
+    // Sort by ID
+    Collections.sort( children );
+
     for ( GuiElements child : guiElements.getChildren() ) {
       previousControl = addCompositeWidgets( sourceObject, parent, child, previousControl );
       nrItems++;

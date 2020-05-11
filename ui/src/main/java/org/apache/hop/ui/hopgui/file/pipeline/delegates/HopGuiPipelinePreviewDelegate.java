@@ -28,18 +28,17 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineMetrics;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.IEngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -353,35 +352,37 @@ public class HopGuiPipelinePreviewDelegate {
     previewLogMap.clear();
     previewDataMap.clear();
 
-    try {
-      for ( final TransformMeta transformMeta : transformMetas ) {
-        pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUi.getInstance().getDefaultPreviewSize(),
-          (pipeline, rowBuffer)-> previewDataMap.put( transformMeta.getName(), rowBuffer)
-        );
+    if (pipelineEngine.getEngineCapabilities().isSupportingPreview()) {
+      try {
+        for ( final TransformMeta transformMeta : transformMetas ) {
+          pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUi.getInstance().getDefaultPreviewSize(),
+            ( pipeline, rowBuffer ) -> previewDataMap.put( transformMeta.getName(), rowBuffer )
+          );
+        }
+      } catch ( Exception e ) {
+        pipelineEngine.getLogChannel().logError( "Error capturing preview data: ", e );
       }
-    } catch ( Exception e ) {
-      pipelineEngine.getLogChannel().logError( "Error capturing preview data: ", e );
-    }
 
-    // In case there were errors during preview...
-    //
-    try {
-      pipelineEngine.addExecutionFinishedListener( pipeline -> {
-        // Copy over the data from the previewDelegate...
-        //
-        pipeline.getEngineMetrics();
-        if ( pipeline.getErrors() != 0 ) {
-          // capture logging and store it...
+      // In case there were errors during preview...
+      //
+      try {
+        pipelineEngine.addExecutionFinishedListener( pipeline -> {
+          // Copy over the data from the previewDelegate...
           //
-          for ( IEngineComponent component : pipelineEngine.getComponents() ) {
-            if ( component.getCopyNr() == 0 ) {
-              previewLogMap.put( component.getName(), component.getLogText() );
+          pipeline.getEngineMetrics();
+          if ( pipeline.getErrors() != 0 ) {
+            // capture logging and store it...
+            //
+            for ( IEngineComponent component : pipelineEngine.getComponents() ) {
+              if ( component.getCopyNr() == 0 ) {
+                previewLogMap.put( component.getName(), component.getLogText() );
+              }
             }
           }
-        }
-      } );
-    } catch(HopException e) {
-      pipelineEngine.getLogChannel().logError( "Error getting logging from execution: ", e );
+        } );
+      } catch ( HopException e ) {
+        pipelineEngine.getLogChannel().logError( "Error getting logging from execution: ", e );
+      }
     }
   }
 

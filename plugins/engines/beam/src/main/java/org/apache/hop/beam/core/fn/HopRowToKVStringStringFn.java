@@ -8,6 +8,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,15 +43,15 @@ public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String,String>> {
   @Setup
   public void setUp() {
     try {
-      inputCounter = Metrics.counter( "input", transformName );
-      writtenCounter = Metrics.counter( "written", transformName );
+      inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
 
       // Initialize Kettle Beam
       //
       BeamHop.init( stepPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      Metrics.counter( "init", transformName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch ( Exception e ) {
       numErrors.inc();
       LOG.error( "Error in setup of HopRow to KV<String,String> function", e );
@@ -61,11 +62,11 @@ public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String,String>> {
   @ProcessElement
   public void processElement( ProcessContext processContext ) {
     try {
-      HopRow kettleRow = processContext.element();
+      HopRow hopRow = processContext.element();
       inputCounter.inc();
 
-      String key = rowMeta.getString(kettleRow.getRow(), keyIndex);
-      String value = rowMeta.getString(kettleRow.getRow(), valueIndex);
+      String key = rowMeta.getString(hopRow.getRow(), keyIndex);
+      String value = rowMeta.getString(hopRow.getRow(), valueIndex);
 
       processContext.output( KV.of( key, value ) );
       writtenCounter.inc();

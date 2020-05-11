@@ -6,6 +6,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.pipeline.Pipeline;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
@@ -54,16 +55,16 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( "read", transformName );
-      writtenCounter = Metrics.counter( "written", transformName );
-      errorCounter = Metrics.counter( "error", transformName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
       // Initialize Kettle Beam
       //
       BeamHop.init( stepPluginClasses, xpPluginClasses );
       inputRowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      Metrics.counter( "init", transformName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch(Exception e) {
       errorCounter.inc();
       LOG.error( "Error in setup of adding window information to rows : " + e.getMessage() );
@@ -77,12 +78,12 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
 
     try {
 
-      HopRow kettleRow = processContext.element();
+      HopRow hopRow = processContext.element();
       readCounter.inc();
 
       Instant instant = window.maxTimestamp();
 
-      Object[] outputRow = RowDataUtil.createResizedCopy( kettleRow.getRow(), inputRowMeta.size()+3 );
+      Object[] outputRow = RowDataUtil.createResizedCopy( hopRow.getRow(), inputRowMeta.size()+3 );
 
       int fieldIndex = inputRowMeta.size();
 

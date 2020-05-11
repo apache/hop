@@ -49,6 +49,10 @@ public class PipelineEngineFactory {
       throw new HopException( "Unable to find the specified pipeline run configuration '"+runConfigurationName+"'" );
     }
 
+    // Apply the variables from the run configuration
+    //
+    pipelineRunConfiguration.applyToVariables(pipelineMeta);
+
     IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
 
     // inherit variables from the metadata

@@ -11,9 +11,6 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.logging.LoggingObject;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.metastore.SerializableMetaStore;
@@ -23,23 +20,26 @@ import org.apache.hop.beam.core.util.KettleBeamUtil;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.pipeline.RowProducer;
-import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
+import org.apache.hop.pipeline.RowProducer;
+import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.joda.time.Instant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +149,7 @@ public class TransformBatchTransform extends TransformTransform {
     protected List<PCollection<HopRow>> infoCollections;
 
     // Log and count parse errors.
-    private final Counter numErrors = Metrics.counter( "main", "StepProcessErrors" );
+    private final Counter numErrors = Metrics.counter( "main", "TransformProcessErrors" );
 
     private transient PipelineMeta pipelineMeta;
     private transient TransformMeta transformMeta;
@@ -258,6 +258,7 @@ public class TransformBatchTransform extends TransformTransform {
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
+          pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
           pipelineMeta.setMetaStore( metaStore );
 
           // When the first row ends up in the buffer we start the timer.
@@ -438,10 +439,10 @@ public class TransformBatchTransform extends TransformTransform {
           //
           executor.init();
 
-          initCounter = Metrics.counter( "init", transformName );
-          readCounter = Metrics.counter( "read", transformName );
-          writtenCounter = Metrics.counter( "written", transformName );
-          flushBufferCounter = Metrics.counter( "flushBuffer", transformName );
+          initCounter = Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName );
+          readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+          writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
+          flushBufferCounter = Metrics.counter( Pipeline.METRIC_NAME_FLUSH_BUFFER, transformName );
 
           initCounter.inc();
 
@@ -530,7 +531,7 @@ public class TransformBatchTransform extends TransformTransform {
       } catch ( Exception e ) {
         numErrors.inc();
         LOG.info( "Transform execution error :" + e.getMessage() );
-        throw new RuntimeException( "Error executing StepBatchFn", e );
+        throw new RuntimeException( "Error executing TransformBatchFn", e );
       }
     }
 
@@ -568,8 +569,8 @@ public class TransformBatchTransform extends TransformTransform {
         //
         int size = rowBuffer.size();
         for ( int i = 0; i < size; i++ ) {
-          HopRow kettleRow = rowBuffer.poll();
-          buffer.add( kettleRow );
+          HopRow hopRow = rowBuffer.poll();
+          buffer.add( hopRow );
         }
 
         // Only do something if we have work to do

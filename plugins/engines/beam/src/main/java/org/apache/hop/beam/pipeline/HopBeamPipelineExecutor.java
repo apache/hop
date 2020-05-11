@@ -22,7 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.hop.beam.core.metastore.SerializableMetaStore;
 import org.apache.hop.beam.metastore.BeamJobConfig;
 import org.apache.hop.beam.metastore.JobParameter;
@@ -37,11 +36,11 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.spark.api.java.JavaSparkContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -135,7 +134,7 @@ public class HopBeamPipelineExecutor {
         libraryFilesToStage = BeamConst.findLibraryFilesToStage( null, pipelineMeta.environmentSubstitute( jobConfig.getPluginsToStage() ), true, true );
       }
 
-      String shortFatJarFilename = "kettle-beam-fat.jar";
+      String shortFatJarFilename = "hop-beam-fat.jar";
       String fatJarFilename = deployFolder + shortFatJarFilename;
 
       FatJarBuilder fatJarBuilder = new FatJarBuilder( fatJarFilename, libraryFilesToStage );
@@ -151,11 +150,11 @@ public class HopBeamPipelineExecutor {
       StringBuilder xpPluginClasses = new StringBuilder();
 
       String pluginsToStage = jobConfig.getPluginsToStage();
-      if (!pluginsToStage.contains( "kettle-beam" )) {
+      if (!pluginsToStage.contains( "hop-beam" )) {
         if ( StringUtils.isEmpty( pluginsToStage ) ) {
-          pluginsToStage = "kettle-beam";
+          pluginsToStage = "hop-beam";
         } else {
-          pluginsToStage = "kettle-beam,"+pluginsToStage;
+          pluginsToStage = "hop-beam,"+pluginsToStage;
         }
       }
 
@@ -352,11 +351,11 @@ public class HopBeamPipelineExecutor {
 
       HopPipelineMetaToBeamPipelineConverter converter;
       if ( transformPluginClasses !=null && xpPluginClasses!=null) {
-        converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, transformPluginClasses, xpPluginClasses, jobConfig );
+        converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, null );
       } else {
-        converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, config.getPluginsToStage(), jobConfig );
+        converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, null );
       }
-      Pipeline pipeline = converter.createPipeline( pipelineOptions );
+      Pipeline pipeline = converter.createPipeline( );
 
       // Also set the pipeline options...
       //
@@ -403,7 +402,7 @@ public class HopBeamPipelineExecutor {
     pipelineMeta.activateParameters();
   }
 
-  private void configureDataFlowOptions( BeamJobConfig config, DataflowPipelineOptions options, IVariables variables ) throws IOException {
+  private void configureDataFlowOptions( BeamJobConfig config, DataflowPipelineOptions options, IVariables variables ) throws HopException {
 
     List<String> files;
     if (StringUtils.isNotEmpty(config.getFatJar())) {
@@ -466,9 +465,9 @@ public class HopBeamPipelineExecutor {
 
   }
 
-  private void configureSparkOptions( BeamJobConfig config, SparkPipelineOptions options, IVariables variables, String transformationName ) throws IOException {
+  private void configureSparkOptions( BeamJobConfig config, SparkPipelineOptions options, IVariables variables, String transformationName ) throws HopException {
 
-    // options.setFilesToStage( BeamConst.findLibraryFilesToStage( null, config.getPluginsToStage(), true, true ) );
+    options.setFilesToStage( BeamConst.findLibraryFilesToStage( null, config.getPluginsToStage(), true, true ) );
 
     if ( StringUtils.isNotEmpty( config.getSparkMaster() ) ) {
       options.setSparkMaster( variables.environmentSubstitute( config.getSparkMaster() ) );
@@ -519,7 +518,7 @@ public class HopBeamPipelineExecutor {
     options.setAppName( appName );
   }
 
-  private void configureFlinkOptions( BeamJobConfig config, FlinkPipelineOptions options, IVariables variables ) throws IOException {
+  private void configureFlinkOptions( BeamJobConfig config, FlinkPipelineOptions options, IVariables variables ) throws HopException {
 
     options.setFilesToStage( BeamConst.findLibraryFilesToStage( null, config.getPluginsToStage(), true, true ) );
 
@@ -553,7 +552,7 @@ public class HopBeamPipelineExecutor {
           options.setCheckpointingMode( modeString );
         }
       } catch(Exception e) {
-        throw new IOException( "Unable to parse flink check pointing mode '"+modeString+"'", e );
+        throw new HopException( "Unable to parse flink check pointing mode '"+modeString+"'", e );
       }
     }
 
@@ -677,7 +676,7 @@ public class HopBeamPipelineExecutor {
       try {
         options.setExecutionModeForBatch( modeString );
       } catch(Exception e) {
-        throw new IOException( "Unable to parse flink execution mode for batch '"+modeString+"'", e );
+        throw new HopException( "Unable to parse flink execution mode for batch '"+modeString+"'", e );
       }
     }
   }

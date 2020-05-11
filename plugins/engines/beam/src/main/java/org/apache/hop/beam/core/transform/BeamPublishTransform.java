@@ -15,6 +15,7 @@ import org.apache.hop.beam.core.fn.PublishMessagesFn;
 import org.apache.hop.beam.core.fn.PublishStringsFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +71,10 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
 
         rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-        initCounter = Metrics.counter( "init", transformName );
-        readCounter = Metrics.counter( "read", transformName );
-        outputCounter = Metrics.counter( "output", transformName );
-        errorCounter = Metrics.counter( "error", transformName );
+        initCounter = Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName );
+        readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+        outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
+        errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
         fieldIndex = rowMeta.indexOfValue( messageField );
         if (fieldIndex<0) {

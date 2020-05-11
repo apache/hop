@@ -8,6 +8,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,16 +46,16 @@ public class KettleToStringFn extends DoFn<HopRow, String> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( "read", counterName );
-      outputCounter = Metrics.counter( "output", counterName );
-      errorCounter = Metrics.counter( "error", counterName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
+      outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, counterName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
       // Initialize Kettle Beam
       //
       BeamHop.init( stepPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      Metrics.counter( "init", counterName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
     } catch ( Exception e ) {
       errorCounter.inc();
       LOG.info( "Parse error on setup of Kettle data to string lines : " + e.getMessage() );

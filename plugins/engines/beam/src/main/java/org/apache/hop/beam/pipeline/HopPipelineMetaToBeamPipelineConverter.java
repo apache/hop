@@ -16,7 +16,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
 import org.apache.hop.beam.core.metastore.SerializableMetaStore;
 import org.apache.hop.beam.core.util.KettleBeamUtil;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metastore.RunnerType;
 import org.apache.hop.beam.pipeline.handler.BeamBigQueryInputStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamBigQueryOutputStepHandler;
@@ -54,21 +54,22 @@ import org.scannotation.AnnotationDB;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class HopPipelineMetaToBeamPipelineConverter {
+public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngineRunConfiguration> {
 
-  private PipelineMeta pipelineMeta;
-  private SerializableMetaStore metaStore;
-  private String metaStoreJson;
-  private List<String> transformPluginClasses;
-  private List<String> xpPluginClasses;
-  private Map<String, BeamStepHandler> stepHandlers;
-  private BeamStepHandler genericStepHandler;
-  private BeamJobConfig beamJobConfig;
+  protected PipelineMeta pipelineMeta;
+  protected SerializableMetaStore metaStore;
+  protected String metaStoreJson;
+  protected List<String> transformPluginClasses;
+  protected List<String> xpPluginClasses;
+  protected Map<String, BeamStepHandler> stepHandlers;
+  protected BeamStepHandler genericStepHandler;
+  protected T pipelineRunConfiguration;
 
   public HopPipelineMetaToBeamPipelineConverter() {
     this.stepHandlers = new HashMap<>();
@@ -76,28 +77,26 @@ public class HopPipelineMetaToBeamPipelineConverter {
     this.xpPluginClasses = new ArrayList<>();
   }
 
-  public HopPipelineMetaToBeamPipelineConverter( PipelineMeta pipelineMeta, IMetaStore metaStore, String pluginsToStage, BeamJobConfig beamJobConfig ) throws MetaStoreException, HopException {
+  public HopPipelineMetaToBeamPipelineConverter( PipelineMeta pipelineMeta, IMetaStore metaStore, T pipelineRunConfiguration ) throws MetaStoreException, HopException {
     this();
     this.pipelineMeta = pipelineMeta;
     this.metaStore = new SerializableMetaStore( metaStore );
     this.metaStoreJson = this.metaStore.toJson();
-    this.beamJobConfig = beamJobConfig;
+    this.pipelineRunConfiguration = pipelineRunConfiguration;
 
-    addClassesFromPluginsToStage( pluginsToStage );
+    addClassesFromPluginsToStage( pipelineRunConfiguration.getPluginsToStage() );
+    this.transformPluginClasses.addAll(splitPluginClasses(pipelineRunConfiguration.getTransformPluginClasses()));
+    this.xpPluginClasses.addAll(splitPluginClasses(pipelineRunConfiguration.getXpPluginClasses()));
+
     addDefaultTransformHandlers();
   }
 
-  public HopPipelineMetaToBeamPipelineConverter( PipelineMeta pipelineMeta, IMetaStore metaStore, List<String> transformPluginClasses, List<String> xpPluginClasses, BeamJobConfig beamJobConfig )
-    throws MetaStoreException {
-    this();
-    this.pipelineMeta = pipelineMeta;
-    this.metaStore = new SerializableMetaStore( metaStore );
-    this.metaStoreJson = this.metaStore.toJson();
-    this.transformPluginClasses = transformPluginClasses;
-    this.xpPluginClasses = xpPluginClasses;
-    this.beamJobConfig = beamJobConfig;
-
-    addDefaultTransformHandlers();
+  protected List<String> splitPluginClasses( String transformPluginClasses ) {
+    List<String> list = new ArrayList<>();
+    if (StringUtils.isNotEmpty( transformPluginClasses )) {
+      list.addAll( Arrays.asList( transformPluginClasses.split( "," ) ) );
+    }
+    return list;
   }
 
   public void addClassesFromPluginsToStage( String pluginsToStage ) throws HopException {
@@ -117,24 +116,24 @@ public class HopPipelineMetaToBeamPipelineConverter {
   public void addDefaultTransformHandlers() throws MetaStoreException {
     // Add the transform handlers for the special cases, functionality which Beams handles specifically
     //
-    stepHandlers.put( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID, new BeamInputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_OUTPUT_PLUGIN_ID, new BeamOutputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_PUBLISH_PLUGIN_ID, new BeamPublisherStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_SUBSCRIBE_PLUGIN_ID, new BeamSubscriberStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, new BeamMergeJoinStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamGroupByStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_WINDOW_PLUGIN_ID, new BeamWindowStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_TIMESTAMP_PLUGIN_ID, new BeamTimestampStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_INPUT_PLUGIN_ID, new BeamBigQueryInputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_OUTPUT_PLUGIN_ID, new BeamBigQueryOutputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_KAFKA_CONSUME_PLUGIN_ID, new BeamKafkaInputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    stepHandlers.put( BeamConst.STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID, new BeamKafkaOutputStepHandler( beamJobConfig, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    genericStepHandler = new BeamGenericTransformHandler( beamJobConfig, metaStore, metaStoreJson, pipelineMeta, transformPluginClasses, xpPluginClasses );
+    stepHandlers.put( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID, new BeamInputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_OUTPUT_PLUGIN_ID, new BeamOutputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_PUBLISH_PLUGIN_ID, new BeamPublisherStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_SUBSCRIBE_PLUGIN_ID, new BeamSubscriberStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, new BeamMergeJoinStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamGroupByStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_WINDOW_PLUGIN_ID, new BeamWindowStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_TIMESTAMP_PLUGIN_ID, new BeamTimestampStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_INPUT_PLUGIN_ID, new BeamBigQueryInputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_OUTPUT_PLUGIN_ID, new BeamBigQueryOutputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_KAFKA_CONSUME_PLUGIN_ID, new BeamKafkaInputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    stepHandlers.put( BeamConst.STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID, new BeamKafkaOutputStepHandler( pipelineRunConfiguration, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    genericStepHandler = new BeamGenericTransformHandler( pipelineRunConfiguration, metaStore, metaStoreJson, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   public static List<String> findAnnotatedClasses( String folder, String annotationClassName ) throws HopException {
     JarFileCache jarFileCache = JarFileCache.getInstance();
-    List<String> classnames = new ArrayList<>();
+    List<String> classNames = new ArrayList<>();
 
     // Scan only jar files with @Transform and @ExtensionPointPlugin annotations
     // No plugin.xml format supported for the moment
@@ -160,7 +159,7 @@ public class HopPipelineMetaToBeamPipelineConverter {
           if ( impls != null ) {
 
             for ( String fil : impls ) {
-              classnames.add( fil );
+              classNames.add( fil );
             }
           }
         }
@@ -171,24 +170,31 @@ public class HopPipelineMetaToBeamPipelineConverter {
       throw new HopException( "Unable to find annotated classes of class " + annotationClassName, e );
     }
 
-    return classnames;
+    return classNames;
   }
 
-  public Pipeline createPipeline( PipelineOptions pipelineOptions ) throws Exception {
+  public Pipeline createPipeline() throws Exception {
 
     ILogChannel log = LogChannel.GENERAL;
 
     // Create a new Pipeline
     //
-    RunnerType runnerType = RunnerType.getRunnerTypeByName( beamJobConfig.getRunnerTypeName() );
+    RunnerType runnerType = pipelineRunConfiguration.getRunnerType();
     Class<? extends PipelineRunner<?>> runnerClass = getPipelineRunnerClass( runnerType );
+
+    PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
+    // The generic options
+    //
+    pipelineOptions.setUserAgent( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getUserAgent() ) );
+    pipelineOptions.setTempLocation( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getTempLocation() ) );
+    pipelineOptions.setJobName( pipelineMeta.getName() );
 
     pipelineOptions.setRunner( runnerClass );
     Pipeline pipeline = Pipeline.create( pipelineOptions );
 
     pipeline.getCoderRegistry().registerCoderForClass( HopRow.class, new HopRowCoder() );
 
-    log.logBasic( "Created pipeline job with name '" + pipelineOptions.getJobName() + "'" );
+    log.logBasic( "Created Apache Beam pipeline with name '" + pipelineOptions.getJobName() + "'" );
 
     // Keep track of which transform outputs which Collection
     //

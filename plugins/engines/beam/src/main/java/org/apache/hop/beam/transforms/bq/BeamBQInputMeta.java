@@ -114,8 +114,8 @@ public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta
     for ( Node fieldNode : fieldNodes ) {
       String name = XmlHandler.getTagValue( fieldNode, "name" );
       String newName = XmlHandler.getTagValue( fieldNode, "new_name" );
-      String kettleType = XmlHandler.getTagValue( fieldNode, "type" );
-      fields.add( new BQField( name, newName, kettleType ) );
+      String hopType = XmlHandler.getTagValue( fieldNode, "type" );
+      fields.add( new BQField( name, newName, hopType ) );
     }
   }
 

@@ -6,22 +6,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamPublishTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.transforms.pubsub.BeamPublishMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.List;
 import java.util.Map;
 
 public class BeamPublisherStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamPublisherStepHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamPublisherStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,

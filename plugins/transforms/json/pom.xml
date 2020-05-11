@@ -124,12 +124,6 @@
       <version>0.30-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-transform-sort</artifactId>
-      <version>0.30-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
 
   </dependencies>
 

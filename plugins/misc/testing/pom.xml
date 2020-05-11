@@ -78,11 +78,7 @@
         <classifier>test</classifier>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-csv</artifactId>
-        <version>1.8</version>
-      </dependency>
+
 
       <dependency>
         <groupId>org.hop</groupId>
@@ -98,12 +94,6 @@
         <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-csv</artifactId>
-        <version>1.8</version>
       </dependency>
 
     </dependencies>

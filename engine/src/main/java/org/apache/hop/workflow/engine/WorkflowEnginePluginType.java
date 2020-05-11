@@ -29,7 +29,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -64,12 +63,12 @@ public class WorkflowEnginePluginType extends BasePluginType implements IPluginT
   }
 
   @Override
-  protected String getMainTag() {
+  public String getMainTag() {
     return "hop-workflow-engines";
   }
 
   @Override
-  protected String getSubTag() {
+  public String getSubTag() {
     return "hop-workflow-engine";
   }
 

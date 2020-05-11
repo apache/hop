@@ -5,24 +5,24 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamKafkaInputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.transforms.kafka.BeamConsumeMeta;
 import org.apache.hop.beam.transforms.kafka.ConfigOption;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.List;
 import java.util.Map;
 
 public class BeamKafkaInputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamKafkaInputStepHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamKafkaInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -36,7 +36,7 @@ public class BeamKafkaInputStepHandler extends BeamBaseStepHandler implements Be
     // Output rows (fields selection)
     //
     IRowMeta outputRowMeta = new RowMeta();
-    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null, null );
+    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null );
 
     String[] parameters = new String[beamConsumeMeta.getConfigOptions().size()];
     String[] values = new String[beamConsumeMeta.getConfigOptions().size()];

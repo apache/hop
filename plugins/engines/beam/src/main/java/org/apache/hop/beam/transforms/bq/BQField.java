@@ -5,15 +5,15 @@ import org.apache.commons.lang.StringUtils;
 public class BQField {
   private String name;
   private String newName;
-  private String kettleType;
+  private String hopType;
 
   public BQField() {
   }
 
-  public BQField( String name, String newName, String kettleType ) {
+  public BQField( String name, String newName, String hopType ) {
     this.name = name;
     this.newName = newName;
-    this.kettleType = kettleType;
+    this.hopType = hopType;
   }
 
   public String getNewNameOrName() {
@@ -57,18 +57,18 @@ public class BQField {
   }
 
   /**
-   * Gets kettleType
+   * Gets hopType
    *
-   * @return value of kettleType
+   * @return value of hopType
    */
   public String getKettleType() {
-    return kettleType;
+    return hopType;
   }
 
   /**
-   * @param kettleType The kettleType to set
+   * @param hopType The hopType to set
    */
-  public void setKettleType( String kettleType ) {
-    this.kettleType = kettleType;
+  public void setKettleType( String hopType ) {
+    this.hopType = hopType;
   }
 }

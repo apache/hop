@@ -10,6 +10,7 @@ import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +53,8 @@ public class KettleKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( "read", counterName );
-      errorCounter = Metrics.counter( "error", counterName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
       // Initialize Kettle Beam
       //
@@ -85,7 +86,7 @@ public class KettleKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
       // Now that we know everything, we can split the row...
       //
-      Metrics.counter( "init", counterName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
     } catch(Exception e) {
       errorCounter.inc();
       LOG.error("Error setup of splitting row into key and value", e);

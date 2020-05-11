@@ -12,6 +12,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +56,9 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( "read", counterName );
-      writtenCounter = Metrics.counter( "written", counterName );
-      errorCounter = Metrics.counter( "error", counterName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, counterName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
       // Initialize Kettle Beam
       //
@@ -69,7 +70,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
         aggregationTypes[ i ] = AggregationType.getTypeFromName( aggregations[ i ] );
       }
 
-      Metrics.counter( "init", counterName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
     } catch(Exception e) {
       errorCounter.inc();
       LOG.error("Error setup of grouping by ", e);

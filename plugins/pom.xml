@@ -29,6 +29,7 @@
         <module>transforms</module>
         <module>actions</module>
         <module>misc</module>
+        <module>engines</module>
       </modules>
     </profile>
 

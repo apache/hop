@@ -83,7 +83,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
 
     // Stepname line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -264,8 +264,8 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
           String name = field.getName();
           String type = field.getType().name();
 
-          int kettleType = BQSchemaAndRecordToKettleFn.AvroType.valueOf( type ).getKettleType();
-          rowMeta.addValueMeta( ValueMetaFactory.createValueMeta( name, kettleType ) );
+          int hopType = BQSchemaAndRecordToKettleFn.AvroType.valueOf( type ).getKettleType();
+          rowMeta.addValueMeta( ValueMetaFactory.createValueMeta( name, hopType ) );
         }
 
         BaseTransformDialog.getFieldsFromPrevious( rowMeta, wFields, 1, new int[] { 1 }, new int[] { 3 }, -1, -1, true, null );
@@ -330,8 +330,8 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
       TableItem item = wFields.getNonEmpty( i );
       String name = item.getText( 1 );
       String newName = item.getText( 2 );
-      String kettleType = item.getText( 3 );
-      in.getFields().add( new BQField( name, newName, kettleType ) );
+      String hopType = item.getText( 3 );
+      in.getFields().add( new BQField( name, newName, hopType ) );
     }
 
     input.setChanged();

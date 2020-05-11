@@ -1,6 +1,7 @@
 package org.apache.hop.beam.metastore;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -10,7 +11,10 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -40,24 +44,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
-import org.apache.hop.beam.util.BeamConst;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
 import java.util.List;
 
@@ -462,7 +448,7 @@ public class BeamJobConfigDialog {
     //
     Label wlStepPluginClasses = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlStepPluginClasses );
-    wlStepPluginClasses.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.StepPluginClasses.Label" ) );
+    wlStepPluginClasses.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.TransformPluginClasses.Label" ) );
     FormData fdlStepPluginClasses = new FormData();
     fdlStepPluginClasses.top = new FormAttachment( lastControl, margin );
     fdlStepPluginClasses.left = new FormAttachment( 0, -margin ); // First one in the left top corner
@@ -477,7 +463,7 @@ public class BeamJobConfigDialog {
     fdStepPluginClasses.left = new FormAttachment( middle, 0 ); // To the right of the label
     fdStepPluginClasses.right = new FormAttachment( 95, 0 );
     wStepPluginClasses.setLayoutData( fdStepPluginClasses );
-    wbStepPluginClasses.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.StepPluginClasses.Button" ) );
+    wbStepPluginClasses.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.TransformPluginClasses.Button" ) );
     FormData fdbStepPluginClasses = new FormData();
     fdbStepPluginClasses.top = new FormAttachment( lastControl, margin );
     fdbStepPluginClasses.left = new FormAttachment( wStepPluginClasses, margin );
@@ -545,7 +531,7 @@ public class BeamJobConfigDialog {
     //
     Label wlStreamingKettleStepsFlushInterval = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlStreamingKettleStepsFlushInterval );
-    wlStreamingKettleStepsFlushInterval.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.StreamingKettleStepsFlushInterval.Label" ) );
+    wlStreamingKettleStepsFlushInterval.setText( BaseMessages.getString( PKG, "BeamJobConfigDialog.StreamingKettleTransformsFlushInterval.Label" ) );
     FormData fdlStreamingKettleStepsFlushInterval = new FormData();
     fdlStreamingKettleStepsFlushInterval.top = new FormAttachment( lastControl, margin );
     fdlStreamingKettleStepsFlushInterval.left = new FormAttachment( 0, -margin ); // First one in the left top corner

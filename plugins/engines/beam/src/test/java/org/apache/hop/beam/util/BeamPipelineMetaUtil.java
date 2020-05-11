@@ -2,6 +2,7 @@ package org.apache.hop.beam.util;
 
 import org.apache.hop.beam.metastore.FieldDefinition;
 import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.transform.PipelineTestBase;
 import org.apache.hop.beam.transforms.io.BeamInputMeta;
 import org.apache.hop.beam.transforms.io.BeamOutputMeta;
 import org.apache.hop.core.Condition;
@@ -25,22 +26,22 @@ import java.util.List;
 
 public class BeamPipelineMetaUtil {
 
-  public static final PipelineMeta generateBeamInputOutputPipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateBeamInputOutputPipelineMeta( String pipelineName, String inputTransformName, String outputTransformName, IMetaStore metaStore ) throws Exception {
 
     MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
     factory.saveElement( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
-    pipelineMeta.setName( transname );
+    pipelineMeta.setName( pipelineName );
     pipelineMeta.setMetaStore( metaStore );
 
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
-    beamInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
+    TransformMeta beamInputStepMeta = new TransformMeta(inputTransformName, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( "BeamInput" );
     pipelineMeta.addTransform( beamInputStepMeta );
 
@@ -61,7 +62,7 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "customers" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
+    TransformMeta beamOutputStepMeta = new TransformMeta(outputTransformName, beamOutputMeta);
     beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
     pipelineMeta.addTransform( beamOutputStepMeta );
     pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyStepMeta, beamOutputStepMeta ) );
@@ -82,7 +83,7 @@ public class BeamPipelineMetaUtil {
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
-    beamInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
@@ -137,7 +138,7 @@ public class BeamPipelineMetaUtil {
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
-    beamInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
@@ -215,7 +216,7 @@ public class BeamPipelineMetaUtil {
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
-    beamInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
@@ -303,7 +304,7 @@ public class BeamPipelineMetaUtil {
     // Add the main io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
-    beamInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
@@ -370,14 +371,14 @@ public class BeamPipelineMetaUtil {
     // Add the left io transform
     //
     BeamInputMeta leftInputMeta = new BeamInputMeta();
-    leftInputMeta.setInputLocation( "/tmp/customers/io/customers-100.txt" );
+    leftInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     leftInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
     TransformMeta leftInputStepMeta = new TransformMeta(inputStepname+" Left", leftInputMeta);
     leftInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( leftInputStepMeta );
 
     BeamInputMeta rightInputMeta = new BeamInputMeta();
-    rightInputMeta.setInputLocation( "/tmp/customers/io/state-data.txt" );
+    rightInputMeta.setInputLocation( PipelineTestBase.INPUT_STATES_FILE );
     rightInputMeta.setFileDescriptionName( statePopulationFileDefinition.getName() );
     TransformMeta rightInputStepMeta = new TransformMeta(inputStepname+" Right", rightInputMeta);
     rightInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );

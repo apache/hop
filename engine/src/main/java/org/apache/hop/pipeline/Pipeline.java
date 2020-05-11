@@ -145,6 +145,8 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   public static final String METRIC_NAME_REJECTED = "rejected";
   public static final String METRIC_NAME_BUFFER_IN = "buffer_in";
   public static final String METRIC_NAME_BUFFER_OUT = "buffer_out";
+  public static final String METRIC_NAME_FLUSH_BUFFER = "flush_buffer";
+  public static final String METRIC_NAME_INIT = "init";
 
   /**
    * The package name, used for internationalization of messages.
@@ -3346,14 +3348,17 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
   // TODO: i18n
   public static final IEngineMetric METRIC_INPUT = new EngineMetric( METRIC_NAME_INPUT, "Input", "The number of rows read from physical I/O", "010", true );
-  public static final IEngineMetric METRIC_OUTPUT = new EngineMetric( METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "020", true );
-  public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other transforms", "030", true );
-  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other transforms", "040", true );
+  public static final IEngineMetric METRIC_READ = new EngineMetric( METRIC_NAME_READ, "Read", "The number of rows read from other transforms", "020", true );
+  public static final IEngineMetric METRIC_WRITTEN = new EngineMetric( METRIC_NAME_WRITTEN, "Written", "The number of rows written to other transforms", "030", true );
+  public static final IEngineMetric METRIC_OUTPUT = new EngineMetric( METRIC_NAME_OUTPUT, "Output", "The number of rows written to physical I/O", "040", true );
   public static final IEngineMetric METRIC_UPDATED = new EngineMetric( METRIC_NAME_UPDATED, "Updated", "The number of rows updated", "050", true );
   public static final IEngineMetric METRIC_REJECTED = new EngineMetric( METRIC_NAME_REJECTED, "Rejected", "The number of rows rejected by a transform", "060", true );
   public static final IEngineMetric METRIC_ERROR = new EngineMetric( METRIC_NAME_ERROR, "Errors", "The number of errors", "070", true );
   public static final IEngineMetric METRIC_BUFFER_IN = new EngineMetric( METRIC_NAME_BUFFER_IN, "Buffers Input", "The number of rows in the transforms input buffers", "080", true );
   public static final IEngineMetric METRIC_BUFFER_OUT = new EngineMetric( METRIC_NAME_BUFFER_OUT, "Buffers Output", "The number of rows in the transforms output buffers", "090", true );
+
+  public static final IEngineMetric METRIC_INIT = new EngineMetric( METRIC_NAME_INIT, "Inits", "The number of times the transform was initialised", "000", true );
+  public static final IEngineMetric METRIC_FLUSH_BUFFER = new EngineMetric( METRIC_NAME_FLUSH_BUFFER, "Flushes", "The number of times a buffer flush occurred on a ", "100", true );
 
   public EngineMetrics getEngineMetrics() {
     return getEngineMetrics( null, -1 );

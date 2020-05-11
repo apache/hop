@@ -23,7 +23,7 @@ import org.apache.hop.beam.core.transform.TransformBatchTransform;
 import org.apache.hop.beam.core.transform.TransformTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.core.util.KettleBeamUtil;
-import org.apache.hop.beam.metastore.BeamJobConfig;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -46,8 +46,8 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
 
   private String metaStoreJson;
 
-  public BeamGenericTransformHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, String metaStoreJson, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamGenericTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, String metaStoreJson, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
     this.metaStoreJson = metaStoreJson;
   }
 
@@ -100,7 +100,8 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
     // This is what the BeamJobConfig option "Streaming Kettle Steps Flush Interval" is for...
     // Without a valid value we default to -1 to disable flushing.
     //
-    int flushIntervalMs = Const.toInt(beamJobConfig.getStreamingKettleStepsFlushInterval(), -1);
+    int flushIntervalMs = Const.toInt(runConfiguration.getStreamingHopTransformsFlushInterval(), -1);
+    int sizeRowsSet = Const.toInt(runConfiguration.getStreamingHopTransformsBufferSize(), 500);
 
     // TODO: take size rowset from the run configuration
     //
@@ -108,13 +109,13 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
 
     // Send all the information on their way to the right nodes
     //
-    PTransform<PCollection<HopRow>, PCollectionTuple> stepTransform;
+    PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
     if (needsBatching(transformMeta)) {
-      stepTransform = new TransformBatchTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
+      transformTransform = new TransformBatchTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
         transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
         targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
     } else {
-      stepTransform = new TransformTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
+      transformTransform = new TransformTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
         transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
         targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
     }
@@ -124,7 +125,7 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
       // Trick Beam into only running a single thread of the transform that comes next.
       //
       input = pipeline
-        .apply( Create.of( Arrays.asList( "kettle-single-value" ) ) ).setCoder( StringUtf8Coder.of() )
+        .apply( Create.of( Arrays.asList( "hop-single-value" ) ) ).setCoder( StringUtf8Coder.of() )
         .apply( WithKeys.of( (Void) null ) )
         .apply( GroupByKey.create() )
         .apply( Values.create() )
@@ -162,7 +163,7 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
 
     // Apply the transform transform to the previous io transform PCollection(s)
     //
-    PCollectionTuple tuple = input.apply( transformMeta.getName(), stepTransform );
+    PCollectionTuple tuple = input.apply( transformMeta.getName(), transformTransform );
 
     // The main collection
     //
@@ -187,12 +188,12 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
   }
 
   public static boolean needsBatching( TransformMeta transformMeta ) {
-    String value = transformMeta.getAttribute( BeamConst.STRING_KETTLE_BEAM, BeamConst.STRING_STEP_FLAG_BATCH );
+    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_STEP_FLAG_BATCH );
     return value!=null && "true".equalsIgnoreCase( value );
   }
 
   public static boolean needsSingleThreading( TransformMeta transformMeta ) {
-    String value = transformMeta.getAttribute( BeamConst.STRING_KETTLE_BEAM, BeamConst.STRING_STEP_FLAG_SINGLE_THREADED );
+    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_STEP_FLAG_SINGLE_THREADED );
     return value!=null && "true".equalsIgnoreCase( value );
   }
 

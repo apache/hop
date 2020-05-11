@@ -58,13 +58,11 @@ public class ExtensionPointPluginType extends BasePluginType implements IPluginT
     return Const.XML_FILE_HOP_EXTENSION_POINTS;
   }
 
-  @Override
-  protected String getMainTag() {
+  @Override public String getMainTag() {
     return "extension-points";
   }
 
-  @Override
-  protected String getSubTag() {
+  @Override public String getSubTag() {
     return "extension-point";
   }
 

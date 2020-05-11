@@ -8,6 +8,6 @@ public class LocalPipelineEngineCapabilities extends PipelineEngineCapabilities 
    * Locally we can do preview, debug, sniff testing, ...
    */
   public LocalPipelineEngineCapabilities() {
-    super(true, true, true);
+    super(true, true, true, true);
   }
 }

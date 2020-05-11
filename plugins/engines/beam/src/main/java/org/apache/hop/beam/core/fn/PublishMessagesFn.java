@@ -8,6 +8,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,15 +42,15 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   @Setup
   public void setUp() {
     try {
-      readCounter = Metrics.counter( "read", transformName );
-      outputCounter = Metrics.counter( "output", transformName );
+      readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
+      outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
 
       // Initialize Kettle Beam
       //
       BeamHop.init( stepPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      Metrics.counter( "init", transformName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch ( Exception e ) {
       numErrors.inc();
       LOG.error( "Error in setup of pub/sub publish messages function", e );
@@ -61,10 +62,10 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   public void processElement( ProcessContext processContext ) {
 
     try {
-      HopRow kettleRow = processContext.element();
+      HopRow hopRow = processContext.element();
       readCounter.inc();
       try {
-        byte[] bytes = rowMeta.getBinary( kettleRow.getRow(), fieldIndex );
+        byte[] bytes = rowMeta.getBinary( hopRow.getRow(), fieldIndex );
         PubsubMessage message = new PubsubMessage( bytes, new HashMap<>() );
         processContext.output( message );
         outputCounter.inc();

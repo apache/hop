@@ -9,6 +9,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +53,8 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
   @Setup
   public void setUp() {
     try {
-      writtenCounter = Metrics.counter( "written", counterName );
-      errorCounter = Metrics.counter( "error", counterName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, counterName );
+      errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
       // Initialize Kettle Beam
       //
@@ -63,7 +64,7 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
       leftVRowMeta = JsonRowMeta.fromJson( leftVRowMetaJson );
       rightVRowMeta = JsonRowMeta.fromJson( rightVRowMetaJson );
 
-      Metrics.counter( "init", counterName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
     } catch(Exception e) {
       errorCounter.inc();
       LOG.error( "Error initializing assembling rows", e);

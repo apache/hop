@@ -73,7 +73,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
 
       // First convert the input stream of HopRows to KV<String,String> for the keys and messages
       //
-      HopRowToKVStringStringFn kettleRowToKVStringStringFn = new HopRowToKVStringStringFn( transformName, keyIndex, messageIndex, rowMetaJson, stepPluginClasses, xpPluginClasses );
+      HopRowToKVStringStringFn hopRowToKVStringStringFn = new HopRowToKVStringStringFn( transformName, keyIndex, messageIndex, rowMetaJson, stepPluginClasses, xpPluginClasses );
 
       // Then write to Kafka topic
       //
@@ -85,7 +85,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       // TODO: add features like compression
       //
 
-      PCollection<KV<String, String>> kvpCollection = input.apply( ParDo.of( kettleRowToKVStringStringFn ) );
+      PCollection<KV<String, String>> kvpCollection = input.apply( ParDo.of( hopRowToKVStringStringFn ) );
       return kvpCollection.apply( stringsToKafka );
     } catch ( Exception e ) {
       numErrors.inc();

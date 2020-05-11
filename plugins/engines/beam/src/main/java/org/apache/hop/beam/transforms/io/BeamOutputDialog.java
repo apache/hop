@@ -5,10 +5,10 @@ import org.apache.hop.beam.metastore.FileDefinition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -20,15 +20,11 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Collections;
-import java.util.List;
 
 
 public class BeamOutputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -41,7 +37,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
   private boolean getpreviousFields = false;
 
   private TextVar wOutputLocation;
-  private Combo wFileDefinition;
+  private MetaSelectionLine<FileDefinition> wFileDefinition;
   private TextVar wFilePrefix;
   private TextVar wFileSuffix;
   private Button wWindowed;
@@ -71,19 +67,9 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     middle = props.getMiddlePct();
     margin = Const.MARGIN;
 
-    String fileDefinitionNames[];
-    try {
-      List<String> fileDefinitionNameList = new MetaStoreFactory<FileDefinition>( FileDefinition.class, metaStore ).getElementNames();
-      Collections.sort( fileDefinitionNameList );
-
-      fileDefinitionNames = fileDefinitionNameList.toArray( new String[ 0 ] );
-    } catch ( Exception e ) {
-      fileDefinitionNames = new String[] {};
-    }
-
-    // Stepname line
+    // Transform name line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -168,23 +154,21 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     wWindowed.setLayoutData( fdWindowed );
     lastControl = wWindowed;
 
-    Label wlFileDefinition = new Label( shell, SWT.RIGHT );
-    wlFileDefinition.setText( BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ) );
-    props.setLook( wlFileDefinition );
-    FormData fdlFileDefinition = new FormData();
-    fdlFileDefinition.left = new FormAttachment( 0, 0 );
-    fdlFileDefinition.top = new FormAttachment( lastControl, margin );
-    fdlFileDefinition.right = new FormAttachment( middle, -margin );
-    wlFileDefinition.setLayoutData( fdlFileDefinition );
-    wFileDefinition = new Combo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metaStore, FileDefinition.class, shell, SWT.NONE,
+      BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ), BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ));
     props.setLook( wFileDefinition );
-    wFileDefinition.setItems( fileDefinitionNames );
     FormData fdFileDefinition = new FormData();
-    fdFileDefinition.left = new FormAttachment( middle, 0 );
-    fdFileDefinition.top = new FormAttachment( wlFileDefinition, 0, SWT.CENTER );
+    fdFileDefinition.left = new FormAttachment( 0, 0 );
+    fdFileDefinition.top = new FormAttachment( lastControl, margin );
     fdFileDefinition.right = new FormAttachment( 100, 0 );
     wFileDefinition.setLayoutData( fdFileDefinition );
     lastControl = wFileDefinition;
+
+    try {
+      wFileDefinition.fillItems();
+    } catch ( Exception e ) {
+      log.logError( "Error getting file definition items", e );
+    }
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

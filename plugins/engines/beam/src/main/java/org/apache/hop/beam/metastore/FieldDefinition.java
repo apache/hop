@@ -13,7 +13,7 @@ public class FieldDefinition implements Serializable {
   private String name;
 
   @MetaStoreAttribute
-  private String kettleType;
+  private String hopType;
 
   @MetaStoreAttribute
   private int length;
@@ -27,23 +27,23 @@ public class FieldDefinition implements Serializable {
   public FieldDefinition( ) {
   }
 
-  public FieldDefinition( String name, String kettleType, int length, int precision ) {
+  public FieldDefinition( String name, String hopType, int length, int precision ) {
     this.name = name;
-    this.kettleType = kettleType;
+    this.hopType = hopType;
     this.length = length;
     this.precision = precision;
   }
 
-  public FieldDefinition( String name, String kettleType, int length, int precision, String formatMask ) {
+  public FieldDefinition( String name, String hopType, int length, int precision, String formatMask ) {
     this.name = name;
-    this.kettleType = kettleType;
+    this.hopType = hopType;
     this.length = length;
     this.precision = precision;
     this.formatMask = formatMask;
   }
 
   public IValueMeta getValueMeta() throws HopPluginException {
-    int type = ValueMetaFactory.getIdForValueMeta( kettleType );
+    int type = ValueMetaFactory.getIdForValueMeta( hopType );
     IValueMeta valueMeta = ValueMetaFactory.createValueMeta( name, type, length, precision );
     valueMeta.setConversionMask( formatMask );
     return valueMeta;
@@ -66,19 +66,19 @@ public class FieldDefinition implements Serializable {
   }
 
   /**
-   * Gets kettleType
+   * Gets hopType
    *
-   * @return value of kettleType
+   * @return value of hopType
    */
-  public String getKettleType() {
-    return kettleType;
+  public String getHopType() {
+    return hopType;
   }
 
   /**
-   * @param kettleType The kettleType to set
+   * @param hopType The hopType to set
    */
-  public void setKettleType( String kettleType ) {
-    this.kettleType = kettleType;
+  public void setHopType( String hopType ) {
+    this.hopType = hopType;
   }
 
   /**

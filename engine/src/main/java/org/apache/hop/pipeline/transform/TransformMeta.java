@@ -139,6 +139,9 @@ public class TransformMeta implements
     if ( transform != null ) {
       PluginRegistry registry = PluginRegistry.getInstance();
       this.transformPluginId = registry.getPluginId( TransformPluginType.class, transform );
+      if (this.transformPluginId==null) {
+        System.err.println("WARNING: transform plugin class '"+transform.getClass().getName()+"' couldn't be found in the plugin registry. Check the classpath.");
+      }
       setDeprecationAndSuggestedTransform();
     }
     this.name = transformName;

@@ -229,9 +229,9 @@ public class FatJarBuilder {
     String plugins = pluginsToInclude;
 
     if ( StringUtils.isEmpty( plugins ) ) {
-      plugins = "kettle-beam";
+      plugins = "hop-beam";
     } else {
-      plugins += ",kettle-beam";
+      plugins += ",hop-beam";
     }
 
     Set<String> classes = new HashSet<>();

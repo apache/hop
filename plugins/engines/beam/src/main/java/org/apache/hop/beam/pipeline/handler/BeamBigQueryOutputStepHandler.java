@@ -2,32 +2,25 @@ package org.apache.hop.beam.pipeline.handler;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamBQOutputTransform;
-import org.apache.hop.beam.core.transform.BeamOutputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.metastore.BeamJobConfig;
-import org.apache.hop.beam.metastore.FieldDefinition;
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.transforms.bq.BeamBQOutputMeta;
-import org.apache.hop.beam.transforms.io.BeamOutputMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.metastore.api.IMetaStore;
 
 import java.util.List;
 import java.util.Map;
 
 public class BeamBigQueryOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamBigQueryOutputStepHandler( BeamJobConfig beamJobConfig, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( beamJobConfig, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamBigQueryOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,

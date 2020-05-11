@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.metastore.persist.IMetaStoreObjectFactory;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -40,6 +41,10 @@ public class PipelineRunConfigurationMetaStoreObjectFactory implements IMetaStor
 
   @Override public Object instantiateClass( String className, Map<String, String> context, Object parentObject ) throws MetaStoreException {
     PluginRegistry registry = PluginRegistry.getInstance();
+
+    if ( VariableValueDescription.class.getName().equals(className)) {
+      return new VariableValueDescription();
+    }
 
     String pluginId = context.get( PLUGIN_ID_KEY );
     if ( pluginId == null ) {

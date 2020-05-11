@@ -5,14 +5,16 @@ public class PipelineEngineCapabilities {
   private boolean supportingPreview;
   private boolean supportingDebug;
   private boolean supportingSniffing;
+  private boolean supportingPause;
 
   public PipelineEngineCapabilities() {
   }
 
-  public PipelineEngineCapabilities( boolean supportingPreview, boolean supportingDebug, boolean supportingSniffing ) {
+  public PipelineEngineCapabilities( boolean supportingPreview, boolean supportingDebug, boolean supportingSniffing, boolean supportingPause ) {
     this.supportingPreview = supportingPreview;
     this.supportingDebug = supportingDebug;
     this.supportingSniffing = supportingSniffing;
+    this.supportingPause = supportingPause;
   }
 
   /**
@@ -61,5 +63,21 @@ public class PipelineEngineCapabilities {
    */
   public void setSupportingSniffing( boolean supportingSniffing ) {
     this.supportingSniffing = supportingSniffing;
+  }
+
+  /**
+   * Gets supportingPause
+   *
+   * @return value of supportingPause
+   */
+  public boolean isSupportingPause() {
+    return supportingPause;
+  }
+
+  /**
+   * @param supportingPause The supportingPause to set
+   */
+  public void setSupportingPause( boolean supportingPause ) {
+    this.supportingPause = supportingPause;
   }
 }

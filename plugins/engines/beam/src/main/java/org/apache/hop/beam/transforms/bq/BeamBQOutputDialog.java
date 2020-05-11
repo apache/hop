@@ -66,7 +66,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
 
     // Stepname line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );

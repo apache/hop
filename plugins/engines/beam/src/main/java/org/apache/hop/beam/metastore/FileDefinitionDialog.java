@@ -1,6 +1,9 @@
 package org.apache.hop.beam.metastore;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +33,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
 import java.util.List;
 
-public class FileDefinitionDialog {
+public class FileDefinitionDialog implements IMetaStoreDialog {
 
   private static Class<?> PKG = FileDefinitionDialog.class; // for i18n purposes, needed by Translator2!!
 
@@ -38,6 +41,8 @@ public class FileDefinitionDialog {
 
   private Shell parent;
   private Shell shell;
+  private IMetaStore metaStore;
+  private IVariables variables;
 
   // Connection properties
   //
@@ -56,16 +61,18 @@ public class FileDefinitionDialog {
   private int middle;
   private int margin;
 
-  private boolean ok;
+  private String definitionName;
 
-  public FileDefinitionDialog( Shell parent, FileDefinition fileDefinition ) {
+  public FileDefinitionDialog( Shell parent, IMetaStore metaStore, FileDefinition fileDefinition, IVariables variables ) {
     this.parent = parent;
+    this.metaStore = metaStore;
     this.fileDefinition = fileDefinition;
+    this.variables = variables;
     props = PropsUi.getInstance();
-    ok = false;
+    definitionName = null;
   }
 
-  public boolean open() {
+  public String open() {
     Display display = parent.getDisplay();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
@@ -128,7 +135,7 @@ public class FileDefinitionDialog {
         display.sleep();
       }
     }
-    return ok;
+    return definitionName;
   }
 
   private void addFormWidgets() {
@@ -254,7 +261,7 @@ public class FileDefinitionDialog {
       FieldDefinition field = fields.get( i );
       TableItem item = wFields.table.getItem( i );
       item.setText(1, Const.NVL(field.getName(), ""));
-      item.setText(2, Const.NVL(field.getKettleType(), ""));
+      item.setText(2, Const.NVL(field.getHopType(), ""));
       item.setText(3, Const.NVL(field.getFormatMask(), ""));
       item.setText(4, field.getLength()<0 ? "" : Integer.toString(field.getLength()));
       item.setText(5, field.getPrecision()<0 ? "" : Integer.toString(field.getPrecision()));
@@ -265,7 +272,7 @@ public class FileDefinitionDialog {
   }
 
   private void cancel() {
-    ok = false;
+    definitionName = null;
     dispose();
   }
 
@@ -278,7 +285,7 @@ public class FileDefinitionDialog {
       return;
     }
     getInfo( fileDefinition );
-    ok = true;
+    definitionName = fileDefinition.getName();
     dispose();
   }
 
@@ -292,11 +299,11 @@ public class FileDefinitionDialog {
     for (int i=0;i<wFields.nrNonEmpty();i++) {
       TableItem item = wFields.getNonEmpty( i );
       String name = item.getText(1);
-      String kettleType = item.getText(2);
+      String hopType = item.getText(2);
       String formatMask = item.getText(3);
       int length = Const.toInt(item.getText(4), -1);
       int precision = Const.toInt(item.getText(5), -1);
-      def.getFieldDefinitions().add(new FieldDefinition( name, kettleType, length, precision, formatMask ));
+      def.getFieldDefinitions().add(new FieldDefinition( name, hopType, length, precision, formatMask ));
     }
   }
 }

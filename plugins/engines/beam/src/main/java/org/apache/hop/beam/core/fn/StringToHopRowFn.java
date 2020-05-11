@@ -8,6 +8,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,15 +39,15 @@ public class StringToHopRowFn extends DoFn<String, HopRow> {
   @Setup
   public void setUp() {
     try {
-      inputCounter = Metrics.counter( "input", transformName );
-      writtenCounter = Metrics.counter( "written", transformName );
+      inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
+      writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
 
       // Initialize Kettle Beam
       //
       BeamHop.init( stepPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
-      Metrics.counter( "init", transformName ).inc();
+      Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch(Exception e) {
       numErrors.inc();
       LOG.error( "Error in setup of String to Kettle Row conversion function", e );

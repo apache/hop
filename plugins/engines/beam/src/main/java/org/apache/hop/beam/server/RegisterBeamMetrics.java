@@ -25,7 +25,7 @@ public class RegisterBeamMetrics extends BaseHttpServlet implements IHopServerPl
 
   private static final long serialVersionUIDL = 348324987293472947L;
 
-  public static final String CONTEXT_PATH = "/kettle/registerBeamMetrics";
+  public static final String CONTEXT_PATH = "/hop/registerBeamMetrics";
 
   public RegisterBeamMetrics() {
   }

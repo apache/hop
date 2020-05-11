@@ -3,18 +3,23 @@ package org.apache.hop.beam.metastore;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metastore.IHopMetaStoreElement;
+import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.metastore.persist.MetaStoreElementType;
+import org.apache.hop.metastore.persist.MetaStoreFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @MetaStoreElementType(
-  name = "File Definition",
-  description = "Describes a file layout"
+  name = "Beam File Definition",
+  description = "Describes a file layout in a Beam pipeline"
 )
-public class FileDefinition implements Serializable {
+public class FileDefinition extends Variables implements Serializable, IVariables, IHopMetaStoreElement<FileDefinition> {
 
   private String name;
 
@@ -130,5 +135,13 @@ public class FileDefinition implements Serializable {
    */
   public void setEnclosure( String enclosure ) {
     this.enclosure = enclosure;
+  }
+
+  @Override public MetaStoreFactory<FileDefinition> getFactory( IMetaStore metaStore ) {
+    return createFactory(metaStore);
+  }
+
+  public static final MetaStoreFactory<FileDefinition> createFactory( IMetaStore metaStore ) {
+    return new MetaStoreFactory<>( FileDefinition.class, metaStore );
   }
 }
