@@ -137,7 +137,11 @@ public abstract class BaseDialog extends Dialog {
                                                 FileObject fileObject, String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
     FileDialog dialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
-    dialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenFile" ) );
+    if (save) {
+      dialog.setText( BaseMessages.getString( PKG, "BaseDialog.SaveFile" ) );
+    } else {
+      dialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenFile" ) );
+    }
     if ( filterExtensions == null || filterNames == null ) {
       dialog.setFilterExtensions( new String[] { "*.*" } );
       dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );

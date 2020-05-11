@@ -17,7 +17,7 @@
   <properties>
     <commons-codec.version>1.9</commons-codec.version>
     <encoder.version>1.2</encoder.version>
-    <guava.version>17.0</guava.version>
+    <guava.version>27.0-jre</guava.version>
     <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
     <mockito-all.version>1.9.5</mockito-all.version>
     <poi.version>3.17</poi.version>
@@ -84,7 +84,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
+      <version>27.0-jre</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -17,7 +17,7 @@
   </parent>
 
   <properties>
-    <guava.version>17.0</guava.version>
+    <guava.version>27.0-jre</guava.version>
     <commons-io.version>2.1</commons-io.version>
     <mockito-all.version>1.8.4</mockito-all.version>
     <commons-codec.version>1.5</commons-codec.version>

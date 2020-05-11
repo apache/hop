@@ -1,12 +1,13 @@
 package org.apache.hop.beam.gui;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
-import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -15,9 +16,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,28 +73,19 @@ public class HopBeamGuiPlugin {
     }
 
     try {
-      Set<String> folders = new HashSet<>();
-      folders.add( "lib" );
-      folders.add( "libswt/linux/x86_64" );
+      Set<File> jarFiles = new HashSet<>();
+      jarFiles.addAll( FileUtils.listFiles( new File("lib"), new String[] { "jar" }, true ) );
+      jarFiles.addAll( FileUtils.listFiles( new File("libswt/linux/x86_64"), new String[] { "jar" }, true ) );
+      jarFiles.addAll( FileUtils.listFiles( new File("plugins"), new String[] { "jar" }, true ) );
 
-      String[] pluginFolders = new File( "plugins" ).list( new FilenameFilter() {
-        @Override public boolean accept( File file, String name ) {
-          return !"lib".equals( name );
-        }
-      } );
-      folders.addAll( Arrays.asList( pluginFolders ) );
+      List<String> jarFilenames = new ArrayList<>();
+      jarFiles.forEach( file -> jarFilenames.add(file.toString()) );
 
-      for ( String folder : folders ) {
-        System.out.println( "Found folder to include : " + folder );
-      }
-
-
-      IRunnableWithProgress op = iProgressMonitor -> {
+      IRunnableWithProgress op = monitor -> {
         try {
-          List<String> jarFiles = BeamConst.findLibraryFilesToStage( new File( "." ), false, folders );
-
-          FatJarBuilder fatJarBuilder = new FatJarBuilder( filename, jarFiles );
-          fatJarBuilder.setExtraStepPluginClasses( null );
+          monitor.setTaskName( "Building a Hop fat jar..." );
+          FatJarBuilder fatJarBuilder = new FatJarBuilder( filename, jarFilenames );
+          fatJarBuilder.setExtraTransformPluginClasses( null );
           fatJarBuilder.setExtraXpPluginClasses( null );
           fatJarBuilder.buildTargetJar();
 
@@ -106,9 +97,11 @@ public class HopBeamGuiPlugin {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
       pmd.run( true, true, op );
 
+      GuiResource.getInstance().toClipboard( filename );
+
       box = new MessageBox( shell, SWT.CLOSE | SWT.ICON_INFORMATION );
       box.setText( "Fat jar created" );
-      box.setMessage( "A fat jar was successfully created : " + filename );
+      box.setMessage( "A fat jar was successfully created : " + filename + Const.CR+"The filename was copied to the clipboard." );
       box.open();
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error creating fat jar", e );

@@ -39,6 +39,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
+import java.util.Arrays;
+
 @GuiPlugin
 public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
 
@@ -220,6 +222,10 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
       } catch ( Exception e ) {
         throw new HopException( "Unknown autoscaling algorithm for GCP DataFlow: " + algorithmCode, e );
       }
+    }
+
+    if (StringUtils.isNotEmpty( getFatJar() )) {
+      options.setFilesToStage( Arrays.asList(fatJar) );
     }
     
     return options;

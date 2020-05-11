@@ -77,14 +77,14 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
   }
 
   @Override public PipelineOptions getPipelineOptions() {
-    DirectOptions directOptions = PipelineOptionsFactory.as( DirectOptions.class );
-    directOptions.setBlockOnRun( !isRunningAsynchronous() );
+    DirectOptions options = PipelineOptionsFactory.as( DirectOptions.class );
+    options.setBlockOnRun( !isRunningAsynchronous() );
     if ( StringUtils.isNotEmpty(numberOfWorkers)) {
       int targetParallelism = Const.toInt(environmentSubstitute( numberOfWorkers),  1);
-      directOptions.setTargetParallelism(targetParallelism);
+      options.setTargetParallelism(targetParallelism);
     }
 
-    return directOptions;
+    return options;
   }
 
   @Override public boolean isRunningAsynchronous() {

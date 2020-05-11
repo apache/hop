@@ -62,13 +62,11 @@ public class PipelineEnginePluginType extends BasePluginType implements IPluginT
     return Const.XML_FILE_HOP_PIPELINE_ENGINES;
   }
 
-  @Override
-  protected String getMainTag() {
+  @Override public String getMainTag() {
     return "hop-pipeline-engines";
   }
 
-  @Override
-  protected String getSubTag() {
+  @Override public String getSubTag() {
     return "hop-pipeline-engine";
   }
 
