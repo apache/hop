@@ -31,7 +31,6 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metastore.RunnerType;
-import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -40,6 +39,8 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+
+import java.util.Arrays;
 
 @GuiPlugin
 public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
@@ -79,7 +80,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   private String flinkCheckpointingInterval;
 
   @GuiWidgetElement(
-    order = "20030-flink-options",
+    order = "20040-flink-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
     label = "Checkpointing interval",
@@ -89,7 +90,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   private String flinkCheckpointingMode;
 
   @GuiWidgetElement(
-    order = "20030-flink-options",
+    order = "20050-flink-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
     label = "Checkpointing timeout (ms)",
@@ -99,7 +100,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   private String flinkCheckpointTimeoutMillis;
 
   @GuiWidgetElement(
-    order = "20030-flink-options",
+    order = "20060-flink-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
     label = "Minimum pause between checkpoints",
@@ -109,19 +110,19 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   private String flinkMinPauseBetweenCheckpoints;
 
   @GuiWidgetElement(
-    order = "20000-flink-options",
+    order = "20070-flink-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
+    type = GuiElementType.TEXT,
     label = "Fail on checkpointing errors?",
     toolTip = "Sets the expected behaviour for tasks in case that they encounter an error in their "
       + "checkpointing procedure. If this is set to true, the task will fail on checkpointing error. "
       + "If this is set to false, the task will only decline a the checkpoint and continue running. "
   )
   @MetaStoreAttribute
-  private boolean flinkFailingOnCheckpointingErrors;
+  private String flinkFailingOnCheckpointingErrors;
 
   @GuiWidgetElement(
-    order = "20030-flink-options",
+    order = "20080-flink-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
     label = "Number of execution retries",
@@ -132,39 +133,118 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   @MetaStoreAttribute
   private String flinkNumberOfExecutionRetries;
 
+  @GuiWidgetElement(
+    order = "20090-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Execution retry delay (ms)",
+    toolTip = "Sets the delay in milliseconds between executions. A value of -1"
+      + "indicates that the default value should be used."
+  )
   @MetaStoreAttribute
   private String flinkExecutionRetryDelay;
 
+  @GuiWidgetElement(
+    order = "20100-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Object re-use",
+    toolTip = "Sets the behavior of reusing objects."
+  )
   @MetaStoreAttribute
   private String flinkObjectReuse;
 
-  @MetaStoreAttribute
-  private String flinkStateBackend;
-
+  @GuiWidgetElement(
+    order = "20110-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Disable metrics",
+    toolTip = "Disable Beam metrics in Flink Runner"
+  )
   @MetaStoreAttribute
   private String flinkDisableMetrics;
 
+  @GuiWidgetElement(
+    order = "20120-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Disable metrics",
+    toolTip = "Enables or disables externalized checkpoints. "
+      + "Works in conjunction with CheckpointingInterval"
+  )
   @MetaStoreAttribute
   private String flinkExternalizedCheckpointsEnabled;
 
+  @GuiWidgetElement(
+    order = "20130-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Retain externalized checkpoints on cancellation",
+    toolTip = "Sets the behavior of externalized checkpoints on cancellation."
+  )
   @MetaStoreAttribute
   private String flinkRetainExternalizedCheckpointsOnCancellation;
 
+  @GuiWidgetElement(
+    order = "20140-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Maximum bundle size",
+    toolTip = "The maximum number of elements in a bundle."
+  )
   @MetaStoreAttribute
   private String flinkMaxBundleSize;
 
+  @GuiWidgetElement(
+    order = "20150-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Maximum bundle time (ms)",
+    toolTip = "The maximum time to wait before finalising a bundle (in milliseconds)."
+  )
   @MetaStoreAttribute
   private String flinkMaxBundleTimeMills;
 
+  @GuiWidgetElement(
+    order = "20160-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Shutdown sources on final watermark",
+    toolTip = "If set, shutdown sources when their watermark reaches +Inf."
+  )
   @MetaStoreAttribute
   private String flinkShutdownSourcesOnFinalWatermark;
 
+  @GuiWidgetElement(
+    order = "20170-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Latency tracking interval",
+    toolTip = "Interval in milliseconds for sending latency tracking marks from the sources to the sinks. "
+      + "Interval value <= 0 disables the feature."
+  )
   @MetaStoreAttribute
   private String flinkLatencyTrackingInterval;
 
+  @GuiWidgetElement(
+    order = "20180-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Auto watermark interval",
+    toolTip = "The interval in milliseconds for automatic watermark emission."
+  )
   @MetaStoreAttribute
   private String flinkAutoWatermarkInterval;
 
+  @GuiWidgetElement(
+    order = "20190-flink-options",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    label = "Batch execution mode",
+    toolTip =  "Flink mode for data exchange of batch pipelines. "
+      + "Set this to BATCH_FORCED if pipelines get blocked, see "
+      + "https://issues.apache.org/jira/browse/FLINK-10672"
+  )
   @MetaStoreAttribute
   private String flinkExecutionModeForBatch;
 
@@ -191,7 +271,6 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     this.flinkNumberOfExecutionRetries = config.flinkNumberOfExecutionRetries;
     this.flinkExecutionRetryDelay = config.flinkExecutionRetryDelay;
     this.flinkObjectReuse = config.flinkObjectReuse;
-    this.flinkStateBackend = config.flinkStateBackend;
     this.flinkDisableMetrics = config.flinkDisableMetrics;
     this.flinkExternalizedCheckpointsEnabled = config.flinkExternalizedCheckpointsEnabled;
     this.flinkRetainExternalizedCheckpointsOnCancellation = config.flinkRetainExternalizedCheckpointsOnCancellation;
@@ -213,8 +292,6 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
   @Override public PipelineOptions getPipelineOptions() throws HopException {
     FlinkPipelineOptions options = PipelineOptionsFactory.as( FlinkPipelineOptions.class );
-
-    options.setFilesToStage( BeamConst.findLibraryFilesToStage( null, getPluginsToStage(), true, true ) );
 
     // Address of the Flink Master where the Pipeline should be executed. Can either be of the form \"host:port\" or one of the special values [local], [collection] or [auto].")
     if ( StringUtils.isNotEmpty( getFlinkMaster() ) ) {
@@ -290,19 +367,6 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       options.setObjectReuse( value );
     }
 
-    // Sets the state backend to use in streaming mode. Otherwise the default is read from the Flink ")
-    /** TODO
-     if (StringUtils.isNotEmpty( getFlinkStateBackend() )) {
-     String str = environmentSubstitute( getFlinkStateBackend() );
-     try {
-
-     options.setStateBackend(StateBackEnd);
-     } catch(Exception e) {
-     throw new IOException( "Unable to parse flink state back-end '"+modeString+"'", e );
-     }
-     }
-     */
-
     // Enable/disable Beam metrics in Flink Runner")
     if ( StringUtils.isNotEmpty( getFlinkDisableMetrics() ) ) {
       String str = environmentSubstitute( getFlinkDisableMetrics() );
@@ -340,6 +404,13 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       }
     }
 
+    // Fail on checkpointing errors?
+    if ( StringUtils.isNotEmpty( getFlinkFailingOnCheckpointingErrors() )) {
+      String str = environmentSubstitute( getFlinkFailingOnCheckpointingErrors() );
+      boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
+      options.setFailOnCheckpointingErrors( value );
+    }
+
     // If set, shutdown sources when their watermark reaches +Inf.")
     if ( StringUtils.isNotEmpty( getFlinkShutdownSourcesOnFinalWatermark() ) ) {
       String str = environmentSubstitute( getFlinkShutdownSourcesOnFinalWatermark() );
@@ -375,6 +446,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       }
     }
 
+    if (StringUtils.isNotEmpty( getFatJar() )) {
+      options.setFilesToStage( Arrays.asList(fatJar) );
+    }
 
     return options;
   }
@@ -485,14 +559,14 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
    *
    * @return value of flinkFailingOnCheckpointingErrors
    */
-  public boolean isFlinkFailingOnCheckpointingErrors() {
+  public String getFlinkFailingOnCheckpointingErrors() {
     return flinkFailingOnCheckpointingErrors;
   }
 
   /**
    * @param flinkFailingOnCheckpointingErrors The flinkFailingOnCheckpointingErrors to set
    */
-  public void setFlinkFailingOnCheckpointingErrors( boolean flinkFailingOnCheckpointingErrors ) {
+  public void setFlinkFailingOnCheckpointingErrors( String flinkFailingOnCheckpointingErrors ) {
     this.flinkFailingOnCheckpointingErrors = flinkFailingOnCheckpointingErrors;
   }
 
@@ -542,22 +616,6 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
    */
   public void setFlinkObjectReuse( String flinkObjectReuse ) {
     this.flinkObjectReuse = flinkObjectReuse;
-  }
-
-  /**
-   * Gets flinkStateBackend
-   *
-   * @return value of flinkStateBackend
-   */
-  public String getFlinkStateBackend() {
-    return flinkStateBackend;
-  }
-
-  /**
-   * @param flinkStateBackend The flinkStateBackend to set
-   */
-  public void setFlinkStateBackend( String flinkStateBackend ) {
-    this.flinkStateBackend = flinkStateBackend;
   }
 
   /**

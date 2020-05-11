@@ -66,13 +66,11 @@ public class ValueMetaPluginType extends BasePluginType implements IPluginType {
     return Const.HOP_VALUEMETA_PLUGINS_FILE;
   }
 
-  @Override
-  protected String getMainTag() {
+  @Override public String getMainTag() {
     return "valuemeta-plugins";
   }
 
-  @Override
-  protected String getSubTag() {
+  @Override public String getSubTag() {
     return "valuemeta-plugin";
   }
 

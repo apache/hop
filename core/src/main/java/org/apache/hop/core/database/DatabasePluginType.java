@@ -59,17 +59,17 @@ public class DatabasePluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String getXmlPluginFile() {
+  public String getXmlPluginFile() {
     return Const.XML_FILE_HOP_DATABASE_TYPES;
   }
 
   @Override
-  protected String getMainTag() {
+  public String getMainTag() {
     return "database-types";
   }
 
   @Override
-  protected String getSubTag() {
+  public String getSubTag() {
     return "database-type";
   }
 

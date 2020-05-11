@@ -65,13 +65,11 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType implements I
     return Const.HOP_PASSWORD_ENCODER_PLUGINS_FILE;
   }
 
-  @Override
-  protected String getMainTag() {
+  @Override public String getMainTag() {
     return "password-encoder-plugins";
   }
 
-  @Override
-  protected String getSubTag() {
+  @Override public String getSubTag() {
     return "password-encoder-plugin";
   }
 

@@ -4,6 +4,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -12,13 +16,20 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,14 +45,14 @@ public class FatJarBuilder {
 
   private String targetJarFile;
   private List<String> jarFiles;
-  private String extraStepPluginClasses;
+  private String extraTransformPluginClasses;
   private String extraXpPluginClasses;
 
   private transient Map<String, String> fileContentMap;
 
   public FatJarBuilder() {
     jarFiles = new ArrayList<>();
-    extraStepPluginClasses = null;
+    extraTransformPluginClasses = null;
     extraXpPluginClasses = null;
   }
 
@@ -53,10 +64,10 @@ public class FatJarBuilder {
 
   public void buildTargetJar() throws HopException {
 
-    TransformPluginType transformPluginType = TransformPluginType.getInstance();
-    ActionPluginType actionPluginType = ActionPluginType.getInstance();
-    ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
-
+    List<String> systemXmlFiles = Arrays.asList( Const.XML_FILE_HOP_TRANSFORMS, Const.XML_FILE_HOP_EXTENSION_POINTS,
+      Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_DATABASE_TYPES, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS,
+      Const.XML_FILE_HOP_VALUEMETA_PLUGINS, Const.XML_FILE_HOP_PIPELINE_ENGINES, Const.XML_FILE_HOP_TRANSFORMS,
+      Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS );
     fileContentMap = new HashMap<>();
 
     try {
@@ -90,13 +101,7 @@ public class FatJarBuilder {
           if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".RSA" ) ) {
             skip = true;
           }
-          if ( entryName.equals( Const.XML_FILE_HOP_TRANSFORMS ) ) {
-            skip = true;
-          }
-          if ( entryName.equals( Const.XML_FILE_HOP_EXTENSION_POINTS ) ) {
-            skip = true;
-          }
-          if ( entryName.equals( Const.XML_FILE_HOP_WORKFLOW_ACTIONS ) ) {
+          if ( systemXmlFiles.contains( entryName ) ) {
             skip = true;
           }
           if ( entryName.startsWith( "META-INF/services/" ) ) {
@@ -153,11 +158,29 @@ public class FatJarBuilder {
         zipOutputStream.closeEntry();
       }
 
-      // Add Steps, job entries and extension point plugins in XML files
-      //
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_TRANSFORMS, transformPluginType.getMainTag(), transformPluginType.getSubTag(), TransformPluginType.class, ITransformMeta.class, extraStepPluginClasses );
+      // The system XML files
+      // Core plugins
+      DatabasePluginType dbPluginType = DatabasePluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_DATABASE_TYPES, dbPluginType.getMainTag(), dbPluginType.getSubTag(), DatabasePluginType.class, IDatabase.class, null );
+      TwoWayPasswordEncoderPluginType pwPluginType = TwoWayPasswordEncoderPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS, pwPluginType.getMainTag(), pwPluginType.getSubTag(), TwoWayPasswordEncoderPluginType.class,
+        ITwoWayPasswordEncoder.class, null );
+      ValueMetaPluginType valuePluginType = ValueMetaPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VALUEMETA_PLUGINS, valuePluginType.getMainTag(), valuePluginType.getSubTag(), ValueMetaPluginType.class, IValueMeta.class, null );
+      // engine plugins
+      PipelineEnginePluginType pePluginType = PipelineEnginePluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PIPELINE_ENGINES, pePluginType.getMainTag(), pePluginType.getSubTag(), PipelineEnginePluginType.class, IPipelineEngine.class, null );
+      TransformPluginType transformPluginType = TransformPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_TRANSFORMS, transformPluginType.getMainTag(), transformPluginType.getSubTag(), TransformPluginType.class, ITransformMeta.class,
+        extraTransformPluginClasses );
+      WorkflowEnginePluginType wePluginType = WorkflowEnginePluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ENGINES, wePluginType.getMainTag(), wePluginType.getSubTag(), WorkflowEnginePluginType.class, IWorkflowEngine.class, null );
+      ActionPluginType actionPluginType = ActionPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, actionPluginType.getMainTag(), actionPluginType.getSubTag(), ActionPluginType.class, IAction.class, null );
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class, extraXpPluginClasses );
+      ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class,
+        extraXpPluginClasses );
+
 
       zipOutputStream.close();
     } catch ( Exception e ) {
@@ -178,9 +201,7 @@ public class FatJarBuilder {
     PluginRegistry registry = PluginRegistry.getInstance();
     List<IPlugin> plugins = registry.getPlugins( pluginTypeClass );
     for ( IPlugin plugin : plugins ) {
-      if ( plugin.isNativePlugin() ) {
-        addPluginToXml( xml, pluginTag, plugin, mainPluginClass );
-      }
+      addPluginToXml( xml, pluginTag, plugin, mainPluginClass );
     }
     if ( StringUtils.isNotEmpty( extraClasses ) ) {
       for ( String extraPluginClass : extraClasses.split( "," ) ) {
@@ -299,19 +320,19 @@ public class FatJarBuilder {
   }
 
   /**
-   * Gets extraStepPluginClasses
+   * Gets extraTransformPluginClasses
    *
-   * @return value of extraStepPluginClasses
+   * @return value of extraTransformPluginClasses
    */
-  public String getExtraStepPluginClasses() {
-    return extraStepPluginClasses;
+  public String getExtraTransformPluginClasses() {
+    return extraTransformPluginClasses;
   }
 
   /**
-   * @param extraStepPluginClasses The extraStepPluginClasses to set
+   * @param extraTransformPluginClasses The extraTransformPluginClasses to set
    */
-  public void setExtraStepPluginClasses( String extraStepPluginClasses ) {
-    this.extraStepPluginClasses = extraStepPluginClasses;
+  public void setExtraTransformPluginClasses( String extraTransformPluginClasses ) {
+    this.extraTransformPluginClasses = extraTransformPluginClasses;
   }
 
   /**

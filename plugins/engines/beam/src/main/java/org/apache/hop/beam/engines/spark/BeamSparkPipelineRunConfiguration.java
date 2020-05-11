@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metastore.RunnerType;
-import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -38,6 +37,8 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+
+import java.util.Arrays;
 
 @GuiPlugin
 public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfiguration implements IBeamPipelineEngineRunConfiguration, IVariables, Cloneable {
@@ -170,8 +171,6 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   @Override public PipelineOptions getPipelineOptions() throws HopException {
     SparkPipelineOptions options = PipelineOptionsFactory.as( SparkPipelineOptions.class );
 
-    options.setFilesToStage( BeamConst.findLibraryFilesToStage( null, getPluginsToStage(), true, true ) );
-
     if ( StringUtils.isNotEmpty( getSparkMaster() ) ) {
       options.setSparkMaster( environmentSubstitute( getSparkMaster() ) );
     }
@@ -216,6 +215,10 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     }
     if ( StringUtils.isNotEmpty( getSparkStorageLevel() ) ) {
       options.setStorageLevel( environmentSubstitute( getSparkStorageLevel() ) );
+    }
+
+    if (StringUtils.isNotEmpty( getFatJar() )) {
+      options.setFilesToStage( Arrays.asList(fatJar) );
     }
 
 
