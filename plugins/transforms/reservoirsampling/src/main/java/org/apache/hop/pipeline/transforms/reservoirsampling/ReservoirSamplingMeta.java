@@ -23,20 +23,18 @@
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
@@ -49,7 +47,13 @@ import java.util.Objects;
  * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
-public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransform {
+@Transform(  id = "ReservoirSampling",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.reservoirsampling",
+        name = "BaseTransform.TypeLongDesc.ReservoirSampling",
+        description = "BaseTransform.TypeTooltipDesc.ReservoirSampling",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics"
+)
+public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransformMeta<ReservoirSampling, ReservoirSamplingData> {
 
   public static final String XML_TAG = "reservoir_sampling";
 
@@ -156,6 +160,11 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
     return retval;
   }
 
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, ReservoirSamplingData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new ReservoirSampling( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
+  }
+
   /**
    * Loads the meta data for this (configured) transform from XML.
    *
@@ -175,14 +184,14 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
     }
   }
 
-  public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields(IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
+                        IVariables variables, IMetaStore metaStore ) throws HopTransformException {
 
     // nothing to do, as no fields are added/deleted
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta transmeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IMetaStore metaStore ) {
 
     CheckResult cr;
@@ -210,28 +219,12 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
   }
 
   /**
-   * Get the executing transform, needed by Pipeline to launch a transform.
-   *
-   * @param transformMeta          the transform info
-   * @param iTransformData the transform data interface linked to this transform. Here the transform can store temporary data, database connections,
-   *                          etc.
-   * @param cnr               the copy number to get.
-   * @param tr                the pipeline info.
-   * @param pipeline             the launching pipeline
-   * @return a <code>ITransform</code> value
-   */
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
-    return new ReservoirSampling( transformMeta, this, data, cnr, tr, pipeline );
-  }
-
-  /**
    * Get a new instance of the appropriate data class. This data class implements the ITransformData. It basically
    * contains the persisting data that needs to live on, even if a worker thread is terminated.
    *
    * @return a <code>ITransformData</code> value
    */
-  public ITransformData getTransformData() {
+  public ReservoirSamplingData getTransformData() {
     return new ReservoirSamplingData();
   }
 }

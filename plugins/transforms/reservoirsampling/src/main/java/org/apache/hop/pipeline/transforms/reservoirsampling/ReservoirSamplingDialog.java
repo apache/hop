@@ -20,9 +20,10 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.reservoirsampling;
+package org.apache.hop.pipeline.transforms.reservoirsampling;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -55,6 +56,12 @@ import org.eclipse.swt.widgets.Text;
  * @author Mark Hall (mhall{[at]}pentaho.org
  * @version 1.0
  */
+@PluginDialog(
+        id = "ReservoirSampling",
+        image = "reservoirsampling.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static Class<?> PKG = ReservoirSamplingMeta.class; // for i18n purposes, needed by Translator!!
