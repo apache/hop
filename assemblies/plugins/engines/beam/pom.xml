@@ -16,6 +16,22 @@
   <name>Hop Assemblies Plugins Engines Beam</name>
   <description></description>
 
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Central Repository</name>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>confluent</id>
+      <url>http://packages.confluent.io/maven/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <apache-beam-version>2.20.0</apache-beam-version>
     <spark-version>2.4.4</spark-version>

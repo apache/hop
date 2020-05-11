@@ -71,6 +71,7 @@
         <module>javafilter</module>
         <module>javascript</module>
         <module>joinrows</module>
+        <module>json</module>
         <module>ldap</module>
         <module>ldifinput</module>
         <module>loadfileinput</module>
