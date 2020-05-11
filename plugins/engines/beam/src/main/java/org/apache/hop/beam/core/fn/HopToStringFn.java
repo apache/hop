@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class KettleToStringFn extends DoFn<HopRow, String> {
+public class HopToStringFn extends DoFn<HopRow, String> {
 
   private String counterName;
   private String outputLocation;
   private String separator;
   private String enclosure;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient IRowMeta rowMeta;
@@ -31,15 +31,15 @@ public class KettleToStringFn extends DoFn<HopRow, String> {
   private transient Counter errorCounter;
 
   // Log and count parse errors.
-  private static final Logger LOG = LoggerFactory.getLogger( KettleToStringFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger( HopToStringFn.class );
 
-  public KettleToStringFn( String counterName, String outputLocation, String separator, String enclosure, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public HopToStringFn( String counterName, String outputLocation, String separator, String enclosure, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.counterName = counterName;
     this.outputLocation = outputLocation;
     this.separator = separator;
     this.enclosure = enclosure;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -50,16 +50,16 @@ public class KettleToStringFn extends DoFn<HopRow, String> {
       outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, counterName );
       errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
       Metrics.counter( Pipeline.METRIC_NAME_INIT, counterName ).inc();
     } catch ( Exception e ) {
       errorCounter.inc();
-      LOG.info( "Parse error on setup of Kettle data to string lines : " + e.getMessage() );
-      throw new RuntimeException( "Error on setup of converting Kettle data to string lines", e );
+      LOG.info( "Parse error on setup of Hop data to string lines : " + e.getMessage() );
+      throw new RuntimeException( "Error on setup of converting Hop data to string lines", e );
     }
   }
 
@@ -107,7 +107,7 @@ public class KettleToStringFn extends DoFn<HopRow, String> {
     } catch ( Exception e ) {
       errorCounter.inc();
       LOG.info( "Parse error on " + processContext.element() + ", " + e.getMessage() );
-      throw new RuntimeException( "Error converting Kettle data to string lines", e );
+      throw new RuntimeException( "Error converting Hop data to string lines", e );
     }
   }
 

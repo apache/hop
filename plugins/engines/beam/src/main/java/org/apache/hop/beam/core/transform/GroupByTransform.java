@@ -10,7 +10,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.GroupByFn;
-import org.apache.hop.beam.core.fn.KettleKeyValueFn;
+import org.apache.hop.beam.core.fn.HopKeyValueFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -30,7 +30,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   private String[] subjects; // The subjects to aggregate on
   private String[] aggregations; // The aggregation types
   private String[] resultFields; // The result fields
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger( GroupByTransform.class );
@@ -43,10 +43,10 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   public GroupByTransform() {
   }
 
-  public GroupByTransform( String transformName, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses, String[] groupFields, String[] subjects, String[] aggregations, String[] resultFields) {
+  public GroupByTransform( String transformName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String[] groupFields, String[] subjects, String[] aggregations, String[] resultFields) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
     this.groupFields = groupFields;
     this.subjects = subjects;
@@ -57,7 +57,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
   @Override public PCollection<HopRow> expand( PCollection<HopRow> input ) {
     try {
       if ( inputRowMeta == null ) {
-        BeamHop.init(stepPluginClasses, xpPluginClasses);
+        BeamHop.init(transformPluginClasses, xpPluginClasses);
 
         inputRowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
@@ -74,7 +74,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
       // Split the HopRow into GroupFields-HopRow and SubjectFields-HopRow
       //
       PCollection<KV<HopRow, HopRow>> groupSubjects = input.apply( ParDo.of(
-        new KettleKeyValueFn( rowMetaJson, stepPluginClasses, xpPluginClasses, groupFields, subjects, transformName )
+        new HopKeyValueFn( rowMetaJson, transformPluginClasses, xpPluginClasses, groupFields, subjects, transformName )
       ) );
 
       // Now we need to aggregate the groups with a Combine
@@ -89,7 +89,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
       //
       String counterName = transformName+" AGG";
       PCollection<HopRow> output = grouped.apply( ParDo.of(
-        new GroupByFn(counterName, JsonRowMeta.toJson(groupRowMeta), stepPluginClasses, xpPluginClasses,
+        new GroupByFn(counterName, JsonRowMeta.toJson(groupRowMeta), transformPluginClasses, xpPluginClasses,
           JsonRowMeta.toJson(subjectRowMeta), aggregations ) ) );
 
       return output;

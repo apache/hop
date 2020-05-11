@@ -8,7 +8,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.AssemblerFn;
-import org.apache.hop.beam.core.fn.KettleKeyValueFn;
+import org.apache.hop.beam.core.fn.HopKeyValueFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.core.Const;
@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamMergeJoinStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamMergeJoinStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   public boolean isInput() {
@@ -89,8 +89,8 @@ public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements Bea
       }
     }
 
-    KettleKeyValueFn leftKVFn = new KettleKeyValueFn(
-      JsonRowMeta.toJson( leftRowMeta ), stepPluginClasses, xpPluginClasses, leftK.toArray( new String[ 0 ] ), leftV.toArray( new String[ 0 ] ), transformMeta.getName() );
+    HopKeyValueFn leftKVFn = new HopKeyValueFn(
+      JsonRowMeta.toJson( leftRowMeta ), transformPluginClasses, xpPluginClasses, leftK.toArray( new String[ 0 ] ), leftV.toArray( new String[ 0 ] ), transformMeta.getName() );
     PCollection<KV<HopRow, HopRow>> leftKVPCollection = leftPCollection.apply( ParDo.of( leftKVFn ) );
 
     // Create key-value pairs (KV) for the left collections
@@ -110,8 +110,8 @@ public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements Bea
       }
     }
 
-    KettleKeyValueFn rightKVFn = new KettleKeyValueFn(
-      JsonRowMeta.toJson( rightRowMeta ), stepPluginClasses, xpPluginClasses, rightK.toArray( new String[ 0 ] ), rightV.toArray( new String[ 0 ] ), transformMeta.getName() );
+    HopKeyValueFn rightKVFn = new HopKeyValueFn(
+      JsonRowMeta.toJson( rightRowMeta ), transformPluginClasses, xpPluginClasses, rightK.toArray( new String[ 0 ] ), rightV.toArray( new String[ 0 ] ), transformMeta.getName() );
     PCollection<KV<HopRow, HopRow>> rightKVPCollection = rightPCollection.apply( ParDo.of( rightKVFn ) );
 
     PCollection<KV<HopRow, KV<HopRow, HopRow>>> kvpCollection;
@@ -160,7 +160,7 @@ public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements Bea
       JsonRowMeta.toJson( leftVRowMeta ),
       JsonRowMeta.toJson( rightVRowMeta ),
       transformMeta.getName(),
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
 

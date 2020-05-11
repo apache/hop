@@ -14,7 +14,7 @@ import org.apache.beam.sdk.values.PDone;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.fn.KettleToBQTableRowFn;
+import org.apache.hop.beam.core.fn.HopToBQTableRowFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -36,7 +36,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
   private boolean createIfNeeded;
   private boolean truncateTable;
   private boolean failIfNotEmpty;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -46,7 +46,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
   public BeamBQOutputTransform() {
   }
 
-  public BeamBQOutputTransform( String transformName, String projectId, String datasetId, String tableId, boolean createIfNeeded, boolean truncateTable, boolean failIfNotEmpty, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBQOutputTransform( String transformName, String projectId, String datasetId, String tableId, boolean createIfNeeded, boolean truncateTable, boolean failIfNotEmpty, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.projectId = projectId;
     this.datasetId = datasetId;
@@ -55,7 +55,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     this.truncateTable = truncateTable;
     this.failIfNotEmpty = failIfNotEmpty;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -64,7 +64,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
 
       // Inflate the metadata on the node where this is running...
       //
@@ -92,13 +92,13 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
           case IValueMeta.TYPE_BOOLEAN: schemaField.setType( "BOOLEAN" ); break;
           case IValueMeta.TYPE_NUMBER: schemaField.setType( "FLOAT" ); break;
           default:
-            throw new RuntimeException( "Conversion from Kettle value "+valueMeta.toString()+" to BigQuery TableRow isn't supported yet" );
+            throw new RuntimeException( "Conversion from Hop value "+valueMeta.toString()+" to BigQuery TableRow isn't supported yet" );
         }
         schemaFields.add(schemaField);
       }
       tableSchema.setFields( schemaFields );
 
-      SerializableFunction<HopRow, TableRow> formatFunction = new KettleToBQTableRowFn( transformName, rowMetaJson, stepPluginClasses, xpPluginClasses );
+      SerializableFunction<HopRow, TableRow> formatFunction = new HopToBQTableRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses );
 
       BigQueryIO.Write.CreateDisposition createDisposition;
       if (createIfNeeded) {

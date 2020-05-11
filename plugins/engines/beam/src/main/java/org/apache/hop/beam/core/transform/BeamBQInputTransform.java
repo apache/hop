@@ -10,7 +10,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.fn.BQSchemaAndRecordToKettleFn;
+import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
 import org.apache.hop.core.row.IRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
   private String tableId;
   private String query;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -40,7 +40,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
   public BeamBQInputTransform() {
   }
 
-  public BeamBQInputTransform( @Nullable String name, String transformName, String projectId, String datasetId, String tableId, String query, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBQInputTransform( @Nullable String name, String transformName, String projectId, String datasetId, String tableId, String query, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( name );
     this.transformName = transformName;
     this.projectId = projectId;
@@ -48,7 +48,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     this.tableId = tableId;
     this.query = query;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -56,11 +56,11 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(stepPluginClasses, xpPluginClasses);
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
 
-      // Function to convert from Avro to Kettle rows
+      // Function to convert from Avro to Hop rows
       //
-      BQSchemaAndRecordToKettleFn toKettleFn = new BQSchemaAndRecordToKettleFn( transformName, rowMetaJson, stepPluginClasses, xpPluginClasses );
+      BQSchemaAndRecordToHopFn toHopFn = new BQSchemaAndRecordToHopFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses );
 
       TableReference tableReference = new TableReference();
       if (StringUtils.isNotEmpty( projectId )) {
@@ -73,12 +73,12 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
 
       if (StringUtils.isEmpty( query )) {
         bqTypedRead = BigQueryIO
-          .read( toKettleFn )
+          .read( toHopFn )
           .from( tableReference )
         ;
       } else {
         bqTypedRead = BigQueryIO
-          .read( toKettleFn )
+          .read( toHopFn )
           .fromQuery( query )
         ;
       }

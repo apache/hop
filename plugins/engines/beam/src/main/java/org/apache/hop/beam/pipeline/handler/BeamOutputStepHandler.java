@@ -24,8 +24,8 @@ import java.util.Map;
 
 public class BeamOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -64,7 +64,7 @@ public class BeamOutputStepHandler extends BeamBaseStepHandler implements BeamSt
       pipelineMeta.environmentSubstitute( outputFileDefinition.getEnclosure() ),
       beamOutputMeta.isWindowed(),
       JsonRowMeta.toJson( rowMeta ),
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
 

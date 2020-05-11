@@ -10,7 +10,7 @@ import org.apache.beam.sdk.values.PDone;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.fn.KettleToStringFn;
+import org.apache.hop.beam.core.fn.HopToStringFn;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
   private String enclosure;
   private String rowMetaJson;
   private boolean windowed;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -41,7 +41,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
   public BeamOutputTransform() {
   }
 
-  public BeamOutputTransform( String transformName, String outputLocation, String filePrefix, String fileSuffix, String separator, String enclosure, boolean windowed, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamOutputTransform( String transformName, String outputLocation, String filePrefix, String fileSuffix, String separator, String enclosure, boolean windowed, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.outputLocation = outputLocation;
     this.filePrefix = filePrefix;
@@ -50,7 +50,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     this.enclosure = enclosure;
     this.windowed = windowed;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -59,7 +59,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(stepPluginClasses, xpPluginClasses);
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
 
       // Inflate the metadata on the node where this is running...
       //
@@ -68,7 +68,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
       // This is the end of a computing chain, we write out the results
       // We write a bunch of Strings, one per line basically
       //
-      PCollection<String> stringCollection = input.apply( transformName, ParDo.of( new KettleToStringFn( transformName, outputLocation, separator, enclosure, rowMetaJson, stepPluginClasses, xpPluginClasses ) ) );
+      PCollection<String> stringCollection = input.apply( transformName, ParDo.of( new HopToStringFn( transformName, outputLocation, separator, enclosure, rowMetaJson, transformPluginClasses, xpPluginClasses ) ) );
 
       // We need to transform these lines into a file and then we're PDone
       //

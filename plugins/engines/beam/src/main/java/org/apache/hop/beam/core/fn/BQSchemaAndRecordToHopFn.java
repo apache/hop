@@ -24,11 +24,11 @@ import java.util.List;
 /**
  * BigQuery Avro SchemaRecord to HopRow
  */
-public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaAndRecord, HopRow> {
+public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndRecord, HopRow> {
 
   private String transformName;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient Counter initCounter;
@@ -37,16 +37,16 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
   private transient Counter errorCounter;
 
   // Log and count parse errors.
-  private static final Logger LOG = LoggerFactory.getLogger( BQSchemaAndRecordToKettleFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger( BQSchemaAndRecordToHopFn.class );
 
   private transient IRowMeta rowMeta;
   private transient SimpleDateFormat simpleDateTimeFormat;
   private transient SimpleDateFormat simpleDateFormat;
 
-  public BQSchemaAndRecordToKettleFn( String transformName, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BQSchemaAndRecordToHopFn( String transformName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -63,9 +63,9 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
         writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
         errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
-        // Initialize Kettle
+        // Initialize Hop
         //
-        BeamHop.init( stepPluginClasses, xpPluginClasses );
+        BeamHop.init( transformPluginClasses, xpPluginClasses );
         rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
         int[] valueTypes = new int[rowMeta.size()];
@@ -81,7 +81,7 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
             String avroTypeString = fieldSchema.getType();
             try {
               AvroType avroType = AvroType.valueOf( avroTypeString );
-              valueTypes[index] = avroType.getKettleType();
+              valueTypes[index] = avroType.getHopType();
             } catch(IllegalArgumentException e) {
               throw new RuntimeException( "Unable to recognize data type '"+avroTypeString+"'", e );
             }
@@ -106,7 +106,7 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
 
       inputCounter.inc();
 
-      // Convert to the requested Kettle Data types
+      // Convert to the requested Hop Data types
       //
       Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
       for (int index=0; index < rowMeta.size() ; index++) {
@@ -137,7 +137,7 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
               }
               break;
             default:
-              throw new RuntimeException("Conversion from Avro JSON to Kettle is not yet supported for Kettle data type '"+valueMeta.getTypeDesc()+"'");
+              throw new RuntimeException("Conversion from Avro JSON to Hop is not yet supported for Hop data type '"+valueMeta.getTypeDesc()+"'");
           }
         }
       }
@@ -149,8 +149,8 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
 
     } catch ( Exception e ) {
       errorCounter.inc();
-      LOG.error( "Error converting BQ Avro data into Kettle rows : " + e.getMessage() );
-      throw new RuntimeException( "Error converting BQ Avro data into Kettle rows", e );
+      LOG.error( "Error converting BQ Avro data into Hop rows : " + e.getMessage() );
+      throw new RuntimeException( "Error converting BQ Avro data into Hop rows", e );
 
     }
   }
@@ -184,7 +184,7 @@ public class BQSchemaAndRecordToKettleFn implements SerializableFunction<SchemaA
      *
      * @return value of hopType
      */
-    public int getKettleType() {
+    public int getHopType() {
       return hopType;
     }
   }

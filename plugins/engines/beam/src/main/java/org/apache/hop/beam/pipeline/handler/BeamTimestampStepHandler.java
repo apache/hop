@@ -21,8 +21,8 @@ import java.util.Map;
 
 public class BeamTimestampStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamTimestampStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamTimestampStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -43,7 +43,7 @@ public class BeamTimestampStepHandler extends BeamBaseStepHandler implements Bea
         JsonRowMeta.toJson( rowMeta ),
         pipelineMeta.environmentSubstitute( beamTimestampMeta.getFieldName() ),
         beamTimestampMeta.isReadingTimestamp(),
-        stepPluginClasses,
+        transformPluginClasses,
         xpPluginClasses
       ) ) );
 

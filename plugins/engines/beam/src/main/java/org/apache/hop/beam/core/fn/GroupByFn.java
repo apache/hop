@@ -26,7 +26,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
   private String groupRowMetaJson; // The data types of the group fields
   private String subjectRowMetaJson; // The data types of the subject fields
   private String[] aggregations; // The aggregation types
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger( GroupByFn.class );
@@ -44,10 +44,10 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
   public GroupByFn() {
   }
 
-  public GroupByFn( String counterName, String groupRowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses, String subjectRowMetaJson, String[] aggregations ) {
+  public GroupByFn( String counterName, String groupRowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String subjectRowMetaJson, String[] aggregations ) {
     this.counterName = counterName;
     this.groupRowMetaJson = groupRowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
     this.subjectRowMetaJson = subjectRowMetaJson;
     this.aggregations = aggregations;
@@ -60,9 +60,9 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
       writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, counterName );
       errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init(stepPluginClasses, xpPluginClasses);
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
       groupRowMeta = JsonRowMeta.fromJson( groupRowMetaJson );
       subjectRowMeta = JsonRowMeta.fromJson( subjectRowMetaJson );
       aggregationTypes = new AggregationType[aggregations.length];

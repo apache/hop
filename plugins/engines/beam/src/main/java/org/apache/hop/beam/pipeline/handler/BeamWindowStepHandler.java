@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class BeamWindowStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamWindowStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamWindowStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -103,7 +103,7 @@ public class BeamWindowStepHandler extends BeamBaseStepHandler implements BeamSt
         pipelineMeta.environmentSubstitute( beamWindowMeta.getStartWindowField() ),
         pipelineMeta.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
         JsonRowMeta.toJson( inputRowMeta ),
-        stepPluginClasses,
+        transformPluginClasses,
         xpPluginClasses
       );
 

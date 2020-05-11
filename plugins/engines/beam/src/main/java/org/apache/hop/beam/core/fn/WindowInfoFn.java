@@ -26,7 +26,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
   private String startWindowField;
   private String endWindowField;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient Counter initCounter;
@@ -42,13 +42,13 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
   private transient IRowMeta inputRowMeta;
   private transient IValueMeta fieldValueMeta;
 
-  public WindowInfoFn( String transformName, String maxWindowField, String startWindowField, String endWindowField, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public WindowInfoFn( String transformName, String maxWindowField, String startWindowField, String endWindowField, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.maxWindowField = maxWindowField;
     this.startWindowField = startWindowField;
     this.endWindowField = endWindowField;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -59,9 +59,9 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
       writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
       errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       inputRowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
       Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
@@ -87,7 +87,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
 
       int fieldIndex = inputRowMeta.size();
 
-      // Kettle "Date" type field output: java.util.Date.
+      // Hop "Date" type field output: java.util.Date.
       // Use the last field in the output
       //
       if ( StringUtils.isNotEmpty( startWindowField ) ) {

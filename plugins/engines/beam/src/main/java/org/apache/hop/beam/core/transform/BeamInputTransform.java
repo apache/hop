@@ -25,7 +25,7 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
   private String inputLocation;
   private String separator;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -35,13 +35,13 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
   public BeamInputTransform() {
   }
 
-  public BeamInputTransform( @Nullable String name, String transformName, String inputLocation, String separator, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamInputTransform( @Nullable String name, String transformName, String inputLocation, String separator, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( name );
     this.transformName = transformName;
     this.inputLocation = inputLocation;
     this.separator = separator;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -50,7 +50,7 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init(stepPluginClasses, xpPluginClasses);
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
 
       // System.out.println("-------------- TextIO.Read from "+inputLocation+" (UNCOMPRESSED)");
 
@@ -59,7 +59,7 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
         .withCompression( Compression.UNCOMPRESSED )
         ;
 
-      StringToHopFn stringToHopFn = new StringToHopFn( transformName, rowMetaJson, separator, stepPluginClasses, xpPluginClasses );
+      StringToHopFn stringToHopFn = new StringToHopFn( transformName, rowMetaJson, separator, transformPluginClasses, xpPluginClasses );
 
       PCollection<HopRow> output = input
 
@@ -67,7 +67,7 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
         //
         .apply( transformName + " READ FILE",  ioRead )
 
-        // We need to transform these lines into Kettle fields
+        // We need to transform these lines into Hop fields
         //
         .apply( transformName, ParDo.of( stringToHopFn ) );
 

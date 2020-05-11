@@ -20,7 +20,7 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   private String rowMetaJson;
   private int fieldIndex;
   private String transformName;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger( PublishMessagesFn.class );
@@ -31,11 +31,11 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   private transient Counter readCounter;
   private transient Counter outputCounter;
 
-  public PublishMessagesFn( String transformName, int fieldIndex, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public PublishMessagesFn( String transformName, int fieldIndex, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.fieldIndex = fieldIndex;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -45,9 +45,9 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
       readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, transformName );
       outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, transformName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
       Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();

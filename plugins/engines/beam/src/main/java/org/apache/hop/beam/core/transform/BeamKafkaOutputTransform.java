@@ -30,7 +30,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
   private String keyField;
   private String messageField;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -40,14 +40,14 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
   public BeamKafkaOutputTransform() {
   }
 
-  public BeamKafkaOutputTransform( String transformName, String bootstrapServers, String topic, String keyField, String messageField, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamKafkaOutputTransform( String transformName, String bootstrapServers, String topic, String keyField, String messageField, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.bootstrapServers = bootstrapServers;
     this.topic = topic;
     this.keyField = keyField;
     this.messageField = messageField;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -56,7 +56,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
 
       // Inflate the metadata on the node where this is running...
       //
@@ -73,7 +73,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
 
       // First convert the input stream of HopRows to KV<String,String> for the keys and messages
       //
-      HopRowToKVStringStringFn hopRowToKVStringStringFn = new HopRowToKVStringStringFn( transformName, keyIndex, messageIndex, rowMetaJson, stepPluginClasses, xpPluginClasses );
+      HopRowToKVStringStringFn hopRowToKVStringStringFn = new HopRowToKVStringStringFn( transformName, keyIndex, messageIndex, rowMetaJson, transformPluginClasses, xpPluginClasses );
 
       // Then write to Kafka topic
       //

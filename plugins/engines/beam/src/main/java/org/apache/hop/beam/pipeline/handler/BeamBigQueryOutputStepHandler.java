@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class BeamBigQueryOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamBigQueryOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamBigQueryOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -38,7 +38,7 @@ public class BeamBigQueryOutputStepHandler extends BeamBaseStepHandler implement
       beamOutputMeta.isTruncatingTable(),
       beamOutputMeta.isFailingIfNotEmpty(),
       JsonRowMeta.toJson(rowMeta),
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
 

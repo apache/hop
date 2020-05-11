@@ -61,14 +61,14 @@ public class BQField {
    *
    * @return value of hopType
    */
-  public String getKettleType() {
+  public String getHopType() {
     return hopType;
   }
 
   /**
    * @param hopType The hopType to set
    */
-  public void setKettleType( String hopType ) {
+  public void setHopType( String hopType ) {
     this.hopType = hopType;
   }
 }

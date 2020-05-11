@@ -28,23 +28,23 @@ public class BeamHop {
     return HopEnvironment.isInitialized();
   }
 
-  public static final void init( List<String> stepPluginClasses, List<String> xpPluginClasses ) throws HopException {
+  public static final void init( List<String> transformPluginClasses, List<String> xpPluginClasses ) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
     synchronized ( registry ) {
 
-      // Load Kettle base plugins
+      // Load Hop base plugins
       //
       HopEnvironment.init();
 
       XmlHandlerCache.getInstance();
 
-      // LOG.info( "Registering " + stepPluginClasses.size() + " extra transform plugins, and " + xpPluginClasses.size() + " XP plugins" );
+      // LOG.info( "Registering " + transformPluginClasses.size() + " extra transform plugins, and " + xpPluginClasses.size() + " XP plugins" );
 
       // Register extra classes from the plugins...
       // If they're already in the classpath, this should be fast.
       //
       TransformPluginType stepPluginType = (TransformPluginType) registry.getPluginType( TransformPluginType.class );
-      for ( String stepPluginClassName : stepPluginClasses ) {
+      for ( String stepPluginClassName : transformPluginClasses ) {
         try {
           // Only register if it doesn't exist yet.  This is not ideal if we want to replace old transforms with bug fixed new ones.
           //

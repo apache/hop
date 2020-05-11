@@ -12,7 +12,6 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
@@ -20,7 +19,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.metastore.SerializableMetaStore;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.core.util.KettleBeamUtil;
+import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogLevel;
@@ -51,7 +50,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
   protected List<VariableValue> variableValues;
   protected String metastoreJson;
-  protected List<String> stepPluginClasses;
+  protected List<String> transformPluginClasses;
   protected List<String> xpPluginClasses;
   protected int batchSize;
   protected String transformName;
@@ -76,12 +75,12 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     variableValues = new ArrayList<>();
   }
 
-  public TransformTransform( List<VariableValue> variableValues, String metastoreJson, List<String> stepPluginClasses, List<String> xpPluginClasses,
+  public TransformTransform( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses,
                              int batchSize, int flushIntervalMs, String transformName, String stepPluginId, String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputStep,
                              List<String> targetSteps, List<String> infoSteps, List<String> infoRowMetaJsons, List<PCollectionView<List<HopRow>>> infoCollectionViews ) {
     this.variableValues = variableValues;
     this.metastoreJson = metastoreJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
     this.batchSize = batchSize;
     this.flushIntervalMs = flushIntervalMs;
@@ -100,16 +99,16 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
 
       // Similar for the output : treate a TupleTag list for the target transforms...
       //
-      TupleTag<HopRow> mainOutputTupleTag = new TupleTag<HopRow>( KettleBeamUtil.createMainOutputTupleId( transformName ) ) {
+      TupleTag<HopRow> mainOutputTupleTag = new TupleTag<HopRow>( HopBeamUtil.createMainOutputTupleId( transformName ) ) {
       };
       List<TupleTag<HopRow>> targetTupleTags = new ArrayList<>();
       TupleTagList targetTupleTagList = null;
       for ( String targetStep : targetSteps ) {
-        String tupleId = KettleBeamUtil.createTargetTupleId( transformName, targetStep );
+        String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetStep );
         TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {
         };
         targetTupleTags.add( tupleTag );
@@ -125,7 +124,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // Create a new transform function, initializes the transform
       //
-      StepFn stepFn = new StepFn( variableValues, metastoreJson, stepPluginClasses, xpPluginClasses,
+      StepFn stepFn = new StepFn( variableValues, metastoreJson, transformPluginClasses, xpPluginClasses,
         transformName, stepPluginId, stepMetaInterfaceXml, inputRowMetaJson, inputStep,
         targetSteps, infoSteps, infoRowMetaJsons );
 
@@ -149,7 +148,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
       // In the tuple is everything we need to find.
       // Just make sure to retrieve the PCollections using the correct Tuple ID
-      // Use KettleBeamUtil.createTargetTupleId()... to make sure
+      // Use HopBeamUtil.createTargetTupleId()... to make sure
       //
       return collectionTuple;
     } catch ( Exception e ) {
@@ -168,7 +167,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
     protected List<VariableValue> variableValues;
     protected String metastoreJson;
-    protected List<String> stepPluginClasses;
+    protected List<String> transformPluginClasses;
     protected List<String> xpPluginClasses;
     protected String transformName;
     protected String stepPluginId;
@@ -215,13 +214,13 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
     // I created a private class because instances of this one need access to infoCollectionViews
     //
 
-    public StepFn( List<VariableValue> variableValues, String metastoreJson, List<String> stepPluginClasses, List<String> xpPluginClasses, String transformName, String stepPluginId,
+    public StepFn( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String transformName, String stepPluginId,
                    String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputStep,
                    List<String> targetSteps, List<String> infoSteps, List<String> infoRowMetaJsons ) {
       this();
       this.variableValues = variableValues;
       this.metastoreJson = metastoreJson;
-      this.stepPluginClasses = stepPluginClasses;
+      this.transformPluginClasses = transformPluginClasses;
       this.xpPluginClasses = xpPluginClasses;
       this.transformName = transformName;
       this.stepPluginId = stepPluginId;
@@ -264,9 +263,9 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
         if ( initialize ) {
           initialize = false;
 
-          // Initialize Kettle and load extra plugins as well
+          // Initialize Hop and load extra plugins as well
           //
-          BeamHop.init( stepPluginClasses, xpPluginClasses );
+          BeamHop.init( transformPluginClasses, xpPluginClasses );
 
           // The content of the metastore is JSON serialized and inflated below.
           //
@@ -352,7 +351,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             throw new HopException( "Unable to load transform plugin with ID " + stepPluginId + ", this plugin isn't in the plugin registry or classpath" );
           }
 
-          KettleBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetaStore() );
+          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetaStore() );
 
           transformMeta = new TransformMeta( transformName, iTransformMeta );
           transformMeta.setTransformPluginId( stepPluginId );
@@ -416,7 +415,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           // Create a list of TupleTag to direct the target rows
           //
-          mainTupleTag = new TupleTag<HopRow>( KettleBeamUtil.createMainOutputTupleId( transformName ) ) {
+          mainTupleTag = new TupleTag<HopRow>( HopBeamUtil.createMainOutputTupleId( transformName ) ) {
           };
           tupleTagList = new ArrayList<>();
 
@@ -430,7 +429,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             stepCombis.add( targetCombi );
             targetRowMetas.add( pipelineMeta.getTransformFields( stepCombi.transformName ) );
 
-            String tupleId = KettleBeamUtil.createTargetTupleId( transformName, targetStep );
+            String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetStep );
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {
             };
             tupleTagList.add( tupleTag );
@@ -495,7 +494,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
         // Get one row from the context main input and make a copy so we can change it.
         //
         HopRow originalInputRow = context.element();
-        HopRow inputRow = KettleBeamUtil.copyHopRow( originalInputRow, inputRowMeta );
+        HopRow inputRow = HopBeamUtil.copyHopRow( originalInputRow, inputRowMeta );
         readCounter.inc();
 
         emptyRowBuffer( new StepProcessContext( context ), inputRow );

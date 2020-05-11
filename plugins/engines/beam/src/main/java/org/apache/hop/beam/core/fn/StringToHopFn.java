@@ -23,7 +23,7 @@ public class StringToHopFn extends DoFn<String, HopRow> {
   private String transformName;
   private String rowMetaJson;
   private String separator;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient Counter inputCounter;
@@ -34,11 +34,11 @@ public class StringToHopFn extends DoFn<String, HopRow> {
 
   private transient IRowMeta rowMeta;
 
-  public StringToHopFn( String transformName, String rowMetaJson, String separator, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public StringToHopFn( String transformName, String rowMetaJson, String separator, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.separator = separator;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -48,16 +48,16 @@ public class StringToHopFn extends DoFn<String, HopRow> {
       inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
       writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
       Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();
     } catch ( Exception e ) {
       Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName ).inc();
-      LOG.error( "Error in setup of converting input data into Kettle rows : " + e.getMessage() );
-      throw new RuntimeException( "Error in setup of converting input data into Kettle rows", e );
+      LOG.error( "Error in setup of converting input data into Hop rows : " + e.getMessage() );
+      throw new RuntimeException( "Error in setup of converting input data into Hop rows", e );
     }
   }
 
@@ -96,8 +96,8 @@ public class StringToHopFn extends DoFn<String, HopRow> {
 
     } catch ( Exception e ) {
       Metrics.counter( Pipeline.METRIC_NAME_ERROR, transformName ).inc();
-      LOG.error( "Error converting input data into Kettle rows " + processContext.element() + ", " + e.getMessage() );
-      throw new RuntimeException( "Error converting input data into Kettle rows", e );
+      LOG.error( "Error converting input data into Hop rows " + processContext.element() + ", " + e.getMessage() );
+      throw new RuntimeException( "Error converting input data into Hop rows", e );
 
     }
   }

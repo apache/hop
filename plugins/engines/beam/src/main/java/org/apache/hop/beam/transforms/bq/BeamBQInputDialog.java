@@ -9,7 +9,7 @@ import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableDefinition;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.beam.core.fn.BQSchemaAndRecordToKettleFn;
+import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.IRowMeta;
@@ -193,7 +193,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     ColumnInfo[] columns = new ColumnInfo[] {
       new ColumnInfo( BaseMessages.getString( PKG, "BeamBQInputDialog.Fields.Column.Name" ), ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
       new ColumnInfo( BaseMessages.getString( PKG, "BeamBQInputDialog.Fields.Column.NewName" ), ColumnInfo.COLUMN_TYPE_TEXT, false, false ),
-      new ColumnInfo( BaseMessages.getString( PKG, "BeamBQInputDialog.Fields.Column.KettleType" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), false ),
+      new ColumnInfo( BaseMessages.getString( PKG, "BeamBQInputDialog.Fields.Column.HopType" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), false ),
     };
     wFields = new TableView( Variables.getADefaultVariableSpace(), shell, SWT.NONE, columns, input.getFields().size(), null, props );
     props.setLook( wFields );
@@ -264,7 +264,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
           String name = field.getName();
           String type = field.getType().name();
 
-          int hopType = BQSchemaAndRecordToKettleFn.AvroType.valueOf( type ).getKettleType();
+          int hopType = BQSchemaAndRecordToHopFn.AvroType.valueOf( type ).getHopType();
           rowMeta.addValueMeta( ValueMetaFactory.createValueMeta( name, hopType ) );
         }
 
@@ -292,7 +292,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
       TableItem item = wFields.table.getItem( i );
       item.setText( 1, Const.NVL( field.getName(), "" ) );
       item.setText( 2, Const.NVL( field.getNewName(), "" ) );
-      item.setText( 3, Const.NVL( field.getKettleType(), "" ) );
+      item.setText( 3, Const.NVL( field.getHopType(), "" ) );
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();

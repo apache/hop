@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class BeamGroupByStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamGroupByStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamGroupByStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -38,7 +38,7 @@ public class BeamGroupByStepHandler extends BeamBaseStepHandler implements BeamS
     PTransform<PCollection<HopRow>, PCollection<HopRow>> stepTransform = new GroupByTransform(
       transformMeta.getName(),
       JsonRowMeta.toJson( rowMeta ),  // The io row
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses,
       groupByMeta.getGroupField(),
       groupByMeta.getSubjectField(),

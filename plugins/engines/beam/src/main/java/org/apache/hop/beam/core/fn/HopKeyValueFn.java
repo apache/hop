@@ -16,18 +16,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-// Split a Kettle row into key and values parts
+// Split a Hop row into key and values parts
 //
-public class KettleKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
+public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
 
   private String inputRowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
   private String[] keyFields;
   private String[] valueFields;
   private String counterName;
 
-  private static final Logger LOG = LoggerFactory.getLogger( KettleKeyValueFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger( HopKeyValueFn.class );
 
   private transient IRowMeta inputRowMeta;
   private transient int[] keyIndexes;
@@ -37,13 +37,13 @@ public class KettleKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   private transient Counter readCounter;
   private transient Counter errorCounter;
 
-  public KettleKeyValueFn() {
+  public HopKeyValueFn() {
   }
 
-  public KettleKeyValueFn( String inputRowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses,
-                           String[] keyFields, String[] valueFields, String counterName) {
+  public HopKeyValueFn( String inputRowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses,
+                        String[] keyFields, String[] valueFields, String counterName) {
     this.inputRowMetaJson = inputRowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
     this.keyFields = keyFields;
     this.valueFields = valueFields;
@@ -56,9 +56,9 @@ public class KettleKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
       readCounter = Metrics.counter( Pipeline.METRIC_NAME_READ, counterName );
       errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init(stepPluginClasses, xpPluginClasses);
+      BeamHop.init(transformPluginClasses, xpPluginClasses);
       inputRowMeta = JsonRowMeta.fromJson( inputRowMetaJson );
 
       // Calculate key indexes

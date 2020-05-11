@@ -21,8 +21,8 @@ import org.apache.hop.beam.core.fn.StringToHopRowFn;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.transform.TransformBatchTransform;
 import org.apache.hop.beam.core.transform.TransformTransform;
+import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
-import org.apache.hop.beam.core.util.KettleBeamUtil;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.Const;
@@ -46,8 +46,8 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
 
   private String metaStoreJson;
 
-  public BeamGenericTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, String metaStoreJson, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamGenericTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, String metaStoreJson, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
     this.metaStoreJson = metaStoreJson;
   }
 
@@ -97,7 +97,7 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
     }
 
     // For streaming pipelines we need to flush the rows in the buffer of a generic transform (Table Output, Neo4j Output, ...)
-    // This is what the BeamJobConfig option "Streaming Kettle Steps Flush Interval" is for...
+    // This is what the BeamJobConfig option "Streaming Hop Steps Flush Interval" is for...
     // Without a valid value we default to -1 to disable flushing.
     //
     int flushIntervalMs = Const.toInt(runConfiguration.getStreamingHopTransformsFlushInterval(), -1);
@@ -111,11 +111,11 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
     //
     PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
     if (needsBatching(transformMeta)) {
-      transformTransform = new TransformBatchTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
+      transformTransform = new TransformBatchTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
         transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
         targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
     } else {
-      transformTransform = new TransformTransform( variableValues, metaStoreJson, stepPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
+      transformTransform = new TransformTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
         transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
         targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
     }
@@ -130,11 +130,11 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
         .apply( GroupByKey.create() )
         .apply( Values.create() )
         .apply( Flatten.iterables() )
-        .apply( ParDo.of( new StringToHopRowFn( transformMeta.getName(), JsonRowMeta.toJson( rowMeta ), stepPluginClasses, xpPluginClasses ) ) );
+        .apply( ParDo.of( new StringToHopRowFn( transformMeta.getName(), JsonRowMeta.toJson( rowMeta ), transformPluginClasses, xpPluginClasses ) ) );
 
       // Store this new collection so we can hook up other transforms...
       //
-      String tupleId = KettleBeamUtil.createMainInputTupleId( transformMeta.getName() );
+      String tupleId = HopBeamUtil.createMainInputTupleId( transformMeta.getName() );
       stepCollectionMap.put( tupleId, input );
     } else if ( reduceParallelism ) {
       PCollection.IsBounded isBounded = input.isBounded();
@@ -167,7 +167,7 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
 
     // The main collection
     //
-    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<HopRow>( KettleBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
+    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<HopRow>( HopBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
 
     // Save this in the map
     //
@@ -176,7 +176,7 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
     // Were there any targeted transforms in this transform?
     //
     for ( String targetStep : targetSteps ) {
-      String tupleId = KettleBeamUtil.createTargetTupleId( transformMeta.getName(), targetStep );
+      String tupleId = HopBeamUtil.createTargetTupleId( transformMeta.getName(), targetStep );
       PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<HopRow>( tupleId ) );
 
       // Store this in the map as well

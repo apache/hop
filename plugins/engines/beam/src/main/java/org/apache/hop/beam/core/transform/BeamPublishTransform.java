@@ -30,7 +30,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
   private String messageType;
   private String messageField;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -46,13 +46,13 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
   public BeamPublishTransform() {
   }
 
-  public BeamPublishTransform( String transformName, String topic, String messageType, String messageField, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamPublishTransform( String transformName, String topic, String messageType, String messageField, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.topic = topic;
     this.messageType = messageType;
     this.messageField = messageField;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -63,7 +63,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       if (rowMeta==null) {
         // Only initialize once on this node/vm
         //
-        BeamHop.init( stepPluginClasses, xpPluginClasses );
+        BeamHop.init( transformPluginClasses, xpPluginClasses );
 
         // Inflate the metadata on the node where this is running...
         //
@@ -88,7 +88,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       //
       if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_STRING.equalsIgnoreCase( messageType ) ) {
 
-        PublishStringsFn stringsFn = new PublishStringsFn( transformName, fieldIndex, rowMetaJson, stepPluginClasses, xpPluginClasses );
+        PublishStringsFn stringsFn = new PublishStringsFn( transformName, fieldIndex, rowMetaJson, transformPluginClasses, xpPluginClasses );
         PCollection<String> stringPCollection = input.apply( transformName, ParDo.of(stringsFn) );
         PDone done = PubsubIO.writeStrings().to( topic ).expand( stringPCollection );
         return done;
@@ -97,7 +97,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       // PubsubMessages
       //
       if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase( messageType ) ) {
-        PublishMessagesFn messagesFn = new PublishMessagesFn( transformName, fieldIndex, rowMetaJson, stepPluginClasses, xpPluginClasses );
+        PublishMessagesFn messagesFn = new PublishMessagesFn( transformName, fieldIndex, rowMetaJson, transformPluginClasses, xpPluginClasses );
         PCollection<PubsubMessage> messagesPCollection = input.apply( ParDo.of( messagesFn ) );
         PDone done = PubsubIO.writeMessages().to( topic ).expand( messagesPCollection );
         return done;

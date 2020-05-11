@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class BeamSubscriberStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamSubscriberStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamSubscriberStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, true, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -48,7 +48,7 @@ public class BeamSubscriberStepHandler extends BeamBaseStepHandler implements Be
       pipelineMeta.environmentSubstitute( inputMeta.getTopic() ),
       inputMeta.getMessageType(),
       rowMetaJson,
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
 

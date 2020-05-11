@@ -22,7 +22,7 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
   private String leftVRowMetaJson;
   private String rightVRowMetaJson;
   private String counterName;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String>xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger( AssemblerFn.class );
@@ -40,13 +40,13 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
   }
 
   public AssemblerFn( String outputRowMetaJson, String leftKRowMetaJson, String leftVRowMetaJson, String rightVRowMetaJson, String counterName,
-                      List<String> stepPluginClasses, List<String>xpPluginClasses) {
+                      List<String> transformPluginClasses, List<String>xpPluginClasses) {
     this.outputRowMetaJson = outputRowMetaJson;
     this.leftKRowMetaJson = leftKRowMetaJson;
     this.leftVRowMetaJson = leftVRowMetaJson;
     this.rightVRowMetaJson = rightVRowMetaJson;
     this.counterName = counterName;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -56,9 +56,9 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
       writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, counterName );
       errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       outputRowMeta = JsonRowMeta.fromJson( outputRowMetaJson );
       leftKRowMeta = JsonRowMeta.fromJson( leftKRowMetaJson );
       leftVRowMeta = JsonRowMeta.fromJson( leftVRowMetaJson );
@@ -87,7 +87,7 @@ public class AssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
       Object[] outputRow = RowDataUtil.allocateRowData( outputRowMeta.size() );
       int index = 0;
 
-      // Kettle style, first the left values
+      // Hop style, first the left values
       //
       if (leftValue.allNull()) {
         index+=leftVRowMeta.size();

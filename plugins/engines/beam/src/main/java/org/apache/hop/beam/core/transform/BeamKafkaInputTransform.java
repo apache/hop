@@ -41,7 +41,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
   private List<ConfigOption> configOptions;
 
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -57,7 +57,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
                                   boolean usingProcessingTime, boolean usingLogAppendTime, boolean usingCreateTime,
                                   boolean restrictedToCommitted, boolean allowingCommitOnConsumedOffset,
                                   String[] configOptionParameters, String[] configOptionValues, String configOptionTypes[],
-                                  String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+                                  String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( name );
     this.transformName = transformName;
     this.bootstrapServers = bootstrapServers;
@@ -73,7 +73,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       this.configOptions.add(new ConfigOption( configOptionParameters[i], configOptionValues[i], ConfigOption.Type.getTypeFromName( configOptionTypes[i] ) ));
     }
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -81,7 +81,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     try {
       // Only initialize once on this node/vm
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
 
       // What's the list of topics?
       //
@@ -137,10 +137,10 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
       //
       PCollection<KV<String, String>> kafkaConsumerOutput = input.apply( io.withoutMetadata() );
 
-      // Now convert this into Kettle rows with a single String value in them
+      // Now convert this into Hop rows with a single String value in them
       //
       PCollection<HopRow> output = kafkaConsumerOutput.apply(
-        ParDo.of(new KVStringStringToHopRowFn( transformName, rowMetaJson, stepPluginClasses, xpPluginClasses ))
+        ParDo.of(new KVStringStringToHopRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses ))
       );
 
       return output;

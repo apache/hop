@@ -69,7 +69,7 @@ public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta
 
     try {
       for ( BQField field : fields ) {
-        int type = ValueMetaFactory.getIdForValueMeta( field.getKettleType() );
+        int type = ValueMetaFactory.getIdForValueMeta( field.getHopType() );
         IValueMeta valueMeta = ValueMetaFactory.createValueMeta( field.getNewNameOrName(), type, -1, -1 );
         valueMeta.setOrigin( name );
         inputRowMeta.addValueMeta( valueMeta );
@@ -93,7 +93,7 @@ public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta
       xml.append( XmlHandler.openTag( "field" ) );
       xml.append( XmlHandler.addTagValue( "name", field.getName() ) );
       xml.append( XmlHandler.addTagValue( "new_name", field.getNewName() ) );
-      xml.append( XmlHandler.addTagValue( "type", field.getKettleType() ) );
+      xml.append( XmlHandler.addTagValue( "type", field.getHopType() ) );
       xml.append( XmlHandler.closeTag( "field" ) );
     }
     xml.append( XmlHandler.closeTag( "fields" ) );

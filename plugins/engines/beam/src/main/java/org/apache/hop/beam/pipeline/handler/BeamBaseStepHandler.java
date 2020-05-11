@@ -10,19 +10,19 @@ public class BeamBaseStepHandler {
 
   protected IMetaStore metaStore;
   protected PipelineMeta pipelineMeta;
-  protected List<String> stepPluginClasses;
+  protected List<String> transformPluginClasses;
   protected List<String> xpPluginClasses;
   protected boolean input;
   protected boolean output;
   protected IBeamPipelineEngineRunConfiguration runConfiguration;
 
-  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.runConfiguration = runConfiguration;
     this.input = input;
     this.output = output;
     this.metaStore = metaStore;
     this.pipelineMeta = pipelineMeta;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -59,19 +59,19 @@ public class BeamBaseStepHandler {
   }
 
   /**
-   * Gets stepPluginClasses
+   * Gets transformPluginClasses
    *
-   * @return value of stepPluginClasses
+   * @return value of transformPluginClasses
    */
   public List<String> getStepPluginClasses() {
-    return stepPluginClasses;
+    return transformPluginClasses;
   }
 
   /**
-   * @param stepPluginClasses The stepPluginClasses to set
+   * @param transformPluginClasses The transformPluginClasses to set
    */
-  public void setStepPluginClasses( List<String> stepPluginClasses ) {
-    this.stepPluginClasses = stepPluginClasses;
+  public void setStepPluginClasses( List<String> transformPluginClasses ) {
+    this.transformPluginClasses = transformPluginClasses;
   }
 
   /**

@@ -15,7 +15,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
 import org.apache.hop.beam.core.metastore.SerializableMetaStore;
-import org.apache.hop.beam.core.util.KettleBeamUtil;
+import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metastore.RunnerType;
 import org.apache.hop.beam.pipeline.handler.BeamBigQueryInputStepHandler;
@@ -313,7 +313,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
           // Check in the map to see if previousStep isn't targeting this one
           //
-          String targetName = KettleBeamUtil.createTargetTupleId( firstPreviousStep.getName(), transformMeta.getName() );
+          String targetName = HopBeamUtil.createTargetTupleId( firstPreviousStep.getName(), transformMeta.getName() );
           input = stepCollectionMap.get( targetName );
           if ( input == null ) {
             input = stepCollectionMap.get( firstPreviousStep.getName() );
@@ -329,7 +329,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
             for ( int i = 1; i < previousSteps.size(); i++ ) {
               TransformMeta previousStep = previousSteps.get( i );
               PCollection<HopRow> previousPCollection;
-              targetName = KettleBeamUtil.createTargetTupleId( previousStep.getName(), transformMeta.getName() );
+              targetName = HopBeamUtil.createTargetTupleId( previousStep.getName(), transformMeta.getName() );
               previousPCollection = stepCollectionMap.get( targetName );
               if ( previousPCollection == null ) {
                 previousPCollection = stepCollectionMap.get( previousStep.getName() );

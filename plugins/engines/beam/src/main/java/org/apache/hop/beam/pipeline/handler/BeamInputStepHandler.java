@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class BeamInputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, true, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -47,7 +47,7 @@ public class BeamInputStepHandler extends BeamBaseStepHandler implements BeamSte
       fileInputLocation,
       pipelineMeta.environmentSubstitute( inputFileDefinition.getSeparator() ),
       JsonRowMeta.toJson( fileRowMeta ),
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
     PCollection<HopRow> afterInput = pipeline.apply( beamInputTransform );

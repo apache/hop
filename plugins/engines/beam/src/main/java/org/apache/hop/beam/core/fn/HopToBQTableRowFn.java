@@ -17,11 +17,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class KettleToBQTableRowFn implements SerializableFunction<HopRow, TableRow> {
+public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow> {
 
   private String counterName;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient IRowMeta rowMeta;
@@ -33,12 +33,12 @@ public class KettleToBQTableRowFn implements SerializableFunction<HopRow, TableR
   private transient SimpleDateFormat simpleDateFormat;
 
   // Log and count parse errors.
-  private static final Logger LOG = LoggerFactory.getLogger( KettleToBQTableRowFn.class );
+  private static final Logger LOG = LoggerFactory.getLogger( HopToBQTableRowFn.class );
 
-  public KettleToBQTableRowFn( String counterName, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public HopToBQTableRowFn( String counterName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -50,9 +50,9 @@ public class KettleToBQTableRowFn implements SerializableFunction<HopRow, TableR
         outputCounter = Metrics.counter( Pipeline.METRIC_NAME_OUTPUT, counterName );
         errorCounter = Metrics.counter( Pipeline.METRIC_NAME_ERROR, counterName );
 
-        // Initialize Kettle Beam
+        // Initialize Hop Beam
         //
-        BeamHop.init( stepPluginClasses, xpPluginClasses );
+        BeamHop.init( transformPluginClasses, xpPluginClasses );
         rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
         simpleDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.SSS" );
@@ -77,7 +77,7 @@ public class KettleToBQTableRowFn implements SerializableFunction<HopRow, TableR
             case IValueMeta.TYPE_BOOLEAN: tableRow.put( valueMeta.getName(), valueMeta.getBoolean( valueData ) ); break;
             case IValueMeta.TYPE_NUMBER: tableRow.put( valueMeta.getName(), valueMeta.getNumber( valueData ) ); break;
             default:
-              throw new RuntimeException( "Data type conversion from Kettle to BigQuery TableRow not supported yet: " +valueMeta.toString());
+              throw new RuntimeException( "Data type conversion from Hop to BigQuery TableRow not supported yet: " +valueMeta.toString());
           }
         }
       }

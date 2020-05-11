@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,8 +128,6 @@ public class BeamConst {
         base = new File( baseFolder );
       }
 
-      Set<String> uniqueNames = new HashSet<>();
-      List<String> libraries = new ArrayList<>();
 
       // A unique list of plugin folders
       //
@@ -139,62 +138,71 @@ public class BeamConst {
           pluginFoldersSet.add( folder );
         }
       }
+
+
       if ( includeBeam ) {
         // TODO: make this plugin folder configurable
         //
         pluginFoldersSet.add( "engines/beam" );
       }
 
-      // Now the selected plugins libs...
-      //
-      for ( String pluginFolder : pluginFoldersSet ) {
-        File pluginsFolder = new File( base.toString() + "/plugins/" + pluginFolder );
-        if ( pluginsFolder.exists() ) {
-          Collection<File> pluginFiles = FileUtils.listFiles( pluginsFolder, new String[] { "jar" }, true );
-          if ( pluginFiles != null ) {
-            for ( File file : pluginFiles ) {
-              String shortName = file.getName();
-              if ( !uniqueNames.contains( shortName ) ) {
-                uniqueNames.add( shortName );
-                libraries.add( file.getCanonicalPath() );
-              }
-            }
-          }
-        } else {
-          System.out.println( "Warning: couldn't find plugins folder: " + pluginsFolder );
-        }
-      }
-
-      // Add all the jar files in lib/ to the classpath.
-      //
-      if ( includeParent ) {
-
-        File libFolder = new File( base.toString() + "/lib" );
-
-        if ( libFolder.exists() ) {
-
-          Collection<File> files = FileUtils.listFiles( libFolder, new String[] { "jar" }, true );
-          if ( files != null ) {
-            for ( File file : files ) {
-              String shortName = file.getName();
-              if ( !uniqueNames.contains( shortName ) ) {
-                uniqueNames.add( shortName );
-                libraries.add( file.getCanonicalPath() );
-                // System.out.println( "Adding library : " + file.getAbsolutePath() );
-              }
-            }
-          }
-        } else {
-          System.out.println( "Warning: couldn't find hop lib folder: " + libFolder );
-
-        }
-      }
-
-      // Collections.sort(libraries);
-
-      return libraries;
+      return findLibraryFilesToStage( base, includeParent, pluginFoldersSet );
     } catch(Exception e) {
       throw new HopException("Error finding libraries to stage", e);
     }
+  }
+
+  public static List<String> findLibraryFilesToStage( File baseFolder, boolean includeParent, Set<String> pluginFoldersSet ) throws IOException {
+    List<String> libraries = new ArrayList<>();
+    Set<String> uniqueNames = new HashSet<>();
+
+    // Now the selected plugins libs...
+    //
+    for ( String pluginFolder : pluginFoldersSet ) {
+      File pluginsFolder = new File( baseFolder.toString() + "/plugins/" + pluginFolder );
+      if ( pluginsFolder.exists() ) {
+        Collection<File> pluginFiles = FileUtils.listFiles( pluginsFolder, new String[] { "jar" }, true );
+        if ( pluginFiles != null ) {
+          for ( File file : pluginFiles ) {
+            String shortName = file.getName();
+            if ( !uniqueNames.contains( shortName ) ) {
+              uniqueNames.add( shortName );
+              libraries.add( file.getCanonicalPath() );
+            }
+          }
+        }
+      } else {
+        System.out.println( "Warning: couldn't find plugins folder: " + pluginsFolder );
+      }
+    }
+
+    // Add all the jar files in lib/ to the classpath.
+    //
+    if ( includeParent ) {
+
+      File libFolder = new File( baseFolder.toString() + "/lib" );
+
+      if ( libFolder.exists() ) {
+
+        Collection<File> files = FileUtils.listFiles( libFolder, new String[] { "jar" }, true );
+        if ( files != null ) {
+          for ( File file : files ) {
+            String shortName = file.getName();
+            if ( !uniqueNames.contains( shortName ) ) {
+              uniqueNames.add( shortName );
+              libraries.add( file.getCanonicalPath() );
+              // System.out.println( "Adding library : " + file.getAbsolutePath() );
+            }
+          }
+        }
+      } else {
+        System.out.println( "Warning: couldn't find hop lib folder: " + libFolder );
+
+      }
+    }
+
+    // Collections.sort(libraries);
+
+    return libraries;
   }
 }

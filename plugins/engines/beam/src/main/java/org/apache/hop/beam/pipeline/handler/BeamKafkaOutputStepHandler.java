@@ -19,8 +19,8 @@ import java.util.Map;
 
 public class BeamKafkaOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamKafkaOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metaStore, pipelineMeta, stepPluginClasses, xpPluginClasses );
+  public BeamKafkaOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -36,7 +36,7 @@ public class BeamKafkaOutputStepHandler extends BeamBaseStepHandler implements B
       pipelineMeta.environmentSubstitute( beamProduceMeta.getKeyField() ),
       pipelineMeta.environmentSubstitute( beamProduceMeta.getMessageField() ),
       JsonRowMeta.toJson( rowMeta ),
-      stepPluginClasses,
+      transformPluginClasses,
       xpPluginClasses
     );
 

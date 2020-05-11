@@ -12,10 +12,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class KettleBeamUtil {
+public class HopBeamUtil {
 
-  public static final String createTargetTupleId(String transformName, String targetStepname){
-    return transformName+" - TARGET - "+targetStepname;
+  public static final String createTargetTupleId(String transformName, String targetTransformName){
+    return transformName+" - TARGET - "+targetTransformName;
   }
 
   public static final String createMainOutputTupleId(String transformName){
@@ -38,15 +38,15 @@ public class KettleBeamUtil {
 
   private static Object object = new Object();
 
-  public static void loadTransformMetadataFromXml( String transformName, ITransformMeta iTransformMeta, String stepMetaInterfaceXml, IMetaStore metaStore ) throws HopException {
+  public static void loadTransformMetadataFromXml( String transformName, ITransformMeta iTransformMeta, String iTransformXml, IMetaStore metaStore ) throws HopException {
     synchronized ( object ) {
-      Document stepDocument = XmlHandler.loadXmlString( stepMetaInterfaceXml );
-      if ( stepDocument == null ) {
-        throw new HopException( "Unable to load transform XML document from : " + stepMetaInterfaceXml );
+      Document transformDocument = XmlHandler.loadXmlString( iTransformXml );
+      if ( transformDocument == null ) {
+        throw new HopException( "Unable to load transform XML document from : " + iTransformXml );
       }
-      Node transformNode = XmlHandler.getSubNode( stepDocument, TransformMeta.XML_TAG );
+      Node transformNode = XmlHandler.getSubNode( transformDocument, TransformMeta.XML_TAG );
       if ( transformNode == null ) {
-        throw new HopException( "Unable to find XML tag " + TransformMeta.XML_TAG + " from : " + stepMetaInterfaceXml );
+        throw new HopException( "Unable to find XML tag " + TransformMeta.XML_TAG + " from : " + iTransformXml );
       }
       try {
         iTransformMeta.loadXml( transformNode, metaStore );

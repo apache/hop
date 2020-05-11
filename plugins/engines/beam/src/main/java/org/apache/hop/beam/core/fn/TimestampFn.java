@@ -27,7 +27,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
   private String rowMetaJson;
   private String fieldName;
   private final boolean getTimestamp;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private transient Counter readCounter;
@@ -42,21 +42,21 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
   private transient IRowMeta inputRowMeta;
   private transient IValueMeta fieldValueMeta;
 
-  public TimestampFn( String transformName, String rowMetaJson, String fieldName, boolean getTimestamp, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public TimestampFn( String transformName, String rowMetaJson, String fieldName, boolean getTimestamp, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.fieldName = fieldName;
     this.getTimestamp = getTimestamp;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
   @Setup
   public void setUp() {
     try {
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
 
       inputRowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
@@ -101,7 +101,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
         //
         Object[] outputRow = RowDataUtil.createResizedCopy( hopRow.getRow(), inputRowMeta.size() + 1 );
 
-        // Kettle "Date" type field output: java.util.Date.
+        // Hop "Date" type field output: java.util.Date.
         // Use the last field in the output
         //
         outputRow[ inputRowMeta.size() ] = instant.toDate();

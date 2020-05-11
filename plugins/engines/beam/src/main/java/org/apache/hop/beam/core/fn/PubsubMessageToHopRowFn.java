@@ -19,7 +19,7 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
 
   private String rowMetaJson;
   private String transformName;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   private static final Logger LOG = LoggerFactory.getLogger( PubsubMessageToHopRowFn.class );
@@ -30,10 +30,10 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
   private transient Counter inputCounter;
   private transient Counter writtenCounter;
 
-  public PubsubMessageToHopRowFn( String transformName, String rowMetaJson, List<String> stepPluginClasses, List<String> xpPluginClasses ) {
+  public PubsubMessageToHopRowFn( String transformName, String rowMetaJson, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -43,9 +43,9 @@ public class PubsubMessageToHopRowFn extends DoFn<PubsubMessage, HopRow> {
       inputCounter = Metrics.counter( Pipeline.METRIC_NAME_INPUT, transformName );
       writtenCounter = Metrics.counter( Pipeline.METRIC_NAME_WRITTEN, transformName );
 
-      // Initialize Kettle Beam
+      // Initialize Hop Beam
       //
-      BeamHop.init( stepPluginClasses, xpPluginClasses );
+      BeamHop.init( transformPluginClasses, xpPluginClasses );
       rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
       Metrics.counter( Pipeline.METRIC_NAME_INIT, transformName ).inc();

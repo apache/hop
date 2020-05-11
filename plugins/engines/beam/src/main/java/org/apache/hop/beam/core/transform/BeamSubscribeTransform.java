@@ -35,7 +35,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   private String topic;
   private String messageType;
   private String rowMetaJson;
-  private List<String> stepPluginClasses;
+  private List<String> transformPluginClasses;
   private List<String> xpPluginClasses;
 
   // Log and count errors.
@@ -50,7 +50,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
   public BeamSubscribeTransform() {
   }
 
-  public BeamSubscribeTransform( @Nullable String name, String transformName, String subscription, String topic, String messageType, String rowMetaJson, List<String> stepPluginClasses,
+  public BeamSubscribeTransform( @Nullable String name, String transformName, String subscription, String topic, String messageType, String rowMetaJson, List<String> transformPluginClasses,
                                  List<String> xpPluginClasses ) {
     super( name );
     this.transformName = transformName;
@@ -58,7 +58,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     this.topic = topic;
     this.messageType = messageType;
     this.rowMetaJson = rowMetaJson;
-    this.stepPluginClasses = stepPluginClasses;
+    this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
@@ -69,7 +69,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
       if ( rowMeta == null ) {
         // Only initialize once on this node/vm
         //
-        BeamHop.init( stepPluginClasses, xpPluginClasses );
+        BeamHop.init( transformPluginClasses, xpPluginClasses );
 
         rowMeta = JsonRowMeta.fromJson( rowMetaJson );
 
@@ -94,7 +94,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
         }
         PCollection<String> stringPCollection = stringRead.expand( input );
         output = stringPCollection.apply( transformName, ParDo.of(
-          new StringToHopRowFn( transformName, rowMetaJson, stepPluginClasses, xpPluginClasses )
+          new StringToHopRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses )
         ) );
 
       } else if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase( messageType ) ) {
@@ -107,7 +107,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
         }
         PCollection<PubsubMessage> messagesPCollection = messageRead.expand( input );
         output = messagesPCollection.apply( transformName, ParDo.of(
-          new PubsubMessageToHopRowFn( transformName, rowMetaJson, stepPluginClasses, xpPluginClasses )
+          new PubsubMessageToHopRowFn( transformName, rowMetaJson, transformPluginClasses, xpPluginClasses )
         ) );
 
       } else {
