@@ -507,18 +507,20 @@ public class GuiCompositeWidgets {
 
       // TODO: look for flag to have custom enable/disable code
       //
-
-      Control label = labelsMap.get( guiElements.getId() );
-      Control widget = widgetsMap.get( guiElements.getId() );
-      if ( label != null ) {
-        label.setEnabled( enabled );
-      } else {
-        System.err.println( "Label not found to enable/disable: " + guiElements );
-      }
-      if ( widget != null ) {
-        widget.setEnabled( enabled );
-      } else {
-        System.err.println( "Widget not found to enable/disable: " + guiElements );
+      //Temp fix to keep DriverClass enabled
+      if(!guiElements.getId().matches("driverClass")){
+        Control label = labelsMap.get( guiElements.getId() );
+        Control widget = widgetsMap.get( guiElements.getId() );
+        if (label != null) {
+          label.setEnabled(enabled);
+        } else {
+          System.err.println("Label not found to enable/disable: " + guiElements);
+        }
+        if (widget != null) {
+          widget.setEnabled(enabled);
+        } else {
+          System.err.println("Widget not found to enable/disable: " + guiElements);
+        }
       }
     } else {
       // Add the children
