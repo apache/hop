@@ -307,12 +307,12 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
           new Thread( () -> {
             try {
               beamThread.join();
-              setRunning( false );
               firePipelineExecutionFinishedListeners();
               populateEngineMetrics(); // get the final state
               if (refreshTimer!=null) {
                 refreshTimer.cancel(); // no more needed
               }
+              setRunning( false );
             } catch ( Exception e ) {
               throw new RuntimeException( "Error post-processing a beam pipeline", e );
             }
