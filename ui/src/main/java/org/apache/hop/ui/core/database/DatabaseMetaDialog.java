@@ -387,14 +387,13 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     fdDatabaseSpecificComp.left = new FormAttachment( 0, 0 );
     fdDatabaseSpecificComp.right = new FormAttachment( 100, 0 );
     fdDatabaseSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
-    //fdDatabaseSpecificComp.bottom = new FormAttachment( wManualUrl, -margin*2 );
     wDatabaseSpecificComp.setLayoutData( fdDatabaseSpecificComp );
+    lastControl = wDatabaseSpecificComp;
 
     // Now add the database plugin specific widgets
     //
     guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta, 8 ); // max 6 lines
     guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-    // System.out.println( "---- widgets created for : " + workingMeta.getIDatabase().getClass().getName() );
 
     addCompositeWidgetsUsernamePassword();
 
@@ -404,7 +403,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     props.setLook( wlManualUrl );
     wlManualUrl.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ManualUrl" ) );
     FormData fdlManualUrl = new FormData();
-    fdlManualUrl.bottom = new FormAttachment( 100, -margin ); // At the bottom of this tab
+    fdlManualUrl.top = new FormAttachment( lastControl, margin * 2 ); // At the bottom of this tab
     fdlManualUrl.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlManualUrl.right = new FormAttachment( middle, 0 );
     wlManualUrl.setLayoutData( fdlManualUrl );
