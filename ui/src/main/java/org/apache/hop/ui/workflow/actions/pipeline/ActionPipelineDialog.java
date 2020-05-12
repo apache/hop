@@ -29,28 +29,25 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -62,12 +59,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -77,339 +71,340 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
-  private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
+    private static final Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
 
-  protected ActionPipeline action;
+    protected ActionPipeline action;
 
-  private static final String[] FILE_FILTERLOGNAMES = new String[] {
-    BaseMessages.getString( PKG, "ActionPipeline.Fileformat.TXT" ),
-    BaseMessages.getString( PKG, "ActionPipeline.Fileformat.LOG" ),
-    BaseMessages.getString( PKG, "ActionPipeline.Fileformat.All" ) };
+    private static final String[] FILE_FILTERLOGNAMES = new String[]{
+            BaseMessages.getString(PKG, "ActionPipeline.Fileformat.TXT"),
+            BaseMessages.getString(PKG, "ActionPipeline.Fileformat.LOG"),
+            BaseMessages.getString(PKG, "ActionPipeline.Fileformat.All")};
 
-  public ActionPipelineDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
-    this.action = (ActionPipeline) action;
-  }
-
-  public IAction open() {
-    Shell parent = getParent();
-    display = parent.getDisplay();
-
-    shell = new Shell( parent, props.getWorkflowsDialogStyle() );
-    props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, action );
-
-    backupChanged = action.hasChanged();
-
-    createElements();
-
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    getData();
-    setActive();
-
-    BaseTransformDialog.setSize( shell );
-
-    int width = 750;
-    int height = Const.isWindows() ? 730 : 720;
-
-    shell.setSize( width, height );
-    shell.open();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
+    public ActionPipelineDialog(Shell parent, IAction action, WorkflowMeta workflowMeta) {
+        super(parent, action, workflowMeta);
+        this.action = (ActionPipeline) action;
     }
-    return action;
-  }
 
-  protected void createElements() {
-    super.createElements();
-    shell.setText( BaseMessages.getString( PKG, "ActionPipeline.Header" ) );
+    public IAction open() {
+        Shell parent = getParent();
+        display = parent.getDisplay();
 
-    wlPath.setText( BaseMessages.getString( PKG, "ActionPipeline.Filename.Label" ) );
-    wPassParams.setText( BaseMessages.getString( PKG, "ActionPipeline.PassAllParameters.Label" ) );
+        shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+        props.setLook(shell);
+        WorkflowDialog.setShellImage(shell, action);
 
-    wClearRows = new Button( gExecution, SWT.CHECK );
-    props.setLook( wClearRows );
-    wClearRows.setText( BaseMessages.getString( PKG, "ActionPipeline.ClearResultList.Label" ) );
-    FormData fdbClearRows = new FormData();
-    fdbClearRows.left = new FormAttachment( 0, 0 );
-    fdbClearRows.top = new FormAttachment( wEveryRow, 10 );
-    wClearRows.setLayoutData( fdbClearRows );
+        backupChanged = action.hasChanged();
 
-    wClearFiles = new Button( gExecution, SWT.CHECK );
-    props.setLook( wClearFiles );
-    wClearFiles.setText( BaseMessages.getString( PKG, "ActionPipeline.ClearResultFiles.Label" ) );
-    FormData fdbClearFiles = new FormData();
-    fdbClearFiles.left = new FormAttachment( 0, 0 );
-    fdbClearFiles.top = new FormAttachment( wClearRows, 10 );
-    wClearFiles.setLayoutData( fdbClearFiles );
+        createElements();
 
-    wWaitingToFinish = new Button( gExecution, SWT.CHECK );
-    props.setLook( wWaitingToFinish );
-    wWaitingToFinish.setText( BaseMessages.getString( PKG, "ActionPipeline.WaitToFinish.Label" ) );
-    FormData fdWait = new FormData();
-    fdWait.top = new FormAttachment( wClearFiles, 10 );
-    fdWait.left = new FormAttachment( 0, 0 );
-    wWaitingToFinish.setLayoutData( fdWait );
+        // Detect [X] or ALT-F4 or something that kills this window...
+        shell.addShellListener(new ShellAdapter() {
+            public void shellClosed(ShellEvent e) {
+                cancel();
+            }
+        });
 
-    wFollowingAbortRemotely = new Button( gExecution, SWT.CHECK );
-    props.setLook( wFollowingAbortRemotely );
-    wFollowingAbortRemotely.setText( BaseMessages.getString( PKG, "ActionPipeline.AbortRemote.Label" ) );
-    FormData fdFollow = new FormData();
-    fdFollow.top = new FormAttachment( wWaitingToFinish, 10 );
-    fdFollow.left = new FormAttachment( 0, 0 );
-    wFollowingAbortRemotely.setLayoutData( fdFollow );
+        getData();
+        setActive();
 
-    wbGetParams.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        getParameters( null ); // force reload from file specification
-      }
-    } );
+        BaseTransformDialog.setSize(shell);
 
-    wbBrowse.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        pickFileVFS();
-      }
-    } );
+        int width = 750;
+        int height = Const.isWindows() ? 730 : 720;
 
-    wbLogFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        selectLogFile( FILE_FILTERLOGNAMES );
-      }
-    } );
-  }
-
-  protected ActionBase getAction() {
-    return action;
-  }
-
-  protected Image getImage() {
-    return SwtSvgImageUtil.getImage( shell.getDisplay(), getClass().getClassLoader(), "PPL.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
-  }
-
-  protected String[] getParameters() {
-    return action.parameters;
-  }
-
-  private void getParameters( PipelineMeta inputPipelineMeta ) {
-    try {
-      if ( inputPipelineMeta == null ) {
-        ActionPipeline jet = new ActionPipeline();
-        getInfo( jet );
-        inputPipelineMeta = jet.getPipelineMeta( metaStore, workflowMeta );
-      }
-      String[] parameters = inputPipelineMeta.listParameters();
-
-      String[] existing = wParameters.getItems( 1 );
-
-      for ( int i = 0; i < parameters.length; i++ ) {
-        if ( Const.indexOfString( parameters[ i ], existing ) < 0 ) {
-          TableItem item = new TableItem( wParameters.table, SWT.NONE );
-          item.setText( 1, parameters[ i ] );
+        shell.setSize(width, height);
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
         }
-      }
-      wParameters.removeEmptyRows();
-      wParameters.setRowNums();
-      wParameters.optWidth( true );
-    } catch ( Exception e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "ActionPipelineDialog.Exception.UnableToLoadPipeline.Title" ),
-        BaseMessages.getString( PKG, "ActionPipelineDialog.Exception.UnableToLoadPipeline.Message" ), e );
+        return action;
     }
 
-  }
+    @Override
+    protected void createElements() {
+        super.createElements();
+        shell.setText(BaseMessages.getString(PKG, "ActionPipeline.Header"));
 
-  protected void pickFileVFS() {
+        wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.Filename.Label"));
+        wPassParams.setText(BaseMessages.getString(PKG, "ActionPipeline.PassAllParameters.Label"));
 
-    HopPipelineFileType<PipelineMeta> pipelineFileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
+        wClearRows = new Button(gExecution, SWT.CHECK);
+        props.setLook(wClearRows);
+        wClearRows.setText(BaseMessages.getString(PKG, "ActionPipeline.ClearResultList.Label"));
+        FormData fdbClearRows = new FormData();
+        fdbClearRows.left = new FormAttachment(0, 0);
+        fdbClearRows.top = new FormAttachment(wEveryRow, 10);
+        wClearRows.setLayoutData(fdbClearRows);
 
-    String filename = BaseDialog.presentFileDialog( shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true );
-    if ( filename != null ) {
-      wPath.setText( filename );
+        wClearFiles = new Button(gExecution, SWT.CHECK);
+        props.setLook(wClearFiles);
+        wClearFiles.setText(BaseMessages.getString(PKG, "ActionPipeline.ClearResultFiles.Label"));
+        FormData fdbClearFiles = new FormData();
+        fdbClearFiles.left = new FormAttachment(0, 0);
+        fdbClearFiles.top = new FormAttachment(wClearRows, 10);
+        wClearFiles.setLayoutData(fdbClearFiles);
+
+        wWaitingToFinish = new Button(gExecution, SWT.CHECK);
+        props.setLook(wWaitingToFinish);
+        wWaitingToFinish.setText(BaseMessages.getString(PKG, "ActionPipeline.WaitToFinish.Label"));
+        FormData fdWait = new FormData();
+        fdWait.top = new FormAttachment(wClearFiles, 10);
+        fdWait.left = new FormAttachment(0, 0);
+        wWaitingToFinish.setLayoutData(fdWait);
+
+        wFollowingAbortRemotely = new Button(gExecution, SWT.CHECK);
+        props.setLook(wFollowingAbortRemotely);
+        wFollowingAbortRemotely.setText(BaseMessages.getString(PKG, "ActionPipeline.AbortRemote.Label"));
+        FormData fdFollow = new FormData();
+        fdFollow.top = new FormAttachment(wWaitingToFinish, 10);
+        fdFollow.left = new FormAttachment(0, 0);
+        wFollowingAbortRemotely.setLayoutData(fdFollow);
+
+        wbGetParams.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent arg0) {
+                getParameters(null); // force reload from file specification
+            }
+        });
+
+        wbBrowse.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                pickFileVFS();
+            }
+        });
+
+        wbLogFilename.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                selectLogFile(FILE_FILTERLOGNAMES);
+            }
+        });
     }
-  }
 
-  String getEntryName( String name ) {
-    return "${"
-      + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + name;
-  }
+    protected ActionBase getAction() {
+        return action;
+    }
 
-  public void dispose() {
-    WindowProperty winprop = new WindowProperty( shell );
-    props.setScreen( winprop );
-    shell.dispose();
-  }
+    protected Image getImage() {
+        return SwtSvgImageUtil.getImage(shell.getDisplay(), getClass().getClassLoader(), "PPL.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE);
+    }
 
-  public void getData() {
-    wName.setText( Const.NVL( action.getName(), "" ) );
-    wPath.setText( Const.NVL( action.getFilename(), "" ) );
+    protected String[] getParameters() {
+        return action.parameters;
+    }
 
-    // Parameters
-    if ( action.parameters != null ) {
-      for ( int i = 0; i < action.parameters.length; i++ ) {
-        TableItem ti = wParameters.table.getItem( i );
-        if ( !Utils.isEmpty( action.parameters[ i ] ) ) {
-          ti.setText( 1, Const.NVL( action.parameters[ i ], "" ) );
-          ti.setText( 2, Const.NVL( action.parameterFieldNames[ i ], "" ) );
-          ti.setText( 3, Const.NVL( action.parameterValues[ i ], "" ) );
+    private void getParameters(PipelineMeta inputPipelineMeta) {
+        try {
+            if (inputPipelineMeta == null) {
+                ActionPipeline jet = new ActionPipeline();
+                getInfo(jet);
+                inputPipelineMeta = jet.getPipelineMeta(metaStore, workflowMeta);
+            }
+            String[] parameters = inputPipelineMeta.listParameters();
+
+            String[] existing = wParameters.getItems(1);
+
+            for (int i = 0; i < parameters.length; i++) {
+                if (Const.indexOfString(parameters[i], existing) < 0) {
+                    TableItem item = new TableItem(wParameters.table, SWT.NONE);
+                    item.setText(1, parameters[i]);
+                }
+            }
+            wParameters.removeEmptyRows();
+            wParameters.setRowNums();
+            wParameters.optWidth(true);
+        } catch (Exception e) {
+            new ErrorDialog(shell,
+                    BaseMessages.getString(PKG, "ActionPipelineDialog.Exception.UnableToLoadPipeline.Title"),
+                    BaseMessages.getString(PKG, "ActionPipelineDialog.Exception.UnableToLoadPipeline.Message"), e);
         }
-      }
-      wParameters.setRowNums();
-      wParameters.optWidth( true );
+
     }
 
-    wPassParams.setSelection( action.isPassingAllParameters() );
+    protected void pickFileVFS() {
 
-    if ( action.logfile != null ) {
-      wLogfile.setText( action.logfile );
-    }
-    if ( action.logext != null ) {
-      wLogext.setText( action.logext );
-    }
+        HopPipelineFileType<PipelineMeta> pipelineFileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
 
-    wPrevToParams.setSelection( action.paramsFromPrevious );
-    wEveryRow.setSelection( action.execPerRow );
-    wSetLogfile.setSelection( action.setLogfile );
-    wAddDate.setSelection( action.addDate );
-    wAddTime.setSelection( action.addTime );
-    wClearRows.setSelection( action.clearResultRows );
-    wClearFiles.setSelection( action.clearResultFiles );
-    wWaitingToFinish.setSelection( action.isWaitingToFinish() );
-    wFollowingAbortRemotely.setSelection( action.isFollowingAbortRemotely() );
-    wAppendLogfile.setSelection( action.setAppendLogfile );
-
-    wbLogFilename.setSelection( action.setAppendLogfile );
-
-    wCreateParentFolder.setSelection( action.createParentFolder );
-    if ( action.logFileLevel != null ) {
-      wLoglevel.select( action.logFileLevel.getLevel() );
+        String filename = BaseDialog.presentFileDialog(shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
+        if (filename != null) {
+            wPath.setText(filename);
+        }
     }
 
-    try {
-      List<String> runConfigurations = PipelineRunConfiguration.createFactory( metaStore).getElementNames();
-
-      try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );
-      } catch ( HopException e ) {
-        // Ignore errors
-      }
-
-      wRunConfiguration.setItems(runConfigurations.toArray( new String[0] ));
-      wRunConfiguration.setText( Const.NVL(action.getRunConfiguration(), "") );
-
-      if ( Utils.isEmpty( action.getRunConfiguration() ) ) {
-        wRunConfiguration.select( 0 );
-      } else {
-        wRunConfiguration.setText( action.getRunConfiguration() );
-      }
-    } catch(Exception e) {
-      LogChannel.UI.logError( "Error getting pipeline run configurations", e );
+    String getEntryName(String name) {
+        return "${"
+                + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + name;
     }
 
-    wName.selectAll();
-    wName.setFocus();
-  }
-
-  protected void cancel() {
-    action.setChanged( backupChanged );
-
-    action = null;
-    dispose();
-  }
-
-  private void getInfo( ActionPipeline ap ) throws HopException {
-    ap.setName( wName.getText() );
-    ap.setRunConfiguration( wRunConfiguration.getText() );
-    ap.setFileName( wPath.getText() );
-    if ( ap.getFilename().isEmpty() ) {
-      throw new HopException( BaseMessages.getString( PKG,
-        "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound" ) );
+    public void dispose() {
+        WindowProperty winprop = new WindowProperty(shell);
+        props.setScreen(winprop);
+        shell.dispose();
     }
 
-    // Do the parameters
-    int nrItems = wParameters.nrNonEmpty();
-    int nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
-      String param = wParameters.getNonEmpty( i ).getText( 1 );
-      if ( param != null && param.length() != 0 ) {
-        nr++;
-      }
+    public void getData() {
+        wName.setText(Const.NVL(action.getName(), ""));
+        wPath.setText(Const.NVL(action.getFilename(), ""));
+
+        // Parameters
+        if (action.parameters != null) {
+            for (int i = 0; i < action.parameters.length; i++) {
+                TableItem ti = wParameters.table.getItem(i);
+                if (!Utils.isEmpty(action.parameters[i])) {
+                    ti.setText(1, Const.NVL(action.parameters[i], ""));
+                    ti.setText(2, Const.NVL(action.parameterFieldNames[i], ""));
+                    ti.setText(3, Const.NVL(action.parameterValues[i], ""));
+                }
+            }
+            wParameters.setRowNums();
+            wParameters.optWidth(true);
+        }
+
+        wPassParams.setSelection(action.isPassingAllParameters());
+
+        if (action.logfile != null) {
+            wLogfile.setText(action.logfile);
+        }
+        if (action.logext != null) {
+            wLogext.setText(action.logext);
+        }
+
+        wPrevToParams.setSelection(action.paramsFromPrevious);
+        wEveryRow.setSelection(action.execPerRow);
+        wSetLogfile.setSelection(action.setLogfile);
+        wAddDate.setSelection(action.addDate);
+        wAddTime.setSelection(action.addTime);
+        wClearRows.setSelection(action.clearResultRows);
+        wClearFiles.setSelection(action.clearResultFiles);
+        wWaitingToFinish.setSelection(action.isWaitingToFinish());
+        wFollowingAbortRemotely.setSelection(action.isFollowingAbortRemotely());
+        wAppendLogfile.setSelection(action.setAppendLogfile);
+
+        wbLogFilename.setSelection(action.setAppendLogfile);
+
+        wCreateParentFolder.setSelection(action.createParentFolder);
+        if (action.logFileLevel != null) {
+            wLoglevel.select(action.logFileLevel.getLevel());
+        }
+
+        try {
+            List<String> runConfigurations = PipelineRunConfiguration.createFactory(metaStore).getElementNames();
+
+            try {
+                ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});
+            } catch (HopException e) {
+                // Ignore errors
+            }
+
+            wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
+            wRunConfiguration.setText(Const.NVL(action.getRunConfiguration(), ""));
+
+            if (Utils.isEmpty(action.getRunConfiguration())) {
+                wRunConfiguration.select(0);
+            } else {
+                wRunConfiguration.setText(action.getRunConfiguration());
+            }
+        } catch (Exception e) {
+            LogChannel.UI.logError("Error getting pipeline run configurations", e);
+        }
+
+        wName.selectAll();
+        wName.setFocus();
     }
-    ap.parameters = new String[ nr ];
-    ap.parameterFieldNames = new String[ nr ];
-    ap.parameterValues = new String[ nr ];
-    nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
-      String param = wParameters.getNonEmpty( i ).getText( 1 );
-      String fieldName = wParameters.getNonEmpty( i ).getText( 2 );
-      String value = wParameters.getNonEmpty( i ).getText( 3 );
 
-      ap.parameters[ nr ] = param;
+    protected void cancel() {
+        action.setChanged(backupChanged);
 
-      if ( !Utils.isEmpty( Const.trim( fieldName ) ) ) {
-        ap.parameterFieldNames[ nr ] = fieldName;
-      } else {
-        ap.parameterFieldNames[ nr ] = "";
-      }
-
-      if ( !Utils.isEmpty( Const.trim( value ) ) ) {
-        ap.parameterValues[ nr ] = value;
-      } else {
-        ap.parameterValues[ nr ] = "";
-      }
-
-      nr++;
+        action = null;
+        dispose();
     }
 
-    ap.setPassingAllParameters( wPassParams.getSelection() );
+    private void getInfo(ActionPipeline ap) throws HopException {
+        ap.setName(wName.getText());
+        ap.setRunConfiguration(wRunConfiguration.getText());
+        ap.setFileName(wPath.getText());
+        if (ap.getFilename().isEmpty()) {
+            throw new HopException(BaseMessages.getString(PKG,
+                    "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
+        }
 
-    ap.logfile = wLogfile.getText();
-    ap.logext = wLogext.getText();
+        // Do the parameters
+        int nrItems = wParameters.nrNonEmpty();
+        int nr = 0;
+        for (int i = 0; i < nrItems; i++) {
+            String param = wParameters.getNonEmpty(i).getText(1);
+            if (param != null && param.length() != 0) {
+                nr++;
+            }
+        }
+        ap.parameters = new String[nr];
+        ap.parameterFieldNames = new String[nr];
+        ap.parameterValues = new String[nr];
+        nr = 0;
+        for (int i = 0; i < nrItems; i++) {
+            String param = wParameters.getNonEmpty(i).getText(1);
+            String fieldName = wParameters.getNonEmpty(i).getText(2);
+            String value = wParameters.getNonEmpty(i).getText(3);
 
-    if ( wLoglevel.getSelectionIndex() >= 0 ) {
-      ap.logFileLevel = LogLevel.values()[ wLoglevel.getSelectionIndex() ];
-    } else {
-      ap.logFileLevel = LogLevel.BASIC;
+            ap.parameters[nr] = param;
+
+            if (!Utils.isEmpty(Const.trim(fieldName))) {
+                ap.parameterFieldNames[nr] = fieldName;
+            } else {
+                ap.parameterFieldNames[nr] = "";
+            }
+
+            if (!Utils.isEmpty(Const.trim(value))) {
+                ap.parameterValues[nr] = value;
+            } else {
+                ap.parameterValues[nr] = "";
+            }
+
+            nr++;
+        }
+
+        ap.setPassingAllParameters(wPassParams.getSelection());
+
+        ap.logfile = wLogfile.getText();
+        ap.logext = wLogext.getText();
+
+        if (wLoglevel.getSelectionIndex() >= 0) {
+            ap.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+        } else {
+            ap.logFileLevel = LogLevel.BASIC;
+        }
+
+        ap.paramsFromPrevious = wPrevToParams.getSelection();
+        ap.execPerRow = wEveryRow.getSelection();
+        ap.setLogfile = wSetLogfile.getSelection();
+        ap.addDate = wAddDate.getSelection();
+        ap.addTime = wAddTime.getSelection();
+        ap.clearResultRows = wClearRows.getSelection();
+        ap.clearResultFiles = wClearFiles.getSelection();
+        ap.createParentFolder = wCreateParentFolder.getSelection();
+        ap.setRunConfiguration(wRunConfiguration.getText());
+        ap.setAppendLogfile = wAppendLogfile.getSelection();
+        ap.setWaitingToFinish(wWaitingToFinish.getSelection());
+        ap.setFollowingAbortRemotely(wFollowingAbortRemotely.getSelection());
     }
 
-    ap.paramsFromPrevious = wPrevToParams.getSelection();
-    ap.execPerRow = wEveryRow.getSelection();
-    ap.setLogfile = wSetLogfile.getSelection();
-    ap.addDate = wAddDate.getSelection();
-    ap.addTime = wAddTime.getSelection();
-    ap.clearResultRows = wClearRows.getSelection();
-    ap.clearResultFiles = wClearFiles.getSelection();
-    ap.createParentFolder = wCreateParentFolder.getSelection();
-    ap.setRunConfiguration( wRunConfiguration.getText() );
-    ap.setAppendLogfile = wAppendLogfile.getSelection();
-    ap.setWaitingToFinish( wWaitingToFinish.getSelection() );
-    ap.setFollowingAbortRemotely( wFollowingAbortRemotely.getSelection() );
-  }
+    protected void ok() {
+        if (Utils.isEmpty(wName.getText())) {
+            final Dialog dialog = new SimpleMessageDialog(shell,
+                    BaseMessages.getString(PKG, "System.TransformActionNameMissing.Title"),
+                    BaseMessages.getString(PKG, "System.ActionNameMissing.Msg"), MessageDialog.ERROR);
+            dialog.open();
+            return;
+        }
+        action.setName(wName.getText());
 
-  protected void ok() {
-    if ( Utils.isEmpty( wName.getText() ) ) {
-      final Dialog dialog = new SimpleMessageDialog( shell,
-        BaseMessages.getString( PKG, "System.TransformActionNameMissing.Title" ),
-        BaseMessages.getString( PKG, "System.ActionNameMissing.Msg" ), MessageDialog.ERROR );
-      dialog.open();
-      return;
+        try {
+            getInfo(action);
+        } catch (HopException e) {
+            // suppress exceptions at this time - we will let the runtime report on any errors
+        }
+        action.setChanged();
+        dispose();
     }
-    action.setName( wName.getText() );
-
-    try {
-      getInfo( action );
-    } catch ( HopException e ) {
-      // suppress exceptions at this time - we will let the runtime report on any errors
-    }
-    action.setChanged();
-    dispose();
-  }
 }

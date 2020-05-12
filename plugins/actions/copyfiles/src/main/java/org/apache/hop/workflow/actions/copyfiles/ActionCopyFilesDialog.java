@@ -133,7 +133,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   protected void initUI() {
     Shell parent = getParent();
 
-    shell = new Shell( parent, props.getWorkflowsDialogStyle() );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     Button helpButton = WorkflowDialog.setShellImage( shell, action );
 
