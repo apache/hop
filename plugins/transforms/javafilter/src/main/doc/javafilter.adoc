@@ -1,0 +1,55 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/javafilter/src/main/doc/javafilter.adoc
+
+= Java Filter
+
+== Description
+
+The Java Filter transform allows the stream to be filtered using user defined Java expressions. The input stream, coming from one or more transforms, can be redirected to two different transforms based on the evaluation of the written expression.
+
+In other words, the user is able to perform an if-statement to filter the data stream with pure java expressions:
+
+[source,java]
+----
+if( Condition )
+  {matching-transform}
+else
+  {non-matching transform}
+----
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Destination transform for matching rows (optional)|The rows for which the written condition is evaluated to true are sent to this transform.
+|Destination transform for non-matching rows (optional)|The rows for which the written condition is evaluated to false are sent to this transform.
+|Condition (Java Expression)|Defines the Java condition on which to filter the data. See examples below.
+|===
+
+=== Examples
+
+These code samples applies to the Condition (Java Expression) field.
+
+Filters a string that contains white space
+
+[source,java]
+----
+field.contains(" ");
+----
+
+Filters a string that is identical to a constant string
+
+[source,java]
+----
+field.equals("Positive");
+----
+
+Filters a boolean value
+
+[source,java]
+----
+field == Boolean.TRUE
+----

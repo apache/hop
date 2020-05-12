@@ -1,0 +1,56 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/ldifinput/src/main/doc/ldifinput.adoc
+
+= LDIF Input
+
+== Description
+
+LDIF is short for LDAP Data Interchange Format. See also: http://en.wikipedia.org/wiki/LDIF. The LDIF Input transform reads information from such files.
+
+== Options
+
+=== Files Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Files origin a|
+* Get filename from field? : the previous transform is giving filenames in a certain field in the input stream.  These are read.
+* Filename field : specify the field to the filenames from.
+|File or directory|Specifies the location and/or name of the input text file.
+|Regular expression|Specifies the regular expression you want to use to select the files in the directory specified in the previous option.
+|Selected Files|Contains a list of selected files (or wildcard selections) and a property specifying if file is required or not. If a file is required and it is not found, an error is generated;otherwise, the file name is skipped.
+|Show filenames(s)...|Displays a list of all files that will be loaded based on the current selected file definitions .
+|===
+
+=== Content Tab
+
+|===
+|Option|Description
+|Include filename in output?|Allows you to specify a field name to include the file name (String) in the output of this transform.
+|Rownum in output|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
+|Include content type?|Allows you to specify a field name to include the content type (String) in the output of this transform.
+|Limit|Limits the number of rows to this number (zero (0) means all rows).
+|Multi valued field separator|For multi-valued content fields, you can specify a separator here. (default is a comma)
+|Result filenames a|
+* Add files to result filename : Adds the XML filenames read to the result of this pipeline.  A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+|===
+
+=== Fields
+
+|===
+|Option|Description
+|Name|The name of the output field
+|Attribute|The attribute to read
+|Type|The data type to convert to
+|Format|The format or conversion mask to use in the data type conversion
+|Length|The length of the output data type
+|Precision|The precision of the output data type
+|Currency|The currency symbol to use during data type conversion
+|Decimal|The numeric decimal symbol to use during data type conversion
+|Group|The numeric grouping symbol to use during data type conversion
+|Trim type|The type of trimming to use during data type conversion
+|Repeat|Repeat the column value of the previous row if the column value is empty (null) 
+|===

@@ -1,0 +1,26 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/joinrows/src/main/doc/joinrows.adoc
+
+= Join Rows
+
+== Description
+
+The Join rows transform allows you to produce combinations (Cartesian product) of all rows in the input streams.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Temp directory|Specify the name of the directory where the system stores temporary files in case you want to combine more then the cached number of rows.
+|TMP-file prefix|This is the prefix of the temporary files that will be generated.
+|Max. cache size|The number of rows to cache before the system reads data from temporary files; required when you want to combine large row sets that do not fit into memory.
+|Main transform to read from|Specifies the transform from which to read most of the data; while the data from other transforms are cached or spooled to disk, the data from this transform is not.
+|The Condition(s)|You can enter a complex condition to limit the number of output row.
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

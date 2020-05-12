@@ -1,0 +1,143 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/janino/src/main/doc/janino.adoc
+= User Defined Java Expression
+
+== Description
+
+This transform allows you to enter User Defined Java Expressions as a basis for the calculation of new values.
+
+If you have a Java expression like :
+[source,java]
+----
+C=A+B
+----
+
+Then you can simply enter the right side of the expression in the dialog:
+[source,java]
+----
+A+B
+----
+
+The values are exposed to the expressions as the Java objects they are :
+
+[width="90%", options="header"]
+|===
+|Data type|Java Class
+|BigNumber|BigDecimal
+|Binary|byte[]
+|Date|java.util.Date
+|Integer|java.lang.Long
+|Number|java.lang.Double
+|String|java.lang.String 
+|===
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|New Field|The new field in the data stream. If you want to overwrite an existing field, you need to define the field here and in the "Replace value" option.
+|Java Expression|The Java Expression, see examples below.
+|Value Type|Type
+|Length|Length
+|Precision|Precision
+|Replace value|Select this identical to the "New field" name when you want to replace
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+
+== Examples
+
+**Add 2 integers, A and B**
+
+[source,java]
+----
+A+B
+----
+
+**Concatenate 2 Strings : firstname and name and put a space in between**
+
+[source,java]
+----
+firstname+" "+name
+----
+
+or if you really care about performance, this might be faster: 
+
+[source,java]
+----
+new StringBuffer(firstname).append(" ").append(name).toString()
+----
+
+**Use native Java and API functions**
+
+[source,java]
+----
+System.getProperty("os.name")
+----
+
+**Business rules (If / Then / Else)**
+
+[source,java]
+----
+a<c?true:false
+----
+
+This can be more complicated
+
+[source,java]
+----
+a<c?(a==1?1:2):3
+----
+
+even with OR and AND and other operators and functions
+
+**Using Constants**
+
+If you use a constant, you may need to define the right type in some expressions otherwise it could throw:
+
+Incompatible expression types "int" and "java.lang.Long"
+
+To solve this, use:
+
+[source,java]
+----
+test == null ? new Long(0) : test
+----
+
+In this case, it checks if test is null and replaces with zero. If it is not null, it will return test.
+
+**Cut a string from end and test for null and minimal length**
+
+Imagine you have input strings with
+
+    Orlando FL
+    New York NY
+
+and you want to separate the state and city, you could use the following expressions:
+
+For state (get the last 2 characters):
+
+[source,java]
+----
+location != null && location.length()>2 ? location.substring(location.length()-2, location.length()) : null
+----
+
+For city (get the beginning without the last 2 characters and trim):
+
+[source,java]
+----
+location != null && location.length()>2 ? location.substring(0, location.length()-2).trim() : location
+----
+
+**Functionality of a LIKE operator (contains string)  and replacing values**
+
+The following example returns 1 when abc is within the source string, otherwise 2. It returns also 2 when the source string is null. The return values could be of value type Integer.
+
+[source,java]
+----
+samplestr !=null && samplestr.indexOf("abc")>-1 ? 1 : 2
+----

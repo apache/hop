@@ -1,0 +1,26 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/javascript/src/main/doc/javascript.adoc
+
+= Modified Java Script Value
+
+== Description
+
+THe Modified Java Script Value transform allows you to create JavaScript scripts for each transform.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Scripts|Displays a list of scripts you have created in this transform.
+|Constants|A list of pre-defined, static constants.
+|Functions|Contains a variety of String, Numeric, Date, Logic and specialized functions you can use to create your script. To add a function to your script, simply double-click on the function or drag it to the location in your script that you wish to insert it.
+|Input Fields|A list of inputs coming into the transform. Double-click or use drag and drop to insert the field into your script.
+|Output Fields|A list of outputs for the transform.
+|Java Script|This section is where you edit the script for this transform. You can insert functions, constants, input fields, etc. from the tree control on the left by double-clicking on the node you wish to insert or by dragging the object onto the Java Script panel.
+|Fields|The Fields table contains a list of variables from your script including the ability to add metadata like a descriptive name.
+|Get Variables|Retrieves a list of variables from your script.
+|Test script|Use this button to test the syntax of your script.
+|===

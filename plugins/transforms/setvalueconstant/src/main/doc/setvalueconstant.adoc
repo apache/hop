@@ -1,0 +1,27 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/setvalueconstant/src/main/doc/setvalueconstant.adoc
+
+= Set field value to a constant
+
+== Description
+
+The Set field value to a constant transform replaces the value of a field with a constant that you define.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Use variable in constant|Select to use a variable replacement within a constant.
+|Field|Specify the field that contains the value you want to replace.
+|Replace by value|Specify the value that will replace the original field value specified.
+|Conversion mask (Date)|Specify a date format for the replaced field. See Common Formats for information on common valid date formats you can use in this transform.
+|Set empty string?|Specify Y to allow an empty string when the value is empty; otherwise, a null value is used.
+|===
+
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
