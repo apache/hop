@@ -121,7 +121,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 

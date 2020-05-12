@@ -632,39 +632,6 @@ public class PropsUi extends Props {
     setProperty( STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING, show ? YES : NO );
   }
 
-
-  public int getWorkflowsDialogStyle() {
-    String prop = getProperty( "WorkflowDialogStyle" );
-    return parseStyle( prop );
-  }
-
-  public int getDialogStyle( String styleProperty ) {
-    String prop = getProperty( styleProperty );
-    if ( Utils.isEmpty( prop ) ) {
-      return SWT.NONE;
-    }
-
-    return parseStyle( prop );
-  }
-
-  private int parseStyle( String sStyle ) {
-    int style = SWT.DIALOG_TRIM;
-    String[] styles = sStyle.split( "," );
-    for ( String style1 : styles ) {
-      if ( "APPLICATION_MODAL".equals( style1 ) ) {
-        style |= SWT.APPLICATION_MODAL | SWT.SHEET;
-      } else if ( "RESIZE".equals( style1 ) ) {
-        style |= SWT.RESIZE;
-      } else if ( "MIN".equals( style1 ) ) {
-        style |= SWT.MIN;
-      } else if ( "MAX".equals( style1 ) ) {
-        style |= SWT.MAX;
-      }
-    }
-
-    return style;
-  }
-
   public void setDialogSize( Shell shell, String styleProperty ) {
     String prop = getProperty( styleProperty );
     if ( Utils.isEmpty( prop ) ) {

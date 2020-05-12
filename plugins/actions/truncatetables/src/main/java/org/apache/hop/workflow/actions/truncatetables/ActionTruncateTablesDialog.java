@@ -82,8 +82,6 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
   private Text wName;
 
-  private FormData fdlName, fdName;
-
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
   private ActionTruncateTables action;
@@ -109,7 +107,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    Shell shell = new Shell( parent, props.getWorkflowsDialogStyle() );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
@@ -130,7 +128,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     Label wlName = new Label( shell, SWT.RIGHT );
     wlName.setText( BaseMessages.getString( PKG, "ActionTruncateTables.Name.Label" ) );
     props.setLook( wlName );
-    fdlName = new FormData();
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
@@ -138,7 +136,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
@@ -252,7 +250,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wOk.setLayoutData( fd );
-    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wOk.addListener( SWT.Selection, (Event e) -> ok());
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -261,7 +259,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wCancel.setLayoutData( fd );
-    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
+    wCancel.addListener( SWT.Selection, (Event e) -> cancel());
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
     SelectionAdapter lsDef = new SelectionAdapter() {
@@ -411,9 +409,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
           BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
           BaseMessages.getString( PKG, "ActionTruncateTables.ConnectionError.DialogMessage" ), e );
       } finally {
-        if ( database != null ) {
           database.disconnect();
-        }
       }
       wFields.removeEmptyRows();
       wFields.setRowNums();
