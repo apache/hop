@@ -1,0 +1,19 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/reservoirsampling/src/main/doc/reservoirsampling.adoc
+
+= Reservoir Sampling
+
+== Description
+
+The Reservoir Sampling transform allows you to sample a fixed number of rows from an incoming data stream when the total number of incoming rows is not known in advance. The transform uses uniform sampling; all incoming rows have an equal chance of being selected. This transform is particularly useful when used in conjunction with the ARFF output transform in order to generate a suitable sized data set to be used by WEKA. The reservoir sampling transform uses link:https://en.wikipedia.org/wiki/Reservoir_sampling[Algorithm R] by Jeffery Vitter.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Sample size|Select how many rows to sample from an incoming stream. Setting a value of 0 will cause all rows to be sampled; setting a negative value will block all rows.
+|Random seed|Choose a seed for the random number generator. Repeating a pipeline with a different value for the seed will result in a different random sample being chosen. 
+|===

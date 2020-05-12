@@ -1,0 +1,23 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/sortedmerge/src/main/doc/sortedmerge.adoc
+
+= Sorted Merge
+
+== Description
+
+The Sorted Merge transform merges rows coming from multiple input transforms providing these rows are sorted themselves on the given key fields.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Fields table|Specify the field name and sort direction (ascending/descending); click Get Fields to retrieve a list of fields from the input stream(s). 
+|===
+
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

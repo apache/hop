@@ -1,0 +1,25 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/memgroupby/src/main/doc/memgroupby.adoc
+
+= Memory Group By
+
+== Description
+
+The Memory Group By transform builds aggregates in a group by fashion and does not require a sorted input since it processes all rows within memory. When the number of rows is too large to fit into memory, you need to use the combination of the Sort rows and Group by transforms.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline,
+|Always give back a result row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row. 
+|This can be useful if you want to count the number of rows.  Without this option you would never get a count of zero (0).
+|The field that make up the group|After retrieving fields using the Get Fields button, designate the fields to include in the group. See the Group be transform for more details.
+|Aggregates|After retrieving fields using the Get lookup fields button, designate the fields to include in the group. See the Group be transform for more details.
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
