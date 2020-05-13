@@ -27,8 +27,6 @@ import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -46,8 +44,6 @@ import java.util.Properties;
 
 public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public static final String XML_TAG = "pipeline_execution_configuration";
-
-  private final ILogChannel log = LogChannel.GENERAL;
 
   private boolean passingExport;
 
@@ -430,4 +426,5 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public void setLogRemoteExecutionLocally( boolean logRemoteExecutionLocally ) {
     this.logRemoteExecutionLocally = logRemoteExecutionLocally;
   }
+
 }

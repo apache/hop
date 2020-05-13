@@ -1,4 +1,4 @@
-package org.apache.hop.beam.core.metastore;
+package org.apache.hop.core.metastore;
 
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.api.IMetaStoreAttribute;

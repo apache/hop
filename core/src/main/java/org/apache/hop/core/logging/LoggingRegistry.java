@@ -204,7 +204,7 @@ public class LoggingRegistry {
     StringBuilder out = new StringBuilder( 50000 );
     for ( ILoggingObject o : this.map.values() ) {
       if ( ( includeGeneral ) || ( !o.getObjectType().equals( LoggingObjectType.GENERAL ) ) ) {
-        out.append( o.getContainerObjectId() );
+        out.append( o.getContainerId() );
         out.append( "\t" );
         out.append( o.getLogChannelId() );
         out.append( "\t" );

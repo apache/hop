@@ -102,13 +102,11 @@ public class WorkflowResource {
       //
       synchronized ( this ) {
         WorkflowConfiguration workflowConfiguration = HopServerSingleton.getInstance().getWorkflowMap().getConfiguration( entry );
-
+        IMetaStore metaStore = workflowConfiguration.getMetaStore();
         String serverObjectId = UUID.randomUUID().toString();
-        SimpleLoggingObject servletLoggingObject =
-          new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
+        SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
         servletLoggingObject.setContainerObjectId( serverObjectId );
         String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-        IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
         try {
           IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflow.getWorkflowMeta() );
           newWorkflow.setLogLevel( workflow.getLogLevel() );
@@ -162,7 +160,8 @@ public class WorkflowResource {
     //
     WorkflowConfiguration workflowConfiguration;
     try {
-      workflowConfiguration = WorkflowConfiguration.fromXML( xml.toString() );
+      workflowConfiguration = WorkflowConfiguration.fromXML( xml );
+      IMetaStore metaStore = workflowConfiguration.getMetaStore();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
@@ -176,7 +175,6 @@ public class WorkflowResource {
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-      IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
       final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
 
       // Setting variables
@@ -205,7 +203,7 @@ public class WorkflowResource {
       HopServerSingleton.getInstance().getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
 
       return getWorkflowStatus( serverObjectId );
-    } catch ( HopException e ) {
+    } catch ( Exception e ) {
       e.printStackTrace();
     }
     return null;

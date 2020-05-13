@@ -27,8 +27,6 @@ import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -46,8 +44,6 @@ import java.util.Properties;
 
 public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public static final String XML_TAG = "workflow_execution_configuration";
-
-  private final ILogChannel log = LogChannel.GENERAL;
 
   private Map<String, String> parametersMap;
 
@@ -149,7 +145,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
-      if ( StringUtils.isNotEmpty(keys[i])) {
+      if ( StringUtils.isNotEmpty( keys[ i ] ) ) {
         sp.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );
       }
     }
@@ -296,7 +292,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
     gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "gather_metrics" ) );
 
-    runConfiguration = XmlHandler.getTagValue( configNode, "run_configuration");
+    runConfiguration = XmlHandler.getTagValue( configNode, "run_configuration" );
 
     Node resultNode = XmlHandler.getSubNode( configNode, Result.XML_TAG );
     if ( resultNode != null ) {
@@ -400,5 +396,20 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public void setExtensionOptions( Map<String, String> extensionOptions ) {
     this.extensionOptions = extensionOptions;
   }
-  
+
+  /**
+   * Gets expandingRemoteWorkflow
+   *
+   * @return value of expandingRemoteWorkflow
+   */
+  public boolean isExpandingRemoteWorkflow() {
+    return expandingRemoteWorkflow;
+  }
+
+  /**
+   * @param expandingRemoteWorkflow The expandingRemoteWorkflow to set
+   */
+  public void setExpandingRemoteWorkflow( boolean expandingRemoteWorkflow ) {
+    this.expandingRemoteWorkflow = expandingRemoteWorkflow;
+  }
 }

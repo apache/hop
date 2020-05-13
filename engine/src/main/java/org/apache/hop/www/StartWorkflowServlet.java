@@ -120,13 +120,13 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           //
           synchronized ( this ) {
             WorkflowConfiguration workflowConfiguration = getWorkflowMap().getConfiguration( workflowName );
+            IMetaStore metaStore = workflowConfiguration.getMetaStore();
 
             String serverObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
             servletLoggingObject.setContainerObjectId( serverObjectId );
 
             String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-            IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
             IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflow.getWorkflowMeta() );
             newWorkflow.setLogLevel( workflow.getLogLevel() );
 

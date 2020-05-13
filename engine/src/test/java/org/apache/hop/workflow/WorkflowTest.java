@@ -22,12 +22,8 @@
 
 package org.apache.hop.workflow;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
@@ -37,17 +33,14 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class WorkflowTest {
   private static final String STRING_DEFAULT = "<def>";
@@ -78,11 +71,11 @@ public class WorkflowTest {
     WorkflowMeta meta = mock( WorkflowMeta.class );
 
     String carteId = UUID.randomUUID().toString();
-    doReturn( carteId ).when( meta ).getContainerObjectId();
+    doReturn( carteId ).when( meta ).getContainerId();
 
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
 
-    assertEquals( carteId, workflow.getContainerObjectId() );
+    assertEquals( carteId, workflow.getContainerId() );
   }
 
   /**
@@ -111,13 +104,13 @@ public class WorkflowTest {
     String carteId1 = UUID.randomUUID().toString();
     String carteId2 = UUID.randomUUID().toString();
 
-    doReturn( carteId1 ).when( meta1 ).getContainerObjectId();
-    doReturn( carteId2 ).when( meta2 ).getContainerObjectId();
+    doReturn( carteId1 ).when( meta1 ).getContainerId();
+    doReturn( carteId2 ).when( meta2 ).getContainerId();
 
     IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine( meta1 );
     IWorkflowEngine<WorkflowMeta> workflow2 = new LocalWorkflowEngine( meta2 );
 
-    assertNotEquals( workflow1.getContainerObjectId(), workflow2.getContainerObjectId() );
+    assertNotEquals( workflow1.getContainerId(), workflow2.getContainerId() );
     assertNotEquals( workflow1.getLogChannelId(), workflow2.getLogChannelId() );
   }
 

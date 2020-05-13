@@ -25,6 +25,7 @@ package org.apache.hop.resource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -65,7 +66,8 @@ public class ResourceUtil {
    *
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
-   * @param variables                   the space to use for variable replacement
+   * @param variables                the variables to use for variable replacement
+   * @param metaStore               The metastore for which we want to include the metastore.json file
    * @param injectXML               The XML to inject into the resulting ZIP archive (optional, can be null)
    * @param injectFilename          The name of the file for the XML to inject in the ZIP archive (optional, can be null)
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
@@ -107,16 +109,22 @@ public class ResourceUtil {
 
           ZipEntry zipEntry = new ZipEntry( resourceDefinition.getFilename() );
 
-          String comment =
-            BaseMessages.getString(
-              PKG, "ResourceUtil.SerializeResourceExportInterface.ZipEntryComment.OriginatingFile", filename,
-              Const.NVL( resourceDefinition.getOrigin(), "-" ) );
+          String comment = BaseMessages.getString( PKG, "ResourceUtil.SerializeResourceExportInterface.ZipEntryComment.OriginatingFile", filename, Const.NVL( resourceDefinition.getOrigin(), "-" ) );
           zipEntry.setComment( comment );
           out.putNextEntry( zipEntry );
 
           out.write( resourceDefinition.getContent().getBytes() );
           out.closeEntry();
         }
+
+        // Add the metastore JSON file
+        //
+        ZipEntry jsonEntry = new ZipEntry( "metastore.json" );
+        jsonEntry.setComment( "Export of the client metastore" );
+        out.putNextEntry( jsonEntry );
+        out.write( new SerializableMetaStore(metaStore).toJson().getBytes("UTF-8") );
+        out.closeEntry();
+
         String zipURL = fileObject.getName().toString();
         return new TopLevelResource( topLevelResource, zipURL, "zip:" + zipURL + "!" + topLevelResource );
       } else {

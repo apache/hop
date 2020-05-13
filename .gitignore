@@ -22,3 +22,7 @@ out/
 logs/
 .directory
 \.attach*
+
+Pipeline Run Configuration/
+Workflow Run Configuration/
+Slave Server/

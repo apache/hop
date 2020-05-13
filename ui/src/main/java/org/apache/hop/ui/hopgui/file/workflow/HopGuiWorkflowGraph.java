@@ -2476,7 +2476,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
     workflowPainter.setActiveJobEntries( activeJobEntries );
 
-    workflowPainter.drawJob();
+    workflowPainter.drawWorkflow();
 
     return (Image) gc.getImage();
   }

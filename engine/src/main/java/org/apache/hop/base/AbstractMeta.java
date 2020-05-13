@@ -165,7 +165,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    * @return the serverObjectId
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

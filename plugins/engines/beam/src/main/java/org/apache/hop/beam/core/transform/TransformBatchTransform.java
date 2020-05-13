@@ -13,7 +13,7 @@ import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;

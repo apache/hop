@@ -234,7 +234,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   public Workflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) {
     super();
     this.workflowMeta = workflowMeta;
-    this.containerObjectId = workflowMeta.getContainerObjectId();
+    this.containerObjectId = workflowMeta.getContainerId();
     this.parentLoggingObject = parentLogging;
 
     init();
@@ -1292,17 +1292,17 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    *
    * @return the serverObjectId
    */
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 
   /**
    * Sets the execution container object id (containerObjectId).
    *
-   * @param containerObjectId the execution container object id to set
+   * @param containerId the execution container object id to set
    */
-  public void setContainerObjectId( String containerObjectId ) {
-    this.containerObjectId = containerObjectId;
+  public void setContainerId( String containerId ) {
+    this.containerObjectId = containerId;
   }
 
   /**

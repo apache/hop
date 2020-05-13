@@ -196,11 +196,10 @@ public class PipelineResource {
   public PipelineStatus addPipeline( String xml ) {
     PipelineConfiguration pipelineConfiguration;
     try {
-      IMetaStore metaStore = HopServerSingleton.getInstance().getPipelineMap().getSlaveServerConfig().getMetaStore();
-      pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString(), metaStore );
+      pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString() );
+      IMetaStore metaStore = pipelineConfiguration.getMetaStore();
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
-      PipelineExecutionConfiguration pipelineExecutionConfiguration =
-        pipelineConfiguration.getPipelineExecutionConfiguration();
+      PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
       ILogChannel log = HopServerSingleton.getInstance().getLog();
       if ( log.isDetailed() ) {
@@ -234,7 +233,7 @@ public class PipelineResource {
       pipeline.setContainerId( serverObjectId );
 
       return getPipelineStatus( serverObjectId );
-    } catch ( HopException e ) {
+    } catch ( Exception e ) {
       e.printStackTrace();
     }
     return null;

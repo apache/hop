@@ -78,7 +78,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected long serverPollInterval;
   protected MetaStoreFactory<SlaveServer> slaveFactory;
   protected SlaveServer slaveServer;
-  protected String containerObjectId;
+  protected String containerId;
   protected int lastLogLineNr;
   protected boolean stopped;
   protected SlaveServerWorkflowStatus workflowStatus;
@@ -156,6 +156,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     activeActionWorkflows = new ConcurrentHashMap<>();
     extensionDataMap = new HashMap<>();
     logChannel = LogChannel.GENERAL;
+    logLevel = LogLevel.BASIC;
   }
 
   @Override public IWorkflowEngineRunConfiguration createDefaultWorkflowEngineRunConfiguration() {
@@ -180,7 +181,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     try {
       executionStartDate = new Date();
 
+      // Create a new log channel when we start the action
+      // It's only now that we use it
+      //
       logChannel = new LogChannel( workflowMeta, parentLoggingObject, gatheringMetrics );
+      loggingObject = new LoggingObject( this );
+      logLevel = logChannel.getLogLevel();
 
       workflowTracker = new WorkflowTracker( workflowMeta );
 
@@ -207,13 +213,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if ( metaStore == null ) {
         throw new HopException( "The remote workflow engine didn't receive a metastore to load slave server '" + slaveServerName + "'" );
       }
-
-      // Create a new log channel when we start the action
-      // It's only now that we use it
-      //
-      this.logChannel = new LogChannel( this, workflowMeta );
-      loggingObject = new LoggingObject( this );
-      this.logChannel.setLogLevel( logLevel );
 
       logChannel.logBasic("Executing this workflow using the Remote Workflow Engine with run configuration '"+workflowRunConfiguration.getName()+"'");
 
@@ -281,7 +280,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   public synchronized void getWorkflowStatus() throws HopException {
    try {
-     workflowStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), containerObjectId, lastLogLineNr );
+     workflowStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
      lastLogLineNr = workflowStatus.getLastLoggingLineNr();
      if (StringUtils.isNotEmpty(workflowStatus.getLoggingString())) {
        logChannel.logBasic( workflowStatus.getLoggingString() ); // TODO implement detailed logging and add option to log at all
@@ -300,10 +299,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   @Override public void stopExecution() {
     try {
-      slaveServer.stopWorkflow( workflowMeta.getName(), containerObjectId );
+      slaveServer.stopWorkflow( workflowMeta.getName(), containerId );
       getWorkflowStatus();
     } catch ( Exception e ) {
-      throw new RuntimeException( "Stopping of pipeline '" + workflowMeta.getName() + "' with ID " + containerObjectId + " failed", e );
+      throw new RuntimeException( "Stopping of pipeline '" + workflowMeta.getName() + "' with ID " + containerId + " failed", e );
     }
   }
 
@@ -336,6 +335,11 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
         executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
       }
+      // Overwrite with all the other variables we know off
+      //
+      for (String var : listVariables()) {
+        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ));
+      }
 
       if ( executionConfiguration.isPassingExport() ) {
         // First export the workflow... slaveServer.getVariable("MASTER_HOST")
@@ -351,21 +355,21 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR+ webResult.getMessage() );
         }
-        containerObjectId = webResult.getId();
+        containerId = webResult.getId();
       } else {
-        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration ).getXml();
+        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration, metaStore ).getXml();
 
         String reply = slaveServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
         }
-        containerObjectId = webResult.getId();
+        containerId = webResult.getId();
       }
 
       // Start the workflow
       //
-      WebResult webResult = slaveServer.startWorkflow( workflowMeta.getName(), containerObjectId );
+      WebResult webResult = slaveServer.startWorkflow( workflowMeta.getName(), containerId );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error starting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
       }
@@ -818,15 +822,15 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @return value of serverObjectId
    */
-  public String getContainerObjectId() {
-    return containerObjectId;
+  public String getContainerId() {
+    return containerId;
   }
 
   /**
-   * @param containerObjectId The serverObjectId to set
+   * @param containerId The serverObjectId to set
    */
-  public void setContainerObjectId( String containerObjectId ) {
-    this.containerObjectId = containerObjectId;
+  public void setContainerId( String containerId ) {
+    this.containerId = containerId;
   }
 
   /**

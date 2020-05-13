@@ -22,6 +22,8 @@
 
 package org.apache.hop.www;
 
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SwingGc;
@@ -30,15 +32,19 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowPainter;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -83,47 +89,63 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
       workflow = getWorkflowMap().getWorkflow( entry );
     }
 
+    ByteArrayOutputStream svgStream = null;
+
     try {
       if ( workflow != null ) {
 
         response.setStatus( HttpServletResponse.SC_OK );
 
         response.setCharacterEncoding( "UTF-8" );
-        response.setContentType( "image/png" );
+        response.setContentType( "image/svg+xml" );
 
-        // Generate xform image
+        // Generate workflow SVG image
         //
-        BufferedImage image = generateJobImage( workflow.getWorkflowMeta() );
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        String svgXml = generateWorkflowSvgImage( workflow.getWorkflowMeta() );
+        svgStream = new ByteArrayOutputStream();
         try {
-          ImageIO.write( image, "png", os );
+          svgStream.write( svgXml.getBytes("UTF-8") );
         } finally {
-          os.flush();
+          svgStream.flush();
         }
-        response.setContentLength( os.size() );
+        response.setContentLength( svgStream.size() );
 
         OutputStream out = response.getOutputStream();
-        out.write( os.toByteArray() );
-
+        out.write( svgStream.toByteArray() );
       }
     } catch ( Exception e ) {
       e.printStackTrace();
+    } finally {
+      if (svgStream!=null) {
+        svgStream.close();
+      }
     }
   }
 
-  private BufferedImage generateJobImage( WorkflowMeta workflowMeta ) throws Exception {
+  private String generateWorkflowSvgImage( WorkflowMeta workflowMeta ) throws Exception {
     float magnification = 1.0f;
     Point maximum = workflowMeta.getMaximum();
     maximum.multiply( magnification );
 
-    SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
+    DOMImplementation domImplementation = GenericDOMImplementation.getDOMImplementation();
+
+    // Create an instance of org.w3c.dom.Document.
+    String svgNamespace = "http://www.w3.org/2000/svg";
+    Document document = domImplementation.createDocument(svgNamespace, "svg", null);
+
+    SVGGraphics2D graphics2D = new SVGGraphics2D( document );
+
+    SwingGc gc = new SwingGc( graphics2D, new Rectangle(0,0,maximum.x,maximum.y), 32, 0, 0 );
     WorkflowPainter workflowPainter = new WorkflowPainter( gc, workflowMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, "Arial", 10, 1.0d );
     workflowPainter.setMagnification( magnification );
-    workflowPainter.drawJob();
+    workflowPainter.drawWorkflow();
 
-    BufferedImage image = (BufferedImage) gc.getImage();
+    // convert to SVG
+    //
+    StringWriter stringWriter = new StringWriter();
+    graphics2D.stream( stringWriter, true );
 
-    return image;
+    return stringWriter.toString();
   }
 
   public String toString() {

@@ -16,7 +16,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.core.util.HopBeamUtil;

@@ -24,29 +24,34 @@ package org.apache.hop.www;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 public class RegisterPackageServlet extends BaseWorkflowServlet {
@@ -68,7 +73,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException, MetaStoreException, ParseException {
     FileObject tempFile = HopVfs.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
     OutputStream out = HopVfs.getOutputStream( tempFile, false );
     IOUtils.copy( request.getInputStream(), out );
@@ -83,28 +88,28 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       boolean isWorkflow = TYPE_WORKFLOW.equalsIgnoreCase( request.getParameter( PARAMETER_TYPE ) );
       String resultId;
 
+      String metaStoreJson = getMetaStoreJsonFromZIP( archiveUrl );
+      SerializableMetaStore metaStore = new SerializableMetaStore( metaStoreJson );
+
       if ( isWorkflow ) {
         Node node = getConfigNodeFromZIP( archiveUrl, Workflow.CONFIGURATION_IN_EXPORT_FILENAME, WorkflowExecutionConfiguration.XML_TAG );
         WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration( node );
 
         WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
-        WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration );
+        WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration, metaStore );
 
-        IWorkflowEngine<WorkflowMeta> workflow = createJob( workflowConfiguration );
-        resultId = workflow.getContainerObjectId();
+        IWorkflowEngine<WorkflowMeta> workflow = createWorkflow( workflowConfiguration );
+        resultId = workflow.getContainerId();
       } else {
-        Node node =
-          getConfigNodeFromZIP( archiveUrl, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME,
-            PipelineExecutionConfiguration.XML_TAG );
+        Node node = getConfigNodeFromZIP( archiveUrl, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME, PipelineExecutionConfiguration.XML_TAG );
         PipelineExecutionConfiguration pipelineExecutionConfiguration = new PipelineExecutionConfiguration( node );
 
-        IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
         PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
 
-        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration );
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration, metaStore );
 
         IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
-        resultId = pipeline.getContainerObjectId();
+        resultId = pipeline.getContainerId();
       }
 
       return new WebResult( WebResult.STRING_OK, fileUrl, resultId );
@@ -123,5 +128,12 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
     String configUrl = MessageFormat.format( ZIP_CONT, archiveUrl, fileName );
     Document configDoc = XmlHandler.loadXmlFile( configUrl );
     return XmlHandler.getSubNode( configDoc, xml_tag );
+  }
+
+  public static final String getMetaStoreJsonFromZIP( Object archiveUrl ) throws HopFileException, IOException {
+    String filename = MessageFormat.format( ZIP_CONT, archiveUrl, "metastore.json" );
+    InputStream inputStream = HopVfs.getInputStream( filename );
+    String metaStoreJson = IOUtils.toString( inputStream, StandardCharsets.UTF_8.name() );
+    return metaStoreJson;
   }
 }

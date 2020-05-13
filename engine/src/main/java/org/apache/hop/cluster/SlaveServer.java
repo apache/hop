@@ -109,7 +109,7 @@ import java.util.Random;
 public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<SlaveServer> {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator!!
 
-  public static final String STRING_SLAVESERVER = "Slave Server";
+  public static final String STRING_SLAVE_SERVER = "Slave Server";
 
   private static final Random RANDOM = new Random();
 
@@ -120,9 +120,9 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public static final String SSL_MODE_TAG = "sslMode";
 
-  public static final int HOP_CARTE_RETRIES = getNumberOfSlaveServerRetries();
+  public static final int HOP_SERVER_RETRIES = getNumberOfSlaveServerRetries();
 
-  public static final int HOP_CARTE_RETRY_BACKOFF_INCREMENTS = getBackoffIncrements();
+  public static final int HOP_SERVER_RETRY_BACKOFF_INCREMENTS = getBackoffIncrements();
 
   private static int getNumberOfSlaveServerRetries() {
     try {
@@ -174,9 +174,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   @MetaStoreAttribute
   private boolean overrideExistingProperties;
 
-  @MetaStoreAttribute
-  private boolean master;
-
   private IVariables variables = new Variables();
 
   private Date changedDate;
@@ -189,21 +186,21 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   public SlaveServer() {
     initializeVariablesFrom( null );
-    this.log = new LogChannel( STRING_SLAVESERVER );
+    this.log = new LogChannel( STRING_SLAVE_SERVER );
     this.changedDate = new Date();
   }
 
   public SlaveServer( String name, String hostname, String port, String username, String password ) {
-    this( name, hostname, port, username, password, null, null, null, false, false );
+    this( name, hostname, port, username, password, null, null, null, false );
   }
 
   public SlaveServer( String name, String hostname, String port, String username, String password,
-                      String proxyHostname, String proxyPort, String nonProxyHosts, boolean master ) {
-    this( name, hostname, port, username, password, proxyHostname, proxyPort, nonProxyHosts, master, false );
+                      String proxyHostname, String proxyPort, String nonProxyHosts ) {
+    this( name, hostname, port, username, password, proxyHostname, proxyPort, nonProxyHosts, false );
   }
 
   public SlaveServer( String name, String hostname, String port, String username, String password,
-                      String proxyHostname, String proxyPort, String nonProxyHosts, boolean master, boolean ssl ) {
+                      String proxyHostname, String proxyPort, String nonProxyHosts, boolean sslMode ) {
     this();
     this.name = name;
     this.hostname = hostname;
@@ -214,8 +211,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     this.proxyHostname = proxyHostname;
     this.proxyPort = proxyPort;
     this.nonProxyHosts = nonProxyHosts;
+    this.sslMode = sslMode;
 
-    this.master = master;
     initializeVariablesFrom( null );
     this.log = new LogChannel( this );
   }
@@ -234,7 +231,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     this.propertiesMasterName = XmlHandler.getTagValue( slaveNode, "get_properties_from_master" );
     this.overrideExistingProperties =
       "Y".equalsIgnoreCase( XmlHandler.getTagValue( slaveNode, "override_existing_properties" ) );
-    this.master = "Y".equalsIgnoreCase( XmlHandler.getTagValue( slaveNode, "master" ) );
     initializeVariablesFrom( null );
     this.log = new LogChannel( this );
 
@@ -264,7 +260,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     xml.append( "        " ).append( XmlHandler.addTagValue( "proxy_hostname", proxyHostname ) );
     xml.append( "        " ).append( XmlHandler.addTagValue( "proxy_port", proxyPort ) );
     xml.append( "        " ).append( XmlHandler.addTagValue( "non_proxy_hosts", nonProxyHosts ) );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "master", master ) );
     xml.append( "        " ).append( XmlHandler.addTagValue( SSL_MODE_TAG, isSslMode(), false ) );
     if ( sslConfig != null ) {
       xml.append( sslConfig.getXml() );
@@ -291,8 +286,6 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     this.proxyHostname = slaveServer.proxyHostname;
     this.proxyPort = slaveServer.proxyPort;
     this.nonProxyHosts = slaveServer.nonProxyHosts;
-    this.master = slaveServer.master;
-
     this.sslMode = slaveServer.sslMode;
 
     this.setChanged( true );
@@ -477,7 +470,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendXmlMethod(byte[] content, String service ) throws Exception {
+  HttpPost buildSendXmlMethod( byte[] content, String service ) throws Exception {
     // Prepare HTTP put
     //
     String urlString = constructUrl( service );
@@ -496,7 +489,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return postMethod;
   }
 
-  public String sendXml(String xml, String service ) throws Exception {
+  public String sendXml( String xml, String service ) throws Exception {
     HttpPost method = buildSendXmlMethod( xml.getBytes( Const.XML_ENCODING ), service );
     try {
       return executeAuth( method );
@@ -668,25 +661,11 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return context;
   }
 
-  /**
-   * @return the master
-   */
-  public boolean isMaster() {
-    return master;
-  }
-
-  /**
-   * @param master the master to set
-   */
-  public void setMaster( boolean master ) {
-    this.master = master;
-  }
-
   public String execService( String service, boolean retry ) throws Exception {
     int tries = 0;
     int maxRetries = 0;
     if ( retry ) {
-      maxRetries = HOP_CARTE_RETRIES;
+      maxRetries = HOP_SERVER_RETRIES;
     }
     while ( true ) {
       try {
@@ -707,7 +686,7 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   }
 
   public static long getDelay( int trial ) {
-    long current = HOP_CARTE_RETRY_BACKOFF_INCREMENTS;
+    long current = HOP_SERVER_RETRY_BACKOFF_INCREMENTS;
     long previous = 0;
     for ( int i = 0; i < trial; i++ ) {
       long tmp = current;
@@ -994,12 +973,12 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   /**
    * Sniff rows on a the slave server, return xml containing the row metadata and data.
    *
-   * @param pipelineName pipeline name
-   * @param id the id on the server
-   * @param transformName  transform name
-   * @param copyNr    transform copy number
-   * @param lines     lines number
-   * @param type      transform type
+   * @param pipelineName  pipeline name
+   * @param id            the id on the server
+   * @param transformName transform name
+   * @param copyNr        transform copy number
+   * @param lines         lines number
+   * @param type          transform type
    * @return xml with row metadata and data
    * @throws Exception
    */
@@ -1055,9 +1034,9 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   /**
    * Monitors a remote pipeline every 5 seconds.
    *
-   * @param log           the log channel interface
+   * @param log            the log channel interface
    * @param serverObjectId the HopServer object ID
-   * @param pipelineName     the pipeline name
+   * @param pipelineName   the pipeline name
    */
   public void monitorRemotePipeline( ILogChannel log, String serverObjectId, String pipelineName ) {
     monitorRemotePipeline( log, serverObjectId, pipelineName, 5 );
@@ -1067,8 +1046,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * Monitors a remote pipeline at the specified interval.
    *
    * @param log              the log channel interface
-   * @param serverObjectId    the HopServer object ID
-   * @param pipelineName        the pipeline name
+   * @param serverObjectId   the HopServer object ID
+   * @param pipelineName     the pipeline name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
   public void monitorRemotePipeline( ILogChannel log, String serverObjectId, String pipelineName, int sleepTimeSeconds ) {
@@ -1124,9 +1103,9 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
   /**
    * Monitors a remote workflow every 5 seconds.
    *
-   * @param log           the log channel interface
+   * @param log            the log channel interface
    * @param serverObjectId the HopServer object ID
-   * @param workflowName       the workflow name
+   * @param workflowName   the workflow name
    */
   public void monitorRemoteJob( ILogChannel log, String serverObjectId, String workflowName ) {
     monitorRemoteJob( log, serverObjectId, workflowName, 5 );
@@ -1136,8 +1115,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
    * Monitors a remote workflow at the specified interval.
    *
    * @param log              the log channel interface
-   * @param serverObjectId    the HopServer object ID
-   * @param workflowName          the workflow name
+   * @param serverObjectId   the HopServer object ID
+   * @param workflowName     the workflow name
    * @param sleepTimeSeconds the sleep time (in seconds)
    */
   public void monitorRemoteJob( ILogChannel log, String serverObjectId, String workflowName, int sleepTimeSeconds ) {

@@ -47,7 +47,7 @@ public class SimpleLoggingObject implements ILoggingObject {
     this.parent = parent;
     if ( parent != null ) {
       this.logLevel = parent.getLogLevel();
-      this.containerObjectId = parent.getContainerObjectId();
+      this.containerObjectId = parent.getContainerId();
     }
   }
 
@@ -121,7 +121,7 @@ public class SimpleLoggingObject implements ILoggingObject {
   }
 
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

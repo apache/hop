@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<data-type>
+  <name>Pipeline Unit Test</name>
+  <description>This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data</description>
+</data-type>

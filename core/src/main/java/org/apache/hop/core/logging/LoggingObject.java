@@ -68,9 +68,9 @@ public class LoggingObject implements ILoggingObject {
       // No carte object id specified on either side OR the same carte object id means: the same family.
       //
       boolean sameCarteFamily =
-        ( getContainerObjectId() == null && loggingObject.getContainerObjectId() == null )
-          || ( getContainerObjectId() != null && loggingObject.getContainerObjectId() != null && getContainerObjectId()
-          .equals( loggingObject.getContainerObjectId() ) );
+        ( getContainerId() == null && loggingObject.getContainerId() == null )
+          || ( getContainerId() != null && loggingObject.getContainerId() != null && getContainerId()
+          .equals( loggingObject.getContainerId() ) );
 
 
       // Check if objects have the same parent
@@ -134,14 +134,14 @@ public class LoggingObject implements ILoggingObject {
     filename = loggingObject.getFilename();
     objectCopy = loggingObject.getObjectCopy();
     logLevel = loggingObject.getLogLevel();
-    containerObjectId = loggingObject.getContainerObjectId();
+    containerObjectId = loggingObject.getContainerId();
     forcingSeparateLogging = loggingObject.isForcingSeparateLogging();
     gatheringMetrics = loggingObject.isGatheringMetrics();
 
     if ( loggingObject.getParent() != null ) {
       getParentLoggingObject( loggingObject.getParent() );
       // inherit the containerObjectId from parent
-      containerObjectId = loggingObject.getParent().getContainerObjectId();
+      containerObjectId = loggingObject.getParent().getContainerId();
     }
   }
 
@@ -295,7 +295,7 @@ public class LoggingObject implements ILoggingObject {
    * @return the serverObjectId
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

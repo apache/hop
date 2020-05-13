@@ -111,9 +111,9 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   void fireWorkflowStartedListeners() throws HopException;
 
-  void setContainerObjectId( String toString );
+  void setContainerId( String toString );
 
-  String getContainerObjectId();
+  String getContainerId();
 
   String getStatusDescription();
 
