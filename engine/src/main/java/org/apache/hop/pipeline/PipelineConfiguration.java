@@ -22,10 +22,13 @@
 
 package org.apache.hop.pipeline;
 
+import org.apache.hop.cluster.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -36,17 +39,19 @@ public class PipelineConfiguration {
 
   private PipelineMeta pipelineMeta;
   private PipelineExecutionConfiguration pipelineExecutionConfiguration;
+  private SerializableMetaStore metaStore;
 
   /**
    * @param pipelineMeta
    * @param pipelineExecutionConfiguration
    */
-  public PipelineConfiguration( PipelineMeta pipelineMeta, PipelineExecutionConfiguration pipelineExecutionConfiguration ) {
+  public PipelineConfiguration( PipelineMeta pipelineMeta, PipelineExecutionConfiguration pipelineExecutionConfiguration, SerializableMetaStore metaStore ) {
     this.pipelineMeta = pipelineMeta;
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
+    this.metaStore = metaStore;
   }
 
-  public String getXml() throws IOException, HopException {
+  public String getXml() throws IOException, HopException, MetaStoreException {
     StringBuilder xml = new StringBuilder( 200 );
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
@@ -54,22 +59,27 @@ public class PipelineConfiguration {
     xml.append( pipelineMeta.getXml() );
     xml.append( pipelineExecutionConfiguration.getXml() );
 
+    String jsonString = HttpUtil.encodeBase64ZippedString(metaStore.toJson());
+    xml.append( XmlHandler.addTagValue( "metastore_json", jsonString));
+
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
     return xml.toString();
   }
 
-  public PipelineConfiguration( Node configNode, IMetaStore metaStore ) throws HopException {
+  public PipelineConfiguration( Node configNode ) throws HopException, MetaStoreException, ParseException, IOException {
     Node trecNode = XmlHandler.getSubNode( configNode, PipelineExecutionConfiguration.XML_TAG );
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration( trecNode );
+    String metaStoreJson = HttpUtil.decodeBase64ZippedString(XmlHandler.getTagValue( configNode, "metastore_json" ));
+    metaStore = new SerializableMetaStore(metaStoreJson);
     Node pipelineNode = XmlHandler.getSubNode( configNode, PipelineMeta.XML_TAG );
     pipelineMeta = new PipelineMeta( pipelineNode, metaStore );
   }
 
-  public static final PipelineConfiguration fromXml(String xml, IMetaStore metaStore ) throws HopException {
+  public static final PipelineConfiguration fromXml(String xml ) throws HopException, MetaStoreException, ParseException, IOException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
-    return new PipelineConfiguration( configNode, metaStore );
+    return new PipelineConfiguration( configNode );
   }
 
   /**
@@ -100,4 +110,12 @@ public class PipelineConfiguration {
     this.pipelineMeta = pipelineMeta;
   }
 
+  /**
+   * Gets metaStore
+   *
+   * @return value of metaStore
+   */
+  public SerializableMetaStore getMetaStore() {
+    return metaStore;
+  }
 }

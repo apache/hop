@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<data-type>
+  <name>Beam File Definition</name>
+  <description>Describes a file layout in a Beam pipeline</description>
+</data-type>

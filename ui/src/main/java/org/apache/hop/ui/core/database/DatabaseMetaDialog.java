@@ -765,6 +765,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     guiCompositeWidgets.setWidgetsContents( workingMeta.getIDatabase(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
     // System.out.println( "---- widgets populated for class: " + workingMeta.getIDatabase().getClass().getName() );
 
+    wManualUrl.setText( Const.NVL(workingMeta.getManualUrl(), "") );
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
     wSupportsTimestamp.setSelection( workingMeta.supportsTimestampDataType() );
     wQuoteAll.setSelection( workingMeta.isQuoteAllFields() );

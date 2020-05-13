@@ -44,7 +44,7 @@ import java.util.Set;
 public class MetaStoreFactory<T> {
 
   private enum AttributeType {
-    STRING, INTEGER, LONG, DATE, BOOLEAN, LIST, NAME_REFERENCE, FILENAME_REFERENCE, FACTORY_NAME_REFERENCE, ENUM, POJO;
+    STRING, INTEGER, LONG, DATE, BOOLEAN, LIST, MAP, NAME_REFERENCE, FILENAME_REFERENCE, FACTORY_NAME_REFERENCE, ENUM, POJO;
   }
 
   private static final String OBJECT_FACTORY_CONTEXT = "_ObjectFactoryContext_";
@@ -223,6 +223,9 @@ public class MetaStoreFactory<T> {
             case LIST:
               loadAttributesList( parentClass, parentObject, field, child );
               break;
+            case MAP:
+              loadAttributesMap( parentClass, parentObject, field, child );
+              break;
             case NAME_REFERENCE:
               loadNameReference( parentClass, parentObject, field, child, attributeAnnotation );
               break;
@@ -391,6 +394,47 @@ public class MetaStoreFactory<T> {
     } catch ( Exception e ) {
       e.printStackTrace();
       throw new MetaStoreException( "Unable to load list attribute for field '" + field.getName() + "'", e );
+    }
+
+  }
+
+  private void loadAttributesMap( Class<?> parentClass, Object parentObject, Field field, IMetaStoreAttribute parentElement ) throws MetaStoreException {
+    try {
+
+      if ( parentElement.getChildren() == null || parentElement.getChildren().isEmpty() ) {
+        // nothing more to do, no elements saved
+        return;
+      }
+
+      MetaStoreAttribute metaStoreAttribute = field.getAnnotation( MetaStoreAttribute.class );
+
+      // What is the Map object to populate?
+      //
+      String listGetter = getGetterMethodName( field.getName(), false );
+      Method listGetMethod = parentClass.getMethod( listGetter );
+      @SuppressWarnings( "unchecked" )
+      Map<String, String> map = (Map<String, String>) listGetMethod.invoke( parentObject );
+      if ( map == null ) {
+        throw new MetaStoreException( "Map attribute '" + field.getName() + "' in class '" + parentClass.getName() + "' is not pre-initialized. It will not be possible to add values" );
+      }
+      List<IMetaStoreAttribute> children = parentElement.getChildren();
+      for ( int i = 0; i < children.size(); i++ ) {
+        IMetaStoreAttribute child = children.get(i);
+        if ( child == null ) {
+          continue; // skip, go to the next child
+        }
+        // Instantiate the class and load the attributes
+        //
+        Object childValue = child.getValue();
+
+        String key = child.getId();
+        String value = childValue==null ? null : childValue.toString();
+
+        map.put(key, value);
+      }
+    } catch ( Exception e ) {
+      e.printStackTrace();
+      throw new MetaStoreException( "Unable to load Map<String,String> attribute for field '" + field.getName() + "'", e );
     }
 
   }
@@ -636,6 +680,9 @@ public class MetaStoreFactory<T> {
             case LIST:
               saveListAttribute( parentClass, parentElement, parentObject, field, key );
               break;
+            case MAP:
+              saveMapAttribute( parentClass, parentElement, parentObject, field, key );
+              break;
             case NAME_REFERENCE:
               saveNameReference( parentClass, parentElement, parentObject, field, key );
               break;
@@ -709,6 +756,24 @@ public class MetaStoreFactory<T> {
           }
           saveAttributes( childAttribute, attributeClass, object );
         }
+      }
+    }
+  }
+
+
+  private void saveMapAttribute( Class<?> parentClass, IMetaStoreAttribute parentElement, Object parentObject, Field field, String key ) throws MetaStoreException {
+    Map<String, String> map = (Map<String,String>) getAttributeValue( parentClass, parentObject, field.getName(), getGetterMethodName( field.getName(), false ) );
+    IMetaStoreAttribute topChild = metaStore.newAttribute( key, null );
+    parentElement.addChild( topChild );
+    MetaStoreAttribute metaStoreAttribute = field.getAnnotation( MetaStoreAttribute.class );
+
+    if ( !map.isEmpty() ) {
+      // We always assume it's these are String pairs
+      //
+      for ( String mapKey : map.keySet() ) {
+        String mapValue = map.get(mapKey);
+        IMetaStoreAttribute childAttribute = metaStore.newAttribute( mapKey, mapValue );
+        topChild.addChild( childAttribute );
       }
     }
   }
@@ -907,6 +972,9 @@ public class MetaStoreFactory<T> {
     Class<?> fieldClass = field.getType();
     if ( List.class.equals( fieldClass ) ) {
       return AttributeType.LIST;
+    }
+    if ( Map.class.equals( fieldClass )) {
+      return AttributeType.MAP;
     }
     if ( annotation.nameReference() ) {
       return AttributeType.NAME_REFERENCE;

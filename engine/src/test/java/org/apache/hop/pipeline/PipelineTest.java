@@ -389,11 +389,11 @@ public class PipelineTest {
     doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     String carteId = UUID.randomUUID().toString();
-    doReturn( carteId ).when( meta ).getContainerObjectId();
+    doReturn( carteId ).when( meta ).getContainerId();
 
     Pipeline pipeline = new LocalPipelineEngine( meta );
 
-    assertEquals( carteId, pipeline.getContainerObjectId() );
+    assertEquals( carteId, pipeline.getContainerId() );
   }
 
   /**

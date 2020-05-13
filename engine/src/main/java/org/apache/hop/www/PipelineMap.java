@@ -65,7 +65,7 @@ public class PipelineMap {
 
   public void registerPipeline( Pipeline pipeline, PipelineConfiguration pipelineConfiguration ) {
     pipeline.setContainerId( UUID.randomUUID().toString() );
-    HopServerObjectEntry entry = new HopServerObjectEntry( pipeline.getPipelineMeta().getName(), pipeline.getContainerObjectId() );
+    HopServerObjectEntry entry = new HopServerObjectEntry( pipeline.getPipelineMeta().getName(), pipeline.getContainerId() );
     pipelineMap.put( entry, new PipelineData( pipeline, pipelineConfiguration ) );
   }
 

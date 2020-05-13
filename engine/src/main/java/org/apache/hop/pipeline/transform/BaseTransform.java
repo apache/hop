@@ -3610,7 +3610,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return the containerObjectId
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

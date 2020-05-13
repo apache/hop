@@ -93,9 +93,9 @@ public class AbstractMetaTest {
 
   @Test
   public void testGetSetContainerObjectId() throws Exception {
-    assertNull( meta.getContainerObjectId() );
+    assertNull( meta.getContainerId() );
     meta.setCarteObjectId( "myObjectId" );
-    assertEquals( "myObjectId", meta.getContainerObjectId() );
+    assertEquals( "myObjectId", meta.getContainerId() );
   }
 
   @Test

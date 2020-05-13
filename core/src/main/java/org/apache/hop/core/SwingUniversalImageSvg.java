@@ -35,10 +35,13 @@ import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
 
 public class SwingUniversalImageSvg extends SwingUniversalImage {
+  private final SvgImage svg;
   private final GraphicsNode svgGraphicsNode;
   private final Dimension2D svgGraphicsSize;
 
   public SwingUniversalImageSvg( SvgImage svg ) {
+    this.svg = svg;
+
     // get GraphicsNode and size from svg document
     UserAgentAdapter userAgentAdapter = new UserAgentAdapter();
     DocumentLoader documentLoader = new DocumentLoader( userAgentAdapter );
@@ -88,5 +91,32 @@ public class SwingUniversalImageSvg extends SwingUniversalImage {
     svgGraphicsNode.setTransform( affineTransform );
 
     svgGraphicsNode.paint( gc );
+  }
+
+  /**
+   * Gets svg
+   *
+   * @return value of svg
+   */
+  public SvgImage getSvg() {
+    return svg;
+  }
+
+  /**
+   * Gets svgGraphicsNode
+   *
+   * @return value of svgGraphicsNode
+   */
+  public GraphicsNode getSvgGraphicsNode() {
+    return svgGraphicsNode;
+  }
+
+  /**
+   * Gets svgGraphicsSize
+   *
+   * @return value of svgGraphicsSize
+   */
+  public Dimension2D getSvgGraphicsSize() {
+    return svgGraphicsSize;
   }
 }

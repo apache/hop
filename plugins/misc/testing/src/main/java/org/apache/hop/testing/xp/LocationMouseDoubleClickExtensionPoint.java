@@ -106,6 +106,7 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
             if ( inputLocation != null ) {
               PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), inputLocation, dataSets, transformFieldsMap );
               if ( dialog.open() ) {
+                unitTest.getFactory( hopGui.getMetaStore() ).saveElement( unitTest );
                 pipelineGraph.updateGui();
               }
             }
@@ -119,6 +120,8 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
             if ( goldenLocation != null ) {
               PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), goldenLocation, dataSets, transformFieldsMap );
               if ( dialog.open() ) {
+                // Save the unit test
+                PipelineUnitTest.createFactory( hopGui.getMetaStore() ).saveElement( unitTest );
                 pipelineGraph.updateGui();
               }
             }

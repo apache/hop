@@ -173,7 +173,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
      * @return the execution container object id
      */
     @Override
-    public String getContainerObjectId() {
+    public String getContainerId() {
       return containerObjectId;
     }
 

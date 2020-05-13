@@ -28,7 +28,9 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -159,89 +161,97 @@ public class TestingGuiPlugin {
       if ( setName != null ) {
         DataSet dataSet = setFactory.loadElement( setName );
         dataSet.initializeVariablesFrom( pipelineMeta );
-
-        // Now we need to map the fields from the input data set to the transform...
-        //
-        IRowMeta setFields = dataSet.getSetRowMeta();
-        IRowMeta transformFields;
-        try {
-          transformFields = pipelineMeta.getTransformFields( transformMeta );
-        } catch ( HopTransformException e ) {
-          // Driver or input problems...
-          //
-          transformFields = new RowMeta();
+        boolean changed = setInputDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        if ( changed ) {
+          context.getPipelineGraph().updateGui();
         }
-        if ( transformFields.isEmpty() ) {
-          transformFields = setFields.clone();
-        }
-
-        String[] transformFieldNames = transformFields.getFieldNames();
-        String[] setFieldNames = setFields.getFieldNames();
-
-        EnterMappingDialog mappingDialog = new EnterMappingDialog( hopGui.getShell(), setFieldNames, transformFieldNames );
-        List<SourceToTargetMapping> mappings = mappingDialog.open();
-        if ( mappings == null ) {
-          return;
-        }
-
-        // Ask about the sort order...
-        // Show the mapping as well as an order column
-        //
-        IRowMeta sortMeta = new RowMeta();
-        sortMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Column.SetField" ) ) );
-        List<Object[]> sortData = new ArrayList<Object[]>();
-        for ( String setFieldName : setFieldNames ) {
-          sortData.add( new Object[] { setFieldName } );
-        }
-        EditRowsDialog orderDialog = new EditRowsDialog( hopGui.getShell(), SWT.NONE,
-          BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Title" ),
-          BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Message" ),
-          sortMeta, sortData
-        );
-        List<Object[]> orderMappings = orderDialog.open();
-        if ( orderMappings == null ) {
-          return;
-        }
-
-        // Modify the test
-        //
-
-        // Remove other crap on the transform...
-        //
-        unitTest.removeInputAndGoldenDataSets( transformMeta.getName() );
-
-        PipelineUnitTestSetLocation inputLocation = new PipelineUnitTestSetLocation();
-        unitTest.getInputDataSets().add( inputLocation );
-
-        inputLocation.setTransformName( transformMeta.getName() );
-        inputLocation.setDataSetName( dataSet.getName() );
-        List<PipelineUnitTestFieldMapping> fieldMappings = inputLocation.getFieldMappings();
-        fieldMappings.clear();
-
-        for ( SourceToTargetMapping mapping : mappings ) {
-          String transformFieldName = mapping.getTargetString( transformFieldNames );
-          String setFieldName = mapping.getSourceString( setFieldNames );
-          fieldMappings.add( new PipelineUnitTestFieldMapping( transformFieldName, setFieldName ) );
-        }
-
-        List<String> setFieldOrder = new ArrayList<String>();
-        for ( Object[] orderMapping : orderMappings ) {
-          String setFieldName = sortMeta.getString( orderMapping, 0 );
-          setFieldOrder.add( setFieldName );
-        }
-        inputLocation.setFieldOrder( setFieldOrder );
-
-        // Save the unit test...
-        //
-        saveUnitTest( metaStore, unitTest, pipelineMeta );
-
-        transformMeta.setChanged();
-
-        context.getPipelineGraph().updateGui();
       }
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error retrieving the list of data set groups", e );
     }
+  }
+
+  private boolean setInputDataSetOnTransform( IMetaStore metaStore, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest, DataSet dataSet )
+    throws HopPluginException, HopValueException, MetaStoreException {
+    HopGui hopGui = HopGui.getInstance();
+
+    // Now we need to map the fields from the input data set to the transform...
+    //
+    IRowMeta setFields = dataSet.getSetRowMeta();
+    IRowMeta transformFields;
+    try {
+      transformFields = pipelineMeta.getTransformFields( transformMeta );
+    } catch ( HopTransformException e ) {
+      // Driver or input problems...
+      //
+      transformFields = new RowMeta();
+    }
+    if ( transformFields.isEmpty() ) {
+      transformFields = setFields.clone();
+    }
+
+    String[] transformFieldNames = transformFields.getFieldNames();
+    String[] setFieldNames = setFields.getFieldNames();
+
+    EnterMappingDialog mappingDialog = new EnterMappingDialog( hopGui.getShell(), setFieldNames, transformFieldNames );
+    List<SourceToTargetMapping> mappings = mappingDialog.open();
+    if ( mappings == null ) {
+      return false;
+    }
+
+    // Ask about the sort order...
+    // Show the mapping as well as an order column
+    //
+    IRowMeta sortMeta = new RowMeta();
+    sortMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Column.SetField" ) ) );
+    List<Object[]> sortData = new ArrayList<>();
+    for ( String setFieldName : setFieldNames ) {
+      sortData.add( new Object[] { setFieldName } );
+    }
+    EditRowsDialog orderDialog = new EditRowsDialog( hopGui.getShell(), SWT.NONE,
+      BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Title" ),
+      BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Message" ),
+      sortMeta, sortData
+    );
+    List<Object[]> orderMappings = orderDialog.open();
+    if ( orderMappings == null ) {
+      return false;
+    }
+
+    // Modify the test
+    //
+
+    // Remove other crap on the transform...
+    //
+    unitTest.removeInputAndGoldenDataSets( transformMeta.getName() );
+
+    PipelineUnitTestSetLocation inputLocation = new PipelineUnitTestSetLocation();
+    unitTest.getInputDataSets().add( inputLocation );
+
+    inputLocation.setTransformName( transformMeta.getName() );
+    inputLocation.setDataSetName( dataSet.getName() );
+    List<PipelineUnitTestFieldMapping> fieldMappings = inputLocation.getFieldMappings();
+    fieldMappings.clear();
+
+    for ( SourceToTargetMapping mapping : mappings ) {
+      String transformFieldName = mapping.getTargetString( transformFieldNames );
+      String setFieldName = mapping.getSourceString( setFieldNames );
+      fieldMappings.add( new PipelineUnitTestFieldMapping( transformFieldName, setFieldName ) );
+    }
+
+    List<String> setFieldOrder = new ArrayList<String>();
+    for ( Object[] orderMapping : orderMappings ) {
+      String setFieldName = sortMeta.getString( orderMapping, 0 );
+      setFieldOrder.add( setFieldName );
+    }
+    inputLocation.setFieldOrder( setFieldOrder );
+
+    // Save the unit test...
+    //
+    saveUnitTest( metaStore, unitTest, pipelineMeta );
+
+    transformMeta.setChanged();
+    return true;
   }
 
 
@@ -336,86 +346,93 @@ public class TestingGuiPlugin {
       if ( setName != null ) {
         DataSet dataSet = setFactory.loadElement( setName );
         dataSet.initializeVariablesFrom( pipelineMeta );
-
-        // Now we need to map the fields from the transform to golden data set fields...
-        //
-        IRowMeta transformFields;
-        try {
-          transformFields = pipelineMeta.getPrevTransformFields( transformMeta );
-        } catch ( HopTransformException e ) {
-          // Ignore error: issues with not being able to get fields because of the unit test
-          // running in a different environment.
-          //
-          transformFields = new RowMeta();
+        boolean changed = setGoldenDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        if (changed) {
+          context.getPipelineGraph().updateGui();
         }
-        IRowMeta setFields = dataSet.getSetRowMeta();
-
-        String[] transformFieldNames = transformFields.getFieldNames();
-        String[] setFieldNames = setFields.getFieldNames();
-
-        EnterMappingDialog mappingDialog = new EnterMappingDialog( hopGui.getShell(), transformFieldNames, setFieldNames );
-        List<SourceToTargetMapping> mappings = mappingDialog.open();
-        if ( mappings == null ) {
-          return;
-        }
-
-        // Ask about the sort order...
-        // Show the mapping as well as an order column
-        //
-        IRowMeta sortMeta = new RowMeta();
-        sortMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Column.SetField" ) ) );
-        List<Object[]> sortData = new ArrayList<Object[]>();
-        for ( String setFieldName : setFieldNames ) {
-          sortData.add( new Object[] { setFieldName } );
-        }
-        EditRowsDialog orderDialog = new EditRowsDialog( hopGui.getShell(), SWT.NONE,
-          BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Title" ),
-          BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Message" ),
-          sortMeta, sortData
-        );
-        List<Object[]> orderMappings = orderDialog.open();
-        if ( orderMappings == null ) {
-          return;
-        }
-
-        // Modify the test
-        //
-
-        // Remove golden locations and input locations on the transform to avoid duplicates
-        //
-        unitTest.removeInputAndGoldenDataSets( transformMeta.getName() );
-
-        PipelineUnitTestSetLocation goldenLocation = new PipelineUnitTestSetLocation();
-        unitTest.getGoldenDataSets().add( goldenLocation );
-
-        goldenLocation.setTransformName( transformMeta.getName() );
-        goldenLocation.setDataSetName( dataSet.getName() );
-        List<PipelineUnitTestFieldMapping> fieldMappings = goldenLocation.getFieldMappings();
-        fieldMappings.clear();
-
-        for ( SourceToTargetMapping mapping : mappings ) {
-          fieldMappings.add( new PipelineUnitTestFieldMapping(
-            mapping.getSourceString( transformFieldNames ),
-            mapping.getTargetString( setFieldNames ) ) );
-        }
-
-        List<String> setFieldOrder = new ArrayList<String>();
-        for ( Object[] orderMapping : orderMappings ) {
-          setFieldOrder.add( sortMeta.getString( orderMapping, 0 ) );
-        }
-        goldenLocation.setFieldOrder( setFieldOrder );
-
-        // Save the unit test...
-        //
-        saveUnitTest( metaStore, unitTest, pipelineMeta );
-
-        transformMeta.setChanged();
-
-        context.getPipelineGraph().updateGui();
       }
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error retrieving the list of data set groups", e );
     }
+  }
+
+  private boolean setGoldenDataSetOnTransform( IMetaStore metaStore, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest,
+                                               DataSet dataSet ) throws HopPluginException, HopValueException, MetaStoreException {
+    // Now we need to map the fields from the transform to golden data set fields...
+    //
+    IRowMeta transformFields;
+    try {
+      transformFields = pipelineMeta.getPrevTransformFields( transformMeta );
+    } catch ( HopTransformException e ) {
+      // Ignore error: issues with not being able to get fields because of the unit test
+      // running in a different environment.
+      //
+      transformFields = new RowMeta();
+    }
+    IRowMeta setFields = dataSet.getSetRowMeta();
+
+    String[] transformFieldNames = transformFields.getFieldNames();
+    String[] setFieldNames = setFields.getFieldNames();
+
+    EnterMappingDialog mappingDialog = new EnterMappingDialog( HopGui.getInstance().getShell(), transformFieldNames, setFieldNames );
+    List<SourceToTargetMapping> mappings = mappingDialog.open();
+    if ( mappings == null ) {
+      return false;
+    }
+
+    // Ask about the sort order...
+    // Show the mapping as well as an order column
+    //
+    IRowMeta sortMeta = new RowMeta();
+    sortMeta.addValueMeta( new ValueMetaString( BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Column.SetField" ) ) );
+    List<Object[]> sortData = new ArrayList<Object[]>();
+    for ( String setFieldName : setFieldNames ) {
+      sortData.add( new Object[] { setFieldName } );
+    }
+    EditRowsDialog orderDialog = new EditRowsDialog( HopGui.getInstance().getShell(), SWT.NONE,
+      BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Title" ),
+      BaseMessages.getString( PKG, "TestingGuiPlugin.SortOrder.Message" ),
+      sortMeta, sortData
+    );
+    List<Object[]> orderMappings = orderDialog.open();
+    if ( orderMappings == null ) {
+      return false;
+    }
+
+    // Modify the test
+    //
+
+    // Remove golden locations and input locations on the transform to avoid duplicates
+    //
+    unitTest.removeInputAndGoldenDataSets( transformMeta.getName() );
+
+    PipelineUnitTestSetLocation goldenLocation = new PipelineUnitTestSetLocation();
+    unitTest.getGoldenDataSets().add( goldenLocation );
+
+    goldenLocation.setTransformName( transformMeta.getName() );
+    goldenLocation.setDataSetName( dataSet.getName() );
+    List<PipelineUnitTestFieldMapping> fieldMappings = goldenLocation.getFieldMappings();
+    fieldMappings.clear();
+
+    for ( SourceToTargetMapping mapping : mappings ) {
+      fieldMappings.add( new PipelineUnitTestFieldMapping(
+        mapping.getSourceString( transformFieldNames ),
+        mapping.getTargetString( setFieldNames ) ) );
+    }
+
+    List<String> setFieldOrder = new ArrayList<String>();
+    for ( Object[] orderMapping : orderMappings ) {
+      setFieldOrder.add( sortMeta.getString( orderMapping, 0 ) );
+    }
+    goldenLocation.setFieldOrder( setFieldOrder );
+
+    // Save the unit test...
+    //
+    saveUnitTest( metaStore, unitTest, pipelineMeta );
+
+    transformMeta.setChanged();
+
+    return true;
   }
 
 
@@ -468,7 +485,7 @@ public class TestingGuiPlugin {
     image = "dataset.svg"
   )
   public void createDataSetFromTransform( HopGuiPipelineTransformContext context ) {
-    HopGui hopGui = ( (HopGui) HopGui.getInstance() );
+    HopGui hopGui = HopGui.getInstance();
     IMetaStore metaStore = hopGui.getMetaStore();
 
     TransformMeta transformMeta = context.getTransformMeta();
@@ -494,6 +511,29 @@ public class TestingGuiPlugin {
       String dataSetName = dataSetDialog.open();
       if ( dataSetName != null ) {
         setFactory.saveElement( dataSet );
+
+        PipelineUnitTest unitTest = getCurrentUnitTest( pipelineMeta );
+        if (unitTest==null) {
+          return;
+        }
+
+        // Now that the data set is created and we have an active unit test, perhaps the user wants to use it on the transform?
+        //
+        MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
+        box.setText( "Use this data set?" );
+        box.setMessage("Do you want to use the new data set called '"+dataSet.getName()+"' on transform '"+transformMeta.getName()+"'?"+Const.CR+
+          "Yes: as an input data set"+Const.CR+
+          "No: as a golden data set"+Const.CR+
+          "Cancel: not using it at this time"+Const.CR);
+        int answer = box.open();
+        if ((answer&SWT.YES)!=0) {
+          // set the new data set as an input
+          //
+          setInputDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        }
+        if ((answer&SWT.NO)!=0) {
+          setGoldenDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        }
       }
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error creating a new data set", e );

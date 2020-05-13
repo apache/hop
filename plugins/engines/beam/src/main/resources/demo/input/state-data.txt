@@ -1,0 +1,52 @@
+Alabama;4874747
+ALASKA;739795
+Arizona;7016270
+Arkansas;3004279
+CALIFORNIA;39536653
+Colorado;5607154
+Connecticut;3588184
+Delaware;961939
+District of Columbia;693972
+FLORIDA;20984400
+Georgia;10429379
+Hawaii;1427538
+Idaho;1716943
+Illinois;12802023
+INDIANA;6666818
+Iowa;3145711
+Kansas;2913123
+Kentucky;4454189
+Louisiana;4684333
+Maine;1335907
+Maryland;6052177
+Massachusetts;6859819
+Michigan;9962311
+Minnesota;5576606
+Mississippi;2984100
+Missouri;6113532
+Montana;1050493
+NEBRASKA;1920076
+Nevada;2998039
+New Hampshire;1342795
+New Jersey;9005644
+New Mexico;2088070
+NEW YORK;19849399
+North Carolina;10273419
+North Dakota;755393
+Ohio;11658609
+Oklahoma;3930864
+Oregon;4142776
+Pennsylvania;12805537
+Rhode Island;1059639
+South Carolina;5024369
+South Dakota;869666
+Tennessee;6715984
+TEXAS;28304596
+Utah;3101833
+Vermont;623657
+Virginia;8470020
+WASHINGTON;7405743
+West Virginia;1815857
+Wisconsin;5795483
+Wyoming;579315
+

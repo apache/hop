@@ -33,7 +33,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -156,14 +155,14 @@ public interface IDatabase extends Cloneable {
   /**
    * @return The extra attributes for this database connection
    */
-  public Properties getAttributes();
+  public Map<String, String> getAttributes();
 
   /**
    * Set extra attributes on this database connection
    *
    * @param attributes The extra attributes to set on this database connection.
    */
-  public void setAttributes( Properties attributes );
+  public void setAttributes( Map<String,String> attributes );
 
   /**
    * Add extra attribute on this connection

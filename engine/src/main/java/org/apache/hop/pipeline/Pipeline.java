@@ -533,7 +533,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     this();
 
     this.pipelineMeta = pipelineMeta;
-    this.containerObjectId = pipelineMeta.getContainerObjectId();
+    this.containerObjectId = pipelineMeta.getContainerId();
     this.metaStore = pipelineMeta.getMetaStore();
 
     setParent( parent );
@@ -2973,7 +2973,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * @return the HopServer object ID
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

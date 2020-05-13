@@ -88,7 +88,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
     response.setStatus( HttpServletResponse.SC_OK );
 
     try {
-      // First read the complete transformation in memory from the request
+      // First read the complete pipeline in memory from the request
       int c;
       StringBuilder xml = new StringBuilder();
       while ( ( c = in.read() ) != -1 ) {
@@ -98,6 +98,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       // Parse the XML, create a workflow configuration
       //
       WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXML( xml.toString() );
+      IMetaStore metaStore = workflowConfiguration.getMetaStore();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
@@ -109,10 +110,9 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 
-      // Create the transformation and store in the list...
+      // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-      IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
       final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
 
       // Setting variables

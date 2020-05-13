@@ -23,10 +23,11 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.json.simple.parser.ParseException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,18 +44,16 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException, MetaStoreException, ParseException {
 
     final String xml = IOUtils.toString( request.getInputStream() );
 
     // Parse the XML, create a pipeline configuration
-    IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
-    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml, metaStore );
+    PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml);
 
     IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
 
-    String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + pipeline.getContainerObjectId();
-    return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerObjectId() );
+    String message = "Pipeline '" + pipeline.getPipelineMeta().getName() + "' was added to HopServer with id " + pipeline.getContainerId();
+    return new WebResult( WebResult.STRING_OK, message, pipeline.getContainerId() );
   }
-
 }

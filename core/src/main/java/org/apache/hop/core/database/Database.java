@@ -4896,7 +4896,7 @@ public class Database implements IVariables, ILoggingObject {
    * @return the serverObjectId
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

@@ -508,10 +508,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       // OK, try to load using the VFS stuff...
       Document doc = XmlHandler.loadXmlFile( HopVfs.getFileObject( fname, this ) );
       if ( doc != null ) {
-        // The jobnode
-        Node jobnode = XmlHandler.getSubNode( doc, XML_TAG );
+        // The workflowNode
+        Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG );
 
-        loadXml( jobnode, fname, metaStore );
+        loadXml( workflowNode, fname, metaStore );
       } else {
         throw new HopXmlException(
           BaseMessages.getString( PKG, "WorkflowMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
@@ -528,8 +528,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param inputStream the input stream
    * @throws HopXmlException the hop xml exception
    */
-  public WorkflowMeta( InputStream inputStream ) throws HopXmlException {
+  public WorkflowMeta( InputStream inputStream, IMetaStore metaStore ) throws HopXmlException {
     this();
+    this.metaStore = metaStore;
     Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
     Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
     loadXml( subNode, null );
@@ -541,22 +542,23 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param workflowNode The node to load from
    * @throws HopXmlException
    */
-  public WorkflowMeta( Node workflowNode ) throws HopXmlException {
+  public WorkflowMeta( Node workflowNode, IMetaStore metaStore ) throws HopXmlException {
     this();
-    loadXml( workflowNode, null );
+    this.metaStore = metaStore;
+    loadXml( workflowNode, null, metaStore );
   }
 
 
   /**
    * Load xml.
    *
-   * @param jobnode the jobnode
+   * @param workflowNode the workflowNode
    * @param fname   The filename
    * @throws HopXmlException the hop xml exception
    */
-  public void loadXml( Node jobnode, String fname )
+  public void loadXml( Node workflowNode, String fname )
     throws HopXmlException {
-    loadXml( jobnode, fname, null );
+    loadXml( workflowNode, fname, metaStore );
   }
 
   /**

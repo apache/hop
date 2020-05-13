@@ -83,7 +83,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have hostname and port fields
     if ( databaseMeta.getIDatabase() instanceof GenericDatabaseMeta ) {
       
-    	String customDriverClass = databaseMeta.getAttributes().getProperty( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
+    	String customDriverClass = databaseMeta.getAttributes().get( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
   		append( report, "GenericDatabaseMeta.report.customUrl",  db.environmentSubstitute(  databaseMeta.getManualUrl() ) );
   		append( report, "GenericDatabaseMeta.report.customDriverClass",  db.environmentSubstitute(  customDriverClass ) );
       

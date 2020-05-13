@@ -192,20 +192,34 @@ public class SlaveServerWorkflowStatus {
   }
 
   public boolean isRunning() {
+    if (getStatusDescription()==null) {
+      return false;
+    }
     return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING );
   }
 
   public boolean isWaiting() {
+    if (getStatusDescription()==null) {
+      return false;
+    }
     return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_WAITING );
   }
 
   public boolean isFinished() {
+    if (getStatusDescription()==null) {
+      return false;
+    }
+
     return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED )
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS );
   }
 
   public boolean isStopped() {
+    if (getStatusDescription()==null) {
+      return false;
+    }
+
     return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED )
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED_WITH_ERRORS );
   }

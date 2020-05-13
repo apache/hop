@@ -55,7 +55,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -84,9 +83,9 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   // Comparator for sorting databases alphabetically by name
   public static final Comparator<DatabaseMeta> comparator = ( DatabaseMeta dbm1, DatabaseMeta dbm2 ) -> {
-	      return dbm1.getName().compareToIgnoreCase( dbm2.getName() );	    
+    return dbm1.getName().compareToIgnoreCase( dbm2.getName() );
   };
-  
+
   private String name;
 
   @MetaStoreAttribute( key = "rdbms" )
@@ -278,15 +277,17 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
   public void replaceMeta( DatabaseMeta databaseMeta ) {
-    this.setValues(
-      databaseMeta.getName(), databaseMeta.getPluginId(), databaseMeta.getAccessTypeDesc(), databaseMeta
-        .getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getPort(),
+    this.setValues( databaseMeta.getName(), databaseMeta.getPluginId(), databaseMeta.getAccessTypeDesc(),
+      databaseMeta.getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getPort(),
       databaseMeta.getUsername(), databaseMeta.getPassword() );
     this.setServername( databaseMeta.getServername() );
     this.setDataTablespace( databaseMeta.getDataTablespace() );
     this.setIndexTablespace( databaseMeta.getIndexTablespace() );
 
     this.iDatabase = (IDatabase) databaseMeta.iDatabase.clone();
+
+    // Replace all attributes
+    this.getAttributes().putAll(databaseMeta.getAttributes());
 
     this.setChanged();
   }
@@ -590,7 +591,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return The extra attributes for this database connection
    */
-  public Properties getAttributes() {
+  public Map<String, String> getAttributes() {
     return iDatabase.getAttributes();
   }
 
@@ -599,7 +600,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    *
    * @param attributes The extra attributes to set on this database connection.
    */
-  public void setAttributes( Properties attributes ) {
+  public void setAttributes( Map<String, String> attributes ) {
     iDatabase.setAttributes( attributes );
   }
 
@@ -1061,7 +1062,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return sbsql.toString();
   }
 
-  public String getSeqNextvalSql(String sequenceName ) {
+  public String getSeqNextvalSql( String sequenceName ) {
     return iDatabase.getSqlNextSequenceValue( sequenceName );
   }
 
@@ -1581,10 +1582,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
       r.addValue( val, IValueMeta.TYPE_STRING, getServername() );
       list.add( r );
       // Other properties...
-      Enumeration<Object> keys = getAttributes().keys();
-      while ( keys.hasMoreElements() ) {
-        String key = (String) keys.nextElement();
-        String value = getAttributes().getProperty( key );
+      for ( String key : getAttributes().keySet() ) {
+        String value = getAttributes().get( key );
         r = new RowMetaAndData();
         r.addValue( par, IValueMeta.TYPE_STRING, "Extra attribute [" + key + "]" );
         r.addValue( val, IValueMeta.TYPE_STRING, value );
@@ -1905,7 +1904,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @param sql The SQL to execute right after connecting
    */
-  public void setConnectSql(String sql ) {
+  public void setConnectSql( String sql ) {
     iDatabase.setConnectSql( sql );
   }
 
@@ -2135,9 +2134,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     }
   }
 
-  
 
-  
   /**
    * @return true if the Microsoft SQL server uses two decimals (..) to separate schema and table (default==false).
    */
@@ -2160,7 +2157,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
 
-  
   public String testConnection() {
 
     StringBuilder report = new StringBuilder();
@@ -2302,7 +2298,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.getSqlListOfSequences();
   }
 
-  public String quoteSqlString(String string ) {
+  public String quoteSqlString( String string ) {
     return iDatabase.quoteSqlString( string );
   }
 

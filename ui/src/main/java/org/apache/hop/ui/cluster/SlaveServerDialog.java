@@ -89,7 +89,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   // Service
   private Text wName;
   private TextVar wHostname, wPort, wWebAppName, wUsername, wPassword;
-  private Button wMaster;
   private Button wSSL;
 
   // Proxy
@@ -344,31 +343,12 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     fdPassword.right = new FormAttachment( 95, 0 );
     wPassword.setLayoutData( fdPassword );
 
-    // Master
-    Label wlMaster = new Label( wServiceComp, SWT.RIGHT );
-    wlMaster.setText( BaseMessages.getString( PKG, "SlaveServerDialog.IsTheMaster.Label" ) );
-    props.setLook( wlMaster );
-    FormData fdlMaster = new FormData();
-    fdlMaster.top = new FormAttachment( wPassword, margin );
-    fdlMaster.left = new FormAttachment( 0, 0 );
-    fdlMaster.right = new FormAttachment( middle, -margin );
-    wlMaster.setLayoutData( fdlMaster );
-
-    wMaster = new Button( wServiceComp, SWT.CHECK );
-    props.setLook( wMaster );
-    FormData fdMaster = new FormData();
-    fdMaster.top = new FormAttachment( wPassword, margin );
-    fdMaster.left = new FormAttachment( middle, 0 );
-    fdMaster.right = new FormAttachment( 95, 0 );
-    wMaster.setLayoutData( fdMaster );
-
     // Https
-    Control lastControl = wMaster;
     Label wlSSL = new Label( wServiceComp, SWT.RIGHT );
     wlSSL.setText( BaseMessages.getString( PKG, "SlaveServerDialog.UseSsl.Label" ) );
     props.setLook( wlSSL );
     FormData fd = new FormData();
-    fd.top = new FormAttachment( lastControl, margin );
+    fd.top = new FormAttachment( wPassword, margin );
     fd.left = new FormAttachment( 0, 0 );
     fd.right = new FormAttachment( middle, -margin );
     wlSSL.setLayoutData( fd );
@@ -377,7 +357,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     wSSL = new Button( wServiceComp, SWT.CHECK );
     props.setLook( wSSL );
     FormData bfd = new FormData();
-    bfd.top = new FormAttachment( lastControl, margin );
+    bfd.top = new FormAttachment( wlSSL, 0, SWT.CENTER );
     bfd.left = new FormAttachment( middle, 0 );
     bfd.right = new FormAttachment( 95, 0 );
     wSSL.setLayoutData( bfd );
@@ -498,8 +478,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     wProxyPort.setText( Const.NVL( slaveServer.getProxyPort(), "" ) );
     wNonProxyHosts.setText( Const.NVL( slaveServer.getNonProxyHosts(), "" ) );
 
-    wMaster.setSelection( slaveServer.isMaster() );
-
     wSSL.setSelection( slaveServer.isSslMode() );
 
     wName.setFocus();
@@ -547,8 +525,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     originalServer.setProxyPort( slaveServer.getProxyPort() );
     originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
 
-    originalServer.setMaster( slaveServer.isMaster() );
-
     originalServer.setSslMode( slaveServer.isSslMode() );
 
     originalServer.setChanged();
@@ -570,8 +546,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     slaveServer.setProxyHostname( wProxyHost.getText() );
     slaveServer.setProxyPort( wProxyPort.getText() );
     slaveServer.setNonProxyHosts( wNonProxyHosts.getText() );
-
-    slaveServer.setMaster( wMaster.getSelection() );
 
     slaveServer.setSslMode( wSSL.getSelection() );
   }

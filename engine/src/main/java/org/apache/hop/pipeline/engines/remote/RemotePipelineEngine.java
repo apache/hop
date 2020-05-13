@@ -13,6 +13,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.metastore.SerializableMetaStore;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.NamedParamsDefault;
@@ -89,7 +90,6 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected MetaStoreFactory<SlaveServer> slaveFactory;
   protected ILogChannel logChannel;
   protected ILoggingObject loggingObject;
-  protected String serverObjectId;
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
@@ -247,6 +247,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
       vars.put( var, pipelineMeta.getVariable( var ) );
     }
+    // Overwrite with all the other variables we know off
+    //
+    for (String var : listVariables()) {
+      vars.put( var, pipelineMeta.getVariable( var ));
+    }
 
     executionConfiguration.getVariablesMap().putAll( vars );
     slaveServer.injectVariables( executionConfiguration.getVariablesMap() );
@@ -265,8 +270,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // TODO: Serialize metastore objects to JSON (Kettle Beam project) and include it in the zip file
         //
         PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
-        TopLevelResource topLevelResource =
-          ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
+        TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
             metaStore, clonedConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
@@ -277,24 +281,26 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           throw new HopException( "There was an error passing the exported pipeline to the remote server: "
             + Const.CR + webResult.getMessage() );
         }
-        serverObjectId = webResult.getId();
+        containerId = webResult.getId();
       } else {
 
         // Now send it off to the remote server...
+        // Include the JSON of the whole content of the current metastore
         //
-        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration ).getXml();
+        SerializableMetaStore serializableMetaStore = new SerializableMetaStore(metaStore);
+        String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration, serializableMetaStore ).getXml();
         String reply = slaveServer.sendXml( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the pipeline on the remote server: " + Const.CR
             + webResult.getMessage() );
         }
-        serverObjectId = webResult.getId();
+        containerId = webResult.getId();
       }
 
       // Prepare the pipeline
       //
-      String reply = slaveServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
+      String reply = slaveServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
       WebResult webResult = WebResult.fromXmlString( reply );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error preparing the pipeline for execution on the remote server: " + Const.CR + webResult.getMessage() );
@@ -314,7 +320,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     try {
       // Start the pipeline
       //
-      String reply = slaveServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + serverObjectId );
+      String reply = slaveServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
       WebResult webResult = WebResult.fromXmlString( reply );
       if ( WebResult.STRING_OK.equals( webResult.getResult() ) ) {
         // Inform anyone that wants to know that the show has started
@@ -337,7 +343,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         readyToStart = false;
         running = true;
       } else {
-        throw new HopException( "Error starting pipeline on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "' : " + webResult.getMessage() );
+        throw new HopException( "Error starting pipeline on slave server '" + slaveServer.getName() + "' with object ID '" + containerId + "' : " + webResult.getMessage() );
       }
     } catch ( Exception e ) {
       throw new HopException( "Unable to start pipeline on server '" + slaveServer.getName() + "'", e );
@@ -346,7 +352,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   private synchronized void getPipelineStatus() throws RuntimeException {
     try {
-      SlaveServerPipelineStatus pipelineStatus = slaveServer.getPipelineStatus( subject.getName(), serverObjectId, lastLogLineNr );
+      SlaveServerPipelineStatus pipelineStatus = slaveServer.getPipelineStatus( subject.getName(), containerId, lastLogLineNr );
       synchronized ( engineMetrics ) {
         hasHaltedComponents = false;
         engineMetrics.setStartDate( pipelineStatus.getExecutionStartDate() );
@@ -407,7 +413,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         }
       }
     } catch ( Exception e ) {
-      throw new RuntimeException( "Error getting the status of pipeline '" + subject.getName() + "' on slave server '" + slaveServer.getName() + "' with object ID '" + serverObjectId + "'", e );
+      throw new RuntimeException( "Error getting the status of pipeline '" + subject.getName() + "' on slave server '" + slaveServer.getName() + "' with object ID '" + containerId + "'", e );
     }
   }
 
@@ -461,10 +467,10 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   @Override public void stopAll() {
     try {
-      slaveServer.stopPipeline( subject.getName(), serverObjectId );
+      slaveServer.stopPipeline( subject.getName(), containerId );
       getPipelineStatus();
     } catch ( Exception e ) {
-      throw new RuntimeException( "Stopping of pipeline '" + subject.getName() + "' with ID " + serverObjectId + " failed", e );
+      throw new RuntimeException( "Stopping of pipeline '" + subject.getName() + "' with ID " + containerId + " failed", e );
     }
   }
 
@@ -474,10 +480,10 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void pauseExecution() {
     try {
-      slaveServer.pauseResumePipeline( subject.getName(), serverObjectId );
+      slaveServer.pauseResumePipeline( subject.getName(), containerId );
       getPipelineStatus();
     } catch ( Exception e ) {
-      throw new RuntimeException( "Pause/Resume of pipeline '" + subject.getName() + "' with ID " + serverObjectId + " failed", e );
+      throw new RuntimeException( "Pause/Resume of pipeline '" + subject.getName() + "' with ID " + containerId + " failed", e );
     }
   }
 
@@ -569,7 +575,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     try {
       Runnable runnable = () -> {
         try {
-          String rowBufferXml = slaveServer.sniffTransform( subject.getName(), componentName, serverObjectId, "" + copyNr, nrRows, SniffTransformServlet.TYPE_OUTPUT );
+          String rowBufferXml = slaveServer.sniffTransform( subject.getName(), componentName, containerId, "" + copyNr, nrRows, SniffTransformServlet.TYPE_OUTPUT );
           Node rowBufferNode = XmlHandler.getSubNode( XmlHandler.loadXmlString( rowBufferXml ), RowBuffer.XML_TAG );
           if ( rowBufferNode != null ) {
             RowBuffer rowBuffer = new RowBuffer( rowBufferNode );
@@ -618,10 +624,6 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public String getObjectCopy() {
     return null;
-  }
-
-  @Override public String getContainerObjectId() {
-    return serverObjectId;
   }
 
   @Override public Date getRegistrationDate() {
@@ -985,22 +987,6 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   public void setSlaveServer( SlaveServer slaveServer ) {
     this.slaveServer = slaveServer;
-  }
-
-  /**
-   * Gets serverObjectId
-   *
-   * @return value of serverObjectId
-   */
-  public String getServerObjectId() {
-    return serverObjectId;
-  }
-
-  /**
-   * @param serverObjectId The serverObjectId to set
-   */
-  public void setServerObjectId( String serverObjectId ) {
-    this.serverObjectId = serverObjectId;
   }
 
   /**

@@ -82,7 +82,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected IMetaStore metaStore;
   protected ILogChannel logChannel;
   protected ILoggingObject loggingObject;
-  protected String serverObjectId;
+  protected String containerId;
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
@@ -90,8 +90,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected IPipelineEngine parentPipeline;
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
   protected LogLevel logLevel;
-
-  protected String containerId;
 
   protected Date executionStartDate;
   protected Date executionEndDate;
@@ -151,6 +149,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     activeSubWorkflows = new HashMap<>();
     engineCapabilities = new BeamPipelineEngineCapabilities();
     extensionDataMap = Collections.synchronizedMap( new HashMap<>() );
+    statusDescription = "IDLE";
   }
 
   public BeamPipelineEngine( PipelineMeta pipelineMeta ) {
@@ -179,6 +178,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   @Override public void prepareExecution() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
+      executionStartDate = new Date();
+
       // Explain to various classes in the Beam API (@see org.apache.beam.sdk.io.FileSystems)
       // what the context classloader is.
       // Set it back when we're done here.
@@ -264,7 +265,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       setReadyToStart( false );
 
       if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
-        // Certain runners like DataFlow allow async execution
+        // Certain runners like Direct and DataFlow allow async execution
         //
         try {
           beamPipelineResults = executePipeline( beamPipeline );
@@ -313,6 +314,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
                 refreshTimer.cancel(); // no more needed
               }
               setRunning( false );
+              executionEndDate = new Date();
             } catch ( Exception e ) {
               throw new RuntimeException( "Error post-processing a beam pipeline", e );
             }
@@ -478,6 +480,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
         if ( isRunning() ) {
           // First time we've hit this:
           setRunning( false );
+          executionEndDate = new Date();
           if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
             firePipelineExecutionFinishedListeners();
           }
@@ -709,10 +712,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
 
   @Override public String getObjectCopy() {
     return null;
-  }
-
-  @Override public String getContainerObjectId() {
-    return serverObjectId;
   }
 
   @Override public Date getRegistrationDate() {
@@ -1051,15 +1050,17 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of serverObjectId
    */
-  public String getServerObjectId() {
-    return serverObjectId;
+  @Override
+  public String getContainerId() {
+    return containerId;
   }
 
   /**
-   * @param serverObjectId The serverObjectId to set
+   * @param containerId The serverObjectId to set
    */
-  public void setServerObjectId( String serverObjectId ) {
-    this.serverObjectId = serverObjectId;
+  @Override
+  public void setContainerId( String containerId ) {
+    this.containerId = containerId;
   }
 
   /**
@@ -1421,22 +1422,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    */
   public void setNamedParams( INamedParams namedParams ) {
     this.namedParams = namedParams;
-  }
-
-  /**
-   * Gets containerId
-   *
-   * @return value of containerId
-   */
-  public String getContainerId() {
-    return containerId;
-  }
-
-  /**
-   * @param containerId The containerId to set
-   */
-  @Override public void setContainerId( String containerId ) {
-    this.containerId = containerId;
   }
 
   /**

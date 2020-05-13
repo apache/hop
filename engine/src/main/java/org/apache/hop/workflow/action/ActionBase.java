@@ -49,7 +49,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.resource.ResourceDefinition;
@@ -767,7 +766,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
     this.parentWorkflow = parentWorkflow;
     this.logLevel = parentWorkflow.getLogLevel();
     this.log = new LogChannel( this, parentWorkflow );
-    this.containerObjectId = parentWorkflow.getContainerObjectId();
+    this.containerObjectId = parentWorkflow.getContainerId();
   }
 
   /**
@@ -1030,7 +1029,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @return the container object id
    */
   @Override
-  public String getContainerObjectId() {
+  public String getContainerId() {
     return containerObjectId;
   }
 

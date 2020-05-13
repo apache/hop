@@ -65,7 +65,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
     }
 
     if ( log.isDebug() ) {
-      logDebug( "Addition of transformation requested" );
+      logDebug( "Addition of pipeline requested" );
     }
 
     boolean useXML = "Y".equalsIgnoreCase( request.getParameter( "xml" ) );
@@ -82,7 +82,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
     } else {
       response.setContentType( "text/html" );
       out.println( "<HTML>" );
-      out.println( "<HEAD><TITLE>Add transformation</TITLE></HEAD>" );
+      out.println( "<HEAD><TITLE>Add pipeline</TITLE></HEAD>" );
       out.println( "<BODY>" );
     }
 
@@ -92,7 +92,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
     PipelineExecutionConfiguration pipelineExecutionConfiguration = null;
 
     try {
-      // First read the complete transformation in memory from the request
+      // First read the complete pipeline in memory from the request
       //
       StringBuilder xml = new StringBuilder( request.getContentLength() );
       int c;
@@ -100,10 +100,9 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
         xml.append( (char) c );
       }
 
-      // Parse the XML, create a transformation configuration
+      // Parse the XML, create a pipeline configuration
       //
-      IMetaStore metaStore = pipelineMap.getSlaveServerConfig().getMetaStore();
-      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString(), metaStore );
+      PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString() );
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
@@ -125,6 +124,8 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
         new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
+
+      IMetaStore metaStore = pipelineConfiguration.getMetaStore();
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
       final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
@@ -165,7 +166,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
         out.println( "<H1>" + message + "</H1>" );
         out.println( "<p><a href=\""
           + convertContextPath( GetPipelineStatusServlet.CONTEXT_PATH ) + "?name=" + pipeline.getPipelineMeta().getName() + "&id="
-          + serverObjectId + "\">Go to the transformation status page</a><p>" );
+          + serverObjectId + "\">Go to the pipeline status page</a><p>" );
       }
     } catch ( Exception ex ) {
       if ( useXML ) {
