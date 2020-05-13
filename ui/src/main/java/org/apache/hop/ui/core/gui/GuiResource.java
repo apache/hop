@@ -1427,13 +1427,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the display.
-   */
-  public Display getDisplay() {
-    return display;
-  }
-
-  /**
    * @return Returns the fontFixed.
    */
   public Font getFontFixed() {
