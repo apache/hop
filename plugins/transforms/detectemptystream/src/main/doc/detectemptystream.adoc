@@ -1,0 +1,19 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/detectemptystream/src/main/doc/detectemptystream.adoc
+= Detect Empty Stream
+
+== Description
+
+This transform will output one row if input stream is empty (ie when input stream does not contain any row). The output row will have the same fields as the input row, but all field values will be empty (null).
+
+If the input stream is not empty it will not output anything.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform. This name must be unique throughout the pipeline.
+|===
+

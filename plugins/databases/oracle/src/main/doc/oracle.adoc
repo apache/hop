@@ -1,0 +1,16 @@
+[[database-plugins-oracle]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/oracle/src/main/doc/oracle.adoc
+= Oracle
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://docs.oracle.com/cd/E11882_01/java.112/e16548/toc.htm[Documentation Link]
+|JDBC Url | jdbc:oracle:thin:@hostname:port Number:databaseName
+|===

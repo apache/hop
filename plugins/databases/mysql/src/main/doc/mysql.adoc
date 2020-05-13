@@ -1,0 +1,16 @@
+[[database-plugins-mysql]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/mysql/src/main/doc/mysql.adoc
+= MySql
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://dev.mysql.com/downloads/connector/j/[Drivere Link] (Use Platform Independent)
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/[Documentation Link]
+|JDBC Url | jdbc:mysql://hostname:33060/databaseName
+|===

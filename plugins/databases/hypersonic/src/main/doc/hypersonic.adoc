@@ -1,0 +1,16 @@
+[[database-plugins-hypersonic]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/hypersonic/src/main/doc/hypersonic.adoc
+= Hypersonic
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 2.5.0
+|Hop Dependencies | None
+|Documentation | http://hsqldb.org/doc/2.0/guide/dbproperties-chapt.html[Documentation Link]
+|JDBC Url | jdbc:hsqldb:hsql//hostname 
+|===

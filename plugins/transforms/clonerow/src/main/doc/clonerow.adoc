@@ -1,0 +1,22 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/clonerow/src/main/doc/clonerow.adoc
+= Clone row
+
+== Description
+
+This transform creates copies (clones) of a row and outputs them directly after the original row to the next transforms.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Nr clones|The number of clones you want to add after the original row.
+|Add clone flag a|Check this option if you want to add a boolean field in the output indicating if the row is a clone or not.
+
+* N / false : this is not a cloned row, it's the original row
+* Y / true : this is a cloned row, a copy of the original row
+|Clone flag field|The name of the clone flag field 
+|===

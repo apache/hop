@@ -1,0 +1,37 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getsubfolders/src/main/doc/getsubfolders.adoc
+
+= Get SubFolder names
+
+== Description
+
+The Get Subfolder Names transform gets subfolders from a directory.
+
+== Options
+
+=== Folder tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of this transform as it appears in the pipeline workspace
+|Accept foldername from field?|Allows a foldername to be passed as a field.
+|Foldername field|The field which contains the folder name.
+|Selected directories|The directories from which to get the subfolders.
+|Browse|Uses the local file browser to get a path.
+|Add|Adds the path defined in the Directory field.
+|Delete|Deletes the path
+|Edit|Change the path
+|===
+
+
+=== Settings tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Include rownum in output?|Allows the row number to be added to the output.
+|Rownum fieldname|The field which contains the row number.
+|Limit|Limits the output rows.
+|===

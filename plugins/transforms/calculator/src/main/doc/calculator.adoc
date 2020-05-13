@@ -1,0 +1,131 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/calculator/src/main/doc/calculator.adoc
+= Calculator
+
+== Description
+
+This calculator transform provides you with predefined functions that can be executed on input field values.
+
+*_Note:_* The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
+
+Besides the arguments (Field A, Field B and Field C) you must also specify the return type of the function. You can also choose to remove the field from the result (output) after all values are calculated; this is useful for removing temporary values.
+
+== Options
+
+[width="90%", options=header]
+|===
+|Function|Description
+|Set field to constant A|
+|Create a copy of field A|
+|A + B|A plus B.
+|A - B|A minus B.
+|A * B|A multiplied by B.
+|A / B|A divided by B.
+|A * A|The square of A.
+|SQRT( A )|The square root of A.
+|100 * A / B|Percentage of A in B.
+|A - ( A * B / 100 )|Subtract B% of A.
+|A + ( A * B / 100 )|Add B% to A.
+|A + B *C|Add A and B times C.
+|SQRT( A*A + B*B )|Calculate ?(A2+B2).
+|ROUND( A )|Returns the closest Integer to the argument. The result is rounded to an Integer by adding 1/2, taking the floor of the result, and casting the result to type int. In other words, the result is equal to the value of the expression: floor (a + 0.5).
+In case you need the rounding method "Round half to even", use the following method ROUND( A, B ) with no decimals (B=0).
+|ROUND( A, B )|Round A to the nearest even number with B decimals. The used rounding method is "Round half to even", it is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping. This is the default rounding mode used in IEEE 754 computing functions and operators. In Germany it is often called "Mathematisches Runden".
+|STDROUND( A )|Round A to the nearest integer. The used rounding method is "Round half away from zero", it is also called standard or common rounding. In Germany it is known as "kaufmännische Rundung" (and defined in DIN 1333).
+|STDROUND( A, B )|Same rounding method used as in STDROUND (A) but with B decimals.
+|CEIL( A )|The ceiling function map a number to the smallest following integer.
+|FLOOR( A )|The floor function map a number to the largest previous integer.
+|NVL( A, B )|If A is not NULL, return A, else B. Note that sometimes your variable won't be null but an empty string.
+|Date A + B days|Add B days to Date field A.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with hours.
+|Year of date A|Calculate the year of date A.
+|Month of date A|Calculate number the month of date A.
+|Day of year of date|A Calculate the day of year (1-365).
+|Day of month of date A|Calculate the day of month (1-31).
+|Day of week of date A|Calculate the day of week (1-7).
+|Week of year of date A|Calculate the week of year (1-54).
+|ISO8601 Week of year of date A|Calculate the week of the year ISO8601 style (1-53).
+|ISO8601 Year of date A|Calculate the year ISO8601 style.
+|Byte to hex encode of string A|Encode bytes in a string to a hexadecimal representation.
+|Hex encode of string A|Encode a string in its own hexadecimal representation.
+|Char to hex encode of string A|Encode characters in a string to a hexadecimal representation.
+|Hex decode of string A|Decode a string from its hexadecimal representation (add a leading 0 when A is of odd length).
+|Checksum of a file A using CRC-32|Calculate the checksum of a file using CRC-32.
+|Checksum of a file A using Adler-32|Calculate the checksum of a file using Adler-32.
+|Checksum of a file A using MD5|Calculate the checksum of a file using MD5.
+|Checksum of a file A using SHA-1|Calculate the checksum of a file using SHA-1.
+|Levenshtein Distance (Source A and Target B)|Calculates the Levenshtein Distance: http://en.wikipedia.org/wiki/Levenshtein_distance
+|Metaphone of A (Phonetics)|Calculates the metaphone of A:  http://en.wikipedia.org/wiki/Metaphone
+|Double metaphone of A|Calculates the double metaphone of A: http://en.wikipedia.org/wiki/Double_Metaphone
+|Absolute value ABS(A)|Calculates the Absolute value of A.
+|Remove time from a date A|Removes time value of A. Note: Daylight Savings Time (DST) changes in Sao Paulo and some other parts of Brazil at midnight 0:00. This makes it impossible to set the time to 0:00 at the specific date, when the DST changes from 0:00 to 1:00 am. So, there is one date in one year in these regions where this function will fail with an "IllegalArgumentException: HOUR_OF_DAY: 0 -> 1". It is not an issue for Europe, the US and other regions where the time changes at 1:00 or 2:00 or 3:00 am. Details in PDI-13228.
+|Date A - Date B (in days)|Calculates difference, in days, between A date field and B date field.
+|A + B + C|A plus B plus C.
+|First letter of each word of a string A in capital|Transforms the first letter of each word within a string.
+|UpperCase of a string A|Transforms a string to uppercase.
+|LowerCase of a string A|Transforms a string to lowercase.
+|Mask XML content from string A|Escape XML content; replace characters with &values.
+|Protect (CDATA) XML content from string A|Indicates an XML string is general character data, rather than non-character data or character data with a more specific, limited structure. The given string will be enclosed into <![CDATA[String]]>.
+|Remove CR from a string A|Removes carriage returns from a string.
+|Remove LF from a string A|Removes linefeeds from a string.
+|Remove CRLF from a string A|Removes carriage returns/linefeeds from a string.
+|Remove TAB from a string A|Removes tab characters from a string.
+|Return only digits from string A|Outputs only Outputs only digits (0-9) from a string from a string.
+|Remove digits from string A|Removes all digits (0-9) from a string.
+|Return the length of a string A|Returns the length of the string.
+|Load file content in binary|Loads the content of the given file (in field A) to a binary data type (e.g. pictures).
+|Add time B to date A|Add the time to a date, returns date and time as one value.
+|Quarter of date A|Returns the quarter (1 to 4) of the date.
+|variable substitution in string A|Substitute variables within a string.
+|Unescape XML content|Unescape XML content from the string.
+|Escape HTML content|Escape HTML within the string.
+|Unescape HTML content|Unescape HTML within the string.
+|Escape SQL content|Escapes the characters in a String to be suitable to pass to an SQL query.
+|Date A - Date B (working days)|Calculates the difference between Date field A and Date field B (only working days Mon-Fri).
+|Date A + B Months|Add B months to Date field A.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with days.
+|Check if an XML file A is well formed|Validates XML file input.
+|Check if an XML string A is well formed|Validates XML string input.
+|Get encoding of file A|Guess the best encoding (UTF-8) for the given file.
+|Dameraulevenshtein distance between String A and String B|Calculates Dameraulevenshtein distance between strings: http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+|NeedlemanWunsch distance between String A and String B|Calculates NeedlemanWunsch distance between strings: http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
+|Jaro similitude between String A and String B|Returns the Jaro similarity coefficient between two strings.
+|JaroWinkler similitude between String A and String B|Returns the Jaro similarity coefficient between two string: http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance
+|SoundEx of String A|Encodes a string into a Soundex value.
+|RefinedSoundEx of String A|Retrieves the Refined Soundex code for a given string object
+|Date A + B Hours|Add B hours to Date field.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with minutes.
+|Date A + B Minutes|Add B minutes to Date field.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with seconds.
+|Date A - Date B (milliseconds)|Subtract B milliseconds from Date field A
+|Date A - Date B (seconds)|Subtract B seconds from Date field A.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with milliseconds.
+|Date A - Date B (minutes)|Subtract B minutes from Date field A.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with seconds.
+|Date A - Date B (hours)|Subtract B hours from Date field A.
+Note: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with minutes.
+|Hour of Day of Date A|Extract the hour part of the given date
+|Minute of Hour of Date A|Extract the minute part of the given date
+|Second of Hour of Date A|Extract the second part of a given date
+|===
+
+== FAQ on length and precision and data types affecting the results
+
+*Q*: I made a transformation using A/B in a calculator transform and it rounded wrong: the 2 input fields are integer but my result type was Number(6, 4) so I would expect the integers to be cast to Number before executing the division.
+
+If I wanted to execute e.g. 28/222, I got 0.0 instead of 0.1261 which I expected. So it seems the result type is ignored. If I change the input types both to Number(6, 4) I get as result 0.12612612612612611 which still ignores the result type (4 places after the comma).
+
+Why is this?
+
+*A*: Length & Precision are just metadata pieces.
+
+If you want to round to the specified precision, you should do this in another transform. However: please keep in mind that rounding double point precision values is futile anyway. A floating point number is stored as an approximation (it floats) so 0.1261 (your desired output) could (would probably) end up being stored as 0.126099999999 or 0.1261000000001 (Note: this is not the case for BigNumbers)
+
+So in the end we round using BigDecimals once we store the numbers in the output table, but NOT during the transformation. The same is true for the Text File Output transform. If you would have specified Integer as result type, the internal number format would have been retained, you would press "Get Fields" and it the required Integer type would be filled in. The required conversion would take place there and then.
+
+In short: we convert to the required metadata type when we land the data somewhere, NOT BEFORE.
+
+*Q*: How do the data types work internally?
+*A*: You might notice that if you multiply an Integer and Number, the result is always rounded.  That is because Calculator takes data type of the left hand size of the multiplication (A) as the driver for the calculation.
+As such, if you want more precision, you should put field B on the left hand side or change the data type to Number and all will be well.

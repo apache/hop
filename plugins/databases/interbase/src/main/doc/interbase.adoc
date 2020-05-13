@@ -1,0 +1,16 @@
+[[database-plugins-interbase]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/interbase/src/main/doc/interbase.adoc
+= interbase
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included in Database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | http://docwiki.embarcadero.com/InterBase/2020/en/Programming_with_JDBC[Documentation Link]
+|JDBC Url | jdbc:interbase://hostname:3050/path/to/database.ib
+|===

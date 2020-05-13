@@ -1,0 +1,16 @@
+[[database-plugins-sqlite]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sqlite/src/main/doc/sqlite.adoc
+= SqLite
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 3.28.0
+|Hop Dependencies | None
+|Documentation | https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/[Documentation Link]
+|JDBC Url | jdbc:sqlite:sample.db
+|===

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>hop-assemblies-plugins-databases</artifactId>
+        <groupId>org.hop</groupId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+
+    <artifactId>hop-assemblies-plugins-databases-greenplum</artifactId>
+    <version>0.30-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Hop Assemblies Plugins Databases Greenplum</name>
+    <description></description>
+
+    <properties>
+        <!-- Test running configuration -->
+        <greenplum.version>5.1.4</greenplum.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-databases-greenplum</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pivotal</groupId>
+            <artifactId>greenplum-jdbc</artifactId>
+            <version>${greenplum.version}</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>pivotal</id>
+            <name>Pivotal Repository</name>
+            <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
+        </repository>
+    </repositories>
+</project>

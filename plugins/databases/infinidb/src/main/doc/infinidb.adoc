@@ -1,0 +1,16 @@
+[[database-plugins-infinidb]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/infinidb/src/main/doc/infinidb.adoc
+= InfiniDB
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Use MySQL Drivers
+|Version Included | None
+|Hop Dependencies | Mysql Database Plugin
+|Documentation | https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference.html[Documentation Link]
+|JDBC Url | jdbc:mysql://hostname:3306/databaseName
+|===

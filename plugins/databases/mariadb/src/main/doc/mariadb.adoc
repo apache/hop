@@ -1,0 +1,16 @@
+[[database-plugins-mariadb]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/mariadb/src/main/doc/mariadb.adoc
+= Mariadb
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://mariadb.com/kb/en/about-mariadb-connector-j/[Driver Link]
+|Version Included | None
+|Hop Dependencies | Mysql Database plugin
+|Documentation | https://mariadb.com/kb/en/about-mariadb-connector-j/[Documentation Link]
+|JDBC Url | 
+|===

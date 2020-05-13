@@ -1,0 +1,21 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/closure/src/main/doc/closure.adoc
+= Closure
+
+== Description
+
+This transform was created to allow you to generate a Reflexive Transitive Closure Table for Mondrian.  For more information on how a closure table can help Mondrian gain performance, go here
+Technically, this transform reads all input rows in memory and calculates all possible parent-child relationships.  It attaches the distance (in levels) from parent to child.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|The name that uniquely identifies the transform.
+|Parent ID field|The field name that contains the parent ID of the parent-child relationship.
+|Child ID field|The field name that contains the child ID of the parent-child relationship.
+|Distance field name|The name of the distance field that will be added to the output
+|Root is zero|Check this box if the root of the parent-child tree is not empty (null) but zero (0) 
+|===

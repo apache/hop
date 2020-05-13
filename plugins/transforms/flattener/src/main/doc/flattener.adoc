@@ -1,0 +1,38 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/flattener/src/main/doc/flattener.adoc
+= Flattener
+
+== Description
+
+The Flattener transform allows you flatten data sequentially.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform name|Name of the transform; this name has to be unique in a single pipeline
+|The field to flatten|The field that must be flattened into different target fields
+|Target fields|The name of the target field to which the field is flattened
+|===
+
+== Example
+
+In the sample below, if you begin with the following data set...
+[width="90%", options="header"]
+|===
+|Field1|Field2|Field3|Flatten
+|A|B|C|One
+|Z|Y|X|Two
+|D|E|F|Three
+|W|V|U|Four
+|===
+
+The data set can be flattened to the example shown below:
+[width="90%", options="header"]
+|===
+|Field1|Field2|Field3|Target1|Target2
+|A|B|C|One|Two
+|D|E|F|Three|Four
+|===

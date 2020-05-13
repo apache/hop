@@ -1,0 +1,16 @@
+[[database-plugins-as400]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/as400/src/main/doc/as400.adoc
+= AS400
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 10.2
+|Hop Dependencies | None
+|Documentation | https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/rzahh/javadoc/com/ibm/as400/access/doc-files/JDBCProperties.html[Documentation Link]
+|JDBC Url | jdbc:as400://hostname/default-schema
+|===

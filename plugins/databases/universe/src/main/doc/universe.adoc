@@ -1,0 +1,16 @@
+[[database-plugins-universe]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/universe/src/main/doc/universe.adoc
+= IBM Universe
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included in database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www-05.ibm.com/e-business/linkweb/publications/servlet/pbi.wss?CTY=US&FNC=SRX&PBL=G251-1210-00#[Documentation Link]
+|JDBC Url | jdbc:ibmu2://localhost
+|===

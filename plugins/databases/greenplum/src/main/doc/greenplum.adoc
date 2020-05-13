@@ -1,0 +1,16 @@
+[[database-plugins-greenplum]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/greenplum/src/main/doc/greenplum.adoc
+= Greenplum
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 5.1.4
+|Hop Dependencies | Postgresql Plugin
+|Documentation | https://gpdb.docs.pivotal.io/590/datadirect/datadirect_jdbc.html[Documentation Link]
+|JDB Url | jdbc:pivotal:greenplum://host:port;DatabaseName=<name>
+|===

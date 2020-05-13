@@ -1,0 +1,89 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/analyticquery/src/main/doc/analyticquery.adoc
+= Analytic Query
+
+== Description
+
+This transform allows you to peek forward and backwards across rows. Examples of common use cases are:
+
+* Calculate the "time between orders" by ordering rows by order date, and LAGing 1 row back to get previous order time.
+* Calculate the "duration" of a web page view by LEADing 1 row ahead and determining how many seconds the user was on this page.
+
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name| The name of this transform as it appears in the pipeline workspace.
+|Group fields table|Specify the fields you want to group. Click Get Fields to add all fields from the input stream(s). The transform will do no additional sorting, so in addition to the grouping identified (for example CUSTOMER_ID) here you must also have the data sorted (for example ORDER_DATE).
+|Analytic Functions table|Specify the analytic functions to be solved.
+|New Field Name|the name you want this new field to be named on the stream (for example PREV_ORDER_DATE)
+|Subject|The existing field to grab (for example ORDER_DATE)
+|Type
+a|Set the type of analytic function:
+
+* Lead - Go forward N rows and get the value of Subject
+
+* Lag - Go backward N rows and get the value of Subject
+|N|The number of rows to offset (backwards or forwards) 
+|===
+
+## Group field examples
+
+While it is not mandatory to specify a group, it can be useful for certain cases. If you create a group (made up of one or more fields), then the "lead forward / lag backward" operations are made only within each group. For example, suppose you have this:
+
+====
+[source,bash]
+----
+X   , Y
+--------
+aaa , 1
+aaa , 2
+aaa , 3
+bbb , 4
+bbb , 5
+bbb , 6
+----
+====
+
+And you want to create a field named Z, with the Y value in the previous row.
+
+If you only care about the Y field, you don't need to group. And you will have the following result:
+
+====
+[source,bash]
+----
+X   , Y , Z
+------------
+aaa , 1 , <null>
+aaa , 2 , 1
+aaa , 3 , 2
+bbb , 4 , 3
+bbb , 5 , 4
+bbb , 6 , 5
+----
+====
+
+But if you don't want to mix the values for aaa and bbb, you can group by the X field, and you will have this:
+
+====
+[source,bash]
+----
+X   , Y , Z
+------------
+X   , Y , Z
+------------
+aaa , 1 , <null>
+aaa , 2 , 1
+aaa , 3 , 2
+bbb , 4 , <null>
+bbb , 5 , 4
+bbb , 6 , 5
+----
+====
+
+Thus, by grouping (provided the input is sorted according to your grouping), you can be assured that lead or lag operations will not return row values outside of the defined group.
+
+

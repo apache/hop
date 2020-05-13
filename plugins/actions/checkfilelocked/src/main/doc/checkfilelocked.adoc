@@ -1,0 +1,23 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/checkfilelocked/src/main/doc/checkfilelocked.adoc
+= Check Files Locked
+
+== Description
+
+This workflow entry goes over a list of files to see that if they are locked by another process.
+The way that it verified is by renaming a file to the same name as before.
+On certain operating systems (MS Windows systems in particular) this operation will fail if the file is locked.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+Job entry name|The name of the workflow entry. *Note*: This name has to be unique in a single workflow. A workflow entry can be placed several times on the canvas, however it will be the same workflow entry.
+Settings: Include subfolders|Enable this option to also check files in subfolders of specified folders
+Settings: Copy previous results to args? |Pass the result rows of a previous workflow entry execution to the files list of this entry.
+Files/Folders |Here you can list a series of files or folders with wildcards.  The wildcards are Java Regular expressions. For instance .*\.txt would check any file with a .txt extension.
+Please note that you can use the Delete/Edit buttons to edit the list.
+You can also use the File/Folder and Wildcard entries right above the list to add new entries, browse for files and so on
+|===

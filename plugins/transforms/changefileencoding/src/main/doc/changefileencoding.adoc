@@ -1,0 +1,22 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/changefileencoding/src/main/doc/changefileencoding.adoc
+= Change file encoding
+
+== Description
+
+This transform changes a text file from one encoding to another. 
+
+== Options
+
+
+* Transform name : the name of the transform, unique in a pipeline
+* Source file
+  ** Filename field : the name of the input field which will carry the file names at runtime
+  ** Source encoding: the encoding of the text files
+  ** Add source filename to the result filenames? : Check this if you want to add the source file(s) automatically to the files list of the result of the pipeline.
+* Target file
+  ** Target filename field: the name of the input field which will contain the target (output) file name at runtime
+  ** Create parent folder: checking this field automatically creates the output folder specified in the target filename field.
+  ** Target encoding: you can select the target encoding here
+  ** Add target filename to the result filenames? : Check this if you want to add the target file(s) automatically to the files list of the result of the pipeline.

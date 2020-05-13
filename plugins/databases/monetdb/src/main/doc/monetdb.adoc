@@ -1,0 +1,16 @@
+[[database-plugins-monetdb]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/monetdb/src/main/doc/monetdb.adoc
+= monetdb
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Column Store
+|Driver | Included
+|Version Included | 2.25
+|Hop Dependencies | None
+|Documentation | https://www.monetdb.org/Documentation/Manuals/SQLreference/Programming/JDBC[Documentation Link]
+|JDBC Url |  jdbc:monetdb://hostname/databaseName
+|===

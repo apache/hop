@@ -1,0 +1,16 @@
+[[database-plugins-oraclerdb]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/oraclerdb/src/main/doc/oraclerdb.adoc
+= Oracle RDB
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://www.oracle.com/database/technologies/rdb-related-products-downloads.html[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.oracle.com/technetwork/database/database-technologies/rdb/documentation/rdbjdbc-ug-725-129654.pdf[Documentation Link]
+|JDBC Url | jdbc:rdbThin://<node>:<port>/<database_specification>
+|===

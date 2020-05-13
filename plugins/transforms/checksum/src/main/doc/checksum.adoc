@@ -1,0 +1,28 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/checksum/src/main/doc/checksum.adoc
+= Checksum
+
+== Description
+
+This transform calculates checksums for one or more fields in the input stream and adds this to the output as a new field.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Type a|The type of checksum that needs to be calculated.  These are the types that are available:
+
+* CRC32 : 32-bit Cyclic Redundancy Check : http://en.wikipedia.org/wiki/Cyclic_redundancy_check
+*ADLER 32 : Checksum algorithm by Mark Adler: http://en.wikipedia.org/wiki/Adler-32
+* MD5 : Message Digest algorithm 5 : http://en.wikipedia.org/wiki/MD5
+* SHA-1 : Secure Hash Algorithm 1 : http://en.wikipedia.org/wiki/SHA-1
+* SHA-256 : Secure Hash Algorithm 2 : http://en.wikipedia.org/wiki/SHA-256
+|Result Type|Some checksum types allow to set different result types: String, Hexadecimal and Binary
+|Result field|The name of the result field containing the checksum
+|Compatibility Mode|Check this to be compatible with pipelines that were created with a PDI version before 4.2.0. Before 4.2.0 there have been issues with a wrong hexadecimal encoding when Result Type is set to Hexadecimal (see details in PDI-5190).
+|Fields used in the checksum|The names of the fields to include in the checksum calculation.
+Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
+|===

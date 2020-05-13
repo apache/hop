@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-transform-javascript</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Transforms Javascript</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-transform-fieldsplitter</artifactId>
+            <version>0.30-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-transform-rowgenerator</artifactId>
+            <version>0.30-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-transform-loadfileinput</artifactId>
+            <version>0.30-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.8.9</version>
+            <scope>test</scope>
+        </dependency>
+<!--
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-reflect</artifactId>
+            <version>1.7.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
+            <scope>test</scope>
+        </dependency>
+-->
+    </dependencies>
+
+    <build>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+            </includes>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.xml</include>
+                <include>**/*.properties</include>
+                <include>**/*.svg</include>
+            </includes>
+        </resource>
+    </resources>
+    </build>
+</project>

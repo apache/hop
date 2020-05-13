@@ -1,0 +1,47 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getfilesrowcount/src/main/doc/getfilesrowcount.adoc
+= Get files rowcount
+
+== Description
+
+This transform counts the number of rows in a file or set of files.
+
+== Options
+
+=== File tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|directory|
+|Expression|
+|File or|
+|Filename(s)|
+|Files|
+|Preview|
+|Regular|
+|Rows|
+|Selected
+|Show|
+|transform name|
+|===
+
+=== Content tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Rows Count|
+|fieldname|
+|Rows|
+|Separator|
+|type|
+|Row|
+|separator|
+|Include|
+|files count|
+|in output?|
+|Files Count|
+|fieldname|
+|===

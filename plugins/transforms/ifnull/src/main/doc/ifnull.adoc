@@ -1,0 +1,17 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/ifnull/src/main/doc/ifnull.adoc
+= If Null
+
+
+== Description
+
+The transform "If field value is null" is able to replace nulls by a given value either by:
+
+1. Processing the complete row with all fields
+2. Processing the complete row but only for specific field types (Number, String, Date etc.)
+3. Processing the complete row but only for specific fields by name
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

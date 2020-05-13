@@ -6,19 +6,49 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop</artifactId>
-  <version>0.1.0</version>
+  <version>0.30-SNAPSHOT</version>
+
+
   <packaging>pom</packaging>
 
   <name>Hop Orchestration Platform</name>
   <description>Maven POM for the Hop Orchestration Platform</description>
   <url>http://www.project-hop.org</url>
 
+  <organization>
+    <name>Project Hop</name>
+    <url>http://www.project-hop.org</url>
+  </organization>
 
-  <parent>
-    <groupId>org.pentaho</groupId>
-    <artifactId>pentaho-ce-jar-parent-pom</artifactId>
-    <version>8.2.0.7-719</version>
-  </parent>
+  <developers>
+    <developer>
+      <name>Project Hop Team</name>
+      <email>matt.casters@neo4j.com</email>
+      <roles>
+        <role>creator</role>
+        <role>maintainer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.project-hop.org</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>http://jenkins.project-hop.org</url>
+  </ciManagement>
+
+
+  <distributionManagement>
+    <site>
+      <id>javadoc.project-hop.org</id>
+      <url>file:/var/www/</url>
+    </site>
+  </distributionManagement>
+
 
   <scm>
     <developerConnection>scm:git:git@github.com:project-hop/hop.git</developerConnection>
@@ -36,18 +66,16 @@
       <name>GNU Lesser General Public License, Version 2.1</name>
       <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
       <distribution>repo</distribution>
-      <comments></comments>
     </license>
     <license>
       <name>GNU Lesser General Public License, Version 3.0</name>
       <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
       <distribution>repo</distribution>
-      <comments></comments>
     </license>
   </licenses>
 
   <properties>
-    <project.version>0.1.0</project.version>
+    <project.version>0.1.0-SNAPSHOT</project.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
@@ -56,65 +84,123 @@
     <!-- License Configuration -->
     <license.licenseName>apache_v2</license.licenseName>
 
-    <!-- Pentaho dependencies -->
-    <commons-xul.version>8.2.0.7-719</commons-xul.version>
-    <pentaho-metastore.version>8.2.0.7-719</pentaho-metastore.version>
 
     <!-- Third-party dependencies -->
-    <org.eclipse.swt.version>4.6</org.eclipse.swt.version>
-    <js.version>1.7R3</js.version>
+    <org.eclipse.platform.version>3.114.0</org.eclipse.platform.version>
+    <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
+    <org.eclipse.jface.version>3.18.0</org.eclipse.jface.version>
+    <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
+    <rhino.version>1.7.12</rhino.version>
     <httpclient.version>4.5.3</httpclient.version>
     <httpccore.version>4.4.6</httpccore.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-beanutils.version>1.9.3</commons-beanutils.version>
     <commons-logging.version>1.1.3</commons-logging.version>
-    <guava.version>17.0</guava.version>
+    <guava.version>27.0-jre</guava.version>
     <encoder.version>1.2</encoder.version>
-    <h2.version>1.2.131</h2.version>
-    <wstx-asl.version>3.2.4</wstx-asl.version>
 
     <!-- Test dependencies -->
     <mockito-all.version>1.10.19</mockito-all.version>
-
     <powermock-module-junit4.version>1.7.3</powermock-module-junit4.version>
     <powermock-api-mockito.version>1.7.3</powermock-api-mockito.version>
     <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+    <junit.version>4.12</junit.version>
+
+    <!-- Copy from master POM (NEEDS CLEANUP) -->
+    <!-- VERSIONS -->
+<!--    <derby.version>10.14.2.0</derby.version>-->
+    <batik.version>1.12</batik.version>
+    <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
+    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+    <maven-dependency-plugin.version>3.1.0</maven-dependency-plugin.version>
+    <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+    <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+    <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+    <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+    <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
+    <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+    <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
+    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+    <maven-surefire-report-plugin.version>3.0.0-M4</maven-surefire-report-plugin.version>
+    <maven-verifier-plugin.version>1.1</maven-verifier-plugin.version>
+    <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
+    <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
+    <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
+
+    <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
+    <fasterxml-jackson.version>2.10.2</fasterxml-jackson.version>
+    <dom4j.version>2.1.1</dom4j.version>
+    <jaxen.version>1.1.6</jaxen.version>
+    <commons-compress.version>1.19</commons-compress.version>
+    <commons-fileupload.version>1.4</commons-fileupload.version>
+    <aws-java-sdk.version>1.11.516</aws-java-sdk.version>
+
+    <!-- spring-security version -->
+    <spring-security.version>4.1.5.RELEASE</spring-security.version>
+
+    <xercesImpl.version>2.12.0</xercesImpl.version>
+    <xml-apis.version>1.4.01</xml-apis.version>
+
+    <!-- jdk version -->
+    <source.jdk.version>1.8</source.jdk.version>
+    <target.jdk.version>1.8</target.jdk.version>
+    <maven.compiler.source>${source.jdk.version}</maven.compiler.source>
+    <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
+    <compilerArgument/>
+
+    <!-- PHASE BINDINGS -->
+    <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
+    <test-unit-execute-phase>test</test-unit-execute-phase>
+    <assembly_package-phase>package</assembly_package-phase>
+    <assembly_appendId>false</assembly_appendId>
+    <test-integration_add-resources-phase>pre-integration-test</test-integration_add-resources-phase>
+    <test-integration_add-source-phase>pre-integration-test</test-integration_add-source-phase>
+    <test-integration_compile-phase>pre-integration-test</test-integration_compile-phase>
+    <test-integration_execute-phase>integration-test</test-integration_execute-phase>
+    <attach-sources-phase>verify</attach-sources-phase>
+    <test-integration_report-phase>verify</test-integration_report-phase>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
+
+    <!-- License Configuration -->
+    <license.organizationName>Hitachi Vantara</license.organizationName>
+    <license.inceptionYear>2002</license.inceptionYear>
+    <license.licenseFile>LICENSE.txt</license.licenseFile>
+    <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
+    <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
+
+    <!-- Documentation properties -->
+    <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
+
+    <junit.version>4.11</junit.version>
+
+    <!-- http://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html -->
+    <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks> <!-- default setting is reuseForks = true -->
+    <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount> <!-- default setting is forkCount = 1 -->
+    <maven-surefire-plugin.testFailureIgnore>false</maven-surefire-plugin.testFailureIgnore>
+    <maven-surefire-plugin.argLine/>
+    <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks> <!-- default setting is reuseForks = true -->
+    <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount> <!-- default setting is forkCount = 1 -->
+    <maven-failsafe-plugin.argLine/>
   </properties>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-core</artifactId>
-        <version>${commons-xul.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-swing</artifactId>
-        <version>${commons-xul.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.pentaho</groupId>
-        <artifactId>commons-xul-swt</artifactId>
-        <version>${commons-xul.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.eclipse.swt</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>pentaho</groupId>
-        <artifactId>metastore</artifactId>
-        <version>${pentaho-metastore.version}</version>
-      </dependency>
 
       <!-- Third-party dependencies -->
       <dependency>
-        <groupId>org.eclipse.swt</groupId>
+        <groupId>org.eclipse.platform</groupId>
         <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-        <version>${org.eclipse.swt.version}</version>
+        <version>${org.eclipse.platform.version}</version>
         <exclusions>
           <exclusion>
             <groupId>*</groupId>
@@ -123,9 +209,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>rhino</groupId>
-        <artifactId>js</artifactId>
-        <version>${js.version}</version>
+        <groupId>org.mozilla</groupId>
+        <artifactId>rhino</artifactId>
+        <version>${rhino.version}</version>         
         <exclusions>
           <exclusion>
             <groupId>*</groupId>
@@ -188,23 +274,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>*</groupId>
-            <artifactId>*</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.woodstox</groupId>
-        <artifactId>wstx-asl</artifactId>
-        <version>${wstx-asl.version}</version>
-        <scope>provided</scope>
-      </dependency>
 
       <!-- Test dependencies -->
       <dependency>
@@ -243,25 +312,386 @@
         <version>${powermock-api-mockito.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-jaxrs</artifactId>
+        <version>${codehaus-jackson.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>*</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>${codehaus-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>${codehaus-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-xc</artifactId>
+        <version>${codehaus-jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-json-provider</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.jaxrs</groupId>
+        <artifactId>jackson-jaxrs-base</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-smile</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-cbor</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.jr</groupId>
+        <artifactId>jackson-jr-objects</artifactId>
+        <version>${fasterxml-jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.dom4j</groupId>
+        <artifactId>dom4j</artifactId>
+        <version>${dom4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <version>${jaxen.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-iam</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-emr</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-pricing</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-redshift</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>${xercesImpl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xml-apis</groupId>
+        <artifactId>xml-apis</artifactId>
+        <version>${xml-apis.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${commons-compress.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <type>maven-plugin</type>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven-source-plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <phase>${attach-sources-phase}</phase>
+              <goals>
+                <goal>jar-no-fork</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>${maven-bundle-plugin.version}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <!-- Required for generic jar version checking -->
+              <Implementation-Version>${project.version}</Implementation-Version>
+            </instructions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-failsafe-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>${maven-jxr-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven-javadoc-plugin.version}</version>
+          <configuration>
+            <doclint>none</doclint>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-verifier-plugin</artifactId>
+          <version>${maven-verifier-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              </manifest>
+              <manifestEntries>
+                <Source-Java-Version>${source.jdk.version}</Source-Java-Version>
+                <Target-Java-Version>${target.jdk.version}</Target-Java-Version>
+                <Implementation-ProductID>${project.artifactId}</Implementation-ProductID>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <source>${source.jdk.version}</source>
+            <target>${target.jdk.version}</target>
+            <compilerArgument>${compilerArgument}</compilerArgument>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven-dependency-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven-install-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven-release-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.wagon</groupId>
+              <artifactId>wagon-webdav-jackrabbit</artifactId>
+              <version>2.10</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>coverage-initialize</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>coverage-report</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <!-- Threshold -->
+          <execution>
+            <id>coverage-check</id>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>CLASS</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0%</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Compile-Timestamp>${maven.build.timestamp}</Compile-Timestamp>
-              <Compile-User>${user.name}</Compile-User>
-              <Implementation-ProductID>${project.artifactId}</Implementation-ProductID>
-            </manifestEntries>
-          </archive>
-        </configuration>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>default-test</id>
+            <phase>${test-unit-execute-phase}</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine} </argLine> <!-- this is set by jacoco's prepare-agent execution -->
+              <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
+              <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
+              <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>set-doc-version-property</id>
+            <goals>
+              <goal>parse-version</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>set-root-dir-property</id>
+            <goals>
+              <goal>rootlocation</goal>
+            </goals>
+            <configuration>
+              <rootLocationProperty>project.rootdir</rootLocationProperty>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-site-descriptor</id>
+            <goals>
+              <goal>attach-descriptor</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -275,10 +705,15 @@
         </property>
       </activation>
       <modules>
+        <module>metastore</module>
         <module>core</module>
         <module>engine</module>
         <module>ui</module>
+<<<<<<< HEAD
         <module>security</module>
+=======
+        <module>plugins</module>
+>>>>>>> master
       </modules>
     </profile>
     <profile>
@@ -292,14 +727,125 @@
         <module>assemblies</module>
       </modules>
     </profile>
+    <profile>
+      <id>filtered-resources</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/main/resources-filtered</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-filtered-resources</id>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>src/main/resources-filtered</directory>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>assembly</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/assembly/assembly.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>assembly_package</id>
+                <phase>${assembly_package-phase}</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptorSourceDirectory>${basedir}/src/assembly</descriptorSourceDirectory>
+                  <appendAssemblyId>${assembly_appendId}</appendAssemblyId>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${maven-project-info-reports-plugin.version}</version>
+        <configuration>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>dependencies</report>
+              <report>cim</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+              <report>scm</report>
+              <report>dependency-convergence</report>
+              <report>dependency-management</report>
+              <report>index</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+<!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
+          <show>public</show>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate-no-fork</report>
+              <report>test-aggregate-no-fork</report>
+            </reports>
+            </reportSet>
+            <reportSet>
+              <id>default</id>
+              <reports>
+                <report>javadoc</report>
+              </reports>
+            </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <repositories>
     <repository>
-      <id>pentaho-public</id>
-      <name>Pentaho Public</name>
-      <url>http://nexus.pentaho.org/content/groups/omni/</url>
+      <id>hop</id>
+      <name>Hop Repository</name>
+      <url>https://artifactory.project-hop.org/artifactory/hop-releases/</url>
       <releases>
         <enabled>true</enabled>
         <updatePolicy>daily</updatePolicy>
@@ -308,6 +854,10 @@
         <enabled>true</enabled>
         <updatePolicy>interval:15</updatePolicy>
       </snapshots>
+    </repository>
+    <repository>
+      <id>confluent</id>
+      <url>http://packages.confluent.io/maven/</url>
     </repository>
   </repositories>
 

@@ -1,0 +1,16 @@
+[[database-plugins-informix]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/informix/src/main/doc/informix.adoc
+= informix
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://download.oracle.com/otndocs/jcp/jdbc-4.0-fr-eval-oth-JSpec/[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.ibm.com/support/knowledgecenter/en/SSGU8G_12.1.0/com.ibm.jdbc_pg.doc/jdbc.htm[Documentation Link]
+|JDBC Url | jdbc:informix-sqli://hostname:1533/databaseName
+|===

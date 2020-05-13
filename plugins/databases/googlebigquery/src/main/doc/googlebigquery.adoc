@@ -1,0 +1,16 @@
+[[database-plugins-googlebigquery]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/googlebigquery/src/main/doc/googlebigquery.adoc
+= Google BigQuery
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://cloud.google.com/bigquery/providers/simba-drivers/[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.simba.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/d-intro.htm[Documentation Link]
+|JDBC Url | jdbc:bigquery://[Host]:[Port];ProjectId=[Project];OAuthType=[AuthValue]
+|===

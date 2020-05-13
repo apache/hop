@@ -1,0 +1,16 @@
+[[database-plugins-sybaseiq]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sybaseiq/src/main/doc/sybaseiq.adoc
+= Sybase IQ
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Column Oriented
+|Driver | Included in database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc01776.1600/doc/html/san1357754910584.html[Documentation Link]
+|JDBC Url | jdbc:sybase:Tds:localhost:2638
+|===

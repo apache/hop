@@ -1,0 +1,16 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/filelocked/src/main/doc/filelocked.adoc
+= File locked
+
+== Description
+
+This transform tries to determine if a file is locked by an other process.  It does this by trying to move it to itself.  
+
+== Options
+
+
+* transform name: the transform name, unique in a pipeline
+* Filename field: the name of the input field that will contain the names of the files during execution.
+* Result fieldname: the name of the Boolean output field that will contain true or false depending on whether or not the file is locked or not.
+* Add filename to result: check this if you want to add the checked file-names to the list of files in the pipelines result.

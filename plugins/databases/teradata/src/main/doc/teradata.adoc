@@ -1,0 +1,15 @@
+[[database-plugins-teradata]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/teradata/src/main/doc/teradata.adoc
+= Teradata
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://downloads.teradata.com/download/connectivity/jdbc-driver[Driver Link]
+|Hop Dependencies | None
+|Documentation | https://teradata-docs.s3.amazonaws.com/doc/connectivity/jdbc/reference/current/frameset.html[Documentation Link]
+|JDBC Url | jdbc:teradata://Hostname
+|===

@@ -1,0 +1,18 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/filestoresult/src/main/doc/filestoresult.adoc
+= Files to result
+
+== Description
+
+This transform allows you to set filenames in the internal result files of a pipeline. Subsequent job entries can then use this information as it routes the list of files to the result files stream e.g. by using the Get files from result transform or some job entries that can process on the list of result files. For example, the Mail job entry can use this list of files to attach to a mail, so perhaps you don't want all files sent, but only a certain selection. For this, you can create a pipeline that sets exactly those files you want to attach.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform name|The name of this transform as it appears in the pipeline workspace.
+|Filename field|Field that contains the filenames of the files to copy.
+|Type of file to|Select the type of file to set in results. 
+|===

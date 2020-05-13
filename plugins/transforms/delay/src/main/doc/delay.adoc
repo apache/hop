@@ -1,0 +1,19 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/delay/src/main/doc/delay.adoc
+= Delay
+
+== Description
+
+For each input row, the "Delay row" transform will wait the indicated timeout period before giving the row to the next transform.
+
+Use this transform if you deliberately want to slow down your pipeline.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform name|Name of the transform. Note: This name has to be unique in a single pipeline.
+|Timeout|The timeout value in seconds, minutes or hours 
+|===

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.hop</groupId>
+  <artifactId>hop-metastore</artifactId>
+  <version>0.30-SNAPSHOT</version>
+  <name>Hop ${project.artifactId}</name>
+  <description>A flexible metadata, data and configuration information store</description>
+  <url>http://www.project-hop.org</url>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop</artifactId>
+    <version>0.30-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <guava.version>27.0-jre</guava.version>
+    <commons-io.version>2.1</commons-io.version>
+    <mockito-all.version>1.8.4</mockito-all.version>
+    <commons-codec.version>1.5</commons-codec.version>
+    <junit.version>4.7</junit.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>${commons-codec.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito-all.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

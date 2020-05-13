@@ -1,0 +1,110 @@
+<gui-plugins>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.HopGui</classname>
+    <description>Hop GUI Plugin</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.core.database.GenericDatabaseMeta</classname>
+    <description>Generic database GUI Plugin</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective</classname>
+    <description>Hop Data Orchestration Perspective GUI</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+    <description>Hop Search Perspective GUI</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.perspective.pluginexplorer.HopPluginExplorePerspective</classname>
+    <description>Hop Plugin Explorer Perspective GUI</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph</classname>
+    <description>Pipeline Graph tab</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDelegate</classname>
+    <description>Pipeline Graph Preview Delegate</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate</classname>
+    <description>Pipeline Graph Grid Delegate</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate</classname>
+    <description>Pipeline Graph Log Delegate</description>
+  </gui-plugin>
+
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph</classname>
+    <description>Job Graph tab</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate</classname>
+    <description>Job Graph Log Delegate</description>
+  </gui-plugin>
+
+  <!-- metastore elements to pop up in the GUI -->
+  <gui-plugin>
+    <classname>org.apache.hop.ui.core.database.DatabaseMetaGuiPlugin</classname>
+    <description>Database connection metadata</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.ui.cluster.SlaveServerGuiPlugin</classname>
+    <description>Slave server metadata</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.ui.partition.PartitionSchemaGuiPlugin</classname>
+    <description>Partition schema metadata</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.ui.pipeline.config.PipelineRunConfigurationGuiPlugin</classname>
+    <description>Pipeline Run Configuration</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.ui.workflow.config.WorkflowRunConfigurationGuiPlugin</classname>
+    <description>Workflow Run Configuration</description>
+  </gui-plugin>
+
+
+  <!-- Pipeline Engine Run Configuration GUI Plugins -->
+  <gui-plugin>
+    <classname>org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration</classname>
+    <description>Local pipeline run configuration widgets</description>
+  </gui-plugin>
+  <gui-plugin>
+    <classname>org.apache.hop.pipeline.engines.remote.RemotePipelineRunConfiguration</classname>
+    <description>Remote pipeline run configuration widgets</description>
+  </gui-plugin>
+
+  <!-- Workflow Engine Run Configuration GUI Plugins -->
+  <gui-plugin>
+    <classname>org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration</classname>
+    <description>Local workflow run configuration widgets</description>
+  </gui-plugin>
+
+  <gui-plugin>
+    <classname>org.apache.hop.workflow.engines.remote.RemoteWorkflowRunConfiguration</classname>
+    <description>Remote workflow run configuration widgets</description>
+  </gui-plugin>
+
+  <!--
+  <gui-plugin>
+    <classname>org.apache.hop.pipeline.engines.localsingle.LocalSinglePipelineRunConfiguration</classname>
+    <description>Local single threaded pipeline run configuration widgets</description>
+  </gui-plugin>
+  -->
+
+</gui-plugins>

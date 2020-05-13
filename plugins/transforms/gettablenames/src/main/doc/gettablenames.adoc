@@ -1,0 +1,35 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/gettablenames/src/main/doc/gettablenames.adoc
+
+= Get table names
+
+== Description
+
+This transform gets the table names from a database connection.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of this transform as it appears in the pipeline workspace
+|Connection|The connection to use
+|Schema name|The schema to use
+|Get schema from field|Allows passing a field containing the schema name
+|Schema name field|The field containing the schema name
+|Include catalogs|Includes catalogs in the output
+|Include schemas|Includes schemas in the output
+|Include views|Includes views in the output
+|Include procedures|Includes procedures in the output
+|Include synonyms|Include synonyms in the output
+|Add schema in object name|Adds the schema to the object name
+|Tablename fieldname|Output field containing the table name
+|Object type fieldname|Output field containing the object type (catalog, schema, table, ...)
+|Is system object fieldname|Output field containing boolean: is object a system object
+|Creation SQL fieldname|Output field containing create statement for object
+|===
+
+== Metadata injection
+
+All fields of this transform support metadata injection. You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

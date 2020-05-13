@@ -14,7 +14,11 @@ bin
 *.ear
 .DS_Store
 routes.yml
+*.tgf
 
 rebel.xml
 rebel-remote.xml
 out/
+logs/
+.directory
+\.attach*

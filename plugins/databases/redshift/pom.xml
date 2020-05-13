@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.hop</groupId>
+  <artifactId>hop-databases-redshift</artifactId>
+  <version>0.30-SNAPSHOT</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.amazon.redshift</groupId>
+      <artifactId>redshift-jdbc42</artifactId>
+      <version>${redshift.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-databases-postgresql</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+  <packaging>jar</packaging>
+
+  <name>Hop Plugins Databases Redshift</name>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins-databases</artifactId>
+    <version>0.30-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <!-- Test running configuration -->
+    <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
+    <maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+    <redshift.version>1.2.27.1051</redshift.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-databases-postgresql</artifactId>
+        <scope>test</scope>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-databases-postgresql</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

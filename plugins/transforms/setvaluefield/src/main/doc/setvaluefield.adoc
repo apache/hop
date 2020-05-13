@@ -1,0 +1,24 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/setvaluefield/src/main/doc/setvaluefield.adoc
+
+= Set field Value
+
+== Description
+
+The Set field Value transform replaces the value of a field with the value of another field.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Field name|Select the field with values to be replaced
+|Replace by value from field|Select the field whose value will replace the value of the field in the Field name column
+|===
+
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

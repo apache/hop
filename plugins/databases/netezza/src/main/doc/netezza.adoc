@@ -1,0 +1,16 @@
+[[database-plugins-netezza]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/netezza/src/main/doc/netezza.adoc
+= Netezza
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included in database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.ibm.com/support/knowledgecenter/SSULQD_7.2.1/com.ibm.nz.datacon.doc/c_datacon_installing_configuring_jdbc.html[Documentation Link]
+|JDBC Url | jdbc:netezza://hostname:5490/databaseName
+|===

@@ -1,0 +1,46 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getfilenames/src/main/doc/getfilenames.adoc
+= Get filenames
+
+== Description
+
+The Get File Names transform allows you to get information associated with file names on the file system. The retrieved file names are added as rows onto the stream.
+
+The output fields for this transform are:
+
+* filename - the complete filename, including the path (/tmp/kettle/somefile.txt)
+* short_filename - only the filename, without the path (somefile.txt)
+* path - only the path (/tmp/kettle/)
+* type
+* exists
+* ishidden
+* isreadable
+* iswriteable
+* lastmodifiedtime
+* size
+* extension
+* uri
+* rooturi
+
+== File tab
+
+This tab defines the location of the files you want to retrieve filenames for. For more information about specifying file locations, see section "Selecting file using Regular Expressions" on the Text File Input transform.
+
+Example: You have a static directory of c:\temp where you expect files with an extension of .dat to be placed. Under file/directory you would specify c:\temp  and under Wildcard you would have a RegEx with something like .*\.dat$
+
+
+== Filters
+
+The filters tab allows you to filter the retrieved file names based on:
+
+* All files and folders
+* Files only
+* Folders only
+
+It also gives you:
+
+* The ability to include a row number in the output
+* The ability to limit the number of rows returned
+* The ability to add the filename(s) to the result list
+

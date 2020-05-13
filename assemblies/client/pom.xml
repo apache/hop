@@ -3,31 +3,48 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+<<<<<<< HEAD
   <artifactId>pdi-ce</artifactId>
   <version>8.2.0.0-342-19</version>
+=======
+  <artifactId>hop-assemblies-client</artifactId>
+>>>>>>> master
   <packaging>pom</packaging>
 
-  <name>PDI Client Community Edition</name>
+  <name>Hop Assemblies Client</name>
 
   <parent>
-    <artifactId>pdi-assemblies</artifactId>
-    <groupId>org.pentaho.di</groupId>
-    <version>8.2.0.7-719</version>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-assemblies</artifactId>
+    <version>0.30-SNAPSHOT</version>
   </parent>
 
   <properties>
+<<<<<<< HEAD
     <pdi-dataservice-driver-bundle.version>${project.version}</pdi-dataservice-driver-bundle.version>
     <ael.version>8.2.0.7-719</ael.version>
 
     <pentaho-karaf.version>8.2.0.7-719</pentaho-karaf.version>
     <pentaho-launcher.version>8.2.0.7-719</pentaho-launcher.version>
     <oss-licenses.version>8.2.0.7-719</oss-licenses.version>
+=======
+
+    <!-- swt -->
+    <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
+    <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
+    <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
+>>>>>>> master
   </properties>
 
   <dependencies>
     <dependency>
+<<<<<<< HEAD
       <groupId>org.pentaho.di</groupId>
       <artifactId>pdi-libs</artifactId>
+=======
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-libs</artifactId>
+>>>>>>> master
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>
@@ -38,8 +55,13 @@
       </exclusions>
     </dependency>
     <dependency>
+<<<<<<< HEAD
       <groupId>org.pentaho.di</groupId>
       <artifactId>pdi-static</artifactId>
+=======
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-dist</artifactId>
+>>>>>>> master
       <version>${project.version}</version>
       <type>zip</type>
       <exclusions>
@@ -50,6 +72,7 @@
       </exclusions>
     </dependency>
     <dependency>
+<<<<<<< HEAD
       <groupId>pentaho</groupId>
       <artifactId>oss-licenses</artifactId>
       <version>${oss-licenses.version}</version>
@@ -69,4 +92,66 @@
       </plugin>
     </plugins>
   </build>
+=======
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-static</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+<!--        TODO: Reactivate when we have new samples-->
+<!--    <dependency>-->
+<!--      <groupId>org.hop</groupId>-->
+<!--      <artifactId>hop-assemblies-samples</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--      <type>zip</type>-->
+<!--      <exclusions>-->
+<!--        <exclusion>-->
+<!--          <groupId>*</groupId>-->
+<!--          <artifactId>*</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
+<!--    </dependency>-->
+    <!-- swt -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+      <version>${org.eclipse.swt.win32.win32.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
+      <version>${org.eclipse.swt.cocoa.macosx.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+>>>>>>> master
 </project>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.hop</groupId>
+		<artifactId>hop-assemblies-plugins-actions</artifactId>
+		<version>0.30-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>hop-assemblies-plugins-action-syslog</artifactId>
+	<version>0.30-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>Hop Assemblies Plugins Actions Send information using Syslog</name>
+	<description></description>
+
+	<properties>
+		<syslog4j.version>0.9.46</syslog4j.version>
+		<snmp4j.version>1.9.3d</snmp4j.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.hop</groupId>
+			<artifactId>hop-action-syslog</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.syslog4j</groupId>
+			<artifactId>syslog4j</artifactId>
+			<version>${syslog4j.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.snmp4j</groupId>
+			<artifactId>snmp4j</artifactId>
+			<version>${snmp4j.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+</project>

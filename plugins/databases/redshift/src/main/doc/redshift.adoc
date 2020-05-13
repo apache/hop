@@ -1,0 +1,16 @@
+[[database-plugins-redshift]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/redshift/src/main/doc/redshift.adoc
+= Redshift
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included
+|Version Included | 1.2.27.1051
+|Hop Dependencies | None
+|Documentation | https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection.html[Documentation Link]
+|JDBC Url | jdbc:redshift://endpoint:port/database
+|===

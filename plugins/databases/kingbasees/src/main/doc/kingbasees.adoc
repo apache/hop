@@ -1,0 +1,16 @@
+[[database-plugins-kingbasees]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/kingbasees/src/main/doc/kingbasees.adoc
+= kingbase es
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | 
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.kingbase.com.cn/zhuanti/kes/html/jdbc.html[Documentation Link]
+|JDBC Url | jdbc:kingbase8://host:port/database
+|===

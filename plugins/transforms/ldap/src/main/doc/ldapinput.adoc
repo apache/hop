@@ -1,0 +1,57 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/ldapinput/src/main/doc/ldapinput.adoc
+= LDAP Input
+
+== Description
+
+The LDAP Input transform allows you to read information like users, roles and other data from an LDAP server. The following sections describe the available options for the LDAP input transform.
+
+
+== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; this name has to be unique in a single pipeline
+|Host|Host can be the IP address of the LDAP directory server or its DNS name.
+|Port|Port number of LDAP directory server
+|Use authentication|To enable LDAP authentication
+|Username|The username to be passed during authentication
+|Password|The password to be passed during authentication
+|===
+
+== Search Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Search base|Base LDAP node to search the LDAP contents
+|Filter String|LDAP filter to search the customized contents, in the current stage only "single filter format" is supported like. 
+ Example: mail=*
+|===
+
+== Advanced Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|===
+
+== Fields Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Name|
+|Column|
+|Type|
+|Format|
+|Length|
+|Precision|
+|Currency|
+|Decimal|
+|Group|
+|Trim type|
+|Repeat|If LDAP returns no value for an attribute, use the value from the previous row
+|===

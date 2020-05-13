@@ -1,0 +1,16 @@
+[[database-plugins-sqlbase]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sqlbqse/src/main/doc/sqlbqse.adoc
+= Gupta SQLBase
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://knowledge.opentext.com/knowledge/cs.dll/kcs/kb[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://knowledge.opentext.com/knowledge/cs.dll/kcs/kb[Documentation Link]
+|JDBC Url | jdbc:sqlbase://hostname:port/databaseName
+|===

@@ -1,0 +1,16 @@
+[[database-plugins-sapdb]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sapdb/src/main/doc/sapdb.adoc
+= MaxDB (SAP DB)
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | Included in Database installation
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://help.sap.com/saphelp_tm93/helpdata/en/37/5f6b6e966242aead8025bdc5296489/frameset.htm[Documentation Link]
+|JDBC Url | jdbc:sapdb://<database_computer>[:<port>]/<database_name>
+|===

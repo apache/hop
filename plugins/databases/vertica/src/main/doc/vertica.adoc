@@ -1,0 +1,16 @@
+[[database-plugins-vertica]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/vertica/src/main/doc/vertica.adoc
+= Vertica
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://www.vertica.com/download/vertica/client-drivers/[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.vertica.com/docs/9.2.x/HTML/Content/Authoring/ConnectingToVertica/ClientJDBC/JDBCConnectionProperties.htm[Documentation Link]
+|JDBC Url | jdbc:vertica://VerticaHost:portNumber/databaseName
+|===

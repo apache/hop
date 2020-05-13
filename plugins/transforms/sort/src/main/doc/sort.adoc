@@ -1,0 +1,28 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/sort/src/main/doc/sort.adoc
+= Sort Rows
+
+== Description
+
+The Sort rows transform sorts rows based on the fields you specify and on whether they should be sorted in ascending or descending order.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Sort directory|The directory in which the temporary files are stored in case when needed; the default is the standard temporary directory for the system
+|TMP-file prefix|Choose an easily recognized prefix so you can identify the files when they show up in the temp directory.
+|Sort size|The more rows you store in memory, the faster the sorting process because fewer temporary files must be used and less I/O is generated.
+|Free memory threshold (in %)|If the sort algorithm finds that it has less available free memory than the indicated number, it will start to page data to disk.
+|Compress TMP Files|Compresses temporary files when they are needed to complete the sort.
+|Only pass unique rows?|Enable if you want to pass unique rows only to the output stream(s).
+|Fields table|Specify the fields and direction (ascending/descending) to sort. You can specify whether to perform a case sensitive sort (optional)
+|Get Fields|Click to retrieve a list of all fields coming in on the stream(s). 
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.hop</groupId>
+  <artifactId>hop-plugins-engines</artifactId>
+  <version>0.30-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Hop Plugins Engines</name>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins</artifactId>
+    <version>0.30-SNAPSHOT</version>
+  </parent>
+
+  <profiles>
+  <profile>
+    <id>lowdeps</id>
+    <activation>
+      <property>
+        <name>!skipDefault</name>
+      </property>
+    </activation>
+    <modules>
+      <module>beam</module>
+    </modules>
+  </profile>
+  </profiles>
+
+</project>

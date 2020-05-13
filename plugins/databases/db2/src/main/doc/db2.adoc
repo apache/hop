@@ -1,0 +1,16 @@
+[[database-plugins-db2]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/db2/src/main/doc/db2.adoc
+= DB2
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://www.ibm.com/support/pages/db2-jdbc-driver-versions-and-downloads[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://www.ibm.com/support/knowledgecenter/SSCQGF_7.2.0.1/com.ibm.IBMDI.doc_7.2.0.1/rg_conn_jdbc.html[Documentation Link]
+|JDBC Url  | jdbc:db2://hostname:port/dbname
+|===

@@ -1,0 +1,31 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/filesfromresult/src/main/doc/filesfromresult.adoc
+= Files from result
+
+== Description
+
+Every time a file gets processed, used or created in a pipeline or a job, the details of the file, the job entry, the transform, etc. is captured and added to an internal result set when the option 'Add file names to result' is set, e.g. in a Text File Output transform. You can access this file information using this transform.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform name|The unique transform name within the pipeline 
+|===
+
+
+== Output fields
+
+[width="90%", options="header"]
+|===
+|Field name|Type|Example
+|type|String|Normal, Log, Error, Error-line, etc.
+|filename|String|somefile.txt
+|path|String|C:\Foo\Bar\somefile.txt
+|parentorigin|String|Process files pipeline
+|origin|String|Text File Input
+|comment|String|Read by text file input
+|timestamp|Date|2006-06-23 12:34:56 
+|===

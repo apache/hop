@@ -1,0 +1,18 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/fieldschangesequence/src/main/doc/fieldschangesequence.adoc
+= Fields change sequence
+
+== Description
+
+This transform simply adds a sequence value which resets each time a value changes in the list of specified fields.
+
+== Options
+
+Here are the options for the transform:
+
+* transform name : the name of the transform, needs to be unique in a pipeline
+* Result field: the name of the output field, the sequence
+* Start at value: the number to start at each time
+* Increment by: the value to increase at each row in the same group
+* Init sequence if value of following fields change: you can specify a list of fields here.  If a value in one or more of these fields changes compared to the previous rows, the sequence will be reset to the start value.

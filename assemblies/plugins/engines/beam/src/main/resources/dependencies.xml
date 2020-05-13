@@ -1,0 +1,10 @@
+<dependencies>
+  <folder>../../transforms/constant</folder>
+  <folder>../../transforms/filterrows</folder>
+  <folder>../../transforms/memgroupby</folder>
+  <folder>../../transforms/mergejoin</folder>
+  <folder>../../transforms/sort</folder>
+  <folder>../../transforms/streamlookup</folder>
+  <folder>../../transforms/switchcase</folder>
+  <folder>../../transforms/uniquerows</folder>
+</dependencies>

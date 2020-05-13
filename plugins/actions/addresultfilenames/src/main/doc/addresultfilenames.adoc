@@ -1,0 +1,20 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl:  https://github.com/project-hop/hop/edit/master/plugins/actions/addresultfilenames/src/main/doc/addresultfilenames.adoc
+= Add filenames to result
+
+== Description
+
+This workflow entry allows you to add a set of files or folders to the result list of the workflow entry. That list of filenames can then be used in the various workflow entries all around.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+Job entry name|The name of the workflow entry. *Note*: This name has to be unique in a single workflow. A workflow entry can be placed several times on the canvas, however it will be the same workflow entry.
+Include subfolders|Include subfolders of the selected folders 
+Copy previous results to?|Passes the results of the previous entry to the arguments of this entry. 
+Clear result filenames?|This option clears the list of result files (from previous workflow entries) before creating a new list.
+File/Folder|Specify the list of files or folders with wildcards (regular expressions) in this grid. You can add a different source/destination on each line. Note: You can use the Add button to add a line to the Files/Folders list.
+|===

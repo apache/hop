@@ -1,0 +1,10 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/cubeoutput/src/main/doc/cubeoutput.adoc
+= Cube output
+
+== Description
+
+The Serialize to file transform, formerly known as Cube File Output, stores rows of data in a binary format in a file. The binary format has an advantage over a text (flat) file because the content does not have to be parsed when read back. The metadata is stored in the file as well.
+
+The Serialize to file transform supports a write-once access pattern, and does not support appending to existing files.

@@ -1,0 +1,23 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/columnexists/src/main/doc/columnexists.adoc
+= Column exists
+
+== Description
+
+This transforms allows you to verify the existence of a specific column in a database table.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; This name has to be unique in a single pipeline
+|Connection|The database connection to use
+|Schema name|(optional) The schema name of the table of the column to check
+|Table name|The name of the table of the column to check
+|Tablename in field?|Enable to read the name of the table in an input field
+|Tablename field|Specify the fieldns containing parameters and the parameter type
+|Columnname field|The name of the column field in the input stream
+|Result fieldname|The name of the resulting boolean flag field 
+|===

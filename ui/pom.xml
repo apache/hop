@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>pentaho-kettle</groupId>
-  <artifactId>kettle-ui-swt</artifactId>
+  <groupId>org.hop</groupId>
+  <artifactId>hop-ui-swt</artifactId>
   <packaging>jar</packaging>
-  <version>8.2.0.7-719-19</version>
+  <version>0.30-SNAPSHOT-19</version>
 
-  <name>PDI User Interface</name>
+  <name>Hop GUI</name>
 
   <parent>
-    <groupId>org.pentaho.di</groupId>
-    <artifactId>pdi</artifactId>
-    <version>8.2.0.7-719</version>
+    <groupId>org.hop</groupId>
+    <artifactId>hop</artifactId>
+    <version>0.30-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -29,22 +29,21 @@
     <pentaho-capability-manager.version>${kettle.version}</pentaho-capability-manager.version>
 
     <!-- Third-party dependencies -->
-    <common.version>3.3.0-v20070426</common.version>
-    <commands.version>3.3.0-I20070605-0010</commands.version>
+    <common.version>3.111.0</common.version>
     <jfreechart.version>1.0.13</jfreechart.version>
   </properties>
 
 
   <dependencies>
-    <!-- Kettle dependencies -->
+    <!-- Hop dependencies -->
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-core</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <exclusions>
         <exclusion>
@@ -57,17 +56,8 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-dbdialog</artifactId>
-      <version>${kettle.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.swt</groupId>
-          <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+
+    <!-- Third-party dependencies -->
     <dependency>
       <groupId>pentaho-kettle</groupId>
       <artifactId>webspoon-security</artifactId>
@@ -75,35 +65,10 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- Pentaho dependencies -->
     <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-vfs-browser</artifactId>
-      <version>${pentaho-vfs-browser.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>commons-xul-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>commons-xul-swt</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse</groupId>
-          <artifactId>jface</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.pentaho</groupId>
-      <artifactId>commons-xul-swing</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-capability-manager</artifactId>
-      <version>${pentaho-capability-manager.version}</version>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${org.eclipse.jface.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -111,9 +76,61 @@
         </exclusion>
       </exclusions>
     </dependency>
-
-
-    <!-- Third-party dependencies -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.equinox.common</artifactId>
+      <version>${org.eclipse.equinox.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.core.commands</artifactId>
+      <version>${org.eclipse.commands.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+      <version>${jfreechart.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-bridge</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-css</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.eclipse.rap</groupId>
       <artifactId>org.eclipse.rap.rwt</artifactId>
@@ -141,9 +158,20 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.equinox</groupId>
-      <artifactId>common</artifactId>
-      <version>${common.version}</version>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-dom</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-gvt</artifactId>
+      <version>${batik.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -155,6 +183,11 @@
       <groupId>org.eclipse.core</groupId>
       <artifactId>commands</artifactId>
       <version>${commands.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-svg-dom</artifactId>
+      <version>${batik.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -163,9 +196,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-      <version>${jfreechart.version}</version>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-transcoder</artifactId>
+      <version>${batik.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -174,8 +207,118 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>rhino</groupId>
-      <artifactId>js</artifactId>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-codec</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-util</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-ext</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-xml</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-anim</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-parser</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-script</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-awt-util</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-constants</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-i18n</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mozilla</groupId>
+      <artifactId>rhino</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mitre.dsmiley.httpproxy</groupId>
@@ -218,19 +361,26 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-engine</artifactId>
-      <version>${kettle.version}</version>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>kettle-core</artifactId>
-      <version>${project.parent.version}</version>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>

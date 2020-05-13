@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>hop-assemblies-plugins-databases</artifactId>
+        <groupId>org.hop</groupId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+
+    <artifactId>hop-assemblies-plugins-databases-googlebigquery</artifactId>
+    <version>0.30-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Hop Assemblies Plugins Databases Google BigQuery</name>
+    <description></description>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-databases-googlebigquery</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.30.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-bigquery</artifactId>
+            <version>v2-rev20190907-1.30.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>1.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+            <version>1.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client</artifactId>
+            <version>1.30.4</version>
+        </dependency>
+    </dependencies>
+
+</project>

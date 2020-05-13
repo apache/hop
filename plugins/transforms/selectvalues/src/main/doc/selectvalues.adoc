@@ -1,0 +1,76 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/selectvalues/src/main/doc/selectvalues.adoc
+= Select Values
+
+
+== Description
+
+The Select Values transform is useful for selecting, removing, renaming, changing data types and configuring the length and precision of the fields on the stream. These operations are organized into different categories:
+
+* **Select and Alter** — Specify the exact order and name in which the fields have to be placed in the output rows
+* **Remove** — Specify the fields that have to be removed from the output rows
+* **Meta-data** - Change the name, type, length and precision (the metadata) of one or more fields
+
+== Options
+
+=== Select & Alter tab
+
+This tab contains options for selecting and changing data types and fields. The Get Fields to Select button will retrieve available fields based on the existing input transforms and populate the entries in this tab.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform Name|Name of the transform this name has to be unique in a single pipeline
+|Fieldname|The name of the field from the input stream
+|Rename to|The new name of the field. Leave blank if you do not wish to rename the field
+|Length|Specify this value if you want to implicitly select all other fields from the input stream(s) that are not explicitly selected in the Fields section.
+|Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits
+|Include unspecified fields, ordered by name|Enable if you want to implicitly select all other fields from the input stream(s) that are not explicitly selected in the Fields section
+|===
+
+==== Edit Mapping
+
+The Edit Mapping dialog allows you to easily define multiple mappings between source and target fields.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Source fields|A list of input fields available to map. Select a field to begin mapping
+|Target fields|A list of fields that source fields can be mapped to. Once you have selected a source field, select a target field to create a mapping
+|Add|Adds a source and target field mapping pair to the Mappings section
+|Delete|Removes a selected Mappings entry
+|===
+
+=== Remove tab
+
+This tab allows you to remove fields from the input stream. Click Get fields to remove to import fields from previous transforms.
+
+=== Meta-data tab
+
+Options under this tab allow you to rename input fields, convert them to different data types, and alter their length, and precision. Click Get fields to change to import fields from previous transforms.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Fieldname|The name of the imported field. Note: If you renamed a field in the Select & Alter tab, the name here must match the renamed value.
+|Rename to|If you want to rename this field, this is where you put the new name
+|Type|The data type for this field
+|Length|The field length
+|Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits
+|Binary to Normal?|Converts a string to a numeric data type, when appropriate
+|Format|The format mask (number type or date format)
+|Date Format Lenient?|Determines whether the date parser is strict or lenient. Leniency means that invalid date values are processed. If set to N, only strictly valid date values will be accepted; if set to Y, the parser will attempt to determine the intention of an incorrect date, if possible, and correct it.
+|Date Locale|Specifies the date locale to use for date conversions and calculations. Leave blank to use the default encoding on your system or chose from the populated this list accordingly.
+|Date Time Zone|Specifies the date time zone to use for date conversions and calculations. Leave blank to use the default encoding on your system or chose from the populated list accordingly.
+|Lenient number conversion|When this option is set to Y, numbers get parsed until it finds a non-numeric value (e.g. a dash or slash) and stops parsing without reporting an error. When set to N, numbers get parsed strictly throwing an error in case invalid numbers are in the input.
+|Encoding|Specifies the text file encoding to use. Leave blank to use the default encoding on your system. To use Unicode, specify UTF-8 or UTF-16. On first use, Spoon searches your system for available encodings and populates this list accordingly.
+|Decimal|A decimal point; this is either a dot or a comma
+|Grouping|A method of separating units of thousands in numbers of four digits or larger. This is either a dot or a comma.
+|Currency|Symbol used to represent currencies
+|===
+
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

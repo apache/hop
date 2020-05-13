@@ -1,0 +1,16 @@
+[[database-plugins-ingres]]
+:documentationPath: /plugins/databases/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/ingres/src/main/doc/ingres.adoc
+= ingres
+
+[width="90%", cols="2*", options="header"]
+|===
+| Option | Info
+|Type | Relational
+|Driver | https://esd.actian.com/product/drivers/JDBC/java/JDBC[Driver Link]
+|Version Included | None
+|Hop Dependencies | None
+|Documentation | https://docs.actian.com/ingres/11.0/index.html#page/Connectivity%2FJDBC_Driver_and_Data_Source_Classes.htm%23[Documentation Link]
+|JDBC Url | jdbc:ingres://host:port{,port}{;host:port{,port}}/db{;attr=value}
+|===

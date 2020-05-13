@@ -1,0 +1,25 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/datagrid/src/main/doc/datagrid.adoc
+= Data Grid
+
+== Description
+
+The Data Grid transform allows you to enter a static list of rows in a grid.  This is usually done for testing, reference or demo purposes.
+
+== Options
+
+[width="90%, options="header"]
+|===
+|Meta tab|specify the field metadata (output specification) of the data
+|Data Tab|contains the data.  Everything is entered in String format so make sure you use the correct format masks in the metadata tab.
+|===
+
+== Metadata Injection Support
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your transformation at runtime.
+
+== Limitations
+It is not yet possible to insert columns in between 2 existing one or in general re-order the fields in the metadata tab.
+
+If you plan to do this, make sure to copy the data section first to a spreadsheet (Select all rows and copy/paste the whole grid), change the data and copy it back into the data section.
+

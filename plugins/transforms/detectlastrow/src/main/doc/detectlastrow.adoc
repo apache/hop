@@ -1,0 +1,17 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/detectlastrow/src/main/doc/detectlastrow.adoc
+= Detect last row
+
+== Description
+
+The Identify last row in a stream pipeline transform generates a Boolean field filled with true for the last row, and falseotherwise.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of this transform as it appears in the pipeline workspace
+|Result fieldname|Defines the field to use to mark the last row of a stream. It generates a Boolean field filled with true for the last row, and falseotherwise. 
+|===
