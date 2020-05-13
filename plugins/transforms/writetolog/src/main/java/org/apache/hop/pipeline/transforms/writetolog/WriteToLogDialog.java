@@ -28,7 +28,6 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,30 +42,14 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @PluginDialog(
         id = "WriteToLog",
@@ -78,40 +61,29 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
   private static Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
 
   private WriteToLogMeta input;
-  private Label wlLoglevel;
 
   private CCombo wLoglevel;
 
-  private Label wlPrintHeader;
-  private FormData fdPrintHeader, fdlPrintHeader;
-
   private Button wPrintHeader;
-  private FormData fdlLoglevel, fdLoglevel;
 
-  private Label wlLogMessage;
   private StyledTextComp wLogMessage;
-  private FormData fdlLogMessage, fdLogMessage;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private Label wlLimitRows;
   private Button wLimitRows;
-  private FormData fdlLimitRows, fdLimitRows;
 
-  private Label wlLimitRowsNumber;
+  Label wlLimitRowsNumber;
   private Text wLimitRowsNumber;
-  private FormData fdlLimitRowsNumber, fdLimitRowsNumber;
 
   private Map<String, Integer> inputFields;
 
   private ColumnInfo[] colinf;
 
+
   public WriteToLogDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (WriteToLogMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -122,11 +94,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = modifyEvent -> input.setChanged();
 
     SelectionAdapter lsSelMod = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -173,10 +141,10 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setLayoutData( fdTransformName );
 
     // Log Level
-    wlLoglevel = new Label( shell, SWT.RIGHT );
+    Label wlLoglevel = new Label( shell, SWT.RIGHT );
     wlLoglevel.setText( BaseMessages.getString( PKG, "WriteToLogDialog.Loglevel.Label" ) );
     props.setLook( wlLoglevel );
-    fdlLoglevel = new FormData();
+    FormData fdlLoglevel = new FormData();
     fdlLoglevel.left = new FormAttachment( 0, 0 );
     fdlLoglevel.right = new FormAttachment( middle, -margin );
     fdlLoglevel.top = new FormAttachment( wTransformName, margin );
@@ -184,7 +152,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     wLoglevel = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wLoglevel.setItems( LogLevel.getLogLevelDescriptions() );
     props.setLook( wLoglevel );
-    fdLoglevel = new FormData();
+    FormData fdLoglevel = new FormData();
     fdLoglevel.left = new FormAttachment( middle, 0 );
     fdLoglevel.top = new FormAttachment( wTransformName, margin );
     fdLoglevel.right = new FormAttachment( 100, 0 );
@@ -192,10 +160,10 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     wLoglevel.addSelectionListener( lsSelMod );
 
     // print header?
-    wlPrintHeader = new Label( shell, SWT.RIGHT );
+    Label wlPrintHeader = new Label( shell, SWT.RIGHT );
     wlPrintHeader.setText( BaseMessages.getString( PKG, "WriteToLogDialog.PrintHeader.Label" ) );
     props.setLook( wlPrintHeader );
-    fdlPrintHeader = new FormData();
+    FormData fdlPrintHeader = new FormData();
     fdlPrintHeader.left = new FormAttachment( 0, 0 );
     fdlPrintHeader.top = new FormAttachment( wLoglevel, margin );
     fdlPrintHeader.right = new FormAttachment( middle, -margin );
@@ -203,7 +171,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     wPrintHeader = new Button( shell, SWT.CHECK );
     wPrintHeader.setToolTipText( BaseMessages.getString( PKG, "WriteToLogDialog.PrintHeader.Tooltip" ) );
     props.setLook( wPrintHeader );
-    fdPrintHeader = new FormData();
+    FormData fdPrintHeader = new FormData();
     fdPrintHeader.left = new FormAttachment( middle, 0 );
     fdPrintHeader.top = new FormAttachment( wLoglevel, margin );
     fdPrintHeader.right = new FormAttachment( 100, 0 );
@@ -212,17 +180,17 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
 
     // Limit output?
     // ICache?
-    wlLimitRows = new Label( shell, SWT.RIGHT );
+    Label wlLimitRows = new Label( shell, SWT.RIGHT );
     wlLimitRows.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.LimitRows.Label" ) );
     props.setLook( wlLimitRows );
-    fdlLimitRows = new FormData();
+    FormData fdlLimitRows = new FormData();
     fdlLimitRows.left = new FormAttachment( 0, 0 );
     fdlLimitRows.right = new FormAttachment( middle, -margin );
     fdlLimitRows.top = new FormAttachment( wPrintHeader, margin );
     wlLimitRows.setLayoutData( fdlLimitRows );
     wLimitRows = new Button( shell, SWT.CHECK );
     props.setLook( wLimitRows );
-    fdLimitRows = new FormData();
+    FormData fdLimitRows = new FormData();
     fdLimitRows.left = new FormAttachment( middle, 0 );
     fdLimitRows.top = new FormAttachment( wPrintHeader, margin );
     wLimitRows.setLayoutData( fdLimitRows );
@@ -233,7 +201,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     wlLimitRowsNumber.setText( BaseMessages.getString( PKG, "DatabaseLookupDialog.LimitRowsNumber.Label" ) );
     props.setLook( wlLimitRowsNumber );
     wlLimitRowsNumber.setEnabled( input.isLimitRows() );
-    fdlLimitRowsNumber = new FormData();
+    FormData fdlLimitRowsNumber = new FormData();
     fdlLimitRowsNumber.left = new FormAttachment( 0, 0 );
     fdlLimitRowsNumber.right = new FormAttachment( middle, -margin );
     fdlLimitRowsNumber.top = new FormAttachment( wLimitRows, margin );
@@ -242,17 +210,17 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wLimitRowsNumber );
     wLimitRowsNumber.setEnabled( input.isLimitRows() );
     wLimitRowsNumber.addModifyListener( lsMod );
-    fdLimitRowsNumber = new FormData();
+    FormData fdLimitRowsNumber = new FormData();
     fdLimitRowsNumber.left = new FormAttachment( middle, 0 );
     fdLimitRowsNumber.right = new FormAttachment( 100, 0 );
     fdLimitRowsNumber.top = new FormAttachment( wLimitRows, margin );
     wLimitRowsNumber.setLayoutData( fdLimitRowsNumber );
 
     // Log message to display
-    wlLogMessage = new Label( shell, SWT.RIGHT );
+    Label wlLogMessage = new Label( shell, SWT.RIGHT );
     wlLogMessage.setText( BaseMessages.getString( PKG, "WriteToLogDialog.Shell.Title" ) );
     props.setLook( wlLogMessage );
-    fdlLogMessage = new FormData();
+    FormData fdlLogMessage = new FormData();
     fdlLogMessage.left = new FormAttachment( 0, 0 );
     fdlLogMessage.top = new FormAttachment( wLimitRowsNumber, margin );
     fdlLogMessage.right = new FormAttachment( middle, -margin );
@@ -262,7 +230,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wLogMessage, Props.WIDGET_STYLE_FIXED );
     wLogMessage.addModifyListener( lsMod );
-    fdLogMessage = new FormData();
+    FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment( middle, 0 );
     fdLogMessage.top = new FormAttachment( wLimitRowsNumber, margin );
     fdLogMessage.right = new FormAttachment( 100, -2 * margin );
@@ -279,10 +247,10 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Table with fields
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "WriteToLogDialog.Fields.Label" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wLogMessage, margin );
     wlFields.setLayoutData( fdlFields );
@@ -299,7 +267,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
@@ -330,21 +298,11 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     new Thread( runnable ).start();
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = event -> cancel();
+
+    lsGet = event -> get();
+
+    lsOk = event -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -383,7 +341,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
@@ -401,11 +359,9 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener insertListener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            return true;
-          }
-        };
+
+        ITableItemInsertListener insertListener = (tableItem, v) -> true;
+
         BaseTransformDialog
           .getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, insertListener );
       }

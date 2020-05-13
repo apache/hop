@@ -1,0 +1,24 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/numberrange/src/main/doc/numberrange.adoc
+
+= Number range
+
+== Description
+
+Create ranges based on numeric fields.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Input field|Designate the field that gets checked for the lower and upper boundaries.
+|Output field|Designate the output field name that gets filled with the value depending of the input field.
+|Default value|Value to return if there are no matches within the ranges specified.
+|Ranges|Designated the upper and lower bound of a range.
+|Lower Bound|Designated the minimum value of a range.
+|Upper Bound|Designate the upper value of a range.
+|Value|Designated a name for the value. 
+|===

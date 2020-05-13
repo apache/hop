@@ -318,6 +318,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wODBC.setLayoutData( fdODBC );
     lastControl = wODBC;
 
+    wODBC.addListener( SWT.Selection, event -> enableFields() );
+
     // What's the ODBC DSN Name
     //
     wlOdbcDsn = new Label( wGeneralComp, SWT.RIGHT );
@@ -337,11 +339,71 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wOdbcDsn.setLayoutData( fdOdbcDsn );
     lastControl = wOdbcDsn;
 
+    // Username field
+    //
+    wlUsername = new Label( wGeneralComp, SWT.RIGHT );
+    props.setLook( wlUsername );
+    wlUsername.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Username" ) );
+    FormData fdlUsername = new FormData();
+    fdlUsername.top = new FormAttachment( lastControl, margin * 2 ); // At the bottom of this tab
+    fdlUsername.left = new FormAttachment( 0, 0 ); // First one in the left top corner
+    fdlUsername.right = new FormAttachment( middle, 0 );
+    wlUsername.setLayoutData( fdlUsername );
+    wUsername = new TextVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wUsername );
+    FormData fdUsername = new FormData();
+    fdUsername.top = new FormAttachment( wlUsername, 0, SWT.CENTER );
+    fdUsername.left = new FormAttachment( middle, margin ); // To the right of the label
+    fdUsername.right = new FormAttachment( 100, 0 );
+    wUsername.setLayoutData( fdUsername );
+    lastControl = wUsername;
+
+    // Password field
+    //
+    wlPassword = new Label( wGeneralComp, SWT.RIGHT );
+    props.setLook( wlPassword );
+    wlPassword.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Password" ) );
+    FormData fdlPassword = new FormData();
+    fdlPassword.top = new FormAttachment( lastControl, margin * 2 ); // At the bottom of this tab
+    fdlPassword.left = new FormAttachment( 0, 0 ); // First one in the left top corner
+    fdlPassword.right = new FormAttachment( middle, 0 );
+    wlPassword.setLayoutData( fdlPassword );
+    wPassword = new TextVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword.setEchoChar( '*' );
+    props.setLook( wPassword );
+    FormData fdPassword = new FormData();
+    fdPassword.top = new FormAttachment( wlPassword, 0, SWT.CENTER );
+    fdPassword.left = new FormAttachment( middle, margin ); // To the right of the label
+    fdPassword.right = new FormAttachment( 100, 0 );
+    wPassword.setLayoutData( fdPassword );
+    lastControl = wPassword;
+
+    // Add a composite area
+    //
+    wDatabaseSpecificComp = new Composite( wGeneralComp, SWT.BACKGROUND );
+    props.setLook( wDatabaseSpecificComp );
+    wDatabaseSpecificComp.setLayout( new FormLayout() );
+    FormData fdDatabaseSpecificComp = new FormData();
+    fdDatabaseSpecificComp.left = new FormAttachment( 0, 0 );
+    fdDatabaseSpecificComp.right = new FormAttachment( 100, 0 );
+    fdDatabaseSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
+    wDatabaseSpecificComp.setLayoutData( fdDatabaseSpecificComp );
+    lastControl = wDatabaseSpecificComp;
+
+    // Now add the database plugin specific widgets
+    //
+    guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta, 8 ); // max 6 lines
+    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+
+    addCompositeWidgetsUsernamePassword();
+
+    // manual URL field
+    //
     wlManualUrl = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlManualUrl );
     wlManualUrl.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ManualUrl" ) );
     FormData fdlManualUrl = new FormData();
-    fdlManualUrl.bottom = new FormAttachment( 100, -margin ); // At the bottom of this tab
+    fdlManualUrl.top = new FormAttachment( lastControl, margin * 2 ); // At the bottom of this tab
     fdlManualUrl.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlManualUrl.right = new FormAttachment( middle, 0 );
     wlManualUrl.setLayoutData( fdlManualUrl );
@@ -355,61 +417,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wManualUrl.addModifyListener( e -> {
       enableFields();
     } );
-
-    wlPassword = new Label( wGeneralComp, SWT.RIGHT );
-    props.setLook( wlPassword );
-    wlPassword.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Password" ) );
-    FormData fdlPassword = new FormData();
-    fdlPassword.bottom = new FormAttachment( wManualUrl, -margin * 5 ); // At the bottom of this tab
-    fdlPassword.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlPassword.right = new FormAttachment( middle, 0 );
-    wlPassword.setLayoutData( fdlPassword );
-    wPassword = new TextVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wPassword.setEchoChar( '*' );
-    props.setLook( wPassword );
-    FormData fdPassword = new FormData();
-    fdPassword.top = new FormAttachment( wlPassword, 0, SWT.CENTER );
-    fdPassword.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdPassword.right = new FormAttachment( 100, 0 );
-    wPassword.setLayoutData( fdPassword );
-
-    wlUsername = new Label( wGeneralComp, SWT.RIGHT );
-    props.setLook( wlUsername );
-    wlUsername.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.Username" ) );
-    FormData fdlUsername = new FormData();
-    fdlUsername.bottom = new FormAttachment( wPassword, -margin ); // At the bottom of this tab
-    fdlUsername.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlUsername.right = new FormAttachment( middle, 0 );
-    wlUsername.setLayoutData( fdlUsername );
-    wUsername = new TextVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wUsername );
-    FormData fdUsername = new FormData();
-    fdUsername.top = new FormAttachment( wlUsername, 0, SWT.CENTER );
-    fdUsername.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdUsername.right = new FormAttachment( 100, 0 );
-    wUsername.setLayoutData( fdUsername );
-
-    wODBC.addListener( SWT.Selection, event -> enableFields() );
-
-    // Add a composite area
-    //
-    wDatabaseSpecificComp = new Composite( wGeneralComp, SWT.BACKGROUND );
-    props.setLook( wDatabaseSpecificComp );
-    wDatabaseSpecificComp.setLayout( new FormLayout() );
-    FormData fdDatabaseSpecificComp = new FormData();
-    fdDatabaseSpecificComp.left = new FormAttachment( 0, 0 );
-    fdDatabaseSpecificComp.right = new FormAttachment( 100, 0 );
-    fdDatabaseSpecificComp.top = new FormAttachment( lastControl, 3 * margin );
-    fdDatabaseSpecificComp.bottom = new FormAttachment( wUsername, -margin*2 );
-    wDatabaseSpecificComp.setLayoutData( fdDatabaseSpecificComp );
-
-    // Now add the database plugin specific widgets
-    //
-    guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta, 8 ); // max 6 lines
-    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-    // System.out.println( "---- widgets created for : " + workingMeta.getIDatabase().getClass().getName() );
-
-    addCompositeWidgetsUsernamePassword();
 
     fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );

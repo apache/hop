@@ -1,0 +1,25 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/syslog/src/main/doc/syslog.adoc
+
+= Send Message to Syslog
+
+== Description
+
+The Send message to Syslog transform allows you to send message logging to another server. The link:http://en.wikipedia.org/wiki/Syslog[Syslog] standard permits separation of the software that generates messages from the system that stores them and the software that reports and analyzes them.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform this name has to be unique in a single pipeline.
+|Server name / IP address|Defines the server name or IP address of the Syslog server.
+|Server port|Defines the server port of the Syslog server, by default 514
+|Facility\A facility level is used to specify what type of program is logging the message. This lets the configuration file specify that messages from different facilities will be handled differently. The list of facilities is defined by RFC 3164.
+|Priority|Select your priority/severity level (defined by RFC 5424).
+|Add hostname to message|Adds the hostname to the message.
+|Add timestamp to message|Adds the timestamp to the message.
+|Data pattern|Define the Date/Time format for the timestamp
+|Message field name|Select the fieldname that has the message to send to the Syslog server
+|===
