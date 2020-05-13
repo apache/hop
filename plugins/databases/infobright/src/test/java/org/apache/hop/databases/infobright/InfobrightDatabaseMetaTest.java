@@ -28,11 +28,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class InfobrightDatabaseMetaTest {
 
@@ -60,9 +62,9 @@ public class InfobrightDatabaseMetaTest {
   public void testAttributesVariable() throws HopDatabaseException {
     DatabaseMeta dbmeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
     dbmeta.setVariable( "someVar", "someValue" );
-    dbmeta.setAttributes( new Properties() );
-    Properties props = dbmeta.getAttributes();
-    props.setProperty( "EXTRA_OPTION_Infobright.additional_param", "${someVar}" );
+    dbmeta.setAttributes( new HashMap<>() );
+    Map<String,String> props = dbmeta.getAttributes();
+    props.put( "EXTRA_OPTION_Infobright.additional_param", "${someVar}" );
     dbmeta.getURL();
     assertTrue( dbmeta.getURL().contains( "someValue" ) );
   }

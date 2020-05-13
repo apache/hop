@@ -70,7 +70,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return value of resultStreaming
    */
   public boolean isResultStreaming() {
-    String streaming = getAttributes().getProperty( ATTRIBUTE_USE_RESULT_STREAMING );
+    String streaming = getAttributeProperty( ATTRIBUTE_USE_RESULT_STREAMING );
     return "Y".equalsIgnoreCase( streaming );
   }
 
@@ -78,7 +78,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param resultStreaming The resultStreaming to set
    */
   public void setResultStreaming( boolean resultStreaming ) {
-    getAttributes().setProperty( ATTRIBUTE_USE_RESULT_STREAMING, resultStreaming ? "Y" : "N" );
+    getAttributes().put( ATTRIBUTE_USE_RESULT_STREAMING, resultStreaming ? "Y" : "N" );
   }
 
   private static final int VARCHAR_LIMIT = 65_535;
