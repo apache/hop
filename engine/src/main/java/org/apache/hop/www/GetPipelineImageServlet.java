@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.hop.core.gui.HopSvgGraphics2D;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SwingGc;
 import org.apache.hop.core.util.Utils;
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
+  public static final float ZOOM_FACTOR = 1.5f;
 
   private static Class<?> PKG = GetPipelineImageServlet.class; // for i18n purposes, needed by Translator!!
 
@@ -109,7 +110,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
   }
 
   private String generatePipelineSvgImage( PipelineMeta pipelineMeta ) throws Exception {
-    float magnification = 1.5f;
+    float magnification = ZOOM_FACTOR;
     Point maximum = pipelineMeta.getMaximum();
     maximum.multiply( magnification );
 
@@ -119,7 +120,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     String svgNamespace = "http://www.w3.org/2000/svg";
     Document document = domImplementation.createDocument(svgNamespace, "svg", null);
 
-    SVGGraphics2D graphics2D = new SVGGraphics2D( document );
+    HopSvgGraphics2D graphics2D = new HopSvgGraphics2D( document );
 
     SwingGc gc = new SwingGc( graphics2D, new Rectangle(0, 0, maximum.x+100, maximum.y+100), 32, 0, 0 );
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );

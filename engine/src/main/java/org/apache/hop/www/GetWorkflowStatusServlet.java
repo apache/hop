@@ -375,11 +375,10 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           // Show workflow image?
           //
           Point max = workflow.getWorkflowMeta().getMaximum();
-          //max.x += 20;
-          max.y += 20;
-          out
-            .print( "<iframe height=\""
-              + max.y + "\" width=\"" + 875 + "\" seamless src=\""
+          max.x += (int)(max.x*GetWorkflowImageServlet.ZOOM_FACTOR) + 100;
+          max.y += (int)(max.y+GetWorkflowImageServlet.ZOOM_FACTOR) + 50;
+          out.print( "<iframe height=\""
+              + max.y + "px\" width=\"" + max.x + "px\" src=\""
               + convertContextPath( GetWorkflowImageServlet.CONTEXT_PATH ) + "?name="
               + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
               + "\"></iframe>" );
@@ -389,8 +388,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
 
           out.print( "<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">" );
           out.print( "<div class=\"workspaceHeading\">Workflow log</div>" );
-          out.println( "<textarea id=\"joblog\" cols=\"120\" rows=\"20\" wrap=\"off\" "
-            + "name=\"Workflow log\" readonly=\"readonly\" style=\"height: auto;\">"
+          out.println( "<textarea id=\"workflowlog\" cols=\"120\" rows=\"20\" wrap=\"off\" "
+            + "name=\"Workflow log\" readonly=\"readonly\" style=\"height: auto; width: 100%;\">"
             + Encode.forHtml( getLogText( workflow, startLineNr, lastLineNr ) ) + "</textarea>" );
           out.print( "</div>" );
 

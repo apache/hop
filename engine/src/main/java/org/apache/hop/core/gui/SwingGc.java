@@ -171,11 +171,6 @@ public class SwingGc implements IGc {
     init();
   }
 
-  public SwingGc( ImageObserver observer, Point area, int iconSize, int xOffset, int yOffset ) throws HopException {
-    this( new BufferedImage( area.x, area.y, BufferedImage.TYPE_INT_ARGB ), null, observer,
-      area, iconSize, xOffset, yOffset );
-  }
-
   public SwingGc( Graphics2D gc, Rectangle2D rect, int iconSize, int xOffset, int yOffset ) throws HopException {
     this( null, gc, null,
       new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconSize, xOffset, yOffset );
@@ -359,7 +354,7 @@ public class SwingGc implements IGc {
     drawImage( img, x, y, angle, smallIconSize );
   }
 
-  private void drawImage( SwingUniversalImage image, int locationX, int locationY, int imageSize ) {
+  protected void drawImage( SwingUniversalImage image, int locationX, int locationY, int imageSize ) {
     if ( isDrawingPixelatedImages() && image.isBitmap() ) {
       BufferedImage img = image.getAsBitmapForSize( imageSize, imageSize );
       ColorModel cm = img.getColorModel();
@@ -382,7 +377,7 @@ public class SwingGc implements IGc {
     }
   }
 
-  private void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
+  protected void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
     if ( isDrawingPixelatedImages() && image.isBitmap() ) {
       BufferedImage img = image.getAsBitmapForSize( imageSize, imageSize, angle );
       ColorModel cm = img.getColorModel();

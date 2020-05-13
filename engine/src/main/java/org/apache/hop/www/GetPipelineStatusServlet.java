@@ -156,7 +156,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             pipelineStatus.setExecutionStartDate( pipeline.getExecutionStartDate() );
             pipelineStatus.setExecutionEndDate( pipeline.getExecutionEndDate() );
 
-            for ( IEngineComponent component : pipeline.getComponents()) {
+            for ( IEngineComponent component : pipeline.getComponents() ) {
               if ( ( component.isRunning() ) || ( component.getStatus() != ComponentExecutionStatus.STATUS_EMPTY ) ) {
                 TransformStatus transformStatus = new TransformStatus( component );
                 pipelineStatus.getTransformStatusList().add( transformStatus );
@@ -249,7 +249,8 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               + BaseMessages.getString( PKG, "PipelineStatusServlet.StartDate" ) + "</th> </tr>" );
           out.print( "<tr class=\"cellTableRow\" style=\"border: solid; border-width: 1px 0; border-bottom: none; font-size: 12; text-align: left;\">" );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">" + Encode.forHtml( id ) + "</td>" );
-          out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatusDescription() ) + "</td>" );
+          out.print(
+            "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">" + Encode.forHtml( pipeline.getStatusDescription() ) + "</td>" );
           String dateStr = XmlHandler.date2string( pipeline.getExecutionStartDate() );
           out.print( "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">" + dateStr.substring( 0, dateStr.indexOf( ' ' ) ) + "</td>" );
           out.print( "</tr>" );
@@ -338,21 +339,20 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           // URLEncoder.encode(pipelineName, "UTF-8") + "&id="+id+"\">"
           // + BaseMessages.getString(PKG, "PipelineStatusServlet.GetPipelineImage") + "</a>");
           Point max = pipeline.getPipelineMeta().getMaximum();
-          max.x += 20;
-          max.y += 20;
-          out.print( "<iframe height=\""
-            + max.y + "\" width=\"" + 875 + "\" seamless src=\""
-            + convertContextPath( GetPipelineImageServlet.CONTEXT_PATH ) + "?name="
+          max.x = (int)(max.x * GetPipelineImageServlet.ZOOM_FACTOR) + 100;
+          max.y = (int)(max.y * GetPipelineImageServlet.ZOOM_FACTOR) + 50;
+          out.print( "<iframe height=\"" + max.y + "px\" width=\"" + max.x + "px\" "
+            + "src=\"" + convertContextPath( GetPipelineImageServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
-            + "\"></iframe>" );
+            + "\" frameborder=\"0\"></iframe>" );
+          ;
           out.print( "</div>" );
 
           // Put the logging below that.
           out.print( "<div class=\"row\" style=\"padding: 0px 0px 30px 0px;\">" );
           out.print( "<div class=\"workspaceHeading\" style=\"padding: 0px 0px 30px 0px;\">Pipeline log</div>" );
-          out
-            .println( "<textarea id=\"pipelinelog\" cols=\"120\" rows=\"20\" "
-              + "wrap=\"off\" name=\"Pipeline log\" readonly=\"readonly\" style=\"height: auto;\">"
+          out.println( "<textarea id=\"pipelinelog\" cols=\"120\" rows=\"20\" "
+              + "wrap=\"off\" name=\"Pipeline log\" readonly=\"readonly\" style=\"height: auto; width: 100%;\">"
               + Encode.forHtml( getLogText( pipeline, startLineNr, lastLineNr ) ) + "</textarea>" );
           out.print( "</div>" );
 

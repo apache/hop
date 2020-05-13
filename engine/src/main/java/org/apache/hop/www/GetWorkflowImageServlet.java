@@ -35,12 +35,10 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,6 +48,7 @@ import java.util.ArrayList;
 public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
+  public static final float ZOOM_FACTOR = 1.5f;
 
   private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
@@ -123,7 +122,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
   }
 
   private String generateWorkflowSvgImage( WorkflowMeta workflowMeta ) throws Exception {
-    float magnification = 1.0f;
+    float magnification = ZOOM_FACTOR;
     Point maximum = workflowMeta.getMaximum();
     maximum.multiply( magnification );
 
