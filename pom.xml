@@ -709,11 +709,7 @@
         <module>core</module>
         <module>engine</module>
         <module>ui</module>
-<<<<<<< HEAD
-        <module>security</module>
-=======
         <module>plugins</module>
->>>>>>> master
       </modules>
     </profile>
     <profile>
