@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.core;
+package org.apache.hop.core;
 
 import java.util.HashMap;
 
