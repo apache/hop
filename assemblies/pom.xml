@@ -23,16 +23,11 @@
   <modules>
     <module>plugins</module>
     <module>static</module>
-<<<<<<< HEAD
-    <module>lib</module>
-    <module>client</module>
-=======
 <!--    TODO: Reactivate when we have new samples-->
 <!--    <module>samples</module>-->
     <module>lib</module>
     <module>client</module>
     <module>core</module>
     <module>debug</module>
->>>>>>> master
   </modules>
 </project>

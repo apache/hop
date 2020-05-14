@@ -29,7 +29,6 @@
         <include>ui/*</include>
       </includes>
     </fileSet>
-<<<<<<< HEAD
     <fileSet>
       <directory>${project.basedir}/src/main/resources/classes</directory>
       <outputDirectory>WEB-INF/classes</outputDirectory>
@@ -44,9 +43,3 @@
     </fileSet>
   </fileSets>
 </assembly>
-=======
-  </fileSets>
-  <dependencySets>
-  </dependencySets>
-</assembly>
->>>>>>> master

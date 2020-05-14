@@ -4,12 +4,7 @@
   <formats>
     <format>war</format>
   </formats>
-<<<<<<< HEAD
   <includeBaseDirectory>false</includeBaseDirectory>
-=======
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>hop</baseDirectory>
->>>>>>> master
   <fileSets>
     <!-- the staging dir -->
     <fileSet>
@@ -21,15 +16,9 @@
     <!-- hop components -->
     <dependencySet>
       <includes>
-<<<<<<< HEAD
-        <include>org.pentaho.di:pdi-libs:zip</include>
-=======
-        <include>org.hop:hop-assemblies-static:zip</include>
 <!--        TODO: Reactivate when we have new samples-->
 <!--        <include>org.hop:hop-assemblies-samples:zip</include>-->
         <include>org.hop:hop-assemblies-libs:zip</include>
-        <include>org.hop:hop-assemblies-plugins-dist:zip</include>
->>>>>>> master
       </includes>
       <unpack>true</unpack>
       <outputDirectory>WEB-INF</outputDirectory>
@@ -38,53 +27,13 @@
     </dependencySet>
     <dependencySet>
       <includes>
-<<<<<<< HEAD
-        <include>org.pentaho.di:pdi-static:zip</include>
-=======
-        <include>org.eclipse.platform:*.gtk.linux.x86_64</include>
-      </includes>
-      <outputDirectory>libswt/linux/x86_64</outputDirectory>
-      <outputFileNameMapping>swt.jar</outputFileNameMapping>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.eclipse.platform:*.win32.x86_64</include>
-      </includes>
-      <outputDirectory>libswt/win64</outputDirectory>
-      <outputFileNameMapping>swt.jar</outputFileNameMapping>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.eclipse.platform:*.macosx.x86_64</include>
->>>>>>> master
+        <include>org.hop:hop-assemblies-static:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
-<<<<<<< HEAD
-    <!-- licenses -->
-    <dependencySet>
-      <includes>
-        <include>pentaho:oss-licenses:zip</include>
-      </includes>
-      <unpack>true</unpack>
-      <unpackOptions>
-        <includes>
-          <include>PentahoDataIntegration_OSS_Licenses.html</include>
-        </includes>
-      </unpackOptions>
-      <outputDirectory>.</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-=======
 
->>>>>>> master
   </dependencySets>
 </assembly>
