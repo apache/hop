@@ -60,27 +60,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/spoon/job/JobMetricsDelegate.java
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.gui.GCInterface;
-import org.pentaho.di.core.gui.Point;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.core.logging.LoggingRegistry;
-import org.pentaho.di.core.logging.MetricsPainter;
-import org.pentaho.di.core.logging.MetricsPainter.MetricsDrawArea;
-import org.pentaho.di.core.metrics.MetricsDuration;
-import org.pentaho.di.core.metrics.MetricsUtil;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.PropsUI;
-import org.pentaho.di.ui.core.gui.GUIResource;
-import org.pentaho.di.ui.spoon.SWTGC;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.di.ui.spoon.delegates.SpoonDelegate;
-
-public class JobMetricsDelegate extends SpoonDelegate {
-  private static Class<?> PKG = Spoon.class; // for i18n purposes, needed by Translator2!!
-=======
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -90,7 +69,6 @@ import java.util.TimerTask;
 
 public class HopGuiWorkflowMetricsDelegate {
   private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/hopgui/file/workflow/delegates/HopGuiWorkflowMetricsDelegate.java
 
   // private static final LogWriter log = LogWriter.getInstance();
 
@@ -379,12 +357,8 @@ public class HopGuiWorkflowMetricsDelegate {
     bounds.height = Math.max( durations.size() * barHeight, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/spoon/job/JobMetricsDelegate.java
     GCInterface gc =
-        new SWTGC( canvasGc, new Point( bounds.width, bounds.height ), PropsUI.getInstance().getIconSize() );
-=======
-    SwtGc gc = new SwtGc( Display.getCurrent(), new Point( bounds.width, bounds.height ), PropsUi.getInstance().getIconSize() );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/hopgui/file/workflow/delegates/HopGuiWorkflowMetricsDelegate.java
+        new SwtGc( canvasGc, new Point( bounds.width, bounds.height ), PropsUi.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, barHeight );
     // checking according to method's contract
     drawAreas = painter.paint( durations );

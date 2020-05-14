@@ -460,11 +460,7 @@ public class GuiResource {
 //    initialize( display );
 //  }
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
   public void initialize( Display display ) {
-=======
-  private GuiResource( Display display ) {
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
     this.display = display;
 
     getResources();
@@ -512,17 +508,8 @@ public class GuiResource {
     initialized = true;
   }
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
-  public static final GUIResource getInstance() {
-    return SingletonUtil.getSessionInstance( GUIResource.class );
-=======
   public static final GuiResource getInstance() {
-    if ( guiResource != null ) {
-      return guiResource;
-    }
-    guiResource = new GuiResource( PropsUi.getDisplay() );
-    return guiResource;
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
+    return SingletonUtil.getSessionInstance( GuiResource.class );
   }
 
   /**
@@ -576,15 +563,10 @@ public class GuiResource {
     // Load all images from files...
     loadFonts();
     loadCommonImages();
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
     if ( !initialized ) {
-      loadStepImages();
-      loadJobEntryImages();
+      loadTransformImages();
+      loadWorkflowActionImages();
     }
-=======
-    loadTransformImages();
-    loadWorkflowActionImages();
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
   }
 
   private void dispose( boolean reload ) {
@@ -782,19 +764,6 @@ public class GuiResource {
       imageToolbarSearchInactive.dispose();
       imageToolbarView.dispose();
       imageToolbarViewAsXml.dispose();
-
-      // big images
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
-//      disposeUniversalImages( imagesSteps.values() );
-
-      // Small images
-//      disposeImages( imagesStepsSmall.values() );
-=======
-      disposeUniversalImages( imagesTransforms.values() );
-
-      // Small images
-      disposeImages( imagesTransformsSmall.values() );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
 
       // Dispose of the images in the map
       disposeImages( imageMap.values() );

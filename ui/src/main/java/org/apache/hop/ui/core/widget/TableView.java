@@ -21,26 +21,13 @@
  *
  ******************************************************************************/
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TableView.java
-package org.pentaho.di.ui.core.widget;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+package org.apache.hop.ui.core.widget;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
-=======
-package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
@@ -62,7 +49,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TableView.java
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -113,29 +99,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TableView.java
-import org.pentaho.di.core.Condition;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.RowMetaAndData;
-import org.pentaho.di.core.exception.KettleValueException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
-import org.pentaho.di.core.row.value.ValueMetaInteger;
-import org.pentaho.di.core.row.value.ValueMetaNumber;
-import org.pentaho.di.core.row.value.ValueMetaString;
-import org.pentaho.di.core.undo.TransAction;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.PropsUI;
-import org.pentaho.di.ui.core.dialog.EnterConditionDialog;
-import org.pentaho.di.ui.core.dialog.ErrorDialog;
-import org.pentaho.di.ui.core.gui.GUIResource;
-import org.pentaho.di.ui.spoon.ClipboardListener;
-import org.pentaho.di.ui.spoon.Spoon;
-=======
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,7 +109,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TableView.java
 
 /**
  * Widget to display or modify data, displayed in a Table format.
@@ -259,7 +221,6 @@ public class TableView extends Composite {
     }
   };
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TableView.java
   private String widgetId = WidgetUtil.getId( this );
   private ClipboardListener listener = new ClipboardListener() {
 
@@ -279,14 +240,9 @@ public class TableView extends Composite {
     }
   };
 
-  public TableView( VariableSpace space, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
-                    ModifyListener lsm, PropsUI pr ) {
-    this( space, parent, style, columnInfo, nrRows, false, lsm, pr );
-=======
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
                     ModifyListener lsm, PropsUi pr ) {
     this( variables, parent, style, columnInfo, nrRows, false, lsm, pr );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TableView.java
   }
 
   public TableView( IVariables variables, Composite parent, int style, ColumnInfo[] columnInfo, int nrRows,
@@ -1875,14 +1831,9 @@ public class TableView extends Composite {
       return null;
     }
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TableView.java
     // Table.getSelection() of RWT are ordered reversely.
     for ( int r = items.length - 1; r >= 0; r-- ) {
-      TableItem ti = items[r];
-=======
-    for ( int r = 0; r < items.length; r++ ) {
       TableItem ti = items[ r ];
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TableView.java
       for ( int c = 1; c < table.getColumnCount(); c++ ) {
         ColumnInfo ci = columns[c-1];
         if ( c > 1 ) {
@@ -2317,20 +2268,10 @@ public class TableView extends Composite {
     }
     String str = getTextWidgetValue( colnr );
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TableView.java
     int strmax = TextSizeUtil.textExtent( getFont(), str, 0 ).x + 20;
-    int colmax = tablecolumn[colnr].getWidth();
-    if ( strmax > colmax ) {
-      tablecolumn[colnr].setWidth( strmax + 30 );
-=======
-    int strmax = TableView.dummyGC.textExtent( str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x + 20;
     int colmax = tablecolumn[ colnr ].getWidth();
     if ( strmax > colmax ) {
-      if ( Const.isOSX() || Const.isLinux() ) {
-        strmax *= 1.4;
-      }
       tablecolumn[ colnr ].setWidth( strmax + 30 );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TableView.java
 
       // On linux, this causes the text to select everything...
       // This is because the focus is lost and re-gained. Nothing we can do

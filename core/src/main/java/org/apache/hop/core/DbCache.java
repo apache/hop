@@ -123,12 +123,7 @@ public class DbCache {
   }
 
   public String getFilename() {
-<<<<<<< HEAD:core/src/main/java/org/pentaho/di/core/DBCache.java
-    return Const.getKettleUserDirectory()
-      + Const.FILE_SEPARATOR + "db.cache-" + BuildVersion.getInstance().getVersion();
-=======
     return Const.HOP_AUDIT_DIRECTORY + Const.FILE_SEPARATOR + "db.cache";
->>>>>>> master:core/src/main/java/org/apache/hop/core/DbCache.java
   }
 
   private DbCache() throws HopFileException {

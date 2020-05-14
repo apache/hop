@@ -81,17 +81,10 @@ public class TextVar extends Composite {
     this( variables, composite, flags, null, getCaretPositionInterface, insertTextInterface );
   }
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TextVar.java
-  public TextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface ) {
-    super( composite, SWT.NO_FOCUS );
-    initialize( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, null );
-=======
   public TextVar( IVariables variables, Composite composite, int flags, String toolTipText,
                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface ) {
     super( composite, SWT.NONE );
     initialize( variables, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, null );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TextVar.java
   }
 
   public TextVar( Composite composite, IVariables variables, int flags,
@@ -100,19 +93,11 @@ public class TextVar extends Composite {
     this( variables, composite, flags, null, getCaretPositionInterface, insertTextInterface, selectionListener );
   }
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/widget/TextVar.java
-  public TextVar( VariableSpace space, Composite composite, int flags, String toolTipText,
-      GetCaretPositionInterface getCaretPositionInterface, InsertTextInterface insertTextInterface,
-      SelectionListener selectionListener ) {
-    super( composite, SWT.NO_FOCUS );
-    initialize( space, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, selectionListener );
-=======
   public TextVar( IVariables variables, Composite composite, int flags, String toolTipText,
                   IGetCaretPosition getCaretPositionInterface, IInsertText insertTextInterface,
                   SelectionListener selectionListener ) {
     super( composite, SWT.NONE );
     initialize( variables, composite, flags, toolTipText, getCaretPositionInterface, insertTextInterface, selectionListener );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/widget/TextVar.java
   }
 
   protected void initialize( IVariables variables, Composite composite, int flags, String toolTipText,
