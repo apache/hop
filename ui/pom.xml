@@ -24,9 +24,8 @@
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
 
     <!-- Pentaho dependencies -->
-    <kettle.version>8.2.0.7-719</kettle.version>
-    <pentaho-vfs-browser.version>${project.version}</pentaho-vfs-browser.version>
-    <pentaho-capability-manager.version>${kettle.version}</pentaho-capability-manager.version>
+    <pentaho-vfs-browser.version>8.2.0.7-719</pentaho-vfs-browser.version>
+    <pentaho-capability-manager.version>${project.version}</pentaho-capability-manager.version>
 
     <!-- Third-party dependencies -->
     <common.version>3.111.0</common.version>
@@ -45,37 +44,9 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>jsp-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- Third-party dependencies -->
-    <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>webspoon-security</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.jface</artifactId>
-      <version>${org.eclipse.jface.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.common</artifactId>
@@ -152,12 +123,6 @@
       <version>${rap.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-dom</artifactId>
       <version>${batik.version}</version>
@@ -178,11 +143,6 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.core</groupId>
-      <artifactId>commands</artifactId>
-      <version>${commands.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>
@@ -324,39 +284,6 @@
       <groupId>org.mitre.dsmiley.httpproxy</groupId>
       <artifactId>smiley-http-proxy-servlet</artifactId>
       <version>1.11</version>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-api</artifactId>
-      <version>${kettle.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-core</artifactId>
-      <version>${kettle.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-platform-extensions</artifactId>
-      <version>${kettle.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- Test dependencies -->
