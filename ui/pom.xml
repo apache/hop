@@ -6,7 +6,7 @@
   <groupId>org.hop</groupId>
   <artifactId>hop-ui-swt</artifactId>
   <packaging>jar</packaging>
-  <version>0.30-SNAPSHOT-19</version>
+  <version>0.30-SNAPSHOT</version>
 
   <name>Hop GUI</name>
 
