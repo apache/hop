@@ -1,4 +1,4 @@
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.hopgui;
 
 public interface ClipboardListener {
 

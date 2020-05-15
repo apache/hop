@@ -90,7 +90,7 @@ public class SwtGc implements IGc {
   private Transform transform;
 
   public SwtGc( GC gc, Point area, int iconsize ) {
-    this.gc = gc
+    this.gc = gc;
     this.images = GuiResource.getInstance().getImagesTransforms();
     this.iconsize = iconsize;
     this.area = area;

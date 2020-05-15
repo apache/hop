@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import org.apache.hop.core.WebSpoonUtils;
 import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.di.core.WebSpoonUtils;
 
 /**
  * Created by bmorrise on 2/18/16.

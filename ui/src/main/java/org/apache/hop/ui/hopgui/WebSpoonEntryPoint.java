@@ -21,11 +21,19 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.WebSpoonUtils;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.ExitConfirmation;
@@ -33,26 +41,11 @@ import org.eclipse.rap.rwt.client.service.StartupParameters;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.LastUsedFile;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.WebSpoonUtils;
-import org.pentaho.di.core.extension.ExtensionPointHandler;
-import org.pentaho.di.core.extension.KettleExtensionPoint;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.pan.CommandLineOption;
-import org.pentaho.di.security.WebSpoonSecurityManager;
-import org.pentaho.di.ui.core.PropsUI;
 
 public class WebSpoonEntryPoint extends AbstractEntryPoint {
 
   @Override
   protected void createContents( Composite parent ) {
-    SecurityManager securityManager = System.getSecurityManager();
-    if ( securityManager instanceof WebSpoonSecurityManager ) {
-      ( (WebSpoonSecurityManager) securityManager ).setUserName( RWT.getRequest().getRemoteUser() );
-    }
     // Set UISession so that any child thread of UIThread can access it
     WebSpoonUtils.setUISession( RWT.getUISession() );
     WebSpoonUtils.setUISession( WebSpoonUtils.getConnectionId(), RWT.getUISession() );
@@ -64,16 +57,10 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     WidgetUtil.registerDataKeys( "hops" );
     WidgetUtil.registerDataKeys( "notes" );
     /*
-     *  Create a KettleHome for the current user.
-     *  kettle.properties is automatically created for this user, but not used.
-     *  Currently, only .spoonrc is aware of multiple users.
-     */
-    KettleClientEnvironment.createKettleUserHome();
-    /*
      *  The following lines were migrated from Spoon.main
      *  because they are session specific.
      */
-    PropsUI.init( parent.getDisplay(), Props.TYPE_PROPERTIES_SPOON );
+    PropsUi.init( parent.getDisplay() );
 
     // Options
     StartupParameters serviceParams = RWT.getClient().getService( StartupParameters.class );
@@ -86,27 +73,27 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     }
 
     // Execute Spoon.createContents
-    CommandLineOption[] commandLineArgs = Spoon.getCommandLineArgs( args );
-    Spoon.getInstance().setCommandLineArgs( commandLineArgs );
-    Spoon.getInstance().setShell( parent.getShell() );
-    Spoon.getInstance().createContents( parent );
-    Spoon.getInstance().setArguments( args.toArray( new String[ args.size() ] ) );
+    CommandLineOption[] commandLineArgs = HopGui.getCommandLineArgs( args );
+    HopGui.getInstance().setCommandLineArgs( commandLineArgs );
+    HopGui.getInstance().setShell( parent.getShell() );
+    HopGui.getInstance().createContents( parent );
+    HopGui.getInstance().setArguments( args.toArray( new String[ args.size() ] ) );
     try {
-      ExtensionPointHandler.callExtensionPoint( Spoon.getInstance().getLog(), KettleExtensionPoint.SpoonStart.id, commandLineArgs );
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiStart.id, commandLineArgs );
     } catch ( Throwable e ) {
       LogChannel.GENERAL.logError( "Error calling extension points", e );
     }
 
     // For VFS browser, set the user data directory. This will be overwritten by the last open file if exists.
-    Spoon.getInstance().setLastFileOpened( Const.getKettleUserDataDirectory() );
+    HopGui.getInstance().setLastFileOpened( Const.getHopUserDataDirectory() );
 
     // Load last used files
-    Spoon.getInstance().loadLastUsedFiles();
+    HopGui.getInstance().loadLastUsedFiles();
 
     /*
      *  The following lines are webSpoon additional functions
      */
-    if ( Spoon.getInstance().getProperties().showExitWarning() ) {
+    if ( HopGui.getInstance().getProperties().showExitWarning() ) {
       ExitConfirmation serviceConfirm = RWT.getClient().getService( ExitConfirmation.class );
       serviceConfirm.setMessage( "Do you really wanna leave this site?" );
     }
@@ -120,7 +107,7 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
          */
         WebSpoonUtils.removeUISession( WebSpoonUtils.getConnectionId() );
         WebSpoonUtils.removeUser( WebSpoonUtils.getConnectionId() );
-        Spoon.getInstance().quitFile( false );
+        HopGui.getInstance().quitFile( false );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Error closing Spoon", e );
       }

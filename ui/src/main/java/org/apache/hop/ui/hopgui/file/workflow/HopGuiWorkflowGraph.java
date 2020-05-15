@@ -126,7 +126,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -166,7 +165,7 @@ import java.util.UUID;
  * @author Matt Created on 17-may-2003
  */
 public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
-  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener,
+  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener,
   IHasLogChannel, ILogParentProvided,
   IHopFileTypeHandler,
   IGuiRefresher {

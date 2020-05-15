@@ -21,7 +21,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.spoon;
+package org.apache.hop.ui.hopgui;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,15 +34,13 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletContextEvent;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.www.SlaveServerConfig;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.KettleClientEnvironment;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.xml.XMLHandler;
-import org.pentaho.di.www.CarteSingleton;
-import org.pentaho.di.www.SlaveServerConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -68,29 +66,29 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
      *  because they are application-wide context.
      */
     ExecutorService executor = Executors.newCachedThreadPool();
-    Future<KettleException> pluginRegistryFuture = executor.submit( new Callable<KettleException>() {
+    Future<HopException> pluginRegistryFuture = executor.submit( new Callable<HopException>() {
 
       @Override
-      public KettleException call() throws Exception {
-        Spoon.registerUIPluginObjectTypes();
+      public HopException call() throws Exception {
+        HopGui.registerUIPluginObjectTypes();
 
-        KettleClientEnvironment.getInstance().setClient( KettleClientEnvironment.ClientType.SPOON );
+        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.SPOON );
         try {
-          KettleEnvironment.init( false );
-        } catch ( KettleException e ) {
+          HopEnvironment.init( false );
+        } catch ( HopException e ) {
           return e;
         }
 
         return null;
       }
     } );
-    KettleException registryException;
+    HopException registryException;
     try {
       registryException = pluginRegistryFuture.get();
       if ( registryException != null ) {
         throw registryException;
       }
-      Spoon.initLogging( Spoon.getCommandLineArgs( new ArrayList<String>( Arrays.asList( "" ) ) ) );
+      HopGui.initLogging( HopGui.getCommandLineArgs( new ArrayList<String>( Arrays.asList( "" ) ) ) );
     } catch ( Throwable t ) {
       // avoid calls to Messages i18n method getString() in this block
       // We do this to (hopefully) also catch Out of Memory Exceptions

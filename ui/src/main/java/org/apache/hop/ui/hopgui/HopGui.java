@@ -87,7 +87,6 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -408,21 +407,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private static Display setupDisplay() {
     // Bootstrap Hop
     //
-    Display display;
-    if ( System.getProperties().containsKey( "SLEAK" ) ) {
-      DeviceData data = new DeviceData();
-      data.tracking = true;
-      display = new Display( data );
-      Sleak sleak = new Sleak();
-      Shell sleakShell = new Shell( display );
-      sleakShell.setText( "S-Leak" );
-      org.eclipse.swt.graphics.Point size = sleakShell.getSize();
-      sleakShell.setSize( size.x / 2, size.y / 2 );
-      sleak.create( sleakShell );
-      sleakShell.open();
-    } else {
-      display = new Display();
-    }
+    Display display = new Display();
     return display;
   }
 

@@ -22,9 +22,9 @@
 
 package org.eclipse.jface.window;
 
+import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
-import org.pentaho.di.ui.core.widget.CheckBoxToolTip;
 
 public class DefaultToolTip extends CheckBoxToolTip {
 

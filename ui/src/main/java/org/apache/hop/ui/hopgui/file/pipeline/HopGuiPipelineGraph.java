@@ -156,7 +156,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -204,7 +203,7 @@ import java.util.UUID;
   description = "The pipeline graph GUI plugin"
 )
 public class HopGuiPipelineGraph extends HopGuiAbstractGraph
-  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener, KeyListener,
+  implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, KeyListener,
   IHasLogChannel, ILogParentProvided,  // TODO: Aren't these the same?
   IHopFileTypeHandler,
   IGuiRefresher {

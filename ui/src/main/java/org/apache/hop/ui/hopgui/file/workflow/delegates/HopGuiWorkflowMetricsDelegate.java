@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -287,7 +288,7 @@ public class HopGuiWorkflowMetricsDelegate {
   }
 
   public void updateGraph() {
-    if ( jobGraph.getDisplay().isDisposed() ) {
+    if ( workflowGraph.getDisplay().isDisposed() ) {
       return;
     }
 
@@ -357,7 +358,7 @@ public class HopGuiWorkflowMetricsDelegate {
     bounds.height = Math.max( durations.size() * barHeight, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-    GCInterface gc =
+    IGc gc =
         new SwtGc( canvasGc, new Point( bounds.width, bounds.height ), PropsUi.getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, barHeight );
     // checking according to method's contract

@@ -27,16 +27,13 @@ import java.io.File;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.vfs.KettleVFS;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.dialog.ErrorDialog;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 public class FileDialog implements IFileDialog {
-  private static Class<?> PKG = Spoon.class;
+  private static Class<?> PKG = HopGui.class;
 
   int style;
   Shell parent;
@@ -56,7 +53,7 @@ public class FileDialog implements IFileDialog {
     FileObject initialFile;
     FileObject rootFile;
     try {
-      initialFile = KettleVFS.getFileObject( Spoon.getInstance().getLastFileOpened() );
+      initialFile = HopVFS.getFileObject( HopGui.getInstance().getLastFileOpened() );
       rootFile = initialFile.getFileSystem().getRoot();
     } catch ( Exception e ) {
       String message = Const.getStackTracker( e );
@@ -64,7 +61,7 @@ public class FileDialog implements IFileDialog {
 
       return;
     }
-    vfsFileChooserDialog = Spoon.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
+    vfsFileChooserDialog = HopGui.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
   }
 
   public FileDialog( Shell parent, int style ) {
@@ -85,7 +82,7 @@ public class FileDialog implements IFileDialog {
     if ( returnFile != null ) {
       try {
         file = new File( returnFile.getURL().getPath() );
-        Spoon.getInstance().setLastFileOpened( file.getPath() );
+        HopGui.getInstance().setLastFileOpened( file.getPath() );
       } catch ( FileSystemException e ) {
         e.printStackTrace();
       }

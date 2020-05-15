@@ -76,17 +76,11 @@ public class GuiResource {
 
   private static ILogChannel log = LogChannel.UI;
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
   private Display display;
 
   private static boolean initialized = false;
-=======
-  private static GuiResource guiResource;
-
-  private Display display;
 
   private double zoomFactor;
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
 
   // 33 resources
 
@@ -163,23 +157,13 @@ public class GuiResource {
   private ManagedFont fontBold;
 
   /* * * Images * * */
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
-  private static Map<String, SwtUniversalImage> imagesSteps = new Hashtable<>();
+  private static Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
 
-  private static Map<String, Image> imagesStepsSmall = new Hashtable<>();
+  private static Map<String, Image> imagesTransformsSmall = new Hashtable<>();
 
-  private static Map<String, SwtUniversalImage> imagesJobentries = new Hashtable<String, SwtUniversalImage>();
+  private static Map<String, SwtUniversalImage> imagesActions = new Hashtable<>();
 
-  private static Map<String, Image> imagesJobentriesSmall = new Hashtable<String, Image>();
-=======
-  private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
-
-  private Map<String, Image> imagesTransformsSmall = new Hashtable<>();
-
-  private Map<String, SwtUniversalImage> imagesActions;
-
-  private Map<String, Image> imagesActionsSmall;
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
+  private static Map<String, Image> imagesActionsSmall = new Hashtable<>();
 
   private SwtUniversalImage imageHop;
 
@@ -452,8 +436,8 @@ public class GuiResource {
    */
   private Clipboard clipboard;
 
-  private GUIResource() {
-    initialize( PropsUI.getDisplay() );
+  private GuiResource() {
+    initialize( PropsUi.getDisplay() );
   }
 
 //  private GUIResource( Display display ) {
@@ -966,19 +950,7 @@ public class GuiResource {
     imageDummy = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "DUM_image" ) );
 
     //ui/images/missing_entry.svg
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
-    imageMissing =
-      SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler
-        .getProperty( "MIS_image" ) );
-
-    // "ui/images/spoon.ico"
-    imageSpoon = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image" ), 32 );
-
-    // "ui/images/spoon_lowres.ico"
-    imageSpoonLow = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_image_low" ), 48 );
-=======
     imageMissing = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "MIS_image" ) );
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
 
     // "ui/images/hop-logo.svg"
     imageHopUi = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "hop_icon" ) );
@@ -1256,12 +1228,6 @@ public class GuiResource {
     candidateArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "candidateArrow_image" ) );
 
 
-<<<<<<< HEAD:ui/src/main/java/org/pentaho/di/ui/core/gui/GUIResource.java
-  /**
-   * Load all step images from files.
-   */
-  private void loadJobEntryImages() {
-=======
     // Toolbar icons
     //
     imageToolbarBack = loadAsResource( display, BasePropertyHandler.getProperty( "toolbarBack_image" ), ConstUi.SMALL_ICON_SIZE );
@@ -1285,10 +1251,6 @@ public class GuiResource {
    * Load all transform images from files.
    */
   private void loadWorkflowActionImages() {
-    imagesActions = new Hashtable<>();
-    imagesActionsSmall = new Hashtable<>();
-
->>>>>>> master:ui/src/main/java/org/apache/hop/ui/core/gui/GuiResource.java
     // //
     // // ACTION IMAGES TO LOAD
     // //

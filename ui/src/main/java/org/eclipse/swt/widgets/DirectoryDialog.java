@@ -57,7 +57,7 @@ public class DirectoryDialog extends FileDialog {
     if ( returnFile != null ) {
       try {
         file = new File( returnFile.getURL().getPath() );
-        Spoon.getInstance().setLastFileOpened( file.getPath() );
+        HopGui.getInstance().setLastFileOpened( file.getPath() );
       } catch ( FileSystemException e ) {
         e.printStackTrace();
       }

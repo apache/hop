@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -231,7 +232,7 @@ public class HopGuiPipelineMetricsDelegate {
     } );
 
     // When the browser tab/window is closed, we remove the update timer
-    transGraph.getDisplay().disposeExec( new Runnable() {
+    pipelineGraph.getDisplay().disposeExec( new Runnable() {
       @Override
       public void run() {
         timer.cancel();
@@ -282,7 +283,7 @@ public class HopGuiPipelineMetricsDelegate {
   }
 
   public void updateGraph() {
-    if ( transGraph.getDisplay().isDisposed() ) {
+    if ( pipelineGraph.getDisplay().isDisposed() ) {
       return;
     }
 
@@ -352,7 +353,7 @@ public class HopGuiPipelineMetricsDelegate {
     bounds.height = Math.max( durations.size() * height, bounds.height );
     canvas.setSize( bounds.width, bounds.height );
 
-    GCInterface gc =
+    IGc gc =
       new SwtGc( canvasGc, new Point( bounds.width, bounds.height ), PropsUi
         .getInstance().getIconSize() );
     MetricsPainter painter = new MetricsPainter( gc, height );

@@ -49,6 +49,8 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.ClipboardListener;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
@@ -482,7 +484,7 @@ public class TableView extends Composite {
     SelectionAdapter lsClipAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        Spoon.getInstance().instructShortcuts();
+        HopGui.getInstance().instructShortcuts();
       }
     };
     SelectionAdapter lsCopyToAll = new SelectionAdapter() {
@@ -1201,11 +1203,11 @@ public class TableView extends Composite {
       }
     };
 
-    Spoon.getInstance().getClipboard().addClipboardListener( listener );
+    HopGui.getInstance().getClipboard().addClipboardListener( listener );
     table.addMouseListener( lsMouseT );
     table.addListener( SWT.Selection, ( e ) -> {
-      Spoon.getInstance().getClipboard().setContents( getSelectedText() );
-      Spoon.getInstance().getClipboard().attachToClipboard( this );
+      HopGui.getInstance().getClipboard().setContents( getSelectedText() );
+      HopGui.getInstance().getClipboard().attachToClipboard( this );
     });
 
     // Add support for sorted columns!
@@ -1239,7 +1241,7 @@ public class TableView extends Composite {
     addDisposeListener( new DisposeListener() {
       @Override
       public void widgetDisposed( DisposeEvent e ) {
-        Spoon.getInstance().getClipboard().removeClipboardListener( listener );
+        HopGui.getInstance().getClipboard().removeClipboardListener( listener );
         if ( clipboard != null ) {
           clipboard.dispose();
           clipboard = null;
