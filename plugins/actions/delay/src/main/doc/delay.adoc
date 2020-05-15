@@ -2,3 +2,17 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/delay/src/main/doc/delay.adoc
 = Delay
+
+== Description
+
+This workflow action creates a delay between workflows.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Wait for|The delay to wait
+|Unit time|Specify the unit time (second, minute and hour) 
+|===

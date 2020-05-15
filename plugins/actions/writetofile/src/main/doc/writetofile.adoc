@@ -2,3 +2,21 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/writetofile/src/main/doc/writetofile.adoc
 = Write to File
+
+== Description
+
+The Write to File action can be used to write text to a file.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|File name|The file directory and name.
+|Browse...|Browse the filesystem for a file location.
+|Create prarent folder|Whether or not to create the parent folder.
+|Append file|Will overwrite the previous file if unchecked, if checked it will append new text to the previous file.
+|Encoding|The encoding to use while writing the file.
+|Text|The text to write to the file.
+|===

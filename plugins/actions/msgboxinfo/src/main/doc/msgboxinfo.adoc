@@ -1,4 +1,25 @@
 :documentationPath: /plugins/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/msgboxinfo/src/main/doc/msgboxinfo.adoc
-= Msgboxinfo
+= Display Msgbox info
+
+== Description
+
+The Display Msgbox info action allow you to display a message box in a workflow. You can easily see where you are in the process. This workflow action is only available using the Graphical User Interface to execute the workflow.
+
+The message box displays "OK" and "Cancel" buttons.
+
+    Clicking on "OK" exits on the green hop
+    Clicking on "Cancel" exits on the red hop
+
+When the question cannot be asked (no Graphical User Interface), the action always exits on the green hop.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Message title|The title of the message
+|Message body|The message to display 
+|===

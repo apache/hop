@@ -2,3 +2,17 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/createfolder/src/main/doc/createfolder.adoc
 = Create Folder
+
+== Description
+
+This workflow action simply creates a folder at the specified location.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Folder name|The name of the folder to create (can be a full path)
+|Fail if folder exists|If you enable this option, this workflow action will fail if the specified folder already exists. 
+|===

@@ -2,3 +2,20 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/deletefiles/src/main/doc/deletefiles.adoc
 = Delete Files
+
+== Description
+
+This workflow action deletes a set of files.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Include Subfolders|Also delete the subfolders in the folder selection
+|Copy previous results to args?|Enable this if the set of files comes from a previous workflow action (as part of the result files)
+|File/Folder|The file or folder to delete
+|Wildcard|The regular expression matching files to delete if the previous option is a folder.  For example to delete all files ending in .dat, the regular expression would be ".*\.dat$".  
+|Files/Folders|The complete list of files/folders to delete 
+|===

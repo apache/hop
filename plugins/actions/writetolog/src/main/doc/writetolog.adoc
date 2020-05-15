@@ -2,3 +2,18 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/writetolog/src/main/doc/writetolog.adoc
 = Write to Log
+
+== Description
+
+The Write to log acction writes a specific string to the Hop logging system.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Log level|The logging level to use
+|Log subject|The subject to use in the logging line(s)
+|Log message|The log message to write to the log 
+|===

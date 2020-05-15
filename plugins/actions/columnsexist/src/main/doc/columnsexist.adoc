@@ -5,16 +5,16 @@
 
 == Description
 
-This workflow entry verifies that one or more columns exist in a database table.
+This workflow action verifies that one or more columns exist in a database table.
 
 == Options
 
 [width="90%", options="header"]
 |===
 |Option|Description
-Job entry name|The name of the workflow entry. *Note*: This name has to be unique in a single workflow. A workflow entry can be placed several times on the canvas, however it will be the same workflow entry.
-Connection|The database connection to use
-Schema name|The schema of the table to use
-Table name|The name of the table to use
-Columns|The list of column names to verify (one or more)
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Connection|The database connection to use
+|Schema name|The schema of the table to use
+|Table name|The name of the table to use
+|Columns|The list of column names to verify (one or more)
 |===

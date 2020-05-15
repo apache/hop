@@ -1,0 +1,20 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl:  https://github.com/project-hop/hop/edit/master/plugins/actions/pgpverify/src/main/doc/pgpverify.adoc
+= Verify file signature with PGP
+
+== Description
+
+This workflow action can be used to verify a file link:https://www.gnupg.org/gph/en/manual/x135.html[signature to ensure its authenticity].
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|GPG location|The signature file path.
+|Filename|The signed file path.
+|Use detached signature|Whether or not to use a detached signature.
+|Detached signature|
+|===

@@ -2,3 +2,22 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/truncatetables/src/main/doc/truncatetables.adoc
 = Truncate Tables
+
+== Description
+
+The Truncate Tables action allows you to truncate one or several tables at once without writing 0 SQL command.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Connection|Name of the database connection on which the tables reside. Use "Edit..." and "New..." to edit and/or create a new connection.
+|Previous results to args?|Check this option if you want to get in a dynamic way tables to truncate from results of previous workflow action.
+|Click here to return tables name list|This button will return all tables defined on the connection. Select tables (one or several) and press "OK". Tables name will be automatically added to "Selected tables" grid.
+|Selected tables grid|Specify here the tables to truncate (insert it manually or use the previous button). If the table is in a different schema that the default one, please specify the schema name.
+|Delete|Remove actions from grid (select one several actions and click on this button to remove it).
+|OK|Click on this button to save workflow action settings changes
+|Cancel|Discard workflow action settings changes 
+|===

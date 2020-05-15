@@ -1,4 +1,27 @@
 :documentationPath: /plugins/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/deletefolders/src/main/doc/deletefolders.adoc
-= Delete Fodlers
+= Delete Folders
+
+== Description
+
+This workflow action deletes a set of folders and their content.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Settings|Copy previous results to args: Enable this option if the folders you want to delete come from the result files of the previous action in the workflow.
+|Success on a|Success condition : select one of :
+* When no error reported : everything deleted just fine
+* When at least x folders processed : specify x in the Limit field below
+* When the number of errors less than : specify the max nr of errors in the limit field below
+|Folders a|This is the list of all the folders to delete.  You can use the Folder field and these buttons to maintain the list:
+
+* Add : add Folder field to the list of folders
+* Folder ... : select a folder
+* Delete : remove the selected folders from the list
+* Edit : move the selected folder to the Folder field for editing
+|===

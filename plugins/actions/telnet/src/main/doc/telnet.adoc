@@ -1,4 +1,19 @@
 :documentationPath: /plugins/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/telnet/src/main/doc/telnet.adoc
-= Telnet
+= Telnet a host
+
+== Description
+
+The Telnet action can be used to test a connection over a certain port.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Host name/IP|The host.
+|Port|The port.
+|TimeOut (ms)|The timeout period.
+|===

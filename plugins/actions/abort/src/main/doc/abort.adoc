@@ -5,11 +5,13 @@
 
 == Description
 
+Use this action if you want to abort a workflow.
 
 == Options
 
 [width="90%", options="header"]
 |===
 |Option|Description
-Job entry name|The name of the workflow entry. *Note*: This name has to be unique in a single workflow. A workflow entry can be placed several times on the canvas, however it will be the same workflow entry.
+|Name of the action|The name of the workflow action. This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Message|Message to add in log when aborting 
 |===

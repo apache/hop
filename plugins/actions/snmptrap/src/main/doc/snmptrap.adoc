@@ -2,3 +2,27 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/snmptrap/src/main/doc/snmptrap.adoc
 = Snmp Trap
+
+== Description
+
+The Snmp Trap action can be used to send alert messages to a remote SNMP-enabled device.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Server name / IP address|The server host.
+|Server port|The server port.
+|OID|The object identifier.
+|Test connection|Can be used to test the connection.
+|Target type|Type of target: Community or User.
+|Community string|A user id or password that allows access to a router's or other device's statistics.
+|User|
+|Passphrase|
+|Engine ID|
+|Retry|Number of retries.
+|Timeout|
+|Message|The message to send.
+|===
