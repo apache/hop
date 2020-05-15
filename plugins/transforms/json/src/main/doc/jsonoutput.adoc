@@ -1,0 +1,185 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/jsonoutput/src/main/doc/jsonoutput.adoc
+= JSON Output
+
+== Description
+
+Json Output transform allows to generate json blocks based on input transform values. Output json will be available as java script array or java script object depends on transform settings.
+
+
+== Options
+
+=== General Tab
+
+General tab allows to specify type of transform operation, output json structure, transform output file. This file will be used to dump all generated json.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform; this name has to be unique in a single pipeline.
+|Operation a|Specify transform operation type. Currently available 3 types of operation:
+
+   1. Output value - only pass output json as a transform output field, do not dump to output file
+   2. Write to file - only write to fie, do not pass to output field
+   3. Output value and write to file - dump to file and pass generated json as a transform output file
+
+|Json block name|This value will be used as a name for json block. Can be empty string that will affect output json structure, see detailed description below.
+|Nr. rows in a block|Number of json block key - value pairs.
+NOTE, 1 is a special values, in case of 1 every output will be generated as one object. See description below.
+|Output value|This value will be used as a transform output field. Will contain generated json output block depending on transform settings.
+|Compatibility mode|Changes the default fixed mode json structure 
+|===
+
+**Compatibility mode**
+
+By default this transform uses the fixed structure mode, consider the Json Output transform has the following settings:
+
+* Json block name = "data"
+* Nr rows in block = 3
+* Compatibility mode = NOT checked (and this is the default option)
+
+This will output:
+
+[source, json]
+----
+{
+  "data" : [ {
+    "name" : "item",
+    "value" : 25
+  }, {
+    "name" : "item",
+    "value" : 25
+  }, {
+    "name" : "item",
+    "value" : 25
+  } ]
+}{
+  "data" : [ {
+    "name" : "item",
+    "value" : 25
+  } ]
+}
+----
+
+If compatibility mode is enabled and the transform has the following settings:
+
+* Json block name = "data"
+* Nr rows in block = 3
+* 'Compatibility mode' is checked
+
+This will output:
+
+[source, json]
+----
+{"data":[{"name":"item"},{"value":25},{"name":"item"},{"value":25},{"name":"item"},{"value":25}]}
+{"data":[{"name":"item"},{"value":25}]}
+----
+
+Pretty formatting does not affect compatibility mode. We have 2 output json objects. First object harvest first 3 input rows and second object harvests only one row. This happens because of number of rows in a block is 3. Anyway it can be considered as incorrect result, as the real object count for array is 6 for the first output object. By default compatibility mode is disabled.
+
+If 'Json block name' is an empty string (by default it has 'data' value) - compatibility mode will use empty string for block name. Normally - if compatibility mode was not checked, transform output will be:
+
+[source,json]
+----
+[ {
+  "name" : "item",
+  "value" : 25
+}, {
+  "name" : "item",
+  "value" : 25
+}, {
+  "name" : "item",
+  "value" : 25
+} ][ {
+  "name" : "item",
+  "value" : 25
+} ]
+----
+
+We will have just 4 simple json objects that will be outputted as a 4 transform output rows.
+
+In case of json block name is defined - output structure will looks like:
+
+[source, json]
+----
+{
+  "data" : {
+    "name" : "item",
+    "value" : 25
+  }
+}{
+  "data" : {
+    "name" : "item",
+    "value" : 25
+  }
+}{
+  "data" : {
+    "name" : "item",
+    "value" : 25
+  }
+}{
+  "data" : {
+    "name" : "item",
+    "value" : 25
+  }
+}
+----
+
+So this is will be same 4 output objects with json block name defined.
+
+If 'Nr. rows in a block' will be less that 1 output will be as a one object:
+
+[source, json]
+----
+{
+  "data" : [ {
+    "name" : "item",
+    "value" : 25
+  }, {
+    "name" : "item",
+    "value" : 25
+  }, {
+    "name" : "item",
+    "value" : 25
+  }, {
+    "name" : "item",
+    "value" : 25
+  } ]
+}
+----
+
+This will be one object (one output row) with data block containing json array with 4 objects (as we had 4 input data rows). Please note - when using 0 'Nr. rows in a block' transform will build output object until input data is available. When input is done - one big output object will be passed to output row. For big input data it can impact memory usage.
+
+=== Output File
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Filename|full path to output file
+|Append|If not checked new file will be created every time transform is running. If file with specified name already existed - it will be replaced by a new one. If checked - new json output will be appended at the end of existing file. Or if existing file is not exists - it will be created as in previous case.
+|Create Parent folder|Usually file name contains some path folder as a parent folder. If parent folder does not exists and this option is checked - parent folder will be created as a new folder. Otherwise - file not be found and transform will fail.
+|Do not open create at start|If not checked - file (and in some cases parent folder) will be created/opened to write during pipeline initialization. If checked - file and parent folder will be created only after transform will get any first input data.
+|Extension|Output file extension. Default value is 'js'
+|Encoding|Output file encoding
+|Pass output to servlet|Enable this option to return the data via a web service instead writing into a file.
+|Include date in filename?|If checked - output file name will contains File name value + current date. This may help to generate unique output files.
+|Include time in filename|If checked - output file name will contains file creation time. Same as for 'Include date in filename' option
+|Show filename(s) button|Can be useful to test full output file path
+|Add file to result filenames?|If checked - created output file path will be accessible form transform result 
+|===
+
+=== Fields Tab
+
+This tab is used to map input transform fields to output json values
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Element name|Json element name as a key. For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
+|Fieldname|Input transform field name. Use 'Get Fields' button to discover available input fields 
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
