@@ -39,6 +39,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.www.HopServerSingleton;
 import org.apache.hop.www.SlaveServerConfig;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
 import org.w3c.dom.Document;
@@ -55,7 +56,7 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
       Document document = XMLHandler.loadXMLFile( file );
       Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
       SlaveServerConfig config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
-      CarteSingleton.setSlaveServerConfig( config );
+      HopServerSingleton.setSlaveServerConfig( config );
     } catch ( Exception e ) {
       logger.info( e.getMessage().replaceAll( Const.CR, " " ) );
     }
@@ -72,7 +73,7 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
       public HopException call() throws Exception {
         HopGui.registerUIPluginObjectTypes();
 
-        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.SPOON );
+        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.HOP_GUI );
         try {
           HopEnvironment.init( false );
         } catch ( HopException e ) {

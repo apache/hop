@@ -107,7 +107,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
 
       setMenuItemKeyboardShortcut( menuItem, guiMenuItem );
       if ( StringUtils.isNotEmpty( guiMenuItem.getToolTip() ) ) {
-        menuItem.setToolTipText( guiMenuItem.getToolTip() );
+        //menuItem.setToolTipText( guiMenuItem.getToolTip() );
       }
 
       // Call the method to which the GuiWidgetElement annotation belongs.
@@ -139,7 +139,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
         menuItem.setText( Const.NVL( guiMenuItem.getLabel(), "" ) );
         setMenuItemKeyboardShortcut( menuItem, guiMenuItem );
         if ( StringUtils.isNotEmpty( guiMenuItem.getToolTip() ) ) {
-          menuItem.setToolTipText( guiMenuItem.getToolTip() );
+          //menuItem.setToolTipText( guiMenuItem.getToolTip() );
         }
         menu = new Menu( shell, SWT.DROP_DOWN );
         menuItem.setMenu( menu );

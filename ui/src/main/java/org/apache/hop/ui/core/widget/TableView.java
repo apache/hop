@@ -508,13 +508,13 @@ public class TableView extends Composite {
     SelectionAdapter lsPasteAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        Spoon.getInstance().instructShortcuts();
+        HopGui.getInstance().instructShortcuts();
       }
     };
     SelectionAdapter lsCutAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        Spoon.getInstance().instructShortcuts();
+        HopGui.getInstance().instructShortcuts();
       }
     };
     SelectionAdapter lsDelAll = new SelectionAdapter() {

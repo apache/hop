@@ -130,7 +130,6 @@ public class NotePadDialog extends Dialog {
   private Label wlBorderColor;
   private FormData fdlBorderColor;
 
-  private GUIResource guiresource = GUIResource.getInstance();
   private GuiResource guiresource = GuiResource.getInstance();
 
   public RGB COLOR_RGB_BLACK = guiresource.getColorBlack().getRGB();

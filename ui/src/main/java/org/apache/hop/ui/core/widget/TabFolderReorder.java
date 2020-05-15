@@ -48,7 +48,7 @@ public class TabFolderReorder {
 
   public TabFolderReorder( CTabFolder folder ) {
     final DragSource source = new DragSource( folder, DND.DROP_MOVE );
-    source.setTransfer( TabTransfer.INSTANCE );
+    //source.setTransfer( TabTransfer.INSTANCE );
     source.addDragListener( new DragSourceListener() {
       private Image dragImage;
 
@@ -65,11 +65,6 @@ public class TabFolderReorder {
           dragImage.dispose();
           dragImage = null;
         }
-        GC gc = new GC( folder );
-        dragImage = new Image( Display.getCurrent(), columnBounds.width, columnBounds.height );
-        gc.copyArea( dragImage, columnBounds.x, columnBounds.y );
-        event.image = dragImage;
-        gc.dispose();
       }
 
       @Override
@@ -87,7 +82,7 @@ public class TabFolderReorder {
     } );
 
     DropTarget dropTarget = new DropTarget( folder, DND.DROP_MOVE );
-    dropTarget.setTransfer( TabTransfer.INSTANCE, TextTransfer.getInstance() );
+    //dropTarget.setTransfer( TabTransfer.INSTANCE, TextTransfer.getInstance() );
     dropTarget.addDropListener( new DropTargetListener() {
       @Override
       public void dragEnter( DropTargetEvent event ) {

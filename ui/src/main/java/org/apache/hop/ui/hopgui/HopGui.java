@@ -27,6 +27,7 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -61,6 +62,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopSystemPropertiesDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -84,8 +86,8 @@ import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -218,6 +220,12 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private boolean openingLastFiles;
 
+  private Clipboard clipboard;
+
+  public Clipboard getClipboard() {
+    return clipboard;
+  }
+
   private HopGui( Display display ) {
     this.display = display;
     commandLineArguments = new ArrayList<>();
@@ -255,7 +263,7 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   public static final HopGui getInstance() {
-    return hopGui;
+    return SingletonUtil.getUniqueInstance( HopGui.class, WebSpoonUtils.getUISession() );
   }
 
   public static void main( String[] arguments ) {
@@ -853,6 +861,10 @@ public class HopGui implements IActionContextHandlersProvider {
     return shell;
   }
 
+  public void setShell( Shell shell ) {
+    this.shell = shell;
+  }
+
   /**
    * Gets display
    *
@@ -1214,5 +1226,15 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public void setOpeningLastFiles( boolean openingLastFiles ) {
     this.openingLastFiles = openingLastFiles;
+  }
+
+  
+  public void instructShortcuts() {
+    ShowMessageDialog dialog =
+      new ShowMessageDialog( shell, SWT.ICON_WARNING | SWT.OK,
+        BaseMessages.getString( PKG, "Spoon.Error" ),
+        "Use keyboard shortcuts instead (cmd-x,-c,-v for Mac or ctrl-x,-c,-v for others)"
+    );
+    dialog.open();
   }
 }

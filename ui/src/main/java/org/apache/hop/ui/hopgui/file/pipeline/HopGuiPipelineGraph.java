@@ -161,6 +161,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -551,7 +552,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     canvas.addMouseListener( this );
     canvas.addMouseMoveListener( this );
     canvas.addMouseTrackListener( this );
-    canvas.addMouseWheelListener( this );
     // canvas.addKeyListener( this );
 
     // Drag & Drop for transforms
@@ -1508,7 +1508,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  @Override
   public void mouseScrolled( MouseEvent e ) {
     /*
      * if (e.count == 3) { // scroll up zoomIn(); } else if (e.count == -3) { // scroll down zoomOut(); } }
@@ -2848,7 +2847,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     Display display = hopDisplay();
 
-    Image img = getPipelineImage( display, area.x, area.y, magnification );
+    Image img = getPipelineImage( e.gc, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( pipelineMeta.nrTransforms() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
@@ -2862,9 +2861,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     img.dispose();
   }
 
-  public Image getPipelineImage( Device device, int x, int y, float magnificationFactor ) {
+  public Image getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
 
-    IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
+    IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;

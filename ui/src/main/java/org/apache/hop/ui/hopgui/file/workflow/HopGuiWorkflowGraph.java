@@ -420,7 +420,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     canvas.addMouseListener( this );
     canvas.addMouseMoveListener( this );
     canvas.addMouseTrackListener( this );
-    canvas.addMouseWheelListener( this );
 
     // Drag & Drop for transforms
     Transfer[] ttypes = new Transfer[] { XMLTransfer.getInstance() };
@@ -2420,7 +2419,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     Display display = hopDisplay();
 
-    Image img = getJobImage( display, area.x, area.y, magnification );
+    Image img = getJobImage( e.gc, area.x, area.y, magnification );
     e.gc.drawImage( img, 0, 0 );
     if ( workflowMeta.nrActions() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
@@ -2437,8 +2436,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   }
 
-  public Image getJobImage( Device device, int x, int y, float magnificationFactor ) {
-    IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
+  public Image getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
+    IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
     int gridSize =
       PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
