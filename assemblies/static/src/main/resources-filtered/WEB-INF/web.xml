@@ -67,13 +67,4 @@
     <url-pattern>/kettle/*</url-pattern>
   </servlet-mapping>
 
-  <!-- A reverse proxy for the repository plugin -->
-  <servlet>
-    <servlet-name>reverseProxy</servlet-name>
-    <servlet-class>org.pentaho.di.ui.spoon.WebSpoonProxyServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>reverseProxy</servlet-name>
-    <url-pattern>/osgi/*</url-pattern>
-  </servlet-mapping>
 </web-app>
