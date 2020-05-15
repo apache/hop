@@ -73,31 +73,13 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     }
 
     // Execute Spoon.createContents
-    CommandLineOption[] commandLineArgs = HopGui.getCommandLineArgs( args );
-    HopGui.getInstance().setCommandLineArgs( commandLineArgs );
+    HopGui.getInstance().setCommandLineArguments( args );
     HopGui.getInstance().setShell( parent.getShell() );
-    HopGui.getInstance().createContents( parent );
-    HopGui.getInstance().setArguments( args.toArray( new String[ args.size() ] ) );
-    try {
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiStart.id, commandLineArgs );
-    } catch ( Throwable e ) {
-      LogChannel.GENERAL.logError( "Error calling extension points", e );
-    }
-
-    // For VFS browser, set the user data directory. This will be overwritten by the last open file if exists.
-    HopGui.getInstance().setLastFileOpened( Const.getHopUserDataDirectory() );
-
-    // Load last used files
-    HopGui.getInstance().loadLastUsedFiles();
+    HopGui.getInstance().open();
 
     /*
      *  The following lines are webSpoon additional functions
      */
-    if ( HopGui.getInstance().getProperties().showExitWarning() ) {
-      ExitConfirmation serviceConfirm = RWT.getClient().getService( ExitConfirmation.class );
-      serviceConfirm.setMessage( "Do you really wanna leave this site?" );
-    }
-
     // In webSpoon, SWT.Close is not triggered on closing a browser (tab).
     parent.getDisplay().addListener( SWT.Dispose, ( event ) -> {
       try {
@@ -107,7 +89,6 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
          */
         WebSpoonUtils.removeUISession( WebSpoonUtils.getConnectionId() );
         WebSpoonUtils.removeUser( WebSpoonUtils.getConnectionId() );
-        HopGui.getInstance().quitFile( false );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Error closing Spoon", e );
       }

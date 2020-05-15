@@ -49,17 +49,7 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
   private final static Logger logger = Logger.getLogger( WebSpoonServletContextListener.class.getName() );
 
   public void contextInitialized( ServletContextEvent event ) {
-    try {
-      logger.info( "Current directory: " + ( new File( "." ) ).getCanonicalPath() );
-      // Adapted from org.pentaho.di.www.Carte.parseAndRunCommand(String[])
-      File file = new File( "system" + File.separator + "kettle" + File.separator + "slave-server-config.xml" );
-      Document document = XMLHandler.loadXMLFile( file );
-      Node configNode = XMLHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
-      SlaveServerConfig config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
-      HopServerSingleton.setSlaveServerConfig( config );
-    } catch ( Exception e ) {
-      logger.info( e.getMessage().replaceAll( Const.CR, " " ) );
-    }
+    logger.info( "Current directory: " + ( new File( "." ) ).getCanonicalPath() );
 
     System.setProperty( "KETTLE_CONTEXT_PATH", event.getServletContext().getContextPath() );
     /*
@@ -89,7 +79,7 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
       if ( registryException != null ) {
         throw registryException;
       }
-      HopGui.initLogging( HopGui.getCommandLineArgs( new ArrayList<String>( Arrays.asList( "" ) ) ) );
+      HopGui.initLogging( HopGui.getInstance().getCommandLineArguments() );
     } catch ( Throwable t ) {
       // avoid calls to Messages i18n method getString() in this block
       // We do this to (hopefully) also catch Out of Memory Exceptions
