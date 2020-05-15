@@ -2,3 +2,17 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/createfile/src/main/doc/createfile.adoc
 = Create File
+
+== Description
+
+You can use the Create a file action to create an empty file. This is useful for creating "trigger" files from within workflows.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|File name|The name and path of the file to create an empty file.
+|Fail if file exists|The workflow action will follow the failure outgoing hop when the file to be created already exists (empty or not) and this option is switched on. The default is on. 
+|===

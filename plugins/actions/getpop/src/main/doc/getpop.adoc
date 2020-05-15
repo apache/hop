@@ -2,3 +2,26 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/getpop/src/main/doc/getpop.adoc
 = Get Mail from POP
+
+== Description
+
+The Get Mail from POP action allows you to retrieve mails from a POP server and store them into one or more files.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Source Host|The host name or IP-address of the pop server.
+|Username|The username to log in with.
+|Password|The password to log in with.
+|Use POP with SSL|Check this if the POP server uses SSL (Secure Socket Layer, Encrypted).
+|Port|The port to run the SSL POP connection over.
+|Target directory|The directory in which you want to put the mail files.
+|Target filename pattern|The filename pattern (start of filename).
+|Retrieve|Select the e-mails to retrieve: all, unread or a selection of the first e-mails.
+|Retrieve the .. first emails|Allows you to specify the number of emails to retrieve if "first ... emails" is selected.
+|Delete emails after retrieval|Check this if you want to delete the mails on the pop server after retrieval. 
+|===
+

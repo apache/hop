@@ -1,4 +1,18 @@
 :documentationPath: /plugins/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/filecompare/src/main/doc/filecompare.adoc
-= File Compare
+= File compare
+
+== Description
+
+You can use the File compare workflow action to compare the contents of 2 files and control the flow of the workflow by it. When the contents of the files are the same the success outgoing hop will be followed, else the failure hop will be followed.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|File name 1|The name and path of the file of the first file to compare.
+|File name 2|The name and path of the file of the second file to compare. 
+|===

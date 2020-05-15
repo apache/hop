@@ -2,3 +2,17 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/deletefile/src/main/doc/deletefile.adoc
 = Delete File
+
+== Description
+
+This workflow action deletes a file (empty or not).
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|File name|The name and path of the file to delete.
+|Fail if file doesn't exist|The workflow action will follow the failure outgoing hop when the file to be deleted does not exist anymore and this option is switched on. The default is off. 
+|===

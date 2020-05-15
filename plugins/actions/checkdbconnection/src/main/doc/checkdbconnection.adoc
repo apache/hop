@@ -5,16 +5,16 @@
 
 == Description
 
-This workflow entry allows you to verify connectivity with one or several databases.
+This workflow action allows you to verify connectivity with one or several databases.
 
 == Options
 
 [width="90%", options="header"]
 |===
 |Option|Description
-Job entry name|The name of the workflow entry. *Note*: This name has to be unique in a single workflow. A workflow entry can be placed several times on the canvas, however it will be the same workflow entry.
-Connection|List of connections.
-Wait|After the connection was opened, wait x (s, min, hrs).
-Units of Time|Specify the unit of measurement for the length of time to remain connected.
-Get connections|Get available connects. 
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Connection|List of connections.
+|Wait|After the connection was opened, wait x (s, min, hrs).
+|Units of Time|Specify the unit of measurement for the length of time to remain connected.
+|Get connections|Get available connects. 
 |===

@@ -2,3 +2,32 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/copymoveresultfilenames/src/main/doc/copymoveresultfilenames.adoc
 = Copy Or Move Files from result
+
+== Description
+
+This workflow action allows you to copy, move or delete a number of files and/or folders to alternate locations on your file system.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Action|Choose Copy, Move or Delete
+|Destination folder|Define the target folder
+|Create destination folder|use this option to create the destination folder when it does not exist
+|Replace existing file|use this option to overwrite existing files
+|Remove source filenames from result|use this option to remove the processed filenames from the list of result filenames
+|Add destination filenames to result|use this option to add the the processed target filenames to the list of result filenames
+|Add date to filename|add the date to the target filename, e.g. yyyyMMdd
+|Add time to filename|add the time to the target filename, e.g. HHmmss
+|Specify date time format|allows you to specify your own date-time format, e.g. yyyyMMdd_HHmmss
+|Add date before extension|when this option is not checked, the date/time is appended after the file extension
+|Limit action to|Define include and exclude wildcards
+|Success on a|Success condition : select one of these option:
+
+* Success when all works fine
+* Success when at least x files moved (specify x in the limit field below)
+* Success when number of errors lesser than  (specify the max number of errors in the limit field below)
+
+|===

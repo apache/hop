@@ -2,3 +2,18 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/webserviceavailable/src/main/doc/webserviceavailable.adoc
 = Check if Webservice is available
+
+== Description
+
+The Check if Webservice is available action checks if a given URL (e.g. a Webservice URL) is valid, can be connected and data can be read from. If it connects within the given timeout and data can be read, it returns 'true', otherwise 'false'. Further information of the failing reason can be found in the log as an error log action.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|URL|Specifies the URL to validate.
+|Connect timeout (ms)|The connect timeout in ms. The value is depending on the quality of service of this URL and experiences.
+|Read timeout (ms)|After connection, the workflow action tries to read data. This value gives the read timeout in ms. The value is depending on the quality of service of this URL and experiences.
+|===

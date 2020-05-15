@@ -1,4 +1,24 @@
 :documentationPath: /plugins/actions/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/syslog/src/main/doc/syslog.adoc
-= Syslog
+= Send information using Syslog
+
+== Description
+
+The Send information using Syslog action can be used to send a message using link:https://en.wikipedia.org/wiki/Syslog[syslog].
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Server name / IP address|The server host.
+|Server port|The server port.
+|Facility|A facility code is used to specify the type of program that is logging the message. 
+|Priority|The severity of the message.
+|Add hostname to message|
+|Add timestamp to message|
+|Date pattern|The format of the date.
+||The message to send.
+|===
