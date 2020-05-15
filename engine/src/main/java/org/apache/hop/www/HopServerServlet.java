@@ -41,7 +41,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.pentaho.di.security.WebSpoonSecurityManager;
 
 public class HopServerServlet extends HttpServlet {
 
@@ -62,10 +61,6 @@ public class HopServerServlet extends HttpServlet {
   }
 
   public void doGet( HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException {
-    SecurityManager securityManager = System.getSecurityManager();
-    if ( securityManager instanceof WebSpoonSecurityManager ) {
-      ( (WebSpoonSecurityManager) securityManager ).setUserName( req.getRemoteUser() );
-    }
     String servletPath = req.getPathInfo();
     if ( servletPath.endsWith( "/" ) ) {
       servletPath = servletPath.substring( 0, servletPath.length() - 1 );

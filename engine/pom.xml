@@ -53,12 +53,6 @@
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>pentaho-kettle</groupId>
-      <artifactId>webspoon-security</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.hop</groupId>
