@@ -32,21 +32,21 @@
 
   <context-param>
     <param-name>org.eclipse.rap.applicationConfiguration</param-name>
-    <param-value>org.pentaho.di.ui.spoon.WebSpoon</param-value>
+    <param-value>org.apache.hop.ui.hopgui..WebSpoon</param-value>
   </context-param>
 
   <listener>
-    <listener-class>org.pentaho.di.ui.spoon.WebSpoonServletContextListener</listener-class>
+    <listener-class>org.apache.hop.ui.hopgui.WebSpoonServletContextListener</listener-class>
   </listener>
 
   <servlet>
-    <servlet-name>Spoon</servlet-name>
+    <servlet-name>HopGui</servlet-name>
     <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>Spoon</servlet-name>
-    <url-pattern>/spoon</url-pattern>
+    <servlet-name>HopGui</servlet-name>
+    <url-pattern>/gui</url-pattern>
   </servlet-mapping>
 
   <servlet>
