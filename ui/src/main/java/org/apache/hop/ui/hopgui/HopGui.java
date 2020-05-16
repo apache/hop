@@ -226,6 +226,11 @@ public class HopGui implements IActionContextHandlersProvider {
     return clipboard;
   }
 
+  //prevent instantiation from outside
+  private HopGui() {
+    this( Display.getCurrent() );
+  }
+
   private HopGui( Display display ) {
     this.display = display;
     commandLineArguments = new ArrayList<>();
