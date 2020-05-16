@@ -29,6 +29,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 
@@ -44,24 +45,12 @@ public class FileDialog implements IFileDialog {
   String [] filterExtensions = new String[] { "*" };
   String [] fileNames = new String[1];
   String fileName = null;
-  int fileDialogMode = VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE;
+//  int fileDialogMode = VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE;
 
-  protected VfsFileChooserDialog vfsFileChooserDialog;
+//  protected VfsFileChooserDialog vfsFileChooserDialog;
 
   public FileDialog( Shell parent ) {
     this.parent = parent;
-    FileObject initialFile;
-    FileObject rootFile;
-    try {
-      initialFile = HopVFS.getFileObject( HopGui.getInstance().getLastFileOpened() );
-      rootFile = initialFile.getFileSystem().getRoot();
-    } catch ( Exception e ) {
-      String message = Const.getStackTracker( e );
-      new ErrorDialog( parent, BaseMessages.getString( PKG, "Spoon.Error" ), message, e );
-
-      return;
-    }
-    vfsFileChooserDialog = HopGui.getInstance().getVfsFileChooserDialog( rootFile, initialFile );
   }
 
   public FileDialog( Shell parent, int style ) {
@@ -70,27 +59,7 @@ public class FileDialog implements IFileDialog {
   }
 
   public String open() {
-    String filePath = null;
-
-    if ( ( style & SWT.SAVE ) > 0 ) {
-      fileDialogMode = VfsFileChooserDialog.VFS_DIALOG_SAVEAS;
-    }
-
-    FileObject returnFile =
-        vfsFileChooserDialog.open( parent, fileName, filterExtensions, filterNames, fileDialogMode );
-    File file = null;
-    if ( returnFile != null ) {
-      try {
-        file = new File( returnFile.getURL().getPath() );
-        HopGui.getInstance().setLastFileOpened( file.getPath() );
-      } catch ( FileSystemException e ) {
-        e.printStackTrace();
-      }
-      filePath = file.getAbsolutePath();
-      fileName = fileNames[0] = file.getName();
-      filterPath = file.getParent();
-    }
-    return filePath;
+    return "";
   }
 
   public String getFilterPath() {

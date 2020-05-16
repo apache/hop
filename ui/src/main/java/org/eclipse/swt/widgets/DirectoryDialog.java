@@ -27,8 +27,6 @@ import java.io.File;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.vfs.ui.VfsFileChooserDialog;
 
 public class DirectoryDialog extends FileDialog {
 
@@ -40,7 +38,6 @@ public class DirectoryDialog extends FileDialog {
      * Special characters, e.g., "@", are not allowed for filename; hence, are good for such a filter.
      */
     filterExtensions = new String[] { "@" };
-    fileDialogMode = VfsFileChooserDialog.VFS_DIALOG_OPEN_DIRECTORY;
   }
 
   public DirectoryDialog( Shell parent, int style ) {
@@ -50,19 +47,6 @@ public class DirectoryDialog extends FileDialog {
 
   @Override
   public String open() {
-    String directoryPath = null;
-    FileObject returnFile =
-        vfsFileChooserDialog.open( parent, fileName, filterExtensions, filterNames, fileDialogMode );
-    File file = null;
-    if ( returnFile != null ) {
-      try {
-        file = new File( returnFile.getURL().getPath() );
-        HopGui.getInstance().setLastFileOpened( file.getPath() );
-      } catch ( FileSystemException e ) {
-        e.printStackTrace();
-      }
-      directoryPath = filterPath = file.getPath();
-    }
-    return directoryPath;
+    return "";
   }
 }
