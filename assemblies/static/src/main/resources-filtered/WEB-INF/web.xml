@@ -32,7 +32,7 @@
 
   <context-param>
     <param-name>org.eclipse.rap.applicationConfiguration</param-name>
-    <param-value>org.apache.hop.ui.hopgui..WebSpoon</param-value>
+    <param-value>org.apache.hop.ui.hopgui.WebSpoon</param-value>
   </context-param>
 
   <listener>
