@@ -38,15 +38,15 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 public class WebSpoon implements ApplicationConfiguration {
 
   public void configure( Application application ) {
-    application.addResource( "ui/images/spoon.ico", new ResourceLoader() {
+    application.addResource( "ui/images/hopUi.ico", new ResourceLoader() {
       public InputStream getResourceAsStream( String resourceName ) throws IOException {
-        return this.getClass().getClassLoader().getResourceAsStream( "ui/images/spoon.ico" );
+        return this.getClass().getClassLoader().getResourceAsStream( "ui/images/hopUi.ico" );
       }
     } );
     Arrays.asList(
-      "org/pentaho/di/ui/spoon/clipboard.js",
-      "org/pentaho/di/ui/spoon/notify.js",
-      "org/pentaho/di/ui/spoon/jquery.min.js"
+      "org/apache/hop/ui/hopgui/clipboard.js",
+      "org/apache/hop/ui/hopgui/notify.js",
+      "org/apache/hop/ui/hopgui/jquery.min.js"
     ).stream().forEach( str -> {
       application.addResource( "js/" + FilenameUtils.getName( str ), new ResourceLoader() {
         @Override
@@ -56,9 +56,9 @@ public class WebSpoon implements ApplicationConfiguration {
       } );
     });
     Map<String, String> properties = new HashMap<String, String>();
-    properties.put( WebClient.PAGE_TITLE, "Spoon" );
-    properties.put( WebClient.FAVICON, "ui/images/spoon.ico" );
-    application.addEntryPoint( "/spoon", WebSpoonEntryPoint.class, properties );
+    properties.put( WebClient.PAGE_TITLE, "Hop" );
+    properties.put( WebClient.FAVICON, "ui/images/hopUi.ico" );
+    application.addEntryPoint( "/ui", WebSpoonEntryPoint.class, properties );
     application.setOperationMode( Application.OperationMode.SWT_COMPATIBILITY );
 
     application.addServiceHandler( "downloadServiceHandler", new DownloadServiceHandler() );
