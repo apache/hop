@@ -96,12 +96,7 @@ public class PropsUi extends Props {
       // We take the default font and render it, calculate the height.
       // Compare that to the standard small icon size of 16
       //
-      Image image = new Image( display, 500, 500 );
-      GC gc = new GC( image );
-      org.eclipse.swt.graphics.Point extent = gc.textExtent( "The quick brown fox jumped over the lazy dog!" );
-      nativeZoomFactor = (double) extent.y / (double) ConstUi.SMALL_ICON_SIZE;
-      gc.dispose();
-      image.dispose();
+      nativeZoomFactor = 1.0;
 
       // Also init the colors and fonts to use...
       // The icons and so on are corrected with a zoom factor
