@@ -452,11 +452,11 @@ public class ContextDialog extends Dialog {
 			int row = Math.floorDiv(index,nrColumns);
 			
 			
-	        if ( row >= bar.getSelection()+bar.getPageIncrement() ) {
-	          // We scrolled down and need to scroll the scrollbar
-	          //
-	          bar.setSelection( Math.min(row, bar.getMaximum() ) );
-	        }
+//	        if ( row >= bar.getSelection()+bar.getPageIncrement() ) {
+//	          // We scrolled down and need to scroll the scrollbar
+//	          //
+//	          bar.setSelection( Math.min(row, bar.getMaximum() ) );
+//	        }
 	        if ( row < bar.getSelection() ) {
 	          // We scrolled up and need to scroll the scrollbar up
 	          //
