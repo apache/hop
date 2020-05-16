@@ -1,1 +1,1 @@
-<% response.sendRedirect("spoon"); %>
+<% response.sendRedirect("ui"); %>

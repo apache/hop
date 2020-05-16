@@ -46,7 +46,7 @@
 
   <servlet-mapping>
     <servlet-name>HopGui</servlet-name>
-    <url-pattern>/gui</url-pattern>
+    <url-pattern>/ui</url-pattern>
   </servlet-mapping>
 
   <servlet>
