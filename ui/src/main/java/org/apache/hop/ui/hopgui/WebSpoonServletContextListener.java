@@ -49,42 +49,14 @@ public class WebSpoonServletContextListener extends RWTServletContextListener {
   private final static Logger logger = Logger.getLogger( WebSpoonServletContextListener.class.getName() );
 
   public void contextInitialized( ServletContextEvent event ) {
-    logger.info( "Current directory: " + ( new File( "." ) ).getCanonicalPath() );
-
-    System.setProperty( "KETTLE_CONTEXT_PATH", event.getServletContext().getContextPath() );
     /*
-     *  The following lines are from Spoon.main
+     *  The following lines are from HopGui.main
      *  because they are application-wide context.
      */
-    ExecutorService executor = Executors.newCachedThreadPool();
-    Future<HopException> pluginRegistryFuture = executor.submit( new Callable<HopException>() {
-
-      @Override
-      public HopException call() throws Exception {
-        HopGui.registerUIPluginObjectTypes();
-
-        HopClientEnvironment.getInstance().setClient( HopClientEnvironment.ClientType.HOP_GUI );
-        try {
-          HopEnvironment.init( false );
-        } catch ( HopException e ) {
-          return e;
-        }
-
-        return null;
-      }
-    } );
-    HopException registryException;
     try {
-      registryException = pluginRegistryFuture.get();
-      if ( registryException != null ) {
-        throw registryException;
-      }
-      HopGui.initLogging( HopGui.getInstance().getCommandLineArguments() );
-    } catch ( Throwable t ) {
-      // avoid calls to Messages i18n method getString() in this block
-      // We do this to (hopefully) also catch Out of Memory Exceptions
-      //
-      t.printStackTrace();
+      HopEnvironment.init();
+    } catch ( HopException e ) {
+      e.printStackTrace();
     }
     super.contextInitialized( event );
   }
