@@ -325,7 +325,7 @@ public class HopGui implements IActionContextHandlersProvider {
    * Build the shell
    */
   protected void open() {
-    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
+//    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     shell.setText( BaseMessages.getString( PKG, "HopGui.Application.Name" ) );
@@ -346,6 +346,7 @@ public class HopGui implements IActionContextHandlersProvider {
     //
     // shell.pack();
     shell.open();
+    shell.setMaximized( true );
 
     openingLastFiles = true; // TODO: make this configurable.
 
