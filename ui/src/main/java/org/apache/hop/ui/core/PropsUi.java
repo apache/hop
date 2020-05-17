@@ -25,6 +25,7 @@ package org.apache.hop.ui.core;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
@@ -34,6 +35,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -67,8 +69,7 @@ public class PropsUi extends Props {
 
   private static final String YES = "Y";
 
-  private static Display display;
-  private static double nativeZoomFactor;
+  private static double nativeZoomFactor = 1.0;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING = "ShowCopyOrDistributeWarning";
 
@@ -88,31 +89,10 @@ public class PropsUi extends Props {
    * @param d The Display
    */
   public static void init( Display d ) {
-    if ( props == null ) {
-      display = d;
-      props = new PropsUi();
-
-      // Calculate the native default zoom factor...
-      // We take the default font and render it, calculate the height.
-      // Compare that to the standard small icon size of 16
-      //
-      nativeZoomFactor = 1.0;
-
-      // Also init the colors and fonts to use...
-      // The icons and so on are corrected with a zoom factor
-      //
-      GuiResource.getInstance();
-    } else {
-      throw new RuntimeException( "The Properties systems settings are already initialised!" );
-    }
   }
 
   public static PropsUi getInstance() {
-    if ( props != null ) {
-      return (PropsUi) props;
-    }
-
-    throw new RuntimeException( "Hop systems settings, not initialised!" );
+    return SingletonUtil.getUniqueInstance( PropsUi.class, WebSpoonUtils.getUISession() );
   }
 
   private PropsUi() {
@@ -124,7 +104,7 @@ public class PropsUi extends Props {
 
     super.setDefault();
 
-    if ( display != null ) {
+    if ( Display.getCurrent() != null ) {
       FontData fontData = getFixedFont();
       setProperty( STRING_FONT_FIXED_NAME, fontData.getName() );
       setProperty( STRING_FONT_FIXED_SIZE, "" + fontData.getHeight() );
@@ -382,7 +362,7 @@ public class PropsUi extends Props {
   }
 
   public FontData getDefaultFontData() {
-    return display.getSystemFont().getFontData()[ 0 ];
+    return Display.getCurrent().getSystemFont().getFontData()[ 0 ];
   }
 
   public void setMaxUndo( int max ) {
@@ -600,14 +580,13 @@ public class PropsUi extends Props {
    * @return Returns the display.
    */
   public static Display getDisplay() {
-    return display;
+    return Display.getCurrent();
   }
 
   /**
    * @param d The display to set.
    */
   public static void setDisplay( Display d ) {
-    display = d;
   }
 
   public void setDefaultPreviewSize( int size ) {

@@ -61,8 +61,6 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
      *  The following lines were migrated from Spoon.main
      *  because they are session specific.
      */
-    PropsUi.init( parent.getDisplay() );
-
     // Options
     StartupParameters serviceParams = RWT.getClient().getService( StartupParameters.class );
     List<String> args = new ArrayList<String>();
