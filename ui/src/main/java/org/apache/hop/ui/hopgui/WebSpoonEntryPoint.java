@@ -30,6 +30,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.WebSpoonUtils;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
@@ -75,6 +76,12 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     // Execute Spoon.createContents
     HopGui.getInstance().setCommandLineArguments( args );
     HopGui.getInstance().setShell( parent.getShell() );
+    try {
+      HopGuiEnvironment.init();
+    } catch (HopException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
     HopGui.getInstance().open();
 
     /*
