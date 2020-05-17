@@ -173,20 +173,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   }
 
   private int calculateComboWidth( Combo combo ) {
-    Image image = new Image( HopGui.getInstance().getDisplay(), 10, 10 );
-    GC gc = new GC( image );
-
     int maxWidth = combo.getSize().x;
-    for ( String item : combo.getItems() ) {
-      int width = gc.textExtent( item ).x;
-      if ( width > maxWidth ) {
-        maxWidth = width;
-      }
-    }
-
-    gc.dispose();
-    image.dispose();
-
     return maxWidth;
   }
 
