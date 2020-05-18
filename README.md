@@ -21,6 +21,7 @@ Check our [Contribution Guide](http://www.project-hop.org/community/contributing
 Required: 
 - [OpenJDK](https://openjdk.java.net/) Java 8 compiler 
 - [Maven](http://maven.apache.org/)
+- [RAP](https://github.com/HiromuHota/pentaho-kettle#rap)
 
 Clone Hop to a local repository: 
 
@@ -29,16 +30,14 @@ Clone Hop to a local repository:
 Change into the clone repository and build: 
 
     $ cd hop 
-    $ mvn clean install 
+    $ mvn clean install
+    $ cd docker
+    $ sh ./build.sh
 
 ## Run Hop 
 
 After a successful build, the Hop UI can be started.
 
-    $ cd assemblies/client/target
-    $ unzip hop-assemblies-client-*.zip
-    $ cd hop 
-
-On Windows, run `hop-ui.bat`, on Mac and Linux, run `hop-ui.sh` 
+    $ docker run -d -p 8080:8080 --name hop project-hop
 
 Help us to improve Hop by logging issues in the [Hop JIRA](https://project-hop.atlassian.net)
