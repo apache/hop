@@ -5,7 +5,7 @@
 
 == Description
 
-Use the JavaScript action to calculate a boolean expression. The result can be used to determine which step will be executed next. You can use functions, procedure calls, ANDs, ampersands, ORs, EQUALs, etc. The Javascript workflow action evaluates and returns a true or false.
+Use the JavaScript action to calculate a boolean expression. The result can be used to determine which action will be executed next. You can use functions, procedure calls, ANDs, ampersands, ORs, EQUALs, etc. The Javascript workflow action evaluates and returns a true or false.
 
 == Options
 
