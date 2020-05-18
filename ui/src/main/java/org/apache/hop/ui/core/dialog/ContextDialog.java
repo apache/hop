@@ -159,11 +159,9 @@ public class ContextDialog extends Dialog {
 		// Load all the images...
 		// Filter all actions by default
 		//
-		maxNameWidth = iconSize;
-		maxNameHeight = 0;
+		maxNameWidth = 100;
+		maxNameHeight = 100;
 		Display display = shell.getDisplay();
-		Image img = new Image(display, 100, 100);
-		GC gc = new GC(img);
 
 		items.clear();
 		for (GuiAction action : actions) {
@@ -175,21 +173,9 @@ public class ContextDialog extends Dialog {
 			Image image = universalImage.getAsBitmapForSize(display, iconSize, iconSize);
 
 			Item item = new Item(action, image);
-
-			if (item.getText() != null) {
-				org.eclipse.swt.graphics.Point extent = gc.textExtent(action.getShortName());
-				if (extent.x > maxNameWidth) {
-					maxNameWidth = extent.x;
-				}
-				if (extent.y > maxNameHeight) {
-					maxNameHeight = extent.y;
-				}
-			}
 			
 			items.add(item);
 		}
-		gc.dispose();
-		img.dispose();
 
 		// Calculate the cell width height
 		//
