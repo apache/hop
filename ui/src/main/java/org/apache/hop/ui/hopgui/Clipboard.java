@@ -29,8 +29,6 @@ public class Clipboard extends Widget {
     ResourceManager resourceManager = RWT.getResourceManager();
     ClientFileLoader clientFileLoader = RWT.getClient().getService( ClientFileLoader.class );
     clientFileLoader.requireJs( resourceManager.getLocation( "js/clipboard.js" ) );
-    clientFileLoader.requireJs( resourceManager.getLocation( "js/jquery.min.js" ) );
-    clientFileLoader.requireJs( resourceManager.getLocation( "js/notify.js" ) );
 
     Connection connection = RWT.getUISession().getConnection();
     remoteObject = connection.createRemoteObject( "webSpoon.Clipboard" );

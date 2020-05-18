@@ -44,9 +44,7 @@ public class WebSpoon implements ApplicationConfiguration {
       }
     } );
     Arrays.asList(
-      "org/apache/hop/ui/hopgui/clipboard.js",
-      "org/apache/hop/ui/hopgui/notify.js",
-      "org/apache/hop/ui/hopgui/jquery.min.js"
+      "org/apache/hop/ui/hopgui/clipboard.js"
     ).stream().forEach( str -> {
       application.addResource( "js/" + FilenameUtils.getName( str ), new ResourceLoader() {
         @Override
