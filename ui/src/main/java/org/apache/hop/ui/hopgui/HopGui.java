@@ -325,6 +325,7 @@ public class HopGui implements IActionContextHandlersProvider {
    * Build the shell
    */
   protected void open() {
+    clipboard = new Clipboard( shell );
 //    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
