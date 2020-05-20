@@ -110,6 +110,7 @@
         <module>loadfileinput</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
+        <module>mergerows</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
