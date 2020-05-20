@@ -1503,6 +1503,45 @@
 
     <dependency>
       <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-mail</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-mailvalidator</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-memgroupby</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
