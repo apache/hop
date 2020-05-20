@@ -361,16 +361,16 @@ public abstract class ConfigurationDialog extends Dialog {
     separator.setLayoutData( fd_separator );
 
     alwaysShowOption = new Button( shell, SWT.CHECK );
+    alwaysShowOption.setText( alwaysShowOptionLabel );
+    alwaysShowOption.setToolTipText( alwaysShowOptionTooltip );
     props.setLook( alwaysShowOption );
     alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
-
-    alwaysShowOption.setToolTipText( alwaysShowOptionTooltip );
 
     FormData fd_alwaysShowOption = new FormData();
     fd_alwaysShowOption.left = new FormAttachment( 0, 15 );
     fd_alwaysShowOption.bottom = new FormAttachment( separator, -15 );
     alwaysShowOption.setLayoutData( fd_alwaysShowOption );
-    alwaysShowOption.setText( alwaysShowOptionLabel );
+
   }
 
   protected void openDialog() {
