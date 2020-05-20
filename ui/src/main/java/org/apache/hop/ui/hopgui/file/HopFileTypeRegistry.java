@@ -116,7 +116,8 @@ public class HopFileTypeRegistry {
     if ( filterNames.size() > 1 ) {
       // Add an entry for all the types
       //
-      filterNames.add( 0, "All file types" );
+      //TODO: Add Translation
+      filterNames.add( 0, "All Hop file types" );
     }
     return filterNames.toArray( new String[ 0 ] );
   }
