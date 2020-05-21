@@ -144,6 +144,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -170,7 +171,9 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -472,7 +475,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space initially
     //
-    canvas = new Canvas( sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER );
+    scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
+    canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
+    scrolledcomposite.setContent( canvas );
+    scrolledcomposite.addListener( SWT.Resize, new Listener() {
+      public void handleEvent( Event event ) {
+        resize();
+      }
+    } );
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
     fdCanvas.top = new FormAttachment( 0, 0 );
@@ -507,8 +517,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     impact = new ArrayList<>();
     impactFinished = false;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    horizontalScrollBar = scrolledcomposite.getHorizontalBar();
+    verticalScrollBar = scrolledcomposite.getVerticalBar();
 
     horizontalScrollBar.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -1792,6 +1802,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
 
     canvas.setFocus();
+    resize();
     redraw();
   }
 
@@ -2845,10 +2856,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display display = hopDisplay();
-
-    Image img = getPipelineImage( e.gc, area.x, area.y, magnification );
-    e.gc.drawImage( img, 0, 0 );
+    getPipelineImage( e.gc, area.x, area.y, magnification );
     if ( pipelineMeta.nrTransforms() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GuiResource.getInstance().getFontMedium() );
@@ -2858,10 +2866,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
     }
-    img.dispose();
   }
 
-  public Image getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
+  public void getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
 
     IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
@@ -2888,11 +2895,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
 
     pipelinePainter.buildPipelineImage();
-
-    Image img = (Image) gc.getImage();
-
-    gc.dispose();
-    return img;
   }
 
   @Override
@@ -2901,6 +2903,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );
     return getOffset( thumb, area );
+  }
+
+  protected Point getMaximum() {
+    return pipelineMeta.getMaximum();
   }
 
   private void editTransform( TransformMeta transformMeta ) {

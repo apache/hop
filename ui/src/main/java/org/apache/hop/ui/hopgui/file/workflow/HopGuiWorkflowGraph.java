@@ -116,6 +116,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
@@ -143,7 +144,9 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -359,7 +362,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space initially
     //
-    canvas = new Canvas( sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER );
+    scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
+    canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
+    scrolledcomposite.setContent( canvas );
+    scrolledcomposite.addListener( SWT.Resize, new Listener() {
+      public void handleEvent( Event event ) {
+        resize();
+      }
+    } );
 
     sashForm.setWeights( new int[] { 100, } );
 
@@ -387,8 +397,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     selectedEntries = null;
     selectedNote = null;
 
-    horizontalScrollBar = canvas.getHorizontalBar();
-    verticalScrollBar = canvas.getVerticalBar();
+    horizontalScrollBar = scrolledcomposite.getHorizontalBar();
+    verticalScrollBar = scrolledcomposite.getVerticalBar();
 
     horizontalScrollBar.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -1532,6 +1542,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     verticalScrollBar.setThumb( newVThumb );
     verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
 
+    resize();
     redraw();
   }
 
@@ -2417,10 +2428,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display display = hopDisplay();
-
-    Image img = getJobImage( e.gc, area.x, area.y, magnification );
-    e.gc.drawImage( img, 0, 0 );
+    getJobImage( e.gc, area.x, area.y, magnification );
     if ( workflowMeta.nrActions() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
       e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
@@ -2432,11 +2440,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
 
     }
-    img.dispose();
 
   }
 
-  public Image getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
+  public void getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
     IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
     int gridSize =
@@ -2475,8 +2482,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowPainter.setActiveJobEntries( activeJobEntries );
 
     workflowPainter.drawJob();
-
-    return (Image) gc.getImage();
   }
 
   protected Point getOffset() {
@@ -2484,6 +2489,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point max = workflowMeta.getMaximum();
     Point thumb = getThumb( area, max );
     return getOffset( thumb, area );
+  }
+
+  protected Point getMaximum() {
+    return workflowMeta.getMaximum();
   }
 
   @Override public boolean hasChanged() {

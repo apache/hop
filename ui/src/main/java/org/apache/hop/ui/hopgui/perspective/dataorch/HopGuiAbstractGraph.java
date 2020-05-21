@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -69,6 +70,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected Canvas canvas;
 
+  protected ScrolledComposite scrolledcomposite;
+
   protected float magnification = 1.0f;
 
   private boolean changedState;
@@ -96,10 +99,14 @@ public abstract class HopGuiAbstractGraph extends Composite {
   }
 
   protected abstract Point getOffset();
+  protected abstract Point getMaximum();
 
   protected Point getOffset( Point thumb, Point area ) {
     Point p = new Point( 0, 0 );
-    Point sel = new Point( horizontalScrollBar.getSelection(), verticalScrollBar.getSelection() );
+    Point sel = new Point(
+        Math.round( horizontalScrollBar.getSelection() / horizontalScrollBar.getMaximum() ),
+        Math.round( verticalScrollBar.getSelection() / verticalScrollBar.getMaximum() )
+    );
 
     if ( thumb.x == 0 || thumb.y == 0 ) {
       return p;
@@ -165,7 +172,21 @@ public abstract class HopGuiAbstractGraph extends Composite {
         parentTabItem.setFont( defaultFont );
       }
     }
-    canvas.redraw();
+    canvas.redraw( 0, 0,
+        Math.max( canvas.getBounds().width, // case 1
+          Math.round( scrolledcomposite.getBounds().width / magnification ) ), //case 2
+        Math.max( canvas.getBounds().height, // case 3
+          Math.round( scrolledcomposite.getBounds().height / magnification ) ), // case 4
+        false );
+  }
+
+  protected void resize() {
+    canvas.setSize(
+      Math.max( Math.round( getMaximum().x * magnification ), // case 1
+        scrolledcomposite.getBounds().width ), // case 2
+      Math.max( Math.round( getMaximum().y * magnification ), // case 3
+        scrolledcomposite.getBounds().height ) // case 4
+    );
   }
 
   public abstract void setZoomLabel();
@@ -174,6 +195,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public void zoomIn() {
     magnification += .1f;
     setZoomLabel();
+    resize();
     redraw();
   }
 
@@ -183,6 +205,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
       magnification -= .1f;
     }
     setZoomLabel();
+    resize();
     redraw();
   }
 
@@ -190,6 +213,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public void zoom100Percent() {
     magnification = 1.0f;
     setZoomLabel();
+    resize();
     redraw();
   }
 
