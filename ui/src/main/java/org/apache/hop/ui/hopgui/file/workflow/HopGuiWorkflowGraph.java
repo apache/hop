@@ -2428,10 +2428,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display display = hopDisplay();
-
-    Image img = getJobImage( e.gc, area.x, area.y, magnification );
-    e.gc.drawImage( img, 0, 0 );
+    getJobImage( e.gc, area.x, area.y, magnification );
     if ( workflowMeta.nrActions() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
       e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
@@ -2443,11 +2440,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
 
     }
-    img.dispose();
 
   }
 
-  public Image getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
+  public void getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
     IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
     int gridSize =
@@ -2486,8 +2482,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowPainter.setActiveJobEntries( activeJobEntries );
 
     workflowPainter.drawJob();
-
-    return (Image) gc.getImage();
   }
 
   protected Point getOffset() {

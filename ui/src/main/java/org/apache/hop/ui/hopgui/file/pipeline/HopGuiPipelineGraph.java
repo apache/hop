@@ -2856,10 +2856,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display display = hopDisplay();
-
-    Image img = getPipelineImage( e.gc, area.x, area.y, magnification );
-    e.gc.drawImage( img, 0, 0 );
+    getPipelineImage( e.gc, area.x, area.y, magnification );
     if ( pipelineMeta.nrTransforms() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GuiResource.getInstance().getFontMedium() );
@@ -2869,10 +2866,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
       e.gc.drawImage( welcomeImage, leftPosition, topPosition );
     }
-    img.dispose();
   }
 
-  public Image getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
+  public void getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
 
     IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
 
@@ -2899,11 +2895,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
 
     pipelinePainter.buildPipelineImage();
-
-    Image img = (Image) gc.getImage();
-
-    gc.dispose();
-    return img;
   }
 
   @Override
