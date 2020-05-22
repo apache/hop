@@ -76,7 +76,9 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     // Make sure the canvas is scaled 100%
     gc.setTransform( 0.0f, 0.0f, 1.0f );
+    // First clear the image in the background color
     gc.setBackground( EColor.BACKGROUND );
+    gc.fillRectangle( 0, 0, area.x, area.y );
 
     if ( hori != null ) {
       hori.setThumb( thumb.x );
