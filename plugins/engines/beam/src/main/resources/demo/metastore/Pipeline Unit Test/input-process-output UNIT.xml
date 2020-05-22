@@ -365,7 +365,7 @@
     </child>
     <child>
       <id>pipeline_filename</id>
-      <value>/home/matt/git/mattcasters/hop/plugins/engines/beam/src/main/resources/demo/pipelines/input-process-output.hpl</value>
+      <value>pipelines/input-process-output.hpl</value>
       <type>String</type>
     </child>
     <child>

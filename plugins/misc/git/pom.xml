@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>hop-plugins-misc-git</artifactId>
+  <version>0.30-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Hop Plugins Miscellaneous Git</name>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins-misc</artifactId>
+    <version>0.30-SNAPSHOT</version>
+  </parent>file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/dialog
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/model
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/DrawDiffOnJobEntryExtensionPoint.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/DrawDiffOnStepExtensionPoint.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/GitController.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/GitPerspective.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/GitSpoonMenuController.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/GitSpoonPlugin.java
+  file:///home/matt/git/HiromuHota/pdi-git-plugin/src/main/java/org/pentaho/di/git/spoon/PdiDiff.java
+
+
+  <properties>
+    <dependency.jgit.revision>5.1.13.202002110435-r</dependency.jgit.revision>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito-all.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
+      <version>0.30-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${dependency.jgit.revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit.http.apache</artifactId>
+      <version>${dependency.jgit.revision}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tigris.svnclientadapter</groupId>
+      <artifactId>adapter-base</artifactId>
+      <version>1.9.4-2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tigris.svnclientadapter</groupId>
+      <artifactId>adapter-javahl</artifactId>
+      <version>1.9.4-2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.subversion</groupId>
+      <artifactId>javahl</artifactId>
+      <version>1.9.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.12</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.4.13</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit.junit</artifactId>
+      <version>${dependency.jgit.revision}</version>
+      <scope>test</scope>
+    </dependency>
+
+
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <classifier>test</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-engine</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>

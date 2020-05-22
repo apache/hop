@@ -5,16 +5,12 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   id="Layer_1"
-   data-name="Layer 1"
-   width="42.666668"
-   height="38.342247"
-   viewBox="0 0 42.666668 38.342247"
    version="1.1"
-   sodipodi:docname="beam-bq-output.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+   viewBox="0 0 42.666668 38.342247"
+   height="38.342247"
+   width="42.666668"
+   data-name="Layer 1"
+   id="Layer_1">
   <metadata
      id="metadata26">
     <rdf:RDF>
@@ -29,76 +25,52 @@
   </metadata>
   <defs
      id="defs24" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="640"
-     inkscape:window-height="480"
-     id="namedview22"
-     showgrid="false"
-     inkscape:zoom="27.948672"
-     inkscape:cx="21.021614"
-     inkscape:cy="15.338415"
-     inkscape:current-layer="Layer_1" />
   <title
      id="title2">BigQuery</title>
   <g
-     id="g830"
-     transform="matrix(0.26419343,0,0,0.26419343,6.2068859,3.4484623)">
+     transform="matrix(0.26419343,0,0,0.26419343,6.2068859,3.4484623)"
+     id="g830">
     <path
-       id="path4"
-       style="fill:#4285f4"
        d="M 126.47,58.12 100.17,12.38 A 11.56,11.56 0 0 0 90.31,6.5 H 37.7 a 11.55,11.55 0 0 0 -9.86,5.88 L 1.53,58 a 11.48,11.48 0 0 0 0,11.44 l 26.3,46 a 11.77,11.77 0 0 0 9.86,6.09 H 90.3 a 11.73,11.73 0 0 0 9.87,-6.06 l 26.3,-45.74 a 11.73,11.73 0 0 0 0,-11.61 z"
-       inkscape:connector-curvature="0" />
+       style="fill:#4285f4"
+       id="path4" />
     <path
-       id="path6"
-       style="opacity:0.07000002;isolation:isolate"
        d="M 100.17,115.44 117.7,84.95 80.62,47.88 64,43.43 49.07,49 43.3,64 47.94,80.73 88.71,121.5 h 1.59 a 11.73,11.73 0 0 0 9.87,-6.06 z"
-       inkscape:connector-curvature="0" />
+       style="opacity:0.07000002;isolation:isolate"
+       id="path6" />
     <g
        id="art">
       <g
          id="g18">
         <path
-           id="path8"
-           style="fill:#ffffff"
            d="M 64,40.8 A 23.19,23.19 0 1 0 87.19,64 23.19,23.19 0 0 0 64,40.8 m 0,40.8 A 17.6,17.6 0 1 1 81.6,64 17.6,17.6 0 0 1 64,81.6"
-           inkscape:connector-curvature="0" />
-        <path
-           id="path10"
            style="fill:#ffffff"
+           id="path8" />
+        <path
            d="m 53,63.1 v 7.21 a 12.79,12.79 0 0 0 4.38,4.48 V 63.1 Z"
-           inkscape:connector-curvature="0" />
-        <path
-           id="path12"
            style="fill:#ffffff"
+           id="path10" />
+        <path
            d="m 61.67,57 v 19.44 a 11.78,11.78 0 0 0 4.38,0 V 57 Z"
-           inkscape:connector-curvature="0" />
-        <path
-           id="path14"
            style="fill:#ffffff"
+           id="path12" />
+        <path
            d="m 70.77,66.1 v 8.56 A 12.78,12.78 0 0 0 75.15,70 v -3.9 z"
-           inkscape:connector-curvature="0" />
-        <path
-           id="path16"
            style="fill:#ffffff"
+           id="path14" />
+        <path
            d="m 80.69,78.29 -2.4,2.41 a 1.09,1.09 0 0 0 0,1.53 l 9.11,9.11 a 1.09,1.09 0 0 0 1.54,0 l 2.4,-2.4 a 1.09,1.09 0 0 0 0,-1.53 l -9.12,-9.12 a 1.09,1.09 0 0 0 -1.53,0"
-           inkscape:connector-curvature="0" />
+           style="fill:#ffffff"
+           id="path16" />
       </g>
     </g>
   </g>
   <g
-     transform="translate(-28.30515,-28.5601)"
-     id="g12">
+     id="g12"
+     transform="translate(-28.30515,-28.5601)">
     <polygon
-       style="fill:#3d6480"
+       points="32.6,36.8 32.6,38.7 39,38.7 39,32.3 37.1,32.3 37.1,35.4 31.9,30.2 30.5,31.5 35.8,36.8 "
        id="polygon10"
-       points="32.6,36.8 32.6,38.7 39,38.7 39,32.3 37.1,32.3 37.1,35.4 31.9,30.2 30.5,31.5 35.8,36.8 " />
+       style="fill:#3d6480" />
   </g>
 </svg>

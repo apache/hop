@@ -4,6 +4,7 @@ import org.apache.batik.util.SVGConstants;
 import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,7 +33,8 @@ public class SvgGc extends SwingGc implements IGc {
     try {
 
       SwingUniversalImageSvg swingUniversalImageSvg = (SwingUniversalImageSvg) image;
-      Node svgGraphicsNode = swingUniversalImageSvg.getSvg().getDocument().getFirstChild();
+      Document document = swingUniversalImageSvg.getSvg().getDocument();
+      Node svgGraphicsNode = XmlHandler.getSubNode(document, "svg");
 
       Document domFactory = gc.getDOMFactory();
 
@@ -50,10 +52,22 @@ public class SvgGc extends SwingGc implements IGc {
       for (int c=0;c<childNodes.getLength();c++  ) {
         Node childNode = childNodes.item( c );
 
-        // Copy this node over to the svgSvg element
+        // Let's skip metadata nodes...
         //
-        Node childNodeCopy = domFactory.importNode( childNode, true );
-        svgSvg.appendChild( childNodeCopy );
+        boolean skip=false;
+        if ("metadata".equals(childNode.getNodeName())) {
+          skip = true;
+        }
+        if ("sodipodi:namedview".equals( childNode.getNodeName() )) {
+          skip = true;
+        }
+
+        if (!skip) {
+          // Copy this node over to the svgSvg element
+          //
+          Node childNodeCopy = domFactory.importNode( childNode, true );
+          svgSvg.appendChild( childNodeCopy );
+        }
       }
 
       gc.getDomGroupManager().addElement( svgSvg, DRAW );
