@@ -28,7 +28,6 @@
       <module>environment</module>
       <module>debug</module>
       <module>testing</module>
-      <module>git</module>
     </modules>
   </profile>
   </profiles>

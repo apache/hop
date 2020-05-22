@@ -62,12 +62,11 @@ import java.util.Map;
  * Meta data for the Excel transform.
  */
 @Transform(
-    id = "ExcelInput",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.excelinput",
-    name = "BaseTransform.TypeLongDesc.ExcelInput",
-    description = "BaseTransform.TypeTooltipDesc.ExcelInput",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    image = "excelinput.svg"
+        id = "ExcelInput",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.excelinput",
+        name = "BaseTransform.TypeLongDesc.ExcelInput",
+        description = "BaseTransform.TypeTooltipDesc.ExcelInput",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
 public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<ExcelInput, ExcelInputData> {

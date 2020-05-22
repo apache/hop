@@ -855,10 +855,6 @@
       <id>confluent</id>
       <url>http://packages.confluent.io/maven/</url>
     </repository>
-    <repository>
-      <id>bintray-maven</id>
-      <url>https://dl.bintray.com/subclipse/maven</url>
-    </repository>
   </repositories>
 
 </project>

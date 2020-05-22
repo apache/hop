@@ -23,9 +23,9 @@
 package org.apache.hop.pipeline.transforms.filterrows;
 
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -34,8 +34,8 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -43,15 +43,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -65,12 +61,11 @@ import java.util.Optional;
  */
 @InjectionSupported( localizationPrefix = "FilterRowsMeta.Injection." )
 @Transform(
-  id = "FilterRows",
-  i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filterrows",
-  name = "BaseTransform.TypeLongDesc.FilterRows",
-  description = "BaseTransform.TypeTooltipDesc.FilterRows",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-  image = "filterrows.svg"
+        id = "FilterRows",
+        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filterrows",
+        name = "BaseTransform.TypeLongDesc.FilterRows",
+        description = "BaseTransform.TypeTooltipDesc.FilterRows",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
 )
 public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<FilterRows, FilterRowsData> {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
