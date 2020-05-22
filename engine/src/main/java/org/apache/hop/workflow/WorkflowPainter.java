@@ -74,6 +74,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     Point thumb = getThumb( area, max );
     offset = getOffset( thumb, area );
 
+    // Make sure the canvas is scaled 100%
+    gc.setTransform( 0.0f, 0.0f, 1.0f );
     gc.setBackground( EColor.BACKGROUND );
 
     if ( hori != null ) {
