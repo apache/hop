@@ -2171,7 +2171,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testProtectXMLCDATA() {
+  public void testProtectXmlCdata() {
     assertEquals( null, Const.protectXmlCdata( null ) );
     assertEquals( "", Const.protectXmlCdata( "" ) );
     assertEquals( "<![CDATA[foo]]>", Const.protectXmlCdata( "foo" ) );

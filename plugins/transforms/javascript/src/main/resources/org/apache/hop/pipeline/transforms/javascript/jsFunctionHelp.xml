@@ -1720,18 +1720,18 @@
       <argument id="1">var</argument>
     </Arguments>
   </jsFunction>
-  <jsFunction name="protectXMLCDATA">
+  <jsFunction name="protectXmlCdata">
     <help>Protect XML with CDATA.</help>
     <sample>// Returns protected String
       //
       // Usage:
-      // protectXMLCDATA(var);
+      // protectXmlCdata(var);
       // 1: var - The Variable to protect.
       //
       // 2007-09-11
       //
       var str1 = "my home";
-      Alert(protectXMLCDATA(str1));
+      Alert(protectXmlCdata(str1));
     </sample>
     <type>0</type>
     <Arguments>
@@ -1756,17 +1756,17 @@
       <argument id="1">var</argument>
     </Arguments>
   </jsFunction>
-  <jsFunction name="escapeSQL">
+  <jsFunction name="escapeSql">
     <help>Escapes the characters in a String to be suitable to pass to an SQL query</help>
     <sample>// Returns escaped String
       //
       // Usage:
-      // "escapeSQL"(var);
+      // "escapeSql"(var);
       // 1: var - The Variable to escape.
       //
       // 2007-09-11
       //
-      var str1 = "SELECT * FROM CUSTOMER WHERE NAME='" + escapeSQL("McHale's Navy") + "'";
+      var str1 = "SELECT * FROM CUSTOMER WHERE NAME='" + escapeSql("McHale's Navy") + "'";
       //At present, this method only turns single-quotes into doubled single-quotes
       // ("McHale's Navy" => "McHale''s Navy"
       Alert(str1);
