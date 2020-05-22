@@ -22,12 +22,15 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Font;
@@ -343,5 +346,26 @@ public abstract class HopGuiAbstractGraph extends Composite {
     }
 
     redraw();
+  }
+
+  protected void setData( AbstractMeta meta ) {
+    JsonObject jsonProps = new JsonObject();
+    jsonProps.add( "gridsize", PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1 );
+    jsonProps.add( "iconsize", PropsUi.getInstance().getIconSize() );
+    jsonProps.add( "magnification", magnification );
+    canvas.setData( "props", jsonProps );
+
+    JsonArray jsonNotes = new JsonArray();
+    meta.getNotes().forEach( note -> {
+      JsonObject jsonNote = new JsonObject();
+      jsonNote.add( "x", note.getLocation().x );
+      jsonNote.add( "y", note.getLocation().y );
+      jsonNote.add( "width", note.getWidth() );
+      jsonNote.add( "height", note.getHeight() );
+      jsonNote.add( "selected", note.isSelected() );
+      jsonNote.add( "note", note.getNote() );
+      jsonNotes.add( jsonNote );
+    } );
+    canvas.setData( "notes", jsonNotes );
   }
 }

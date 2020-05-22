@@ -26,6 +26,7 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
@@ -33,6 +34,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.dnd.DragAndDropContainer;
 import org.apache.hop.core.dnd.XMLTransfer;
@@ -73,6 +75,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.WebSpoonClientListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -112,6 +115,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
+import org.eclipse.rap.rwt.scripting.ClientListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -364,6 +370,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
+    ClientListener listener = WebSpoonClientListener.getInstance();
+    canvas.addListener( SWT.MouseDown, listener );
+    canvas.addListener( SWT.MouseMove, listener );
+    canvas.addListener( SWT.MouseUp, listener );
+    canvas.addListener( SWT.Paint, listener );
     scrolledcomposite.setContent( canvas );
     scrolledcomposite.addListener( SWT.Resize, new Listener() {
       public void handleEvent( Event event ) {
@@ -462,6 +473,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
 
         Point p = getRealPosition( canvas, event.x, event.y );
+        lastMove = p;
 
         try {
           DragAndDropContainer container = (DragAndDropContainer) event.data;
@@ -632,6 +644,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void mouseDown( MouseEvent e ) {
+    mouseHover( e );
     doubleClick = false;
 
     if ( ignoreNextClick ) {
@@ -710,9 +723,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             } else if ( e.button == 2 || ( e.button == 1 && shift ) ) {
               // SHIFT CLICK is start of drag to create a new hop
               //
+              canvas.setData( "mode", "hop" );
               startHopEntry = actionCopy;
 
             } else {
+              canvas.setData( "mode", "drag" );
               selectedEntries = workflowMeta.getSelectedEntries();
               selectedEntry = actionCopy;
               //
@@ -772,6 +787,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         } else {
           // No area-owner means: background:
           //
+          canvas.setData( "mode", "select" );
           startHopEntry = null;
           if ( !control ) {
             selectionRegion = new org.apache.hop.core.gui.Rectangle( real.x, real.y, 0, 0 );
@@ -780,6 +796,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
     }
+    mouseMove( e );
   }
 
   private enum SingleClickType {
@@ -790,6 +807,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void mouseUp( MouseEvent e ) {
+    // canvas.setData( "mode", null ); does not work.
+    canvas.setData( "mode", "null" );
+
+    mouseMove( e );
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
 
     boolean singleClick = false;
@@ -2482,6 +2503,59 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     workflowPainter.setActiveJobEntries( activeJobEntries );
 
     workflowPainter.drawJob();
+
+    setData( workflowMeta );
+  }
+
+  @Override
+  protected void setData( AbstractMeta meta ) {
+    super.setData( meta );
+
+    WorkflowMeta workflowMeta = (WorkflowMeta) meta;
+    JsonObject jsonNodes = new JsonObject();
+    workflowMeta.getJobCopies().forEach( node -> {
+      JsonObject jsonNode = new JsonObject();
+      jsonNode.add( "x", node.getLocation().x );
+      jsonNode.add( "y", node.getLocation().y );
+      jsonNode.add( "selected", node.isSelected() );
+
+      SwtUniversalImage swtImage = null;
+
+      if ( node.isSpecial() ) {
+        if ( node.isStart() ) {
+          swtImage = GuiResource.getInstance().getSwtImageStart();
+        }
+        if ( node.isDummy() ) {
+          swtImage = GuiResource.getInstance().getSwtImageDummy();
+        }
+      } else {
+        String configId = node.getAction().getPluginId();
+        if ( configId != null ) {
+          swtImage = GuiResource.getInstance().getImagesActions().get( configId );
+        }
+      }
+      if ( node.isMissing() ) {
+        swtImage = GuiResource.getInstance().getSwtImageMissing();
+      }
+      if ( swtImage == null ) {
+        return;
+      }
+
+      Image image = swtImage.getAsBitmapForSize( getDisplay(), Math.round( iconsize * magnification ), Math.round( iconsize * magnification ) );
+      jsonNode.add( "img",  image.internalImage.getResourceName() );
+      jsonNodes.add( node.getName(), jsonNode );
+    } );
+    canvas.setData( "nodes", jsonNodes );
+
+    JsonArray jsonHops = new JsonArray();
+    for ( int i = 0; i < workflowMeta.nrWorkflowHops(); i++ ) {
+      JsonObject jsonHop = new JsonObject();
+      WorkflowHopMeta hop = workflowMeta.getWorkflowHop( i );
+      jsonHop.add( "from", hop.getFromAction().getName() );
+      jsonHop.add( "to", hop.getToAction().getName() );
+      jsonHops.add( jsonHop );
+    }
+    canvas.setData( "hops", jsonHops );
   }
 
   protected Point getOffset() {
