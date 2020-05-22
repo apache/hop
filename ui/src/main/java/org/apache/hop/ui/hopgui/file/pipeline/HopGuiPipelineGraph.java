@@ -26,6 +26,7 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IEngineMeta;
@@ -105,6 +106,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.WebSpoonClientListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiSlaveDelegate;
@@ -140,6 +142,9 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
+import org.eclipse.rap.rwt.scripting.ClientListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -477,6 +482,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
+    ClientListener listener = WebSpoonClientListener.getInstance();
+    canvas.addListener( SWT.MouseDown, listener );
+    canvas.addListener( SWT.MouseMove, listener );
+    canvas.addListener( SWT.MouseUp, listener );
+    canvas.addListener( SWT.Paint, listener );
     scrolledcomposite.setContent( canvas );
     scrolledcomposite.addListener( SWT.Resize, new Listener() {
       public void handleEvent( Event event ) {
@@ -605,6 +615,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // What's the real drop position?
         Point p = getRealPosition( canvas, event.x, event.y );
+        lastMove = p;
 
         //
         // We expect a Drag and Drop container... (encased in XML)
@@ -803,6 +814,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDown( MouseEvent e ) {
+    mouseHover( e );
     doubleClick = false;
 
     if ( ignoreNextClick ) {
@@ -898,8 +910,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             } else if ( e.button == 2 || ( e.button == 1 && shift ) ) {
               // SHIFT CLICK is start of drag to create a new hop
               //
+              canvas.setData( "mode", "hop" );
               startHopTransform = transformMeta;
             } else {
+              canvas.setData( "mode", "drag" );
               selectedTransforms = pipelineMeta.getSelectedTransforms();
               selectedTransform = transformMeta;
               //
@@ -947,6 +961,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         } else {
           // No area-owner & no hop means : background click:
           //
+          canvas.setData( "mode", "select" );
           startHopTransform = null;
           if ( !control ) {
             selectionRegion = new org.apache.hop.core.gui.Rectangle( real.x, real.y, 0, 0 );
@@ -955,6 +970,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
     }
+    mouseMove( e );
   }
 
   private enum SingleClickType {
@@ -966,6 +982,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp( MouseEvent e ) {
+    // canvas.setData( "mode", null ); does not work.
+    canvas.setData( "mode", "null" );
 
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension( null, e, getArea() );
@@ -979,6 +997,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError( "Error calling PipelineGraphMouseUp extension point", ex );
     }
 
+    mouseMove( e );
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
     PipelineHopMeta selectedHop = findPipelineHop( e.x, e.y );
     updateErrorMetaForHop( selectedHop );
@@ -2895,6 +2914,44 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
 
     pipelinePainter.buildPipelineImage();
+
+    setData( pipelineMeta );
+  }
+
+  @Override
+  protected void setData( AbstractMeta meta ) {
+    super.setData( meta );
+
+    PipelineMeta pipelineMeta = (PipelineMeta) meta;
+    JsonObject jsonNodes = new JsonObject();
+    pipelineMeta.getTransforms().forEach( transform -> {
+      JsonObject jsonNode = new JsonObject();
+      jsonNode.add( "x", transform.getLocation().x );
+      jsonNode.add( "y", transform.getLocation().y );
+      jsonNode.add( "selected", transform.isSelected() );
+      Image im = null;
+      if ( transform.isMissing() ) {
+        im = GuiResource.getInstance().getImageMissing();
+      } else {
+        im = GuiResource.getInstance().getImagesTransforms().get( transform.getTransformPluginId() )
+        .getAsBitmapForSize( getDisplay(), Math.round( iconsize * magnification ), Math.round( iconsize * magnification ) );
+      }
+      jsonNode.add( "img",  im.internalImage.getResourceName() );
+      jsonNodes.add( transform.getName(), jsonNode );
+    } );
+    canvas.setData( "nodes", jsonNodes );
+
+    JsonArray jsonHops = new JsonArray();
+    for ( int i = 0; i < pipelineMeta.nrPipelineHops(); i++ ) {
+      JsonObject jsonHop = new JsonObject();
+      PipelineHopMeta hop = pipelineMeta.getPipelineHop( i );
+      if ( hop.getFromTransform() != null && hop.getToTransform() != null ) {
+        jsonHop.add( "from", hop.getFromTransform().getName() );
+        jsonHop.add( "to", hop.getToTransform().getName() );
+        jsonHops.add( jsonHop );
+      }
+    }
+    canvas.setData( "hops", jsonHops );
   }
 
   @Override
