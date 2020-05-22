@@ -22,9 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -39,7 +36,6 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -66,6 +62,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContextDialog extends Dialog {
 
@@ -256,12 +255,13 @@ public class ContextDialog extends Dialog {
 		shell.addListener(SWT.Deactivate, event -> onFocusLost());
 
 		wSearch.addModifyListener(event -> onModifySearch());
-		wSearch.addKeyListener(new KeyAdapter() {
+		KeyAdapter keyAdapter = new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent event) {
 				onKeyPressed(event);
-			}			
-		});
+			}
+		};
+		wSearch.addKeyListener(keyAdapter);
 		wSearch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -305,10 +305,15 @@ public class ContextDialog extends Dialog {
 				wCanvas.redraw();
 			}
 		});
+		wCanvas.addKeyListener( keyAdapter );
 
 		// Filter all actions by default
 		//
 		this.filter(null);
+
+		// Force focus on the search bar
+		//
+		wSearch.setFocus();
 				
 		// Show the dialog now
 		//
