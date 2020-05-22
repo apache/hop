@@ -123,7 +123,7 @@ public class StringOperations extends BaseTransform implements ITransform {
           rcode = Const.escapeXml( rcode );
           break;
         case StringOperationsMeta.MASK_CDATA:
-          rcode = Const.protectXMLCDATA( rcode );
+          rcode = Const.protectXmlCdata( rcode );
           break;
         case StringOperationsMeta.MASK_UNESCAPE_XML:
           rcode = Const.unEscapeXml( rcode );
@@ -135,7 +135,7 @@ public class StringOperations extends BaseTransform implements ITransform {
           rcode = Const.unEscapeHtml( rcode );
           break;
         case StringOperationsMeta.MASK_ESCAPE_SQL:
-          rcode = Const.escapeSQL( rcode );
+          rcode = Const.escapeSql( rcode );
           break;
         default:
           break;
