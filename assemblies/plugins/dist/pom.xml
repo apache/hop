@@ -720,6 +720,19 @@
 
     <dependency>
       <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-action-xml</artifactId>
+      <version>${hop-plugins-actions.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-action-zipfile</artifactId>
       <version>${hop-plugins-actions.version}</version>
       <type>zip</type>
@@ -1972,6 +1985,19 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-writetolog</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-xml</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
       <exclusions>
