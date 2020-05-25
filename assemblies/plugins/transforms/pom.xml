@@ -112,6 +112,7 @@
         <module>update</module>
         <module>valuemapper</module>
         <module>writetolog</module>
+        <module>xml</module>
     </modules>
 
 </project>

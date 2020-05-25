@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-transform-xml</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Transforms XML</name>
+
+    <properties>
+        <poi.version>3.17</poi.version>
+        <saxon.version>8.7</saxon.version>
+        <jaxen.version>1.1.6</jaxen.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon-dom</artifactId>
+            <version>${saxon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>${jaxen.version}</version>
+        </dependency>
+    </dependencies>
+</project>

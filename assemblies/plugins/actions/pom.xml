@@ -67,6 +67,7 @@
         <module>webserviceavailable</module>
         <module>writetofile</module>
         <module>writetolog</module>
+        <module>xml</module>
         <module>zipfile</module>
     </modules>
 
