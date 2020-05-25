@@ -24,6 +24,7 @@ package org.apache.hop.ui.hopgui.perspective.dataorch;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -47,6 +48,7 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -73,7 +75,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
-  private static HopDataOrchestrationPerspective perspective;
+  private HopDataOrchestrationPerspective perspective;
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
   private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
 
@@ -92,10 +94,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private int tabSelectionIndex;
 
   public static final HopDataOrchestrationPerspective getInstance() {
-    if ( perspective == null ) {
-      perspective = new HopDataOrchestrationPerspective();
-    }
-    return perspective;
+    return SingletonUtil.getUniqueInstance( HopDataOrchestrationPerspective.class, WebSpoonUtils.getUISession() );
   }
 
   private HopDataOrchestrationPerspective() {
