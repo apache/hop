@@ -24,14 +24,8 @@ package org.apache.hop.base;
 
 import java.util.Arrays;
 
-/**
- * @link https://help.pentaho.com/Documentation/8.0/Products/Data_Integration/Command_Line_Tools
- */
 public class CommandExecutorCodes {
 
-  /**
-   * @link https://help.pentaho.com/Documentation/8.0/Products/Data_Integration/Command_Line_Tools#Pan_Status_Codes
-   */
   public enum Pan {
 
     SUCCESS( 0, "The pipeline ran without a problem" ),
@@ -81,9 +75,6 @@ public class CommandExecutorCodes {
     }
   }
 
-  /**
-   * @link https://help.pentaho.com/Documentation/8.0/Products/Data_Integration/Command_Line_Tools#Kitchen_Status_Codes
-   */
   public enum Kitchen {
 
     SUCCESS( 0, "The workflow ran without a problem" ),

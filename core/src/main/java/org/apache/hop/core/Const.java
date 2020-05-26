@@ -888,7 +888,7 @@ public class Const {
   public static final ReleaseType RELEASE = ReleaseType.GA;
 
   /**
-   * The system environment variable indicating where the alternative location for the Pentaho metastore folder is
+   * The system environment variable indicating where the alternative location for the Hop metastore folder is
    * located.
    */
   public static final String HOP_METASTORE_FOLDER = "HOP_METASTORE_FOLDER";
