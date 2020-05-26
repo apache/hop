@@ -45,7 +45,7 @@ public class HopServerStatusCache implements Cache {
   public static final String CARTE_STATUS_CACHE = "CARTE_CACHE";
 
   /**
-   * Switching the thread launched to be daemon otherwise it blocks the pentaho server shutdown
+   * Switching the thread launched to be daemon otherwise it blocks the Hop server shutdown
    */
   private final ScheduledExecutorService removeService = Executors.newSingleThreadScheduledExecutor(
     new ThreadFactory() {

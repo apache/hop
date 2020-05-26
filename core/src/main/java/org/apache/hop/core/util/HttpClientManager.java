@@ -35,7 +35,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 
 /**
- * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages in pentaho projects.
+ * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages in Hop projects.
  * Contains {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager Connection pool} of 200 connections.
  * Maximum connections per one route is 100.
  * Provides inner builder class for creating {@link org.apache.http.client.HttpClient HttpClients}.

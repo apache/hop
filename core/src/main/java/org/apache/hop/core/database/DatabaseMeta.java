@@ -2367,7 +2367,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    *
    * @param tableName Name of the table to drop
    * @return Drop table statement specific for the current database
-   * @see <a href="http://jira.pentaho.com/browse/BISERVER-13024">BISERVER-13024</a>
    */
   public String getDropTableIfExistsStatement( String tableName ) {
     return iDatabase.getDropTableIfExistsStatement( tableName );

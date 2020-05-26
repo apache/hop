@@ -100,7 +100,6 @@ public class BaseTransformTest {
    * This test checks that data from one non-partitioned transform copies to 2 partitioned transforms right.
    *
    * @throws HopException
-   * @see {@link <a href="http://jira.pentaho.com/browse/PDI-12211">http://jira.pentaho.com/browse/PDI-12211<a>}
    */
   @Test
   public void testBaseTransformPutRowLocalSpecialPartitioning() throws HopException {

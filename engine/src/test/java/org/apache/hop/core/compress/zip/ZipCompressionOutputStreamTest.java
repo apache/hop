@@ -110,7 +110,7 @@ public class ZipCompressionOutputStreamTest {
 
   @Test
   public void directoriesHierarchyIsIgnored() throws Exception {
-    outStream.addEntry( createFilePath( "1", "~", "pentaho", "dir" ), "txt" );
+    outStream.addEntry( createFilePath( "1", "~", "hop", "dir" ), "txt" );
     outStream.close();
 
     Map<String, String> map = readArchive( internalStream.toByteArray() );
@@ -120,7 +120,7 @@ public class ZipCompressionOutputStreamTest {
 
   @Test
   public void extraZipExtensionIsIgnored() throws Exception {
-    outStream.addEntry( createFilePath( "1.zip", "~", "pentaho", "dir" ), "txt" );
+    outStream.addEntry( createFilePath( "1.zip", "~", "hop", "dir" ), "txt" );
     outStream.close();
 
     Map<String, String> map = readArchive( internalStream.toByteArray() );
@@ -130,7 +130,7 @@ public class ZipCompressionOutputStreamTest {
 
   @Test
   public void absentExtensionIsOk() throws Exception {
-    outStream.addEntry( createFilePath( "1", "~", "pentaho", "dir" ), null );
+    outStream.addEntry( createFilePath( "1", "~", "hop", "dir" ), null );
     outStream.close();
 
     Map<String, String> map = readArchive( internalStream.toByteArray() );

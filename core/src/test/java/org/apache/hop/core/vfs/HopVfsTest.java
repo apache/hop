@@ -53,7 +53,7 @@ public class HopVfsTest {
   @Test
   public void testCheckForSchemeSuccess() throws HopFileException, IOException {
     String[] schemes = { "hdfs" };
-    String vfsFilename = "hdfs://hsbcmaster.labs.eag.hitachivantara.com:8020/tmp/acltest/";
+    String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 
     boolean test = HopVfs.checkForScheme( schemes, true, vfsFilename, null, null );
     assertFalse( test );
@@ -63,7 +63,7 @@ public class HopVfsTest {
   @Test
   public void testCheckForSchemeFail() throws HopFileException, IOException {
     String[] schemes = { "file" };
-    String vfsFilename = "hdfs://hsbcmaster.labs.eag.hitachivantara.com:8020/tmp/acltest/";
+    String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 
     boolean test = HopVfs.checkForScheme( schemes, true, vfsFilename, null, null );
     assertTrue( test );
