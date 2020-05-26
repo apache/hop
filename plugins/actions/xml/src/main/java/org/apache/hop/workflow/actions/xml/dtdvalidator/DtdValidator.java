@@ -58,24 +58,24 @@ import org.w3c.dom.Node;
         description = "DTD_VALIDATOR.Description",
         categoryDescription = "DTD_VALIDATOR.Category",
         documentationUrl = "" )
-public class JobEntryDTDValidator extends ActionBase implements Cloneable, IAction {
+public class DtdValidator extends ActionBase implements Cloneable, IAction {
   private String xmlfilename;
   private String dtdfilename;
   private boolean dtdintern;
 
-  public JobEntryDTDValidator( String n ) {
+  public DtdValidator(String n ) {
     super( n, "" );
     xmlfilename = null;
     dtdfilename = null;
     dtdintern = false;
   }
 
-  public JobEntryDTDValidator() {
+  public DtdValidator() {
     this( "" );
   }
 
   public Object clone() {
-    JobEntryDTDValidator je = (JobEntryDTDValidator) super.clone();
+    DtdValidator je = (DtdValidator) super.clone();
     return je;
   }
 
@@ -119,7 +119,7 @@ public class JobEntryDTDValidator extends ActionBase implements Cloneable, IActi
     String realDTDfilename = getRealDTDfilename();
 
     // Define a new DTD validator instance
-    DTDValidator validator = new DTDValidator( log );
+    DtdValidatorUtil validator = new DtdValidatorUtil( log );
     // Set XML filename
     validator.setXMLFilename( realxmlfilename );
     if ( dtdintern ) {

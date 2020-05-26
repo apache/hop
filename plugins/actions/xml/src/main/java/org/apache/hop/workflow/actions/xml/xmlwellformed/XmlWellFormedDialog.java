@@ -77,8 +77,8 @@ import org.eclipse.swt.widgets.Text;
         pluginType = PluginDialog.PluginType.ACTION,
         documentationUrl = ""
 )
-public class JobEntryXMLWellFormedDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = JobEntryXMLWellFormed.class; // for i18n purposes, needed by Translator2!!
+public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
+  private static Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobXMLWellFormed.Filetype.Xml" ),
@@ -101,7 +101,7 @@ public class JobEntryXMLWellFormedDialog extends ActionDialog implements IAction
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryXMLWellFormed jobEntry;
+  private XmlWellFormed jobEntry;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -155,9 +155,9 @@ public class JobEntryXMLWellFormedDialog extends ActionDialog implements IAction
   private TextVar wNrErrorsLessThan;
   private FormData fdlNrErrorsLessThan, fdNrErrorsLessThan;
 
-  public JobEntryXMLWellFormedDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
+  public XmlWellFormedDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
     super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (JobEntryXMLWellFormed) jobEntryInt;
+    jobEntry = (XmlWellFormed) jobEntryInt;
 
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobXMLWellFormed.Name.Default" ) );
@@ -784,9 +784,9 @@ public class JobEntryXMLWellFormedDialog extends ActionDialog implements IAction
     wNrErrorsLessThan.setText( Const.NVL( jobEntry.getNrErrorsLessThan(), "10" ) );
 
     if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( JobEntryXMLWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED ) ) {
+      if ( jobEntry.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( JobEntryXMLWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS ) ) {
+      } else if ( jobEntry.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -796,9 +796,9 @@ public class JobEntryXMLWellFormedDialog extends ActionDialog implements IAction
     }
 
     if ( jobEntry.getResultFilenames() != null ) {
-      if ( jobEntry.getResultFilenames().equals( JobEntryXMLWellFormed.ADD_WELL_FORMED_FILES_ONLY ) ) {
+      if ( jobEntry.getResultFilenames().equals( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 1 );
-      } else if ( jobEntry.getResultFilenames().equals( JobEntryXMLWellFormed.ADD_BAD_FORMED_FILES_ONLY ) ) {
+      } else if ( jobEntry.getResultFilenames().equals( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 2 );
       } else {
         wAddFilenameToResult.select( 0 );
@@ -833,19 +833,19 @@ public class JobEntryXMLWellFormedDialog extends ActionDialog implements IAction
     jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( JobEntryXMLWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED );
+      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( JobEntryXMLWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS );
+      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS );
     } else {
-      jobEntry.setSuccessCondition( JobEntryXMLWellFormed.SUCCESS_IF_NO_ERRORS );
+      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wAddFilenameToResult.getSelectionIndex() == 1 ) {
-      jobEntry.setResultFilenames( JobEntryXMLWellFormed.ADD_WELL_FORMED_FILES_ONLY );
+      jobEntry.setResultFilenames( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY );
     } else if ( wAddFilenameToResult.getSelectionIndex() == 2 ) {
-      jobEntry.setResultFilenames( JobEntryXMLWellFormed.ADD_BAD_FORMED_FILES_ONLY );
+      jobEntry.setResultFilenames( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY );
     } else {
-      jobEntry.setResultFilenames( JobEntryXMLWellFormed.ADD_ALL_FILENAMES );
+      jobEntry.setResultFilenames( XmlWellFormed.ADD_ALL_FILENAMES );
     }
 
     int nritems = wFields.nrNonEmpty();

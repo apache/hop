@@ -68,8 +68,8 @@ import org.eclipse.swt.widgets.Text;
         pluginType = PluginDialog.PluginType.ACTION,
         documentationUrl = ""
 )
-public class JobEntryDTDValidatorDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = JobEntryDTDValidator.class; // for i18n purposes, needed by Translator2!!
+public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
+  private static Class<?> PKG = DtdValidator.class; // for i18n purposes, needed by Translator2!!
 
   private static final String[] FILETYPES_XML = new String[] {
     BaseMessages.getString( PKG, "JobEntryDTDValidator.Filetype.Xml" ),
@@ -101,7 +101,7 @@ public class JobEntryDTDValidatorDialog extends ActionDialog implements IActionD
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryDTDValidator jobEntry;
+  private DtdValidator jobEntry;
 
   private Shell shell;
 
@@ -109,9 +109,9 @@ public class JobEntryDTDValidatorDialog extends ActionDialog implements IActionD
 
   private boolean changed;
 
-  public JobEntryDTDValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
+  public DtdValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntryDTDValidator) jobEntryInt;
+    jobEntry = (DtdValidator) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryDTDValidator.Name.Default" ) );
     }

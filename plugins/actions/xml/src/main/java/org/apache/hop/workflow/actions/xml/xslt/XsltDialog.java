@@ -79,8 +79,8 @@ import org.eclipse.swt.widgets.Text;
         pluginType = PluginDialog.PluginType.ACTION,
         documentationUrl = ""
 )
-public class JobEntryXSLTDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = JobEntryXSLT.class; // for i18n purposes, needed by Translator2!!
+public class XsltDialog extends ActionDialog implements IActionDialog {
+  private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!
 
   private static final String[] FILETYPES_XML = new String[] {
     BaseMessages.getString( PKG, "JobEntryXSLT.Filetype.Xml" ),
@@ -122,7 +122,7 @@ public class JobEntryXSLTDialog extends ActionDialog implements IActionDialog {
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryXSLT jobEntry;
+  private Xslt jobEntry;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -165,9 +165,9 @@ public class JobEntryXSLTDialog extends ActionDialog implements IActionDialog {
   private TableView wOutputProperties;
   private FormData fdOutputProperties;
 
-  public JobEntryXSLTDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
+  public XsltDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
     super( parent, jobEntryInt, jobMeta );
-    jobEntry = (JobEntryXSLT) jobEntryInt;
+    jobEntry = (Xslt) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryXSLT.Name.Default" ) );
     }

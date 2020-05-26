@@ -42,8 +42,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public class DTDValidator {
-  private static Class<?> PKG = JobEntryDTDValidator.class; // for i18n purposes, needed by Translator2!!
+public class DtdValidatorUtil {
+  private static Class<?> PKG = DtdValidator.class; // for i18n purposes, needed by Translator2!!
 
   private String xmlfilename;
   private String xsdfilename;
@@ -53,7 +53,7 @@ public class DTDValidator {
 
   private ILogChannel log;
 
-  public DTDValidator( ILogChannel log ) {
+  public DtdValidatorUtil(ILogChannel log ) {
     this.log = log;
     this.xmlfilename = null;
     this.xsdfilename = null;

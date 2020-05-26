@@ -33,12 +33,9 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -76,8 +73,8 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         categoryDescription = "XSD_VALIDATOR.Category",
         documentationUrl = ""
 )
-public class JobEntryXSDValidator extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = JobEntryXSDValidator.class; // for i18n purposes, needed by Translator2!!
+public class XsdValidator extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION = "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "true";
@@ -89,19 +86,19 @@ public class JobEntryXSDValidator extends ActionBase implements Cloneable, IActi
 
   private boolean allowExternalEntities;
 
-  public JobEntryXSDValidator( String n ) {
+  public XsdValidator(String n ) {
     super( n, "" );
     xmlfilename = null;
     xsdfilename = null;
     allowExternalEntities = Boolean.valueOf( System.getProperties().getProperty( ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION, ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT ) );
   }
 
-  public JobEntryXSDValidator() {
+  public XsdValidator() {
     this( "" );
   }
 
   public Object clone() {
-    JobEntryXSDValidator je = (JobEntryXSDValidator) super.clone();
+    XsdValidator je = (XsdValidator) super.clone();
     return je;
   }
 
