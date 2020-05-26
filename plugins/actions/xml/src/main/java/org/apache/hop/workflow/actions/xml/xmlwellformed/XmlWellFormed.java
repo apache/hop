@@ -31,7 +31,6 @@ import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -43,7 +42,6 @@ import org.apache.hop.core.xml.XmlCheck;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -69,8 +67,8 @@ import org.xml.sax.helpers.DefaultHandler;
         categoryDescription = "XML_WELL_FORMED.Category",
         documentationUrl = ""
 )
-public class JobEntryXMLWellFormed extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = JobEntryXMLWellFormed.class; // for i18n purposes, needed by Translator2!!
+public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
 
   public static String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
   public static String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";
@@ -102,7 +100,7 @@ public class JobEntryXMLWellFormed extends ActionBase implements Cloneable, IAct
   boolean successConditionBroken = false;
   boolean successConditionBrokenExit = false;
 
-  public JobEntryXMLWellFormed( String n ) {
+  public XmlWellFormed(String n ) {
     super( n, "" );
     resultfilenames = ADD_ALL_FILENAMES;
     arg_from_previous = false;
@@ -113,12 +111,12 @@ public class JobEntryXMLWellFormed extends ActionBase implements Cloneable, IAct
     success_condition = SUCCESS_IF_NO_ERRORS;
   }
 
-  public JobEntryXMLWellFormed() {
+  public XmlWellFormed() {
     this( "" );
   }
 
   public Object clone() {
-    JobEntryXMLWellFormed je = (JobEntryXMLWellFormed) super.clone();
+    XmlWellFormed je = (XmlWellFormed) super.clone();
     return je;
   }
 

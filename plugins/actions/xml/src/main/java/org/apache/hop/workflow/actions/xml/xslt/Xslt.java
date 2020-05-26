@@ -39,7 +39,6 @@ import org.apache.commons.vfs2.FileObject;
 
 import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -77,8 +76,8 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         categoryDescription = "XSLT.Category",
         documentationUrl = ""
 )
-public class JobEntryXSLT extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = JobEntryXSLT.class; // for i18n purposes, needed by Translator2!!
+public class Xslt extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!
 
   public static String FACTORY_JAXP = "JAXP";
   public static String FACTORY_SAXON = "SAXON";
@@ -111,7 +110,7 @@ public class JobEntryXSLT extends ActionBase implements Cloneable, IAction {
   private Properties outputProperties;
   private boolean setOutputProperties;
 
-  public JobEntryXSLT( String n ) {
+  public Xslt(String n ) {
     super( n, "" );
     xmlfilename = null;
     xslfilename = null;
@@ -142,12 +141,12 @@ public class JobEntryXSLT extends ActionBase implements Cloneable, IAction {
     outputPropertyValue = new String[outputProps];
   }
 
-  public JobEntryXSLT() {
+  public Xslt() {
     this( "" );
   }
 
   public Object clone() {
-    JobEntryXSLT je = (JobEntryXSLT) super.clone();
+    Xslt je = (Xslt) super.clone();
     int nrparams = parameterName.length;
     int nroutputprops = outputPropertyName.length;
     je.allocate( nrparams, nroutputprops );

@@ -67,8 +67,8 @@ import org.eclipse.swt.widgets.Text;
         pluginType = PluginDialog.PluginType.ACTION,
         documentationUrl = ""
 )
-public class JobEntryXSDValidatorDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = JobEntryXSDValidator.class; // for i18n purposes, needed by Translator2!!
+public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
+  private static Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!
 
   private static final String[] FILETYPES_XML = new String[] {
     BaseMessages.getString( PKG, "JobEntryXSDValidator.Filetype.Xml" ),
@@ -99,16 +99,16 @@ public class JobEntryXSDValidatorDialog extends ActionDialog implements IActionD
   private Button wOK, wCancel;
   private Listener lsOK, lsCancel;
 
-  private JobEntryXSDValidator jobEntry;
+  private XsdValidator jobEntry;
   private Shell shell;
 
   private SelectionAdapter lsDef;
 
   private boolean changed;
 
-  public JobEntryXSDValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
+  public XsdValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
     super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (JobEntryXSDValidator) jobEntryInt;
+    jobEntry = (XsdValidator) jobEntryInt;
     if ( this.jobEntry.getName() == null ) {
       this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryXSDValidator.Name.Default" ) );
     }
