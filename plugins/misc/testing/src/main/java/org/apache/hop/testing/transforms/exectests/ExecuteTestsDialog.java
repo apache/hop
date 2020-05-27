@@ -24,6 +24,7 @@ package org.apache.hop.testing.transforms.exectests;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
@@ -51,6 +52,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "ExecuteTests",
+        image = "ui/images/TRNEx.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class ExecuteTestsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecuteTestsDialog.class; // i18n
 

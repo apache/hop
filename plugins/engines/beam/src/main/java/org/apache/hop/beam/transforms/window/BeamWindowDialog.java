@@ -1,6 +1,7 @@
 
 package org.apache.hop.beam.transforms.window;
 
+import org.apache.hop.core.annotations.PluginDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,6 +25,12 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
+@PluginDialog(
+        id = "BeamWindow",
+        image = "beam-window.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamWindowDialog.class; // for i18n purposes, needed by Translator2!!
   private final BeamWindowMeta input;

@@ -23,7 +23,6 @@ import org.w3c.dom.Node;
   id = "BeamTimestamp",
   name = "Beam Timestamp",
   description = "Add timestamps to a bounded data source",
-  image = "beam-timestamp.svg",
   categoryDescription = "Big Data"
 )
 public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
@@ -49,10 +48,6 @@ public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMe
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamTimestampDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

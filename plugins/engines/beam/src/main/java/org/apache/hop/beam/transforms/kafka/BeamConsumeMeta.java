@@ -25,7 +25,6 @@ import java.util.List;
   id = "BeamKafkaConsume",
   name = "Beam Kafka Consume",
   description = "Get messages from Kafka topics (Kafka Consumer)",
-  image = "beam-kafka-input.svg",
   categoryDescription = "Big Data"
 )
 public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta<BeamConsume, DummyData> {
@@ -83,10 +82,6 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamConsumeDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

@@ -26,7 +26,6 @@ import org.w3c.dom.Node;
   id = "BeamWindow",
   name = "Beam Window",
   description = "Create a Beam Window",
-  image = "beam-window.svg",
   categoryDescription = "Big Data"
 )
 public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
@@ -65,10 +64,6 @@ public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamWindowDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

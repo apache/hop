@@ -27,7 +27,6 @@ import java.util.List;
   id = "BeamBQInput",
   name = "Beam BigQuery Input",
   description = "Reads from a BigQuery table in Beam",
-  image = "beam-bq-input.svg",
   categoryDescription = "Big Data"
 )
 public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
@@ -58,10 +57,6 @@ public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamBQInputDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
