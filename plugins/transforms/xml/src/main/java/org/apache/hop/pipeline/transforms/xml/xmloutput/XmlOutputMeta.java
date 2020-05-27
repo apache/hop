@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
  */
 @Transform( id = "XMLOutput", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
     name = "XMLOutput.name", description = "XMLOutput.description", categoryDescription = "XMLOutput.category",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/XML+Output" )
+    documentationUrl = "" )
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!

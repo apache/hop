@@ -99,9 +99,6 @@ public class ExcelOutputTest {
   }
 
   @Test
-  /**
-   * Tests http://jira.pentaho.com/browse/PDI-14420 issue
-   */
   public void testExceptionClosingWorkbook() throws Exception {
 
     IValueMeta vmi = new ValueMetaString( "new_row" );
@@ -138,9 +135,6 @@ public class ExcelOutputTest {
   }
 
   @Test
-  /**
-   * Tests http://jira.pentaho.com/browse/PDI-13487 issue
-   */
   public void testClosingFile() throws Exception {
 
     IValueMeta vmi = new ValueMetaString( "new_row" );

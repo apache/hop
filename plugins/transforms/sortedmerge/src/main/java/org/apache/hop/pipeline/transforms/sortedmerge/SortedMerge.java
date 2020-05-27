@@ -81,7 +81,6 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
       // which throws this loop off by one (the next set never gets processed).
       // Instead of modifying BaseTransform, I figure reversing the loop here would
       // effect change in less areas. If the reverse loop causes a problem, please
-      // re-open http://jira.pentaho.com/browse/PDI-1212.
       List<IRowSet> inputRowSets = getInputRowSets();
       for ( int i = inputRowSets.size() - 1; i >= 0 && !isStopped(); i-- ) {
 

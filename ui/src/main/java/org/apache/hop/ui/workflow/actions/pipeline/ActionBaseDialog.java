@@ -80,8 +80,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   public static Class<?> PKG = ActionBaseDialog.class;
 
-  public static final int IS_PENTAHO = 1;
-
   protected Label wlPath;
   protected TextVar wPath;
 

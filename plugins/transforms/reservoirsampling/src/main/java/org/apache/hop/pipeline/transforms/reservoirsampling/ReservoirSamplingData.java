@@ -39,7 +39,6 @@ import java.util.Random;
  * Vitter, J. S. Random Sampling with a Reservoir. ACM Transactions on Mathematical Software, Vol. 11, No. 1, March
  * 1985. Pages 37-57.
  *
- * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
 public class ReservoirSamplingData extends BaseTransformData implements ITransformData {

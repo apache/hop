@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -80,7 +80,7 @@ public class XMLOutputMetaTest {
     assertEquals( "xmlOutputFile", xmlOutputMeta.getFileName() );
     assertFalse( xmlOutputMeta.isDoNotOpenNewFileInit() );
     assertFalse( xmlOutputMeta.isServletOutput() );
-    assertEquals( "pentaho.xml", xmlOutputMeta.getExtension() );
+    assertEquals( "hop.xml", xmlOutputMeta.getExtension() );
     assertTrue( xmlOutputMeta.isStepNrInFilename() );
     assertTrue( xmlOutputMeta.isDateInFilename() );
     assertTrue( xmlOutputMeta.isTimeInFilename() );
@@ -108,7 +108,7 @@ public class XMLOutputMetaTest {
         + "    <xml_repeat_element>Row</xml_repeat_element>" + Const.CR
         + "    <file>" + Const.CR
         + "      <name>xmlOutputFile</name>" + Const.CR
-        + "      <extention>pentaho.xml</extention>" + Const.CR
+        + "      <extention>hop.xml</extention>" + Const.CR
         + "      <servlet_output>N</servlet_output>" + Const.CR
         + "      <do_not_open_newfile_init>N</do_not_open_newfile_init>" + Const.CR
         + "      <split>Y</split>" + Const.CR
@@ -169,7 +169,7 @@ public class XMLOutputMetaTest {
         + "<xml_repeat_element>Row</xml_repeat_element>" + Const.CR
         + "<file>" + Const.CR
         + "  <name>xmlOutputFile</name>" + Const.CR
-        + "  <extention>pentaho.xml</extention>" + Const.CR
+        + "  <extention>hop.xml</extention>" + Const.CR
         + "  <servlet_output>N</servlet_output>" + Const.CR
         + "  <do_not_open_newfile_init>N</do_not_open_newfile_init>" + Const.CR
         + "  <split>Y</split>" + Const.CR

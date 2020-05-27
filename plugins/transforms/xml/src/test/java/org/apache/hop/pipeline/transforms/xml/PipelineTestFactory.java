@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -52,8 +52,7 @@ import java.util.Map;
  * The target step is a dummy step.<br>
  * The middle step is the step specified.<br>
  * 
- * @author Matt Casters (mcasters@pentaho.com)
- * 
+ *
  */
 public class PipelineTestFactory {
   public static final String INJECTOR_STEPNAME = "injector";
