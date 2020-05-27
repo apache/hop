@@ -23,7 +23,6 @@ import org.w3c.dom.Node;
   id = "BeamInput",
   name = "Beam Input",
   description = "Describes a Beam Input",
-  image = "beam-input.svg",
   categoryDescription = "Big Data"
 )
 public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<BeamInput, BeamInputData> {
@@ -48,10 +47,6 @@ public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<B
 
   @Override public BeamInputData getTransformData() {
     return new BeamInputData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamInputDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

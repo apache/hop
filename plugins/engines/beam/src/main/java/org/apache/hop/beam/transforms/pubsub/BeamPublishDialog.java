@@ -1,6 +1,7 @@
 
 package org.apache.hop.beam.transforms.pubsub;
 
+import org.apache.hop.core.annotations.PluginDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,6 +25,12 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
+@PluginDialog(
+        id = "BeamPublish",
+        image = "beam-gcp-pubsub-publish.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class BeamPublishDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamPublish.class; // for i18n purposes, needed by Translator2!!
   private final BeamPublishMeta input;

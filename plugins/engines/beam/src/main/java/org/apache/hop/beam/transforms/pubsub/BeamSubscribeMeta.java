@@ -24,7 +24,6 @@ import org.w3c.dom.Node;
   id = "BeamSubscribe",
   name = "Beam GCP Pub/Sub : Subscribe",
   description = "Subscribe to data from a Pub/Sub topic",
-  image = "beam-gcp-pubsub-subscribe.svg",
   categoryDescription = "Big Data"
 )
 public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMeta<BeamSubscribe, BeamSubscribeData> {
@@ -56,10 +55,6 @@ public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMe
 
   @Override public BeamSubscribeData getTransformData() {
     return new BeamSubscribeData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamSubscribeDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

@@ -2,6 +2,7 @@
 package org.apache.hop.beam.transforms.kafka;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -25,6 +26,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "BeamKafkaConsume",
+        image = "beam-kafka-input.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamConsume.class; // for i18n purposes, needed by Translator2!!
   private final BeamConsumeMeta input;

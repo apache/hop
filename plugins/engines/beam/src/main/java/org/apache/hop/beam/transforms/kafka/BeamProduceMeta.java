@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
   id = "BeamKafkaProduce",
   name = "Beam Kafka Produce",
   description = "Send messages to a Kafka Topic (Producer)",
-  image = "beam-kafka-output.svg",
   categoryDescription = "Big Data"
 )
 public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta<BeamProduce, DummyData> {
@@ -52,10 +51,6 @@ public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamProduceDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

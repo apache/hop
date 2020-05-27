@@ -19,7 +19,6 @@ import org.w3c.dom.Node;
   id = "BeamPublish",
   name = "Beam GCP Pub/Sub : Publish",
   description = "Publish to a Pub/Sub topic",
-  image = "beam-gcp-pubsub-publish.svg",
   categoryDescription = "Big Data"
 )
 public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta<BeamPublish, BeamPublishData> {
@@ -48,10 +47,6 @@ public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override public BeamPublishData getTransformData() {
     return new BeamPublishData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamPublishDialog.class.getName();
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )

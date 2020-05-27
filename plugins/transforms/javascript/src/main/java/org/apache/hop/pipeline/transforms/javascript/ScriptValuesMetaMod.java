@@ -797,10 +797,6 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     return true;
   }
 
-  public String getDialogClassName() {
-    return "org.apache.hop.ui.pipeline.transforms.scriptvalues_mod.ScriptValuesModDialog";
-  }
-
   /**
    * @return the replace
    */

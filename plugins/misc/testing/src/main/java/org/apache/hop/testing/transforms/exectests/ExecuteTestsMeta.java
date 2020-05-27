@@ -43,7 +43,6 @@ import org.w3c.dom.Node;
   id = "ExecuteTests",
   description = "Execute Unit Tests",
   name = "Execute Unit Tests",
-  image = "ui/images/TRNEx.svg",
   categoryDescription = "Flow"
 )
 public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
@@ -130,11 +129,6 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public ExecuteTestsData getTransformData() {
     return new ExecuteTestsData();
-  }
-
-  @Override
-  public String getDialogClassName() {
-    return ExecuteTestsDialog.class.getName();
   }
 
   @Override

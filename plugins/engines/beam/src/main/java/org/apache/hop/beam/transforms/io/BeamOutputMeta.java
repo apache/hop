@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
   id = "BeamOutput",
   name = "Beam Output",
   description = "Describes a Beam Output",
-  image = "beam-output.svg",
   categoryDescription = "Big Data"
 )
 public class BeamOutputMeta extends BaseTransformMeta implements ITransformMeta<BeamOutput, BeamOutputData> {
@@ -52,10 +51,6 @@ public class BeamOutputMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override public BeamOutputData getTransformData() {
     return new BeamOutputData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamOutputDialog.class.getName();
   }
 
   public FileDefinition loadFileDefinition( IMetaStore metaStore) throws HopTransformException {
