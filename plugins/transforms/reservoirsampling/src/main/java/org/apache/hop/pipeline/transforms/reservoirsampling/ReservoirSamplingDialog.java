@@ -53,7 +53,6 @@ import org.eclipse.swt.widgets.Text;
 /**
  * The UI class for the ReservoirSampling transform
  *
- * @author Mark Hall (mhall{[at]}pentaho.org
  * @version 1.0
  */
 @PluginDialog(

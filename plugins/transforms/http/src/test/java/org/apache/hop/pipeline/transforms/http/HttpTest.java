@@ -88,7 +88,7 @@ public class HttpTest {
     mockStatic( HttpClientManager.class );
     when( HttpClientManager.getInstance() ).thenReturn( manager );
 
-    setInternalState( data, "realUrl", "http://pentaho.com" );
+    setInternalState( data, "realUrl", "http://project-hop.org" );
     setInternalState( data, "argnrs", new int[ 0 ] );
 
     doReturn( false ).when( meta ).isUrlInField();

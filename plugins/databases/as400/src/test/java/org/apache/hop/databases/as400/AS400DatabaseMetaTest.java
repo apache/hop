@@ -118,7 +118,7 @@ public class AS400DatabaseMetaTest {
       100, 0 ), "", false, "", false ) );
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR SET TIMESTAMP", nativeMeta.getModifyColumnStatement( "FOO",
-      new ValueMetaTimestamp( "BAR" ), "", false, "", false ) ); // Fixed: http://jira.pentaho.com/browse/PDI-15570
+      new ValueMetaTimestamp( "BAR" ), "", false, "", false ) );
 
     assertEquals( "SELECT SEQNAME FROM SYSCAT.SEQUENCES", nativeMeta.getSqlListOfSequences() );
     assertEquals( "SELECT * FROM SYSCAT.SEQUENCES WHERE SEQNAME = 'FOO'", nativeMeta.getSqlSequenceExists( "FOO" ) );

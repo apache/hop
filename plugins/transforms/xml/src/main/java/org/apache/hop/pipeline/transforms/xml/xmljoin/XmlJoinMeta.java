@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -58,7 +58,7 @@ import org.w3c.dom.Node;
  */
 @Transform( id = "XMLJoin", image = "XJN.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
     name = "XMLJoin.name", description = "XMLJoin.description", categoryDescription = "XMLJoin.category",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/XML+Join" )
+    documentationUrl = "" )
 @InjectionSupported( localizationPrefix = "XMLJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
   private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!

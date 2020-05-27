@@ -830,7 +830,6 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
   /*
    * Returns the writeAccess, re-encoded if necessary
-   * fixes http://jira.pentaho.com/browse/PDI-14022
    **/
   private String reEncodeWriteAccessIfNecessary( String writeAccess ) {
 

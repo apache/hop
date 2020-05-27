@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -55,7 +55,7 @@ import org.w3c.dom.Node;
  */
 @Transform( id = "XSLT", image = "XSLT.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xslt", name = "XSLT.name",
     description = "XSLT.description", categoryDescription = "XSLT.category",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/XSL+Transformation" )
+    documentationUrl = "" )
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 

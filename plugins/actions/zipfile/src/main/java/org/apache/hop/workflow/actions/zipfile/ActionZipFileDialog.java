@@ -858,10 +858,10 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     fdStoredSourcePathDepth.right = new FormAttachment( 100, 0 );
     wStoredSourcePathDepth.setLayoutData( fdStoredSourcePathDepth );
     wStoredSourcePathDepth.setItems( new String[] {
-      "0 : /pentaho/work/transfer/input/project/file.txt", "1 : file.txt", "2 : project/file.txt",
+      "0 : /project-hop/work/transfer/input/project/file.txt", "1 : file.txt", "2 : project/file.txt",
       "3 : input/project/file.txt", "4 : transfer/input/project/file.txt",
-      "5 : work/transfer/input/project/file.txt", "6 : pentaho/work/transfer/input/project/file.txt",
-      "7 : pentaho/work/transfer/input/project/file.txt", "8 : pentaho/work/transfer/input/project/file.txt", } );
+      "5 : work/transfer/input/project/file.txt", "6 : project-hop/work/transfer/input/project/file.txt",
+      "7 : project-hop/work/transfer/input/project/file.txt", "8 : project-hop/work/transfer/input/project/file.txt", } );
 
     fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );

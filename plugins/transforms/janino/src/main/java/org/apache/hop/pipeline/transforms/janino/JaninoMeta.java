@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains the meta-data for the Formula transform: calculates ad-hoc formula's Powered by Pentaho's "libformula"
+ * Contains the meta-data for the Formula transform: calculates ad-hoc formula's Powered by "libformula"
  * <p>
  * Created on 22-feb-2007
  */

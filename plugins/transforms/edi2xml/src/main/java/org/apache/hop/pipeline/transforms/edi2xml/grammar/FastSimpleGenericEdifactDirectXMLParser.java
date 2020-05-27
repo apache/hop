@@ -22,7 +22,7 @@
  ******************************************************************************/
 
 // $ANTLR 3.4 C:\\workspace-sts\\Hop trunk -
-// restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+// restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
 // FastSimpleGenericEdifactDirectXML.g 2012-12-06 11:16:38
 
 package org.apache.hop.pipeline.transforms.edi2xml.grammar;
@@ -115,7 +115,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   public String getGrammarFileName() {
     return "C:\\workspace-sts\\Hop trunk - "
-      + "restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\"
+      + "restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\"
       + "FastSimpleGenericEdifactDirectXML.g";
   }
 
@@ -185,7 +185,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "edifact"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:77:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:77:1:
   // edifact : ( una )? ( segment )* ;
   public final edifact_return edifact() throws RecognitionException {
     edifact_return retval =
@@ -194,16 +194,16 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:81:4:
       // ( ( una )? ( segment )* )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:81:6:
       // ( una )? ( segment )*
 
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:81:6:
       // ( una )?
       int alt1 = 2;
@@ -214,7 +214,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       switch ( alt1 ) {
         case 1:
           // C:\\workspace-sts\\Hop trunk -
-          // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+          // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:81:6:
           // una
 
@@ -228,7 +228,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       buf.append( XML_HEAD );
       buf.append( TAG_EDIFACT );
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:83:4:
       // ( segment )*
       loop2:
@@ -243,7 +243,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         switch ( alt2 ) {
           case 1:
             // C:\\workspace-sts\\Hop trunk -
-            // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+            // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
             // FastSimpleGenericEdifactDirectXML.g:83:4:
             // segment
 
@@ -283,7 +283,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "una"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:89:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:89:1:
   // una : ( 'UNA:+.? \\'' | 'UNA:+,? \\'' );
   public final una_return una() throws RecognitionException {
     una_return retval =
@@ -292,11 +292,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:89:7:
       // ( 'UNA:+.? \\'' | 'UNA:+,? \\'' )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:
 
       if ( ( input.LA( 1 ) >= 10 && input.LA( 1 ) <= 11 ) ) {
         input.consume();
@@ -333,7 +333,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "segment"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:91:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:91:1:
   // segment : tag ( data_element )* SEGMENT_TERMINATOR ( ' ' | '\\n' | '\\r' | '\\t' )* ;
   public final segment_return segment() throws RecognitionException {
     segment_return retval =
@@ -344,11 +344,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:91:11:
       // ( tag ( data_element )* SEGMENT_TERMINATOR ( ' ' | '\\n' | '\\r' | '\\t' )* )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:91:13:
       // tag ( data_element )* SEGMENT_TERMINATOR ( ' ' | '\\n' | '\\r' | '\\t' )*
 
@@ -358,7 +358,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       buf.append( "\t<" + ( tag1 != null ? tag1.name : null ) + ">\n" );
       appendIndexes();
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:92:4:
       // ( data_element )*
       loop3:
@@ -373,7 +373,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         switch ( alt3 ) {
           case 1:
             // C:\\workspace-sts\\Hop trunk -
-            // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+            // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
             // FastSimpleGenericEdifactDirectXML.g:92:4:
             // data_element
 
@@ -388,7 +388,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       } while ( true );
       match( input, SEGMENT_TERMINATOR, FOLLOW_SEGMENT_TERMINATOR_in_segment117 );
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:92:37:
       // ( ' ' | '\\n' | '\\r' | '\\t' )*
       loop4:
@@ -403,7 +403,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         switch ( alt4 ) {
           case 1:
             // C:\\workspace-sts\\Hop trunk -
-            // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+            // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
             // FastSimpleGenericEdifactDirectXML.g:
 
             if ( input.LA( 1 ) == 9 || ( input.LA( 1 ) >= 12 && input.LA( 1 ) <= 14 ) ) {
@@ -448,7 +448,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "data_element"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:96:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:96:1:
   // data_element : ss data_element_payload ;
   public final data_element_return data_element() throws RecognitionException {
     data_element_return retval =
@@ -457,11 +457,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:96:15:
       // ( ss data_element_payload )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:96:17:
       // ss data_element_payload
 
@@ -498,7 +498,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "data_element_payload"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:98:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:98:1:
   // data_element_payload : ( composite_data_item ds )* composite_data_item ;
   public final data_element_payload_return data_element_payload() throws RecognitionException {
     data_element_payload_return retval =
@@ -507,17 +507,17 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:98:22:
       // ( ( composite_data_item ds )* composite_data_item )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:98:24:
       // ( composite_data_item ds )* composite_data_item
 
       buf.append( TAG_ELEMENT );
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:99:4:
       // ( composite_data_item ds )*
       loop5:
@@ -539,7 +539,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         switch ( alt5 ) {
           case 1:
             // C:\\workspace-sts\\Hop trunk -
-            // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+            // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
             // FastSimpleGenericEdifactDirectXML.g:99:5:
             // composite_data_item ds
 
@@ -586,7 +586,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "composite_data_item"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:102:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:102:1:
   // composite_data_item : composite_data_item_val ;
   public final composite_data_item_return composite_data_item() throws RecognitionException {
     composite_data_item_return retval =
@@ -597,11 +597,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:102:21:
       // ( composite_data_item_val )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:102:23:
       // composite_data_item_val
 
@@ -639,7 +639,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "composite_data_item_val"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:105:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:105:1:
   // composite_data_item_val : ( txt |);
   public final composite_data_item_val_return composite_data_item_val() throws RecognitionException {
     composite_data_item_val_return retval =
@@ -648,7 +648,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:105:25:
       // ( txt |)
       int alt6 = 2;
@@ -668,7 +668,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       switch ( alt6 ) {
         case 1:
           // C:\\workspace-sts\\Hop trunk -
-          // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+          // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:105:27:
           // txt
 
@@ -678,7 +678,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           break;
         case 2:
           // C:\\workspace-sts\\Hop trunk -
-          // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+          // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:105:31:
           break;
 
@@ -712,7 +712,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "tag"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:108:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:108:1:
   // tag returns [String name, List indexes] : tag_name ( ds i+= tag_index_id )* ;
   public final tag_return tag() throws RecognitionException {
     tag_return retval =
@@ -725,11 +725,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     RuleReturnScope i = null;
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:108:41:
       // ( tag_name ( ds i+= tag_index_id )* )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:108:43:
       // tag_name ( ds i+= tag_index_id )*
 
@@ -738,7 +738,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       state._fsp--;
       tagIndexes.clear();
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:108:74:
       // ( ds i+= tag_index_id )*
       loop7:
@@ -753,7 +753,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
         switch ( alt7 ) {
           case 1:
             // C:\\workspace-sts\\Hop trunk -
-            // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+            // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
             // FastSimpleGenericEdifactDirectXML.g:108:75:
             // ds i+= tag_index_id
 
@@ -801,7 +801,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "tag_name"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:112:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:112:1:
   // tag_name : txt ;
   public final tag_name_return tag_name() throws RecognitionException {
     tag_name_return retval =
@@ -810,11 +810,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:112:11:
       // ( txt )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:112:13:
       // txt
 
@@ -848,7 +848,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "tag_index_id"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:115:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:115:1:
   // tag_index_id : tag_index_id_val ;
   public final tag_index_id_return tag_index_id() throws RecognitionException {
     tag_index_id_return retval =
@@ -859,11 +859,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:115:15:
       // ( tag_index_id_val )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:115:17:
       // tag_index_id_val
 
@@ -899,7 +899,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "tag_index_id_val"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:116:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:116:1:
   // tag_index_id_val : ( txt |);
   public final tag_index_id_val_return tag_index_id_val() throws RecognitionException {
     tag_index_id_val_return retval =
@@ -908,7 +908,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:116:18:
       // ( txt |)
       int alt8 = 2;
@@ -928,7 +928,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
       switch ( alt8 ) {
         case 1:
           // C:\\workspace-sts\\Hop trunk -
-          // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+          // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:116:20:
           // txt
 
@@ -938,7 +938,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           break;
         case 2:
           // C:\\workspace-sts\\Hop trunk -
-          // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+          // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
           // FastSimpleGenericEdifactDirectXML.g:116:24:
           break;
 
@@ -970,7 +970,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "ds"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:119:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:119:1:
   // ds : COMPLEX_ELEMENT_ITEM_SEPARATOR ;
   public final ds_return ds() throws RecognitionException {
     ds_return retval =
@@ -979,11 +979,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:119:6:
       // ( COMPLEX_ELEMENT_ITEM_SEPARATOR )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:119:8:
       // COMPLEX_ELEMENT_ITEM_SEPARATOR
 
@@ -1015,7 +1015,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "ss"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:120:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:120:1:
   // ss : ELEMENT_SEPARATOR ;
   public final ss_return ss() throws RecognitionException {
     ss_return retval =
@@ -1024,11 +1024,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:120:6:
       // ( ELEMENT_SEPARATOR )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:120:8:
       // ELEMENT_SEPARATOR
 
@@ -1060,7 +1060,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
   // $ANTLR start "txt"
   // C:\\workspace-sts\\Hop trunk -
-  // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:121:1:
+  // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:121:1:
   // txt : TEXT_DATA ;
   public final txt_return txt() throws RecognitionException {
     txt_return retval =
@@ -1069,11 +1069,11 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
 
     try {
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:121:7:
       // ( TEXT_DATA )
       // C:\\workspace-sts\\Hop trunk -
-      // restruct\\engine\\src\\org\\pentaho\\di\\pipeline\\transforms\\edi2xml\\grammar\\
+      // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
       // FastSimpleGenericEdifactDirectXML.g:121:9:
       // TEXT_DATA
 

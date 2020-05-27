@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -61,7 +61,7 @@ import org.w3c.dom.Node;
 @Transform( id = "XSDValidator", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xsdvalidator",
     name = "XSDValidator.name", description = "XSDValidator.description",
     categoryDescription = "XSDValidator.category",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/XSD+Validator" )
+    documentationUrl = "" )
 public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 

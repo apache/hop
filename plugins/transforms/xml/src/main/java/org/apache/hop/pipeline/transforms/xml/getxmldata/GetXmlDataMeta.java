@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
  */
 @Transform( id = "getXMLData", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.getxmldata",
     name = "GetXMLData.name", description = "GetXMLData.description", categoryDescription = "GetXMLData.category",
-    documentationUrl = "http://wiki.pentaho.com/display/EAI/Get+Data+From+XML" )
+    documentationUrl = "" )
 public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<GetXmlData, GetXmlDataData> {
   private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 
