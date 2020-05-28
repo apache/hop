@@ -88,6 +88,12 @@ public class HopGuiPipelineTransformDelegate {
     String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
 
     if ( dialogClassName == null ) {
+      // Calculate it from the base meta class...
+      //
+      dialogClassName = transformMeta.getDialogClassName();
+    }
+
+    if ( dialogClassName == null ) {
       throw new HopException( "Unable to find dialog class for plugin '" + plugin.getIds()[ 0 ] + "' : " + plugin.getName() );
     }
 

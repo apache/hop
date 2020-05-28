@@ -77,6 +77,9 @@ import java.util.Map;
  * <quote>Hint: When developing plugins, make sure the serialization code is in sync with the settings available from
  * the action dialog. When testing a plugin in HopGui, PDI will internally first save and load a copy of the
  * workflow.</quote></li><br/>
+ * <li><b>Provide access to dialog class</b><br/>
+ * PDI needs to know which class will take care of the settings dialog for the action. The interface method
+ * getDialogClassName() must return the name of the class implementing the IActionDialog.</li></br>
  * <li><b>Provide information about possible outcomes</b><br/>
  * A action may support up to three types of outgoing hops: true, false, and unconditional. Sometimes it does not
  * make sense to support all three possibilities. For instance, if the action performs a task that does not produce a
@@ -347,6 +350,15 @@ public interface IAction {
    * @throws HopException if any errors occur during the generation of SQL statements
    */
   List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException;
+
+  /**
+   * Get the name of the class that implements the dialog for the action ActionBase provides a default
+   *
+   * @return the name of the class implementing the dialog for the action
+   * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
+   */
+  @Deprecated
+  String getDialogClassName();
 
   /**
    * Gets the filename of the action. This method is used by actions and pipelines that call or refer to
