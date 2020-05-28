@@ -132,6 +132,8 @@
         <module>sortedmerge</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>stringcut</module>
+        <module>stringoperations</module>
         <module>switchcase</module>
         <module>syslog</module>
         <module>systemdata</module>
