@@ -1,0 +1,72 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/rss/src/main/doc/rssinput.adoc
+= RSS Input
+
+== Description
+
+This transform imports data from an RSS or Atom feed. RSS versions 0.91, 0.92, 1.0, 2.0, and Atom versions 0.3 and 1.0 are supported.
+
+== Options
+
+=== General Tab
+
+The General tab defines which RSS/Atom URLs you want to use, and optionally which fields contain the URLs.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|The name of this transform in the pipeline workspace.|URL is defined in a field
+|If checked, you must specify which field to retrieve the URL from.|URL Field
+|If the previous option is checked, this is where you specify the URL field.|URL list
+|A list of RSS/Atom URLs you want to pull article data from. 
+|===
+
+
+=== Content Tab
+
+The content tab contains options for limiting input and changing output.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Read articles from|Specifies a date in yyyy-MM-dd HH:mm:ss format. Only articles published after this date will be read.
+|Max number of articles|Specifies a static number of articles to retrieve, starting at the oldest.
+|Include URL in output?|If checked, specify a field name to pass the URL to.
+|Include rownum in output?|If checked, specify a field name to pass the row number to. 
+|===
+
+=== Fields Tab
+
+The Fields tab defines properties for the exported fields.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Name|The name of the field.
+|Column|The RSS feed column that references the field.
+|Type|The field's data type; String, Date or Number.
+|Format|The format mask (number type).
+|Length|The length option depends on the field type. Number: total number of significant figures in a number; String: total length of a string; Date: determines how much of the date string is printed or recorded.
+|Precision|The precision option depends on the field type, but only Number is supported; it returns the number of floating point digits.
+|Currency|Symbol used to represent currencies.
+|Decimal|A decimal point; this is either a dot or a comma.
+|Grouping|A method of separating units of thousands in numbers of four digits or larger. This is either a dot or a comma.
+|Trim type|Truncates the field (left, right, both) before processing. Useful for fields that have no static length.
+|Repeat|If set to Y, will repeat this value if the next field is empty. 
+|===
+
+== Notes on Error Handling
+
+When error handling is turned on for the pipeline that includes this transform, the full exception message, the field number on which the error occurred, and one or more of the following codes will be sent in an error row to the error stream:
+
+* UnknownError: an unexpected error. Check the "Error description" field for more details.
+* XMLError: typically this means that the specified file is not XML.
+* FileNotFound: an HTTP 404 error.
+* UnknownHost: means that the domain name cannot be resolved; may be caused by network outage.
+* TransferError: any non-404 HTTP server error code (401, 403, 500, 502, etc.) can cause this.
+* BadURL: means that the URL cannot be understood. It may be missing a protocol or use an unrecognized protocol.
+* BadRSSFormat: typically means that the file is valid XML, but is not a supported RSS or Atom doc type.
+
+Note: To see the full stack trace from a handled error, turn on detailed logging.

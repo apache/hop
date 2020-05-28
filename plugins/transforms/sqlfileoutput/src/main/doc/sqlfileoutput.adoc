@@ -1,0 +1,48 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/sqlfileoutput/src/main/doc/sqlfileoutput.adoc
+= SQL File Output
+
+== Description
+
+This transform writes input data to a text file in the form of a set of SQL statements.  The SQL is generated in the dialect of the selected database.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Connection a|
+	
+* Connection : select the database for which you want to generate the SQL.  The information in the connection is used to select the appropriate dialect.
+* Target schema : the schema of the table to generate the SQL for
+* Target table : the name of the table to generate the SQL for
+
+|Output file a|
+* Add create table statement : check this if you want the "CREATE TABLE" statement to be included in the generated SQL
+* Add truncate table statement: check this if the table is expected to exist and you want the "TRUNCATE TABLE" statement to be included in the generated SQL. Note that this could also be a "DELETE FROM" statement, depending on the database dialect.
+* Start new line for each statement : Enable this to increase the readability of the file
+* Filename : the filename (without file extension)
+* Create parent folder : if you want the parent folder of the specified file to be created if it doesn't exist already.
+* Do not open create at start : if you don't want an empty file in case there are no input rows
+* Extension : the required file extension ("sql" by default)
+* Include transformnr in filename : includes the transform number (when running in multiple copies) in the output filename
+* Include date in filename : includes the date in the output filename with format yyyyMMdd (20081231)
+* Include time in filename : includes the date in the output filename with format HHmmss (235959)
+* Append : append the generated SQL to the existing file
+* Split every ... rows : limits the size of a single file by starting a new one every ... rows.
+* Show filenames : hit this button to see the complete filename after assembly of the various parts (filename, extension, transformnr, date and time)
+* Add File to result: Adds the filenames written to the result of this pipeline.  A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+|===
+
+=== Content Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Date format|Allows you to specify the date format.
+|Encoding|Allows you to specify the text file encoding 
+|===

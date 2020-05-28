@@ -1,0 +1,26 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/randomvalue/src/main/doc/randomvalue.adoc
+= Generate Random Value
+
+== Description
+
+This transform generates random numbers, integers, strings and even UUID.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Type a|The type of data you want to get back:
+
+* Random number : generates a random number between 0 and 1
+* Random integer : generates a random 32-bit integer
+* Random string : generates a random string based on a 64-bit long random value
+* Universally Unique Identifier (UUID)
+* Universally Unique Identifier type 4 (UUID4)
+* Random Message Authentication Code (HmacMD5)
+* Random Message Authentication Code (HmacSHA1)
+
+|===
