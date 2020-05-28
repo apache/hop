@@ -1,0 +1,25 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/zipfile/src/main/doc/zipfile.adoc
+= Zip file
+
+== Description
+
+The Zip file transform creates a standard ZIP archive using the options you specify in the dialog. 
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Create target parent folder|Check this option to create the target parent folder
+|Overwrite target file|Check this option to overwrite the target file if it exists
+|Add zip filename to result|Check this option to add the zip filename to the internal result set
+|Source filename field|Define the field that contains the source
+|Target filename field|Define the field that contains the target zip filename
+|Keep source folders|Check this option to keep the source folder within the target zip filename
+|Base folder fieldname|Define the field that contains the base folder that is removed from the filename within the zip (used by the option keep source folders)
+|After zip|The action to take after zipping
+|Move to folder field|Define the field that contains the target directory to move the source files to after zipping 
+|===

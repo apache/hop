@@ -1,0 +1,71 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/xml/src/main/doc/xmloutput.adoc
+= XML Output
+
+== Description
+
+The XML Output transform allows you to write rows from any source to one or more XML files.
+
+== Options
+
+=== File Tab
+
+The file tab is where you set general properties for the XML output file format.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Filename|Specifies the file name and location of the output text file.
+|Do not create file at start|Enable to avoid empty files when no rows are getting processed.
+|Pass output to servlet|Enable this option to return the data via a web service instead writing into a file (see Hop data over web service).
+|Extension|Adds a period and the extension to the end of the file name (.xml).
+|Include transformnr in filename|If you run the transform in multiple copies (see also Launching Several Copies of a transform), the copy number is included in the file name, before the extension (_0).
+|Include date in filename|Includes the system date in the file name (_20041231).
+|Include time in filename|Includes the system date in the file name (_235959).
+|===
+
+=== Content Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Zipped|Check this if you want the XML file to be stored in a ZIP archive.
+|Encoding|The encoding to use. This encoding is specified in the header of the XML file.
+|Parent XML element|The name of the root element in the XML document.
+|Row XML element|The name of the row element to use in the XML document.
+|Split every ... rows.|The maximum number of rows of data to put in a single XML file before another is created.
+|===
+
+=== Fields Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Fieldname|The name of the field.
+|Elementname|The name of the element in the XML file to use. Type: Type of the field can be either String, Date, or Number.
+|Type|Type of the field can be either String, Date, or Number. Format mask from which to convert; see Number formats for a complete description of format specifiers.
+|Length a|The length option depends on the field type follows:
+
+* Number - Total number of significant figures in a number
+* String - total length of string
+* Date - length of printed output of the string (e.g. 4 only gives back year)
+
+|Precision a|The precision option depends on the field type as follows:
+
+* Number - Number of floating point digits
+* String - unused
+* Date - unused
+
+|Currency|Symbol used to represent currencies such as $10,000.00 or E5.000,00
+|Decimal|A decimal point can be a "." (10,000.00) or "," (5.000,00)
+|Group|A grouping can be a "," (10,000.00) or "." (5.000,00)
+|Null|If the value of the field is null, insert this string into the textfile
+|Get fields|Click to retrieve the list of fields from the input stream(s).
+|Minimal width|Alter the options in the fields tab in such a way that the resulting width of lines in the text file is minimal; for example instead of save 0000001, "1" is written, and so on. String fields are not padded to their specified length. 
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
