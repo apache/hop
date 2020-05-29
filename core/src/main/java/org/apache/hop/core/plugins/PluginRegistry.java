@@ -95,7 +95,7 @@ public class PluginRegistry {
   private final Map<Class<? extends IPluginType>, Set<IPluginTypeListener>> listeners = new HashMap<>();
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 3000;
+  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 5;
 
 
   /**
