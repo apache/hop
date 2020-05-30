@@ -146,6 +146,8 @@
         <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
+        <module>webserviceavailable</module>
+        <module>webservices</module>
         <module>writetolog</module>
         <module>xml</module>
       </modules>

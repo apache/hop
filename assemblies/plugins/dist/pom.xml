@@ -2010,6 +2010,32 @@
 
     <dependency>
       <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-webserviceavailable</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-writetolog</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
