@@ -122,7 +122,7 @@ import java.util.List;
 import java.util.Vector;
 
 @PluginDialog(
-        id = "ScriptValuesMod",
+        id = "ScriptValueMod",
         image = "javascript.svg",
         pluginType = PluginDialog.PluginType.TRANSFORM,
         documentationUrl = ""

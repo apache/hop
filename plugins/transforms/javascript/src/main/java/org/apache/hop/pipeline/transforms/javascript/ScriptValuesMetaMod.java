@@ -70,7 +70,7 @@ import java.util.Properties;
  *
  */
 @Transform(
-        id = "ScriptValuesMod",
+        id = "ScriptValueMod",
         i18nPackageName = "org.apache.hop.pipeline.transforms.javascript",
         name = "ScriptValuesMod.Name",
         description = "ScriptValuesMod.Description",
