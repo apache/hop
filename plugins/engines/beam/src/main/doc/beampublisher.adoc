@@ -5,7 +5,7 @@
 
 == Description
 
-The Beam GCP Pub/Sub : Publish transform publishes messages to a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic.
+The Beam GCP Pub/Sub : Publish transform publishes messages to a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic using the Beam execution engine.
 
 == Options
 
