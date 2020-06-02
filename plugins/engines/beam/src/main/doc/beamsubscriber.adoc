@@ -5,7 +5,7 @@
 
 == Description
 
-The Beam GCP Pub/Sub : Subscribe transform gets messages from a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic using a subscription.
+The Beam GCP Pub/Sub : Subscribe transform gets messages from a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic using a subscription with the Beam execution engine.
 
 == Options
 

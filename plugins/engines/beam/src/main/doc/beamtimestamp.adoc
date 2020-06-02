@@ -1,0 +1,18 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beamtimestamp.adoc
+= Beam Timestamp
+
+== Description
+
+The Beam Timestamp transform adds a custom timestamp using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|The time field to use. Uses system time if blank|The field containing the timestamp, will use system time is empty.
+|Get timestamp from stream?|Returns the event time field if it is defined within the stream.
+|===
