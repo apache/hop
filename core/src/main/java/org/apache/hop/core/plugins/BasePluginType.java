@@ -478,10 +478,8 @@ public abstract class BasePluginType implements IPluginType {
     Map<Class<?>, String> classMap = new HashMap<>();
     PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
     classMap.put( mainClassTypesAnnotation.value(), clazz.getName() );
-    IPlugin transformPlugin =
-      new Plugin(
-        new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
-        false, classMap, new ArrayList<>(), null, null, null, null, null, null );
+    IPlugin transformPlugin = new Plugin( new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
+        false, classMap, new ArrayList<>(), null, null, null, false, null, null, null );
     registry.registerPlugin( pluginType, transformPlugin );
   }
 
@@ -579,10 +577,9 @@ public abstract class BasePluginType implements IPluginType {
       }
 
       IPlugin pluginInterface =
-        new Plugin(
-          id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
+        new Plugin( id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
           iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, keywords, pluginFolder,
-          documentationUrl, casesUrl, forumUrl, suggestion );
+          false, documentationUrl, casesUrl, forumUrl, suggestion );
       registry.registerPlugin( pluginType, pluginInterface );
 
       return pluginInterface;
@@ -873,12 +870,14 @@ public abstract class BasePluginType implements IPluginType {
 
     // Add all the jar files in the extra library folders
     //
-    libraries.addAll(addExtraJarFiles());
+    List<String> extraJarFiles = addExtraJarFiles();
+    libraries.addAll(extraJarFiles);
 
-    IPlugin plugin =
-      new Plugin(
-        ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
-        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, documentationUrl,
+    // If there are extra classes somewhere else, don't use a plugin folder
+    //
+    boolean usingLibrariesOutsidePluginFolder = !extraJarFiles.isEmpty();
+    IPlugin plugin = new Plugin( ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
+        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, usingLibrariesOutsidePluginFolder, documentationUrl,
         casesUrl, forumUrl, suggestion );
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation( ParentFirst.class );

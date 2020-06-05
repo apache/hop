@@ -189,4 +189,10 @@ public interface IPlugin {
       Optional.ofNullable( fragment.getClassLoaderGroup() ).ifPresent( this::setClassLoaderGroup );
     }
   }
+
+  /**
+   * A flag to indicate that the plugin needs libraries outside of the plugin folder
+   * @return true if there are extra libraries that need to be included outside the plugin folder
+   */
+  boolean isUsingLibrariesOutsidePluginFolder();
 }
