@@ -24,14 +24,11 @@ package org.apache.hop.core.auth;
 
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.IPluginType;
 
 import java.lang.annotation.Annotation;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -47,21 +44,8 @@ public class AuthenticationConsumerPluginType extends BasePluginType implements 
     populateFolders( "authentication" );
   }
 
-  public void registerPlugin( URLClassLoader classLoader, Class<? extends IAuthenticationConsumerType> clazz ) throws HopPluginException {
-    AuthenticationConsumerPlugin pluginAnnotation =
-      clazz.getAnnotation( AuthenticationConsumerPlugin.class );
-    AuthenticationConsumerPluginType.getInstance().handlePluginAnnotation( clazz, pluginAnnotation,
-      new ArrayList<>(), false, null );
-    PluginRegistry.getInstance().addClassLoader( classLoader,
-      PluginRegistry.getInstance().getPlugin( AuthenticationConsumerPluginType.class, pluginAnnotation.id() ) );
-  }
-
   public static AuthenticationConsumerPluginType getInstance() {
     return pluginType;
-  }
-
-  public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
   }
 
   @Override

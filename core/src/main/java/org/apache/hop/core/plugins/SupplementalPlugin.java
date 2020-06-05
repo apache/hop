@@ -42,7 +42,7 @@ public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
   private String id;
 
   public SupplementalPlugin( Class<? extends IPluginType> pluginClass, String id ) {
-    super( new String[] { id }, pluginClass, null, "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "", new String[] {}, null );
+    super( new String[] { id }, pluginClass, null, "", id, id, "", false, false, Collections.emptyMap(), Collections.emptyList(), "", new String[] {}, null, false );
     this.pluginClass = pluginClass;
     this.id = id;
   }
