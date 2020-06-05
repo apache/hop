@@ -23,6 +23,7 @@
 package org.apache.hop.core.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -53,6 +54,7 @@ import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -77,7 +79,9 @@ public abstract class BasePluginType implements IPluginType {
 
   protected boolean searchLibDir;
 
-  Class<? extends java.lang.annotation.Annotation> pluginType;
+  protected Class<? extends java.lang.annotation.Annotation> pluginType;
+
+  protected List<String> extraLibraryFolders;
 
   public BasePluginType( Class<? extends java.lang.annotation.Annotation> pluginType ) {
     this.pluginFolders = new ArrayList<>();
@@ -85,6 +89,8 @@ public abstract class BasePluginType implements IPluginType {
 
     registry = PluginRegistry.getInstance();
     this.pluginType = pluginType;
+
+    this.extraLibraryFolders = new ArrayList<>();
   }
 
   /**
@@ -515,6 +521,10 @@ public abstract class BasePluginType implements IPluginType {
         }
       }
 
+      // Add all the jar files in the extra library folders
+      //
+      jarFiles.addAll(addExtraJarFiles());
+
       // Localized categories, descriptions and tool tips
       //
       Map<String, String> localizedCategories = readPluginLocale( pluginNode, "localized_category", "category" );
@@ -580,6 +590,22 @@ public abstract class BasePluginType implements IPluginType {
       throw new HopPluginException( BaseMessages.getString(
         PKG, "BasePluginType.RuntimeError.UnableToReadPluginXML.PLUGIN0001" ), e );
     }
+  }
+
+  /**
+   * Loop over the extra library folders and find all the jar files in all sub-folders
+   * @return the list of jar files in all the extra library folders
+   */
+  private List<String> addExtraJarFiles( ) {
+    List<String> files = new ArrayList<>();
+    for (String extraLibraryFolder : extraLibraryFolders) {
+      File folder = new File(extraLibraryFolder);
+      if (folder.exists()) {
+        Collection<File> jarFiles = FileUtils.listFiles( folder, new String[] { "jar", "JAR", }, true );
+        jarFiles.stream().forEach( file->files.add(file.getPath()) );
+      }
+    }
+    return files;
   }
 
   protected String getTagOrAttribute( Node pluginNode, String tag ) {
@@ -845,6 +871,10 @@ public abstract class BasePluginType implements IPluginType {
     classMap.put( mainClass, clazz.getName() );
     addExtraClasses( classMap, clazz, annotation );
 
+    // Add all the jar files in the extra library folders
+    //
+    libraries.addAll(addExtraJarFiles());
+
     IPlugin plugin =
       new Plugin(
         ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
@@ -869,5 +899,21 @@ public abstract class BasePluginType implements IPluginType {
       return " (" + deprecated.toLowerCase() + ")";
     }
     return "";
+  }
+
+  /**
+   * Gets extraLibraryFolders
+   *
+   * @return value of extraLibraryFolders
+   */
+  public List<String> getExtraLibraryFolders() {
+    return extraLibraryFolders;
+  }
+
+  /**
+   * @param extraLibraryFolders The extraLibraryFolders to set
+   */
+  public void setExtraLibraryFolders( List<String> extraLibraryFolders ) {
+    this.extraLibraryFolders = extraLibraryFolders;
   }
 }

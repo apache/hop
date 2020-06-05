@@ -154,6 +154,11 @@ public class Const {
     System.getProperty( "user.dir" ) + File.separator + "config" );
 
   /**
+   * The variable which points to a shared folder with JDBC drivers in them.
+   */
+  public static final String HOP_SHARED_JDBC_DIRECTORY = "HOP_SHARED_JDBC_DIRECTORY";
+
+  /**
    * An empty ("") String.
    */
   public static final String EMPTY_STRING = "";
