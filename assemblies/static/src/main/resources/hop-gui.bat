@@ -24,6 +24,9 @@ if not "%HOP_AUDIT_DIRECTORY%"=="" (
 if not "%HOP_CONFIG_DIRECTORY%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_CONFIG_DIRECTORY="%HOP_CONFIG_DIRECTORY%
 )
+if not "%HOP_SHARED_JDBC_DIRECTORY%"=="" (
+  set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_SHARED_JDBC_DIRECTORY="%HOP_SHARED_JDBC_DIRECTORY%
+)
 
 @echo on
 %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* "-Djava.library.path=%LIBSPATH%" %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui

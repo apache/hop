@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.database;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
@@ -45,6 +46,11 @@ public class DatabasePluginType extends BasePluginType implements IPluginType {
   private DatabasePluginType() {
     super( DatabaseMetaPlugin.class, "DATABASE", "Database" );
     populateFolders( "databases" );
+
+    String sharedJdbcDirectory = System.getProperty( Const.HOP_SHARED_JDBC_DIRECTORY );
+    if ( StringUtils.isNotEmpty(sharedJdbcDirectory)) {
+      extraLibraryFolders.add(sharedJdbcDirectory);
+    }
   }
 
   public static DatabasePluginType getInstance() {
@@ -53,6 +59,8 @@ public class DatabasePluginType extends BasePluginType implements IPluginType {
     }
     return pluginType;
   }
+
+
 
   protected void registerPluginJars() throws HopPluginException {
     super.registerPluginJars();
