@@ -399,4 +399,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public boolean isExasolVariant() {
     return true;
   }
+
+  @Override
+  public boolean isQuoteAllFields() { return true; };
 }
