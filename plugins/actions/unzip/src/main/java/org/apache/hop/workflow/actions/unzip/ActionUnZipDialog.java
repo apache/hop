@@ -78,7 +78,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "UNZIP", 
 		  image = "UnZip.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/unzip.html"
 )
 public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionUnZip.class; // for i18n purposes, needed by Translator!!

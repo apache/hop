@@ -75,7 +75,7 @@ import java.net.InetAddress;
 		  id = "SFTPPUT", 
 		  image = "SFTPPut.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sftpput.html"
 )
 public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!

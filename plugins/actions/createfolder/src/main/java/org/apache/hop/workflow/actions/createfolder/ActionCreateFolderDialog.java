@@ -71,7 +71,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "CREATE_FOLDER", 
 		  image = "CreateFolder.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfolder.html"
 )
 public class ActionCreateFolderDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionCreateFolder.class; // for i18n purposes, needed by Translator!!

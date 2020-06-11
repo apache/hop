@@ -88,7 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   id = "COPY_FILES",
   image = "CopyFiles.svg",
   pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/copyfiles.html"
 )
 public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCopyFiles.class; // for i18n purposes, needed by Translator!!

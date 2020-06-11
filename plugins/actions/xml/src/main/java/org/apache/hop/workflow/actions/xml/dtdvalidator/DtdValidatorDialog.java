@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Text;
         id = "DTD_VALIDATOR",
         image = "DTD.svg",
         pluginType = PluginDialog.PluginType.ACTION,
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/dtdvalidator.html"
 )
 public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = DtdValidator.class; // for i18n purposes, needed by Translator2!!

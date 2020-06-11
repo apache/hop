@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "MOVE_FILES", 
 		  image = "MoveFiles.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/movefiles.html"
 )
 public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMoveFiles.class; // for i18n purposes, needed by Translator!!

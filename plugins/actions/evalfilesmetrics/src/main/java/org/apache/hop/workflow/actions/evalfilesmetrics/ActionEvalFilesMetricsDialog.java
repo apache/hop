@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "EVAL_FILES_METRICS", 
 		  image = "EvalFilesMetrics.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/evalfilesmetrics.html"
 )
 public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionEvalFilesMetrics.class; // for i18n purposes, needed by Translator!!

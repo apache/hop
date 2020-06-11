@@ -74,7 +74,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "COLUMNS_EXIST", 
 		  image = "ColumnsExist.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/columnsexist.html"
 )
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class; // for i18n purposes, needed by Translator!!

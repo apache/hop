@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 06-05-2007
  */
 @PluginDialog( id = "ADD_RESULT_FILENAMES", image = "AddResultFileNames.svg", pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "" )
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/addresultfilenames.html" )
 public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator!!
 

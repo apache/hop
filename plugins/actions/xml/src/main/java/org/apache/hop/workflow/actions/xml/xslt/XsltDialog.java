@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
         id = "XSLT",
         image = "XSLT.svg",
         pluginType = PluginDialog.PluginType.ACTION,
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xslt.html"
 )
 public class XsltDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!

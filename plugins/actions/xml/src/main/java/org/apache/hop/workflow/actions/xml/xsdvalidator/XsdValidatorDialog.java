@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
         id = "XSD_VALIDATOR",
         image = "org/apache/hop/workflow/actions/xml/XSD.svg",
         pluginType = PluginDialog.PluginType.ACTION,
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xsdvalidator.html"
 )
 public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!

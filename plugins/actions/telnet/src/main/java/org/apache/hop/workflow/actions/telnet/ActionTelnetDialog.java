@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "TELNET", 
 		  image = "Telnet.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/telnet.html"
 )
 public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionTelnet.class; // for i18n purposes, needed by Translator!!

@@ -76,7 +76,7 @@ import java.net.InetAddress;
 		  id = "FTP", 
 		  image = "FTP.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftp.html"
 )
 public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtp.class; // for i18n purposes, needed by Translator!!

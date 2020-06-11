@@ -75,7 +75,7 @@ import org.eclipse.swt.widgets.Text;
         id = "XML_WELL_FORMED",
         image = "XFC.svg",
         pluginType = PluginDialog.PluginType.ACTION,
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xmlwellformed.html"
 )
 public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!

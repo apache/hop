@@ -68,7 +68,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "SET_VARIABLES", 
 		  image = "SetVariables.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/setvariables.html"
 )
 public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSetVariables.class; // for i18n purposes, needed by Translator!!
