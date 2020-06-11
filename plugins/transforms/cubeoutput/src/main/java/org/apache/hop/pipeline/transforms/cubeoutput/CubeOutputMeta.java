@@ -52,8 +52,8 @@ import java.util.Map;
 @Transform(
         id = "CubeOutput",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeoutput",
-        name = "BaseTransform.TypeLongDesc.CubeOutput",
-        description = "BaseTransform.TypeTooltipDesc.CubeOutput",
+        name = "CubeOutput.Name",
+        description = "CubeOutput.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
 )
 public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<CubeOutput, CubeOutputData> {

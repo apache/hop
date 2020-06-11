@@ -102,8 +102,8 @@ import java.util.List;
 @Transform(
         id = "FieldSplitter",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fieldsplitter",
-        name = "BaseTransform.TypeLongDesc.SplitFields",
-        description = "BaseTransform.TypeTooltipDesc.SplitFields",
+        name = "SplitFields.Name",
+        description = "SplitFields.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMeta<FieldSplitter, FieldSplitterData> {

@@ -59,8 +59,8 @@ import java.util.zip.GZIPInputStream;
 @Transform(
         id = "CubeInput",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeinput",
-        name = "BaseTransform.TypeLongDesc.CubeInput",
-        description = "BaseTransform.TypeTooltipDesc.CubeInput",
+        name = "CubeInput.Name",
+        description = "CubeInput.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
 )
 public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<CubeInput, CubeInputData> {
