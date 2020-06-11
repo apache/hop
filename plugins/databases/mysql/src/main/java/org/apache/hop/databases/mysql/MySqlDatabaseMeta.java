@@ -25,25 +25,23 @@ package org.apache.hop.databases.mysql;
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -81,7 +79,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           label = "Select database type:"
   )
   @MetaStoreAttribute( key = "driverClassName" )
-  private String driverClassName;
+  private String driverClassName="";
 
   /**
    * Gets resultStreaming
@@ -145,11 +143,11 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * @see IDatabase#getNotFoundTK(boolean)
    */
-  @Override public int getNotFoundTK( boolean use_autoinc ) {
-    if ( supportsAutoInc() && use_autoinc ) {
+  @Override public int getNotFoundTK( boolean useAutoinc ) {
+    if ( supportsAutoInc() && useAutoinc ) {
       return 1;
     }
-    return super.getNotFoundTK( use_autoinc );
+    return super.getNotFoundTK( useAutoinc );
   }
 
   @Override public String getDriverClass() {
@@ -159,9 +157,9 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         return "org.gjt.mm.mysql.Driver";
       case "Mysql 8+":
         return "com.mysql.jdbc.Driver";
+      default:
+        return "org.gjt.mm.mysql.Driver";
     }
-
-    return "org.gjt.mm.mysql.Driver";
   }
 
   public String getDriverClassName() {
@@ -445,13 +443,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the specified table is a system table
    */
   @Override public boolean isSystemTable( String tableName ) {
-    if ( tableName.startsWith( "sys" ) ) {
-      return true;
-    }
-    if ( tableName.equals( "dtproperties" ) ) {
-      return true;
-    }
-    return false;
+      return ( tableName.startsWith( "sys" ) || tableName.equals( "dtproperties" ));
   }
 
   /**
@@ -530,6 +522,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The column label if version is greater than 3 or the column name if version is lower or equal to 3.
    * @throws HopDatabaseException
    */
+  @Override
   public String getLegacyColumnName( DatabaseMetaData dbMetaData, ResultSetMetaData rsMetaData, int index ) throws HopDatabaseException {
     if ( dbMetaData == null ) {
       throw new HopDatabaseException( BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameNoDBMetaDataException" ) );
@@ -546,6 +539,13 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
   }
 
+  /**
+   * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
+   *
+   * @param log Logging object
+   * @param metaStore If the metastore is needed to get the values
+   * @return The list of driver type names shown in the GUI
+   */
   public List<String> getDriverClassNames( ILogChannel log, IMetaStore metaStore){
     List<String> names = new ArrayList<>();
     names.add("Mysql");
