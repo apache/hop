@@ -71,8 +71,8 @@ import java.util.regex.Pattern;
   image="AddResultFileNames.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
 )
-public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionAddResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionAddResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   public boolean argFromPrevious;
 
@@ -84,7 +84,7 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
 
   public String[] filemasks;
 
-  public ActionAddResultFilenamesI( String n ) {
+  public ActionAddResultFilenames( String n ) {
     super( n, "" );
     argFromPrevious = false;
     deleteallbefore = false;
@@ -93,12 +93,12 @@ public class ActionAddResultFilenamesI extends ActionBase implements Cloneable, 
     includeSubfolders = false;
   }
 
-  public ActionAddResultFilenamesI() {
+  public ActionAddResultFilenames() {
     this( "" );
   }
 
   public Object clone() {
-    ActionAddResultFilenamesI je = (ActionAddResultFilenamesI) super.clone();
+    ActionAddResultFilenames je = (ActionAddResultFilenames) super.clone();
     return je;
   }
 

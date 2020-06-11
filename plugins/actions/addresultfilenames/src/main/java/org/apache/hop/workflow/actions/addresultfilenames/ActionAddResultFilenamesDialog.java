@@ -91,7 +91,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionAddResultFilenamesI action;
+  private ActionAddResultFilenames action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -120,7 +120,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
   public ActionAddResultFilenamesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionAddResultFilenamesI) action;
+    this.action = (ActionAddResultFilenames) action;
 
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionAddResultFilenames.Name.Default" ) );
