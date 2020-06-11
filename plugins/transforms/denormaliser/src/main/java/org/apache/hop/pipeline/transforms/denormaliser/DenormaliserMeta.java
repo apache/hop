@@ -52,8 +52,8 @@ import java.util.List;
 @Transform(
         id = "Denormaliser",
         i18nPackageName = "org.apache.hop.pipeline.transforms.denormaliser",
-        name = "BaseTransform.TypeLongDesc.RowDenormaliser",
-        description = "BaseTransform.TypeTooltipDesc.RowDenormaliser",
+        name = "Denormaliser.Name",
+        description = "Denormaliser.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class DenormaliserMeta extends BaseTransformMeta implements ITransformMeta<Denormaliser, DenormaliserData> {
