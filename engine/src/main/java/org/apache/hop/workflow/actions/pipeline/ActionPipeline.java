@@ -30,6 +30,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -79,6 +80,14 @@ import java.util.Map;
  * @author Matt Casters
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
+@Action(
+        id = "PIPELINE",
+        image = "PPL.svg",
+        i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
+        name = "Action.Pipeline.TypeDesc",
+        description = "Action.Pipeline.Tooltip",
+        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+)
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
 
@@ -911,5 +920,4 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
     }
   }
-
 }

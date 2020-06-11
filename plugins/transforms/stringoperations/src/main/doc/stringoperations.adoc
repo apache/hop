@@ -1,0 +1,39 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/stringoperations/src/main/doc/stringoperations.adoc
+= String operations
+
+== Description
+
+With the String Operations transform, you can perform the following string operations on an incoming Hop field:
+
+* Trim (remove leading and/or trailing spaces).
+* Convert to upper or lowercase.
+* Pad (add leading or trailing extra characters).
+* Convert to initial capitalization.
+* Ignore escape characters.
+* Remove or return only numeric digits.
+* Remove special characters..
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|In stream field|Designate the field to transform.
+|Out stream field|Designate the name of the field to be created.
+|Trim type|Designate the trim type: none, left, right, or both.
+|Lower/Upper|Designate upper or lowercase.
+|Padding|Designate left or right padding.
+|Pad char|Designate the padding character.
+|Pad Length|Designate how long the padding will be.
+|InitCap|Transform to initial capitalization.
+|Escape|Define to Escape or Unescape XML, HTML, use CDATA or Escape SQL.
+|Digits|Designate whether to return remove, or do nothing to digits.
+|Remove Special character|Designate a special character to remove.
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

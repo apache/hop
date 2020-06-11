@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-assemblies-plugins-transforms</artifactId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+
+    <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
+    <version>0.30-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Hop Assemblies Plugins Transforms Web Services</name>
+    <description></description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-transform-webservices</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.wsdl</groupId>
+            <artifactId>javax.wsdl</artifactId>
+            <version>1.4.0.v200706111329</version>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+    </dependencies>
+</project>

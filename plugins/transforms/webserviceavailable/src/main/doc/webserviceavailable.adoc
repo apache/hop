@@ -1,0 +1,21 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/webserviceavailable/src/main/doc/webserviceavailable.adoc
+= Check if webservice is available
+
+== Description
+
+The Check if webservice is available transform checks if a Webservice URL in the data stream is valid, can be connected to and can be read. If it connects within the given time and data can be read, it returns 'true' as a boolean result value, otherwise 'false'. Further information of the failing reason can be found in the log when debug logging is enabled.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|URL field|Specifies the URL fieldname in the data stream. The URL is checked for every row that is coming into this transform.
+|Connect timeout (ms)|The connect timeout in ms. The value is depending on the quality of service of this URL and experiences.
+|Read timeout (ms)|After connection, the transform tries to read data. This value gives the read timeout in ms. The value is depending on the quality of service of this URL and experiences.
+|Result fieldname|If it connects within the given timeout and data can be read, it returns 'true' as a boolean result value, otherwise 'false'
+|===
+

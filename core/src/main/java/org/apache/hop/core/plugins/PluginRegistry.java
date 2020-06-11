@@ -95,7 +95,7 @@ public class PluginRegistry {
   private final Map<Class<? extends IPluginType>, Set<IPluginTypeListener>> listeners = new HashMap<>();
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 3000;
+  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 5;
 
 
   /**
@@ -377,13 +377,13 @@ public class PluginRegistry {
     return loadClass( plugin, classType );
   }
 
-  private HopURLClassLoader createClassLoader( IPlugin plugin ) throws MalformedURLException,
-    UnsupportedEncodingException {
+  private HopURLClassLoader createClassLoader( IPlugin plugin ) throws MalformedURLException, UnsupportedEncodingException {
+
     List<String> jarFiles = plugin.getLibraries();
     URL[] urls = new URL[ jarFiles.size() ];
     for ( int i = 0; i < jarFiles.size(); i++ ) {
-      File jarfile = new File( jarFiles.get( i ) );
-      urls[ i ] = new URL( URLDecoder.decode( jarfile.toURI().toURL().toString(), "UTF-8" ) );
+      File jarFile = new File( jarFiles.get( i ) );
+      urls[ i ] = new URL( URLDecoder.decode( jarFile.toURI().toURL().toString(), "UTF-8" ) );
     }
     ClassLoader classLoader = getClass().getClassLoader();
     String[] patterns = parentClassloaderPatternMap.get( plugin );
@@ -794,8 +794,7 @@ public class PluginRegistry {
         URLClassLoader ucl;
         lock.writeLock().lock();
         try {
-          Map<IPlugin, URLClassLoader> classLoaders =
-            classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
+          Map<IPlugin, URLClassLoader> classLoaders = classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
           ucl = classLoaders.get( plugin );
 
           if ( ucl == null ) {
@@ -871,8 +870,7 @@ public class PluginRegistry {
             ucl = createClassLoader( plugin );
           } else {
             // See if we can find a class loader to re-use.
-            Map<IPlugin, URLClassLoader> classLoaders =
-              classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
+            Map<IPlugin, URLClassLoader> classLoaders = classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
             ucl = classLoaders.get( plugin );
 
             if ( ucl == null ) {
@@ -895,7 +893,7 @@ public class PluginRegistry {
                 }
               } else {
                 // fallthrough folder based plugin
-                if ( plugin.getPluginDirectory() != null ) {
+                if ( !plugin.isUsingLibrariesOutsidePluginFolder() && plugin.getPluginDirectory() != null ) {
                   ucl = folderBasedClassLoaderMap.get( plugin.getPluginDirectory().toString() );
                   if ( ucl == null ) {
                     ucl = createClassLoader( plugin );
@@ -956,17 +954,6 @@ public class PluginRegistry {
     try {
       Set<IPluginTypeListener> list = listeners.computeIfAbsent( typeToTrack, k -> new HashSet<>() );
       list.add( listener );
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  public void addClassLoader( URLClassLoader ucl, IPlugin plugin ) {
-    lock.writeLock().lock();
-    try {
-      Map<IPlugin, URLClassLoader> classLoaders =
-        classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
-      classLoaders.put( plugin, ucl );
     } finally {
       lock.writeLock().unlock();
     }

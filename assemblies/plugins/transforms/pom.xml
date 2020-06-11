@@ -99,6 +99,8 @@
         <module>sortedmerge</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>stringcut</module>
+        <module>stringoperations</module>
         <module>syslog</module>
         <module>systemdata</module>
         <module>switchcase</module>
@@ -111,6 +113,8 @@
         <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
+        <module>webserviceavailable</module>
+        <module>webservices</module>
         <module>writetolog</module>
         <module>xml</module>
     </modules>

@@ -1,0 +1,52 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/ssh/src/main/doc/ssh.adoc
+= Run SSH commands
+
+== Description
+
+The Run SSH commands transform allows you to execute commands over the secure shell (ssh) TCP/IP protocol. You can pass text to stdout or stderr in the commands. This information can then be picked up by the transform and passed in a field to subsequent transforms.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Server name / IP address|You can specify the server or IP address of the machine on which you want to execute a command.
+|Server port|The TCP/IP port on which the ssh protocol lives on the server.  The default is 22.
+|Timeout|The timeout in seconds.  If set to a number larger than zero you can specify a non-default connection timeout.
+|Username|The username to log in with.
+|Password|The password to use.
+|Use key|Enable this option if you want to log in using a private key
+|Private key|The private key file.  The private part of a private/public RSA key-pair (see: ssh-keygen)
+|Passphrase|The optional pass-phrase used when the key-pair was generated.
+|Proxy host|The proxy server host to use (name or IP address).
+|Proxy port|The proxy server port to use.
+|Proxy username|The proxy user name.
+|Proxy password|The proxy password .
+|Test connection|Use this button to see if the supplied credentials are sufficient for logging into the SSH server.
+|===
+
+=== Settings Tab
+
+**Output**
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|response field name|The name of the String output field that will contain the text passed to the standard output channel (stdout) by the specified commands.
+|error response field name|The name of the String output field that will contain the text passed to the standard error channel (stderr) by the specified commands. 
+|===
+
+**Commands**
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Get commands from field|Enable this option if you want to execute commands specified in an input field
+|Commands field name|Select the input field that will contain the commands to execute
+|Commands|Field allows you to specify the commands to execute. 
+|===

@@ -1,0 +1,39 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/replacestring/src/main/doc/replacestring.adoc
+= Replace in String
+
+== Description
+
+Replace in string is a simple search and replace. It also supports regular expressions and group references. group references are picked up in the replace by string as $n where n is the number of the group.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|In stream field|The field in which a replacement has to take place.
+|Out stream field|The result field.
+|use RegEx|Use regular expressions (Y/N).
+|Search|Search for a certain pattern.
+|Replace with|Replace with certain characters.
+|Set empty string?|Turn string into an empty string.
+|Replace with field|Replace the pattern with a field value.
+|Whole word|Whole word (Y/N).
+|Case sensitive|Is the search case sensitive (Y/N).
+|Is Unicode|Is the search unicode (Y/N)
+|===
+
+== Example
+
+You could parse out sections of a string as follows
+
+* regex = ^([0-9]{4})([0-9]{7})$
+* replace with = $2
+
+This will replace any 11 digit numbers with the last 7 digits.
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

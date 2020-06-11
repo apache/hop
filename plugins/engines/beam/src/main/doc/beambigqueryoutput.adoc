@@ -1,0 +1,22 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beambigqueryoutput.adoc
+= Beam BigQuery Output
+
+== Description
+
+The Beam BigQuery Input transform can be used to input data from link:https://cloud.google.com/bigquery[BigQuery] using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Project ID|The Google Cloud Platform project.
+|Data set ID|The BigQuery dataset ID.
+|Table ID|The BigQuery table ID.
+|Create table if needed|Whether or not to create the table if it does not exist.
+|Truncate table|Whether or not to truncate the table before inserting.
+|Fail if the table is not empty|Throws an error if the table is not empty.
+|===

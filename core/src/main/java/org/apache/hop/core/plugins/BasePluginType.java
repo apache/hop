@@ -23,6 +23,7 @@
 package org.apache.hop.core.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -53,6 +54,7 @@ import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -77,7 +79,9 @@ public abstract class BasePluginType implements IPluginType {
 
   protected boolean searchLibDir;
 
-  Class<? extends java.lang.annotation.Annotation> pluginType;
+  protected Class<? extends java.lang.annotation.Annotation> pluginType;
+
+  protected List<String> extraLibraryFolders;
 
   public BasePluginType( Class<? extends java.lang.annotation.Annotation> pluginType ) {
     this.pluginFolders = new ArrayList<>();
@@ -85,6 +89,8 @@ public abstract class BasePluginType implements IPluginType {
 
     registry = PluginRegistry.getInstance();
     this.pluginType = pluginType;
+
+    this.extraLibraryFolders = new ArrayList<>();
   }
 
   /**
@@ -472,10 +478,8 @@ public abstract class BasePluginType implements IPluginType {
     Map<Class<?>, String> classMap = new HashMap<>();
     PluginMainClassType mainClassTypesAnnotation = pluginType.getAnnotation( PluginMainClassType.class );
     classMap.put( mainClassTypesAnnotation.value(), clazz.getName() );
-    IPlugin transformPlugin =
-      new Plugin(
-        new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
-        false, classMap, new ArrayList<>(), null, null, null, null, null, null );
+    IPlugin transformPlugin = new Plugin( new String[] { id }, pluginType, mainClassTypesAnnotation.value(), cat, name, desc, image, false,
+        false, classMap, new ArrayList<>(), null, null, null, false, null, null, null );
     registry.registerPlugin( pluginType, transformPlugin );
   }
 
@@ -514,6 +518,10 @@ public abstract class BasePluginType implements IPluginType {
           jarFiles.add( new File( path + Const.FILE_SEPARATOR + jarfile ).getAbsolutePath() );
         }
       }
+
+      // Add all the jar files in the extra library folders
+      //
+      jarFiles.addAll(addExtraJarFiles());
 
       // Localized categories, descriptions and tool tips
       //
@@ -569,10 +577,9 @@ public abstract class BasePluginType implements IPluginType {
       }
 
       IPlugin pluginInterface =
-        new Plugin(
-          id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
+        new Plugin( id.split( "," ), pluginType, mainAnnotationClass, category, description, tooltip,
           iconFilename, false, nativePlugin, classMap, jarFiles, errorHelpFileFull, keywords, pluginFolder,
-          documentationUrl, casesUrl, forumUrl, suggestion );
+          false, documentationUrl, casesUrl, forumUrl, suggestion );
       registry.registerPlugin( pluginType, pluginInterface );
 
       return pluginInterface;
@@ -580,6 +587,22 @@ public abstract class BasePluginType implements IPluginType {
       throw new HopPluginException( BaseMessages.getString(
         PKG, "BasePluginType.RuntimeError.UnableToReadPluginXML.PLUGIN0001" ), e );
     }
+  }
+
+  /**
+   * Loop over the extra library folders and find all the jar files in all sub-folders
+   * @return the list of jar files in all the extra library folders
+   */
+  private List<String> addExtraJarFiles( ) {
+    List<String> files = new ArrayList<>();
+    for (String extraLibraryFolder : extraLibraryFolders) {
+      File folder = new File(extraLibraryFolder);
+      if (folder.exists()) {
+        Collection<File> jarFiles = FileUtils.listFiles( folder, new String[] { "jar", "JAR", }, true );
+        jarFiles.stream().forEach( file->files.add(file.getPath()) );
+      }
+    }
+    return files;
   }
 
   protected String getTagOrAttribute( Node pluginNode, String tag ) {
@@ -845,10 +868,16 @@ public abstract class BasePluginType implements IPluginType {
     classMap.put( mainClass, clazz.getName() );
     addExtraClasses( classMap, clazz, annotation );
 
-    IPlugin plugin =
-      new Plugin(
-        ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
-        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, documentationUrl,
+    // Add all the jar files in the extra library folders
+    //
+    List<String> extraJarFiles = addExtraJarFiles();
+    libraries.addAll(extraJarFiles);
+
+    // If there are extra classes somewhere else, don't use a plugin folder
+    //
+    boolean usingLibrariesOutsidePluginFolder = !extraJarFiles.isEmpty();
+    IPlugin plugin = new Plugin( ids, this.getClass(), mainClass, category, name, description, imageFile, separateClassLoader,
+        classLoaderGroup, nativePluginType, classMap, libraries, null, keywords, pluginFolder, usingLibrariesOutsidePluginFolder, documentationUrl,
         casesUrl, forumUrl, suggestion );
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation( ParentFirst.class );
@@ -869,5 +898,21 @@ public abstract class BasePluginType implements IPluginType {
       return " (" + deprecated.toLowerCase() + ")";
     }
     return "";
+  }
+
+  /**
+   * Gets extraLibraryFolders
+   *
+   * @return value of extraLibraryFolders
+   */
+  public List<String> getExtraLibraryFolders() {
+    return extraLibraryFolders;
+  }
+
+  /**
+   * @param extraLibraryFolders The extraLibraryFolders to set
+   */
+  public void setExtraLibraryFolders( List<String> extraLibraryFolders ) {
+    this.extraLibraryFolders = extraLibraryFolders;
   }
 }

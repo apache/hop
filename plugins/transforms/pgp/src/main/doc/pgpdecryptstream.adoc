@@ -1,0 +1,23 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/pgp/src/main/doc/pgpdecryptstream.adoc
+= PGP decrypt stream
+
+== Description
+
+The PGP decrypt stream transform decrypts PGP encrypted text.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|GPG location|GPG key location.
+|Browse...|Browse the filesystem for a GPG key location.
+|Passphrase|Passphrase of the key.
+|Read passphrase from field|Whether or not to read the passphrase from a field.
+|Passphrase fieldname|The passphrase field.
+|Data fieldname|The field to decrypt.
+|Result fieldname|The decrypted result field.
+|===

@@ -1,0 +1,20 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beamconsume.adoc
+= Beam Kafka Produce
+
+== Description
+
+The Beam Kafka Produce transform link:https://kafka.apache.org/25/javadoc/index.html?org/apache/kafka/clients/producer/KafkaProducer.html[publishes] records to a Kafka cluster using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Bootstrap servers|A comma separated list of hosts which are Kafka brokers in a "bootstrap" Kafka cluster.
+|The topics|The topics to publish to.
+|The field to use as key|The record key.
+|The field to use as message|The record message.
+|===

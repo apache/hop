@@ -1,0 +1,25 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/xml/src/main/doc/xsdvalidator.adoc
+= XSD Validator
+
+== Description
+
+The XSD Validator action performs an XSD validation against data in a file or in an input field. XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema] Definition.
+
+As such, there are 2 entities at work here:
+
+* The XML you want to validate the layout for
+* The XSD (Schema) file that describes what the XML file should look like.
+
+See also the XSD Validator action.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|XML File name|The name of the XML file
+|XSD File name|The name of the XSD file 
+|===

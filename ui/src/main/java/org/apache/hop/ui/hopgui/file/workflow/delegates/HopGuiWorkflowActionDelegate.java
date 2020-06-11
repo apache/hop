@@ -156,7 +156,7 @@ public class HopGuiWorkflowActionDelegate {
   }
 
 
-  public IActionDialog getActionDialog( IAction action, WorkflowMeta workflowMeta ) throws HopException{
+  public IActionDialog getActionDialog( IAction action, WorkflowMeta workflowMeta ) {
     Class<?>[] paramClasses = new Class<?>[] { Shell.class, IAction.class, WorkflowMeta.class };
     Object[] paramArgs = new Object[] { hopGui.getShell(), action, workflowMeta };
 
@@ -164,7 +164,10 @@ public class HopGuiWorkflowActionDelegate {
     IPlugin plugin = registry.getPlugin( ActionPluginType.class, action );
     String dialogClassName = plugin.getClassMap().get( IActionDialog.class );
     if ( dialogClassName == null ) {
-      throw new HopException( "Unable to find dialog class for plugin '" + plugin.getIds()[ 0 ] + "' : " + plugin.getName() );
+      // try the deprecated way
+
+      hopGui.getLog().logBasic( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
+      dialogClassName = action.getDialogClassName();
     }
 
     try {
