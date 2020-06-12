@@ -24,11 +24,12 @@ public class BeamFlinkPipelineEngineTest extends BeamBasePipelineEngineTest {
       Arrays.asList(new VariableValueDescription("VAR1", "flink1", "description1")),
       configuration
     );
-    PipelineRunConfiguration.createFactory( metaStore ).saveElement( pipelineRunConfiguration );
+    // Save the metadata
+    metadataProvider.getSerializer( PipelineRunConfiguration.class).save( pipelineRunConfiguration );
 
-    PipelineMeta pipelineMeta = BeamPipelineMetaUtil.generateBeamInputOutputPipelineMeta( "input-process-output", "INPUT", "OUTPUT", metaStore );
+    PipelineMeta pipelineMeta = BeamPipelineMetaUtil.generateBeamInputOutputPipelineMeta( "input-process-output", "INPUT", "OUTPUT", metadataProvider );
 
-    IPipelineEngine<PipelineMeta> engine = createAndExecutePipeline(pipelineRunConfiguration.getName(), metaStore, pipelineMeta);
+    IPipelineEngine<PipelineMeta> engine = createAndExecutePipeline(pipelineRunConfiguration.getName(), metadataProvider, pipelineMeta);
     validateInputOutputEngineMetrics( engine );
 
     assertEquals("flink1", engine.getVariable( "VAR1" ));

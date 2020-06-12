@@ -35,7 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -60,7 +60,7 @@ import java.util.List;
 public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {
   private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   private DatabaseMeta databaseMeta;
 
@@ -101,7 +101,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( Exception e ) {
       throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
@@ -233,8 +233,8 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
     this.updateField = updateField;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -242,12 +242,12 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       String csize;
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       csize = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( csize, 0 );
       sqlField = XmlHandler.getTagValue( transformNode, "sql_field" );
@@ -275,7 +275,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     RowMetaAndData add =
       ExecSql.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -301,7 +301,7 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -382,19 +382,19 @@ public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
 }

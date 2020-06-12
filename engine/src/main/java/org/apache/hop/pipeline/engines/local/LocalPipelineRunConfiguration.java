@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
@@ -42,7 +42,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.RowSetSize.Label"
   )
-  @MetaStoreAttribute(key="rowset_size")
+  @HopMetadataProperty(key="rowset_size")
   protected String rowSetSize;
 
   @GuiWidgetElement(
@@ -53,7 +53,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SafeModeEnabled.Label"
   )
-  @MetaStoreAttribute(key="safe_mode")
+  @HopMetadataProperty(key="safe_mode")
   protected boolean safeModeEnabled;
 
   @GuiWidgetElement(
@@ -64,7 +64,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.GatheringMetrics.Label"
   )
-  @MetaStoreAttribute(key="gather_metrics")
+  @HopMetadataProperty(key="gather_metrics")
   protected boolean gatheringMetrics;
 
   @GuiWidgetElement(
@@ -75,7 +75,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SortTransformsTopologically.Label"
   )
-  @MetaStoreAttribute(key="topo_sort")
+  @HopMetadataProperty(key="topo_sort")
   protected boolean sortingTransformsTopologically;
 
   /**
@@ -89,7 +89,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.FeedbackShown.Label"
   )
-  @MetaStoreAttribute(key="show_feedback")
+  @HopMetadataProperty(key="show_feedback")
   protected boolean feedbackShown;
 
   /**
@@ -103,7 +103,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.FeedbackSize.Label"
   )
-  @MetaStoreAttribute(key="feedback_size")
+  @HopMetadataProperty(key="feedback_size")
   protected String feedbackSize;
 
 

@@ -13,7 +13,7 @@ public class SwitchCasePipelineTest extends org.apache.hop.beam.transform.Pipeli
       "io-switch-case-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     try {

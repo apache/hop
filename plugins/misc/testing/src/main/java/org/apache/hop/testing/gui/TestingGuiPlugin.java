@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -45,10 +45,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -66,7 +64,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
-import org.apache.hop.ui.core.metastore.MetaStoreManager;
+import org.apache.hop.ui.core.metastore.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -141,7 +139,7 @@ public class TestingGuiPlugin {
   )
   public void setInputDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     PipelineMeta pipelineMeta = context.getPipelineMeta();
     TransformMeta transformMeta = context.getTransformMeta();
@@ -153,15 +151,15 @@ public class TestingGuiPlugin {
 
     try {
 
-      MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
-      List<String> setNames = setFactory.getElementNames();
+      IHopMetadataSerializer<DataSet> setSerializer = metadataProvider.getSerializer( DataSet.class );
+      List<String> setNames = setSerializer.listObjectNames();
       Collections.sort( setNames );
       EnterSelectionDialog esd = new EnterSelectionDialog( hopGui.getShell(), setNames.toArray( new String[ setNames.size() ] ), "Select the set", "Select the data set to edit..." );
       String setName = esd.open();
       if ( setName != null ) {
-        DataSet dataSet = setFactory.loadElement( setName );
+        DataSet dataSet = setSerializer.load( setName );
         dataSet.initializeVariablesFrom( pipelineMeta );
-        boolean changed = setInputDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        boolean changed = setInputDataSetOnTransform( metadataProvider, pipelineMeta, transformMeta, unitTest, dataSet );
         if ( changed ) {
           context.getPipelineGraph().updateGui();
         }
@@ -171,8 +169,8 @@ public class TestingGuiPlugin {
     }
   }
 
-  private boolean setInputDataSetOnTransform( IMetaStore metaStore, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest, DataSet dataSet )
-    throws HopPluginException, HopValueException, MetaStoreException {
+  private boolean setInputDataSetOnTransform( IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest, DataSet dataSet )
+    throws HopPluginException, HopValueException, HopException {
     HopGui hopGui = HopGui.getInstance();
 
     // Now we need to map the fields from the input data set to the transform...
@@ -248,7 +246,7 @@ public class TestingGuiPlugin {
 
     // Save the unit test...
     //
-    saveUnitTest( metaStore, unitTest, pipelineMeta );
+    saveUnitTest( metadataProvider, unitTest, pipelineMeta );
 
     transformMeta.setChanged();
     return true;
@@ -283,7 +281,7 @@ public class TestingGuiPlugin {
         currentUnitTest.getInputDataSets().remove( inputLocation );
       }
 
-      saveUnitTest( hopGui.getMetaStore(), currentUnitTest, pipelineMeta );
+      saveUnitTest( hopGui.getMetadataProvider(), currentUnitTest, pipelineMeta );
 
       context.getPipelineGraph().updateGui();
     } catch ( Exception e ) {
@@ -324,7 +322,7 @@ public class TestingGuiPlugin {
     PipelineMeta sourcePipelineMeta = context.getPipelineMeta();
     TransformMeta transformMeta = context.getTransformMeta();
     HopGui hopGui = HopGui.getInstance();
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     if ( checkTestPresent( hopGui, sourcePipelineMeta ) ) {
       return;
@@ -335,19 +333,18 @@ public class TestingGuiPlugin {
       // Create a copy and modify the pipeline
       // This way we have
       PipelineMetaModifier modifier = new PipelineMetaModifier( sourcePipelineMeta, unitTest );
-      PipelineMeta pipelineMeta = modifier.getTestPipeline( LogChannel.UI, sourcePipelineMeta, metaStore );
+      PipelineMeta pipelineMeta = modifier.getTestPipeline( LogChannel.UI, sourcePipelineMeta, metadataProvider );
 
-
-      MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
-      List<String> setNames = setFactory.getElementNames();
+      IHopMetadataSerializer<DataSet> setSerializer = metadataProvider.getSerializer( DataSet.class );
+      List<String> setNames = setSerializer.listObjectNames();
       Collections.sort( setNames );
       EnterSelectionDialog esd = new EnterSelectionDialog( hopGui.getShell(), setNames.toArray( new String[ setNames.size() ] ), "Select the golden data set", "Select the golden data set..." );
       String setName = esd.open();
       if ( setName != null ) {
-        DataSet dataSet = setFactory.loadElement( setName );
+        DataSet dataSet = setSerializer.load( setName );
         dataSet.initializeVariablesFrom( pipelineMeta );
-        boolean changed = setGoldenDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
-        if (changed) {
+        boolean changed = setGoldenDataSetOnTransform( metadataProvider, pipelineMeta, transformMeta, unitTest, dataSet );
+        if ( changed ) {
           context.getPipelineGraph().updateGui();
         }
       }
@@ -356,8 +353,8 @@ public class TestingGuiPlugin {
     }
   }
 
-  private boolean setGoldenDataSetOnTransform( IMetaStore metaStore, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest,
-                                               DataSet dataSet ) throws HopPluginException, HopValueException, MetaStoreException {
+  private boolean setGoldenDataSetOnTransform( IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineUnitTest unitTest,
+                                               DataSet dataSet ) throws HopPluginException, HopValueException, HopException {
     // Now we need to map the fields from the transform to golden data set fields...
     //
     IRowMeta transformFields;
@@ -428,7 +425,7 @@ public class TestingGuiPlugin {
 
     // Save the unit test...
     //
-    saveUnitTest( metaStore, unitTest, pipelineMeta );
+    saveUnitTest( metadataProvider, unitTest, pipelineMeta );
 
     transformMeta.setChanged();
 
@@ -464,7 +461,7 @@ public class TestingGuiPlugin {
         currentUnitTest.getGoldenDataSets().remove( goldenLocation );
       }
 
-      saveUnitTest( hopGui.getMetaStore(), currentUnitTest, pipelineMeta );
+      saveUnitTest( hopGui.getMetadataProvider(), currentUnitTest, pipelineMeta );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving unit test", e );
     }
@@ -486,14 +483,13 @@ public class TestingGuiPlugin {
   )
   public void createDataSetFromTransform( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     TransformMeta transformMeta = context.getTransformMeta();
     PipelineMeta pipelineMeta = context.getPipelineMeta();
 
     try {
-
-      MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
+      IHopMetadataSerializer<DataSet> setSerializer = metadataProvider.getSerializer( DataSet.class );
 
       DataSet dataSet = new DataSet();
       dataSet.initializeVariablesFrom( pipelineMeta );
@@ -507,13 +503,13 @@ public class TestingGuiPlugin {
         dataSet.getFields().add( field );
       }
 
-      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metaStore, dataSet );
+      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metadataProvider, dataSet );
       String dataSetName = dataSetDialog.open();
       if ( dataSetName != null ) {
-        setFactory.saveElement( dataSet );
+        setSerializer.save( dataSet );
 
         PipelineUnitTest unitTest = getCurrentUnitTest( pipelineMeta );
-        if (unitTest==null) {
+        if ( unitTest == null ) {
           return;
         }
 
@@ -521,18 +517,18 @@ public class TestingGuiPlugin {
         //
         MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
         box.setText( "Use this data set?" );
-        box.setMessage("Do you want to use the new data set called '"+dataSet.getName()+"' on transform '"+transformMeta.getName()+"'?"+Const.CR+
-          "Yes: as an input data set"+Const.CR+
-          "No: as a golden data set"+Const.CR+
-          "Cancel: not using it at this time"+Const.CR);
+        box.setMessage( "Do you want to use the new data set called '" + dataSet.getName() + "' on transform '" + transformMeta.getName() + "'?" + Const.CR +
+          "Yes: as an input data set" + Const.CR +
+          "No: as a golden data set" + Const.CR +
+          "Cancel: not using it at this time" + Const.CR );
         int answer = box.open();
-        if ((answer&SWT.YES)!=0) {
+        if ( ( answer & SWT.YES ) != 0 ) {
           // set the new data set as an input
           //
-          setInputDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+          setInputDataSetOnTransform( metadataProvider, pipelineMeta, transformMeta, unitTest, dataSet );
         }
-        if ((answer&SWT.NO)!=0) {
-          setGoldenDataSetOnTransform( metaStore, pipelineMeta, transformMeta, unitTest, dataSet );
+        if ( ( answer & SWT.NO ) != 0 ) {
+          setGoldenDataSetOnTransform( metadataProvider, pipelineMeta, transformMeta, unitTest, dataSet );
         }
       }
     } catch ( Exception e ) {
@@ -555,7 +551,7 @@ public class TestingGuiPlugin {
   )
   public void writeTransformDataToDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     TransformMeta transformMeta = context.getTransformMeta();
     PipelineMeta pipelineMeta = context.getPipelineMeta();
@@ -569,12 +565,11 @@ public class TestingGuiPlugin {
     }
 
     try {
-
-      MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
+      IHopMetadataSerializer<DataSet> setSerializer = metadataProvider.getSerializer( DataSet.class );
 
       // Ask which data set to write to
       //
-      List<String> setNames = setFactory.getElementNames();
+      List<String> setNames = setSerializer.listObjectNames();
       Collections.sort( setNames );
       EnterSelectionDialog esd = new EnterSelectionDialog( hopGui.getShell(), setNames.toArray( new String[ setNames.size() ] ), "Select the set", "Select the data set to write rows to..." );
       String setName = esd.open();
@@ -582,7 +577,7 @@ public class TestingGuiPlugin {
         return;
       }
 
-      DataSet dataSet = setFactory.loadElement( setName );
+      DataSet dataSet = setSerializer.load( setName );
       dataSet.initializeVariablesFrom( pipelineMeta );
 
       String[] setFields = new String[ dataSet.getFields().size() ];
@@ -626,9 +621,9 @@ public class TestingGuiPlugin {
     }
   }
 
-  private void saveUnitTest( IMetaStore metaStore, PipelineUnitTest unitTest, PipelineMeta pipelineMeta ) throws MetaStoreException {
-    unitTest.setRelativeFilename(pipelineMeta.getFilename());
-    PipelineUnitTest.createFactory( metaStore ).saveElement( unitTest );
+  private void saveUnitTest( IHopMetadataProvider metadataProvider, PipelineUnitTest unitTest, PipelineMeta pipelineMeta ) throws HopException {
+    unitTest.setRelativeFilename( pipelineMeta.getFilename() );
+    metadataProvider.getSerializer( PipelineUnitTest.class ).save( unitTest );
   }
 
   /**
@@ -656,7 +651,7 @@ public class TestingGuiPlugin {
       // Clear the combo box
       //
       Combo combo = getUnitTestsCombo();
-      if (combo!=null) {
+      if ( combo != null ) {
         combo.setText( "" );
       }
 
@@ -695,13 +690,15 @@ public class TestingGuiPlugin {
       false
     );
 
-    PipelineUnitTestDialog dialog = new PipelineUnitTestDialog( hopGui.getShell(), hopGui.getMetaStore(), test );
+    PipelineUnitTestDialog dialog = new PipelineUnitTestDialog( hopGui.getShell(), hopGui.getMetadataProvider(), test );
     String testName = dialog.open();
     if ( testName != null ) {
       try {
         test.setRelativeFilename( pipelineMeta.getFilename() );
 
-        PipelineUnitTest.createFactory( hopGui.getMetaStore() ).saveElement( test );
+        IHopMetadataSerializer<PipelineUnitTest> testSerializer = hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class );
+
+        testSerializer.save( test );
 
         // Activate the test
         refreshUnitTestsList();
@@ -729,26 +726,26 @@ public class TestingGuiPlugin {
     if ( combo == null ) {
       return;
     }
-    if ( StringUtils.isEmpty(combo.getText())) {
+    if ( StringUtils.isEmpty( combo.getText() ) ) {
       return;
     }
 
-    MetaStoreFactory<PipelineUnitTest> testFactory = PipelineUnitTest.createFactory( hopGui.getMetaStore() );
 
     // Load the test, delete it after confirmation
     //
     try {
-      PipelineUnitTest pipelineUnitTest = testFactory.loadElement( combo.getText() );
-      if (pipelineUnitTest==null) {
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer = hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class );
+      PipelineUnitTest pipelineUnitTest = testSerializer.load( combo.getText() );
+      if ( pipelineUnitTest == null ) {
         return; // doesn't exist
       }
       pipelineUnitTest.initializeVariablesFrom( pipelineMeta );
 
       MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-      box.setMessage( "Are you sure you want to delete test '"+pipelineUnitTest.getName()+"'?" );
+      box.setMessage( "Are you sure you want to delete test '" + pipelineUnitTest.getName() + "'?" );
       box.setText( "Confirm unit test removal" );
       int answer = box.open();
-      if ((answer&SWT.YES)==0) {
+      if ( ( answer & SWT.YES ) == 0 ) {
         return;
       }
 
@@ -758,7 +755,7 @@ public class TestingGuiPlugin {
 
       // Then delete it.
       //
-      testFactory.deleteElement( pipelineUnitTest.getName() );
+      testSerializer.delete( pipelineUnitTest.getName() );
 
       refreshUnitTestsList();
     } catch ( Exception e ) {
@@ -799,7 +796,7 @@ public class TestingGuiPlugin {
     }
     String unitTestName = combo.getText();
     try {
-      MetaStoreManager<PipelineUnitTest> manager = new MetaStoreManager<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineUnitTest.class );
+      MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class );
       if ( manager.editMetadata( unitTestName ) ) {
         refreshUnitTestsList();
         selectUnitTestInList( unitTestName );
@@ -837,19 +834,20 @@ public class TestingGuiPlugin {
    * Called by the Combo in the toolbar
    *
    * @param log
-   * @param metaStore
+   * @param metadataProvider
    * @return
    * @throws Exception
    */
-  public List<String> getUnitTestsList( ILogChannel log, IMetaStore metaStore ) throws Exception {
+  public List<String> getUnitTestsList( ILogChannel log, IHopMetadataProvider metadataProvider ) throws Exception {
     // Get the active pipeline, match it...
     //
     List<String> names;
     PipelineMeta pipelineMeta = getActivePipelineMeta();
+    IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
     if ( pipelineMeta == null ) {
-      names = PipelineUnitTest.createFactory( metaStore ).getElementNames();
+      names = testSerializer.listObjectNames();
     } else {
-      List<PipelineUnitTest> tests = PipelineUnitTest.createFactory( metaStore ).getElements();
+      List<PipelineUnitTest> tests = testSerializer.loadAll();
       names = new ArrayList<>();
       for ( PipelineUnitTest test : tests ) {
         test.initializeVariablesFrom( HopGui.getInstance().getVariables() );
@@ -878,17 +876,18 @@ public class TestingGuiPlugin {
       if ( pipelineMeta == null ) {
         return;
       }
-      IMetaStore metaStore = hopGui.getMetaStore();
+      IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
       Combo combo = getUnitTestsCombo();
       if ( combo == null ) {
         return;
       }
 
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
+
       String testName = combo.getText();
       if ( testName != null ) {
-
-        PipelineUnitTest unitTest = PipelineUnitTest.createFactory( metaStore ).loadElement( testName );
+        PipelineUnitTest unitTest = testSerializer.load( testName );
         if ( unitTest == null ) {
           throw new HopException( "Unit test '" + testName + "' could not be found (deleted)?" );
         }
@@ -972,7 +971,7 @@ public class TestingGuiPlugin {
 
   private void tweakUnitTestTransform( PipelineMeta pipelineMeta, TransformMeta transformMeta, PipelineTweak tweak, boolean enable ) {
     HopGui hopGui = HopGui.getInstance();
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     if ( transformMeta == null || pipelineMeta == null ) {
       return;
     }
@@ -990,7 +989,7 @@ public class TestingGuiPlugin {
         unitTest.getTweaks().add( new PipelineUnitTestTweak( tweak, transformMeta.getName() ) );
       }
 
-      saveUnitTest( metaStore, unitTest, pipelineMeta );
+      saveUnitTest( metadataProvider, unitTest, pipelineMeta );
 
       selectUnitTest( pipelineMeta, unitTest );
 
@@ -1006,7 +1005,7 @@ public class TestingGuiPlugin {
    */
   public RowMetaAndData selectUnitTestFromAllTests() {
     HopGui hopGui = HopGui.getInstance();
-    DelegatingMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
     IRowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "Unit test" ) );
@@ -1016,10 +1015,11 @@ public class TestingGuiPlugin {
     List<RowMetaAndData> rows = new ArrayList<>();
 
     try {
-      MetaStoreFactory<PipelineUnitTest> testFactory = PipelineUnitTest.createFactory( metaStore );
-      List<String> testNames = testFactory.getElementNames();
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
+
+      List<String> testNames = testSerializer.listObjectNames();
       for ( String testName : testNames ) {
-        PipelineUnitTest unitTest = testFactory.loadElement( testName );
+        PipelineUnitTest unitTest = testSerializer.load( testName );
         unitTest.initializeVariablesFrom( hopGui.getVariables() );
 
         Object[] row = RowDataUtil.allocateRowData( rowMeta.size() );
@@ -1047,7 +1047,7 @@ public class TestingGuiPlugin {
   public void openUnitTestPipeline() {
     try {
       HopGui hopGui = HopGui.getInstance();
-      IMetaStore metaStore = hopGui.getMetaStore();
+      IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
       RowMetaAndData selection = selectUnitTestFromAllTests();
       if ( selection != null ) {
         String filename = selection.getString( 2, null );
@@ -1055,7 +1055,7 @@ public class TestingGuiPlugin {
           // Load the unit test...
           //
           String unitTestName = selection.getString( 0, null );
-          PipelineUnitTest targetTest = PipelineUnitTest.createFactory( metaStore ).loadElement( unitTestName );
+          PipelineUnitTest targetTest = metadataProvider.getSerializer( PipelineUnitTest.class ).load( unitTestName );
 
           if ( targetTest != null ) {
 
@@ -1091,19 +1091,20 @@ public class TestingGuiPlugin {
     HopGui.getInstance().getActiveFileTypeHandler().updateGui();
   }
 
-  public static List<PipelineUnitTest> findPipelineUnitTest( PipelineMeta pipelineMeta, IMetaStore metaStore ) {
-    MetaStoreFactory<PipelineUnitTest> factory = new MetaStoreFactory<>( PipelineUnitTest.class, metaStore );
+  public static List<PipelineUnitTest> findPipelineUnitTest( PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider ) {
     List<PipelineUnitTest> tests = new ArrayList<>();
 
     try {
 
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
+
       if ( StringUtils.isNotEmpty( pipelineMeta.getFilename() ) ) {
 
-        List<PipelineUnitTest> allTests = factory.getElements();
+        List<PipelineUnitTest> allTests = testSerializer.loadAll();
         for ( PipelineUnitTest test : allTests ) {
           // Match the pipeline reference filename
           //
-          if (test.matchesPipelineFilename( pipelineMeta.getFilename() )) {
+          if ( test.matchesPipelineFilename( pipelineMeta.getFilename() ) ) {
             tests.add( test );
           }
         }

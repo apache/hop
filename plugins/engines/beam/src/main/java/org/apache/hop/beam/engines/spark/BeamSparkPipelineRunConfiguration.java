@@ -28,14 +28,14 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "The Spark master",
     toolTip = "The url of the spark master to connect to, (e.g. spark://host:port, local[4])."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkMaster;
 
   @GuiWidgetElement(
@@ -60,7 +60,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Streaming: batch interval (ms)",
     toolTip = "Batch interval for Spark streaming in milliseconds."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkBatchIntervalMillis;
 
   @GuiWidgetElement(
@@ -71,7 +71,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "A checkpoint directory for streaming resilience, ignored in batch. "
       + "For durability, a reliable filesystem such as HDFS/S3/GS is necessary."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkCheckpointDir;
 
   @GuiWidgetElement(
@@ -83,7 +83,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + "to Max(slideDuration, Seconds(10)). This PipelineOptions default (-1) will end-up "
       + "with the described Spark default."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkCheckpointDurationMillis;
 
   @GuiWidgetElement(
@@ -93,7 +93,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Enable Metrics sink",
     toolTip = "Enable/disable sending aggregator values to Spark's metric sinks"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean sparkEnableSparkMetricSinks;
 
   @GuiWidgetElement(
@@ -103,7 +103,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Streaming: maximum records per batch",
     toolTip = "Max records per micro-batch. For streaming sources only."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkMaxRecordsPerBatch;
 
   @GuiWidgetElement(
@@ -113,7 +113,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Streaming: Minimum read time (ms)",
     toolTip = "Minimum time to spend on read, for each micro-batch."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkMinReadTimeMillis;
 
   @GuiWidgetElement(
@@ -124,7 +124,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "A value between 0-1 to describe the percentage of a micro-batch dedicated "
       + "to reading from UnboundedSource."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkReadTimePercentage;
 
   @GuiWidgetElement(
@@ -136,10 +136,10 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + "splitting BoundedSources on Spark defaultParallelism. Most effective when used with "
       + "Spark dynamicAllocation."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkBundleSize;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String sparkStorageLevel;
   public BeamSparkPipelineRunConfiguration() {
     super();

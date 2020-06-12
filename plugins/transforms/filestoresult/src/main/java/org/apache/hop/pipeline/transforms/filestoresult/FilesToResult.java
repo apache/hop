@@ -89,7 +89,7 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
 
     // Copy to any possible next transforms...
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     putRow( data.outputRowMeta, r ); // copy row to possible alternate
     // rowset(s).
 

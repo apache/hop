@@ -29,10 +29,8 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
-import org.apache.hop.core.gui.plugin.metastore.HopMetaStoreGuiPluginDetails;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
-import org.apache.hop.metastore.IHopMetaStoreElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -62,7 +60,6 @@ public class GuiRegistry {
   private Map<String, Map<String, GuiElements>> dataElementsMap;
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
-  private Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> metaStoreTypeMap;
 
   private GuiRegistry() {
     guiMenuMap = new HashMap<>();
@@ -70,7 +67,6 @@ public class GuiRegistry {
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
-    metaStoreTypeMap = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -399,16 +395,6 @@ public class GuiRegistry {
     return contextActionsMap.get( parentContextId );
   }
 
-  public void addMetaStoreElementType( Class<? extends IHopMetaStoreElement> elementClass, GuiMetaStoreElement guiMetaStoreElement, ClassLoader classLoader ) {
-    HopMetaStoreGuiPluginDetails details = new HopMetaStoreGuiPluginDetails(
-      guiMetaStoreElement.name(),
-      guiMetaStoreElement.description(),
-      guiMetaStoreElement.iconImage(),
-      classLoader
-    );
-    metaStoreTypeMap.put( elementClass, details );
-  }
-
 
   /**
    * Gets dataElementsMap
@@ -490,20 +476,4 @@ public class GuiRegistry {
     this.guiToolbarMap = guiToolbarMap;
   }
 
-  /**
-   * Gets metaStoreTypeMap
-   *
-   * @return value of metaStoreTypeMap
-   */
-  public Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> getMetaStoreTypeMap() {
-    return metaStoreTypeMap;
-  }
-
-  /**
-   * @param metaStoreTypeMap The metaStoreTypeMap to set
-   */
-  public void setMetaStoreTypeMap(
-    Map<Class<? extends IHopMetaStoreElement>, HopMetaStoreGuiPluginDetails> metaStoreTypeMap ) {
-    this.metaStoreTypeMap = metaStoreTypeMap;
-  }
 }

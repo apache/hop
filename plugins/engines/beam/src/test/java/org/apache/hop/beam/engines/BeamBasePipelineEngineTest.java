@@ -2,7 +2,7 @@ package org.apache.hop.beam.engines;
 
 import org.apache.hop.beam.transform.PipelineTestBase;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -16,8 +16,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class BeamBasePipelineEngineTest extends PipelineTestBase {
 
-  protected IPipelineEngine<PipelineMeta> createAndExecutePipeline( String runConfigurationName, IMetaStore metaStore, PipelineMeta pipelineMeta ) throws HopException {
-    IPipelineEngine<PipelineMeta> engine = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
+  protected IPipelineEngine<PipelineMeta> createAndExecutePipeline( String runConfigurationName, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta ) throws HopException {
+    IPipelineEngine<PipelineMeta> engine = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
     engine.prepareExecution();
     engine.startThreads();
     engine.waitUntilFinished();

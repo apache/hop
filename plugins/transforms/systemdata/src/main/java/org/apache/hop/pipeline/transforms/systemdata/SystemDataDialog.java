@@ -314,7 +314,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
 
       PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline(
         pipelineMeta,
-        pipelineMeta.getMetaStore(),
+        pipelineMeta.getMetadataProvider(),
         oneMeta,
         wTransformName.getText() );
 

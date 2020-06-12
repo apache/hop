@@ -42,7 +42,7 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -131,12 +131,12 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
 
   @Override
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      this.connection = DatabaseMeta.loadDatabase( metaStore, dbname );
+      this.connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
       this.argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
 
       Node fields = XmlHandler.getSubNode( entrynode, "fields" );
@@ -308,7 +308,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks,
       AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
 

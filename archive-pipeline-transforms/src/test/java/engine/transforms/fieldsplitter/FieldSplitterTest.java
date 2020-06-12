@@ -35,7 +35,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -94,7 +94,7 @@ public class FieldSplitterTest {
     doReturn( "field to split" ).when( processRowMeta ).getSplitField();
     doCallRealMethod().when( processRowMeta ).getFields( any( IRowMeta.class ), anyString(),
       any( IRowMeta[].class ), any( TransformMeta.class ), any( iVariables.class ),
-      any( IMetaStore.class ) );
+      any( IHopMetadataProvider.class ) );
     doReturn( new String[] { "a", "b" } ).when( processRowMeta ).getFieldName();
     doReturn( new int[] { IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING } ).when( processRowMeta )
       .getFieldType();

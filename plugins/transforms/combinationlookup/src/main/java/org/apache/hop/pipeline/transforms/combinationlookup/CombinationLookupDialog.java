@@ -1026,7 +1026,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         new TransformMeta( BaseMessages.getString( PKG, "CombinationLookupDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =

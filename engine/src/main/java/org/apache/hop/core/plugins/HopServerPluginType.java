@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.www.IHopServerPlugin;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IHopServerPlugin.class )
 @PluginAnnotationType( HopServerServlet.class )
-public class HopServerPluginType extends BasePluginType implements IPluginType {
+public class HopServerPluginType extends BasePluginType<HopServerServlet> implements IPluginType<HopServerServlet> {
 
   private static HopServerPluginType hopServerPluginType;
 
@@ -73,66 +72,66 @@ public class HopServerPluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( HopServerServlet annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).description();
+  protected String extractDesc( HopServerServlet annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).id();
+  protected String extractID( HopServerServlet annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).name();
+  protected String extractName( HopServerServlet annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( HopServerServlet annotation ) {
     return "";
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).isSeparateClassLoaderNeeded();
+  protected boolean extractSeparateClassLoader( HopServerServlet annotation ) {
+    return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).i18nPackageName();
+  protected String extractI18nPackageName( HopServerServlet annotation ) {
+    return annotation.i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopServerServlet annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( HopServerServlet annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( HopServerServlet annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( HopServerServlet annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( HopServerServlet annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (HopServerServlet) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( HopServerServlet annotation ) {
+    return annotation.classLoaderGroup();
   }
 }

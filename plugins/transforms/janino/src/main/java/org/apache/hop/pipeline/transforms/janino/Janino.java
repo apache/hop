@@ -69,7 +69,7 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> implements ITr
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Calculate replace indexes...
       //

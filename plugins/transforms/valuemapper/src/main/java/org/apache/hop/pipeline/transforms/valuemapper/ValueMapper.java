@@ -70,7 +70,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
 
       data.previousMeta = getInputRowMeta().clone();
       data.outputMeta = data.previousMeta.clone();
-      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.keynr = data.previousMeta.indexOfValue( meta.getFieldToUse() );
       if ( data.keynr < 0 ) {

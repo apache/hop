@@ -212,7 +212,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITr
 
       // What's the output Row format?
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.schemaTable =
         meta.getDatabaseMeta().getQuotedSchemaTableCombination(

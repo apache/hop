@@ -74,7 +74,7 @@ public class WebServiceAvailable extends BaseTransform implements ITransform {
       data.previousRowMeta = getInputRowMeta().clone();
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Check is URL field is provided
       if ( Utils.isEmpty( meta.getURLField() ) ) {

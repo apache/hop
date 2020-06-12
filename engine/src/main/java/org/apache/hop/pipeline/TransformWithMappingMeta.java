@@ -35,7 +35,7 @@ import org.apache.hop.core.util.serialization.BaseSerializingMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -66,8 +66,8 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
 
   protected String filename;
 
-  public static PipelineMeta loadMappingMeta( TransformWithMappingMeta mappingMeta, IMetaStore metaStore, IVariables variables ) throws HopException {
-    return loadMappingMeta( mappingMeta, metaStore, variables, true );
+  public static PipelineMeta loadMappingMeta( TransformWithMappingMeta mappingMeta, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    return loadMappingMeta( mappingMeta, metadataProvider, variables, true );
   }
 
   /**
@@ -90,7 +90,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   }
 
   public static synchronized PipelineMeta loadMappingMeta( TransformWithMappingMeta executorMeta,
-                                                           IMetaStore metaStore, IVariables variables, boolean share ) throws HopException {
+                                                           IHopMetadataProvider metadataProvider, IVariables variables, boolean share ) throws HopException {
     PipelineMeta mappingPipelineMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
@@ -108,7 +108,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       // OK, load the meta-data from file...
       // Don't set internal variables: they belong to the parent thread!
       if ( mappingPipelineMeta == null ) {
-        mappingPipelineMeta = new PipelineMeta( realFilename, metaStore, true, tmpSpace );
+        mappingPipelineMeta = new PipelineMeta( realFilename, metadataProvider, true, tmpSpace );
         LogChannel.GENERAL.logDetailed( "Loading pipeline", "Pipeline was loaded from XML file [" + realFilename + "]" );
       }
     } catch ( Exception e ) {
@@ -128,7 +128,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       // variables from the pipeline?' option is checked)
       addMissingVariables( mappingPipelineMeta, variables );
     }
-    mappingPipelineMeta.setMetaStore( metaStore );
+    mappingPipelineMeta.setMetadataProvider( metadataProvider );
     mappingPipelineMeta.setFilename( mappingPipelineMeta.getFilename() );
 
     return mappingPipelineMeta;
@@ -218,7 +218,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming,
-                                 IMetaStore metaStore ) throws HopException {
+                                 IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // Try to load the pipeline from a file.
       // Modify this recursively too...
@@ -228,14 +228,14 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       //
       // First load the mapping pipeline...
       //
-      PipelineMeta mappingPipelineMeta = loadMappingMeta( this, metaStore, variables );
+      PipelineMeta mappingPipelineMeta = loadMappingMeta( this, metadataProvider, variables );
 
       // Also go down into the mapping pipeline and export the files
       // there. (mapping recursively down)
       //
       String proposedNewFilename =
         mappingPipelineMeta.exportResources(
-          mappingPipelineMeta, definitions, iResourceNaming, metaStore );
+          mappingPipelineMeta, definitions, iResourceNaming, metadataProvider );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}

@@ -43,7 +43,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
@@ -626,7 +626,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
     this.DNField = DNField;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -813,7 +813,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       LDIFInputField field = inputFields[ i ];
@@ -933,7 +933,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we get input...
@@ -981,11 +981,11 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

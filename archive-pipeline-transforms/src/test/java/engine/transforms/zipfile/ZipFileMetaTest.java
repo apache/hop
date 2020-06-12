@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -93,12 +93,12 @@ public class ZipFileMetaTest {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     TransformMeta mockParentTransformMeta = mock( TransformMeta.class );
     zipFileMeta.setParentTransformMeta( mockParentTransformMeta );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     when( mockParentTransformMeta.getParentPipelineMeta() ).thenReturn( mockPipelineMeta );
-    zipFileMeta.loadXml( transformNode, metaStore );
+    zipFileMeta.loadXml( transformNode, metadataProvider );
     assertXmlOutputMeta( zipFileMeta );
   }
 
@@ -109,7 +109,7 @@ public class ZipFileMetaTest {
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     TransformMeta transformInfo = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
 

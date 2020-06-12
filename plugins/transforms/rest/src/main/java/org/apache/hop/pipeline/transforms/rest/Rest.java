@@ -351,7 +351,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Let's set URL
       if ( meta.isUrlInField() ) {

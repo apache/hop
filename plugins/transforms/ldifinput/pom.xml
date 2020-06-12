@@ -17,12 +17,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
-            <artifactId>hop-metastore</artifactId>
-            <version>0.30-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>ldapsdk</groupId>
             <artifactId>ldapsdk</artifactId>
             <version>4.1</version>

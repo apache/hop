@@ -131,7 +131,7 @@ public class StringCut extends BaseTransform implements ITransform {
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputFieldsNr = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.inStreamNrs = new int[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {

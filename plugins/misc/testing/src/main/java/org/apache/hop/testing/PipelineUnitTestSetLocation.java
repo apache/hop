@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,7 +22,7 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +34,16 @@ import java.util.List;
  */
 public class PipelineUnitTestSetLocation {
 
-  @MetaStoreAttribute( key = "transform_name" )
+  @HopMetadataProperty( key = "transform_name" )
   protected String transformName;
 
-  @MetaStoreAttribute( key = "data_set_name" )
+  @HopMetadataProperty( key = "data_set_name" )
   protected String dataSetName;
 
-  @MetaStoreAttribute( key = "field_mappings" )
+  @HopMetadataProperty( key = "field_mappings" )
   protected List<PipelineUnitTestFieldMapping> fieldMappings;
 
-  @MetaStoreAttribute( key = "field_order" )
+  @HopMetadataProperty( key = "field_order" )
   protected List<String> fieldOrder;
 
   public PipelineUnitTestSetLocation() {

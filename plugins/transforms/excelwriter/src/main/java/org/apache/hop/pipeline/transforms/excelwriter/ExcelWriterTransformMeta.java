@@ -37,7 +37,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
@@ -577,7 +577,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -805,7 +805,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
     }
@@ -891,7 +891,7 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check output fields
@@ -948,12 +948,12 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

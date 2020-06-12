@@ -38,7 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -181,7 +181,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
     this.jsScripts = jsScripts;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -270,7 +270,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
   }
 
   public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( int i = 0; i < fieldname.length; i++ ) {
       if ( !Utils.isEmpty( fieldname[ i ] ) ) {
         String fieldName;
@@ -350,7 +350,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     boolean error_found = false;
     String error_message = "";
     CheckResult cr;

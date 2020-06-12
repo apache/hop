@@ -4,16 +4,14 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.environment.EnvironmentVariable;
+import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -30,9 +28,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.apache.hop.env.util.EnvironmentUtil;
 
-public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
+public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = EnvironmentDialog.class; // for i18n purposes, needed by Translator2!!
 
   private Environment environment;
@@ -57,18 +54,15 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
 
   private int margin;
   private int middle;
-  private final MetaStoreFactory<Environment> environmentFactory;
 
   private IVariables space;
 
-  public EnvironmentDialog( Shell parent, IMetaStore metaStore, Environment environment, IVariables variables ) throws MetaStoreException {
+  public EnvironmentDialog( Shell parent, IHopMetadataProvider metadataProvider, Environment environment, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
     this.environment = environment;
 
     props = PropsUi.getInstance();
-
-    environmentFactory = EnvironmentSingleton.getEnvironmentFactory();
 
     space = new Variables();
     space.initializeVariablesFrom( null );
@@ -93,16 +87,14 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     shell.setLayout( formLayout );
     shell.setText( "Environment dialog" );
 
+    // Buttons go at the bottom of the dialog
+    //
     Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wOK.addListener( SWT.Selection, event -> ok() );
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, event -> cancel() );
-
-
-    // Buttons go at the bottom of the dialog
-    //
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin * 3, null );
 
 
@@ -210,6 +202,7 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
 
     Label wlEnvironmentHome = new Label( shell, SWT.RIGHT );
     props.setLook( wlEnvironmentHome );
+    wlEnvironmentHome.setFont( GuiResource.getInstance().getFontBold() );
     wlEnvironmentHome.setText( "Environment base folder (" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + ") " );
     FormData fdlEnvironmentHome = new FormData();
     fdlEnvironmentHome.left = new FormAttachment( 0, 0 );
@@ -218,6 +211,7 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     wlEnvironmentHome.setLayoutData( fdlEnvironmentHome );
     wEnvironmentHome = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
     props.setLook( wEnvironmentHome );
+    wEnvironmentHome.setFont( GuiResource.getInstance().getFontBold() );
     FormData fdEnvironmentHome = new FormData();
     fdEnvironmentHome.left = new FormAttachment( middle, margin );
     fdEnvironmentHome.right = new FormAttachment( 100, 0 );
@@ -228,7 +222,7 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
 
     Label wlMetaStoreBaseFolder = new Label( shell, SWT.RIGHT );
     props.setLook( wlMetaStoreBaseFolder );
-    wlMetaStoreBaseFolder.setText( "MetaStore base folder (HOP_METASTORE_FOLDER)" );
+    wlMetaStoreBaseFolder.setText( "Metadata base folder (HOP_METADATA_FOLDER)" );
     FormData fdlMetaStoreBaseFolder = new FormData();
     fdlMetaStoreBaseFolder.left = new FormAttachment( 0, 0 );
     fdlMetaStoreBaseFolder.right = new FormAttachment( middle, 0 );
@@ -385,7 +379,7 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     wProject.setText( Const.NVL( environment.getProject(), "" ) );
     wVersion.setText( Const.NVL( environment.getVersion(), "" ) );
     wEnvironmentHome.setText( Const.NVL( environment.getEnvironmentHomeFolder(), "" ) );
-    wMetaStoreBaseFolder.setText( Const.NVL( environment.getMetaStoreBaseFolder(), "" ) );
+    wMetaStoreBaseFolder.setText( Const.NVL( environment.getMetadataBaseFolder(), "" ) );
     wUnitTestsBasePath.setText( Const.NVL( environment.getUnitTestsBasePath(), "" ) );
     wDataSetCsvFolder.setText( Const.NVL( environment.getDataSetsCsvFolder(), "" ) );
     wEnforceHomeExecution.setSelection( environment.isEnforcingExecutionInHome() );
@@ -408,7 +402,7 @@ public class EnvironmentDialog extends Dialog implements IMetaStoreDialog {
     env.setProject( wProject.getText() );
     env.setVersion( wVersion.getText() );
     env.setEnvironmentHomeFolder( wEnvironmentHome.getText() );
-    env.setMetaStoreBaseFolder( wMetaStoreBaseFolder.getText() );
+    env.setMetadataBaseFolder( wMetaStoreBaseFolder.getText() );
     env.setUnitTestsBasePath( wUnitTestsBasePath.getText() );
     env.setDataSetsCsvFolder( wDataSetCsvFolder.getText() );
     env.setEnforcingExecutionInHome( wEnforceHomeExecution.getSelection() );

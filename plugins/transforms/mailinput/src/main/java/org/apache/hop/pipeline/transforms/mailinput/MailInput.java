@@ -273,7 +273,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
 
           data.inputRowMeta = getInputRowMeta();
           data.outputRowMeta = data.inputRowMeta.clone();
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
           // Get total previous fields
           data.totalpreviousfields = data.inputRowMeta.size();
@@ -377,7 +377,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
       try {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore ); // get the
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider ); // get the
         // metadata
         // populated
 

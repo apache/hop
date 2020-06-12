@@ -113,7 +113,7 @@ public class HopGuiPipelineRunDelegate {
 
     // Set MetaStore and safe mode information in both the exec config and the metadata
     //
-    pipelineMeta.setMetaStore( hopGui.getMetaStore() );
+    pipelineMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
     if ( debug ) {
       // See if we have debugging information stored somewhere?

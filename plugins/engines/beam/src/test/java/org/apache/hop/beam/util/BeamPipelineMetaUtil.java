@@ -1,15 +1,15 @@
 package org.apache.hop.beam.util;
 
-import org.apache.hop.beam.metastore.FieldDefinition;
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.metadata.FieldDefinition;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.transform.PipelineTestBase;
 import org.apache.hop.beam.transforms.io.BeamInputMeta;
 import org.apache.hop.beam.transforms.io.BeamOutputMeta;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -26,21 +26,21 @@ import java.util.List;
 
 public class BeamPipelineMetaUtil {
 
-  public static final PipelineMeta generateBeamInputOutputPipelineMeta( String pipelineName, String inputTransformName, String outputTransformName, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateBeamInputOutputPipelineMeta( String pipelineName, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( pipelineName );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputTransformName, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( "BeamInput" );
     pipelineMeta.addTransform( beamInputStepMeta );
@@ -58,7 +58,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "customers" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
@@ -70,21 +70,21 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateBeamGroupByPipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateBeamGroupByPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( transname );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( beamInputStepMeta );
@@ -112,7 +112,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "grouped" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
@@ -125,21 +125,21 @@ public class BeamPipelineMetaUtil {
   }
 
 
-  public static final PipelineMeta generateFilterRowsPipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateFilterRowsPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( transname );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( beamInputStepMeta );
@@ -191,7 +191,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "filter-test" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
@@ -203,21 +203,21 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateSwitchCasePipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateSwitchCasePipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( transname );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( beamInputStepMeta );
@@ -278,7 +278,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "switch-case-test" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
@@ -291,21 +291,21 @@ public class BeamPipelineMetaUtil {
   }
 
 
-  public static final PipelineMeta generateStreamLookupPipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateStreamLookupPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( transname );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the main io transform
     //
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    beamInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
     beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( beamInputStepMeta );
@@ -344,7 +344,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "stream-lookup" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
@@ -356,30 +356,30 @@ public class BeamPipelineMetaUtil {
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateMergeJoinPipelineMeta( String transname, String inputStepname, String outputStepname, IMetaStore metaStore ) throws Exception {
+  public static final PipelineMeta generateMergeJoinPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
 
-    MetaStoreFactory<FileDefinition> factory = new MetaStoreFactory<>( FileDefinition.class, metaStore );
+    IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
-    factory.saveElement( customerFileDefinition );
+    serializer.save( customerFileDefinition );
     FileDefinition statePopulationFileDefinition = createStatePopulationInputFileDefinition();
-    factory.saveElement( statePopulationFileDefinition );
+    serializer.save( statePopulationFileDefinition );
 
     PipelineMeta pipelineMeta = new PipelineMeta(  );
     pipelineMeta.setName( transname );
-    pipelineMeta.setMetaStore( metaStore );
+    pipelineMeta.setMetadataProvider( metadataProvider );
 
     // Add the left io transform
     //
     BeamInputMeta leftInputMeta = new BeamInputMeta();
     leftInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
-    leftInputMeta.setFileDescriptionName( customerFileDefinition.getName() );
+    leftInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
     TransformMeta leftInputStepMeta = new TransformMeta(inputStepname+" Left", leftInputMeta);
     leftInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( leftInputStepMeta );
 
     BeamInputMeta rightInputMeta = new BeamInputMeta();
     rightInputMeta.setInputLocation( PipelineTestBase.INPUT_STATES_FILE );
-    rightInputMeta.setFileDescriptionName( statePopulationFileDefinition.getName() );
+    rightInputMeta.setFileDefinitionName( statePopulationFileDefinition.getName() );
     TransformMeta rightInputStepMeta = new TransformMeta(inputStepname+" Right", rightInputMeta);
     rightInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
     pipelineMeta.addTransform( rightInputStepMeta );
@@ -403,7 +403,7 @@ public class BeamPipelineMetaUtil {
     //
     BeamOutputMeta beamOutputMeta = new BeamOutputMeta();
     beamOutputMeta.setOutputLocation( "/tmp/customers/output/" );
-    beamOutputMeta.setFileDescriptionName( null );
+    beamOutputMeta.setFileDefinitionName( null );
     beamOutputMeta.setFilePrefix( "merge-join" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported

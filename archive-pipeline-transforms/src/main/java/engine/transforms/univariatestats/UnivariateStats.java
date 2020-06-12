@@ -114,7 +114,7 @@ public class UnivariateStats extends BaseTransform implements ITransform {
       m_data.setOutputRowMeta( outputMeta );
 
       // Determine the output format
-      m_meta.getFields( m_data.getOutputRowMeta(), getTransformName(), null, null, this, metaStore );
+      m_meta.getFields( m_data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider );
 
       // Set up data cache for calculating median/percentiles
       m_dataCache = new ArrayList[ m_meta.getNumFieldsToProcess() ];

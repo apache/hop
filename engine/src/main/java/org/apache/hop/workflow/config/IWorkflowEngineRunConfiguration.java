@@ -23,7 +23,11 @@
 package org.apache.hop.workflow.config;
 
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 
+@HopMetadataObject(
+  objectFactory = WorkflowRunConfigurationMetadataObjectFactory.class
+)
 public interface IWorkflowEngineRunConfiguration extends Cloneable, IVariables {
 
   IWorkflowEngineRunConfiguration clone();

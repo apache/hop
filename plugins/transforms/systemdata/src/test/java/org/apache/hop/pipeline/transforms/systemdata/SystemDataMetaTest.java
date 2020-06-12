@@ -26,7 +26,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -89,7 +89,7 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
     Document document = documentBuilder.parse( new InputSource( new StringReader( expectedXML ) ) );
     Node node = document;
-    IMetaStore store = null;
+    IHopMetadataProvider store = null;
     systemDataMeta.loadXml( node, store );
     assertEquals( expectedSystemDataMeta, systemDataMeta );
   }

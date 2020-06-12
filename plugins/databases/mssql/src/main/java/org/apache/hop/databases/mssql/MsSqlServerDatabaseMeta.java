@@ -34,7 +34,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.sql.ResultSet;
 
@@ -60,7 +60,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
 	 i18nPackage = "org.apache.hop.ui.core.database",
 	 label = "DatabaseDialog.label.SQLServerInstance"
   )	
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String instanceName;
 
   public String getInstanceName() {
@@ -79,7 +79,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     i18nPackage = "org.apache.hop.ui.core.database",
     label = "DatabaseDialog.label.UseDoubleDecimalSeparator"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean usingDoubleDigit;
 
   /**

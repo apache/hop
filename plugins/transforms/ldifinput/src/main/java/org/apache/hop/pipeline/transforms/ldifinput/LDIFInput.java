@@ -309,7 +309,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
 
           data.inputRowMeta = getInputRowMeta();
           data.outputRowMeta = data.inputRowMeta.clone();
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
           // Get total previous fields
           data.totalpreviousfields = data.inputRowMeta.size();
@@ -451,7 +451,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
           // Create the output row meta-data
           data.outputRowMeta = new RowMeta();
 
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
           // Create convert meta-data objects that will contain Date & Number formatters
           data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );

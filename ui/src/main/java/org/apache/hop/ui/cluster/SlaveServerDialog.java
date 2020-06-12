@@ -26,14 +26,14 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -53,7 +53,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -70,9 +69,9 @@ import org.eclipse.swt.widgets.Text;
  * @since 31-10-2006
  */
 
-public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
+public class SlaveServerDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator!!
-  private final IMetaStore metaStore;
+  private final IHopMetadataProvider metadataProvider;
 
   private SlaveServer slaveServer;
 
@@ -106,9 +105,9 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   private SlaveServer originalServer;
   private String result;
 
-  public SlaveServerDialog( Shell par, IMetaStore metaStore, SlaveServer slaveServer ) {
+  public SlaveServerDialog( Shell par, IHopMetadataProvider metadataProvider, SlaveServer slaveServer ) {
     super( par, SWT.NONE );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.slaveServer = (SlaveServer) slaveServer.clone();
     this.slaveServer.shareVariablesWith( slaveServer );
     this.originalServer = slaveServer;
@@ -497,8 +496,8 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
       // TODO: provide name changes utilities
       //
       try {
-        MetaStoreFactory<SlaveServer> factory = SlaveServer.createFactory( metaStore );
-        if ( factory.elementExists( slaveServer.getName() ) ) {
+        IHopMetadataSerializer<SlaveServer> serializer = metadataProvider.getSerializer( SlaveServer.class );
+        if ( serializer.exists( slaveServer.getName() ) ) {
           String title = BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists.Title" );
           String message =
             BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists", slaveServer.getName() );

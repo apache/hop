@@ -28,7 +28,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionCopy;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
@@ -180,8 +180,8 @@ public class WorkflowEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
-    IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXml( getEntryNode( "nullVariable", null, "JVM" ), metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    entry.loadXml( getEntryNode( "nullVariable", null, "JVM" ), metadataProvider );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( System.getProperty( "nullVariable" ) );
@@ -189,8 +189,8 @@ public class WorkflowEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable() throws Exception {
-    IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXml( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    entry.loadXml( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metadataProvider );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( entry.getVariable( "nullVariable" ) );
@@ -198,8 +198,8 @@ public class WorkflowEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
-    IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "JVM" ), metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "JVM" ), metadataProvider );
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
@@ -208,8 +208,8 @@ public class WorkflowEntrySetVariablesTest {
 
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull() throws Exception {
-    IMetaStore metaStore = mock( IMetaStore.class );
-    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    entry.loadXml( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metadataProvider );
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = entry.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );

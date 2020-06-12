@@ -22,17 +22,16 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -385,16 +384,16 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   void batchComplete() throws HopException;
 
   /**
-   * Pass along the metastore to use when loading external elements at runtime.
+   * Pass along the metadata to use when loading external elements at runtime.
    *
-   * @param metaStore The metastore to use
+   * @param metadataProvider The metadata to use
    */
-  void setMetaStore( IMetaStore metaStore );
+  void setMetadataProvider( IHopMetadataProvider metadataProvider );
 
   /**
-   * @return The metastore that the transform uses to load external elements from.
+   * @return The metadata that the transform uses to load external elements from.
    */
-  IMetaStore getMetaStore();
+  IHopMetadataProvider getMetadataProvider();
 
   /**
    * @return the index of the active (current) output row set

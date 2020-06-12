@@ -32,7 +32,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -135,10 +135,10 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
   private static final String FIELDNAME_PROTECTOR = "_";
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected int accessType; // Database.TYPE_ODBC / NATIVE / OCI
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   @GuiWidgetElement(
     id = "hostname",
     order = "01",
@@ -149,7 +149,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String hostname;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   @GuiWidgetElement(
     id = "port",
     order = "02",
@@ -160,7 +160,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String port;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   @GuiWidgetElement(
     id = "databaseName",
     order = "03",
@@ -171,37 +171,37 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID )
   protected String databaseName;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String username;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty(password = true)
   protected String password;
 
   /**
    * Available for ALL database types
    */
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String manualUrl;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String odbcDsn;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String servername; // Informix only!
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String dataTablespace; // data storage location, For Oracle & perhaps others
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String indexTablespace; // index storage location, For Oracle & perhaps others
 
   private boolean changed;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected Map<String,String> attributes;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String pluginId;
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String pluginName;
 
 

@@ -13,7 +13,7 @@ public class MergeJoinPipelineTest extends PipelineTestBase {
       "inputs-merge-join-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     try {

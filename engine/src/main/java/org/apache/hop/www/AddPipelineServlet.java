@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -125,10 +125,10 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
 
-      IMetaStore metaStore = pipelineConfiguration.getMetaStore();
+      IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
-      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
+      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
       pipeline.setParent( servletLoggingObject );
 
       if ( pipelineExecutionConfiguration.isSetLogfile() ) {

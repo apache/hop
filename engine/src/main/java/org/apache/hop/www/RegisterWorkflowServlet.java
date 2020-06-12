@@ -23,7 +23,6 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -44,7 +43,7 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException, MetaStoreException, ParseException {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException, HopException, ParseException {
 
     final String xml = IOUtils.toString( request.getInputStream() );
 

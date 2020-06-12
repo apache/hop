@@ -43,7 +43,7 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -138,7 +138,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
@@ -154,7 +154,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
       outdumpvalue = Const.toInt( XmlHandler.getTagValue( entrynode, "outdumpvalue" ), -1 );
       iffileexists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
-      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
+      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
       addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
     } catch ( HopException e ) {
       throw new HopXmlException( "Unable to load action of type 'table exists' from XML node", e );
@@ -529,7 +529,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ActionValidatorUtils.andValidator().validate( this, "filename", remarks,
       AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
     ActionValidatorUtils.andValidator().validate( this, "tablename", remarks,

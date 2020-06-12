@@ -47,7 +47,7 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -181,7 +181,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
@@ -217,7 +217,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
       addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
       truncate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "truncate" ) );
 
-      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
+      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
 
     } catch ( HopException e ) {
       throw new HopXmlException( "Unable to load action of type 'MSsql bulk load' from XML node", e );
@@ -752,7 +752,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(),

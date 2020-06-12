@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,27 +22,27 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;
 
 public class DataSetField {
-  @MetaStoreAttribute( key = "field_name" )
+  @HopMetadataProperty( key = "field_name" )
   private String fieldName;
 
-  @MetaStoreAttribute( key = "field_type" )
+  @HopMetadataProperty( key = "field_type" )
   private int type;
 
-  @MetaStoreAttribute( key = "field_length" )
+  @HopMetadataProperty( key = "field_length" )
   private int length;
 
-  @MetaStoreAttribute( key = "field_precision" )
+  @HopMetadataProperty( key = "field_precision" )
   private int precision;
 
-  @MetaStoreAttribute( key = "field_comment" )
+  @HopMetadataProperty( key = "field_comment" )
   private String comment;
 
-  @MetaStoreAttribute( key = "field_format" )
+  @HopMetadataProperty( key = "field_format" )
   private String format;
 
   public DataSetField() {

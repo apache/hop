@@ -43,7 +43,7 @@ import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -285,7 +285,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     changed = true;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -472,7 +472,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
   }
 
   public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !checkClassCookings( getLog() ) ) {
       if ( cookErrors.size() > 0 ) {
         throw new HopTransformException( "Error initializing UserDefinedJavaClass to get fields: ", cookErrors
@@ -566,7 +566,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!

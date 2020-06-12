@@ -109,7 +109,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
   private void openReferencedObject( ITransformMeta iTransformMeta, String objectDescription, int index ) {
     HopGui hopGui = HopGui.getInstance();
     try {
-      IHasFilename hasFilename = iTransformMeta.loadReferencedObject( index, pipelineMeta.getMetaStore(), pipelineMeta );
+      IHasFilename hasFilename = iTransformMeta.loadReferencedObject( index, pipelineMeta.getMetadataProvider(), pipelineMeta );
       if ( hasFilename != null ) {
         String filename = pipelineMeta.environmentSubstitute( hasFilename.getFilename() );
 

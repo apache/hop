@@ -606,8 +606,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       String dest = wFields.getNonEmpty( i ).getText( 5 );
       source = ActionCopyFiles.SOURCE_URL + i + "-" + source;
       dest = ActionCopyFiles.DEST_URL + i + "-" + dest;
-      action.source_filefolder[ i ] = action.loadURL( source, sourceNc, getMetaStore(), sourceDestinationMappings );
-      action.destination_filefolder[ i ] = action.loadURL( dest, destNc, getMetaStore(), sourceDestinationMappings );
+      action.source_filefolder[ i ] = action.loadURL( source, sourceNc, getMetadataProvider(), sourceDestinationMappings );
+      action.destination_filefolder[ i ] = action.loadURL( dest, destNc, getMetadataProvider(), sourceDestinationMappings );
       action.wildcard[ i ] = wild;
     }
     action.setConfigurationMappings( sourceDestinationMappings );

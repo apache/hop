@@ -64,7 +64,7 @@ public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, Closur
           // Create the output row metadata
           //
           data.outputRowMeta = getInputRowMeta().clone();
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
           // Get indexes of parent and child field
           //

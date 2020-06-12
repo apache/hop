@@ -75,7 +75,7 @@ public class SampleRows extends BaseTransform implements ITransform {
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
       if ( data.addlineField ) {
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
 
       String[] rangePart = realRange.split( "," );

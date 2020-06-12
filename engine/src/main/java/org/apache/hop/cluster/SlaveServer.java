@@ -40,12 +40,10 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.www.GetPipelineStatusServlet;
 import org.apache.hop.www.GetStatusServlet;
 import org.apache.hop.www.GetWorkflowStatusServlet;
@@ -102,11 +100,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-@MetaStoreElementType(
+@HopMetadata(
+  key = "server",
   name = "Slave Server",
-  description = "Defines a Hop Slave Server"
+  description = "Defines a Hop Slave Server",
+  iconImage = "ui/images/slave.svg"
 )
-public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<SlaveServer> {
+public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetadata {
   private static Class<?> PKG = SlaveServer.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SLAVE_SERVER = "Slave Server";
@@ -142,46 +142,47 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
 
   private ILogChannel log;
 
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String hostname;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String port;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String webAppName;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String username;
 
-  @MetaStoreAttribute( password = true )
+  @HopMetadataProperty( password = true )
   private String password;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String proxyHostname;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String proxyPort;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String nonProxyHosts;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String propertiesMasterName;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean overrideExistingProperties;
 
   private IVariables variables = new Variables();
 
   private Date changedDate;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean sslMode;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private SslConfiguration sslConfig;
 
   public SlaveServer() {
@@ -862,9 +863,8 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     return null;
   }
 
-  public static String[] getSlaveServerNames( IMetaStore metaStore ) throws MetaStoreException {
-    MetaStoreFactory<SlaveServer> factory = createFactory( metaStore );
-    List<String> names = factory.getElementNames();
+  public static String[] getSlaveServerNames( IHopMetadataProvider metadataProvider ) throws HopException {
+    List<String> names = metadataProvider.getSerializer( SlaveServer.class ).listObjectNames();
     return names.toArray( new String[ 0 ] );
   }
 
@@ -1204,17 +1204,4 @@ public class SlaveServer extends ChangedFlag implements Cloneable, IVariables, I
     this.overrideExistingProperties = overrideExistingProperties;
   }
 
-  /**
-   * No plugin, object factory or anything, just return the factory
-   *
-   * @param metaStore The metastore to use
-   * @return
-   */
-  @Override public MetaStoreFactory<SlaveServer> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<SlaveServer> createFactory( IMetaStore metaStore ) {
-    return new MetaStoreFactory<>( SlaveServer.class, metaStore );
-  }
 }

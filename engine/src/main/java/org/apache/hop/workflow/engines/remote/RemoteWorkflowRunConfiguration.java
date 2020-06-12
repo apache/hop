@@ -27,9 +27,8 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.empty.EmptyWorkflowRunConfiguration;
@@ -49,7 +48,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SlaveServer.Label"
   )
-  @MetaStoreAttribute( key = "slave_server" )
+  @HopMetadataProperty( key = "slave_server" )
   protected String slaveServerName;
 
   @GuiWidgetElement(
@@ -60,7 +59,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.RunConfiguration.Label"
   )
-  @MetaStoreAttribute( key = "safe_mode" )
+  @HopMetadataProperty( key = "safe_mode" )
   protected String runConfigurationName;
 
   @GuiWidgetElement(
@@ -70,7 +69,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.ServerPollDelay.Label"
   )
-  @MetaStoreAttribute( key = "server_poll_delay" )
+  @HopMetadataProperty( key = "server_poll_delay" )
   protected String serverPollDelay;
 
   @GuiWidgetElement(
@@ -80,7 +79,7 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.ServerPollInterval.Label"
   )
-  @MetaStoreAttribute( key = "server_poll_interval" )
+  @HopMetadataProperty( key = "server_poll_interval" )
   protected String serverPollInterval;
 
 
@@ -96,26 +95,24 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     this.serverPollInterval = config.serverPollInterval;
   }
 
-  public List<String> getSlaveServerNames( ILogChannel log, IMetaStore metaStore ) {
+  public List<String> getSlaveServerNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
     List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
-      names.addAll( factory.getElementNames() );
+      names.addAll( metadataProvider.getSerializer( SlaveServer.class ).listObjectNames() );
       Collections.sort( names );
     } catch ( Exception e ) {
-      log.logError( "Error getting slave server names from the metastore", e );
+      log.logError( "Error getting slave server names from the metadata", e );
     }
     return names;
   }
 
-  public List<String> getRunConfigurationNames( ILogChannel log, IMetaStore metaStore ) {
+  public List<String> getRunConfigurationNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
     List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore );
-      names.addAll( factory.getElementNames() );
+      names.addAll( metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames() );
       Collections.sort( names );
     } catch ( Exception e ) {
-      log.logError( "Error getting the workflow run configuration names from the metastore", e );
+      log.logError( "Error getting the workflow run configuration names from the metadata", e );
     }
     return names;
   }

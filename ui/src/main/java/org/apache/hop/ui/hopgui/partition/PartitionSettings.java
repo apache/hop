@@ -30,7 +30,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.ui.core.metastore.MetaStoreManager;
+import org.apache.hop.ui.core.metastore.MetadataManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,12 +42,12 @@ public class PartitionSettings {
 
   private final TransformMeta transformMeta;
   private final PipelineMeta pipelineMeta;
-  private final MetaStoreManager<PartitionSchema> schemaManager;
+  private final MetadataManager<PartitionSchema> schemaManager;
   private final String[] options;
   private final String[] codes;
   private final TransformMeta before;
 
-  public PartitionSettings( int exactSize, PipelineMeta pipelineMeta, TransformMeta transformMeta, MetaStoreManager<PartitionSchema> schemaManager ) {
+  public PartitionSettings( int exactSize, PipelineMeta pipelineMeta, TransformMeta transformMeta, MetadataManager<PartitionSchema> schemaManager ) {
     this.pipelineMeta = pipelineMeta;
     this.transformMeta = transformMeta;
     this.schemaManager = schemaManager;
@@ -127,7 +127,7 @@ public class PartitionSettings {
 
   public List<PartitionSchema> getSchemas() {
     try {
-      return schemaManager.getFactory().getElements();
+      return schemaManager.getSerializer().loadAll();
     } catch ( Exception e ) {
       e.printStackTrace( System.out ); // TODO: properly throw exception, don't eat exception like this!!!
       return Collections.emptyList();

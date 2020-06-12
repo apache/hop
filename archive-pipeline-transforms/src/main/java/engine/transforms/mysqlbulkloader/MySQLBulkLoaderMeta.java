@@ -44,7 +44,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -182,7 +182,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
   @Injection( name = "BULK_SIZE" )
   private String bulkSize;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * @return Returns the database.
@@ -240,8 +240,8 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     this.fieldStream = fieldStream;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrvalues ) {
@@ -262,11 +262,11 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
 
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tableName = XmlHandler.getTagValue( transformNode, "table" );
@@ -351,13 +351,13 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
   }
 
   public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -489,7 +489,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
   }
 
   public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) throws HopTransformException {
+                                        IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -545,7 +545,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write

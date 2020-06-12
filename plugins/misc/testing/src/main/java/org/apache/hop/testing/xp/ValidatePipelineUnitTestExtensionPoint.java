@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -27,7 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -66,15 +66,15 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
     }
 
     try {
-      IMetaStore metaStore = pipelineMeta.getMetaStore();
+      IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();
 
-      if ( metaStore == null ) {
+      if ( metadataProvider == null ) {
         return; // Nothing to do here, we can't reference data sets.
       }
 
       // If the pipeline has a variable set with the unit test in it, we're dealing with a unit test situation.
       //
-      PipelineUnitTest unitTest = PipelineUnitTest.createFactory( metaStore ).loadElement( unitTestName );
+      PipelineUnitTest unitTest = metadataProvider.getSerializer( PipelineUnitTest.class).load( unitTestName );
       unitTest.initializeVariablesFrom( pipelineMeta );
 
       final List<UnitTestResult> results = new ArrayList<UnitTestResult>();
@@ -82,7 +82,7 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
 
       // Validate execution results with what's in the data sets...
       //
-      int errors = DataSetConst.validateTransResultAgainstUnitTest( pipeline, unitTest, metaStore, results );
+      int errors = DataSetConst.validateTransResultAgainstUnitTest( pipeline, unitTest, metadataProvider, results );
       if ( errors == 0 ) {
         log.logBasic( "Unit test '" + unitTest.getName() + "' passed succesfully" );
       } else {

@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
@@ -44,7 +44,7 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SafeModeEnabled.Label"
   )
-  @MetaStoreAttribute(key="safe_mode")
+  @HopMetadataProperty(key="safe_mode")
   protected boolean safeModeEnabled;
 
   public LocalWorkflowRunConfiguration() {

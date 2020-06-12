@@ -40,11 +40,11 @@ public class DatabaseDialog extends DatabaseMetaDialog {
   private static Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
 
   public DatabaseDialog( Shell parent ) {
-    super( parent, HopGui.getInstance().getMetaStore(), new DatabaseMeta() );
+    super( parent, HopGui.getInstance().getMetadataProvider(), new DatabaseMeta() );
   }
 
   public DatabaseDialog( Shell parent, DatabaseMeta databaseMeta ) {
-    super( parent, HopGui.getInstance().getMetaStore(), databaseMeta );
+    super( parent, HopGui.getInstance().getMetadataProvider(), databaseMeta );
   }
 
   public String open() {

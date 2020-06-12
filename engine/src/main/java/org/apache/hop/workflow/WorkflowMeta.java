@@ -62,7 +62,7 @@ import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceExport;
 import org.apache.hop.resource.IResourceNaming;
@@ -498,12 +498,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @param parentSpace
    * @param fname
-   * @param metaStore
+   * @param metadataProvider
    * @throws HopXmlException
    */
-  public WorkflowMeta( IVariables parentSpace, String fname, IMetaStore metaStore ) throws HopXmlException {
+  public WorkflowMeta( IVariables parentSpace, String fname, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this.initializeVariablesFrom( parentSpace );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     try {
       // OK, try to load using the VFS stuff...
       Document doc = XmlHandler.loadXmlFile( HopVfs.getFileObject( fname, this ) );
@@ -511,7 +511,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG );
 
-        loadXml( workflowNode, fname, metaStore );
+        loadXml( workflowNode, fname, metadataProvider );
       } else {
         throw new HopXmlException(
           BaseMessages.getString( PKG, "WorkflowMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
@@ -528,9 +528,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param inputStream the input stream
    * @throws HopXmlException the hop xml exception
    */
-  public WorkflowMeta( InputStream inputStream, IMetaStore metaStore ) throws HopXmlException {
+  public WorkflowMeta( InputStream inputStream, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this();
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
     Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
     loadXml( subNode, null );
@@ -542,10 +542,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param workflowNode The node to load from
    * @throws HopXmlException
    */
-  public WorkflowMeta( Node workflowNode, IMetaStore metaStore ) throws HopXmlException {
+  public WorkflowMeta( Node workflowNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this();
-    this.metaStore = metaStore;
-    loadXml( workflowNode, null, metaStore );
+    this.metadataProvider = metadataProvider;
+    loadXml( workflowNode, null, metadataProvider );
   }
 
 
@@ -558,7 +558,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public void loadXml( Node workflowNode, String fname )
     throws HopXmlException {
-    loadXml( workflowNode, fname, metaStore );
+    loadXml( workflowNode, fname, metadataProvider );
   }
 
   /**
@@ -566,10 +566,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @param workflowNode   The node to load from
    * @param filename     The filename
-   * @param metaStore the MetaStore to use
+   * @param metadataProvider the MetaStore to use
    * @throws HopXmlException
    */
-  public void loadXml( Node workflowNode, String filename, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node workflowNode, String filename, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       // clear the workflows;
       clear();
@@ -629,7 +629,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       Node actionsNode = XmlHandler.getSubNode( workflowNode, "actions" );
       List<Node> actionNodes = XmlHandler.getNodes( actionsNode, ActionCopy.XML_TAG );
       for ( Node actionNode : actionNodes ) {
-        ActionCopy ac = new ActionCopy( actionNode, metaStore );
+        ActionCopy ac = new ActionCopy( actionNode, metadataProvider );
 
         if ( ac.isSpecial() && ac.isMissing() ) {
           addMissingAction( (MissingAction) ac.getAction() );
@@ -1560,7 +1560,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @return An ArrayList of SqlStatement objects.
    */
-  public List<SqlStatement> getSqlStatements( IMetaStore metaStore,
+  public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider,
                                               IProgressMonitor monitor ) throws HopException {
     if ( monitor != null ) {
       monitor
@@ -1573,7 +1573,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       if ( monitor != null ) {
         monitor.subTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLForActionCopy" ) + copy + "]" );
       }
-      stats.addAll( copy.getAction().getSqlStatements( metaStore, this ) );
+      stats.addAll( copy.getAction().getSqlStatements( metadataProvider, this ) );
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
@@ -1872,7 +1872,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param monitor       Progress monitor (not presently in use)
    */
   public void checkActions( List<ICheckResult> remarks, boolean only_selected,
-                            IProgressMonitor monitor, IVariables variables, IMetaStore metaStore ) {
+                            IProgressMonitor monitor, IVariables variables, IHopMetadataProvider metadataProvider ) {
     remarks.clear(); // Empty remarks
     if ( monitor != null ) {
       monitor.beginTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.VerifyingThisActionTask.Title" ),
@@ -1888,7 +1888,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
             monitor
               .subTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.VerifyingAction.Title", action.getName() ) );
           }
-          action.check( remarks, this, variables, metaStore );
+          action.check( remarks, this, variables, metadataProvider );
           if ( monitor != null ) {
             monitor.worked( 1 ); // progress bar...
             if ( monitor.isCanceled() ) {
@@ -1925,7 +1925,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     String resourceName = null;
     try {
       // Handle naming for XML bases resources...
@@ -1956,7 +1956,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
           // loop over transforms, databases will be exported to XML anyway.
           //
           for ( ActionCopy action : workflowMeta.actionCopies ) {
-            action.getAction().exportResources( workflowMeta, definitions, namingInterface, metaStore );
+            action.getAction().exportResources( workflowMeta, definitions, namingInterface, metadataProvider );
           }
 
           // Set a number of parameters for all the data files referenced so far...

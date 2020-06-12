@@ -183,7 +183,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
       data.inputRowMetaSize = data.inputRowMeta.size();
       if ( data.outputValue ) {
         data.outputRowMeta = data.inputRowMeta.clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
 
       // Cache the field name indexes

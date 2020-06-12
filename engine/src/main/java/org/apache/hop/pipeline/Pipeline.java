@@ -69,7 +69,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -184,7 +184,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   /**
    * The MetaStore to use
    */
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   /**
    * The workflow that's launching this pipeline. This gives us access to the whole chain, including the parent
@@ -534,7 +534,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
     this.pipelineMeta = pipelineMeta;
     this.containerObjectId = pipelineMeta.getContainerId();
-    this.metaStore = pipelineMeta.getMetaStore();
+    this.metadataProvider = pipelineMeta.getMetadataProvider();
 
     setParent( parent );
 
@@ -608,16 +608,16 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * @param parent    the parent variable space and named params
    * @param name      the name of the pipeline
    * @param filename  the filename containing the pipeline definition
-   * @param metaStore The MetaStore to use when referencing metadata objects
+   * @param metadataProvider The MetaStore to use when referencing metadata objects
    * @throws HopException if any error occurs during loading, parsing, or creation of the pipeline
    */
-  public <Parent extends IVariables & INamedParams> Pipeline( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
+  public <Parent extends IVariables & INamedParams> Pipeline( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
     this();
 
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
 
     try {
-      pipelineMeta = new PipelineMeta( filename, metaStore, false, this );
+      pipelineMeta = new PipelineMeta( filename, metadataProvider, false, this );
 
       this.log = new LogChannel( pipelineMeta );
 
@@ -916,9 +916,9 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
           //
           transform.initializeVariablesFrom( this );
 
-          // Pass the metaStore to the transforms runtime
+          // Pass the metadataProvider to the transforms runtime
           //
-          transform.setMetaStore( metaStore );
+          transform.setMetadataProvider( metadataProvider );
 
           // If the transform is partitioned, set the partitioning ID and some other
           // things as well...
@@ -3122,14 +3122,14 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     }
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
     if ( pipelineMeta != null ) {
-      pipelineMeta.setMetaStore( metaStore );
+      pipelineMeta.setMetadataProvider( metadataProvider );
     }
   }
 

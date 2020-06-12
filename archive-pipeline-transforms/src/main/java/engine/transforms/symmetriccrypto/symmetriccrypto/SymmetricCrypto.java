@@ -73,7 +73,7 @@ public class SymmetricCrypto extends BaseTransform implements ITransform {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Let's check that Result Field is given
       if ( Utils.isEmpty( meta.getResultfieldname() ) ) {

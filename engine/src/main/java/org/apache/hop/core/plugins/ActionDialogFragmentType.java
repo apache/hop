@@ -27,7 +27,6 @@ import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.workflow.action.IActionDialog;
 
-import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.List;
 
@@ -36,7 +35,7 @@ import java.util.List;
  */
 @PluginMainClassType( IActionDialog.class )
 @PluginAnnotationType( PluginDialog.class )
-public class ActionDialogFragmentType extends BaseFragmentType implements IPluginType {
+public class ActionDialogFragmentType extends BaseFragmentType<PluginDialog> implements IPluginType<PluginDialog> {
 
   private static ActionDialogFragmentType actionDialogFragmentType;
 
@@ -52,37 +51,37 @@ public class ActionDialogFragmentType extends BaseFragmentType implements IPlugi
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (PluginDialog) annotation ).id();
+  protected String extractID( PluginDialog annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
-    return ( (PluginDialog) annotation ).image();
+  protected String extractImageFile( PluginDialog annotation ) {
+    return annotation.image();
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
-    return Const.getDocUrl( ( (PluginDialog) annotation ).documentationUrl() );
+  protected String extractDocumentationUrl( PluginDialog annotation ) {
+    return Const.getDocUrl( annotation.documentationUrl() );
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
-    return ( (PluginDialog) annotation ).casesUrl();
+  protected String extractCasesUrl( PluginDialog annotation ) {
+    return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
-    return ( (PluginDialog) annotation ).forumUrl();
+  protected String extractForumUrl( PluginDialog annotation ) {
+    return annotation.forumUrl();
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( PluginDialog annotation ) {
     return null;
   }
 
   @Override
-  public void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
+  public void handlePluginAnnotation( Class<?> clazz, PluginDialog annotation,
                                       List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
     if ( ( (PluginDialog) annotation ).pluginType() == PluginDialog.PluginType.ACTION ) {
       super.handlePluginAnnotation( clazz, annotation, libraries, nativePluginType, pluginFolder );

@@ -172,7 +172,7 @@ public class HopGuiWorkflowActionDelegate {
       Class<IActionDialog> dialogClass = registry.getClass( plugin, dialogClassName );
       Constructor<IActionDialog> dialogConstructor = dialogClass.getConstructor( paramClasses );
       IActionDialog entryDialogInterface = dialogConstructor.newInstance( paramArgs );
-      entryDialogInterface.setMetaStore( hopGui.getMetaStore() );
+      entryDialogInterface.setMetadataProvider( hopGui.getMetadataProvider() );
       return entryDialogInterface;
     } catch ( Throwable t ) {
       t.printStackTrace();

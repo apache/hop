@@ -62,7 +62,7 @@ public class TransformWithMappingMetaTest {
 
   @Test
   @PrepareForTest( TransformWithMappingMeta.class )
-  @Ignore // TODO: move database connections out of .hpls and into a memory metastore if needed
+  @Ignore // TODO: move database connections out of .hpls and into a memory metadata if needed
   public void loadMappingMetaTest_PathShouldBeTakenFromParentPipeline() throws Exception {
 
     String fileName = "subpipeline-executor-sub.hpl";

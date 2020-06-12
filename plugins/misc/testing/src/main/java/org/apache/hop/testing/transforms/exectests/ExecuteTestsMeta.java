@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -71,7 +71,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables variables, IMetaStore metaStore ) {
+                                   IVariables variables, IHopMetadataProvider metadataProvider ) {
     IRowMeta rowMeta = UnitTestResult.getRowMeta();
     int index = 0;
     rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( pipelineNameField ) );
@@ -101,7 +101,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
       testNameInputField = XmlHandler.getTagValue( transformNode, TAG_TEST_NAME_INPUT_FIELD );

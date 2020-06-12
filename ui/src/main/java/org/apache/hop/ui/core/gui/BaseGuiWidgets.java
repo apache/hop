@@ -4,11 +4,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Widget;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -36,7 +34,7 @@ public class BaseGuiWidgets {
       Method method;
       boolean withArguments = true;
       try {
-        method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod(), ILogChannel.class, IMetaStore.class );
+        method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod(), ILogChannel.class, IHopMetadataProvider.class );
       } catch(NoSuchMethodException nsme) {
         // Try to find the method without arguments...
         //
@@ -49,7 +47,7 @@ public class BaseGuiWidgets {
       }
       List<String> values;
       if (withArguments) {
-        values =  (List<String>) method.invoke( singleton, LogChannel.UI, HopGui.getInstance().getMetaStore() );
+        values =  (List<String>) method.invoke( singleton, LogChannel.UI, HopGui.getInstance().getMetadataProvider() );
       } else {
         values =  (List<String>) method.invoke( singleton  );
       }

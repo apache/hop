@@ -28,14 +28,18 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +98,7 @@ public class RowGeneratorUnitTest {
   @Ignore
   @Test
   public void doesNotWriteRowOnTimeWhenStopped() throws HopException, InterruptedException {
-    PipelineMeta pipelineMeta = new PipelineMeta( getClass().getResource( "safe-stop.hpl" ).getPath(), new MemoryMetaStore(), true, Variables.getADefaultVariableSpace() );
+    PipelineMeta pipelineMeta = new PipelineMeta( getClass().getResource( "safe-stop.hpl" ).getPath(), new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace() );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
     pipeline.prepareExecution();
     pipeline.getTransforms().get( 1 ).transform.addRowListener( new RowAdapter() {

@@ -23,7 +23,11 @@
 package org.apache.hop.pipeline.config;
 
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 
+@HopMetadataObject(
+  objectFactory = PipelineRunConfigurationMetadataObjectFactory.class
+)
 public interface IPipelineEngineRunConfiguration extends Cloneable, IVariables {
 
   IPipelineEngineRunConfiguration clone();

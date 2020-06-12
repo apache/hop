@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -141,14 +141,14 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     fieldsOut = new ArrayList<WebServiceField>();
   }
 
-  public WebServiceMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public WebServiceMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this();
-    loadXml( transformNode, metaStore );
+    loadXml( transformNode, metadataProvider );
   }
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Input rows and output rows are different in the webservice transform
     //
     if ( !isPassingInputData() ) {
@@ -195,7 +195,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -277,7 +277,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     // Load the URL
     //
     setUrl( XmlHandler.getTagValue( transformNode, "wsURL" ) );

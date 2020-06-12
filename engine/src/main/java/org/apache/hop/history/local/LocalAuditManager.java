@@ -45,7 +45,7 @@ import java.util.List;
  * The local audit manager stores its history in the hop home directory (~/.hop) under the history folder
  * So : $HOME/.hop/history
  * <p>
- * It will be done using a new metastore.
+ * It will be done using a new metadata.
  * - Event groups are mapped to namespaces
  * -
  */

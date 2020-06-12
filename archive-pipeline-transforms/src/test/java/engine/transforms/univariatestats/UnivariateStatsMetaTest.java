@@ -32,7 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -106,7 +106,7 @@ public class UnivariateStatsMetaTest {
     String legacyXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/legacyUnivariateStatsMetaTest.xml") );
-    IMetaStore mockMetaStore = mock( IMetaStore.class );
+    IMetaStore mockMetaStore = mock( IHopMetadataProvider.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     meta.loadXml( XmlHandler.loadXmlString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );

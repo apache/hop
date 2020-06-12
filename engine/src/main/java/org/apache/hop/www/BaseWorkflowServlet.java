@@ -32,8 +32,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -54,10 +53,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 8523062215275251356L;
 
-  protected IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowConfiguration workflowConfiguration ) throws HopException, MetaStoreException, ParseException {
+  protected IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowConfiguration workflowConfiguration ) throws HopException, HopException, ParseException {
     WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
 
-    IMetaStore metaStore = workflowConfiguration.getMetaStore();
+    IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
     workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
@@ -70,11 +69,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the workflow and store in the list...
     //
     String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
+    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
 
     // Setting variables
     workflow.initializeVariablesFrom( null );
-    workflow.getWorkflowMeta().setMetaStore( metaStore );
+    workflow.getWorkflowMeta().setMetadataProvider( metadataProvider );
     workflow.getWorkflowMeta().setInternalHopVariables( workflow );
     workflow.injectVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
 
@@ -93,13 +92,13 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     return workflow;
   }
 
-  protected IPipelineEngine<PipelineMeta> createPipeline( PipelineConfiguration pipelineConfiguration ) throws HopException, MetaStoreException, ParseException {
+  protected IPipelineEngine<PipelineMeta> createPipeline( PipelineConfiguration pipelineConfiguration ) throws HopException, HopException, ParseException {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
     pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
     pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
 
-    IMetaStore metaStore = pipelineConfiguration.getMetaStore();
+    IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
 
     // Also copy the parameters over...
     copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParametersMap() );
@@ -110,9 +109,9 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the pipeline and store in the list...
     //
     String runConfigurationName = pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
-    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
+    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
     pipeline.setParent( servletLoggingObject );
-    pipeline.setMetaStore( metaStore );
+    pipeline.setMetadataProvider( metadataProvider );
 
     if ( pipelineExecutionConfiguration.isSetLogfile() ) {
       String realLogFilename = pipelineExecutionConfiguration.getLogFileName();

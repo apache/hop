@@ -56,29 +56,6 @@
     <description>Job Graph Log Delegate</description>
   </gui-plugin>
 
-  <!-- metastore elements to pop up in the GUI -->
-  <gui-plugin>
-    <classname>org.apache.hop.ui.core.database.DatabaseMetaGuiPlugin</classname>
-    <description>Database connection metadata</description>
-  </gui-plugin>
-  <gui-plugin>
-    <classname>org.apache.hop.ui.cluster.SlaveServerGuiPlugin</classname>
-    <description>Slave server metadata</description>
-  </gui-plugin>
-  <gui-plugin>
-    <classname>org.apache.hop.ui.partition.PartitionSchemaGuiPlugin</classname>
-    <description>Partition schema metadata</description>
-  </gui-plugin>
-  <gui-plugin>
-    <classname>org.apache.hop.ui.pipeline.config.PipelineRunConfigurationGuiPlugin</classname>
-    <description>Pipeline Run Configuration</description>
-  </gui-plugin>
-  <gui-plugin>
-    <classname>org.apache.hop.ui.workflow.config.WorkflowRunConfigurationGuiPlugin</classname>
-    <description>Workflow Run Configuration</description>
-  </gui-plugin>
-
-
   <!-- Pipeline Engine Run Configuration GUI Plugins -->
   <gui-plugin>
     <classname>org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration</classname>

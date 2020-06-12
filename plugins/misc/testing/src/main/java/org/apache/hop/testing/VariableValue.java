@@ -1,12 +1,12 @@
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class VariableValue {
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String key;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String value;
 
   public VariableValue() {

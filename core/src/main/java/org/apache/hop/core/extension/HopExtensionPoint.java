@@ -110,9 +110,9 @@ public enum HopExtensionPoint {
   HopGuiNewPipelineTab( "Determine the tab name of a Pipeline (HopGuiPipelineGraph)" ),
   HopGuiNewJobTab( "Determine the tab name of a workflow (HopGuiJobGraph)" ),
 
-  HopGuiMetaStoreElementCreated("A new metastore element is created"),
-  HopGuiMetaStoreElementUpdated("A metastore element is updated"),
-  HopGuiMetaStoreElementDeleted("A metastore element is deleted"),
+  HopGuiMetadataObjectCreated("A new metadata object is created"),
+  HopGuiMetadataObjectUpdated("A metadata object is updated"),
+  HopGuiMetadataObjectDeleted("A metadata object is deleted"),
 
   HopRunInit( "At the start of the HopRun command line, before initialization" ),
   HopRunCalculateFilename( "Right after the filename is determined, before it is used in any way" ),

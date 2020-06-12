@@ -199,7 +199,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             if (inputPipelineMeta == null) {
                 ActionPipeline jet = new ActionPipeline();
                 getInfo(jet);
-                inputPipelineMeta = jet.getPipelineMeta(metaStore, workflowMeta);
+                inputPipelineMeta = jet.getPipelineMeta(metadataProvider, workflowMeta);
             }
             String[] parameters = inputPipelineMeta.listParameters();
 
@@ -289,7 +289,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         }
 
         try {
-            List<String> runConfigurations = PipelineRunConfiguration.createFactory(metaStore).getElementNames();
+            List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class).listObjectNames();
 
             try {
                 ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});

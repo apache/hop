@@ -13,7 +13,7 @@ public class BasePipelineTest extends PipelineTestBase {
       "io-dummy-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     createRunPipeline( pipelineMeta );

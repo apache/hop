@@ -24,7 +24,7 @@ package org.apache.hop.core.util.serialization;
 
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -49,7 +49,7 @@ public abstract class BaseSerializingMeta<Main extends ITransform, Data extends 
   }
 
   @Override public void loadXml(
-    Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+    Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     deserialize( transformNode ).to( this );
   }
 

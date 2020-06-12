@@ -41,7 +41,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.resource.ResourceDefinition;
@@ -203,9 +203,9 @@ public class TransformMeta implements
    * Read the transform data from XML
    *
    * @param transformNode  The XML transform node.
-   * @param metaStore The IMetaStore.
+   * @param metadataProvider The IMetaStore.
    */
-  public TransformMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException,
+  public TransformMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException,
     HopPluginLoaderException {
     this();
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -230,7 +230,7 @@ public class TransformMeta implements
 
         // Load the specifics from XML...
         if ( transform != null ) {
-          transform.loadXml( transformNode, metaStore );
+          transform.loadXml( transformNode, metadataProvider );
         }
 
         /* Handle info general to all transform types... */
@@ -274,14 +274,14 @@ public class TransformMeta implements
         // The partitioning information?
         //
         Node partNode = XmlHandler.getSubNode( transformNode, "partitioning" );
-        transformPartitioningMeta = new TransformPartitioningMeta( partNode, metaStore );
+        transformPartitioningMeta = new TransformPartitioningMeta( partNode, metadataProvider );
 
         // Target partitioning information?
         //
         Node targetPartNode = XmlHandler.getSubNode( transformNode, "target_transform_partitioning" );
         partNode = XmlHandler.getSubNode( targetPartNode, "partitioning" );
         if ( partNode != null ) {
-          targetTransformPartitioningMeta = new TransformPartitioningMeta( partNode, metaStore );
+          targetTransformPartitioningMeta = new TransformPartitioningMeta( partNode, metadataProvider );
         }
       }
     } catch ( HopPluginLoaderException e ) {
@@ -542,8 +542,8 @@ public class TransformMeta implements
 
   @SuppressWarnings( "deprecation" )
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, IRowMeta prev, String[] input,
-                     String[] output, IRowMeta info, IVariables variables, IMetaStore metaStore ) {
-    transform.check( remarks, pipelineMeta, this, prev, input, output, info, variables, metaStore );
+                     String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
+    transform.check( remarks, pipelineMeta, this, prev, input, output, info, variables, metadataProvider );
   }
 
   @Override
@@ -699,12 +699,12 @@ public class TransformMeta implements
   @Override
   @SuppressWarnings( "deprecation" )
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore )
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider )
     throws HopException {
 
     // Compatibility with previous release...
     //
-    String resources = transform.exportResources( variables, definitions, iResourceNaming, metaStore );
+    String resources = transform.exportResources( variables, definitions, iResourceNaming, metadataProvider );
     if ( resources != null ) {
       return resources;
     }
@@ -713,7 +713,7 @@ public class TransformMeta implements
     // These can in turn add anything to the map in terms of resources, etc.
     // Even reference files, etc. For now it's just XML probably...
     //
-    return transform.exportResources( variables, definitions, iResourceNaming, metaStore );
+    return transform.exportResources( variables, definitions, iResourceNaming, metadataProvider );
   }
 
   /**

@@ -68,7 +68,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
       data.inputRowMeta = getInputRowMeta().clone();
       data.compareRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.previous = data.inputRowMeta.cloneRow( r ); // copy the row
 

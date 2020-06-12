@@ -28,22 +28,22 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -84,12 +84,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Don't move this class around as it's sync'ed with the DatabaseMeta package to find the dialog.
  *
  */
-public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
+public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
   private DatabaseMeta databaseMeta;
   private DatabaseMeta workingMeta;
 
@@ -139,20 +139,20 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private Map<Class<? extends IDatabase>, IDatabase> metaMap;
 
   /**
-   * @param parent       The parent shell
-   * @param metaStore    metaStore
-   * @param databaseMeta The object to edit
+   * @param parent           The parent shell
+   * @param metadataProvider metadataProvider
+   * @param databaseMeta     The object to edit
    */
-  public DatabaseMetaDialog( Shell parent, IMetaStore metaStore, DatabaseMeta databaseMeta ) {
+  public DatabaseMetaDialog( Shell parent, IHopMetadataProvider metadataProvider, DatabaseMeta databaseMeta ) {
     super( parent, SWT.NONE );
     this.parent = parent;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.databaseMeta = databaseMeta;
     this.workingMeta = new DatabaseMeta( databaseMeta );
     this.workingMeta.initializeVariablesFrom( this.databaseMeta );
     props = PropsUi.getInstance();
     metaMap = populateMetaMap();
-    metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
+    metaMap.put( workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase() );
     returnValue = null;
   }
 
@@ -162,13 +162,13 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     for ( IPlugin plugin : plugins ) {
       try {
         IDatabase iDatabase = PluginRegistry.getInstance().loadClass( plugin, IDatabase.class );
-        if (iDatabase.getDefaultDatabasePort()>0) {
-          iDatabase.setPort(Integer.toString( iDatabase.getDefaultDatabasePort() ));
+        if ( iDatabase.getDefaultDatabasePort() > 0 ) {
+          iDatabase.setPort( Integer.toString( iDatabase.getDefaultDatabasePort() ) );
         }
         iDatabase.setPluginId( plugin.getIds()[ 0 ] );
         iDatabase.setPluginName( plugin.getName() );
 
-        metaMap.put(iDatabase.getClass(), iDatabase);
+        metaMap.put( iDatabase.getClass(), iDatabase );
       } catch ( Exception e ) {
         HopGui.getInstance().getLog().logError( "Error instantiating database metadata", e );
       }
@@ -290,6 +290,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     wlConnectionType.setLayoutData( fdlConnectionType );
     wConnectionType = new ComboVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wConnectionType );
+    wConnectionType.setEditable( true );
     wConnectionType.setItems( getConnectionTypes() );
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment( wlConnectionType, 0, SWT.CENTER );
@@ -432,10 +433,10 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private void addCompositeWidgetsUsernamePassword() {
     // Add username and password to the mix so folks can enable/disable those
     //
-    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_LABEL, wlUsername);
-    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_WIDGET, wUsername);
-    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_LABEL, wlPassword);
-    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_WIDGET, wPassword);
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_LABEL, wlUsername );
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_USERNAME_WIDGET, wUsername );
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_LABEL, wlPassword );
+    guiCompositeWidgets.getWidgetsMap().put( BaseDatabaseMeta.ID_PASSWORD_WIDGET, wPassword );
   }
 
   private AtomicBoolean busyChangingConnectionType = new AtomicBoolean( false );
@@ -452,7 +453,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     getInfo( workingMeta );
 
     // Save the state of this type so we can switch back and forth
-    metaMap.put(workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase());
+    metaMap.put( workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase() );
 
     // Now change the data type
     //
@@ -746,7 +747,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private void test( Event event ) {
     DatabaseMeta meta = new DatabaseMeta();
     meta.initializeVariablesFrom( this.databaseMeta );
-    getInfo(meta);
+    getInfo( meta );
     testConnection( shell, meta );
   }
 
@@ -765,7 +766,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     guiCompositeWidgets.setWidgetsContents( workingMeta.getIDatabase(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
     // System.out.println( "---- widgets populated for class: " + workingMeta.getIDatabase().getClass().getName() );
 
-    wManualUrl.setText( Const.NVL(workingMeta.getManualUrl(), "") );
+    wManualUrl.setText( Const.NVL( workingMeta.getManualUrl(), "" ) );
     wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
     wSupportsTimestamp.setSelection( workingMeta.supportsTimestampDataType() );
     wQuoteAll.setSelection( workingMeta.isQuoteAllFields() );
@@ -795,8 +796,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
   private DatabaseMeta getInfo( DatabaseMeta meta ) {
 
     meta.setName( wName.getText() );
-    meta.setDatabaseType(wConnectionType.getText() );
-    
+    meta.setDatabaseType( wConnectionType.getText() );
+
     // Get the database specific information
     //
     guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
@@ -871,7 +872,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetaStoreDialog {
     for ( int i = 0; i < types.length; i++ ) {
       types[ i ] = plugins.get( i ).getName();
     }
-    Arrays.sort( types, String.CASE_INSENSITIVE_ORDER);
+    Arrays.sort( types, String.CASE_INSENSITIVE_ORDER );
     return types;
   }
 

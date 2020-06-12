@@ -57,7 +57,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
       data.outputRowMeta = rowMeta.clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(), }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(), }, null, this, metadataProvider );
 
       data.lookupRowMeta = new RowMeta();
 

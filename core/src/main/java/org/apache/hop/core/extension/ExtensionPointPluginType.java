@@ -24,11 +24,10 @@ package org.apache.hop.core.extension;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.IPluginType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IExtensionPoint.class )
 @PluginAnnotationType( ExtensionPoint.class )
-public class ExtensionPointPluginType extends BasePluginType implements IPluginType {
+public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> implements IPluginType<ExtensionPoint> {
   private static ExtensionPointPluginType pluginType;
 
   private ExtensionPointPluginType() {
@@ -76,66 +75,66 @@ public class ExtensionPointPluginType extends BasePluginType implements IPluginT
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( ExtensionPoint annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (ExtensionPoint) annotation ).description();
+  protected String extractDesc( ExtensionPoint annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (ExtensionPoint) annotation ).id();
+  protected String extractID( ExtensionPoint annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (ExtensionPoint) annotation ).extensionPointId();
+  protected String extractName( ExtensionPoint annotation ) {
+    return annotation.extensionPointId();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( ExtensionPoint annotation ) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( ExtensionPoint annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( ExtensionPoint annotation ) {
     return null;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, ExtensionPoint annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( ExtensionPoint annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( ExtensionPoint annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( ExtensionPoint annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (ExtensionPoint) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( ExtensionPoint annotation ) {
+    return annotation.classLoaderGroup();
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( ExtensionPoint annotation ) {
     return null;
   }
 }

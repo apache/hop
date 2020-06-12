@@ -42,7 +42,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -113,7 +113,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       sql = XmlHandler.getTagValue( entrynode, "sql" );
@@ -123,7 +123,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
       if ( sSubs != null && sSubs.equalsIgnoreCase( "T" ) ) {
         useVariableSubstitution = true;
       }
-      connection = DatabaseMeta.loadDatabase( metaStore, dbname );
+      connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
 
       String ssql = XmlHandler.getTagValue( entrynode, "sqlfromfile" );
       if ( ssql != null && ssql.equalsIgnoreCase( "T" ) ) {
@@ -311,7 +311,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ActionValidatorUtils.andValidator().validate( this, "SQL", remarks,
       AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
   }

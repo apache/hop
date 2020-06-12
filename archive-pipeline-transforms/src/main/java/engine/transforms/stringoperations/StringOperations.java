@@ -231,7 +231,7 @@ public class StringOperations extends BaseTransform implements ITransform {
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputFieldsNr = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       data.nrFieldsInStream = meta.getFieldInStream().length;
       data.inStreamNrs = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {

@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -78,8 +78,8 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void setUseVars( boolean usevar ) {
@@ -90,7 +90,7 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
     return usevar;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       usevar = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usevar" ) );
       Node fields = XmlHandler.getSubNode( transformNode, "fields" );
@@ -135,7 +135,7 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

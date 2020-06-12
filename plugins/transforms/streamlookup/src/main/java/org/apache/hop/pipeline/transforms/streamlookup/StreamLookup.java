@@ -428,7 +428,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
       }
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metaStore );
+      meta.getFields(data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metadataProvider );
 
       // Handle the NULL values (not found...)
       handleNullIf();

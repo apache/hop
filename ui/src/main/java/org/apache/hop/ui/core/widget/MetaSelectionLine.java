@@ -24,21 +24,15 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.metastore.MetaStoreManager;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.core.metastore.MetadataManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -50,9 +44,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,16 +58,16 @@ import java.util.List;
  * @author Matt
  * @since 2019-12-17
  */
-public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite {
+public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // i18n
   private final Button wManage;
   private final Button wNew;
   private final Button wEdit;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
   private IVariables variables;
   private ClassLoader classLoader;
-  private MetaStoreManager<T> manager;
+  private MetadataManager<T> manager;
 
   private Class<T> managedClass;
   private Composite parentComposite;
@@ -84,21 +76,21 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   private final ComboVar wCombo;
   private final boolean leftAlignedLabel;
 
-  public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
-    this(variables, metaStore, managedClass, parentComposite, flags, labelText, toolTipText, false);
+  public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
+    this(variables, metadataProvider, managedClass, parentComposite, flags, labelText, toolTipText, false);
   }
 
-  public MetaSelectionLine( IVariables variables, IMetaStore metaStore, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText, boolean leftAlignedLabel ) {
+  public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText, boolean leftAlignedLabel ) {
     super( parentComposite, SWT.NONE );
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
     this.parentComposite = parentComposite;
     this.props = PropsUi.getInstance();
     this.leftAlignedLabel = leftAlignedLabel;
 
-    this.manager = new MetaStoreManager<>( variables, metaStore, managedClass );
+    this.manager = new MetadataManager<>( variables, metadataProvider, managedClass );
 
     props.setLook( this );
 
@@ -191,8 +183,8 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     return manager.editMetadata( selected );
   }
 
-  private void openMetaDialog( T element, MetaStoreFactory<T> factory ) throws Exception {
-    if ( manager.openMetaDialog( element, factory ) ) {
+  private void openMetaDialog( T element, IHopMetadataSerializer<T> serializer ) throws Exception {
+    if ( manager.openMetaDialog( element, serializer ) ) {
       fillItems();
       wCombo.setText( element.getName() );
     }
@@ -205,19 +197,19 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
         fillItems();
         getComboWidget().setText(Const.NVL(element.getName(),""));
       } catch ( Exception e ) {
-        LogChannel.UI.logError( "Error updating list of element names from the metastore", e );
+        LogChannel.UI.logError( "Error updating list of element names from the metadata", e );
       }
     }
     return element;
   }
 
   /**
-   * Look up the element names from the metastore and populate the items in the combobox with it.
+   * Look up the object names from the metadata and populate the items in the combobox with it.
    *
-   * @throws MetaStoreException In case something went horribly wrong.
+   * @throws HopException In case something went horribly wrong.
    */
-  public void fillItems() throws MetaStoreException, InstantiationException, IllegalAccessException {
-    List<String> elementNames = manager.getFactory().getElementNames();
+  public void fillItems() throws HopException {
+    List<String> elementNames = manager.getSerializer().listObjectNames();
     Collections.sort( elementNames );
     wCombo.setItems( elementNames.toArray( new String[ 0 ] ) );
   }
@@ -254,7 +246,7 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
     try {
       fillItems();
     } catch ( Exception e ) {
-      LogChannel.UI.logError( "Error getting list of element names from the metastore", e );
+      LogChannel.UI.logError( "Error getting list of element names from the metadata", e );
     }
     if (lsMod!=null) {
       addModifyListener( lsMod );
@@ -356,19 +348,19 @@ public class MetaSelectionLine<T extends IHopMetaStoreElement> extends Composite
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**

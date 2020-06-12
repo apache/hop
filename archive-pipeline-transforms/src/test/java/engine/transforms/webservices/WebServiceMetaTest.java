@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.hamcrest.BaseMatcher;
@@ -69,7 +69,7 @@ public class WebServiceMetaTest {
   public void testLoadXml() throws Exception {
     Node node = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     WebServiceMeta webServiceMeta = new WebServiceMeta( node, metastore );
     assertEquals( "httpUser", webServiceMeta.getHttpLogin() );
     assertEquals( "tryandguess", webServiceMeta.getHttpPassword() );
@@ -111,7 +111,7 @@ public class WebServiceMetaTest {
     IRowMeta rmi = mock( IRowMeta.class );
     IRowMeta rmi2 = mock( IRowMeta.class );
     TransformMeta nextTransform = mock( TransformMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     WebServiceField field1 = new WebServiceField();
     field1.setName( "field1" );
     field1.setWsName( "field1WS" );
@@ -150,7 +150,7 @@ public class WebServiceMetaTest {
     TransformMeta transformMeta = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IRowMeta info = mock( IRowMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     String[] input = { "one" };
     ArrayList<CheckResultInterface> remarks = new ArrayList<>();
     webServiceMeta.check(
@@ -172,7 +172,7 @@ public class WebServiceMetaTest {
   @Test
   public void testGetFieldOut() throws Exception {
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     WebServiceMeta webServiceMeta = new WebServiceMeta( getTestNode(), metastore );
     assertNull( webServiceMeta.getFieldOutFromWsName( "", true ) );
     assertEquals(

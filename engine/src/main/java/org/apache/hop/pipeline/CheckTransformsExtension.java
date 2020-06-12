@@ -24,7 +24,7 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -34,19 +34,19 @@ public class CheckTransformsExtension {
   private final IVariables variables;
   private final PipelineMeta pipelineMeta;
   private final TransformMeta[] transformMetas;
-  private final IMetaStore metaStore;
+  private final IHopMetadataProvider metadataProvider;
 
   public CheckTransformsExtension(
     List<ICheckResult> remarks,
     IVariables variables,
     PipelineMeta pipelineMeta,
     TransformMeta[] transformMetas,
-    IMetaStore metaStore ) {
+    IHopMetadataProvider metadataProvider ) {
     this.remarks = remarks;
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.transformMetas = transformMetas;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
   }
 
   public List<ICheckResult> getRemarks() {
@@ -65,7 +65,7 @@ public class CheckTransformsExtension {
     return transformMetas;
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 }

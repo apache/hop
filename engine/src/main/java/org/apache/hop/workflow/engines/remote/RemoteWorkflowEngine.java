@@ -22,8 +22,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -70,13 +69,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected WorkflowRunConfiguration workflowRunConfiguration;
   protected Result previousResult;
   protected Result result;
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
   protected ILogChannel logChannel;
   protected LoggingObject loggingObject;
   protected LogLevel logLevel;
   protected long serverPollDelay;
   protected long serverPollInterval;
-  protected MetaStoreFactory<SlaveServer> slaveFactory;
   protected SlaveServer slaveServer;
   protected String containerId;
   protected int lastLogLineNr;
@@ -164,7 +162,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   public void setInternalHopVariables() {
-    if (workflowMeta==null) {
+    if ( workflowMeta == null ) {
       Workflow.setInternalHopVariables( this, null, null );
     } else {
       Workflow.setInternalHopVariables( this, workflowMeta.getFilename(), workflowMeta.getName() );
@@ -172,9 +170,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
 
-
   @Override public String getWorkflowName() {
-    return workflowMeta==null ? null : workflowMeta.getName();
+    return workflowMeta == null ? null : workflowMeta.getName();
   }
 
   @Override public Result startExecution() {
@@ -190,7 +187,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       workflowTracker = new WorkflowTracker( workflowMeta );
 
-      if (previousResult==null) {
+      if ( previousResult == null ) {
         result = new Result();
       } else {
         result = previousResult;
@@ -210,17 +207,16 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if ( StringUtils.isEmpty( remoteRunConfigurationName ) ) {
         throw new HopException( "No run configuration was specified to the remote workflow with" );
       }
-      if ( metaStore == null ) {
-        throw new HopException( "The remote workflow engine didn't receive a metastore to load slave server '" + slaveServerName + "'" );
+      if ( metadataProvider == null ) {
+        throw new HopException( "The remote workflow engine didn't receive a metadata to load slave server '" + slaveServerName + "'" );
       }
 
-      logChannel.logBasic("Executing this workflow using the Remote Workflow Engine with run configuration '"+workflowRunConfiguration.getName()+"'");
+      logChannel.logBasic( "Executing this workflow using the Remote Workflow Engine with run configuration '" + workflowRunConfiguration.getName() + "'" );
 
       serverPollDelay = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
       serverPollInterval = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
 
-      slaveFactory = SlaveServer.createFactory( metaStore );
-      slaveServer = slaveFactory.loadElement( slaveServerName );
+      slaveServer = metadataProvider.getSerializer( SlaveServer.class ).load( slaveServerName );
       if ( slaveServer == null ) {
         throw new HopException( "Slave server '" + slaveServerName + "' could not be found" );
       }
@@ -238,7 +234,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       // TODO: pass variables and source rows as well...
       //
 
-      sendToSlaveServer( workflowMeta, workflowExecutionConfiguration, metaStore );
+      sendToSlaveServer( workflowMeta, workflowExecutionConfiguration, metadataProvider );
       fireWorkflowStartedListeners();
 
       initialized = true;
@@ -249,12 +245,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       executionEndDate = new Date();
     } catch ( Exception e ) {
       logChannel.logError( "Error starting workflow", e );
-      result.setNrErrors( result.getNrErrors()+1 );
+      result.setNrErrors( result.getNrErrors() + 1 );
       try {
         fireWorkflowFinishListeners();
-      } catch(Exception ex) {
+      } catch ( Exception ex ) {
         logChannel.logError( "Error executing workflow finished listeners", ex );
-        result.setNrErrors( result.getNrErrors()+1 );
+        result.setNrErrors( result.getNrErrors() + 1 );
       }
     }
 
@@ -267,34 +263,34 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       //
       Thread.sleep( serverPollDelay );
 
-      while (!stopped && !finished) {
+      while ( !stopped && !finished ) {
         getWorkflowStatus();
         Thread.sleep( serverPollInterval );
       }
 
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       logChannel.logError( "Error monitoring remote workflow", e );
       result.setNrErrors( 1 );
     }
   }
 
   public synchronized void getWorkflowStatus() throws HopException {
-   try {
-     workflowStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
-     lastLogLineNr = workflowStatus.getLastLoggingLineNr();
-     if (StringUtils.isNotEmpty(workflowStatus.getLoggingString())) {
-       logChannel.logBasic( workflowStatus.getLoggingString() ); // TODO implement detailed logging and add option to log at all
-     }
-     finished = workflowStatus.isFinished();
-     stopped = workflowStatus.isStopped();
-     running = workflowStatus.isRunning();
-     active = running; // TODO: differentiate
-     statusDescription = workflowStatus.getStatusDescription();
+    try {
+      workflowStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
+      lastLogLineNr = workflowStatus.getLastLoggingLineNr();
+      if ( StringUtils.isNotEmpty( workflowStatus.getLoggingString() ) ) {
+        logChannel.logBasic( workflowStatus.getLoggingString() ); // TODO implement detailed logging and add option to log at all
+      }
+      finished = workflowStatus.isFinished();
+      stopped = workflowStatus.isStopped();
+      running = workflowStatus.isRunning();
+      active = running; // TODO: differentiate
+      statusDescription = workflowStatus.getStatusDescription();
 
-     result = workflowStatus.getResult();
-   } catch(Exception e) {
-     throw new HopException( "Error getting workflow status", e );
-   }
+      result = workflowStatus.getResult();
+    } catch ( Exception e ) {
+      throw new HopException( "Error getting workflow status", e );
+    }
   }
 
   @Override public void stopExecution() {
@@ -311,10 +307,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @param workflowMeta           the workflow meta
    * @param executionConfiguration the execution configuration
-   * @param metaStore              the metaStore
+   * @param metadataProvider       the metadataProvider
    * @throws HopException the hop exception
    */
-  public void sendToSlaveServer( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration, IMetaStore metaStore ) throws HopException {
+  public void sendToSlaveServer( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration, IHopMetadataProvider metadataProvider ) throws HopException {
 
     if ( slaveServer == null ) {
       throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.NoSlaveServerSpecified" ) );
@@ -337,8 +333,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
       // Overwrite with all the other variables we know off
       //
-      for (String var : listVariables()) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ));
+      for ( String var : listVariables() ) {
+        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
       }
 
       if ( executionConfiguration.isPassingExport() ) {
@@ -347,17 +343,17 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         FileObject tempFile = HopVfs.createTempFile( "workflowExport", ".zip", System.getProperty( "java.io.tmpdir" ), workflowMeta );
 
         TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
-            metaStore, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
+          metadataProvider, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the slave server...
         String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
         WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
-          throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR+ webResult.getMessage() );
+          throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR + webResult.getMessage() );
         }
         containerId = webResult.getId();
       } else {
-        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration, metaStore ).getXml();
+        String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration, metadataProvider ).getXml();
 
         String reply = slaveServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
@@ -415,9 +411,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   public void removeActionListener( IActionListener actionListener ) {
     actionListeners.remove( actionListener );
   }
-
-
-
 
 
   /**
@@ -690,19 +683,19 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**
@@ -783,22 +776,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    */
   public void setServerPollInterval( long serverPollInterval ) {
     this.serverPollInterval = serverPollInterval;
-  }
-
-  /**
-   * Gets slaveFactory
-   *
-   * @return value of slaveFactory
-   */
-  public MetaStoreFactory<SlaveServer> getSlaveFactory() {
-    return slaveFactory;
-  }
-
-  /**
-   * @param slaveFactory The slaveFactory to set
-   */
-  public void setSlaveFactory( MetaStoreFactory<SlaveServer> slaveFactory ) {
-    this.slaveFactory = slaveFactory;
   }
 
   /**

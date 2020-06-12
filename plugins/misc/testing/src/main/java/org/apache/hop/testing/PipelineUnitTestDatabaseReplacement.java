@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,7 +22,7 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
  * This class simply replaces all occurrences of a certain database connection with another one.
@@ -33,10 +33,10 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
  */
 public class PipelineUnitTestDatabaseReplacement {
 
-  @MetaStoreAttribute( key = "original_connection" )
+  @HopMetadataProperty( key = "original_connection" )
   private String originalDatabaseName;
 
-  @MetaStoreAttribute( key = "replacement_connection" )
+  @HopMetadataProperty( key = "replacement_connection" )
   private String replacementDatabaseName;
 
   public PipelineUnitTestDatabaseReplacement( String originalDatabaseName, String replacementDatabaseName ) {

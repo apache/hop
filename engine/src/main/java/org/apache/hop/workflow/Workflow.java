@@ -58,7 +58,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.Pipeline;
@@ -184,7 +184,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   protected AtomicInteger status;
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   /**
    * <p>
@@ -563,7 +563,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       // Execute this entry...
       IAction cloneJei = (IAction) action.clone();
       ( (IVariables) cloneJei ).copyVariablesFrom( this );
-      cloneJei.setMetaStore( metaStore );
+      cloneJei.setMetadataProvider( metadataProvider );
       cloneJei.setParentWorkflow( this );
       cloneJei.setParentWorkflowMeta( this.getWorkflowMeta() );
       final long start = System.currentTimeMillis();
@@ -1507,18 +1507,18 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  @Override public IMetaStore getMetaStore() {
-    return metaStore;
+  @Override public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  @Override public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 }

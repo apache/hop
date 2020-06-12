@@ -2,26 +2,27 @@ package org.apache.hop.workflow.config;
 
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
 
-@MetaStoreElementType(
+@HopMetadata(
+  key = "workflow-run-configuration",
   name = "Workflow Run Configuration",
-  description = "Describes how to execute a workflow"
+  description = "Describes how to execute a workflow",
+  iconImage = "ui/images/run.svg"
 )
-public class WorkflowRunConfiguration extends Variables implements Cloneable, IVariables, IHopMetaStoreElement<WorkflowRunConfiguration> {
+public class WorkflowRunConfiguration extends Variables implements Cloneable, IVariables, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "WorkflowRunConfiguration-PluginSpecific-Options";
 
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String description;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private IWorkflowEngineRunConfiguration engineRunConfiguration;
 
   private IVariables variables = new Variables();
@@ -46,16 +47,6 @@ public class WorkflowRunConfiguration extends Variables implements Cloneable, IV
 
   @Override protected WorkflowRunConfiguration clone() {
     return new WorkflowRunConfiguration( this );
-  }
-
-  @Override public MetaStoreFactory<WorkflowRunConfiguration> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<WorkflowRunConfiguration> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<WorkflowRunConfiguration> factory = new MetaStoreFactory<>( WorkflowRunConfiguration.class, metaStore );
-    factory.setObjectFactory( new WorkflowRunConfigurationMetaStoreObjectFactory() );
-    return factory;
   }
 
   /**

@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,14 +22,14 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PipelineUnitTestTweak {
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private PipelineTweak tweak;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String transformName;
 
   public PipelineUnitTestTweak() {

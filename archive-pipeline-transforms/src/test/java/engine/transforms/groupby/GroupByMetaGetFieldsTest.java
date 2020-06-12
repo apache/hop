@@ -29,7 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
 import org.junit.Before;
@@ -66,7 +66,7 @@ public class GroupByMetaGetFieldsTest {
   private IRowMeta[] mockInfo;
   private TransformMeta mockNextTransform;
   private iVariables mockSpace;
-  private IMetaStore mockIMetaStore;
+  private IHopMetadataProvider mockIHopMetadataProvider;
 
   @Before
   public void setup() throws HopPluginException {
@@ -100,7 +100,7 @@ public class GroupByMetaGetFieldsTest {
     groupByMeta.setAggregateField( new String[] { "maxDate" } );
     groupByMeta.setAggregateType( new int[] { TYPE_GROUP_MAX } );
 
-    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );
@@ -119,7 +119,7 @@ public class GroupByMetaGetFieldsTest {
     groupByMeta.setAggregateField( new String[] { "minDate" } );
     groupByMeta.setAggregateType( new int[] { TYPE_GROUP_MIN } );
 
-    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );
@@ -138,7 +138,7 @@ public class GroupByMetaGetFieldsTest {
     groupByMeta.setAggregateField( new String[] { "countDate" } );
     groupByMeta.setAggregateType( new int[] { TYPE_GROUP_COUNT_ANY } );
 
-    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    groupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );

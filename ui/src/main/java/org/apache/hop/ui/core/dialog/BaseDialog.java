@@ -222,7 +222,7 @@ public abstract class BaseDialog extends Dialog {
       }
 
       // Set the text box to the new selection
-      if ( directoryName != null ) {
+      if ( textVar!=null && directoryName != null ) {
         textVar.setText( directoryName );
       }
     }

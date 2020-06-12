@@ -41,7 +41,7 @@ public class AuthenticationPersistenceManager {
     AuthenticationManager manager = new AuthenticationManager();
     manager.registerAuthenticationProvider( new NoAuthenticationAuthenticationProvider() );
 
-    // TODO: Register providers from metastore
+    // TODO: Register providers from metadata
 
     for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( AuthenticationConsumerPluginType.class ) ) {
       try {
@@ -64,6 +64,6 @@ public class AuthenticationPersistenceManager {
   }
 
   public static void persistAuthenticationProvider( IAuthenticationProvider authenticationProvider ) {
-    // TODO: Persist to metastore
+    // TODO: Persist to metadata
   }
 }

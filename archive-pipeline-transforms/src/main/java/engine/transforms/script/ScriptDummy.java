@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
 import org.apache.hop.pipeline.transform.RowListener;
@@ -394,13 +394,13 @@ public class ScriptDummy implements ITransform {
   }
 
   @Override
-  public void setMetaStore( IMetaStore metaStore ) {
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public IMetaStore getMetaStore() {
+  public IHopMetadataProvider getMetadataProvider() {
     // TODO Auto-generated method stub
     return null;
   }

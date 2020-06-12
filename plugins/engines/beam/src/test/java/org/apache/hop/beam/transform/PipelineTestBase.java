@@ -14,6 +14,7 @@ import org.apache.hop.beam.engines.direct.BeamDirectPipelineEngine;
 import org.apache.hop.beam.engines.direct.BeamDirectPipelineRunConfiguration;
 import org.apache.hop.beam.engines.flink.BeamFlinkPipelineEngine;
 import org.apache.hop.beam.engines.spark.BeamSparkPipelineEngine;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.beam.transforms.bq.BeamBQInputMeta;
 import org.apache.hop.beam.transforms.bq.BeamBQOutputMeta;
@@ -27,8 +28,10 @@ import org.apache.hop.beam.transforms.window.BeamTimestampMeta;
 import org.apache.hop.beam.transforms.window.BeamWindowMeta;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -51,7 +54,7 @@ public class PipelineTestBase {
   public static final String INPUT_CUSTOMERS_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/customers-100.txt";
   public static final String INPUT_STATES_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/state-data.txt";
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -83,7 +86,9 @@ public class PipelineTestBase {
     PluginRegistry.getInstance().registerPluginClass( BeamFlinkPipelineEngine.class.getName(), PipelineEnginePluginType.class, PipelineEnginePlugin.class );
     PluginRegistry.getInstance().registerPluginClass( BeamSparkPipelineEngine.class.getName(), PipelineEnginePluginType.class, PipelineEnginePlugin.class );
 
-    metaStore = new MemoryMetaStore();
+    PluginRegistry.getInstance().registerPluginClass( FileDefinition.class.getName(), MetadataPluginType.class, HopMetadata.class );
+
+    metadataProvider = new MemoryMetadataProvider();
 
     File inputFolder = new File( "/tmp/customers/io" );
     inputFolder.mkdirs();
@@ -115,7 +120,7 @@ public class PipelineTestBase {
     beamRunConfig.setTempLocation( System.getProperty( "java.io.tmpdir" ) );
 
     // No extra plugins to load : null option
-    HopPipelineMetaToBeamPipelineConverter converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, beamRunConfig );
+    HopPipelineMetaToBeamPipelineConverter converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metadataProvider, beamRunConfig );
     Pipeline pipeline = converter.createPipeline();
 
     PipelineResult pipelineResult = pipeline.run();

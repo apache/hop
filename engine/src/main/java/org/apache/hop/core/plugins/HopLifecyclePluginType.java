@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopLifecyclePlugin;
 import org.apache.hop.core.lifecycle.IHopLifecycleListener;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -35,7 +34,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IHopLifecycleListener.class )
 @PluginAnnotationType( HopLifecyclePlugin.class )
-public class HopLifecyclePluginType extends BasePluginType implements IPluginType {
+public class HopLifecyclePluginType extends BasePluginType<HopLifecyclePlugin> implements IPluginType<HopLifecyclePlugin> {
 
   private static HopLifecyclePluginType pluginType;
 
@@ -74,70 +73,70 @@ public class HopLifecyclePluginType extends BasePluginType implements IPluginTyp
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (HopLifecyclePlugin) annotation ).id();
+  protected String extractID( HopLifecyclePlugin annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (HopLifecyclePlugin) annotation ).name();
+  protected String extractName( HopLifecyclePlugin annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
+  protected String extractDesc( HopLifecyclePlugin annotation ) {
     return "";
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( HopLifecyclePlugin annotation ) {
     // No images, not shown in UI
     return "";
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( HopLifecyclePlugin annotation ) {
     // No images, not shown in UI
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return ( (HopLifecyclePlugin) annotation ).isSeparateClassLoaderNeeded();
+  protected boolean extractSeparateClassLoader( HopLifecyclePlugin annotation ) {
+    return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( HopLifecyclePlugin annotation ) {
     // No UI, no i18n
     return null;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, HopLifecyclePlugin annotation ) {
     classMap.put( HopLifecyclePlugin.class, clazz.getName() );
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( HopLifecyclePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( HopLifecyclePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( HopLifecyclePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( HopLifecyclePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (HopLifecyclePlugin) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( HopLifecyclePlugin annotation ) {
+    return annotation.classLoaderGroup();
   }
 }

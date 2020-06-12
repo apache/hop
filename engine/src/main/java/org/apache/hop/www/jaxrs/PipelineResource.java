@@ -27,7 +27,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -197,7 +197,7 @@ public class PipelineResource {
     PipelineConfiguration pipelineConfiguration;
     try {
       pipelineConfiguration = PipelineConfiguration.fromXml( xml.toString() );
-      IMetaStore metaStore = pipelineConfiguration.getMetaStore();
+      IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
       PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
       PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
@@ -226,7 +226,7 @@ public class PipelineResource {
       // Create the pipeline and store in the list...
       //
       String runConfigurationName = executionConfiguration.getRunConfiguration();
-      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta);
+      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta);
       pipeline.setParent( servletLoggingObject );
 
       HopServerSingleton.getInstance().getPipelineMap().addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );

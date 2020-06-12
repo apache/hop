@@ -6,12 +6,12 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamInputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.transforms.io.BeamInputMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class BeamInputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -31,7 +31,7 @@ public class BeamInputStepHandler extends BeamBaseStepHandler implements BeamSte
     // Input handling
     //
     BeamInputMeta beamInputMeta = (BeamInputMeta) transformMeta.getTransform();
-    FileDefinition inputFileDefinition = beamInputMeta.loadFileDefinition( metaStore );
+    FileDefinition inputFileDefinition = beamInputMeta.loadFileDefinition( metadataProvider );
     IRowMeta fileRowMeta = inputFileDefinition.getRowMeta();
 
     // Apply the PBegin to HopRow transform:

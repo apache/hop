@@ -1033,7 +1033,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
 
-      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

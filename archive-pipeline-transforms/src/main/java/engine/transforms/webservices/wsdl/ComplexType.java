@@ -105,7 +105,7 @@ public final class ComplexType implements java.io.Serializable {
    *
    * @return Set.
    */
-  public List<String> getElementNames() {
+  public List<String> listObjectNames() {
     return _elementNames;
   }
 

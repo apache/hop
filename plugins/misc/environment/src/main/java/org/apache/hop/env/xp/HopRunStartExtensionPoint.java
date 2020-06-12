@@ -1,14 +1,13 @@
 package org.apache.hop.env.xp;
 
-import org.apache.hop.run.HopRun;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.run.HopRun;
 
 @ExtensionPoint( id = "HopRunStartExtensionPoint",
   extensionPointId = "HopRunStart",
@@ -25,10 +24,6 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
       return;
     }
 
-    // initialize the environments system
-    //
-    EnvironmentSingleton.initializeEnvironments();
-
     String environmentName = hopRun.getEnvironment();
 
     try {
@@ -40,7 +35,7 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
       }
       // Now we just enable this environment
       //
-      EnvironmentUtil.enableEnvironment( log, environment, hopRun.getMetaStore(), hopRun.getVariables() );
+      EnvironmentUtil.enableEnvironment( log, environment, hopRun.getMetadataProvider(), hopRun.getVariables() );
     } catch(Exception e) {
       throw new HopException( "Error enabling environment '"+environmentName+"'", e );
     }

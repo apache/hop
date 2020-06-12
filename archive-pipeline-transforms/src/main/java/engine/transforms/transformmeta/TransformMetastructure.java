@@ -81,7 +81,7 @@ public class TransformMetastructure extends BaseTransform implements ITransform 
       // Create the row metadata for the output rows
       //
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
 
     if ( r == null ) {

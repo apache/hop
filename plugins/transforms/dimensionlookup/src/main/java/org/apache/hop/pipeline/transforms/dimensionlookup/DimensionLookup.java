@@ -116,7 +116,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Get the fields that need conversion to normal storage...
       // Modify the storage type of the input data...

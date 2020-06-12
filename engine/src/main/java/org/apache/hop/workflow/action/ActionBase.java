@@ -50,7 +50,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceHolder;
 import org.apache.hop.resource.IResourceNaming;
@@ -126,7 +126,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    */
   protected String containerObjectId;
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   protected Map<String, Map<String, String>> attributesMap;
 
@@ -477,7 +477,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
-  public List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     return new ArrayList<>();
   }
 
@@ -674,9 +674,9 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @param remarks   List of CheckResult objects indicating consistency status
    * @param workflowMeta   the metadata object for the action
    * @param variables     the variable space to resolve string expressions with variables with
-   * @param metaStore the MetaStore to load common elements from
+   * @param metadataProvider the MetaStore to load common elements from
    */
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
 
   }
 
@@ -700,12 +700,12 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param metaStore       the metaStore to load external metadata from
+   * @param metadataProvider       the metadataProvider to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     return null;
   }
 
@@ -1070,12 +1070,12 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param metaStore the metaStore to load from
+   * @param metadataProvider the metadataProvider to load from
    * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     return null;
   }
 
@@ -1103,12 +1103,12 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
     }
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   @Override

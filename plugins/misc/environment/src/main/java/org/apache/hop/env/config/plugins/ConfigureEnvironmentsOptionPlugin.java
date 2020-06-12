@@ -10,7 +10,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import picocli.CommandLine;
 
 @ConfigPlugin(
@@ -54,7 +54,7 @@ public class ConfigureEnvironmentsOptionPlugin implements IConfigOptions {
     return optionPlugin;
   }
 
-  @Override public boolean handleOption( ILogChannel log, IMetaStore metaStore, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     boolean changed=false;
     if (enableEnvironments) {
       EnvironmentConfigSingleton.getConfig().setEnabled( enableEnvironments );

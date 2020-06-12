@@ -40,8 +40,8 @@ public class WsdlOpParameterContainer implements WsdlParamContainer {
   public String[] getParamNames() {
     if ( parameter.isArray() ) {
       if ( parameter.getItemComplexType() != null ) {
-        return parameter.getItemComplexType().getElementNames().toArray(
-          new String[ parameter.getItemComplexType().getElementNames().size() ] );
+        return parameter.getItemComplexType().listObjectNames().toArray(
+          new String[ parameter.getItemComplexType().listObjectNames().size() ] );
       } else {
         if ( parameter.getItemXmlType() != null ) {
           return new String[] { parameter.getItemXmlType().getLocalPart() };

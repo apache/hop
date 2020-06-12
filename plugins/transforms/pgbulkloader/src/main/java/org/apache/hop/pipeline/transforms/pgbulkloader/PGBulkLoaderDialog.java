@@ -864,7 +864,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         new TransformMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =

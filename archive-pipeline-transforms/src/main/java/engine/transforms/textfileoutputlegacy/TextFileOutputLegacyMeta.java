@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -67,7 +67,7 @@ public class TextFileOutputLegacyMeta extends TextFileOutputMeta {
     this.fileAsCommand = fileAsCommand;
   }
 
-  protected void readData( Node transformNode, IMetaStore metastore ) throws HopXmlException {
+  protected void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     super.readData( transformNode, metastore );
     try {
       fileAsCommand = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "is_command" ) );

@@ -87,7 +87,7 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
         first = false;
         data.prevNrField = getInputRowMeta().size();
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
 
     } else {
@@ -95,7 +95,7 @@ public class SecretKeyGenerator extends BaseTransform implements ITransform {
       if ( first ) {
         first = false;
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
     }
     for ( int i = 0; i < data.nr && !isStopped(); i++ ) {

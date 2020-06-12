@@ -28,7 +28,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IPipelineDialogPlugin.class )
 @PluginAnnotationType( PipelineDialogPlugin.class )
-public class PipelineDialogPluginType extends BasePluginType implements IPluginType {
+public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugin> implements IPluginType<PipelineDialogPlugin> {
 
   private static PipelineDialogPluginType pluginType;
 
@@ -62,66 +61,66 @@ public class PipelineDialogPluginType extends BasePluginType implements IPluginT
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (PipelineDialogPlugin) annotation ).description();
+  protected String extractDesc( PipelineDialogPlugin annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (PipelineDialogPlugin) annotation ).id();
+  protected String extractID( PipelineDialogPlugin annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (PipelineDialogPlugin) annotation ).name();
+  protected String extractName( PipelineDialogPlugin annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( PipelineDialogPlugin annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (PipelineDialogPlugin) annotation ).i18nPackageName();
+  protected String extractI18nPackageName( PipelineDialogPlugin annotation ) {
+    return annotation.i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, PipelineDialogPlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( PipelineDialogPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (PipelineDialogPlugin) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( PipelineDialogPlugin annotation ) {
+    return annotation.classLoaderGroup();
   }
 }

@@ -1,0 +1,39 @@
+<metadata-plugins>
+
+  <metadata-plugin id="rdbms">
+    <description>Relational Database Connection</description>
+    <tooltip>This contains all the metadata needed to connect to a relational database</tooltip>
+    <classname>org.apache.hop.core.database.DatabaseMeta</classname>
+    <iconfile>ui/images/CNC.svg</iconfile>
+  </metadata-plugin>
+
+  <metadata-plugin id="server">
+    <description>Slave Server</description>
+    <tooltip>Defines a Hop Slave Server</tooltip>
+    <classname>org.apache.hop.cluster.SlaveServer</classname>
+    <iconfile>ui/images/slave.svg</iconfile>
+  </metadata-plugin>
+
+  <metadata-plugin id="partition">
+    <description>Partition Schema</description>
+    <tooltip>Describes a partition schema</tooltip>
+    <classname>org.apache.hop.partition.PartitionSchema</classname>
+    <iconfile>ui/images/partition_schema.svg</iconfile>
+  </metadata-plugin>
+
+  <metadata-plugin id="pipeline-run-configuration">
+    <description>Pipeline Run Configuration</description>
+    <tooltip>Describes how and with which engine a pipeline is to be executed</tooltip>
+    <classname>org.apache.hop.pipeline.config.PipelineRunConfiguration</classname>
+    <iconfile>ui/images/run.svg</iconfile>
+  </metadata-plugin>
+
+  <metadata-plugin id="workflow-run-configuration">
+    <description>Workflow Run Configuration</description>
+    <tooltip>Describes how to execute a workflow</tooltip>
+    <classname>org.apache.hop.workflow.config.WorkflowRunConfiguration</classname>
+    <iconfile>ui/images/run.svg</iconfile>
+  </metadata-plugin>
+
+
+</metadata-plugins>

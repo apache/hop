@@ -33,7 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.iVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -72,7 +72,7 @@ public class SasInputMeta extends BaseTransformMeta implements ITransform {
     outputFields = new ArrayList<SasInputField>();
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       acceptingField = XmlHandler.getTagValue( transformNode, "accept_field" );
       int nrFields = XmlHandler.countNodes( transformNode, XML_TAG_FIELD );
@@ -98,7 +98,7 @@ public class SasInputMeta extends BaseTransformMeta implements ITransform {
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     for ( SasInputField field : outputFields ) {
       try {
@@ -132,7 +132,7 @@ public class SasInputMeta extends BaseTransformMeta implements ITransform {
 
   public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
 

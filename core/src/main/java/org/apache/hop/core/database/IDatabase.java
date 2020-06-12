@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -41,6 +42,9 @@ import java.util.Map;
  * @author Matt
  * @since 11-mrt-2005
  */
+@HopMetadataObject(
+  objectFactory = DatabaseMetaObjectFactory.class
+)
 public interface IDatabase extends Cloneable {
   /**
    * @return the plugin id of this database

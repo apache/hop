@@ -1077,7 +1077,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
       GetFilesRowsCountMeta oneMeta = new GetFilesRowsCountMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
         oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog =

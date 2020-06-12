@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -131,8 +131,8 @@ public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta
     this.schemaname = schemaname;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -153,7 +153,7 @@ public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v =
@@ -174,10 +174,10 @@ public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      database = DatabaseMeta.loadDatabase( metaStore, con );
+      database = DatabaseMeta.loadDatabase( metadataProvider, con );
       tablenamefield = XmlHandler.getTagValue( transformNode, "tablenamefield" );
       resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
       schemaname = XmlHandler.getTagValue( transformNode, "schemaname" );
@@ -190,7 +190,7 @@ public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

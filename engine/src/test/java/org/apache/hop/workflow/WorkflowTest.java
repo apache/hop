@@ -25,9 +25,9 @@ package org.apache.hop.workflow;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
@@ -37,17 +37,15 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class WorkflowTest {
   private static final String STRING_DEFAULT = "<def>";
   private IWorkflowEngine<WorkflowMeta> mockedWorkflow;
   private Database mockedDataBase;
   private IVariables mockedVariableSpace;
-  private IMetaStore mockedMetaStore;
+  private IHopMetadataProvider mockedMetadataProvider;
   private WorkflowMeta mockedWorkflowMeta;
   private ActionCopy mockedActionCopy;
   private ActionSpecial mockedJobEntrySpecial;
@@ -59,7 +57,7 @@ public class WorkflowTest {
     mockedDataBase = mock( Database.class );
     mockedWorkflow = mock( Workflow.class );
     mockedVariableSpace = mock( IVariables.class );
-    mockedMetaStore = mock( IMetaStore.class );
+    mockedMetadataProvider = mock( IHopMetadataProvider.class );
     mockedWorkflowMeta = mock( WorkflowMeta.class );
     mockedActionCopy = mock( ActionCopy.class );
     mockedJobEntrySpecial = mock( ActionSpecial.class );

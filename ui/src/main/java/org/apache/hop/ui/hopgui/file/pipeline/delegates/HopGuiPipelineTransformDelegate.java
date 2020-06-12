@@ -131,7 +131,7 @@ public class HopGuiPipelineTransformDelegate {
       TransformMeta before = (TransformMeta) transformMeta.clone();
       ITransformDialog dialog = getTransformDialog( transformMeta.getTransform(), pipelineMeta, name );
       if ( dialog != null ) {
-        dialog.setMetaStore( hopGui.getMetaStore() );
+        dialog.setMetadataProvider( hopGui.getMetadataProvider() );
         transformName = dialog.open();
       }
 

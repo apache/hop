@@ -76,7 +76,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
     if ( first ) {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       data.insertRowMeta = getInputRowMeta().clone();
 
       if ( meta.isDoNotOpenNewFileInit() ) {

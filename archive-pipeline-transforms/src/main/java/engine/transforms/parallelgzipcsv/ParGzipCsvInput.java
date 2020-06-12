@@ -70,7 +70,7 @@ public class ParGzipCsvInput extends BaseTransform implements ITransform {
       first = false;
 
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( data.filenames == null ) {
         // We're expecting the list of filenames from the previous transform(s)...

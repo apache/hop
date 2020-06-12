@@ -22,7 +22,7 @@
 
 package org.apache.hop.workflow.action;
 
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
  * IActionDialog is the Java interface that implements the settings dialog of a action plugin. The
@@ -64,7 +64,7 @@ public interface IActionDialog {
   /**
    * The MetaStore to pass
    *
-   * @param metaStore
+   * @param metadataProvider
    */
-  void setMetaStore( IMetaStore metaStore );
+  void setMetadataProvider( IHopMetadataProvider metadataProvider );
 }

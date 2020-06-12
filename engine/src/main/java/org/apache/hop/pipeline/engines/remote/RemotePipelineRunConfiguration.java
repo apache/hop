@@ -27,9 +27,9 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
@@ -49,7 +49,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.SlaveServer.Label"
   )
-  @MetaStoreAttribute(key="slave_server")
+  @HopMetadataProperty( key = "slave_server" )
   protected String slaveServerName;
 
   @GuiWidgetElement(
@@ -60,7 +60,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.RunConfiguration.Label"
   )
-  @MetaStoreAttribute(key="safe_mode")
+  @HopMetadataProperty( key = "safe_mode" )
   protected String runConfigurationName;
 
   @GuiWidgetElement(
@@ -70,7 +70,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.ServerPollDelay.Label"
   )
-  @MetaStoreAttribute(key="server_poll_delay")
+  @HopMetadataProperty( key = "server_poll_delay" )
   protected String serverPollDelay;
 
   @GuiWidgetElement(
@@ -80,7 +80,7 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     i18nPackage = "org.apache.hop.ui.pipeline.config",
     label = "PipelineRunConfigurationDialog.ServerPollInterval.Label"
   )
-  @MetaStoreAttribute(key="server_poll_interval")
+  @HopMetadataProperty( key = "server_poll_interval" )
   protected String serverPollInterval;
 
 
@@ -96,26 +96,26 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     this.serverPollInterval = config.serverPollInterval;
   }
 
-  public List<String> getSlaveServerNames( ILogChannel log, IMetaStore metaStore ) {
-    List<String> names = new ArrayList<>(  );
+  public List<String> getSlaveServerNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
+    List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<SlaveServer> factory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
-      names.addAll(factory.getElementNames());
+      IHopMetadataSerializer<SlaveServer> serializer = metadataProvider.getSerializer( SlaveServer.class );
+      names.addAll( serializer.listObjectNames() );
       Collections.sort( names );
-    } catch(Exception e) {
-      log.logError("Error getting slave server names from the metastore", e);
+    } catch ( Exception e ) {
+      log.logError( "Error getting slave server names from the metadata", e );
     }
     return names;
   }
 
-  public List<String> getRunConfigurationNames( ILogChannel log, IMetaStore metaStore ) {
-    List<String> names = new ArrayList<>(  );
+  public List<String> getRunConfigurationNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
+    List<String> names = new ArrayList<>();
     try {
-      MetaStoreFactory<PipelineRunConfiguration> factory = new MetaStoreFactory<>( PipelineRunConfiguration.class, metaStore );
-      names.addAll(factory.getElementNames());
+      IHopMetadataSerializer<PipelineRunConfiguration> serializer = metadataProvider.getSerializer( PipelineRunConfiguration.class );
+      names.addAll( serializer.listObjectNames() );
       Collections.sort( names );
-    } catch(Exception e) {
-      log.logError("Error getting the pipeline run configuration names from the metastore", e);
+    } catch ( Exception e ) {
+      log.logError( "Error getting the pipeline run configuration names from the metadata", e );
     }
     return names;
   }

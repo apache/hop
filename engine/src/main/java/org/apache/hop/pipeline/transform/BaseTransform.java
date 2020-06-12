@@ -52,7 +52,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.BasePartitioner;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -384,9 +384,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   protected long deadLockCounter;
 
   /**
-   * The metastore that the transform uses to load external elements from
+   * The metadata that the transform uses to load external elements from
    */
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   protected Map<String, Object> extensionDataMap;
 
@@ -3667,13 +3667,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   @Override
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   @Override
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   @Override
