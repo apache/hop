@@ -28,11 +28,11 @@ import org.junit.ClassRule;
 import java.util.Arrays;
 import java.util.List;
 
-public class WorkflowActionAddResultFilenamesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenamesI> {
+public class WorkflowActionAddResultFilenamesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionAddResultFilenames> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Override protected Class<ActionAddResultFilenamesI> getActionClass() {
-    return ActionAddResultFilenamesI.class;
+  @Override protected Class<ActionAddResultFilenames> getActionClass() {
+    return ActionAddResultFilenames.class;
   }
 
   @Override protected List<String> listCommonAttributes() {

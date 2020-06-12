@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "DELAY", 
 		  image = "Delay.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/delay.html"
 )
 public class ActionDelayDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionDelay.class; // for i18n purposes, needed by Translator!!

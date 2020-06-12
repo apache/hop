@@ -76,7 +76,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "MYSQL_BULK_LOAD", 
 		  image = "MysqlBulkLoad.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mysqlbulkload.html"
 )
 public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMysqlBulkLoad.class; // for i18n purposes, needed by Translator!!

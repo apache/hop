@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "WEBSERVICE_AVAILABLE", 
 		  image = "WebServiceAvailable.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/webserviceavailable.html"
 )
 public class ActionWebServiceAvailableDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionWebServiceAvailable.class; // for i18n purposes, needed by Translator!!

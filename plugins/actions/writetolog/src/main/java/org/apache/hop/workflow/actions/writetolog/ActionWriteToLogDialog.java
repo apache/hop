@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "WRITE_TO_LOG", 
 		  image = "WriteToLog.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/writetolog.html"
 )
 public class ActionWriteToLogDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionWriteToLog.class; // for i18n purposes, needed by Translator!!

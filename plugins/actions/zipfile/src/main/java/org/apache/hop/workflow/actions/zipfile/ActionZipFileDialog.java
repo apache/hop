@@ -80,7 +80,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "ZIP_FILE", 
 		  image = "Zip.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/zipfile.html"
 )
 public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionZipFile.class; // for i18n purposes, needed by Translator!!

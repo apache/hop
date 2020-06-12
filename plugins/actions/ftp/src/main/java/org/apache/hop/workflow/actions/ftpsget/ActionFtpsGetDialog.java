@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Shell;
 		  id = "FTPS_GET", 
 		  image = "FTPSGet.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsget.html"
 )
 public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!

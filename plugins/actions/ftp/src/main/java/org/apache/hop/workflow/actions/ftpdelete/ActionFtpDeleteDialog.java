@@ -81,7 +81,7 @@ import java.net.InetAddress;
 		  id = "FTP_DELETE", 
 		  image = "FTPDelete.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpdelete.html"
 )
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!

@@ -67,7 +67,7 @@ import java.util.List;
   id = "CHECK_DB_CONNECTIONS",
   image = "CheckDbConnection.svg",
   pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/checkdbconnection.html"
 )
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!

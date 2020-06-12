@@ -83,7 +83,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "EVAL_TABLE_CONTENT", 
 		  image = "EvalTableContent.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/evaluatetablecontent.html"
 )
 public class ActionEvalTableContentDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionEvalTableContent.class; // for i18n purposes, needed by Translator!!

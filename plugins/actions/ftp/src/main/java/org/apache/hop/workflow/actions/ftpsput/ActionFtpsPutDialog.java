@@ -73,7 +73,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "FTPS_PUT", 
 		  image = "FTPSPut.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsput.html"
 )
 public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtpsPut.class; // for i18n purposes, needed by Translator!!

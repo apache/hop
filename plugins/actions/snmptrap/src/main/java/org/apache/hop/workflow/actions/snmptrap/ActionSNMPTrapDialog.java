@@ -74,7 +74,7 @@ import java.net.InetAddress;
 		  id = "SNMP_TRAP", 
 		  image = "SNMP.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/snmptrap.html"
 )
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!

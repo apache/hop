@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "DOS_UNIX_CONVERTER", 
 		  image = "DosToUnix.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/dostounix.html"
 )
 public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionDosToUnix.class; // for i18n purposes, needed by Translator!!
