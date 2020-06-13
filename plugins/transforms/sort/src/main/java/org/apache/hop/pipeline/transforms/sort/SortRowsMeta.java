@@ -59,7 +59,8 @@ import java.util.Locale;
         i18nPackageName = "org.apache.hop.pipeline.transforms.sort",
         name = "BaseTransform.TypeLongDesc.SortRows",
         description = "BaseTransform.TypeTooltipDesc.SortRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sort.html"
 )
 public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;

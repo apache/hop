@@ -60,8 +60,7 @@ import java.util.List;
 @PluginDialog(
         id = "DBLookup",
         image = "dblookup.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/databaselookup.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!

@@ -76,8 +76,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "GetSubFolders",
         image = "getsubfolders.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getsubfolders.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetSubFoldersDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!

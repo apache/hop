@@ -71,8 +71,7 @@ import java.util.*;
 @PluginDialog(
         id = "DimensionLookup",
         image = "dimensionlookup.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DimensionLookupMeta.class; // for

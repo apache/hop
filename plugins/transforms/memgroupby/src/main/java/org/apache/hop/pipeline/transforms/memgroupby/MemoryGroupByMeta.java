@@ -61,7 +61,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.memgroupby",
         name = "BaseTransform.TypeLongDesc.MemoryGroupBy",
         description = "BaseTransform.TypeTooltipDesc.MemoryGroupBy",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/memgroupby.html"
 )
 public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
   private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!

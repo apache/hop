@@ -52,8 +52,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "ExecProcess",
         image = "execprocess.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!

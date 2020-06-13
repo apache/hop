@@ -54,8 +54,7 @@ import java.util.*;
 @PluginDialog(
         id = "WriteToLog",
         image = "writetolog.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!

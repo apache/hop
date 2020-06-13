@@ -52,7 +52,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectlastrow",
         name = "BaseTransform.TypeLongDesc.DetectLastRow",
         description = "BaseTransform.TypeTooltipDesc.DetectLastRow",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/detectlastrow.html"
 )
 public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMeta<DetectLastRow, DetectLastRowData> {
   private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!

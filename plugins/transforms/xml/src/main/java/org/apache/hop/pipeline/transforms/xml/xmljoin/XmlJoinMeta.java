@@ -55,9 +55,15 @@ import java.util.List;
  * @since 30-04-2008
  * 
  */
-@Transform( id = "XMLJoin", image = "XJN.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
-    name = "XMLJoin.name", description = "XMLJoin.description", categoryDescription = "XMLJoin.category",
-    documentationUrl = "" )
+@Transform(
+        id = "XMLJoin",
+        image = "XJN.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
+        name = "XMLJoin.name",
+        description = "XMLJoin.description",
+        categoryDescription = "XMLJoin.category",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmljoin.html"
+)
 @InjectionSupported( localizationPrefix = "XMLJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
   private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!

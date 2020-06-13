@@ -90,8 +90,7 @@ import java.util.Iterator;
 @PluginDialog(
         id = "PropertyInput",
         image = "propertyinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!

@@ -61,7 +61,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.tableoutput",
         name = "BaseTransform.TypeLongDesc.TableOutput",
         description = "BaseTransform.TypeTooltipDesc.TableOutput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
 )
 public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!

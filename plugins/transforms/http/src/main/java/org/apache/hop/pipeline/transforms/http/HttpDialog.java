@@ -77,8 +77,7 @@ import java.util.Set;
 @PluginDialog(
         id = "Http",
         image = "http.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/http.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class HttpDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = HttpMeta.class; // for i18n purposes, needed by Translator!!

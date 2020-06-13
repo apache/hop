@@ -54,7 +54,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowsfromresult",
         name = "BaseTransform.TypeLongDesc.RowsFromResult",
         description = "BaseTransform.TypeTooltipDesc.RowsFromResult",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowsfromresult.html"
 )
 public class RowsFromResultMeta extends BaseTransformMeta implements ITransformMeta<RowsFromResult, RowsFromResultData> {
   private static Class<?> PKG = RowsFromResult.class; // for i18n purposes, needed by Translator!!

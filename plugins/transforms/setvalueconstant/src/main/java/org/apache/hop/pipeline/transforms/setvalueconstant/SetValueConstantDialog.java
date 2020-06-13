@@ -68,8 +68,7 @@ import java.util.Set;
 @PluginDialog(
         id = "SetValueConstant",
         image = "setvalueconstant.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/selectvalues.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!

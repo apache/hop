@@ -61,7 +61,8 @@ import java.util.Map;
         description = "BaseTransform.TypeTooltipDesc.LDIFInput",
         i18nPackageName = "org.apache.hop.pipeline.transforms.ldifinput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = {"ldif","input"}
+        keywords = {"ldif","input"},
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldifinput.html"
 )
 public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<LDIFInput, LDIFInputData> {
   private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!

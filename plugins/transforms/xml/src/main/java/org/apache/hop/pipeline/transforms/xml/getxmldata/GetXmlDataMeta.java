@@ -60,9 +60,14 @@ import java.util.Map;
 /**
  * Store run-time data on the getXMLData step.
  */
-@Transform( id = "getXMLData", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.getxmldata",
-    name = "GetXMLData.name", description = "GetXMLData.description", categoryDescription = "GetXMLData.category",
-    documentationUrl = "" )
+@Transform(
+        id = "getXMLData",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.getxmldata",
+        name = "GetXMLData.name",
+        description = "GetXMLData.description",
+        categoryDescription = "GetXMLData.category",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getxmldata.html"
+)
 public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<GetXmlData, GetXmlDataData> {
   private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 

@@ -72,8 +72,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "getXMLData",
         image = "GXD.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetXmlDataDialog extends BaseTransformDialog implements ITransformDialog {
   private String XMLSource = null;

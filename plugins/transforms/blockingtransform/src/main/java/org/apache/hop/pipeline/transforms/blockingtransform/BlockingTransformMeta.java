@@ -46,7 +46,9 @@ import java.util.List;
 
 @Transform( id = "BlockingTransform", i18nPackageName = "org.apache.hop.pipeline.transforms.blockingtransform", name = "BlockingTransform.Name",
   description = "BlockingTransform.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/blockingtransform.html"
+)
 public class BlockingTransformMeta extends BaseTransformMeta implements ITransformMeta<BlockingTransform, BlockingTransformData> {
 
   private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!

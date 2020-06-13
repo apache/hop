@@ -58,12 +58,13 @@ import java.util.List;
  */
 
 @Transform(
-  id = "PGBulkLoader",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.pgbulkloader",
-  description = "PGBulkLoader.Description",
-  name = "PGBulkLoader.Name",
-  categoryDescription = "BaseTransform.Category.Bulk",
-  image = "PGBulkLoader.svg"
+        id = "PGBulkLoader",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.pgbulkloader",
+        description = "PGBulkLoader.Description",
+        name = "PGBulkLoader.Name",
+        categoryDescription = "BaseTransform.Category.Bulk",
+        image = "PGBulkLoader.svg",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
 )
 public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
   IProvidesDatabaseConnectionInformation {

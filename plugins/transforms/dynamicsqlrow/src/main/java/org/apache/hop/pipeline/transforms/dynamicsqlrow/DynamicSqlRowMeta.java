@@ -52,7 +52,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.dynamicsqlrow",
         name = "BaseTransform.TypeLongDesc.DynamicSQLRow",
         description = "BaseTransform.TypeTooltipDesc.DynamicSQLRow",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/dynamicsqlrow.html"
 )
 public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
   private static Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!

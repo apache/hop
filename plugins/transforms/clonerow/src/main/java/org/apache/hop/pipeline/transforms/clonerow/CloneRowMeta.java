@@ -50,12 +50,13 @@ import java.util.List;
  *
  */
 @Transform(
-  id = "CloneRow", 
-  name = "CloneRow.Name",  
-  description = "CloneRow.Description",
-  image = "clonerow.svg",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.clonerow"
+      id = "CloneRow",
+      name = "CloneRow.Name",
+      description = "CloneRow.Description",
+      image = "clonerow.svg",
+      categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+      i18nPackageName = "org.apache.hop.pipeline.transforms.clonerow",
+      documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/clonerow.html"
 )
 public class CloneRowMeta extends BaseTransformMeta implements ITransformMeta<CloneRow, CloneRowData> {
 

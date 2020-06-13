@@ -74,7 +74,8 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.CsvInput",
         description = "BaseTransform.TypeTooltipDesc.CsvInput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        keywords = { "csv", "text", "tsv", "csv read", "tsv read", "text read",}
+        keywords = { "csv", "text", "tsv", "csv read", "tsv read", "text read",},
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/csvinput.html"
 )
 public class CsvInputMeta
   extends BaseTransformMeta

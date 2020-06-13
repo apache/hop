@@ -19,10 +19,11 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamBQOutput",
-  name = "Beam BigQuery Output",
-  description = "Writes to a BigQuery table in Beam",
-  categoryDescription = "Big Data"
+        id = "BeamBQOutput",
+        name = "Beam BigQuery Output",
+        description = "Writes to a BigQuery table in Beam",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beambigqueryoutput.html"
 )
 public class BeamBQOutputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

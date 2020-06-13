@@ -60,7 +60,8 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.propertyinput",
         name = "BaseTransform.TypeTooltipDesc.PropertyInput",
         description = "BaseTransform.TypeLongDesc.PropertyInput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
 )
 public class PropertyInputMeta extends BaseTransformMeta implements ITransformMeta<PropertyInput, PropertyInputData> {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!

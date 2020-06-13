@@ -62,8 +62,7 @@ import java.util.*;
 @PluginDialog(
         id = "TypeExitExcelWriterTransform",
         image = "excelwriter.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExcelWriterTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n

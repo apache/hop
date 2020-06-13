@@ -53,9 +53,14 @@ import java.util.List;
  * @author ngoodman
  * @since 27-jan-2009
  */
-@Transform( id = "AnalyticQuery", i18nPackageName = "org.apache.hop.pipeline.transforms.analyticquery",
-  name = "AnalyticQuery.Name", description = "AnalyticQuery.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics" )
+@Transform( 
+        id = "AnalyticQuery",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.analyticquery",
+        name = "AnalyticQuery.Name",
+        description = "AnalyticQuery.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/analyticquery.html"
+)
 @InjectionSupported( localizationPrefix = "AnalyticQuery.Injection." )
 public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 

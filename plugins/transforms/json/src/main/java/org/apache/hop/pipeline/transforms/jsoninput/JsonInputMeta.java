@@ -63,9 +63,15 @@ import java.util.Map;
 /**
  * Store run-time data on the JsonInput transform.
  */
-@Transform( id = "JsonInput", image = "JSI.svg", i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsoninput",
-  documentationUrl = "Products/JSON_Input", name = "JsonInput.name",
-  description = "JsonInput.description", categoryDescription = "JsonInput.category" )
+@Transform(
+        id = "JsonInput",
+        image = "JSI.svg",
+        i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsoninput",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/jsoninput.html",
+        name = "JsonInput.name",
+        description = "JsonInput.description",
+        categoryDescription = "JsonInput.category"
+)
 @InjectionSupported( localizationPrefix = "JsonInput.Injection.", groups = { "FILENAME_LINES", "FIELDS" }, hide = {
   "ACCEPT_FILE_NAMES", "ACCEPT_FILE_STEP", "PASS_THROUGH_FIELDS", "ACCEPT_FILE_FIELD", "ADD_FILES_TO_RESULT",
   "IGNORE_ERRORS", "FILE_ERROR_FIELD", "FILE_ERROR_MESSAGE_FIELD", "SKIP_BAD_FILES", "WARNING_FILES_TARGET_DIR",

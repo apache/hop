@@ -62,7 +62,8 @@ import java.util.Map;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getsubfolders",
         name = "BaseTransform.TypeLongDesc.GetSubFolders",
         description = "BaseTransform.TypeTooltipDesc.GetSubFolders",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getsubfolders.html"
 )
 public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
   private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!

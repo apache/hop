@@ -57,7 +57,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.joinrows",
         name = "BaseTransform.TypeLongDesc.JoinRows",
         description = "BaseTransform.TypeTooltipDesc.JoinRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/joinrows.html"
 )
 public class JoinRowsMeta extends BaseTransformMeta implements ITransformMeta<JoinRows, JoinRowsData> {
   private static Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!

@@ -45,8 +45,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "DetectEmptyStream",
         image = "detectemptystream.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!

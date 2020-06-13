@@ -55,9 +55,14 @@ import java.util.List;
  * 
  */
 
-@Transform( id = "AddXML", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.addxml",
-    name = "AddXML.name", description = "AddXML.description", categoryDescription = "AddXML.category",
-    documentationUrl = "" )
+@Transform(
+        id = "AddXML",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.addxml",
+        name = "AddXML.name",
+        description = "AddXML.description",
+        categoryDescription = "AddXML.category",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/addxml.html"
+)
 @InjectionSupported( localizationPrefix = "AddXMLMeta.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddXml, AddXmlData> {
   private static Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!

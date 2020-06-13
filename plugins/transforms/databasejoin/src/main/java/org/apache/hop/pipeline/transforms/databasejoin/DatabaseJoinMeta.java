@@ -57,7 +57,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.databasejoin",
         name = "BaseTransform.TypeLongDesc.DatabaseJoin",
         description = "BaseTransform.TypeTooltipDesc.DatabaseJoin",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/databasejoin.html"
 )
 public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 

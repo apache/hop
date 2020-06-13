@@ -48,11 +48,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-    id = "TableCompare",
-    description ="BaseTransform.TypeTooltipDesc.TableCompare",
-    name = "BaseTransform.TypeLongDesc.TableCompare",
-    categoryDescription="kJube.Category.Name",
-    i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare"
+        id = "TableCompare",
+        description ="BaseTransform.TypeTooltipDesc.TableCompare",
+        name = "BaseTransform.TypeLongDesc.TableCompare",
+        categoryDescription="kJube.Category.Name",
+        i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
   )
 public class TableCompareMeta extends BaseTransformMeta implements ITransformMeta<TableCompare, TableCompareData> {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!

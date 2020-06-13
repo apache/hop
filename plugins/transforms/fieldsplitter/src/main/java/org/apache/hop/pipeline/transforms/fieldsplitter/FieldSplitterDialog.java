@@ -63,8 +63,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "FieldSplitter",
         image = "fieldsplitter.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!

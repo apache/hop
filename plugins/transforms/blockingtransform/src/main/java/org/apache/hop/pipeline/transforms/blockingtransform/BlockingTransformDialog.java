@@ -60,9 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "BlockingTransform",
         image = "blockingtransform.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/blockingtransform.html"
-)
+        pluginType = PluginDialog.PluginType.TRANSFORM)
 public class BlockingTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BlockingTransformDialog.class; // for i18n purposes, needed by Translator!!
 

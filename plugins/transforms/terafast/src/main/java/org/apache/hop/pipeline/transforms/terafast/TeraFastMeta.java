@@ -51,7 +51,7 @@ import java.util.List;
 		  name = "TeraFast.Name",
 		  categoryDescription = "BaseTransform.Category.Bulk",
 		  image = "TeraFast.svg",
-		  documentationUrl = ""
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 

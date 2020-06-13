@@ -46,9 +46,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "NullIf", i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
-        name = "NullIf.Name", description = "NullIf.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "NullIf",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
+        name = "NullIf.Name",
+        description = "NullIf.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/nullif.html"
+)
 @InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
 public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf,NullIfData> {
 

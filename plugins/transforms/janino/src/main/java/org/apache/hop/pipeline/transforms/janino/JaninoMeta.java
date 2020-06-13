@@ -57,7 +57,8 @@ import java.util.Objects;
         i18nPackageName = "org.apache.hop.pipeline.transforms.janino",
         name = "BaseTransform.TypeLongDesc.Janino",
         description = "BaseTransform.TypeTooltipDesc.Janino",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/janino.html"
 )
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!

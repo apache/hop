@@ -66,8 +66,7 @@ import org.eclipse.swt.widgets.Text;
 //TODO correct sizing of window
 @PluginDialog(
         id = "XMLInputStream", image = "xml_input_stream.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class XmlInputStreamDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = XmlInputStreamMeta.class; // for i18n purposes, needed by Translator2!!

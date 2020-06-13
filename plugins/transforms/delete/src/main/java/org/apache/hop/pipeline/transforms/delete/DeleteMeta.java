@@ -54,11 +54,12 @@ import java.util.List;
  * @since 28-March-2006
  */
 @Transform(
-  id = "Delete",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.delete",
-  name = "BaseTransform.TypeLongDesc.Delete",
-  description = "BaseTransform.TypeTooltipDesc.Delete",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
+        id = "Delete",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.delete",
+        name = "BaseTransform.TypeLongDesc.Delete",
+        description = "BaseTransform.TypeTooltipDesc.Delete",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/delete.html"
 )
 public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Delete, DeleteData> {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!

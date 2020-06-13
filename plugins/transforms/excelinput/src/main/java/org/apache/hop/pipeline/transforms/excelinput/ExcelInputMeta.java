@@ -66,7 +66,8 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.excelinput",
         name = "BaseTransform.TypeLongDesc.ExcelInput",
         description = "BaseTransform.TypeTooltipDesc.ExcelInput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/excelinput.html"
 )
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
 public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<ExcelInput, ExcelInputData> {

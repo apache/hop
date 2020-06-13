@@ -60,8 +60,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "XMLJoin", image = "XJN.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class XmlJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!

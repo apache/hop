@@ -76,8 +76,7 @@ import java.util.Set;
 @PluginDialog(
         id = "FuzzyMatch",
         image = "fuzzymatch.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/fuzzymatch.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
