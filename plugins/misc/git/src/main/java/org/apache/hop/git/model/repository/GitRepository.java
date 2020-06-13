@@ -39,6 +39,9 @@ public class GitRepository extends Variables implements Cloneable, IVariables, I
   @HopMetadataProperty( key = "directory" )
   private String directory;
 
+  public GitRepository() {
+  }
+
   /**
    * Get a directory path that can contain variables.
    *

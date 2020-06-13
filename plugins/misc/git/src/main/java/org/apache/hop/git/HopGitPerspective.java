@@ -90,13 +90,21 @@ public class HopGitPerspective implements IHopPerspective {
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiGitPerspective-Toolbar";
 
-  public static final String TOOLBAR_ITEM_EDIT_PROJECT = "HopGitPlugin-ToolBar-10000-editProject";
-  public static final String TOOLBAR_ITEM_SELECT_PROJECT = "HopGitPlugin-ToolBar-10010-selectProject";
-  public static final String TOOLBAR_ITEM_PULL = "HopGitPlugin-ToolBar-10020-pull";
-  public static final String TOOLBAR_ITEM_PUSH = "HopGitPlugin-ToolBar-10030-push";
-  public static final String TOOLBAR_ITEM_BRANCH = "HopGitPlugin-ToolBar-10040-branch";
-  public static final String TOOLBAR_ITEM_TAG = "HopGitPlugin-ToolBar-10050-tag";
-  public static final String TOOLBAR_ITEM_REFRESH = "HopGitPlugin-ToolBar-10060-refresh";
+  public static final String TOOLBAR_ITEM_REPOSITORY_LABEL = "HopGitPlugin-ToolBar-10000-git-repository-label";
+  public static final String TOOLBAR_ITEM_REPOSITORY_SELECT = "HopGitPlugin-ToolBar-10010-git-repository-select";
+  public static final String TOOLBAR_ITEM_REPOSITORY_EDIT = "HopGitPlugin-ToolBar-10020-git-repository-edit";
+  public static final String TOOLBAR_ITEM_REPOSITORY_ADD = "HopGitPlugin-ToolBar-10030-git-repository-add";
+  public static final String TOOLBAR_ITEM_REPOSITORY_DELETE = "HopGitPlugin-ToolBar-10040-git-repository-delete";
+  public static final String TOOLBAR_ITEM_PULL = "HopGitPlugin-ToolBar-10100-git-pull";
+  public static final String TOOLBAR_ITEM_PUSH = "HopGitPlugin-ToolBar-10110-git-push";
+  public static final String TOOLBAR_ITEM_BRANCH = "HopGitPlugin-ToolBar-10120-git-branch";
+  public static final String TOOLBAR_ITEM_TAG = "HopGitPlugin-ToolBar-10130-git-tag";
+  public static final String TOOLBAR_ITEM_REFRESH = "HopGitPlugin-ToolBar-10140-git-refresh";
+
+  public static final String GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID = "HopGuiGitPerspective-FilesToolbar";
+  public static final String FILES_TOOLBAR_ITEM_FILES_COMMIT = "HopGitPlugin-FilesToolBar-10000-files-commit";
+  public static final String FILES_TOOLBAR_ITEM_FILES_ADD = "HopGitPlugin-FilesToolBar-10000-files-add";
+
 
   public static final String AUDIT_TYPE = "GitRepository";
 
@@ -139,6 +147,10 @@ public class HopGitPerspective implements IHopPerspective {
   private List<UIFile> changedFiles;
   private PropsUi props;
   private Label wlCommitMessageTextbox;
+
+  private ToolBar filesToolBar;
+  private GuiToolbarWidgets filesToolBarWidgets;
+
 
   public HopGitPerspective() {
     gitPerspectiveToolbarItem = null;
@@ -254,7 +266,7 @@ public class HopGitPerspective implements IHopPerspective {
 
     horizontalSash.setWeights( new int[] { 50, 50 } );
 
-    // On the right toolBarSize of the vertical sash we have the author at the bottom, a commit message above it and
+    // On the right side of the vertical sash we have the author at the bottom, a commit message above it and
     // the changed files above it...
     //
     rightComposite = new Composite( verticalSash, SWT.NO_BACKGROUND );
@@ -305,6 +317,20 @@ public class HopGitPerspective implements IHopPerspective {
     fdlCommitMessageTextbox.right = new FormAttachment( 100, 0 );
     fdlCommitMessageTextbox.bottom = new FormAttachment( commitMessageTextbox, -props.getMargin() );
     wlCommitMessageTextbox.setLayoutData( fdlCommitMessageTextbox );
+
+    // At the very top we have a toolbar...
+    //
+    filesToolBar = new ToolBar( rightComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
+    FormData fdFilesToolBar = new FormData();
+    fdFilesToolBar.left = new FormAttachment( 0, 0 );
+    fdFilesToolBar.top = new FormAttachment( 0, 0 );
+    fdFilesToolBar.right = new FormAttachment( 100, 0 );
+    filesToolBar.setLayoutData( fdFilesToolBar );
+    props.setLook( filesToolBar, Props.WIDGET_STYLE_TOOLBAR );
+
+    filesToolBarWidgets = new GuiToolbarWidgets();
+    filesToolBarWidgets.createToolbarWidgets( filesToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
+    filesToolBar.pack();
 
     // The rest of the height is for the changed files table...
     //
@@ -427,7 +453,7 @@ public class HopGitPerspective implements IHopPerspective {
 
 
   private Combo getRepositoryCombo() {
-    Control control = toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_SELECT_PROJECT );
+    Control control = toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_REPOSITORY_SELECT );
     if ( ( control != null ) && ( control instanceof Combo ) ) {
       Combo combo = (Combo) control;
       return combo;
@@ -436,11 +462,11 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   public static void refreshGitRepositoriesList() {
-    getInstance().toolBarWidgets.refreshComboItemList( TOOLBAR_ITEM_SELECT_PROJECT );
+    getInstance().toolBarWidgets.refreshComboItemList( TOOLBAR_ITEM_REPOSITORY_SELECT );
   }
 
   public static void selectRepositoryInList( String name ) {
-    getInstance().toolBarWidgets.selectComboItem( TOOLBAR_ITEM_SELECT_PROJECT, name );
+    getInstance().toolBarWidgets.selectComboItem( TOOLBAR_ITEM_REPOSITORY_SELECT, name );
   }
 
   public List<String> getGitRepositoryNames( ILogChannel log, IHopMetadataProvider metadataProvider ) throws Exception {
@@ -452,7 +478,7 @@ public class HopGitPerspective implements IHopPerspective {
 
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ITEM_EDIT_PROJECT,
+    id = TOOLBAR_ITEM_REPOSITORY_LABEL,
     type = GuiToolbarElementType.LABEL,
     label = "Git repository ",
     toolTip = "Click here to edit the active git repository",
@@ -478,7 +504,7 @@ public class HopGitPerspective implements IHopPerspective {
 
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-    id = TOOLBAR_ITEM_SELECT_PROJECT,
+    id = TOOLBAR_ITEM_REPOSITORY_SELECT,
     toolTip = "Select a git repository",
     type = GuiToolbarElementType.COMBO,
     comboValuesMethod = "getGitRepositoryNames",
@@ -495,6 +521,46 @@ public class HopGitPerspective implements IHopPerspective {
     }
     loadRepository(repositoryName);
   }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_REPOSITORY_EDIT,
+    toolTip = "Edit the selected git repository",
+    image = "git-edit.svg"
+  )
+  public void editSelectedRepository() {
+    editGitRepository();
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_REPOSITORY_ADD,
+    toolTip = "Add a new git repository",
+    image = "git-add.svg"
+  )
+  public void addNewRepository() {
+    MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
+    GitRepository gitRepository = manager.newMetadata();
+    if (gitRepository!=null) {
+      refreshGitRepositoriesList();
+      selectRepositoryInList( gitRepository.getName() );
+    }
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_REPOSITORY_DELETE,
+    toolTip = "Delete the selected git repository",
+    image = "git-delete.svg"
+  )
+  public void deleteSelectedRepository() {
+    MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
+    if (manager.deleteMetadata()) {
+      refreshGitRepositoriesList();
+    }
+  }
+
+
 
   /**
    * Clear all the data from the git repository perspective
@@ -656,10 +722,15 @@ public class HopGitPerspective implements IHopPerspective {
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_PULL,
     toolTip = "Pull",
-    image = "pull.svg"
+    image = "pull.svg",
+    separator = true
   )
   public void pull() {
-
+    if (vcs!=null) {
+      if (vcs.pull()) {
+        refresh();;
+      }
+    }
   }
 
   @GuiToolbarElement(
@@ -669,8 +740,17 @@ public class HopGitPerspective implements IHopPerspective {
     image = "push.svg"
   )
   public void push() {
-
+    push("default");
   }
+
+  public void push( String type ) {
+    if (vcs!=null) {
+      vcs.push( type );
+    }
+  }
+
+  /*
+  TODO : add branch and tag options
 
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -692,6 +772,8 @@ public class HopGitPerspective implements IHopPerspective {
 
   }
 
+   */
+
   @GuiToolbarElement(
     root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = TOOLBAR_ITEM_REFRESH,
@@ -700,7 +782,7 @@ public class HopGitPerspective implements IHopPerspective {
     separator = true
   )
   public void refresh() {
-
+    refreshContents();
   }
 
   @Override public String getId() {
