@@ -29,8 +29,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "BeamKafkaConsume",
         image = "beam-kafka-input.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamConsume.class; // for i18n purposes, needed by Translator2!!

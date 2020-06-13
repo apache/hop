@@ -60,8 +60,7 @@ import java.util.List;
 @PluginDialog(
         id = "Append",
         image = "append.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/append.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // for i18n purposes, needed by Translator!!

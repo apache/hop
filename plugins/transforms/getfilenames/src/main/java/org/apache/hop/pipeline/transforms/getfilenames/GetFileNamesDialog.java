@@ -81,8 +81,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "GetFileNames",
         image = "getfilenames.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getfilenames.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetFileNamesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!

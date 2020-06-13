@@ -65,8 +65,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "ColumnExists",
         image = "columnexists.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/columnexists.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ColumnExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ColumnExistsDialog.class; // for i18n purposes, needed by Translator!!

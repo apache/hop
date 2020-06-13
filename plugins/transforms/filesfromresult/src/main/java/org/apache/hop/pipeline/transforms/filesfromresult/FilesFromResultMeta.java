@@ -52,7 +52,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filesfromresult",
         name = "BaseTransform.TypeLongDesc.FilesFromResult",
         description = "BaseTransform.TypeTooltipDesc.FilesFromResult",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filesfromresult.html"
 )
 public class FilesFromResultMeta extends BaseTransformMeta implements ITransformMeta<FilesFromResult, FilesFromResultData> {
   private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!

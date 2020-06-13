@@ -66,8 +66,7 @@ import java.util.Set;
 @PluginDialog(
         id = "UniqueRowsByHashSet",
         image = "uniquerowsbyhashset.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!

@@ -63,8 +63,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "TableExists",
         image = "tableexists.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableexists.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!

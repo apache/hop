@@ -50,7 +50,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.webservicelookup",
         name = "BaseTransform.TypeLongDesc.WebServiceLookup",
         description = "BaseTransform.TypeTooltipDesc.WebServiceLookup",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = ""
 )
 public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";

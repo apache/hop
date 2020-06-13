@@ -64,8 +64,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "GetVariable",
         image = "getvariable.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!

@@ -69,8 +69,7 @@ import java.util.Set;
 @PluginDialog(
         id = "StreamLookup",
         image = "streamlookup.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/streamlookup.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!

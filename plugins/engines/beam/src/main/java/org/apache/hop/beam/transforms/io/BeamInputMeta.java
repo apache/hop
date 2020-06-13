@@ -20,10 +20,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamInput",
-  name = "Beam Input",
-  description = "Describes a Beam Input",
-  categoryDescription = "Big Data"
+        id = "BeamInput",
+        name = "Beam Input",
+        description = "Describes a Beam Input",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beaminput.html"
 )
 public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<BeamInput, BeamInputData> {
 

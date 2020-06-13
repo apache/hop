@@ -78,8 +78,7 @@ import java.util.Set;
 @PluginDialog(
         id = "ExecSql",
         image = "SQL.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/sql.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!

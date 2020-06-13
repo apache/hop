@@ -50,8 +50,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@PluginDialog( id = "IfNull", image = "IfNull.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/ifnull.html" )
+@PluginDialog(
+        id = "IfNull",
+        image = "IfNull.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class IfNullDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
 

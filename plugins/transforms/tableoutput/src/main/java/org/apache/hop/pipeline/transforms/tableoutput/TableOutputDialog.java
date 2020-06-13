@@ -97,8 +97,7 @@ import java.util.Set;
 @PluginDialog(
   id = "TableOutput",
   image = "tableoutput.svg",
-  pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
+  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!

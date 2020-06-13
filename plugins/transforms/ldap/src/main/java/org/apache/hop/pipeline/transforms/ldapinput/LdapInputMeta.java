@@ -55,7 +55,8 @@ import java.util.List;
 		image = "ldapinput.svg",
 		i18nPackageName = "org.apache.hop.pipeline.transforms.ldapinput",
 		categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-		keywords = {"ldap","input"}
+		keywords = {"ldap","input"},
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldapinput.html"
 )
 public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITransformMeta<LdapInput, LdapInputData> {
   private static Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!

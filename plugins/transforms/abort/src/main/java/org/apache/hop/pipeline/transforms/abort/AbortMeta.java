@@ -46,9 +46,14 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
 /**
  * Meta data for the abort transform.
  */
-@Transform( id = "Abort", i18nPackageName = "org.apache.hop.pipeline.transforms.abort",
-  name = "Abort.Name", description = "Abort.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "Abort",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.abort",
+        name = "Abort.Name",
+        description = "Abort.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/abort.html"
+)
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 
   private static final Class<?> PKG = AbortMeta.class; // for i18n purposes, needed by Translator!!

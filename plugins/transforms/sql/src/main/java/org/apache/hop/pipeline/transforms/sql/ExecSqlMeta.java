@@ -59,11 +59,12 @@ import java.util.List;
  */
 
 @Transform(
-  id = "ExecSql",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
-  name = "ExecSql.Name",
-  description = "ExecSql.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        id = "ExecSql",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
+        name = "ExecSql.Name",
+        description = "ExecSql.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sql.html"
 )
 @InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
 public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<ExecSql, ExecSqlData> {

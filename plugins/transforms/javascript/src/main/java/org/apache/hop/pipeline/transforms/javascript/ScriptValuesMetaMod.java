@@ -74,7 +74,8 @@ import java.util.Properties;
         i18nPackageName = "org.apache.hop.pipeline.transforms.javascript",
         name = "ScriptValuesMod.Name",
         description = "ScriptValuesMod.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/javascript.html"
 )
 @InjectionSupported( localizationPrefix = "ScriptValuesMod.Injection.", groups = { "FIELDS", "SCRIPTS" } )
 public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransformMeta<ScriptValuesMod, ScriptValuesModData> {

@@ -80,8 +80,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "XMLOutput", image = "XOU.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class XmlOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!

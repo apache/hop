@@ -47,8 +47,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "ExecSqlRow",
         image = "execsqlrow.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!

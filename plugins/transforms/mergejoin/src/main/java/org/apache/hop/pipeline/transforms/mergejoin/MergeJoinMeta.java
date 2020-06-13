@@ -58,7 +58,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.mergejoin",
         name = "BaseTransform.TypeLongDesc.MergeJoin",
         description = "BaseTransform.TypeTooltipDesc.MergeJoin",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
 )
 public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MergeJoin, MergeJoinData> {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!

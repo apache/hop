@@ -65,9 +65,9 @@ import java.util.List;
 @PluginDialog(
         id = "MergeRows",
         image = "mergerows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
-)public class MergeRowsDialog extends BaseTransformDialog implements ITransformDialog {
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
+public class MergeRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator!!
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeRowsSortWarning";
 

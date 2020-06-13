@@ -46,8 +46,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "Sequence",
         image = "addsequence.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/addsequence.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!

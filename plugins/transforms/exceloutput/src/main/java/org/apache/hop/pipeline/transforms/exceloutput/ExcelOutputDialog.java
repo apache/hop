@@ -63,8 +63,7 @@ import java.util.*;
 @PluginDialog(
         id = "ExcelOutput",
         image = "exceloutput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExcelOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!

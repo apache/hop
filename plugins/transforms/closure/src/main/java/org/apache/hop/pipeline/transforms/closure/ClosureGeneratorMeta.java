@@ -49,11 +49,12 @@ import java.util.List;
  */
 
 @Transform(
-  id = "ClosureGenerator",
-  name = "ClosureGenerator.Name",
-  description = "ClosureGenerator.Description",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+      id = "ClosureGenerator",
+      name = "ClosureGenerator.Name",
+      description = "ClosureGenerator.Description",
+      i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
+      categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+      documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/closure.html"
 )
 public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 

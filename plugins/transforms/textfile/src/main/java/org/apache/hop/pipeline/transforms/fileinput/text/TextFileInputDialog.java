@@ -87,8 +87,7 @@ import java.util.stream.Collectors;
 @PluginDialog(
         id = "TextFileInput",
         image = "textfileinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<TextFileInputMeta>, ICsvInputAwareTransformDialog {

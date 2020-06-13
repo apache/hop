@@ -61,8 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "SortRows",
         image = "sortrows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/sort.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!

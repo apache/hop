@@ -66,8 +66,7 @@ import java.util.List;
 @PluginDialog(
         id = "MergeJoin",
         image = "mergejoin.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!

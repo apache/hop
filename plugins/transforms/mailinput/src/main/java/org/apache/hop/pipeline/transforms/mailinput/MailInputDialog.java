@@ -91,9 +91,9 @@ import java.util.Calendar;
 @PluginDialog(
         id = "MailInput",
         image = "mailinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
-)public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
+public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MailInputMeta input;

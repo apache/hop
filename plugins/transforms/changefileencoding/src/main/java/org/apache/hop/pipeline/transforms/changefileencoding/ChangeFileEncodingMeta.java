@@ -43,7 +43,9 @@ import java.util.List;
 
 @Transform( id = "ChangeFileEncoding", i18nPackageName = "org.apache.hop.pipeline.transforms.changefileencoding",
   name = "ChangeFileEncoding.Name", description = "ChangeFileEncoding.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility" )
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/changefileencoding.html"
+)
 public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
   private static final Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator!!

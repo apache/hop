@@ -86,8 +86,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "LoadFileInput",
         image = "loadfileinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/loadfileinput.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class LoadFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!

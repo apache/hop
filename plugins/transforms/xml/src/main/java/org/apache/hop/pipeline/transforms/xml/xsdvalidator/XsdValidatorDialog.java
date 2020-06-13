@@ -63,8 +63,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "XSDValidator", image = "XOU.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class XsdValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!

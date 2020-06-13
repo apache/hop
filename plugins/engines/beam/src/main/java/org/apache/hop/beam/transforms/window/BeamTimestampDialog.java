@@ -27,8 +27,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "BeamTimestamp",
         image = "beam-timestamp.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamTimestampDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamTimestampDialog.class; // for i18n purposes, needed by Translator2!!

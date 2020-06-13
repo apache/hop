@@ -63,8 +63,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "SystemInfo",
         image = "systeminfo.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SystemDataDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!

@@ -58,8 +58,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "ReservoirSampling",
         image = "reservoirsampling.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 

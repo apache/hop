@@ -28,8 +28,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 @PluginDialog(
         id = "BeamWindow",
         image = "beam-window.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamWindowDialog.class; // for i18n purposes, needed by Translator2!!
