@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -32,12 +33,14 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   private String baseFolder;
   private Class<T> managedClass;
   private JsonMetadataParser<T> parser;
+  private IVariables variables;
 
-  public JsonMetadataSerializer( IHopMetadataProvider metadataProvider, String baseFolder, Class<T> managedClass ) {
+  public JsonMetadataSerializer( IHopMetadataProvider metadataProvider, String baseFolder, Class<T> managedClass, IVariables variables ) {
     this.metadataProvider = metadataProvider;
     this.baseFolder = baseFolder;
     this.managedClass = managedClass;
     this.parser = new JsonMetadataParser<>( managedClass, metadataProvider );
+    this.variables = variables;
   }
 
   @Override public List<T> loadAll() throws HopException {
@@ -69,12 +72,25 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
         JsonFactory jsonFactory = new JsonFactory();
         com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser( fileInputStream );
 
-        return parser.loadJsonObject( managedClass, jsonParser );
+        T t = parser.loadJsonObject( managedClass, jsonParser );
+        inheritVariables(t);
+        return t;
       } finally {
         fileInputStream.close();
       }
     } catch ( Exception e ) {
       throw new HopException( "Error loading metadata object '" + name + "' from file '" + filename + "'", e );
+    }
+  }
+
+  /**
+   * If the loaded object implements variables we can inherit from it.
+   *
+   * @param t
+   */
+  private void inheritVariables( T t ) {
+    if (t instanceof IVariables) {
+      ((IVariables)t).initializeVariablesFrom( variables );
     }
   }
 

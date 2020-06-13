@@ -110,6 +110,7 @@ public enum HopExtensionPoint {
   HopGuiNewPipelineTab( "Determine the tab name of a Pipeline (HopGuiPipelineGraph)" ),
   HopGuiNewJobTab( "Determine the tab name of a workflow (HopGuiJobGraph)" ),
 
+  HopGuiMetadataObjectCreateBeforeDialog("A new metadata object is created. Before showing the dialog"),
   HopGuiMetadataObjectCreated("A new metadata object is created"),
   HopGuiMetadataObjectUpdated("A metadata object is updated"),
   HopGuiMetadataObjectDeleted("A metadata object is deleted"),

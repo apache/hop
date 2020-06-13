@@ -1,6 +1,7 @@
 package org.apache.hop.metadata.serializer.memory;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -13,43 +14,55 @@ import java.util.Map;
 
 public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
+  private final IVariables variables;
   private IHopMetadataProvider metadataProvider;
   private Class<T> managedClass;
   private Map<String, T> objectMap;
 
-  public MemoryMetadataSerializer(IHopMetadataProvider provider, Class<T> managedClass) {
+  public MemoryMetadataSerializer( IHopMetadataProvider provider, Class<T> managedClass, IVariables variables ) {
     this.metadataProvider = provider;
     this.managedClass = managedClass;
+    this.variables = variables;
     objectMap = new HashMap<>();
   }
 
   @Override public List<T> loadAll() throws HopException {
-    return new ArrayList<>(objectMap.values());
+    List<T> list = new ArrayList<>();
+    for ( String name : listObjectNames() ) {
+      list.add( load( name ) );
+    }
+    return list;
   }
 
   @Override public T load( String name ) throws HopException {
-    if (name==null) {
-      throw new HopException("Error: you need to specify the name of the metadata object to load");
+    if ( name == null ) {
+      throw new HopException( "Error: you need to specify the name of the metadata object to load" );
     }
-    if (!exists( name )) {
+    if ( !exists( name ) ) {
       return null;
     }
-    return objectMap.get( name );
+    T t = objectMap.get( name );
+
+    if ( t instanceof IVariables ) {
+      ( (IVariables) t ).initializeVariablesFrom( variables );
+    }
+
+    return t;
   }
 
   @Override public void save( T object ) throws HopException {
     String name = ReflectionUtil.getObjectName( object );
-    objectMap.put(name, object);
+    objectMap.put( name, object );
   }
 
   @Override public T delete( String name ) throws HopException {
-    if (name==null) {
-      throw new HopException("Error: you need to specify the name of the metadata object to delete");
+    if ( name == null ) {
+      throw new HopException( "Error: you need to specify the name of the metadata object to delete" );
     }
-    if (!exists( name )) {
-      throw new HopException("Error: Object '"+name+"' doesn't exist");
+    if ( !exists( name ) ) {
+      throw new HopException( "Error: Object '" + name + "' doesn't exist" );
     }
-    T t = objectMap.get(name);
+    T t = objectMap.get( name );
     objectMap.remove( name );
     return t;
   }
@@ -110,5 +123,14 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
    */
   public void setObjectMap( Map<String, T> objectMap ) {
     this.objectMap = objectMap;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
   }
 }

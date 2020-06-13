@@ -2,6 +2,7 @@ package org.apache.hop.metadata.util;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -22,7 +23,7 @@ public class HopMetadataUtil {
       }
       folder=configDirectory+"metadata";
     }
-    return new JsonMetadataProvider( folder );
+    return new JsonMetadataProvider( new HopTwoWayPasswordEncoder(), folder, variables );
   }
 
 

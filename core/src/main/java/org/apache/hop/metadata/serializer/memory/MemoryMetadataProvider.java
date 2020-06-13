@@ -3,6 +3,8 @@ package org.apache.hop.metadata.serializer.memory;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -17,19 +19,21 @@ public class MemoryMetadataProvider extends BaseMetadataProvider implements IHop
   private ITwoWayPasswordEncoder twoWayPasswordEncoder;
 
   public MemoryMetadataProvider() {
+    super( Variables.getADefaultVariableSpace() );
     this.serializerMap = new HashMap<>();
     this.twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
   }
 
-  public MemoryMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder ) {
-    this();
+  public MemoryMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, IVariables variables ) {
+    super(variables);
+    this.serializerMap = new HashMap<>();
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
   }
 
   @Override public <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer( Class<T> managedClass ) throws HopException {
     IHopMetadataSerializer<IHopMetadata> serializer = serializerMap.get( managedClass.getName() );
     if (serializer==null) {
-      serializer = (IHopMetadataSerializer<IHopMetadata>) new MemoryMetadataSerializer<T>( this, managedClass );
+      serializer = (IHopMetadataSerializer<IHopMetadata>) new MemoryMetadataSerializer<T>( this, managedClass, variables );
       serializerMap.put( managedClass.getName(), serializer);
     }
 

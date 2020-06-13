@@ -2,7 +2,9 @@ package org.apache.hop.metadata.serializer.json;
 
 import junit.framework.TestCase;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.occupation.Occupation;
 import org.apache.hop.metadata.serializer.json.person.Address;
@@ -24,7 +26,7 @@ public class JsonMetadataSerializerTest extends TestCase {
 
   @Override protected void setUp() throws Exception {
     String baseFolder = System.getProperty( "java.io.tmpdir" ) + Const.FILE_SEPARATOR + "metadata"; // UUID.randomUUID();
-    metadataProvider = new JsonMetadataProvider( baseFolder );
+    metadataProvider = new JsonMetadataProvider( new HopTwoWayPasswordEncoder(), baseFolder, Variables.getADefaultVariableSpace() );
   }
 
   @Override protected void tearDown() throws Exception {

@@ -4,6 +4,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -18,16 +20,13 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
   private String baseFolder;
 
   public JsonMetadataProvider() {
+    super( Variables.getADefaultVariableSpace() );
     twoWayPasswordEncoder = new HopTwoWayPasswordEncoder();
     baseFolder="metadata";
   }
 
-  public JsonMetadataProvider( String baseFolder ) {
-    this();
-    this.baseFolder = baseFolder;
-  }
-
-  public JsonMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, String baseFolder ) {
+  public JsonMetadataProvider( ITwoWayPasswordEncoder twoWayPasswordEncoder, String baseFolder, IVariables variables ) {
+    super(variables);
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
     this.baseFolder = baseFolder;
   }
@@ -56,7 +55,7 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
       }
     }
 
-    return new JsonMetadataSerializer<T>( this, serializerBaseFolderName, managedClass );
+    return new JsonMetadataSerializer<T>( this, serializerBaseFolderName, managedClass, variables );
   }
 
   /**

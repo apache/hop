@@ -18,6 +18,7 @@ package org.apache.hop.git;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -30,6 +31,7 @@ import org.apache.hop.git.model.repository.GitRepository;
 import org.apache.hop.git.model.revision.ObjectRevision;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -43,11 +45,16 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.swt.SWT;
@@ -70,6 +77,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,8 +110,11 @@ public class HopGitPerspective implements IHopPerspective {
   public static final String TOOLBAR_ITEM_REFRESH = "HopGitPlugin-ToolBar-10140-git-refresh";
 
   public static final String GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID = "HopGuiGitPerspective-FilesToolbar";
-  public static final String FILES_TOOLBAR_ITEM_FILES_COMMIT = "HopGitPlugin-FilesToolBar-10000-files-commit";
-  public static final String FILES_TOOLBAR_ITEM_FILES_ADD = "HopGitPlugin-FilesToolBar-10000-files-add";
+  public static final String FILES_TOOLBAR_ITEM_FILES_OPEN = "HopGitPlugin-FilesToolBar-10000-files-open";
+  public static final String FILES_TOOLBAR_ITEM_FILES_COMMIT = "HopGitPlugin-FilesToolBar-10010-files-commit";
+  public static final String FILES_TOOLBAR_ITEM_FILES_STAGE = "HopGitPlugin-FilesToolBar-10020-files-stage";
+  public static final String FILES_TOOLBAR_ITEM_FILES_UNSTAGE = "HopGitPlugin-FilesToolBar-10030-files-unstage";
+  public static final String FILES_TOOLBAR_ITEM_FILES_DISCARD = "HopGitPlugin-FilesToolBar-10040-files-discard";
 
 
   public static final String AUDIT_TYPE = "GitRepository";
@@ -154,8 +165,8 @@ public class HopGitPerspective implements IHopPerspective {
 
   public HopGitPerspective() {
     gitPerspectiveToolbarItem = null;
-    revisions=Collections.emptyList();
-    changedFiles=Collections.emptyList();
+    revisions = Collections.emptyList();
+    changedFiles = Collections.emptyList();
   }
 
   public static final HopGitPerspective getInstance() {
@@ -254,7 +265,7 @@ public class HopGitPerspective implements IHopPerspective {
     fdRevisionTable.right = new FormAttachment( 100, 0 );
     fdRevisionTable.bottom = new FormAttachment( 100, 0 );
     revisionTable.setLayoutData( fdRevisionTable );
-    revisionTable.table.addListener( SWT.Selection, e-> refreshChangedTable() );
+    revisionTable.table.addListener( SWT.Selection, e -> refreshChangedTable() );
 
     diffText = new Text( horizontalSash, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     FormData fdDiffText = new FormData();
@@ -329,12 +340,12 @@ public class HopGitPerspective implements IHopPerspective {
     props.setLook( filesToolBar, Props.WIDGET_STYLE_TOOLBAR );
 
     filesToolBarWidgets = new GuiToolbarWidgets();
-    filesToolBarWidgets.createToolbarWidgets( filesToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
+    filesToolBarWidgets.createToolbarWidgets( filesToolBar, GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID );
     filesToolBar.pack();
 
     // The rest of the height is for the changed files table...
     //
-    addChangedTable(true);
+    addChangedTable( true );
 
     rightComposite.layout( true, true );
 
@@ -342,10 +353,10 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   private void addChangedTable( boolean withChecks ) {
-    if (changedTable!=null) {
+    if ( changedTable != null ) {
       changedTable.dispose();
     }
-    changedTable = new Table( rightComposite, SWT.BORDER | ( withChecks ? SWT.CHECK : SWT.NONE) | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI );
+    changedTable = new Table( rightComposite, SWT.BORDER | ( withChecks ? SWT.CHECK : SWT.NONE ) | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI );
     changedTable.setLinesVisible( true );
     changedTable.setHeaderVisible( true );
     TableColumn checkColumn = new TableColumn( changedTable, SWT.CHECK );
@@ -354,6 +365,9 @@ public class HopGitPerspective implements IHopPerspective {
     TableColumn statusColumn = new TableColumn( changedTable, SWT.CENTER );
     statusColumn.setText( "Operation" );
     statusColumn.setWidth( (int) ( 100 * props.getZoomFactor() ) );
+    TableColumn stagedColumn = new TableColumn( changedTable, SWT.CENTER );
+    stagedColumn.setText( "Staged?" );
+    stagedColumn.setWidth( (int) ( 100 * props.getZoomFactor() ) );
     TableColumn fileColumn = new TableColumn( changedTable, SWT.LEFT );
     fileColumn.setText( "Changed files" );
     fileColumn.setWidth( (int) ( 500 * props.getZoomFactor() ) );
@@ -361,14 +375,14 @@ public class HopGitPerspective implements IHopPerspective {
     FormData fdChangedTable = new FormData();
     fdChangedTable.left = new FormAttachment( 0, 0 );
     fdChangedTable.right = new FormAttachment( 100, 0 );
-    fdChangedTable.top = new FormAttachment( 0, 0 );
+    fdChangedTable.top = new FormAttachment( 0, filesToolBar.getSize().y );
     fdChangedTable.bottom = new FormAttachment( wlCommitMessageTextbox, -props.getMargin() );
     changedTable.setLayoutData( fdChangedTable );
     changedTable.addListener( SWT.Selection, this::showDiffText );
-    rightComposite.layout(true, true);
+    rightComposite.layout( true, true );
   }
 
-  private void showDiffText( Event event) {
+  private void showDiffText( Event event ) {
     String diff;
     try {
       List<UIFile> selectedFiles = getSelectedChangedFiles();
@@ -380,7 +394,7 @@ public class HopGitPerspective implements IHopPerspective {
             diff = vcs.diff( IVCS.INDEX, IVCS.WORKINGTREE, selectedFiles.get( 0 ).getName() );
           }
         } else {
-          String newCommitId = revisions.get(revisionTable.getSelectionIndex()).getRevisionId();
+          String newCommitId = revisions.get( revisionTable.getSelectionIndex() ).getRevisionId();
           String oldCommitId = vcs.getParentCommitId( newCommitId );
           diff = vcs.diff( oldCommitId, newCommitId, selectedFiles.get( 0 ).getName() );
         }
@@ -388,26 +402,38 @@ public class HopGitPerspective implements IHopPerspective {
         diff = "";
       }
     } catch ( Exception e ) {
-      diff = Const.getStackTracker(e);
+      diff = Const.getStackTracker( e );
     }
-    diffText.setText( Const.NVL(diff, "") );
+    diffText.setText( Const.NVL( diff, "" ) );
   }
 
   private List<UIFile> getSelectedChangedFiles() {
-    boolean checked = (changedTable.getStyle()&SWT.CHECK)!=0;
+    boolean checked = ( changedTable.getStyle() & SWT.CHECK ) != 0;
     List<UIFile> list = new ArrayList<>();
-    if (checked) {
+    if ( checked ) {
       for ( int i = 0; i < changedTable.getItemCount(); i++ ) {
         if ( changedTable.getItem( i ).getChecked() ) {
           list.add( changedFiles.get( i ) );
         }
       }
     } else {
-      for (int index : changedTable.getSelectionIndices()) {
-        list.add(changedFiles.get(index));
+      for ( int index : changedTable.getSelectionIndices() ) {
+        list.add( changedFiles.get( index ) );
       }
     }
     return list;
+  }
+
+  ObjectRevision getFirstSelectedRevision() {
+    if ( revisions.isEmpty() ) {
+      return null;
+    }
+    int selectionIndex = revisionTable.table.getSelectionIndex();
+    if ( selectionIndex < 0 ) {
+      return revisions.get( 0 );
+    } else {
+      return revisions.get( selectionIndex );
+    }
   }
 
 
@@ -419,6 +445,13 @@ public class HopGitPerspective implements IHopPerspective {
     return authorNameTextbox.getText();
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
+    id = FILES_TOOLBAR_ITEM_FILES_COMMIT,
+    label = "Commit",
+    toolTip = "Commit the staged files",
+    image = "git-commit.svg"
+  )
   public void commit() {
     if ( !vcs.hasStagedFiles() ) {
       showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), "There are no staged files" );
@@ -512,14 +545,14 @@ public class HopGitPerspective implements IHopPerspective {
   )
   public void selectRepository() {
     Combo combo = getRepositoryCombo();
-    if (combo==null) {
+    if ( combo == null ) {
       return;
     }
     String repositoryName = combo.getText();
-    if (StringUtils.isEmpty( repositoryName )) {
+    if ( StringUtils.isEmpty( repositoryName ) ) {
       return;
     }
-    loadRepository(repositoryName);
+    loadRepository( repositoryName );
   }
 
   @GuiToolbarElement(
@@ -541,7 +574,7 @@ public class HopGitPerspective implements IHopPerspective {
   public void addNewRepository() {
     MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
     GitRepository gitRepository = manager.newMetadata();
-    if (gitRepository!=null) {
+    if ( gitRepository != null ) {
       refreshGitRepositoriesList();
       selectRepositoryInList( gitRepository.getName() );
     }
@@ -555,11 +588,10 @@ public class HopGitPerspective implements IHopPerspective {
   )
   public void deleteSelectedRepository() {
     MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
-    if (manager.deleteMetadata()) {
+    if ( manager.deleteMetadata() ) {
       refreshGitRepositoriesList();
     }
   }
-
 
 
   /**
@@ -570,15 +602,17 @@ public class HopGitPerspective implements IHopPerspective {
     revisions = Collections.emptyList();
     revisionTable.table.removeAll();
     changedTable.removeAll();
-    diffText.setText("");
-    commitMessageTextbox.setText("");
-    authorNameTextbox.setText("");
+    diffText.setText( "" );
+    commitMessageTextbox.setText( "" );
+    authorNameTextbox.setText( "" );
   }
 
   public void loadRepository( String repositoryName ) {
     try {
-      GitRepository repo = hopGui.getMetadataProvider().getSerializer  (GitRepository.class).load( repositoryName );
-      if (repo==null) {
+      GitRepository repo = hopGui.getMetadataProvider().getSerializer( GitRepository.class ).load( repositoryName );
+      repo.initializeVariablesFrom( hopGui.getVariables() );
+
+      if ( repo == null ) {
         // deleted or moved
         return;
       }
@@ -606,7 +640,7 @@ public class HopGitPerspective implements IHopPerspective {
       //
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE, repositoryName );
 
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error loading git repository", e );
     }
   }
@@ -617,12 +651,12 @@ public class HopGitPerspective implements IHopPerspective {
     revisions = vcs.getRevisions();
 
     revisionTable.clearAll();
-    for (ObjectRevision revision : revisions) {
+    for ( ObjectRevision revision : revisions ) {
       TableItem item = new TableItem( revisionTable.table, SWT.NONE );
-      item.setText(1, Const.NVL(revision.getRevisionId(), ""));
-      item.setText(2, Const.NVL(revision.getComment(), ""));
-      item.setText(3, Const.NVL(revision.getLogin(), ""));
-      item.setText(3, formatDate(revision.getCreationDate()));
+      item.setText( 1, Const.NVL( revision.getRevisionId(), "" ) );
+      item.setText( 2, Const.NVL( revision.getComment(), "" ) );
+      item.setText( 3, Const.NVL( revision.getLogin(), "" ) );
+      item.setText( 4, formatDate( revision.getCreationDate() ) );
     }
     revisionTable.removeEmptyRows();
     revisionTable.setRowNums();
@@ -642,48 +676,52 @@ public class HopGitPerspective implements IHopPerspective {
 
     changedFiles = new ArrayList<>();
     boolean allowChecking;
-    if (isOnlyWIP()) {
+    if ( isOnlyWIP() ) {
       // Work in progress, not a committed revision
       //
-      authorNameTextbox.setText( Const.NVL(vcs.getAuthorName( IVCS.WORKINGTREE ), "") );
-      commitMessageTextbox.setText( Const.NVL(vcs.getCommitMessage( IVCS.WORKINGTREE ), "") );
+      authorNameTextbox.setText( Const.NVL( vcs.getAuthorName( IVCS.WORKINGTREE ), "" ) );
+      commitMessageTextbox.setText( Const.NVL( vcs.getCommitMessage( IVCS.WORKINGTREE ), "" ) );
       changedFiles.addAll( vcs.getUnstagedFiles() );
       changedFiles.addAll( vcs.getStagedFiles() );
-      allowChecking=true;
+      allowChecking = true;
     } else {
-      String commitId = revisions.get(revisionTable.getSelectionIndex()).getRevisionId();
-      authorNameTextbox.setText( Const.NVL( vcs.getAuthorName( commitId ), "") );
-      commitMessageTextbox.setText( Const.NVL( vcs.getCommitMessage( commitId ), "") );
+      String commitId = revisions.get( revisionTable.getSelectionIndex() ).getRevisionId();
+      authorNameTextbox.setText( Const.NVL( vcs.getAuthorName( commitId ), "" ) );
+      commitMessageTextbox.setText( Const.NVL( vcs.getCommitMessage( commitId ), "" ) );
       changedFiles.addAll( vcs.getStagedFiles( vcs.getParentCommitId( commitId ), commitId ) );
-      allowChecking=false;
+      allowChecking = false;
     }
 
     addChangedTable( allowChecking );
-    for (UIFile changedFile : changedFiles) {
-      TableItem item = new TableItem(changedTable, SWT.NONE);
+    for ( UIFile changedFile : changedFiles ) {
+      TableItem item = new TableItem( changedTable, SWT.NONE );
       item.setChecked( false );
-      switch(changedFile.getChangeType()) {
-        case MODIFY: item.setImage( 1, imageChanged ); break;
-        case ADD: item.setImage( 1, imageAdded ); break;
-        case DELETE: item.setImage( 1, imageRemoved ); break;
+      switch ( changedFile.getChangeType() ) {
+        case MODIFY:
+          item.setImage( 1, imageChanged ); break;
+        case ADD:
+          item.setImage( 1, imageAdded ); break;
+        case DELETE:
+          item.setImage( 1, imageRemoved ); break;
         default:
-          item.setText(1, changedFile.getChangeType().name());
+          item.setText( 1, changedFile.getChangeType().name() );
           break;
       }
-      item.setText(2, changedFile.getName());
+      item.setText( 2, changedFile.getIsStaged() ? "Staged" : "" );
+      item.setText( 3, changedFile.getName() );
     }
   }
 
   private String formatDate( Date creationDate ) {
-    if (creationDate==null) {
+    if ( creationDate == null ) {
       return "";
     }
-    return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format( creationDate );
+    return new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" ).format( creationDate );
   }
 
   Boolean isOnlyWIP() {
     int selectionIndex = revisionTable.getSelectionIndex();
-    return ( selectionIndex<0 ) || ( revisions.get(selectionIndex).getRevisionId().equals( IVCS.WORKINGTREE ) );
+    return ( selectionIndex < 0 ) || ( revisions.get( selectionIndex ).getRevisionId().equals( IVCS.WORKINGTREE ) );
   }
 
   public boolean isOpen() {
@@ -691,11 +729,11 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   void initGit( final String baseDirectory ) {
-    MessageBox confirmBox = new MessageBox( hopGui.getShell(), SWT.YES|SWT.NO|SWT.ICON_QUESTION );
+    MessageBox confirmBox = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
     confirmBox.setText( "Repository not found" );
     confirmBox.setMessage( "Create a new repository in the following path?\n" + baseDirectory );
     int answer = confirmBox.open();
-    if ( (answer&SWT.YES)!=0 ) {
+    if ( ( answer & SWT.YES ) != 0 ) {
       try {
         vcs.initRepo( baseDirectory );
         showMessageBox( BaseMessages.getString( PKG, "Dialog.Success" ), BaseMessages.getString( PKG, "Dialog.Success" ) );
@@ -709,12 +747,12 @@ public class HopGitPerspective implements IHopPerspective {
   //
   public void setActive() {
 
-    commitButton.setEnabled( vcs!=null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PULL, vcs!=null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PUSH, vcs!=null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_BRANCH, vcs!=null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_TAG, vcs!=null );
-    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REFRESH, vcs!=null );
+    commitButton.setEnabled( vcs != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PULL, vcs != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_PUSH, vcs != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_BRANCH, vcs != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_TAG, vcs != null );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REFRESH, vcs != null );
 
   }
 
@@ -726,9 +764,9 @@ public class HopGitPerspective implements IHopPerspective {
     separator = true
   )
   public void pull() {
-    if (vcs!=null) {
-      if (vcs.pull()) {
-        refresh();;
+    if ( vcs != null ) {
+      if ( vcs.pull() ) {
+        refresh(); ;
       }
     }
   }
@@ -740,11 +778,11 @@ public class HopGitPerspective implements IHopPerspective {
     image = "push.svg"
   )
   public void push() {
-    push("default");
+    push( "default" );
   }
 
   public void push( String type ) {
-    if (vcs!=null) {
+    if ( vcs != null ) {
       vcs.push( type );
     }
   }
@@ -811,7 +849,7 @@ public class HopGitPerspective implements IHopPerspective {
     gitActiveImage = gitPerspectiveToolbarItem.getImage();
     gitInactiveImage = gitPerspectiveToolbarItem.getDisabledImage();
 
-    int iconSize = (int)(ConstUi.SMALL_ICON_SIZE*props.getZoomFactor());
+    int iconSize = (int) ( ConstUi.SMALL_ICON_SIZE * props.getZoomFactor() );
 
     imageAdded = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "added.svg", iconSize, iconSize );
     imageRemoved = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "removed.svg", iconSize, iconSize );
@@ -885,5 +923,136 @@ public class HopGitPerspective implements IHopPerspective {
    */
   public Image getGitActiveImage() {
     return gitActiveImage;
+  }
+
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
+    id = FILES_TOOLBAR_ITEM_FILES_STAGE,
+    label = "Stage",
+    toolTip = "Stage the selected changed files (add to index)"
+  )
+  public void stage() {
+    List<UIFile> contents = getSelectedChangedFiles();
+    for ( UIFile content : contents ) {
+      if ( content.getChangeType() == DiffEntry.ChangeType.DELETE ) {
+        vcs.rm( content.getName() );
+      } else {
+        vcs.add( content.getName() );
+      }
+    }
+    refresh();
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
+    id = FILES_TOOLBAR_ITEM_FILES_UNSTAGE,
+    label = "Unstage",
+    toolTip = "Unstage the selected changed files (remove from index)"
+  )
+  public void unstage() throws Exception {
+    List<UIFile> contents = getSelectedChangedFiles();
+    for ( UIFile content : contents ) {
+      vcs.resetPath( content.getName() );
+    }
+    refreshContents();
+  }
+
+
+  /**
+   * Discard changes to selected unstaged files.
+   * Equivalent to <tt>git checkout -- &lt;paths&gt;</tt>
+   *
+   * @throws Exception
+   */
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
+    id = FILES_TOOLBAR_ITEM_FILES_DISCARD,
+    label = "Discard",
+    toolTip = "Discard changes to the selected files"
+  )
+  public void discard() throws Exception {
+    MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+    box.setText( "Confirm" );
+    box.setMessage( "Are you sure you want to discard changes to the selected " + getSelectedChangedFiles().size() + " files?" );
+    int answer = box.open();
+    if ( ( answer & SWT.YES ) == 0 ) {
+      return;
+    }
+
+    List<UIFile> contents = getSelectedChangedFiles();
+    for ( UIFile content : contents ) {
+      vcs.revertPath( content.getName() );
+    }
+    refresh();
+
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
+    id = FILES_TOOLBAR_ITEM_FILES_OPEN,
+    toolTip = "Open the selected files",
+    image = "ui/images/open.svg"
+  )
+  public void open() {
+    MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+    box.setText( "Confirm" );
+    box.setMessage( "Do you want to open the selected " + getSelectedChangedFiles().size() + " files in the data orchestration perspective?" );
+    int answer = box.open();
+    if ( ( answer & SWT.YES ) == 0 ) {
+      return;
+    }
+    HopDataOrchestrationPerspective doPerspective = HopDataOrchestrationPerspective.getInstance();
+    HopPipelineFileType<PipelineMeta> pipelineFileType = doPerspective.getPipelineFileType();
+    HopWorkflowFileType<WorkflowMeta> workflowFileType = doPerspective.getWorkflowFileType();
+
+    List<IHopFileTypeHandler> typeHandlers = new ArrayList<>();
+
+    String baseDirectory = vcs.getDirectory();
+    getSelectedChangedFiles().stream()
+      .forEach( content -> {
+        String filePath = baseDirectory + Const.FILE_SEPARATOR + content.getName();
+        String commitId;
+        commitId = isOnlyWIP() ? IVCS.WORKINGTREE : getFirstSelectedRevision().getRevisionId();
+        try ( InputStream xmlStream = vcs.open( content.getName(), commitId ) ) {
+          IEngineMeta meta = null;
+          if ( pipelineFileType.isHandledBy( filePath, false ) ) {
+            // A pipeline...
+            //
+            PipelineMeta pipelineMeta = new PipelineMeta( xmlStream, hopGui.getMetadataProvider(), true, hopGui.getVariables() );
+            meta = pipelineMeta;
+            IHopFileTypeHandler typeHandler = doPerspective.addPipeline( doPerspective.getComposite(), hopGui, pipelineMeta, pipelineFileType );
+            typeHandlers.add(typeHandler);
+          }
+          if ( workflowFileType.isHandledBy( filePath, false ) ) {
+            // A workflow...
+            //
+            WorkflowMeta workflowMeta = new WorkflowMeta( xmlStream, hopGui.getMetadataProvider() );
+            meta = workflowMeta;
+            workflowMeta.initializeVariablesFrom( hopGui.getVariables() );
+            IHopFileTypeHandler typeHandler = doPerspective.addWorkflow( doPerspective.getComposite(), hopGui, workflowMeta, workflowFileType );
+            typeHandlers.add(typeHandler);
+          }
+          if ( meta!=null && !isOnlyWIP() ) {
+            meta.setNameSynchronizedWithFilename( false );
+            meta.setName( String.format( "%s (%s)", meta.getName(), vcs.getShortenedName( commitId, IVCS.TYPE_COMMIT ) ) );
+          }
+        } catch ( Exception e ) {
+          showMessageBox( BaseMessages.getString( PKG, "Dialog.Error" ), e.getMessage() );
+        }
+      } );
+
+    // Did we open any files?
+    //
+    if (!typeHandlers.isEmpty()) {
+      // switch to the data orchestration perspective and select the first opened file
+      //
+      doPerspective.show();
+
+      TabItemHandler tabItemHandler = doPerspective.findTabItemHandler( typeHandlers.get( 0 ) );
+      if (tabItemHandler!=null) {
+        doPerspective.switchToTab( tabItemHandler );
+      }
+    }
   }
 }

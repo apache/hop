@@ -16,6 +16,8 @@
 
 package org.apache.hop.git.model.repository;
 
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -30,6 +32,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 )
 public class GitRepository extends Variables implements Cloneable, IVariables, IHopMetadata {
 
+  public static final String EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION = "GitRepositoryCreate";
+
   @HopMetadataProperty( key = "name" )
   private String name;
 
@@ -40,6 +44,11 @@ public class GitRepository extends Variables implements Cloneable, IVariables, I
   private String directory;
 
   public GitRepository() {
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION, this );
+    } catch(Exception e) {
+      throw new RuntimeException("Error calling extension point "+EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION, e);
+    }
   }
 
   /**

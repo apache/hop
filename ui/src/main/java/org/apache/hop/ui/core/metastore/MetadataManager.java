@@ -295,6 +295,9 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       T element = managedClass.newInstance();
       initializeElementVariables( element );
+
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
+
       boolean created = openMetaDialog( element, getSerializer() );
       if ( created ) {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectCreated.id, element );
