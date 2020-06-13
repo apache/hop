@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -34,7 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -400,7 +400,7 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] infos, TransformMeta nextTransforms,
-                         iVariables variables, IHopMetadataProvider metadataProviders ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProviders ) throws HopTransformException {
     try {
       if ( !Utils.isEmpty( resultfieldname ) ) {
         if ( replacefields ) {
@@ -522,8 +522,8 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;

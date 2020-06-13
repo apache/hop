@@ -75,7 +75,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "SQL", 
 		  image = "SQL.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sql.html"
 )
 public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!

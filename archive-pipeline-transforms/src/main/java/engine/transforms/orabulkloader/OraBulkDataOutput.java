@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 
 import java.io.BufferedWriter;
@@ -68,7 +68,7 @@ public class OraBulkDataOutput {
     this.recTerm = recTerm;
   }
 
-  public void open( iVariables variables, Process sqlldrProcess ) throws HopException {
+  public void open( IVariables variables, Process sqlldrProcess ) throws HopException {
     String loadMethod = meta.getLoadMethod();
     try {
       OutputStream os;
@@ -234,7 +234,7 @@ public class OraBulkDataOutput {
   }
 
   @VisibleForTesting
-  FileObject getFileObject( String vfsFilename, iVariables variables ) throws HopFileException {
+  FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
     return HopVFS.getFileObject( vfsFilename, variables );
   }
 }

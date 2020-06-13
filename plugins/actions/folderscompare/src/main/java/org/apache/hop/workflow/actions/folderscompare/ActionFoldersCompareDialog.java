@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "FOLDERS_COMPARE", 
 		  image = "FoldersCompare.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/folderscompare.html"
 )
 public class ActionFoldersCompareDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFoldersCompare.class; // for i18n purposes, needed by Translator!!

@@ -1,0 +1,22 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beampublisher.adoc
+= Beam GCP Pub/Sub : Publish
+
+== Description
+
+The Beam GCP Pub/Sub : Publish transform publishes messages to a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Topic to publish to|The Google Cloud Pub/Sub topic.
+|The type of message to publish a|
+ 
+* String
+* PubsubMessage
+|The field to use as message|The field which contains the message.
+|===

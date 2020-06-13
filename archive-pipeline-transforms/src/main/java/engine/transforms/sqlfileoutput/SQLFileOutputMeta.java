@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -35,7 +35,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -525,8 +525,8 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
@@ -740,7 +740,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     String realTableName = variables.environmentSubstitute( tablename );
     String realSchemaName = variables.environmentSubstitute( schemaName );
 
@@ -808,7 +808,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

@@ -88,7 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "GET_POP", 
 		  image = "GetPOP.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/getpop.html"
 )
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!

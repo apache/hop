@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
@@ -111,10 +111,10 @@ public class ZipFileMetaTest {
     IRowMeta prev = mock( IRowMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
-    ArrayList<CheckResultInterface> remarks = new ArrayList<>();
+    ArrayList<ICheckResult> remarks = new ArrayList<>();
 
     zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
-      new Variables(), metastore );
+      new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
     assertEquals( "Transform is receiving info from other transforms.", remarks.get( 1 ).getText() );
@@ -123,7 +123,7 @@ public class ZipFileMetaTest {
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
     zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[ 0 ], new String[] { "output" }, info,
-      new Variables(), metastore );
+      new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other transforms!", remarks.get( 1 ).getText() );

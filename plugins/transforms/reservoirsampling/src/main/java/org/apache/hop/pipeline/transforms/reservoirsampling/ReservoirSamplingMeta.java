@@ -44,7 +44,6 @@ import java.util.Objects;
 /**
  * Contains the meta data for the ReservoirSampling transform.
  *
- * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
 @Transform(  id = "ReservoirSampling",

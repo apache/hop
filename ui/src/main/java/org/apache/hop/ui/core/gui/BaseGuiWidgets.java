@@ -42,7 +42,7 @@ public class BaseGuiWidgets {
           method = singleton.getClass().getMethod( toolbarItem.getGetComboValuesMethod() );
           withArguments = false;
         } catch(NoSuchMethodException nsme2) {
-          throw new HopException( "Unable to find method '" + toolbarItem.getGetComboValuesMethod() + "' without parameters or with parameters ILogChannel and IMetaStore in class '" + toolbarItem.getListenerClass() + "'", nsme2 );
+          throw new HopException( "Unable to find method '" + toolbarItem.getGetComboValuesMethod() + "' without parameters or with parameters ILogChannel and IHopMetadataProvider in class '" + toolbarItem.getListenerClass() + "'", nsme2 );
         }
       }
       List<String> values;

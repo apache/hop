@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -73,7 +73,7 @@ public class ReplaceStringMetaTest {
     when( inputRowMeta.searchValueMeta( anyString() ) ).thenReturn( inputFieldMeta );
 
     TransformMeta nextTransform = mock( TransformMeta.class );
-    iVariables variables = mock( iVariables.class );
+    IVariables variables = mock( IVariables.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     meta.getFields( inputRowMeta, "test", null, nextTransform, variables, metadataProvider );
 

@@ -80,7 +80,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   description = "This is the dialog for database connection metadata"
 )
 /**
- * The dialog for IMetaStore element DatabaseMeta
+ * The dialog for DatabaseMeta
  * Don't move this class around as it's sync'ed with the DatabaseMeta package to find the dialog.
  *
  */

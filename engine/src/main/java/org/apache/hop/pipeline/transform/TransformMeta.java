@@ -203,7 +203,7 @@ public class TransformMeta implements
    * Read the transform data from XML
    *
    * @param transformNode  The XML transform node.
-   * @param metadataProvider The IMetaStore.
+   * @param metadataProvider where to get the metadata.
    */
   public TransformMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException,
     HopPluginLoaderException {

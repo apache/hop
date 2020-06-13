@@ -151,7 +151,7 @@ public class GroupByTest {
       GroupByMeta.TYPE_GROUP_CONCAT_STRING } );
 
     meta.getFields( outputFields, "Group By Transform", (IRowMeta[]) null, (TransformMeta) null,
-      (Variables) null, (IMetaStore) null );
+      (Variables) null, (IHopMetadataProvider) null );
 
     assertEquals( outputFields.getValueMetaList().size(), 9 );
     assertTrue( outputFields.getValueMeta( 0 ).getType() == IValueMeta.TYPE_STRING );

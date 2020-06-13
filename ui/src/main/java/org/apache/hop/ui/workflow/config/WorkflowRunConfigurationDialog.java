@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   description = "This dialog allows you to configure the various pipeline run configurations"
 )
 /**
- * The dialog for IMetaStore element WorkflowRunConfiguration
+ * The dialog for metadata object WorkflowRunConfiguration
  * Don't move this class around as it's sync'ed with the WorkflowRunConfiguration package to find the dialog.
  */
 public class WorkflowRunConfigurationDialog extends Dialog implements IMetadataDialog {

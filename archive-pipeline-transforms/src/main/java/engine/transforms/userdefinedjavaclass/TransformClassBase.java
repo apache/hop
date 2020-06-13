@@ -33,7 +33,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -530,7 +530,7 @@ public abstract class TransformClassBase {
 
   @SuppressWarnings( "unchecked" )
   public static void getFields( boolean clearResultFields, IRowMeta row, String originTransformName,
-                                IRowMeta[] info, TransformMeta nextTransform, iVariables variables, List<?> fields ) throws HopTransformException {
+                                IRowMeta[] info, TransformMeta nextTransform, IVariables variables, List<?> fields ) throws HopTransformException {
     if ( clearResultFields ) {
       row.clear();
     }

@@ -795,11 +795,6 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
     return lineages;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return SelectValuesDialog.class.getName();
-  }
-
   public static class SelectField implements Cloneable {
 
     /**

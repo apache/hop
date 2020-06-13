@@ -1,0 +1,44 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/xml/src/main/doc/xsdvalidator.adoc
+= XSD Validator
+
+== Description
+
+The XSD Validator transform performs an XSD validation against data in a file or in an input field. XSD is short for link:http://en.wikipedia.org/wiki/XML_Schema_(W3C)[XML Schema Definition].
+
+As such, there are 2 entities at work here:
+
+* The XML you want to validate the layout for
+* The XSD (Schema) file that describes what the XML file should look like.
+
+To make matters more complex, it's possible to store the XSD inside the XML itself.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|XML Source a|	
+
+* XML source is a file : check this if the XML file is defined as a filename in the XML field
+* XML field : the field to read that contains the XML filename or the XML content itself
+
+|Output fields a|
+
+* Result fieldname : the name of the result field
+* Output String field : check this option if you want to specify specific messages after validation:
+** Display if XML is valid : the message if the XML was valid.
+** Display if XML is not valid : the message if the XML wasn't valid.
+* Add validation msg in output : check this if you want to add a validation message in the output.
+* Validation msg field: the name of the validation message field.
+
+|XML schema definition a|
+	
+XSD source : select one of these options:
+
+* The XSD source is a file, let me specify the filename (specify below in the XSD filename field).
+* The XSD source is a file, defined in a field (specify below in the XSD filename field).
+* The XSD source is defined inside the source XML.
+|===

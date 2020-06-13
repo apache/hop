@@ -23,17 +23,15 @@
 package org.apache.hop.workflow.actions.pipeline;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
@@ -48,7 +46,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -68,7 +65,6 @@ import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +75,14 @@ import java.util.Map;
  * @author Matt Casters
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
+@Action(
+        id = "PIPELINE",
+        image = "PPL.svg",
+        i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
+        name = "Action.Pipeline.TypeDesc",
+        description = "Action.Pipeline.Tooltip",
+        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+)
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
 
@@ -673,7 +677,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           // variables from the pipeline?' option is checked)
           TransformWithMappingMeta.addMissingVariables( pipelineMeta, variables );
         }
-        // Pass the IMetaStore references
+        // Pass the metadata references
         //
         pipelineMeta.setMetadataProvider( metadataProvider );
       }
@@ -911,5 +915,4 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
     }
   }
-
 }

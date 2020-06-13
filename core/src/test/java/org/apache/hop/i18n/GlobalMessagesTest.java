@@ -35,7 +35,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith( PowerMockRunner.class )
 public class GlobalMessagesTest {
   /*
-   * https://github.com/pentaho/pentaho-hop/pull/620
    * Reading properties file without native2ascii. (use UTF8 characters) #620
    */
   private ResourceBundle res = null;

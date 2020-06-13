@@ -90,7 +90,7 @@ public class SystemDataMetaTest implements InitializerInterface<ITransform> {
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
     Document document = documentBuilder.parse( new InputSource( new StringReader( expectedXML ) ) );
     Node node = document;
-    IMetaStore store = null;
+    IHopMetadataProvider store = null;
     systemDataMeta.loadXml( node, store );
     assertEquals( expectedSystemDataMeta, systemDataMeta );
   }

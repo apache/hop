@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -84,7 +84,7 @@ public class MappingParametersTest {
   @Test
   public void testDoNotOverrideMappingParametes() throws HopException {
     prepareMappingParametesActions( false );
-    Mockito.verify( pipelineMeta, never() ).copyVariablesFrom( Mockito.any( iVariables.class ) );
+    Mockito.verify( pipelineMeta, never() ).copyVariablesFrom( Mockito.any( IVariables.class ) );
   }
 
   private void prepareMappingParametesActions( boolean override ) throws HopException {

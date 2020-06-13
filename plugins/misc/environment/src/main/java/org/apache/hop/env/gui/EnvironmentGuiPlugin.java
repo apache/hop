@@ -149,7 +149,7 @@ public class EnvironmentGuiPlugin {
   @GuiToolbarElement(
     root = HopGui.ID_MAIN_TOOLBAR,
     id = ID_TOOLBAR_ENVIRONMENT_DELETE,
-    toolTip = "Add a new environment",
+    toolTip = "Deleted the selected environment (TODO)",
     image = "environment-delete.svg",
     separator = true
   )

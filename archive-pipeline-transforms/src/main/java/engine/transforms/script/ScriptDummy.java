@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
@@ -179,7 +179,7 @@ public class ScriptDummy implements ITransform {
   public void resumeRunning() {
   }
 
-  public void copyVariablesFrom( iVariables variables ) {
+  public void copyVariablesFrom( IVariables variables ) {
   }
 
   public String environmentSubstitute( String aString ) {
@@ -198,11 +198,11 @@ public class ScriptDummy implements ITransform {
     return false;
   }
 
-  public iVariables getParentVariableSpace() {
+  public IVariables getParentVariableSpace() {
     return null;
   }
 
-  public void setParentVariableSpace( iVariables parent ) {
+  public void setParentVariableSpace( IVariables parent ) {
   }
 
   public String getVariable( String variableName, String defaultValue ) {
@@ -213,7 +213,7 @@ public class ScriptDummy implements ITransform {
     return null;
   }
 
-  public void initializeVariablesFrom( iVariables parent ) {
+  public void initializeVariablesFrom( IVariables parent ) {
   }
 
   public void injectVariables( Map<String, String> prop ) {
@@ -226,7 +226,7 @@ public class ScriptDummy implements ITransform {
   public void setVariable( String variableName, String variableValue ) {
   }
 
-  public void shareVariablesWith( iVariables variables ) {
+  public void shareVariablesWith( IVariables variables ) {
   }
 
   public IRowMeta getInputRowMeta() {

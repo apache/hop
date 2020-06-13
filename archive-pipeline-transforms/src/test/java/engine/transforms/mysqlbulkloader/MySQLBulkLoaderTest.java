@@ -115,7 +115,7 @@ public class MySQLBulkLoaderTest {
     Document document = XmlHandler.loadXmlFile( this.getClass().getResourceAsStream( "transform.xml" ) );
     IHopMetadataProvider metadataProvider = null;
     Node transformNode = (Node) document.getDocumentElement();
-    lm.loadXml( transformNode, metastore );
+    lm.loadXml( transformNode, metadataProvider );
     int[] codes = lm.getFieldFormatType();
     assertEquals( 3, codes[ 0 ] );
     assertEquals( 4, codes[ 1 ] );

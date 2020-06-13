@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Shell;
 		  id = "SEND_NAGIOS_PASSIVE_CHECK", 
 		  image = "SendNagiosPassiveCheck.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sendnagiospassivecheck.html"
 )
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSendNagiosPassiveICheck.class; // for i18n purposes, needed by Translator!!

@@ -32,7 +32,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -157,7 +157,7 @@ public class StreamLookupTest {
     doReturn( new String[] { "Value" } ).when( meta ).getValueName();
     doReturn( new String[] { "Value" } ).when( meta ).getValue();
     doCallRealMethod().when( meta ).getFields( any( IRowMeta.class ), anyString(), any( IRowMeta[].class ), any( TransformMeta.class ),
-      any( iVariables.class ), any( IHopMetadataProvider.class ) );
+      any( IVariables.class ), any( IHopMetadataProvider.class ) );
 
     return meta;
   }

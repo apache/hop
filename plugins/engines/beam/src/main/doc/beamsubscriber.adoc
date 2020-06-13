@@ -1,0 +1,23 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beamsubscriber.adoc
+= Beam GCP Pub/Sub : Subscribe
+
+== Description
+
+The Beam GCP Pub/Sub : Subscribe transform gets messages from a link:https://cloud.google.com/pubsub[Google Cloud Pub/Sub] topic using a subscription with the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Subscription name|Name of the Google Cloud Pub/Sub subscription.
+|Topic to subscribe to|The Google Cloud Pub/Sub topic.
+|The type of message to read a|
+ 
+* String
+* PubsubMessage
+|The output field name|The field containing the result message.
+|===

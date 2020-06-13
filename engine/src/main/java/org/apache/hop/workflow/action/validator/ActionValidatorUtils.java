@@ -105,7 +105,7 @@ public class ActionValidatorUtils {
 
   /**
    * Gets the <code>levelOnFail</code> type for given <code>validatorName</code>. If that is not found, returns generic
-   * <code>levelOnFail</code> type. If that fails, returns <code>CheckResultInterface.TYPE_RESULT_ERROR</code>.
+   * <code>levelOnFail</code> type. If that fails, returns <code>ICheckResult.TYPE_RESULT_ERROR</code>.
    */
   public static int getLevelOnFail( ValidatorContext context, String validatorName ) {
     final String key = getKeyLevelOnFail( validatorName );

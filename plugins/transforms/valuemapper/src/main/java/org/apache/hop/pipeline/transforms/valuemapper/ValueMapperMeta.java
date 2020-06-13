@@ -56,8 +56,8 @@ import java.util.List;
 @Transform(
         id = "ValueMapper",
         i18nPackageName = "org.apache.hop.pipeline.transforms.valuemapper",
-        name = "BaseTransform.TypeLongDesc.ValueMapper",
-        description = "BaseTransform.TypeTooltipDesc.ValueMapper",
+        name = "ValueMapper.Name",
+        description = "ValueMapper.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class ValueMapperMeta extends BaseTransformMeta implements ITransformMeta<ValueMapper, ValueMapperData> {

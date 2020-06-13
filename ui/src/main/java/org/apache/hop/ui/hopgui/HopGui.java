@@ -1033,7 +1033,7 @@ public class HopGui implements IActionContextHandlersProvider {
   /**
    * What are the contexts to consider:
    * - the file types registered
-   * - the available IMetaStore element types
+   * - the available metadata types
    *
    * @return The list of context handlers
    */

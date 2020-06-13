@@ -22,7 +22,6 @@ import org.w3c.dom.Node;
   id = "BeamBQOutput",
   name = "Beam BigQuery Output",
   description = "Writes to a BigQuery table in Beam",
-  image = "beam-bq-output.svg",
   categoryDescription = "Big Data"
 )
 public class BeamBQOutputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
@@ -59,10 +58,6 @@ public class BeamBQOutputMeta extends BaseTransformMeta implements ITransformMet
 
   @Override public DummyData getTransformData() {
     return new DummyData();
-  }
-
-  @Override public String getDialogClassName() {
-    return BeamBQOutputDialog.class.getName();
   }
 
   @Override public String getXml() throws HopException {

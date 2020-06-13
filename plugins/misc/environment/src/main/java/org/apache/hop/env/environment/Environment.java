@@ -214,16 +214,16 @@ public class Environment {
   }
 
   /**
-   * Gets metaStoreBaseFolder
+   * Gets metadataBaseFolder
    *
-   * @return value of metaStoreBaseFolder
+   * @return value of metadataBaseFolder
    */
   public String getMetadataBaseFolder() {
     return metadataBaseFolder;
   }
 
   /**
-   * @param metadataBaseFolder The metaStoreBaseFolder to set
+   * @param metadataBaseFolder The metadataBaseFolder to set
    */
   public void setMetadataBaseFolder( String metadataBaseFolder ) {
     this.metadataBaseFolder = metadataBaseFolder;

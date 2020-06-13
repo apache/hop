@@ -28,7 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
@@ -66,13 +66,13 @@ public class MemoryGroupByMetaGetFieldsTest {
 
   private IRowMeta[] mockInfo;
   private TransformMeta mockNextTransform;
-  private iVariables mockSpace;
+  private IVariables mockSpace;
   private IHopMetadataProvider mockIHopMetadataProvider;
 
 
   @Before
   public void setup() throws HopPluginException {
-    mockSpace = mock( iVariables.class );
+    mockSpace = mock( IVariables.class );
     doReturn( "N" ).when( mockSpace ).getVariable( any(), anyString() );
 
     rowMeta = spy( new RowMeta() );

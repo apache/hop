@@ -30,7 +30,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 
 public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
   IRowMeta mockInputRowMeta;
-  iVariables mockVariableSpace;
+  IVariables mockVariableSpace;
   LoadSaveTester loadSaveTester;
   Class<RegexEvalMeta> testMetaClass = RegexEvalMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -73,7 +73,7 @@ public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
   @Before
   public void setup() throws Exception {
     mockInputRowMeta = mock( IRowMeta.class );
-    mockVariableSpace = mock( iVariables.class );
+    mockVariableSpace = mock( IVariables.class );
   }
 
   @Test

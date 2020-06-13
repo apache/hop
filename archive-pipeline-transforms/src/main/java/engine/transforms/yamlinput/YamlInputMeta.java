@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -579,7 +579,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       YamlInputField field = inputFields[ i ];
@@ -621,7 +621,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public FileInputList getFiles( iVariables variables ) {
+  public FileInputList getFiles( IVariables variables ) {
     return FileInputList.createFileList( variables, fileName, fileMask, fileRequired, includeSubFolderBoolean() );
   }
 
@@ -635,8 +635,8 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
@@ -718,7 +718,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransform {
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

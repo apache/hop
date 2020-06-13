@@ -75,7 +75,7 @@ import java.net.InetAddress;
 		  id = "SYSLOG", 
 		  image = "Syslog.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/syslog.html"
 )
 public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!

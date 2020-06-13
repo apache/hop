@@ -87,7 +87,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 	  id = "MSSQL_BULK_LOAD", 
 	  image = "MssqlBulkLoad.svg", 
 	  pluginType = PluginDialog.PluginType.ACTION,
-	  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+	  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mssqlbulkload.html"
 )
 public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMssqlBulkLoad.class; // for i18n purposes, needed by Translator!!

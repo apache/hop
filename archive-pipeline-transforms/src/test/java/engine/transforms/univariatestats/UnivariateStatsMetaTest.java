@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.univariatestats;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -106,7 +106,7 @@ public class UnivariateStatsMetaTest {
     String legacyXml =
       IOUtils.toString( UnivariateStatsMetaTest.class.getClassLoader().getResourceAsStream(
               "org/apache/hop/pipeline/transforms/univariatestats/legacyUnivariateStatsMetaTest.xml") );
-    IMetaStore mockMetaStore = mock( IHopMetadataProvider.class );
+    IHopMetadataProvider mockMetaStore = mock( IHopMetadataProvider.class );
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     meta.loadXml( XmlHandler.loadXmlString( legacyXml ).getFirstChild(), mockMetaStore );
     assertEquals( 2, meta.getNumFieldsToProcess() );
@@ -220,7 +220,7 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testCheckNullPrev() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     meta.check( remarks, null, null, null, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous transforms!", remarks.get( 0 ).getText() );
@@ -231,7 +231,7 @@ public class UnivariateStatsMetaTest {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
     when( mockRowMetaInterface.size() ).thenReturn( 0 );
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous transforms!", remarks.get( 0 ).getText() );
@@ -242,7 +242,7 @@ public class UnivariateStatsMetaTest {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
     IRowMeta mockRowMetaInterface = mock( IRowMeta.class );
     when( mockRowMetaInterface.size() ).thenReturn( 500 );
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     meta.check( remarks, null, null, mockRowMetaInterface, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Transform is connected to previous one, receiving " + 500 + " fields", remarks.get( 0 ).getText() );
@@ -251,7 +251,7 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testCheckWithInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     meta.check( remarks, null, null, null, new String[ 1 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "Transform is receiving info from other transforms.", remarks.get( 1 ).getText() );
@@ -260,7 +260,7 @@ public class UnivariateStatsMetaTest {
   @Test
   public void testCheckWithoutInput() {
     UnivariateStatsMeta meta = new UnivariateStatsMeta();
-    List<CheckResultInterface> remarks = new ArrayList<CheckResultInterface>();
+    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
     meta.check( remarks, null, null, null, new String[ 0 ], null, null, null, null );
     assertEquals( 2, remarks.size() );
     assertEquals( "No input received from other transforms!", remarks.get( 1 ).getText() );

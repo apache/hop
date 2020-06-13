@@ -22,7 +22,7 @@
 
 package org.apache.hop.ui.pipeline.transforms.textfileinput;
 
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -43,14 +43,14 @@ public class VariableButtonListenerFactory {
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
-                                                            iVariables variables ) {
+                                                            IVariables variables ) {
     return getSelectionAdapter( composite, destination, null, null, variables );
   }
 
   // Listen to the Variable... button
   public static final SelectionAdapter getSelectionAdapter( final Composite composite, final Text destination,
                                                             final GetCaretPositionInterface getCaretPositionInterface, final InsertTextInterface insertTextInterface,
-                                                            final iVariables variables ) {
+                                                            final IVariables variables ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         String[] keys = variables.listVariables();

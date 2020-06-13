@@ -41,7 +41,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * Test class covers http://jira.pentaho.com/browse/PDI-15270 issue.
  * Csv data is taken from the attachment to the issue.
  * <p>
  * Created by Yury_Bakhmutski on 10/7/2016.

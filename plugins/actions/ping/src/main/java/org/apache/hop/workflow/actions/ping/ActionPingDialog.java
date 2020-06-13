@@ -64,7 +64,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "PING", 
 		  image = "Ping.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ping.html"
 )
 public class ActionPingDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionPing.class; // for i18n purposes, needed by Translator!!

@@ -1035,11 +1035,6 @@ public class TextFileOutputMeta
     return servletOutput;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return TextFileOutputDialog.class.getName();
-  }
-
   public String getExtension() {
     return extension;
   }

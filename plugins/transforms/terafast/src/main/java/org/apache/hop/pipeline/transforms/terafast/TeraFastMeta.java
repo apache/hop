@@ -51,7 +51,7 @@ import java.util.List;
 		  name = "TeraFast.Name",
 		  categoryDescription = "BaseTransform.Category.Bulk",
 		  image = "TeraFast.svg",
-		  documentationUrl = "http://wiki.pentaho.com/display/EAI/Teradata+Fastload+Bulk+Loader"
+		  documentationUrl = ""
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 

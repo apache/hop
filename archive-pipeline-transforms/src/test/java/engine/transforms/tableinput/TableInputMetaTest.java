@@ -31,7 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
@@ -105,7 +105,7 @@ public class TableInputMetaTest {
     valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     expectedRowMeta.addValueMeta( valueMeta );
 
-    iVariables variables = mock( iVariables.class );
+    IVariables variables = mock( IVariables.class );
     IRowMeta iRowMeta = new RowMeta();
     meta.getFields( iRowMeta, "TABLE_INPUT_META", null, null, variables, null );
 

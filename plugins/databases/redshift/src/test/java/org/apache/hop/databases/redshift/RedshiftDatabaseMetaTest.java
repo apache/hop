@@ -64,8 +64,8 @@ public class RedshiftDatabaseMetaTest {
   @Test
   public void testGetURL() throws Exception {
     assertEquals( "jdbc:redshift://:/", dbMeta.getURL( "", "", "" ) );
-    assertEquals( "jdbc:redshift://rs.pentaho.com:4444/myDB",
-      dbMeta.getURL( "rs.pentaho.com", "4444", "myDB" ) );
+    assertEquals( "jdbc:redshift://rs.project-hop.org:4444/myDB",
+      dbMeta.getURL( "rs.project-hop.org", "4444", "myDB" ) );
     dbMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     assertEquals( "jdbc:odbc:myDB", dbMeta.getURL( null, "Not Null", "myDB" ) );
   }

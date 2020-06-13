@@ -25,19 +25,24 @@ package org.apache.hop.databases.mysql;
 import com.google.common.collect.Sets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -55,14 +60,26 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final Class<?> PKG = MySqlDatabaseMeta.class;
 
   @GuiWidgetElement(
-    id = "resultStreaming",
-    order = "10",
-    parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
-    type = GuiElementType.CHECKBOX,
-    i18nPackage = "org.apache.hop.ui.core.database",
-    label = "DatabaseDialog.label.MySQLStreamResults"
+          id = "resultStreaming",
+          order = "10",
+          parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+          type = GuiElementType.CHECKBOX,
+          i18nPackage = "org.apache.hop.ui.core.database",
+          label = "DatabaseDialog.label.MySQLStreamResults"
   )
   private boolean resultStreaming;
+
+  //TODO: add internationalization
+  @GuiWidgetElement(
+          id = "mySqlDriverClass",
+          order = "20",
+          parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
+          type = GuiElementType.COMBO,
+          comboValuesMethod = "getDriverClassNames",
+          label = "Select database type:"
+  )
+  @HopMetadataProperty( key = "driverClassName" )
+  private String driverClassName="";
 
   /**
    * Gets resultStreaming
@@ -83,7 +100,6 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   private static final int VARCHAR_LIMIT = 65_535;
 
-  // TODO: check package com.mysql.cj.jdbc.exceptions.PacketTooBigException
   private static final Set<String>
     SHORT_MESSAGE_EXCEPTIONS =    
     Sets.newHashSet( "com.mysql.jdbc.PacketTooBigException", "com.mysql.jdbc.MysqlDataTruncation" );
@@ -127,16 +143,31 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * @see IDatabase#getNotFoundTK(boolean)
    */
-  @Override public int getNotFoundTK( boolean use_autoinc ) {
-    if ( supportsAutoInc() && use_autoinc ) {
+  @Override public int getNotFoundTK( boolean useAutoinc ) {
+    if ( supportsAutoInc() && useAutoinc ) {
       return 1;
     }
-    return super.getNotFoundTK( use_autoinc );
+    return super.getNotFoundTK( useAutoinc );
   }
 
-  // TODO: check class com.mysql.jdbc.Driver
   @Override public String getDriverClass() {
-    return "org.gjt.mm.mysql.Driver";
+
+    switch(driverClassName) {
+      case "Mysql":
+        return "org.gjt.mm.mysql.Driver";
+      case "Mysql 8+":
+        return "com.mysql.jdbc.Driver";
+      default:
+        return "org.gjt.mm.mysql.Driver";
+    }
+  }
+
+  public String getDriverClassName() {
+    return driverClassName;
+  }
+
+  public void setDriverClassName(String driverClassName) {
+    this.driverClassName = driverClassName;
   }
 
   @Override public String getURL( String hostname, String port, String databaseName ) {
@@ -412,13 +443,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return true if the specified table is a system table
    */
   @Override public boolean isSystemTable( String tableName ) {
-    if ( tableName.startsWith( "sys" ) ) {
-      return true;
-    }
-    if ( tableName.equals( "dtproperties" ) ) {
-      return true;
-    }
-    return false;
+      return ( tableName.startsWith( "sys" ) || tableName.equals( "dtproperties" ));
   }
 
   /**
@@ -497,6 +522,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return The column label if version is greater than 3 or the column name if version is lower or equal to 3.
    * @throws HopDatabaseException
    */
+  @Override
   public String getLegacyColumnName( DatabaseMetaData dbMetaData, ResultSetMetaData rsMetaData, int index ) throws HopDatabaseException {
     if ( dbMetaData == null ) {
       throw new HopDatabaseException( BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameNoDBMetaDataException" ) );
@@ -512,4 +538,19 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       throw new HopDatabaseException( String.format( "%s: %s", BaseMessages.getString( PKG, "MySQLDatabaseMeta.Exception.LegacyColumnNameException" ), e.getMessage() ), e );
     }
   }
+
+  /**
+   * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
+   *
+   * @param log Logging object
+   * @param metadataProvider If shared metadata is needed to get the values
+   * @return The list of driver type names shown in the GUI
+   */
+  public List<String> getDriverClassNames( ILogChannel log, IHopMetadataProvider metadataProvider){
+    List<String> names = new ArrayList<>();
+    names.add("Mysql");
+    names.add("Mysql 8+");
+    return names;
+  }
+
 }

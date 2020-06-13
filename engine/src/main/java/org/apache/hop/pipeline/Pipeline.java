@@ -556,7 +556,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
    * Sets the default log commit size.
    */
   private void setDefaultLogCommitSize() {
-    String propLogCommitSize = this.getVariable( "pentaho.log.commit.size" );
+    String propLogCommitSize = this.getVariable( "hop.log.commit.size" );
     if ( propLogCommitSize != null ) {
       // override the logCommit variable
       try {

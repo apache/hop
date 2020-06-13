@@ -423,7 +423,7 @@ public class EnterSelectionDialog extends Dialog {
     boolean found = false;
     for ( int i = 0; i < choices.length; i++ ) {
       if ( choices[ i ] != null && choices[ i ].startsWith( BaseMessages.getString( PKG,
-        "EnterSelectionDialog.PentahoRepo" ) ) ) {
+        "EnterSelectionDialog.HopRepo" ) ) ) {
         pentRepo = choices[ i ];
         found = true;
       } else {

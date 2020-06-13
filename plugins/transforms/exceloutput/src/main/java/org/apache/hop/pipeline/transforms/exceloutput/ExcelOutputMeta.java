@@ -1593,8 +1593,4 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     this.header_font_bold = font_bold;
   }
 
-  @Override
-  public String getDialogClassName(){
-    return ExcelOutputDialog.class.getName();
-  }
 }

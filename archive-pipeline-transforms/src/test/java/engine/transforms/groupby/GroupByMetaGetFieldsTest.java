@@ -28,7 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
@@ -65,7 +65,7 @@ public class GroupByMetaGetFieldsTest {
 
   private IRowMeta[] mockInfo;
   private TransformMeta mockNextTransform;
-  private iVariables mockSpace;
+  private IVariables mockSpace;
   private IHopMetadataProvider mockIHopMetadataProvider;
 
   @Before

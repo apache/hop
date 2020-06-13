@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Job;
 import org.apache.hop.pipeline.Pipeline;
@@ -171,7 +171,7 @@ public class SetVariable extends BaseTransform implements ITransform {
         break;
       case SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW:
         // Comments by SB
-        // iVariables rootJob = null;
+        // IVariables rootJob = null;
         parentJob = pipeline.getParentJob();
         while ( parentJob != null ) {
           parentJob.setVariable( varname, value );
@@ -193,7 +193,7 @@ public class SetVariable extends BaseTransform implements ITransform {
 
         // Set the variable on the grand-parent workflow
         //
-        iVariables gpJob = pipeline.getParentJob().getParentJob();
+        IVariables gpJob = pipeline.getParentJob().getParentJob();
         if ( gpJob != null ) {
           gpJob.setVariable( varname, value );
         } else {

@@ -1,0 +1,23 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/pgp/src/main/doc/pgpencryptstream.adoc
+= PGP encrypt stream
+
+== Description
+
+The PGP encrypt stream transform encrypts text using PGP.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|GPG location|GPG key location.
+|Browse...|Browse the filesystem for a GPG key location.
+|Key name|
+|Read keyname from field|Whether or not to read the keyname from a field.
+|Keyname fieldname|The key name field.
+|Data fieldname|The field to encrypt.
+|Result fieldname|The encrypted result field.
+|===

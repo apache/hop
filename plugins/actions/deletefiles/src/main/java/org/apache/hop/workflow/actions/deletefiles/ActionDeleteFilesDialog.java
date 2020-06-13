@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Text;
   id = "DELETE_FILES",
   image = "DeleteFiles.svg",
   pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefiles.html"
 )
 public class ActionDeleteFilesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFiles.class; // for i18n purposes, needed by Translator!!

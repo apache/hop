@@ -422,16 +422,18 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
   }
 
   /**
-   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
-   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
-   * <p>
-   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
-   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
-   * <p>
-   * If the dialog class for a action does not match this pattern it should override this method and return the
-   * appropriate class name
-   *
-   * @return full class name of the dialog
-   */
+￼   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
+￼   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
+￼   * <p>
+￼   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
+￼   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
+￼   * <p>
+￼   * If the dialog class for a action does not match this pattern it should override this method and return the
+￼   * appropriate class name
+￼   *
+￼   * @return full class name of the dialog
+￼   */
   String getDialogClassName();
+
+
 }

@@ -40,8 +40,6 @@ public class SortRowsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   /**
-   * Replaced previous testRep with load/save tester. Should cover http://jira.pentaho.com/browse/BACKLOG-377
-   *
    * @throws HopException
    */
   @Test

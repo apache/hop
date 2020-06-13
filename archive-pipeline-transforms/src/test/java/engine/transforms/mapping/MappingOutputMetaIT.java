@@ -26,7 +26,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public class MappingOutputMetaIT {
 
   private IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-  private iVariables variables = mock( iVariables.class );
+  private IVariables variables = mock( IVariables.class );
   private TransformMeta nextTransform = mock( TransformMeta.class );
   private IRowMeta[] info = new IRowMeta[] { mock( IRowMeta.class ) };
 

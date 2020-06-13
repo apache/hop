@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.xbaseinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -36,7 +36,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -348,7 +348,7 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     FileInputList fileList = getTextFileList( variables );
     if ( fileList.nrOfFiles() == 0 ) {
@@ -384,8 +384,8 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
@@ -454,12 +454,12 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
     return new XBaseInputData();
   }
 
-  public String[] getFilePaths( iVariables variables ) {
+  public String[] getFilePaths( IVariables variables ) {
     return FileInputList.createFilePathList(
       variables, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
   }
 
-  public FileInputList getTextFileList( iVariables variables ) {
+  public FileInputList getTextFileList( IVariables variables ) {
     return FileInputList.createFileList(
       variables, new String[] { dbfFileName }, new String[] { null }, new String[] { null }, new String[] { "N" } );
   }
@@ -491,7 +491,7 @@ public class XBaseInputMeta extends BaseTransformMeta implements ITransform {
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

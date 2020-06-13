@@ -1,0 +1,34 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/xml/src/main/doc/xmljoin.adoc
+= XML Join
+
+== Description
+
+The XML Join transform allows to add xml tags from one stream into a leading XML structure from a second stream. While the target stream must have only one row, since it represents a XML document, the other stream can consist of many rows and the tags from all rows will be added to the target document.
+
+After the join only one row will be produced containing the fields of the target transform plus the result field of the join.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Target XML Transform|Transform that sends the target document to the join.
+|Target XML Field|Field that contains the XML structure.
+|Source XML Transform|Transform that send the XML structure(s) to the join that need to be added to the target.
+|Source XML Field|Field that contains the XML structures that get added to the target.
+|XPath Statemen|XPath statement to find the node in the target document where the tags will be added. When the complex join is eneabled a single ? is used as a placeholder.
+|Complex Join|Flag to enable the complex join syntax, using the placeholder in the XPath Statment
+|Join Comparision Field|Field that contains the values that get replaced in the XPath Statement
+|Result XML field|The field that wil contain the result.
+|Encoding|Encoding to be used in the XML Header and to transform the XML.
+|Omit XML header|Should the XML header be omitted? The encoding of the
+target XML will be preserved
+|Omit null values from XML result|Without checking this option, null values are added to the XML output as an empty element, for instance: <abc/>. When this option is checked, these tags are completely omitted in the output. This is useful to save space in the output file (for high volume transactions) and to create special needed output. 
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

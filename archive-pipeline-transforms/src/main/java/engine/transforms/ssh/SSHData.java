@@ -31,7 +31,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -69,7 +69,7 @@ public class SSHData extends BaseTransformData implements ITransformData {
   }
 
   public static Connection OpenConnection( String serveur, int port, String username, String password,
-                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, iVariables variables, String proxyhost,
+                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, IVariables variables, String proxyhost,
                                            int proxyport, String proxyusername, String proxypassword ) throws HopException {
     Connection conn = null;
     char[] content = null;

@@ -3,6 +3,7 @@ package org.apache.hop.beam.transforms.io;
 
 import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -27,6 +28,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 
+@PluginDialog(
+        id = "BeamInput",
+        image = "beam-input.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM,
+        documentationUrl = ""
+)
 public class BeamInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamInput.class; // for i18n purposes, needed by Translator2!!
   private final BeamInputMeta input;

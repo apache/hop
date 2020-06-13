@@ -242,7 +242,7 @@ public class HopRun implements Runnable {
       //
       parseOptions( cmd, configuration, workflowMeta );
 
-      // Certain Pentaho plugins rely on this.  Meh.
+      // Certain Hop plugins rely on this.  Meh.
       //
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
 

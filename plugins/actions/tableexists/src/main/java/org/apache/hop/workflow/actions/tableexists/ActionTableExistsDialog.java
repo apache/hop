@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "TABLE_EXISTS", 
 		  image = "TableExists.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/tableexists.html"
 )
 public class ActionTableExistsDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionTableExists.class; // for i18n purposes, needed by Translator!!

@@ -49,8 +49,8 @@ import java.util.List;
 @Transform(
         id = "GetSlaveSequence",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getslavesequence",
-        name = "BaseTransform.TypeLongDesc.GetSlaveSequence",
-        description = "BaseTransform.TypeTooltipDesc.GetSlaveSequence",
+        name = "GetSlaveSequence.Name",
+        description = "GetSlaveSequence.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
 )
 public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetSlaveSequence, GetSlaveSequenceData> {

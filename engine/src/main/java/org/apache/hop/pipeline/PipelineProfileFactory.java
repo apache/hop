@@ -39,7 +39,6 @@ import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 /**
  * Helper class to generate profiling pipelines...
  *
- * @author Matt Casters (mcasters@pentaho.org)
  */
 public class PipelineProfileFactory {
   public static final String RESULT_TRANSFORM_NAME = "calc stats";

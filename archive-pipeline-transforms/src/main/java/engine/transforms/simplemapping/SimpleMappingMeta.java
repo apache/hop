@@ -24,14 +24,14 @@ package org.apache.hop.pipeline.transforms.simplemapping;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -165,7 +165,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
@@ -270,18 +270,18 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.NotReceivingAnyFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -289,12 +289,12 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
@@ -377,7 +377,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   @Deprecated
-  public IHasFilename loadReferencedObject( int index, iVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IVariables variables ) throws HopException {
     return loadReferencedObject( index, null, variables );
   }
 
@@ -390,7 +390,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, iVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     return loadMappingMeta( this, metadataProvider, variables );
   }
 

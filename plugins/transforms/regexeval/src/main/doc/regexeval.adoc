@@ -1,0 +1,130 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/regexeval/src/main/doc/regexeval.adoc
+= Regex Evaluation
+
+== Description
+
+The Regex evaluation transform matches the strings of an input field against a text pattern you define with a regular expression (regex). This transform uses the java.util.regex package. The syntax for creating the regular expressions used by this transform is defined in the java.util.regex.Pattern javadoc.
+
+You can use this transform to parse a complex string of text and create new fields out of the input field with capture groups (defined by parentheses). For example, if you have an input field containing an author's name in quotes and the number of posts made by them, you can create two new fields in your pipeline - one for the name, and one for the number of posts as shown below: 
+
+Text to parse:
+
+[source,bash]
+----
+"Author, Ann" - 53 posts
+----
+
+Regex to create two capture groups:
+
+[source,bash]
+----
+^"([^"]*)" - (\d*) posts$
+----
+
+The resulting field values are: Ann and 53.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|===
+
+=== Capture Group Fields
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|New field|Name of the new field generated from the regular expression.
+|Type|Type of data.
+|Length|Length of the field.
+|Precision|Number of floating point digits for number-type fields.
+|Format|An optional mask for converting the format of the original field. See Common Formats for |information on common valid date and numeric formats you can use in this transform.
+|Group|A grouping can be a "," (10,000.00 for example) or "." (5.000,00 for example)
+|Decimal|The character used as a decimal point.
+|Currency|Currency symbol ($ or € for example)
+|Null If|Treat this value as null.
+|Default|Default value when the field in the incoming file is not specified (empty).
+|Trim|The trim method to apply to a string.
+|===
+
+=== Settings Tab
+
+The Settings tab contains the following options:
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Field to evaluate|Specify the name of the field from the incoming Hop stream to be matched against the regular expression.
+|Result field name|Specify the name of the output field. This field is added to the outgoing Hop stream and has a value of Y to indicate the value of the input field matched the regular expression or N to indicate it did not match.
+|Create fields for capture groups|Select to create new fields based on capture groups, in the regular expression. When this option is selected, substrings in the captured groups are extracted and stored in new output fields, that you specify in the Capture Group Fields table. Each capture group must have a field defined in the Capture Group Fields table. The order of the fields in the table must be the same as the order of the capturing groups in the regular expression. You can change the data type using the columns in the table.
+|Replace previous fields|Select to replace fields from the incoming Hop stream with fields created for the capture group field names, if the fields have the same name. If this option is clear, new fields are added to the outgoing Hop stream for each capturing group field. This option is available when you select the Create fields for capture groups option.
+|Regular expression|Specify your regular expression. Click Test regEx to open the Regular expression evaluation window.
+|Use variable substitution|Select to expand variable references to their values before evaluating the regular expression pattern. 
+|===
+
+=== Test regEx
+
+You can test your regular expression against three different input strings using the following Regular expression evaluation window. If your expression contains a group field, type a string in the Compare section and the option below the string will be split according to your group(s).
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Please enter a new regular expression or modify|Specify your regular expression.
+|Values to test|Specify the values (Value1, Value2, or Value3) to test your string. The background will turn green if that value is a match against your expression or red if it does not.
+|Capture from value|Displays the value of the captured string.
+|Captured fields|Displays the value of the captured groups.
+|===
+
+=== Content Tab
+
+The Content tab contains the following options:
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Ignore differences in Unicode encodings |Select to ignore different Unicode character encodings. This action may improve performance, but your data can only contain US ASCII characters.
+|Enables case-insensitive matching a|Select to use case-insensitive matching. Only characters in the US-ASCII charset are matched. Unicode-aware case-insensitive matching can be enabled by specifying the 'Unicode-aware case...' flag in conjunction with this flag.
+
+* The execution flag is (?i).
+|Permit whitespace and comments in pattern a|Select to ignore whitespace and embedded comments starting with # through the end of the line. In this mode, you must use the \s token to match whitespace. If this option is not enabled, whitespace characters appearing in the regular expression are matched as-is.
+
+* The execution flag is (?x).
+|Enable dotall mode|Select to include line terminators with the dot character expression match.
+
+The execution flag is (?s).
+|Enable multiline mode a|Select to match the start of a line '^' or the end of a line '$' of the input sequence. By default, these expressions only match at the beginning and the end of the entire input sequence.
+
+* The execution flag is(?m)
+|Enable Unicode-aware case folding a|Select this option in conjunction with the Enables case-insensitive matching option to perform case-insensitive matching consistent with the Unicode standard.
+
+* The execution flag is (?u).
+|Enables Unix lines mode a|Select to only recognize the line terminator in the behavior of '.', '^', and '$'.\
+
+* The execution flag is (?d).
+|===
+
+== Examples
+
+Suppose your input field contains a text value like "Author, Ann" - 53 posts. The following regular expression creates four capturing groups and can be used to parse out the different parts:
+
+[source,bash]
+----
+^"((["]), (["]))" - (\d+) posts\.$
+----
+
+This expression creates the following four capturing groups, which become output fields:
+
+* Fullname: ((["]), (["]))
+* Lastname: ([^"]+)
+* Firstname: ([^"]+)
+* Number of posts: (\d+)
+
+In this example, a field definition must be present for each of these capturing groups.
+
+If the number of capture groups in the regular expression does not match the number of fields specified, the transform will fail and an error is written to the log. Capturing groups can be nested. In the example above the fields Lastname and Firstname correspond to the capturing groups that are themselves contained inside the Fullname capturing group.

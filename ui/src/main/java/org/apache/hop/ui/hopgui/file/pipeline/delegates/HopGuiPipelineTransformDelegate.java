@@ -86,6 +86,7 @@ public class HopGuiPipelineTransformDelegate {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
     String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
+
     if ( dialogClassName == null ) {
       // Calculate it from the base meta class...
       //

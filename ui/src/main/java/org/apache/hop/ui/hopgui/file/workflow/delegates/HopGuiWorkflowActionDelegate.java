@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -164,6 +165,7 @@ public class HopGuiWorkflowActionDelegate {
     String dialogClassName = plugin.getClassMap().get( IActionDialog.class );
     if ( dialogClassName == null ) {
       // try the deprecated way
+
       hopGui.getLog().logBasic( "Use of IAction#getDialogClassName is deprecated, use PluginDialog annotation instead." );
       dialogClassName = action.getDialogClassName();
     }

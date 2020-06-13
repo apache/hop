@@ -70,7 +70,7 @@ import java.util.Properties;
  *
  */
 @Transform(
-        id = "ScriptValuesMod",
+        id = "ScriptValueMod",
         i18nPackageName = "org.apache.hop.pipeline.transforms.javascript",
         name = "ScriptValuesMod.Name",
         description = "ScriptValuesMod.Description",
@@ -795,10 +795,6 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  public String getDialogClassName() {
-    return "org.apache.hop.ui.pipeline.transforms.scriptvalues_mod.ScriptValuesModDialog";
   }
 
   /**

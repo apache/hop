@@ -277,7 +277,7 @@ public class GuiCompositeWidgets {
     try {
       Method method = sourceObject.getClass().getMethod( getComboValuesMethod, ILogChannel.class, IHopMetadataProvider.class );
       if (method==null) {
-        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IMetaStore in object '"+sourceObject+"'" );
+        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IHopMetadataProvider in object '"+sourceObject+"'" );
       }
       List<String> names = (List<String>) method.invoke( sourceObject, LogChannel.UI, HopGui.getInstance().getMetadataProvider() );
       return names.toArray( new String[0] );

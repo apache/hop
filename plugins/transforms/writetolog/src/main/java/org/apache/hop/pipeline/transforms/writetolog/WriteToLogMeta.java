@@ -50,8 +50,8 @@ import java.util.List;
 @Transform(
         id = "WriteToLog",
         i18nPackageName = "org.apache.hop.pipeline.transforms.writetolog",
-        name = "BaseTransform.TypeLongDesc.WriteToLog",
-        description = "BaseTransform.TypeTooltipDesc.WriteToLog",
+        name = "WriteToLog.Name",
+        description = "WriteToLog.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
 )
 public class WriteToLogMeta extends BaseTransformMeta implements ITransformMeta<WriteToLog, WriteToLogData> {
