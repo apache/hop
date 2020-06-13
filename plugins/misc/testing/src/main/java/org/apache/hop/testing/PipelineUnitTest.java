@@ -521,7 +521,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
               //
               setPipelineFilename( relativeFilename );
 
-              LogChannel.GENERAL.logBasic( "Unit test '" + getName() + "' : saved relative path to pipeline: " + relativeFilename );
+              LogChannel.GENERAL.logDetailed( "Unit test '" + getName() + "' : saved relative path to pipeline: " + relativeFilename );
             }
           }
           parent = parent.getParent();

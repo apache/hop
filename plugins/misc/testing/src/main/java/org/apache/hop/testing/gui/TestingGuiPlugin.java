@@ -56,7 +56,6 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.PipelineUnitTestTweak;
-import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
@@ -71,7 +70,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.testing.DataSetDialog;
 import org.apache.hop.ui.testing.EditRowsDialog;
-import org.apache.hop.ui.testing.PipelineUnitTestDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
@@ -665,6 +663,29 @@ public class TestingGuiPlugin {
 
   @GuiToolbarElement(
     root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit",
+    toolTip = "Edit the selected unit test",
+    image = "Test_tube_icon_edit.svg",
+    separator = true
+  )
+  public void editUnitTest() {
+    HopGui hopGui = HopGui.getInstance();
+    PipelineMeta pipelineMeta = getActivePipelineMeta();
+    if ( pipelineMeta == null ) {
+      return;
+    }
+    PipelineUnitTest unitTest = getCurrentUnitTest( pipelineMeta );
+
+    MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
+    if (manager.editMetadata(unitTest.getName())) {
+      // Activate the test
+      refreshUnitTestsList();
+      selectUnitTest( pipelineMeta, unitTest );
+    }
+  }
+
+  @GuiToolbarElement(
+    root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = "HopGuiPipelineGraph-ToolBar-20020-unit-tests-create",
     toolTip = "Create a new unit test for this pipeline",
     image = "Test_tube_icon_create.svg",
@@ -676,36 +697,13 @@ public class TestingGuiPlugin {
     if ( pipelineMeta == null ) {
       return;
     }
-    // Create a new unit test
-    PipelineUnitTest test = new PipelineUnitTest(
-      pipelineMeta.getName() + " UNIT",
-      "",
-      pipelineMeta.getFilename(),
-      new ArrayList<>(),
-      new ArrayList<>(),
-      new ArrayList<>(),
-      TestType.UNIT_TEST,
-      null,
-      new ArrayList<>(),
-      false
-    );
 
-    PipelineUnitTestDialog dialog = new PipelineUnitTestDialog( hopGui.getShell(), hopGui.getMetadataProvider(), test );
-    String testName = dialog.open();
-    if ( testName != null ) {
-      try {
-        test.setRelativeFilename( pipelineMeta.getFilename() );
-
-        IHopMetadataSerializer<PipelineUnitTest> testSerializer = hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class );
-
-        testSerializer.save( test );
-
-        // Activate the test
-        refreshUnitTestsList();
-        selectUnitTest( pipelineMeta, test );
-      } catch ( Exception e ) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving test '" + test.getName() + "'", e );
-      }
+    MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
+    PipelineUnitTest test = manager.newMetadata();
+    if (test!=null) {
+      // Activate the test
+      refreshUnitTestsList();
+      selectUnitTest( pipelineMeta, test );
     }
   }
 
@@ -811,7 +809,7 @@ public class TestingGuiPlugin {
    *
    * @return The active pipeline or null
    */
-  public PipelineMeta getActivePipelineMeta() {
+  public static final PipelineMeta getActivePipelineMeta() {
     IHopFileTypeHandler handler = HopGui.getInstance().getActiveFileTypeHandler();
 
     // These conditions shouldn't ever happen but let's make sure...
