@@ -45,7 +45,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -662,7 +662,7 @@ public class OraBulkLoader extends BaseTransform implements ITransform {
   }
 
   @VisibleForTesting
-  FileObject getFileObject( String vfsFilename, iVariables variables ) throws HopFileException {
+  FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
     return HopVFS.getFileObject( environmentSubstitute( vfsFilename ), variables );
   }
 }

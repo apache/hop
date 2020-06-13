@@ -27,7 +27,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ import java.util.Map;
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
 	// TODO: Manage all attributes in plugin when HOP-67 is fixed
-	@MetaStoreAttribute
+	@HopMetadataProperty
 	@GuiWidgetElement(id =  "warehouse", order = "02B", i18nPackage = "org.apache.hop.ui.core.database", label = "DatabaseDialog.label.Warehouse", type = GuiElementType.TEXT, variables = true, parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
 	private String warehouse;
 

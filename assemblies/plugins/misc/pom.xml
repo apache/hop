@@ -20,6 +20,7 @@
         <module>debug</module>
         <module>environment</module>
         <module>testing</module>
+        <module>git</module>
     </modules>
 
 </project>

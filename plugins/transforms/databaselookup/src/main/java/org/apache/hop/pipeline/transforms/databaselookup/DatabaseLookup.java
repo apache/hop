@@ -314,7 +314,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
       // create the output metadata
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.db.setLookup(
         environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTablename() ),

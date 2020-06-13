@@ -46,7 +46,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -390,8 +390,8 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrkeys ) {
@@ -412,7 +412,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this.databases = databases;
     try {
       String commit, csize;
@@ -420,7 +420,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tablename = XmlHandler.getTagValue( transformNode, "table" );
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       commit = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( commit, 0 );
       csize = XmlHandler.getTagValue( transformNode, "cache_size" );
@@ -487,7 +487,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     IValueMeta v = new ValueMetaInteger( technicalKeyField );
     v.setLength( 10 );
     v.setPrecision( 0 );
@@ -545,7 +545,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -711,7 +711,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
   @Override
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) {
+                                        IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     int i;
@@ -944,7 +944,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) {
+                             IHopMetadataProvider metadataProvider ) {
     // The keys are read-only...
     for ( int i = 0; i < keyField.length; i++ ) {
       IValueMeta v = prev.searchValueMeta( keyField[ i ] );

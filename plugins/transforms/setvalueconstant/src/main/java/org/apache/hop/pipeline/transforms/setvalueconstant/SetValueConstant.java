@@ -67,7 +67,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
 
       // What's the format of the output row?
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      meta.getFields( data.getOutputRowMeta(), getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider );
       // Create convert meta-data objects that will contain Date & Number formatters
       // data.convertRowMeta = data.outputRowMeta.clone();
 

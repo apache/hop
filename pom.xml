@@ -8,7 +8,6 @@
   <artifactId>hop</artifactId>
   <version>0.30-SNAPSHOT</version>
 
-
   <packaging>pom</packaging>
 
   <name>Hop Orchestration Platform</name>
@@ -705,7 +704,6 @@
         </property>
       </activation>
       <modules>
-        <module>metastore</module>
         <module>core</module>
         <module>engine</module>
         <module>ui</module>

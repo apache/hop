@@ -1627,7 +1627,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(), oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "PropertyInputDialog.NumberRows.DialogTitle" ),

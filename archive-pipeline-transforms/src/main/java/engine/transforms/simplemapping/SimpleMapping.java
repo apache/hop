@@ -244,7 +244,7 @@ public class SimpleMapping extends BaseTransform implements ITransform {
         // Pass the MetaStore down to the metadata object...
         //
         simpleMappingData.mappingPipelineMeta =
-          SimpleMappingMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getMappingParameters().isInheritingAllVariables() );
+          SimpleMappingMeta.loadMappingMeta( meta, meta.getMetadataProvider(), this, meta.getMappingParameters().isInheritingAllVariables() );
         if ( simpleMappingData.mappingPipelineMeta != null ) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.

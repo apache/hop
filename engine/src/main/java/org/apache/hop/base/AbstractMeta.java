@@ -33,6 +33,7 @@ import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
@@ -53,8 +54,7 @@ import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,9 +66,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
-  IEngineMeta, INamedParams, IAttributes,
-  ILoggingObject {
+public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngineMeta, INamedParams, IAttributes, ILoggingObject {
 
   /**
    * Constant = 1
@@ -124,7 +122,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
 
   protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   protected String createdUser, modifiedUser;
 
@@ -187,30 +185,30 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    */
   @Override
   public String getName() {
-    return extractNameFromFilename(nameSynchronizedWithFilename, name, filename, getExtension());
+    return extractNameFromFilename( nameSynchronizedWithFilename, name, filename, getExtension() );
   }
 
   public static final String extractNameFromFilename( boolean sync, String name, String filename, String extension ) {
-    if (filename==null) {
+    if ( filename == null ) {
       return name;
     } else {
-      if (sync) {
+      if ( sync ) {
         int lastExtIndex = filename.toLowerCase().lastIndexOf( extension );
-        if (lastExtIndex<0) {
-          lastExtIndex=filename.length();
+        if ( lastExtIndex < 0 ) {
+          lastExtIndex = filename.length();
         }
 
         // Get the last / or \ in a filename
         //
         int lastSlashIndex = filename.lastIndexOf( '/' );
-        if (lastSlashIndex<0) {
+        if ( lastSlashIndex < 0 ) {
           lastSlashIndex = filename.lastIndexOf( '\\' );
         }
-        if (lastSlashIndex<0) {
+        if ( lastSlashIndex < 0 ) {
           lastSlashIndex = -1;
         }
 
-        return filename.substring( lastSlashIndex+1, lastExtIndex );
+        return filename.substring( lastSlashIndex + 1, lastExtIndex );
 
       } else {
         return name;
@@ -341,23 +339,23 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    * @return The database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase( String name ) {
-    if ( metaStore == null || StringUtils.isEmpty( name ) ) {
+    if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
       return null;
     }
     try {
-      DatabaseMeta databaseMeta = DatabaseMeta.createFactory( metaStore ).loadElement( name );
+      DatabaseMeta databaseMeta = metadataProvider.getSerializer( DatabaseMeta.class ).load( name );
       databaseMeta.initializeVariablesFrom( this );
       return databaseMeta;
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metastore", e );
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
     }
   }
 
   public int nrDatabases() {
     try {
-      return DatabaseMeta.createFactory( metaStore ).getElementNames().size();
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metastore", e );
+      return metadataProvider.getSerializer( DatabaseMeta.class ).listObjectNames().size();
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
     }
   }
 
@@ -522,13 +520,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    * @return the slave server or null if we couldn't spot an approriate entry.
    */
   public SlaveServer findSlaveServer( String serverString ) {
-    if ( metaStore == null || StringUtils.isEmpty( name ) ) {
+    if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
       return null;
     }
     try {
-      return SlaveServer.createFactory( metaStore ).loadElement( name );
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load slave server with name '" + name + "' from the metastore", e );
+      return metadataProvider.getSerializer( SlaveServer.class ).load( name );
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to load slave server with name '" + name + "' from the metadata", e );
     }
   }
 
@@ -539,11 +537,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    */
   public String[] getSlaveServerNames() {
     try {
-      List<String> names = SlaveServer.createFactory( metaStore ).getElementNames();
+      List<String> names = metadataProvider.getSerializer( SlaveServer.class ).listObjectNames();
       Collections.sort( names );
       return names.toArray( new String[ 0 ] );
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to get slave server names from the metastore", e );
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to get slave server names from the metadata", e );
     }
   }
 
@@ -948,9 +946,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    */
   public List<DatabaseMeta> getDatabases() {
     try {
-      return DatabaseMeta.createFactory( metaStore ).getElements();
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to load databases from the metastore", e );
+      return metadataProvider.getSerializer( DatabaseMeta.class ).loadAll();
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to load databases from the metadata", e );
     }
   }
 
@@ -961,11 +959,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
    */
   public String[] getDatabaseNames() {
     try {
-      List<String> names = DatabaseMeta.createFactory( metaStore ).getElementNames();
+      List<String> names = metadataProvider.getSerializer( DatabaseMeta.class ).listObjectNames();
       Collections.sort( names );
       return names.toArray( new String[ 0 ] );
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Unable to get database names from the metastore", e );
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Unable to get database names from the metadata", e );
     }
   }
 
@@ -1264,12 +1262,12 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables,
     this.logLevel = logLevel;
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
 

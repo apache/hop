@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,8 +29,8 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -71,8 +71,8 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
 
     HopGui hopGui = HopGui.getInstance();
     try {
-      List<DataSet> dataSets = DataSet.createFactory( hopGui.getMetaStore() ).getElements();
-      for (DataSet dataSet : dataSets) {
+      List<DataSet> dataSets = hopGui.getMetadataProvider().getSerializer( DataSet.class ).loadAll();
+      for ( DataSet dataSet : dataSets ) {
         dataSet.initializeVariablesFrom( pipelineMeta );
       }
 
@@ -106,7 +106,7 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
             if ( inputLocation != null ) {
               PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), inputLocation, dataSets, transformFieldsMap );
               if ( dialog.open() ) {
-                unitTest.getFactory( hopGui.getMetaStore() ).saveElement( unitTest );
+                hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class ).save( unitTest );
                 pipelineGraph.updateGui();
               }
             }
@@ -121,7 +121,7 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
               PipelineUnitTestSetLocationDialog dialog = new PipelineUnitTestSetLocationDialog( hopGui.getShell(), goldenLocation, dataSets, transformFieldsMap );
               if ( dialog.open() ) {
                 // Save the unit test
-                PipelineUnitTest.createFactory( hopGui.getMetaStore() ).saveElement( unitTest );
+                hopGui.getMetadataProvider().getSerializer( PipelineUnitTest.class ).save( unitTest );
                 pipelineGraph.updateGui();
               }
             }
@@ -137,20 +137,20 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
 
     HopGui hopGui = HopGui.getInstance();
 
-    IMetaStore metaStore = hopGui.getMetaStore();
+    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     try {
-      MetaStoreFactory<DataSet> setFactory = DataSet.createFactory( metaStore );
-      DataSet dataSet = setFactory.loadElement( dataSetName );
+      IHopMetadataSerializer<DataSet> setSerializer = hopGui.getMetadataProvider().getSerializer( DataSet.class );
+      DataSet dataSet = setSerializer.load( dataSetName );
       dataSet.initializeVariablesFrom( hopGui.getVariables() );
 
-      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metaStore, dataSet );
+      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metadataProvider, dataSet );
       while ( dataSetDialog.open() != null ) {
-        String message = TestingGuiPlugin.validateDataSet( dataSet, dataSetName, setFactory.getElementNames() );
+        String message = TestingGuiPlugin.validateDataSet( dataSet, dataSetName, setSerializer.listObjectNames() );
 
         // Save the data set...
         //
         if ( message == null ) {
-          setFactory.saveElement( dataSet );
+          setSerializer.save( dataSet );
           break;
         } else {
           MessageBox box = new MessageBox( hopGui.getShell(), SWT.OK );

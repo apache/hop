@@ -45,7 +45,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -198,7 +198,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   private TransformMeta resultFilesTargetTransformMeta;
   private String resultFilesFileNameField;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public WorkflowExecutorMeta() {
     super(); // allocate BaseTransformMeta
@@ -282,7 +282,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       runConfigurationName = XmlHandler.getTagValue( transformNode, "run_configuration" );
       filename = XmlHandler.getTagValue( transformNode, "filename" );
@@ -369,7 +369,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     row.clear();
 
@@ -481,7 +481,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     return loadWorkflowMeta( executorMeta, null, variables );
   }
 
-  public static final synchronized WorkflowMeta loadWorkflowMeta( WorkflowExecutorMeta executorMeta, IMetaStore metaStore, IVariables variables ) throws HopException {
+  public static final synchronized WorkflowMeta loadWorkflowMeta( WorkflowExecutorMeta executorMeta, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     WorkflowMeta mappingWorkflowMeta = null;
 
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
@@ -493,7 +493,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     //
     // Don't set internal variables: they belong to the parent thread!
     //
-    mappingWorkflowMeta = new WorkflowMeta( null, realFilename, metaStore );
+    mappingWorkflowMeta = new WorkflowMeta( null, realFilename, metadataProvider );
     LogChannel.GENERAL.logDetailed( "Loaded workflow", "Workflow was loaded from XML file ["
       + realFilename + "]" );
 
@@ -507,7 +507,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       // variables from the pipeline?' option is checked)
       TransformWithMappingMeta.addMissingVariables( mappingWorkflowMeta, variables );
     }
-    mappingWorkflowMeta.setMetaStore( metaStore );
+    mappingWorkflowMeta.setMetadataProvider( metadataProvider );
     mappingWorkflowMeta.setFilename( mappingWorkflowMeta.getFilename() );
 
     return mappingWorkflowMeta;
@@ -516,7 +516,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -583,7 +583,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // Try to load the pipeline from a file.
       // Modify this recursively too...
@@ -600,7 +600,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       //
       String proposedNewFilename =
         executorWorkflowMeta.exportResources(
-          executorWorkflowMeta, definitions, iResourceNaming, metaStore );
+          executorWorkflowMeta, definitions, iResourceNaming, metadataProvider );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -1154,22 +1154,22 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
    * Load the referenced object
    *
    * @param index     the object index to load
-   * @param metaStore the metaStore
+   * @param metadataProvider the metadataProvider
    * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
-    return loadWorkflowMeta( this, metaStore, variables );
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    return loadWorkflowMeta( this, metadataProvider, variables );
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   @Override

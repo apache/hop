@@ -25,7 +25,7 @@ import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.poi.util.TempFile;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class OraBulkDataOutputTest {
   private OraBulkLoaderMeta oraBulkLoaderMeta;
   private OraBulkDataOutput oraBulkDataOutput;
   private Process sqlldrProcess;
-  private iVariables variables;
+  private IVariables variables;
 
   @BeforeClass
   public static void setupBeforeClass() throws HopException {
@@ -61,7 +61,7 @@ public class OraBulkDataOutputTest {
   public void setUp() {
     String recTerm = Const.CR;
     sqlldrProcess = mock( Process.class );
-    variables = mock( iVariables.class );
+    variables = mock( IVariables.class );
     oraBulkLoaderMeta = mock( OraBulkLoaderMeta.class );
     oraBulkDataOutput = spy( new OraBulkDataOutput( oraBulkLoaderMeta, recTerm ) );
 

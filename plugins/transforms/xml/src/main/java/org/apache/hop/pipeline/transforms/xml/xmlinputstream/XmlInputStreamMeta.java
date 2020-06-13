@@ -22,8 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -46,14 +44,12 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-@Transform(
-        id = "XMLInputStream",
-        image = "xml_input_stream.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmlinputstream",
-        name = "XMLInputStream.name",
-        description = "XMLInputStream.description",
-        categoryDescription = "XMLInputStream.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmlinputstream.html" )
+import java.util.List;
+
+@Transform( id = "XMLInputStream", image = "xml_input_stream.svg",
+    i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmlinputstream", name = "XMLInputStream.name",
+    description = "XMLInputStream.description", categoryDescription = "XMLInputStream.category",
+    documentationUrl = "Products/XML_Input_Stream_(StAX)" )
 public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformMeta<XmlInputStream, XmlInputStreamData> {
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path
   private static final int DEFAULT_STRING_LEN_PATH = 1024; // default length for XML path
@@ -134,7 +130,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextStep,
-      IVariables space, IMetaStore metaStore ) {
+      IVariables space, IHopMetadataProvider metadataProvider ) {
     int defaultStringLenNameValueElements =
         Const.toInt( space.environmentSubstitute( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );
 
@@ -234,74 +230,74 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override
-  public void loadXml(Node stepnode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
-      sourceFromInput = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "sourceFromInput" ) );
-      sourceFieldName = Const.NVL( XmlHandler.getTagValue( stepnode, "sourceFieldName" ), "" );
+      sourceFromInput = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "sourceFromInput" ) );
+      sourceFieldName = Const.NVL( XmlHandler.getTagValue( transformNode, "sourceFieldName" ), "" );
 
-      filename = Const.NVL( XmlHandler.getTagValue( stepnode, "filename" ), "" );
-      addResultFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "addResultFile" ) );
+      filename = Const.NVL( XmlHandler.getTagValue( transformNode, "filename" ), "" );
+      addResultFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addResultFile" ) );
 
-      nrRowsToSkip = Const.NVL( XmlHandler.getTagValue( stepnode, "nrRowsToSkip" ), "0" );
-      rowLimit = Const.NVL( XmlHandler.getTagValue( stepnode, "rowLimit" ), "0" );
-      defaultStringLen = Const.NVL( XmlHandler.getTagValue( stepnode, "defaultStringLen" ), DEFAULT_STRING_LEN );
-      encoding = Const.NVL( XmlHandler.getTagValue( stepnode, "encoding" ), DEFAULT_ENCODING );
-      enableNamespaces = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "enableNamespaces" ) );
-      enableTrim = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "enableTrim" ) );
+      nrRowsToSkip = Const.NVL( XmlHandler.getTagValue( transformNode, "nrRowsToSkip" ), "0" );
+      rowLimit = Const.NVL( XmlHandler.getTagValue( transformNode, "rowLimit" ), "0" );
+      defaultStringLen = Const.NVL( XmlHandler.getTagValue( transformNode, "defaultStringLen" ), DEFAULT_STRING_LEN );
+      encoding = Const.NVL( XmlHandler.getTagValue( transformNode, "encoding" ), DEFAULT_ENCODING );
+      enableNamespaces = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "enableNamespaces" ) );
+      enableTrim = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "enableTrim" ) );
 
       // The fields in the output stream
       // When they are undefined (checked with NVL) the original default value will be taken
-      includeFilenameField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeFilenameField" ) );
-      filenameField = Const.NVL( XmlHandler.getTagValue( stepnode, "filenameField" ), filenameField );
+      includeFilenameField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeFilenameField" ) );
+      filenameField = Const.NVL( XmlHandler.getTagValue( transformNode, "filenameField" ), filenameField );
 
-      includeRowNumberField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeRowNumberField" ) );
-      rowNumberField = Const.NVL( XmlHandler.getTagValue( stepnode, "rowNumberField" ), rowNumberField );
+      includeRowNumberField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeRowNumberField" ) );
+      rowNumberField = Const.NVL( XmlHandler.getTagValue( transformNode, "rowNumberField" ), rowNumberField );
 
       includeXmlDataTypeNumericField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeDataTypeNumericField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeDataTypeNumericField" ) );
       xmlDataTypeNumericField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "dataTypeNumericField" ), xmlDataTypeNumericField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "dataTypeNumericField" ), xmlDataTypeNumericField );
 
       includeXmlDataTypeDescriptionField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeDataTypeDescriptionField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeDataTypeDescriptionField" ) );
       xmlDataTypeDescriptionField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "dataTypeDescriptionField" ), xmlDataTypeDescriptionField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "dataTypeDescriptionField" ), xmlDataTypeDescriptionField );
 
       includeXmlLocationLineField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlLocationLineField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlLocationLineField" ) );
       xmlLocationLineField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "xmlLocationLineField" ), xmlLocationLineField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "xmlLocationLineField" ), xmlLocationLineField );
 
       includeXmlLocationColumnField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlLocationColumnField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlLocationColumnField" ) );
       xmlLocationColumnField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "xmlLocationColumnField" ), xmlLocationColumnField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "xmlLocationColumnField" ), xmlLocationColumnField );
 
-      includeXmlElementIDField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlElementIDField" ) );
-      xmlElementIDField = Const.NVL( XmlHandler.getTagValue( stepnode, "xmlElementIDField" ), xmlElementIDField );
+      includeXmlElementIDField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlElementIDField" ) );
+      xmlElementIDField = Const.NVL( XmlHandler.getTagValue( transformNode, "xmlElementIDField" ), xmlElementIDField );
 
       includeXmlParentElementIDField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlParentElementIDField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlParentElementIDField" ) );
       xmlParentElementIDField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "xmlParentElementIDField" ), xmlParentElementIDField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "xmlParentElementIDField" ), xmlParentElementIDField );
 
       includeXmlElementLevelField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlElementLevelField" ) );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlElementLevelField" ) );
       xmlElementLevelField =
-          Const.NVL( XmlHandler.getTagValue( stepnode, "xmlElementLevelField" ), xmlElementLevelField );
+          Const.NVL( XmlHandler.getTagValue( transformNode, "xmlElementLevelField" ), xmlElementLevelField );
 
-      includeXmlPathField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlPathField" ) );
-      xmlPathField = Const.NVL( XmlHandler.getTagValue( stepnode, "xmlPathField" ), xmlPathField );
+      includeXmlPathField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlPathField" ) );
+      xmlPathField = Const.NVL( XmlHandler.getTagValue( transformNode, "xmlPathField" ), xmlPathField );
 
       includeXmlParentPathField =
-          "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlParentPathField" ) );
-      xmlParentPathField = Const.NVL( XmlHandler.getTagValue( stepnode, "xmlParentPathField" ), xmlParentPathField );
+          "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlParentPathField" ) );
+      xmlParentPathField = Const.NVL( XmlHandler.getTagValue( transformNode, "xmlParentPathField" ), xmlParentPathField );
 
-      includeXmlDataNameField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlDataNameField" ) );
-      xmlDataNameField = Const.NVL( XmlHandler.getTagValue( stepnode, "xmlDataNameField" ), xmlDataNameField );
+      includeXmlDataNameField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlDataNameField" ) );
+      xmlDataNameField = Const.NVL( XmlHandler.getTagValue( transformNode, "xmlDataNameField" ), xmlDataNameField );
 
-      includeXmlDataValueField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "includeXmlDataValueField" ) );
-      xmlDataValueField = Const.NVL( XmlHandler.getTagValue( stepnode, "xmlDataValueField" ), xmlDataValueField );
+      includeXmlDataValueField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "includeXmlDataValueField" ) );
+      xmlDataValueField = Const.NVL( XmlHandler.getTagValue( transformNode, "xmlDataValueField" ), xmlDataValueField );
 
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load step info from XML", e );
@@ -441,7 +437,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
     // TODO externalize messages
     CheckResult cr;
     if ( Utils.isEmpty( filename ) ) {

@@ -294,7 +294,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransfor
     if ( first ) {
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputRowMeta = getInputRowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.isUrlInField() ) {
         if ( Utils.isEmpty( meta.getUrlField() ) ) {

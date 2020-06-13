@@ -171,7 +171,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
       } else {
         data.outputRowMeta = new RowMeta();
       }
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       defineIndexList( getInputRowMeta(), vCurrentRow );
     } else {

@@ -36,7 +36,7 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -110,13 +110,13 @@ public class RestMetaTest {
     String[] input = new String[ 0 ];
     String[] output = new String[ 0 ];
     IVariables variables = new Variables();
-    IMetaStore metaStore = null;
+    IHopMetadataProvider metadataProvider = null;
 
     // In a default configuration, it's expected that some errors will occur.
     // For this, we'll grab a baseline count of the number of errors
     // as the error count should decrease as we change configuration settings to proper values.
     remarks.clear();
-    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metaStore );
+    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider );
     final int errorsDefault = getCheckResultErrorCount( remarks );
     assertTrue( errorsDefault > 0 );
 
@@ -125,7 +125,7 @@ public class RestMetaTest {
     meta.setUrlField( "urlField" );
     prev.addValueMeta( new ValueMetaString( "urlField" ) );
     remarks.clear();
-    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metaStore );
+    meta.check( remarks, pipelineMeta, transform, prev, input, output, info, variables, metadataProvider );
     int errorsCurrent = getCheckResultErrorCount( remarks );
     assertTrue( errorsDefault > errorsCurrent );
   }

@@ -23,9 +23,8 @@
 package org.apache.hop.pipeline.transforms.webservices;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,25 +33,18 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Transform(
-        id = "WebServiceLookup",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.webservicelookup",
-        name = "BaseTransform.TypeLongDesc.WebServiceLookup",
-        description = "BaseTransform.TypeTooltipDesc.WebServiceLookup",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = ""
-)
 public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
@@ -147,14 +139,14 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
     fieldsOut = new ArrayList<WebServiceField>();
   }
 
-  public WebServiceMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public WebServiceMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this();
-    loadXml( transformNode, metaStore );
+    loadXml( transformNode, metadataProvider );
   }
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Input rows and output rows are different in the webservice transform
     //
     if ( !isPassingInputData() ) {
@@ -195,18 +187,13 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
     return retval;
   }
 
-  @Override
-  public ITransform createTransform(TransformMeta transformMeta, WebServiceData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new WebService(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
-  }
-
   public void setDefault() {
     passingInputData = true; // Pass input data by default.
   }
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -288,7 +275,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
     return retval.toString();
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     // Load the URL
     //
     setUrl( XmlHandler.getTagValue( transformNode, "wsURL" ) );
@@ -354,6 +341,12 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void setOperationName( String operationName ) {
     this.operationName = operationName;
+  }
+
+  @Override
+  public WebService createTransform( TransformMeta transformMeta, WebServiceData data, int cnr,
+                                PipelineMeta pipelineMeta, Pipeline disp ) {
+    return new WebService( transformMeta, this, data, cnr, pipelineMeta, disp );
   }
 
   public WebServiceData getTransformData() {

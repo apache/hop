@@ -22,22 +22,12 @@
 
 package org.apache.hop.workflow.actions.xml.xslt;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.vfs2.FileObject;
-
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -48,7 +38,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -58,8 +48,22 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+
 import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /**
@@ -198,7 +202,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public void loadXml(Node entrynode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       xmlfilename = XmlHandler.getTagValue( entrynode, "xmlfilename" );
@@ -571,7 +575,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IMetaStore metaStore ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     putVariableSpace( ctx, getVariables() );
     putValidators( ctx, notBlankValidator(), fileExistsValidator() );

@@ -43,7 +43,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -152,7 +152,7 @@ public class JsonInputMeta
   public static class AdditionalFileOutputFields extends BaseFileInputAdditionalField {
 
     public void getFields( IRowMeta r, String name, IRowMeta[] info,
-                           IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                           IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
       // TextFileInput is the same, this can be refactored further
       if ( shortFilenameField != null ) {
         IValueMeta v =
@@ -609,8 +609,8 @@ public class JsonInputMeta
   }
 
   @Override
-  public void loadXml( Node transformnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformnode, metaStore );
+  public void loadXml( Node transformnode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformnode, metadataProvider );
   }
 
   @Override
@@ -691,7 +691,7 @@ public class JsonInputMeta
     }
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       includeFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include" ) );
       filenameField = XmlHandler.getTagValue( transformNode, "include_field" );
@@ -810,7 +810,7 @@ public class JsonInputMeta
 
   @Override
   public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( inFields && removeSourceField && !Utils.isEmpty( valueField ) ) {
       int index = rowMeta.indexOfValue( valueField );
@@ -843,7 +843,7 @@ public class JsonInputMeta
     }
     // Add additional fields
     additionalOutputFields.normalize();
-    additionalOutputFields.getFields( rowMeta, name, info, space, metaStore );
+    additionalOutputFields.getFields( rowMeta, name, info, space, metadataProvider );
   }
 
   public FileInputList getFiles( IVariables space ) {
@@ -853,7 +853,7 @@ public class JsonInputMeta
 
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( !isInFields() ) {
@@ -932,12 +932,12 @@ public class JsonInputMeta
    * @param space                   the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore               the metaStore in which non-kettle metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming resourceNamingInterface, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

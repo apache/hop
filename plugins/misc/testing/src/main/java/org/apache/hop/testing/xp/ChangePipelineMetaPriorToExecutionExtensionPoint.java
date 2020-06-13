@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,11 +30,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.util.DataSetConst;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
 import java.io.OutputStream;
 
@@ -72,9 +71,9 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
     PipelineUnitTest unitTest = null;
 
     try {
-      unitTest = PipelineUnitTest.createFactory( pipeline.getMetaStore() ).loadElement( unitTestName );
+      unitTest = pipeline.getMetadataProvider().getSerializer(PipelineUnitTest.class).load( unitTestName );
       unitTest.initializeVariablesFrom( pipelineMeta );
-    } catch ( MetaStoreException e ) {
+    } catch ( HopException e ) {
       throw new HopException( "Unable to load unit test '" + unitTestName + "'", e );
     }
 
@@ -85,7 +84,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
     // Get a modified copy of the pipeline using the unit test information
     //
     PipelineMetaModifier modifier = new PipelineMetaModifier( pipelineMeta, unitTest );
-    PipelineMeta copyPipelineMeta = modifier.getTestPipeline( log, pipeline, pipeline.getMetaStore() );
+    PipelineMeta copyPipelineMeta = modifier.getTestPipeline( log, pipeline, pipeline.getMetadataProvider() );
 
 
     // Now replace the metadata in the IPipelineEngine<PipelineMeta> object...

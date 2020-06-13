@@ -1,18 +1,18 @@
 package org.apache.hop.core.variables;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;
 
 public class VariableValueDescription {
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String value;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String description;
 
   public VariableValueDescription() {

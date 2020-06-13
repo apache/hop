@@ -7,15 +7,15 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamOutputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.FieldDefinition;
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.metadata.FieldDefinition;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.transforms.io.BeamOutputMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -24,8 +24,8 @@ import java.util.Map;
 
 public class BeamOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
 
-  public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metaStore, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -34,12 +34,12 @@ public class BeamOutputStepHandler extends BeamBaseStepHandler implements BeamSt
 
     BeamOutputMeta beamOutputMeta = (BeamOutputMeta) beamOutputStepMeta.getTransform();
     FileDefinition outputFileDefinition;
-    if ( StringUtils.isEmpty( beamOutputMeta.getFileDescriptionName() ) ) {
+    if ( StringUtils.isEmpty( beamOutputMeta.getFileDefinitionName() ) ) {
       // Create a default file definition using standard output and sane defaults...
       //
       outputFileDefinition = getDefaultFileDefition( beamOutputStepMeta );
     } else {
-      outputFileDefinition = beamOutputMeta.loadFileDefinition( metaStore );
+      outputFileDefinition = beamOutputMeta.loadFileDefinition( metadataProvider );
     }
 
     // Empty file definition? Add all fields in the output

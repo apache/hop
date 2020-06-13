@@ -10,7 +10,7 @@ import org.apache.beam.sdk.metrics.MetricQueryResults;
 import org.apache.beam.sdk.metrics.MetricResult;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -28,7 +28,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
@@ -79,7 +79,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected boolean hasHaltedComponents;
   protected boolean preview;
   protected int errors;
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
   protected ILogChannel logChannel;
   protected ILoggingObject loggingObject;
   protected String containerId;
@@ -155,7 +155,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   public BeamPipelineEngine( PipelineMeta pipelineMeta ) {
     this();
     this.pipelineMeta = pipelineMeta;
-    this.metaStore = pipelineMeta.getMetaStore();
+    this.metadataProvider = pipelineMeta.getMetadataProvider();
     this.loggingObject = new LoggingObject( this );
     this.logChannel = new LogChannel( this, pipelineMeta );
     this.logLevel = this.logChannel.getLogLevel();
@@ -192,13 +192,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       if ( !( engineRunConfiguration instanceof IBeamPipelineEngineRunConfiguration ) ) {
         throw new HopException( "A beam pipeline needs a beam pipeline engine configuration to run, not '" + pipelineRunConfiguration.getName() + "'" );
       }
-      if ( metaStore == null ) {
-        throw new HopException( "The beam pipeline engine didn't receive a metastore" );
+      if ( metadataProvider == null ) {
+        throw new HopException( "The beam pipeline engine didn't receive a metadata" );
       }
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
-      converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, beamEngineRunConfiguration );
+      converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metadataProvider, beamEngineRunConfiguration );
 
       beamPipeline = converter.createPipeline();
 
@@ -1014,19 +1014,19 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  @Override public IMetaStore getMetaStore() {
-    return metaStore;
+  @Override public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  @Override public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**

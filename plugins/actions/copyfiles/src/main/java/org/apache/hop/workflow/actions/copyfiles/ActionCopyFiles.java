@@ -29,8 +29,8 @@ import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -42,7 +42,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -50,7 +50,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metastore.api.IMetaStore;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
@@ -187,7 +186,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       copy_empty_folders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copy_empty_folders" ) );
@@ -223,13 +222,13 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   protected String loadSource( Node fnode ) {
     String source_filefolder = XmlHandler.getTagValue( fnode, SOURCE_FILE_FOLDER );
     String ncName = XmlHandler.getTagValue( fnode, SOURCE_CONFIGURATION_NAME );
-    return loadURL( source_filefolder, ncName, getMetaStore(), configurationMappings );
+    return loadURL( source_filefolder, ncName, getMetadataProvider(), configurationMappings );
   }
 
   protected String loadDestination( Node fnode ) {
     String destination_filefolder = XmlHandler.getTagValue( fnode, DESTINATION_FILE_FOLDER );
     String ncName = XmlHandler.getTagValue( fnode, DESTINATION_CONFIGURATION_NAME );
-    return loadURL( destination_filefolder, ncName, getMetaStore(), configurationMappings );
+    return loadURL( destination_filefolder, ncName, getMetadataProvider(), configurationMappings );
   }
 
   protected void saveSource( StringBuilder retval, String source ) {
@@ -1050,7 +1049,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   }
 
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
 
     if ( !res ) {
@@ -1070,7 +1069,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public String loadURL( String url, String ncName, IMetaStore metastore, Map<String, String> mappings ) {
+  public String loadURL( String url, String ncName, IHopMetadataProvider metadataProvider, Map<String, String> mappings ) {
     if ( !Utils.isEmpty( ncName ) && !Utils.isEmpty( url ) ) {
       mappings.put( url, ncName );
     }

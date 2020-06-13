@@ -25,14 +25,14 @@ package org.apache.hop.ui.partition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -68,10 +68,10 @@ import java.util.List;
  * @since 17-11-2006
  */
 
-public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
+public class PartitionSchemaDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator!!
 
-  private final IMetaStore metaStore;
+  private final IHopMetadataProvider metadataProvider;
   private PartitionSchema partitionSchema;
 
   private Shell shell;
@@ -101,9 +101,9 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
 
   private IVariables variables;
 
-  public PartitionSchemaDialog( Shell par, IMetaStore metaStore, PartitionSchema partitionSchema, IVariables variables ) {
+  public PartitionSchemaDialog( Shell par, IHopMetadataProvider metadataProvider, PartitionSchema partitionSchema, IVariables variables ) {
     super( par, SWT.NONE );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.partitionSchema = (PartitionSchema) partitionSchema.clone();
     this.originalSchema = partitionSchema;
     this.variables = variables;
@@ -312,11 +312,11 @@ public class PartitionSchemaDialog extends Dialog implements IMetaStoreDialog {
 
   public void ok() {
     try {
-      MetaStoreFactory<PartitionSchema> partitionFactory = PartitionSchema.createFactory( metaStore );
+      IHopMetadataSerializer<PartitionSchema> serializer = metadataProvider.getSerializer( PartitionSchema.class );
       getInfo();
 
       if ( !partitionSchema.getName().equals( originalSchema.getName() ) ) {
-        if ( partitionFactory.elementExists( partitionSchema.getName() ) ) {
+        if ( serializer.exists( partitionSchema.getName() ) ) {
           String title = BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionSchemaNameExists.Title" );
           String message =
             BaseMessages.getString( PKG, "PartitionSchemaDialog.PartitionSchemaNameExists", partitionSchema.getName() );

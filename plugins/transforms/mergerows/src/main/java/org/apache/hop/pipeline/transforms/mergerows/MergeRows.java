@@ -140,11 +140,11 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> imple
       if ( data.one != null ) {
         meta.getFields(
           data.outputRowMeta, getTransformName(), new IRowMeta[] { data.oneRowSet.getRowMeta() }, null, this,
-          metaStore );
+          metadataProvider );
       } else {
         meta.getFields(
           data.outputRowMeta, getTransformName(), new IRowMeta[] { data.twoRowSet.getRowMeta() }, null, this,
-          metaStore );
+          metadataProvider );
       }
     }
 

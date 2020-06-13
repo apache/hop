@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,14 +22,14 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PipelineUnitTestTweak {
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private PipelineTweak tweak;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String transformName;
 
   public PipelineUnitTestTweak() {

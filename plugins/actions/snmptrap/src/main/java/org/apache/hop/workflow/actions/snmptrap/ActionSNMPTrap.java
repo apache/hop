@@ -33,7 +33,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
 import org.snmp4j.PDUv1;
@@ -174,7 +174,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       port = XmlHandler.getTagValue( entrynode, "port" );

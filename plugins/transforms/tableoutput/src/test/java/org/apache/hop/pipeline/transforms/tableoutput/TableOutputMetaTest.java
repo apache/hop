@@ -27,7 +27,8 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.utils.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,13 +48,13 @@ import static org.mockito.Mockito.when;
 public class TableOutputMetaTest {
 
   private List<DatabaseMeta> databases;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   @SuppressWarnings( "unchecked" )
   @Before
   public void setUp() {
     databases = mock( List.class );
-    metaStore = mock( IMetaStore.class );
+    metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
@@ -107,7 +108,7 @@ public class TableOutputMetaTest {
   public void testLoadXml() throws Exception {
 
     TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.loadXml( getTestNode(), metaStore );
+    tableOutputMeta.loadXml( getTestNode(), metadataProvider );
     assertEquals( "1000", tableOutputMeta.getCommitSize() );
     assertEquals( null, tableOutputMeta.getGeneratedKeyField() );
     assertEquals( "public", tableOutputMeta.getSchemaName() );

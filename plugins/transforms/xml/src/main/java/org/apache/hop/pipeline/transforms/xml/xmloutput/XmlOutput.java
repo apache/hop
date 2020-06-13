@@ -109,7 +109,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
     writeRowToFile( getInputRowMeta(), r );
 
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     putRow( data.outputRowMeta, r ); // in case we want it to go further...
 
     if ( checkFeedback( getLinesOutput() ) ) {

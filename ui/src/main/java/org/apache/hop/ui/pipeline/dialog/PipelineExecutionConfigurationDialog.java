@@ -125,7 +125,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigLabel = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.PipelineRunConfiguration.Label" );
     String runConfigTooltip = BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.PipelineRunConfiguration.Tooltip" );
 
-    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), PipelineRunConfiguration.class,
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineRunConfiguration.class,
       shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true );
     wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );

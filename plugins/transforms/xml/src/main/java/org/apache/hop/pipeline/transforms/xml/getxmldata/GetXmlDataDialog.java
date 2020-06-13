@@ -1821,7 +1821,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         return;
       }
       PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metaStore, oneMeta, wTransformName.getText() );
+          PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog =
           new EnterNumberDialog( shell, props.getDefaultPreviewSize(), BaseMessages.getString( PKG,

@@ -30,12 +30,11 @@ import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 @PluginMainClassType( IWorkflowEngine.class )
 @PluginAnnotationType( WorkflowEnginePlugin.class )
-public class WorkflowEnginePluginType extends BasePluginType implements IPluginType {
+public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugin> implements IPluginType<WorkflowEnginePlugin> {
 
   private WorkflowEnginePluginType() {
     super( WorkflowEnginePlugin.class, "HOP_WORKFLOW_ENGINES", "Hop Workflow Engines" );
@@ -78,66 +77,66 @@ public class WorkflowEnginePluginType extends BasePluginType implements IPluginT
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
+  protected String extractDesc( WorkflowEnginePlugin annotation ) {
     return ( (WorkflowEnginePlugin) annotation ).description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
+  protected String extractID( WorkflowEnginePlugin annotation ) {
     return ( (WorkflowEnginePlugin) annotation ).id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
+  protected String extractName( WorkflowEnginePlugin annotation ) {
     return ( (WorkflowEnginePlugin) annotation ).name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( WorkflowEnginePlugin annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, WorkflowEnginePlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( WorkflowEnginePlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
+  protected String extractClassLoaderGroup( WorkflowEnginePlugin annotation ) {
     return null;
   }
 }

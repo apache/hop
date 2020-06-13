@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.symmetriccrypto.secretkeygenerator;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -33,10 +33,10 @@ import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -192,7 +192,7 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -266,7 +266,7 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v;
     if ( isOutputKeyInBinary() ) {
@@ -317,9 +317,9 @@ public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransf
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < algorithm.length; i++ ) {

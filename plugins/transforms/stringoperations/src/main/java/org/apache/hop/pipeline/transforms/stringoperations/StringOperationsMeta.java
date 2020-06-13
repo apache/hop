@@ -23,9 +23,8 @@
 package org.apache.hop.pipeline.transforms.stringoperations;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,10 +34,12 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -49,16 +50,7 @@ import java.util.List;
  * @author Samatar Hassan
  * @since 02 April 2009
  */
-@Transform(
-        id = "StringOperations",
-        image = "stringoperations.svg",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.stringoperations",
-        name = "BaseTransform.TypeLongDesc.StringOperations",
-        description = "BaseTransform.TypeTooltipDesc.StringOperations",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringoperations.html"
-)
-public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations, StringOperationsData> {
+public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations,StringOperationsData> {
 
   private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -335,7 +327,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -372,11 +364,6 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     System.arraycopy( remove_special_characters, 0, retval.remove_special_characters, 0, nrkeys );
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(TransformMeta transformMeta, StringOperationsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new StringOperations(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData( Node transformNode ) throws HopXmlException {
@@ -458,7 +445,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Add new field?
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       IValueMeta v;
@@ -490,7 +477,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     String error_message = "";
@@ -584,6 +571,12 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
       }
 
     }
+  }
+
+  @Override
+  public StringOperations createTransform( TransformMeta transformMeta, StringOperationsData data, int cnr,
+                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new StringOperations( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override

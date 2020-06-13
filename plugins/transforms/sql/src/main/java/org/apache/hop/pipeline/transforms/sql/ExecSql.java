@@ -110,7 +110,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Find the indexes of the arguments
       data.argumentIndexes = new int[ meta.getArguments().length ];

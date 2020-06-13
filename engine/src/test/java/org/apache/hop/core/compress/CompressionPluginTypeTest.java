@@ -68,7 +68,7 @@ public class CompressionPluginTypeTest {
   @Test
   public void testGetPluginInfo() {
     CompressionPluginType instance = CompressionPluginType.getInstance();
-    Annotation a = new FakePlugin().getClass().getAnnotation( CompressionPlugin.class );
+    CompressionPlugin a = new FakePlugin().getClass().getAnnotation( CompressionPlugin.class );
     assertNotNull( a );
     assertEquals( "", instance.extractCategory( a ) );
     assertEquals( "Fake", instance.extractID( a ) );

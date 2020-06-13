@@ -39,7 +39,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -245,8 +245,8 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     fieldDatabase = new String[ nrRows ];
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -386,10 +386,10 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     return useBatchUpdate;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tableName = XmlHandler.getTagValue( transformNode, "table" );
       commitSize = XmlHandler.getTagValue( transformNode, "commit" );
@@ -482,7 +482,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Just add the returning key field...
     if ( returningGeneratedKeys && generatedKeyField != null && generatedKeyField.length() > 0 ) {
       IValueMeta key =
@@ -494,7 +494,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -697,7 +697,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) {
+                             IHopMetadataProvider metadataProvider ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
         new DatabaseImpact(
@@ -721,7 +721,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) {
+                                        IHopMetadataProvider metadataProvider ) {
     return getSqlStatements( pipelineMeta, transformMeta, prev, null, false, null );
   }
 

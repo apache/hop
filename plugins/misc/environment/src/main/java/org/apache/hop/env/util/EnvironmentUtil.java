@@ -3,29 +3,17 @@ package org.apache.hop.env.util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
-import org.apache.hop.env.gui.EnvironmentGuiPlugin;
-import org.apache.hop.history.AuditEvent;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.Date;
 
 public class EnvironmentUtil {
 
@@ -44,28 +32,24 @@ public class EnvironmentUtil {
    *
    * @param log the log channel to log to
    * @param environment
-   * @param delegatingMetaStore
+   * @param hopMetadataProvider
    * @throws HopException
-   * @throws MetaStoreException
+   * @throws HopException
    */
-  public static void enableEnvironment( ILogChannel log, Environment environment, DelegatingMetaStore delegatingMetaStore, IVariables variables ) throws HopException, MetaStoreException {
+  public static void enableEnvironment( ILogChannel log, Environment environment, IHopMetadataProvider hopMetadataProvider, IVariables variables ) throws HopException, HopException {
 
     // Variable system variables but also apply them to variables
     // We'll use those to change the loaded variables in HopGui
     //
     environment.modifyVariables( variables );
 
-    // Modify local loaded metastore...
+    // Change the metadata
     //
-    if ( delegatingMetaStore != null ) {
-      IMetaStore metaStore = delegatingMetaStore.getMetaStore( Const.HOP_METASTORE_NAME );
-      if ( metaStore != null ) {
-        int index = delegatingMetaStore.getMetaStoreList().indexOf( metaStore );
-        metaStore = MetaStoreConst.openLocalHopMetaStore(variables);
-        delegatingMetaStore.getMetaStoreList().set( index, metaStore );
-        delegatingMetaStore.setActiveMetaStoreName( metaStore.getName() );
-      }
-    }
+    HopGui.getInstance().setMetadataProvider( HopMetadataUtil.getStandardHopMetadataProvider( variables ) );
+
+    // We store the environment in the HopGui namespace
+    //
+    HopNamespace.setNamespace( environment.getName() );
 
     // Signal others that we have a new active environment
     //
@@ -109,7 +93,7 @@ public class EnvironmentUtil {
     return false;
   }
 
-  public static void validateFileInEnvironment( ILogChannel log, String executableFilename, IVariables space ) throws HopException, FileSystemException, MetaStoreException {
+  public static void validateFileInEnvironment( ILogChannel log, String executableFilename, IVariables space ) throws HopException, FileSystemException, HopException {
 
     if ( StringUtils.isEmpty( executableFilename ) ) {
       // Repo or remote
@@ -126,7 +110,7 @@ public class EnvironmentUtil {
     }
 
     log.logBasic( "Validating active environment '" + activeEnvironment + "'" );
-    Environment environment = EnvironmentSingleton.getEnvironmentFactory().loadElement( activeEnvironment );
+    Environment environment = EnvironmentConfigSingleton.load( activeEnvironment );
     if ( environment == null ) {
       throw new HopException( "Active environment '" + activeEnvironment + "' couldn't be found. Fix your setup." );
     }
@@ -136,7 +120,7 @@ public class EnvironmentUtil {
     }
   }
 
-  public static Environment getEnvironment( String environmentName ) throws MetaStoreException {
-    return EnvironmentSingleton.getEnvironmentFactory().loadElement( environmentName );
+  public static Environment getEnvironment( String environmentName ) throws HopException {
+    return EnvironmentConfigSingleton.load( environmentName );
   }
 }

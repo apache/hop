@@ -22,14 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -48,7 +41,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -60,34 +53,39 @@ import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This class knows how to handle the MetaData for the XML output step
- * 
+ *
  * @since 14-jan-2006
- * 
  */
-@Transform(
-        id = "XMLOutput",
-        image = "XOU.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
-        name = "XMLOutput.name",
-        description = "XMLOutput.description",
-        categoryDescription = "XMLOutput.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmloutput.html"
-)
+@Transform( id = "XMLOutput", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
+  name = "XMLOutput.name", description = "XMLOutput.description", categoryDescription = "XMLOutput.category",
+  documentationUrl = "" )
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
-  /** The base name of the output file */
+  /**
+   * The base name of the output file
+   */
   @Injection( name = "FILENAME" )
   private String fileName;
 
-  /** The file extention in case of a generated filename */
+  /**
+   * The file extention in case of a generated filename
+   */
   @Injection( name = "EXTENSION" )
   private String extension;
 
-  /** Whether to push the output into the output of a servlet with the executeTrans Carte/DI-Server servlet */
+  /**
+   * Whether to push the output into the output of a servlet with the executeTrans Carte/DI-Server servlet
+   */
   @Injection( name = "PASS_TO_SERVLET" )
   private boolean servletOutput;
 
@@ -97,19 +95,27 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   @Injection( name = "SPLIT_EVERY" )
   private int splitEvery;
 
-  /** Flag: add the stepnr in the filename */
+  /**
+   * Flag: add the stepnr in the filename
+   */
   @Injection( name = "INC_STEPNR_IN_FILENAME" )
   private boolean stepNrInFilename;
 
-  /** Flag: add the date in the filename */
+  /**
+   * Flag: add the date in the filename
+   */
   @Injection( name = "INC_DATE_IN_FILENAME" )
   private boolean dateInFilename;
 
-  /** Flag: add the time in the filename */
+  /**
+   * Flag: add the time in the filename
+   */
   @Injection( name = "INC_TIME_IN_FILENAME" )
   private boolean timeInFilename;
 
-  /** Flag: put the destination file in a zip archive */
+  /**
+   * Flag: put the destination file in a zip archive
+   */
   @Injection( name = "ZIPPED" )
   private boolean zipped;
 
@@ -125,29 +131,41 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   @Injection( name = "NAMESPACE" )
   private String nameSpace;
 
-  /** The name of the parent XML element */
+  /**
+   * The name of the parent XML element
+   */
   @Injection( name = "MAIN_ELEMENT" )
   private String mainElement;
 
-  /** The name of the repeating row XML element */
+  /**
+   * The name of the repeating row XML element
+   */
   @Injection( name = "REPEAT_ELEMENT" )
   private String repeatElement;
 
-  /** Flag: add the filenames to result filenames */
+  /**
+   * Flag: add the filenames to result filenames
+   */
   @Injection( name = "ADD_TO_RESULT" )
   private boolean addToResultFilenames;
 
   /* THE FIELD SPECIFICATIONS ... */
 
-  /** The output fields */
+  /**
+   * The output fields
+   */
   @InjectionDeep
   private XmlField[] outputFields;
 
-  /** Flag : Do not open new file when transformation start */
+  /**
+   * Flag : Do not open new file when transformation start
+   */
   @Injection( name = "DO_NOT_CREATE_FILE_AT_STARTUP" )
   private boolean doNotOpenNewFileInit;
 
-  /** Omit null elements from xml output */
+  /**
+   * Omit null elements from xml output
+   */
   @Injection( name = "OMIT_NULL_VALUES" )
   private boolean omitNullValues;
 
@@ -169,8 +187,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param dateInFilename
-   *          The dateInFilename to set.
+   * @param dateInFilename The dateInFilename to set.
    */
   public void setDateInFilename( boolean dateInFilename ) {
     this.dateInFilename = dateInFilename;
@@ -184,8 +201,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param extension
-   *          The extension to set.
+   * @param extension The extension to set.
    */
   public void setExtension( String extension ) {
     this.extension = extension;
@@ -199,8 +215,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param doNotOpenNewFileInit
-   *          The "do not open new file at init" flag to set.
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
    */
   public void setDoNotOpenNewFileInit( boolean doNotOpenNewFileInit ) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
@@ -214,8 +229,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param fileName
-   *          The fileName to set.
+   * @param fileName The fileName to set.
    */
   public void setFileName( String fileName ) {
     this.fileName = fileName;
@@ -229,8 +243,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param splitEvery
-   *          The splitEvery to set.
+   * @param splitEvery The splitEvery to set.
    */
   public void setSplitEvery( int splitEvery ) {
     this.splitEvery = splitEvery;
@@ -244,8 +257,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param stepNrInFilename
-   *          The stepNrInFilename to set.
+   * @param stepNrInFilename The stepNrInFilename to set.
    */
   public void setStepNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
@@ -259,8 +271,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param timeInFilename
-   *          The timeInFilename to set.
+   * @param timeInFilename The timeInFilename to set.
    */
   public void setTimeInFilename( boolean timeInFilename ) {
     this.timeInFilename = timeInFilename;
@@ -274,8 +285,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param addtoresultfilenamesin
-   *          The addtoresultfilenames to set.
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
    */
   public void setAddToResultFiles( boolean addtoresultfilenamesin ) {
     this.addToResultFilenames = addtoresultfilenamesin;
@@ -305,8 +315,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param zipped
-   *          The zipped to set.
+   * @param zipped The zipped to set.
    */
   public void setZipped( boolean zipped ) {
     this.zipped = zipped;
@@ -320,19 +329,18 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param outputFields
-   *          The outputFields to set.
+   * @param outputFields The outputFields to set.
    */
   public void setOutputFields( XmlField[] outputFields ) {
     this.outputFields = outputFields;
   }
 
-  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public void allocate( int nrfields ) {
-    outputFields = new XmlField[nrfields];
+    outputFields = new XmlField[ nrfields ];
   }
 
   public Object clone() {
@@ -342,15 +350,15 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     retval.allocate( nrfields );
 
     for ( int i = 0; i < nrfields; i++ ) {
-      retval.outputFields[i] = (XmlField) outputFields[i].clone();
+      retval.outputFields[ i ] = (XmlField) outputFields[ i ].clone();
     }
 
     return retval;
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, XmlOutputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new XmlOutput(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+  public ITransform createTransform( TransformMeta transformMeta, XmlOutputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new XmlOutput( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -358,32 +366,32 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return new XmlOutputData();
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      setEncoding( XmlHandler.getTagValue( stepnode, "encoding" ) );
-      setNameSpace( XmlHandler.getTagValue( stepnode, "name_space" ) );
-      setMainElement( XmlHandler.getTagValue( stepnode, "xml_main_element" ) );
-      setRepeatElement( XmlHandler.getTagValue( stepnode, "xml_repeat_element" ) );
+      setEncoding( XmlHandler.getTagValue( transformNode, "encoding" ) );
+      setNameSpace( XmlHandler.getTagValue( transformNode, "name_space" ) );
+      setMainElement( XmlHandler.getTagValue( transformNode, "xml_main_element" ) );
+      setRepeatElement( XmlHandler.getTagValue( transformNode, "xml_repeat_element" ) );
 
-      setFileName( XmlHandler.getTagValue( stepnode, "file", "name" ) );
-      setExtension( XmlHandler.getTagValue( stepnode, "file", "extention" ) );
-      setServletOutput( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "servlet_output" ) ) );
+      setFileName( XmlHandler.getTagValue( transformNode, "file", "name" ) );
+      setExtension( XmlHandler.getTagValue( transformNode, "file", "extention" ) );
+      setServletOutput( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "servlet_output" ) ) );
 
-      setDoNotOpenNewFileInit( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file",
-          "do_not_open_newfile_init" ) ) );
-      setStepNrInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "split" ) ) );
-      setDateInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "add_date" ) ) );
-      setTimeInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "add_time" ) ) );
-      setSpecifyFormat( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "SpecifyFormat" ) ) );
-      setOmitNullValues( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "omit_null_values" ) ) );
-      setDateTimeFormat( XmlHandler.getTagValue( stepnode, "file", "date_time_format" ) );
+      setDoNotOpenNewFileInit( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file",
+        "do_not_open_newfile_init" ) ) );
+      setStepNrInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) ) );
+      setDateInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) ) );
+      setTimeInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) ) );
+      setSpecifyFormat( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) ) );
+      setOmitNullValues( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "omit_null_values" ) ) );
+      setDateTimeFormat( XmlHandler.getTagValue( transformNode, "file", "date_time_format" ) );
 
-      setAddToResultFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "add_to_result_filenames" ) ) );
+      setAddToResultFiles( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_to_result_filenames" ) ) );
 
-      setZipped( "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "zipped" ) ) );
-      setSplitEvery( Const.toInt( XmlHandler.getTagValue( stepnode, "file", "splitevery" ), 0 ) );
+      setZipped( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "zipped" ) ) );
+      setSplitEvery( Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 ) );
 
-      Node fields = XmlHandler.getSubNode( stepnode, "fields" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
       int nrfields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrfields );
@@ -391,22 +399,22 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       for ( int i = 0; i < nrfields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        outputFields[i] = new XmlField();
+        outputFields[ i ] = new XmlField();
         String contentTypeString =
-            Const.NVL( XmlHandler.getTagValue( fnode, "content_type" ), ContentType.Element.name() );
-        outputFields[i].setContentType( ContentType.valueOf( contentTypeString ) );
+          Const.NVL( XmlHandler.getTagValue( fnode, "content_type" ), ContentType.Element.name() );
+        outputFields[ i ].setContentType( ContentType.valueOf( contentTypeString ) );
         String fieldName = XmlHandler.getTagValue( fnode, "name" );
-        outputFields[i].setFieldName( fieldName );
+        outputFields[ i ].setFieldName( fieldName );
         String elementName = XmlHandler.getTagValue( fnode, "element" );
-        outputFields[i].setElementName( elementName == null ? "" : elementName );
-        outputFields[i].setType( XmlHandler.getTagValue( fnode, "type" ) );
-        outputFields[i].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
-        outputFields[i].setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
-        outputFields[i].setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
-        outputFields[i].setGroupingSymbol( XmlHandler.getTagValue( fnode, "group" ) );
-        outputFields[i].setNullString( XmlHandler.getTagValue( fnode, "nullif" ) );
-        outputFields[i].setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
-        outputFields[i].setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
+        outputFields[ i ].setElementName( elementName == null ? "" : elementName );
+        outputFields[ i ].setType( XmlHandler.getTagValue( fnode, "type" ) );
+        outputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
+        outputFields[ i ].setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
+        outputFields[ i ].setDecimalSymbol( XmlHandler.getTagValue( fnode, "decimal" ) );
+        outputFields[ i ].setGroupingSymbol( XmlHandler.getTagValue( fnode, "group" ) );
+        outputFields[ i ].setNullString( XmlHandler.getTagValue( fnode, "nullif" ) );
+        outputFields[ i ].setLength( Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 ) );
+        outputFields[ i ].setPrecision( Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 ) );
       }
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load step info from XML", e );
@@ -467,17 +475,17 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] retval = new String[ nr ];
 
     int i = 0;
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int split = 0; split < splits; split++ ) {
-        retval[i] = buildFilename( space, copy, split, false );
+        retval[ i ] = buildFilename( space, copy, split, false );
         i++;
       }
     }
     if ( i < nr ) {
-      retval[i] = "...";
+      retval[ i ] = "...";
     }
 
     return retval;
@@ -534,14 +542,14 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
-      IVariables space, IMetaStore metaStore ) {
+                         IVariables space, IHopMetadataProvider metadataProvider ) {
 
     // No values are added to the row in this type of step
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
     for ( int i = 0; i < outputFields.length; i++ ) {
-      XmlField field = outputFields[i];
+      XmlField field = outputFields[ i ];
       IValueMeta v = row.searchValueMeta( field.getFieldName() );
       if ( v != null ) {
         v.setLength( field.getLength(), field.getPrecision() );
@@ -553,7 +561,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   public IRowMeta getRequiredFields( IVariables space ) throws HopException {
     RowMeta row = new RowMeta();
     for ( int i = 0; i < outputFields.length; i++ ) {
-      XmlField field = outputFields[i];
+      XmlField field = outputFields[ i ];
       row.addValueMeta( new ValueMetaBase( field.getFieldName(), field.getType(), field.getLength(), field.getPrecision() ) );
     }
     return row;
@@ -585,7 +593,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     retval.append( "    </file>" ).append( Const.CR );
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
-      XmlField field = outputFields[i];
+      XmlField field = outputFields[ i ];
 
       if ( field.getFieldName() != null && field.getFieldName().length() != 0 ) {
         retval.append( "      <field>" ).append( Const.CR );
@@ -608,15 +616,15 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return retval.toString();
   }
 
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepinfo, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepinfo, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check output fields
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepinfo );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepinfo );
       remarks.add( cr );
 
       String error_message = "";
@@ -624,9 +632,9 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
-        int idx = prev.indexOfValue( outputFields[i].getFieldName() );
+        int idx = prev.indexOfValue( outputFields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          error_message += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
           error_found = true;
         }
       }
@@ -636,8 +644,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
         remarks.add( cr );
       } else {
         cr =
-            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "XMLOutputMeta.CheckResult.AllFieldsFound" ), stepinfo );
+          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            "XMLOutputMeta.CheckResult.AllFieldsFound" ), stepinfo );
         remarks.add( cr );
       }
     }
@@ -645,19 +653,19 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLOutputMeta.CheckResult.ExpectedInputOk" ), stepinfo );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLOutputMeta.CheckResult.ExpectedInputOk" ), stepinfo );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLOutputMeta.CheckResult.ExpectedInputError" ), stepinfo );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLOutputMeta.CheckResult.ExpectedInputError" ), stepinfo );
       remarks.add( cr );
     }
 
     cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
-            "XMLOutputMeta.CheckResult.FilesNotChecked" ), stepinfo );
+      new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
+        "XMLOutputMeta.CheckResult.FilesNotChecked" ), stepinfo );
     remarks.add( cr );
   }
 
@@ -677,8 +685,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param mainElement
-   *          The mainElement to set.
+   * @param mainElement The mainElement to set.
    */
   public void setMainElement( String mainElement ) {
     this.mainElement = mainElement;
@@ -692,8 +699,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param repeatElement
-   *          The repeatElement to set.
+   * @param repeatElement The repeatElement to set.
    */
   public void setRepeatElement( String repeatElement ) {
     this.repeatElement = repeatElement;
@@ -707,8 +713,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   /**
-   * @param nameSpace
-   *          The nameSpace to set.
+   * @param nameSpace The nameSpace to set.
    */
   public void setNameSpace( String nameSpace ) {
     this.nameSpace = nameSpace;
@@ -737,19 +742,15 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   /**
    * Since the exported transformation that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
-   * 
-   * @param space
-   *          the variable space to use
+   *
+   * @param space                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   * 
+   * @param resourceNamingInterface The repository to optionally load other resources from (to be converted to XML)
+   * @param metadataProvider        the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources(IVariables space, Map<String, ResourceDefinition> definitions,
-                                IResourceNaming resourceNamingInterface, IMetaStore metaStore )
+  public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

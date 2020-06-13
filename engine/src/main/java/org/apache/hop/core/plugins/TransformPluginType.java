@@ -24,10 +24,8 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -35,37 +33,9 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginTypeCategoriesOrder(
-  getNaturalCategoriesOrder = {
-    "BaseTransform.Category.Input",
-    "BaseTransform.Category.Output",
-    "BaseTransform.Category.Streaming",
-    "BaseTransform.Category.Transform",
-    "BaseTransform.Category.Utility",
-    "BaseTransform.Category.Flow",
-    "BaseTransform.Category.Scripting",
-    "BaseTransform.Category.Lookup",
-    "BaseTransform.Category.Joins",
-    "BaseTransform.Category.DataWarehouse",
-    "BaseTransform.Category.Validation",
-    "BaseTransform.Category.Statistics",
-    "BaseTransform.Category.DataMining",
-    "BaseTransform.Category.BigData",
-    "BaseTransform.Category.Agile",
-    "BaseTransform.Category.DataQuality",
-    "BaseTransform.Category.Cryptography",
-    "BaseTransform.Category.Palo",
-    "BaseTransform.Category.OpenERP",
-    "BaseTransform.Category.Workflow",
-    "BaseTransform.Category.Mapping",
-    "BaseTransform.Category.Bulk",
-    "BaseTransform.Category.Inline",
-    "BaseTransform.Category.Experimental",
-    "BaseTransform.Category.Deprecated" },
-  i18nPackageClass = ITransform.class )
 @PluginMainClassType( ITransformMeta.class )
 @PluginAnnotationType( Transform.class )
-public class TransformPluginType extends BasePluginType implements IPluginType {
+public class TransformPluginType extends BasePluginType<Transform> implements IPluginType<Transform> {
 
   private static TransformPluginType transformPluginType;
 
@@ -102,70 +72,70 @@ public class TransformPluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
-    return ( (Transform) annotation ).categoryDescription();
+  protected String extractCategory( Transform annotation ) {
+    return annotation.categoryDescription();
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (Transform) annotation ).description();
+  protected String extractDesc( Transform annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (Transform) annotation ).id();
+  protected String extractID( Transform annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (Transform) annotation ).name();
+  protected String extractName( Transform annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
-    return ( (Transform) annotation ).image();
+  protected String extractImageFile( Transform annotation ) {
+    return annotation.image();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
-    return ( (Transform) annotation ).isSeparateClassLoaderNeeded();
+  protected boolean extractSeparateClassLoader( Transform annotation ) {
+    return annotation.isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (Transform) annotation ).i18nPackageName();
+  protected String extractI18nPackageName( Transform annotation ) {
+    return annotation.i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
-    return Const.getDocUrl( ( (Transform) annotation ).documentationUrl() );
+  protected String extractDocumentationUrl( Transform annotation ) {
+    return Const.getDocUrl( annotation.documentationUrl() );
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
-    return ( (Transform) annotation ).casesUrl();
+  protected String extractCasesUrl( Transform annotation ) {
+    return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
-    return ( (Transform) annotation ).forumUrl();
+  protected String extractForumUrl( Transform annotation ) {
+    return annotation.forumUrl();
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (Transform) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( Transform annotation ) {
+    return annotation.classLoaderGroup();
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
-    return ( (Transform) annotation ).suggestion();
+  protected String extractSuggestion( Transform annotation ) {
+    return annotation.suggestion();
   }
 
-  @Override protected String[] extractKeywords( Annotation annotation ) {
-    return ( (Transform) annotation ).keywords();
+  @Override protected String[] extractKeywords( Transform annotation ) {
+    return annotation.keywords();
   }
 }

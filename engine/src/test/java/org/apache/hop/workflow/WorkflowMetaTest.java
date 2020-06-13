@@ -31,7 +31,7 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.workflow.actions.empty.ActionEmpty;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Before;
@@ -229,7 +229,7 @@ public class WorkflowMetaTest {
 
     WorkflowMeta meta = new WorkflowMeta();
 
-    meta.loadXml( workflowNode, null, Mockito.mock( IMetaStore.class ) );
+    meta.loadXml( workflowNode, null, Mockito.mock( IHopMetadataProvider.class ) );
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( meta );
     workflow.setInternalHopVariables();
   }

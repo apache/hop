@@ -287,7 +287,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           if ( param.getItemXmlType() != null ) {
             ComplexType type = param.getItemComplexType();
             if ( type != null ) {
-              for ( Iterator<String> itrType = type.getElementNames().iterator(); itrType.hasNext(); ) {
+              for ( Iterator<String> itrType = type.listObjectNames().iterator(); itrType.hasNext(); ) {
                 String attributeName = itrType.next();
                 QName attributeType = type.getElementType( attributeName );
                 if ( !WebServiceMeta.XSD_NS_URI.equals( attributeType.getNamespaceURI() ) ) {
@@ -345,7 +345,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           if ( wsdlOperation.getReturnType().getItemXmlType() != null ) {
             ComplexType type = wsdlOperation.getReturnType().getItemComplexType();
             if ( type != null ) {
-              for ( Iterator<String> itrType = type.getElementNames().iterator(); itrType.hasNext(); ) {
+              for ( Iterator<String> itrType = type.listObjectNames().iterator(); itrType.hasNext(); ) {
                 String attributeName = itrType.next();
                 QName attributeType = type.getElementType( attributeName );
                 if ( !WebServiceMeta.XSD_NS_URI.equals( attributeType.getNamespaceURI() ) ) {

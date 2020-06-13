@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.parallelgzipcsv;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -35,11 +35,11 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -102,7 +102,7 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -213,7 +213,7 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
 
   @Override
   public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
@@ -273,18 +273,18 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ParGzipCsvInputMeta.CheckResult.NotReceivingFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "ParGzipCsvInputMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -292,12 +292,12 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "ParGzipCsvInputMeta.CheckResult.TransformRecevingData2" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "ParGzipCsvInputMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }
@@ -438,7 +438,7 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public String[] getFilePaths( iVariables variables ) {
+  public String[] getFilePaths( IVariables variables ) {
     return new String[] { variables.environmentSubstitute( filename ), };
   }
 
@@ -595,12 +595,12 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

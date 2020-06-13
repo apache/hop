@@ -85,7 +85,7 @@ public class ZipFile extends BaseTransform implements ITransform {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, getPipeline().getMetaStore() );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, getPipeline().getMetadataProvider() );
 
       // Check is source filename field is provided
       if ( Utils.isEmpty( meta.getDynamicSourceFileNameField() ) ) {

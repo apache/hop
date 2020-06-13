@@ -36,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -247,7 +247,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     this.outputFields = outputFields;
   }
 
-  public void loadXml( Node transformnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformnode, List<DatabaseMeta> databases, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformnode );
   }
 
@@ -330,7 +330,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( getOperationType() != OPERATION_TYPE_WRITE_TO_FILE ) {
       IValueMeta v =
@@ -386,7 +386,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables space,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     if ( getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE ) {

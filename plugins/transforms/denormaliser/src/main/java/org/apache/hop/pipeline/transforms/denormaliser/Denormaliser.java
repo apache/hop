@@ -129,7 +129,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
     this.minNullIsValued = ValueMetaBase.convertStringToBoolean( val );
     data.inputRowMeta = getInputRowMeta();
     data.outputRowMeta = data.inputRowMeta.clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
     data.keyFieldNr = data.inputRowMeta.indexOfValue( meta.getKeyField() );
     if ( data.keyFieldNr < 0 ) {

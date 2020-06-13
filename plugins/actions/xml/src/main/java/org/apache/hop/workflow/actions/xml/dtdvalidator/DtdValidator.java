@@ -23,8 +23,6 @@
 package org.apache.hop.workflow.actions.xml.dtdvalidator;
 
 
-import java.util.List;
-
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -32,7 +30,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -43,6 +41,8 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This defines a 'dtdvalidator' job entry.
@@ -90,7 +90,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public void loadXml(Node entrynode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     try {
       super.loadXml( entrynode );
@@ -185,7 +185,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IMetaStore metaStore ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator() );

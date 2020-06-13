@@ -33,7 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -74,8 +74,8 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
     rules = new LinkedList<NumberRangeRule>();
   }
 
-  public NumberRangeMeta( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    loadXml( transformNode, metaStore );
+  public NumberRangeMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    loadXml( transformNode, metadataProvider );
   }
 
   @Override
@@ -101,7 +101,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     IValueMeta mcValue = new ValueMetaString( outputField );
     mcValue.setOrigin( name );
     mcValue.setLength( 255 );
@@ -120,7 +120,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       inputField = XmlHandler.getTagValue( transformNode, "inputField" );
       outputField = XmlHandler.getTagValue( transformNode, "outputField" );
@@ -163,7 +163,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

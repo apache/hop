@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.mockito.Mockito;
 
 import javax.naming.ldap.InitialLdapContext;
@@ -38,7 +38,7 @@ import java.util.Collection;
 public class LdapMockProtocol extends LdapProtocol {
   public static InitialLdapContext mockContext;
 
-  public LdapMockProtocol( LogChannelInterface log, iVariables variables, LdapMeta meta,
+  public LdapMockProtocol( LogChannelInterface log, IVariables variables, LdapMeta meta,
                            Collection<String> binaryAttributes ) {
     super( log, variables, meta, binaryAttributes );
   }

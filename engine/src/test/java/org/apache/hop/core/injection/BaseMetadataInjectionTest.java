@@ -33,8 +33,8 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.After;
 import org.junit.Ignore;
@@ -57,13 +57,13 @@ public abstract class BaseMetadataInjectionTest<Meta extends ITransformMeta<?, ?
   protected BeanInjector<Meta> injector;
   protected Meta meta;
   protected Set<String> nonTestedProperties;
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   protected void setup( Meta meta ) throws Exception {
     HopClientEnvironment.init();
 
     this.meta = meta;
-    this.metaStore = new MemoryMetaStore();
+    this.metadataProvider = new MemoryMetadataProvider();
     info = new BeanInjectionInfo( meta.getClass() );
     injector = new BeanInjector( info );
     nonTestedProperties = new HashSet<>( info.getProperties().keySet() );

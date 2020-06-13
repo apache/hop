@@ -93,7 +93,7 @@ public class GetSlaveSequence extends BaseTransform<GetSlaveSequenceMeta, GetSla
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.startValue = data.slaveServer.getNextSlaveSequenceValue( data.sequenceName, data.increment );
       data.value = data.startValue;

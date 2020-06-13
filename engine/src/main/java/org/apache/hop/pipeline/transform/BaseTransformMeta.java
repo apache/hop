@@ -22,9 +22,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.HopAttribute;
 import org.apache.hop.core.IHopAttribute;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -34,30 +32,25 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.transform.errorhandling.IStream;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.w3c.dom.Document;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
+import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -189,11 +182,11 @@ public class BaseTransformMeta implements Cloneable {
    * @param info         Fields used as extra lookup information
    * @param nextTransform     the next transform that is targeted
    * @param variables        the space The variable space to use to replace variables
-   * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider    the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopTransformException the hop transform exception
    */
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: no values are added to the row in the transform
   }
 
@@ -207,11 +200,11 @@ public class BaseTransformMeta implements Cloneable {
    * @param input     The previous transform names
    * @param output    The output transform names
    * @param info      The fields used as information by this transform
-   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output,
-                             IRowMeta info, IMetaStore metaStore ) throws HopTransformException {
+                             IRowMeta info, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
   }
 
@@ -224,12 +217,12 @@ public class BaseTransformMeta implements Cloneable {
    * @param pipelineMeta PipelineMeta object containing the complete pipeline
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
-   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
    * SqlStatement
    */
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) throws HopTransformException {
+                                        IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // default: this doesn't require any SQL statements to be executed!
     return new SqlStatement( transformMeta.getName(), null, null );
   }
@@ -315,12 +308,12 @@ public class BaseTransformMeta implements Cloneable {
    * @param variables                   the space
    * @param definitions             the definitions
    * @param iResourceNaming the resource naming interface
-   * @param metaStore               The place to load additional information
+   * @param metadataProvider               The place to load additional information
    * @return the string
    * @throws HopException the hop exception
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     return null;
   }
 
@@ -698,7 +691,7 @@ public class BaseTransformMeta implements Cloneable {
     return null;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     // provided for API (compile & runtime) compatibility with v4
   }
 
@@ -711,23 +704,23 @@ public class BaseTransformMeta implements Cloneable {
    * @param input
    * @param output
    * @param info
-   * @param metaStore
+   * @param metadataProvider
    */
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
   }
 
   /**
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param metaStore the MetaStore to use
+   * @param metadataProvider the MetaStore to use
    * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     return null;
   }
 

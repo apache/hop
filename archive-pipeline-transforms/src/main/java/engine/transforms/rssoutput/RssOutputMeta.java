@@ -24,16 +24,16 @@ package org.apache.hop.pipeline.transforms.rssoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -180,7 +180,7 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
    */
   private boolean displayitem;
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -541,7 +541,7 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     partNrInFilename = value;
   }
 
-  public String[] getFiles( iVariables variables ) throws HopTransformException {
+  public String[] getFiles( IVariables variables ) throws HopTransformException {
     int copies = 1;
     int parts = 1;
 
@@ -574,7 +574,7 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private String getFilename( iVariables variables ) throws HopTransformException {
+  private String getFilename( IVariables variables ) throws HopTransformException {
     FileObject file = null;
     try {
       file = HopVFS.getFileObject( variables.environmentSubstitute( getFileName() ) );
@@ -592,7 +592,7 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public String buildFilename( iVariables variables, int transformnr ) throws HopTransformException {
+  public String buildFilename( IVariables variables, int transformnr ) throws HopTransformException {
 
     SimpleDateFormat daf = new SimpleDateFormat();
 
@@ -834,9 +834,9 @@ public class RssOutputMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
 

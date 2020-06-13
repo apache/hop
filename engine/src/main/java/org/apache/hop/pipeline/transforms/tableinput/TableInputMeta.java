@@ -43,7 +43,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -72,7 +72,7 @@ public class TableInputMeta
 
   private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   private DatabaseMeta databaseMeta;
 
@@ -101,7 +101,7 @@ public class TableInputMeta
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( HopXmlException e ) {
       throw new RuntimeException( "Error loading conneciton '" + connectionName + "'", e );
     }
@@ -163,8 +163,8 @@ public class TableInputMeta
     this.sql = sql;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -172,10 +172,10 @@ public class TableInputMeta
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "connection" ) );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, XmlHandler.getTagValue( transformNode, "connection" ) );
       sql = XmlHandler.getTagValue( transformNode, "sql" );
       rowLimit = XmlHandler.getTagValue( transformNode, "limit" );
 
@@ -203,7 +203,7 @@ public class TableInputMeta
   }
 
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( databaseMeta == null ) {
       return; // TODO: throw an exception here
     }
@@ -302,7 +302,7 @@ public class TableInputMeta
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {
@@ -434,12 +434,12 @@ public class TableInputMeta
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // Find the lookupfields...
     IRowMeta out = new RowMeta();
     // TODO: this builds, but does it work in all cases.
-    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, pipelineMeta, metaStore );
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, pipelineMeta, metadataProvider );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

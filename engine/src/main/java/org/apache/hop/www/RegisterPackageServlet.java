@@ -26,12 +26,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -73,7 +72,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException, MetaStoreException, ParseException {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws HopException, IOException, HopException, ParseException {
     FileObject tempFile = HopVfs.createTempFile( "export", ".zip", System.getProperty( "java.io.tmpdir" ) );
     OutputStream out = HopVfs.getOutputStream( tempFile, false );
     IOUtils.copy( request.getInputStream(), out );
@@ -89,14 +88,14 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
       String resultId;
 
       String metaStoreJson = getMetaStoreJsonFromZIP( archiveUrl );
-      SerializableMetaStore metaStore = new SerializableMetaStore( metaStoreJson );
+      SerializableMetadataProvider metadataProvider = new SerializableMetadataProvider( metaStoreJson );
 
       if ( isWorkflow ) {
         Node node = getConfigNodeFromZIP( archiveUrl, Workflow.CONFIGURATION_IN_EXPORT_FILENAME, WorkflowExecutionConfiguration.XML_TAG );
         WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration( node );
 
         WorkflowMeta workflowMeta = new WorkflowMeta( fileUrl );
-        WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration, metaStore );
+        WorkflowConfiguration workflowConfiguration = new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration, metadataProvider );
 
         IWorkflowEngine<WorkflowMeta> workflow = createWorkflow( workflowConfiguration );
         resultId = workflow.getContainerId();
@@ -104,9 +103,9 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
         Node node = getConfigNodeFromZIP( archiveUrl, Pipeline.CONFIGURATION_IN_EXPORT_FILENAME, PipelineExecutionConfiguration.XML_TAG );
         PipelineExecutionConfiguration pipelineExecutionConfiguration = new PipelineExecutionConfiguration( node );
 
-        PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+        PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metadataProvider, true, Variables.getADefaultVariableSpace() );
 
-        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration, metaStore );
+        PipelineConfiguration pipelineConfiguration = new PipelineConfiguration( pipelineMeta, pipelineExecutionConfiguration, metadataProvider );
 
         IPipelineEngine<PipelineMeta> pipeline = createPipeline( pipelineConfiguration );
         resultId = pipeline.getContainerId();
@@ -131,7 +130,7 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
   }
 
   public static final String getMetaStoreJsonFromZIP( Object archiveUrl ) throws HopFileException, IOException {
-    String filename = MessageFormat.format( ZIP_CONT, archiveUrl, "metastore.json" );
+    String filename = MessageFormat.format( ZIP_CONT, archiveUrl, "metadata.json" );
     InputStream inputStream = HopVfs.getInputStream( filename );
     String metaStoreJson = IOUtils.toString( inputStream, StandardCharsets.UTF_8.name() );
     return metaStoreJson;

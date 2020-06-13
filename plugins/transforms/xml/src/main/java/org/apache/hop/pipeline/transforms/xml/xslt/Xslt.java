@@ -75,7 +75,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
     if ( first ) {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Check if The result field is given
       if ( Utils.isEmpty( meta.getResultfieldname() ) ) {

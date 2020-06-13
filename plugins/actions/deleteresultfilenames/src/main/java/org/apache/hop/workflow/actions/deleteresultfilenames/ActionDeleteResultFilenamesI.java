@@ -39,7 +39,7 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.Iterator;
@@ -101,7 +101,7 @@ public class ActionDeleteResultFilenamesI extends ActionBase implements Cloneabl
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       foldername = XmlHandler.getTagValue( entrynode, "foldername" );
@@ -226,7 +226,7 @@ public class ActionDeleteResultFilenamesI extends ActionBase implements Cloneabl
   }
 
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileDoesNotExistValidator() );

@@ -97,11 +97,11 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Load the pipeline
       //
-      PipelineMeta pipelineMeta = new PipelineMeta( filename, hopGui.getMetaStore(), true, parentVariableSpace );
+      PipelineMeta pipelineMeta = new PipelineMeta( filename, hopGui.getMetadataProvider(), true, parentVariableSpace );
 
       // Pass the MetaStore for reference lookups
       //
-      pipelineMeta.setMetaStore( hopGui.getMetaStore() );
+      pipelineMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
       // Show it in the perspective
       //
@@ -131,7 +131,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Pass the MetaStore for reference lookups
       //
-      pipelineMeta.setMetaStore( hopGui.getMetaStore() );
+      pipelineMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
       // Show it in the perspective
       //

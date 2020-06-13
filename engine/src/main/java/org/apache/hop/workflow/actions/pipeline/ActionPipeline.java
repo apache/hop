@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.pipeline;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -33,8 +32,6 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
@@ -48,8 +45,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -69,7 +65,6 @@ import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -266,7 +261,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
@@ -407,7 +402,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     //
     PipelineMeta pipelineMeta = null;
     try {
-      pipelineMeta = getPipelineMeta( metaStore, this );
+      pipelineMeta = getPipelineMeta( metadataProvider, this );
     } catch ( HopException e ) {
       logError( BaseMessages.getString( PKG, "ActionPipeline.Exception.UnableToRunWorkflow", parentWorkflowMeta.getName(),
         getName(), StringUtils.trim( e.getMessage() ) ), e );
@@ -565,7 +560,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
         // Create the pipeline from meta-data
         //
-        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metaStore, pipelineMeta );
+        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metadataProvider, pipelineMeta );
         pipeline.setParent( this );
 
 
@@ -576,8 +571,8 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline.setLogLevel( pipelineLogLevel );
         pipeline.setPreviousResult( previousResult );
 
-        // inject the metaStore
-        pipeline.setMetaStore( metaStore );
+        // inject the metadataProvider
+        pipeline.setMetadataProvider( metadataProvider );
 
         // First get the root workflow
         //
@@ -660,7 +655,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     result.setRows( newResult.getRows() );
   }
 
-  public PipelineMeta getPipelineMeta( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public PipelineMeta getPipelineMeta( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     try {
       PipelineMeta pipelineMeta = null;
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
@@ -668,7 +663,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
       String realFilename = tmpSpace.environmentSubstitute( getFilename() );
 
-      pipelineMeta = new PipelineMeta( realFilename, metaStore, true, this );
+      pipelineMeta = new PipelineMeta( realFilename, metadataProvider, true, this );
 
       if ( pipelineMeta != null ) {
         // set Internal.Entry.Current.Directory again because it was changed
@@ -682,9 +677,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           // variables from the pipeline?' option is checked)
           TransformWithMappingMeta.addMissingVariables( pipelineMeta, variables );
         }
-        // Pass the IMetaStore references
+        // Pass the metadata references
         //
-        pipelineMeta.setMetaStore( metaStore );
+        pipelineMeta.setMetadataProvider( metadataProvider );
       }
 
       return pipelineMeta;
@@ -707,16 +702,16 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     this.copyVariablesFrom( variables );
-    PipelineMeta pipelineMeta = getPipelineMeta( metaStore, this );
+    PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, this );
 
     return pipelineMeta.getSqlStatements();
   }
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     if ( setLogfile ) {
       ActionValidatorUtils.andValidator().validate( this, "logfile", remarks,
         AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
@@ -758,13 +753,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
    * @param variables       The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param metaStore       the metaStore to load external metadata from
+   * @param metadataProvider       the metadataProvider to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     // Try to load the pipeline from a file.
     // Modify this recursively too...
     //
@@ -773,12 +768,12 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     // First load the pipeline metadata...
     //
     copyVariablesFrom( variables );
-    PipelineMeta pipelineMeta = getPipelineMeta( metaStore, variables );
+    PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, variables );
 
     // Also go down into the pipeline and export the files there. (mapping recursively down)
     //
     String proposedNewFilename =
-      pipelineMeta.exportResources( pipelineMeta, definitions, namingInterface, metaStore );
+      pipelineMeta.exportResources( pipelineMeta, definitions, namingInterface, metadataProvider );
 
     // To get a relative path to it, we inject ${Internal.Entry.Current.Directory}
     //
@@ -874,14 +869,14 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param metaStore metaStore
+   * @param metadataProvider metadataProvider
    * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
-    return getPipelineMeta( metaStore, variables );
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    return getPipelineMeta( metadataProvider, variables );
   }
 
   @Override

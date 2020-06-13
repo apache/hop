@@ -38,7 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -205,7 +205,7 @@ public class PipelineExecutorMeta
 
   private TransformMeta executorsOutputTransformMeta;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public PipelineExecutorMeta() {
     super(); // allocate BaseTransformMeta
@@ -295,7 +295,7 @@ public class PipelineExecutorMeta
     return retval.toString();
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       runConfigurationName = XmlHandler.getTagValue( transformNode, "run_configuration" );
       filename = XmlHandler.getTagValue( transformNode, "filename" );
@@ -428,7 +428,7 @@ public class PipelineExecutorMeta
 
   @Override
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( nextTransform != null ) {
       if ( nextTransform.equals( executionResultTargetTransformMeta ) ) {
         inputRowMeta.clear();
@@ -459,7 +459,7 @@ public class PipelineExecutorMeta
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
@@ -915,17 +915,17 @@ public class PipelineExecutorMeta
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables )
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables )
     throws HopException {
-    return loadMappingMeta( this, metaStore, variables );
+    return loadMappingMeta( this, metadataProvider, variables );
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   public String getOutputRowsSourceTransform() {

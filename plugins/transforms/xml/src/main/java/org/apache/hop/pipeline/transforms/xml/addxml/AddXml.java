@@ -22,18 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -44,12 +32,27 @@ import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Converts input rows to one or more XML files.
@@ -67,7 +70,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> implements ITr
     super( stepMeta, meta, sdi, copyNr, tm, trans );
   }
 
-  public boolean processRow( ITransformMeta smi, ITransformData sdi ) throws HopException {
+  public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // This also waits for a row to be finished.
     if ( r == null ) {
@@ -80,7 +83,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> implements ITr
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Cache the field name indexes
       //

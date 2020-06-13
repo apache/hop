@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
@@ -45,7 +45,7 @@ public class TextFileInputMetaTest {
   private static final String FILE_NAME_VALID_PATH = "path/to/file";
 
   private TextFileInputMeta inputMeta;
-  private iVariables variables;
+  private IVariables variables;
 
   @Before
   public void setUp() throws Exception {
@@ -58,7 +58,7 @@ public class TextFileInputMetaTest {
     inputMeta = new TextFileInputMeta();
     inputMeta.setParentTransformMeta( parentTransformMeta );
     inputMeta = spy( inputMeta );
-    variables = mock( iVariables.class );
+    variables = mock( IVariables.class );
 
     doReturn( "<def>" ).when( variables ).environmentSubstitute( anyString() );
     doReturn( FILE_NAME_VALID_PATH ).when( variables ).environmentSubstitute( FILE_NAME_VALID_PATH );

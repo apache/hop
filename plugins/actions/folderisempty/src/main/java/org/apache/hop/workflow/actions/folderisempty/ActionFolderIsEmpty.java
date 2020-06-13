@@ -41,7 +41,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.io.IOException;
@@ -106,7 +106,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       foldername = XmlHandler.getTagValue( entrynode, "foldername" );
@@ -331,7 +331,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ActionValidatorUtils.andValidator().validate( this, "filename", remarks,
       AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
   }

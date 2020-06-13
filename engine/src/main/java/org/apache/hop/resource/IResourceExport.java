@@ -24,7 +24,7 @@ package org.apache.hop.resource;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.Map;
 
@@ -43,10 +43,10 @@ public interface IResourceExport {
    * @param variables           The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to name appropriately
-   * @param metaStore       the central metastore to load non-hop specific metadata from
+   * @param metadataProvider       the central metadata to load non-hop specific metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
   String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                          IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException;
+                          IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException;
 }

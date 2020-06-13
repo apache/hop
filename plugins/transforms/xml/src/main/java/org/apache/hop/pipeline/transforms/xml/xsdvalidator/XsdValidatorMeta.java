@@ -22,12 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -42,31 +38,28 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
 
+import java.util.List;
+import java.util.Map;
+
 /*
  * Created on 14-08-2007
  *
  */
-@Transform(
-        id = "XSDValidator",
-        image = "XOU.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xsdvalidator",
-        name = "XSDValidator.name",
-        description = "XSDValidator.description",
-        categoryDescription = "XSDValidator.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xsdvalidator.html"
-)
+@Transform( id = "XSDValidator", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xsdvalidator",
+  name = "XSDValidator.name", description = "XSDValidator.description",
+  categoryDescription = "XSDValidator.category",
+  documentationUrl = "" )
 public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -186,8 +179,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
   }
 
   /**
-   * @param xdsFilename
-   *          The XSD filename to set.
+   * @param xdsFilename The XSD filename to set.
    */
   public void setXSDfilename( String xdsFilename ) {
     this.xsdFilename = xdsFilename;
@@ -201,8 +193,8 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     this.xmlStream = xmlStream;
   }
 
-  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public Object clone() {
@@ -212,8 +204,8 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, XsdValidatorData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new XsdValidator( transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+  public ITransform createTransform( TransformMeta transformMeta, XsdValidatorData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new XsdValidator( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -221,27 +213,27 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     return new XsdValidatorData();
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
 
-      xsdFilename = XmlHandler.getTagValue( stepnode, "xdsfilename" );
-      xmlStream = XmlHandler.getTagValue( stepnode, "xmlstream" );
-      resultFieldname = XmlHandler.getTagValue( stepnode, "resultfieldname" );
-      xsdDefinedField = XmlHandler.getTagValue( stepnode, "xsddefinedfield" );
-      xsdSource = XmlHandler.getTagValue( stepnode, "xsdsource" );
+      xsdFilename = XmlHandler.getTagValue( transformNode, "xdsfilename" );
+      xmlStream = XmlHandler.getTagValue( transformNode, "xmlstream" );
+      resultFieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      xsdDefinedField = XmlHandler.getTagValue( transformNode, "xsddefinedfield" );
+      xsdSource = XmlHandler.getTagValue( transformNode, "xsdsource" );
 
-      addValidationMessage = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "addvalidationmsg" ) );
+      addValidationMessage = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addvalidationmsg" ) );
 
-      validationMessageField = XmlHandler.getTagValue( stepnode, "validationmsgfield" );
-      ifXmlValid = XmlHandler.getTagValue( stepnode, "ifxmlvalid" );
-      ifXmlInvalid = XmlHandler.getTagValue( stepnode, "ifxmlunvalid" );
-      outputStringField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "outputstringfield" ) );
-      xmlSourceFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "xmlsourcefile" ) );
-      allowExternalEntities = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "allowExternalEntities" ) );
+      validationMessageField = XmlHandler.getTagValue( transformNode, "validationmsgfield" );
+      ifXmlValid = XmlHandler.getTagValue( transformNode, "ifxmlvalid" );
+      ifXmlInvalid = XmlHandler.getTagValue( transformNode, "ifxmlunvalid" );
+      outputStringField = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outputstringfield" ) );
+      xmlSourceFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "xmlsourcefile" ) );
+      allowExternalEntities = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "allowExternalEntities" ) );
 
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG,
-          "XsdValidatorMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
+        "XsdValidatorMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
     }
   }
 
@@ -260,19 +252,19 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     allowExternalEntities = Boolean.valueOf( System.getProperties().getProperty( ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION, ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT ) );
   }
 
-  public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
-                        IVariables space, IMetaStore metaStore ) throws HopTransformException {
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
+                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( resultFieldname ) ) {
       if ( outputStringField ) {
         // Output field (String)
         IValueMeta v =
-            new ValueMetaString( space.environmentSubstitute( getResultfieldname() ));
+          new ValueMetaString( space.environmentSubstitute( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       } else {
 
         // Output field (boolean)
         IValueMeta v =
-            new ValueMetaBoolean( space.environmentSubstitute( getResultfieldname() ) );
+          new ValueMetaBoolean( space.environmentSubstitute( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       }
 
@@ -280,7 +272,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     // Add String Field that contain validation message (most the time, errors)
     if ( addValidationMessage && !Utils.isEmpty( validationMessageField ) ) {
       IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( validationMessageField ) );
+        new ValueMetaString( space.environmentSubstitute( validationMessageField ) );
       inputRowMeta.addValueMeta( v );
     }
 
@@ -308,66 +300,66 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
 
 
   public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepinfo, IRowMeta prev,
-      String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check XML stream field
     if ( Utils.isEmpty( xmlStream ) ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.XMLStreamFieldEmpty" ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.XMLStreamFieldEmpty" ), stepinfo );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.XMLStreamFieldOK" ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.XMLStreamFieldOK" ), stepinfo );
       remarks.add( cr );
     }
 
     // Check result fieldname
     if ( Utils.isEmpty( resultFieldname ) ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.ResultFieldEmpty" ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.ResultFieldEmpty" ), stepinfo );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.ResultFieldOK" ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.ResultFieldOK" ), stepinfo );
       remarks.add( cr );
     }
 
     if ( xsdSource.equals( SPECIFY_FILENAME ) ) {
       if ( Utils.isEmpty( xsdFilename ) ) {
         cr =
-            new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XsdValidatorMeta.CheckResult.XSDFieldEmpty" ), stepinfo );
+          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "XsdValidatorMeta.CheckResult.XSDFieldEmpty" ), stepinfo );
         remarks.add( cr );
       }
     }
 
     if ( prev != null && prev.size() > 0 ) {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepinfo );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.NoInputReceived" ), stepinfo );
+        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.NoInputReceived" ), stepinfo );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this step!
     if ( input.length > 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.ExpectedInputOk" ), stepinfo );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.ExpectedInputOk" ), stepinfo );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XsdValidatorMeta.CheckResult.ExpectedInputError" ), stepinfo );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XsdValidatorMeta.CheckResult.ExpectedInputError" ), stepinfo );
       remarks.add( cr );
     }
   }
@@ -381,19 +373,15 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
    * what this does is turn the name of files into absolute paths OR it simply includes the resource in the ZIP file.
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
-   * 
-   * @param space
-   *          the variable space to use
+   *
+   * @param space                   the variable space to use
    * @param definitions
-   * @param resourceNamingInterface
-   *          The repository to optionally load other resources from (to be converted to XML)
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
-   * 
+   * @param resourceNamingInterface The repository to optionally load other resources from (to be converted to XML)
+   * @param metadataProvider        the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources(IVariables space, Map<String, ResourceDefinition> definitions,
-                                IResourceNaming resourceNamingInterface, IMetaStore metaStore )
+  public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

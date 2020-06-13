@@ -171,7 +171,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metaStore );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metadataProvider );
 
       // Check lookup field
       data.indexOfMainField = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getMainStreamField() ) );

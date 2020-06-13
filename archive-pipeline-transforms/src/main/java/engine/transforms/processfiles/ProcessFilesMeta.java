@@ -23,15 +23,15 @@
 package org.apache.hop.pipeline.transforms.processfiles;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -198,8 +198,8 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   @Override
@@ -241,7 +241,7 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
     return operationTypeCode[ i ];
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       sourcefilenamefield = XmlHandler.getTagValue( transformNode, "sourcefilenamefield" );
       targetfilenamefield = XmlHandler.getTagValue( transformNode, "targetfilenamefield" );
@@ -272,9 +272,9 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

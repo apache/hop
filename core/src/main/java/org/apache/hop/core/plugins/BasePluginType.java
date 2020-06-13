@@ -64,7 +64,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public abstract class BasePluginType implements IPluginType {
+public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
   protected static Class<?> PKG = BasePluginType.class; // for i18n purposes, needed by Translator!!
 
   protected String id;
@@ -79,11 +79,11 @@ public abstract class BasePluginType implements IPluginType {
 
   protected boolean searchLibDir;
 
-  protected Class<? extends java.lang.annotation.Annotation> pluginType;
+  protected Class<T> pluginType;
 
   protected List<String> extraLibraryFolders;
 
-  public BasePluginType( Class<? extends java.lang.annotation.Annotation> pluginType ) {
+  public BasePluginType( Class<T> pluginType ) {
     this.pluginFolders = new ArrayList<>();
     this.log = new LogChannel( "Plugin type" );
 
@@ -97,7 +97,7 @@ public abstract class BasePluginType implements IPluginType {
    * @param id   The plugin type ID
    * @param name the name of the plugin
    */
-  public BasePluginType( Class<? extends java.lang.annotation.Annotation> pluginType, String id, String name ) {
+  public BasePluginType( Class<T> pluginType, String id, String name ) {
     this( pluginType );
     this.id = id;
     this.name = name;
@@ -724,57 +724,57 @@ public abstract class BasePluginType implements IPluginType {
     return new HopURLClassLoader( urls.toArray( new URL[ urls.size() ] ), classLoader );
   }
 
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( T annotation ) {
     return null;
   }
 
-  protected abstract String extractID( java.lang.annotation.Annotation annotation );
+  protected abstract String extractID( T annotation );
 
-  protected abstract String extractName( java.lang.annotation.Annotation annotation );
+  protected abstract String extractName( T annotation );
 
-  protected abstract String extractDesc( java.lang.annotation.Annotation annotation );
+  protected abstract String extractDesc( T annotation );
 
   /**
    * Extract extra classes information from a plugin annotation.
    *
    * @param annotation
    */
-  protected String extractClassLoaderGroup( java.lang.annotation.Annotation annotation ) {
+  protected String extractClassLoaderGroup( T annotation ) {
     return null;
   }
 
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( T annotation ) {
     return null;
   }
 
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( T annotation ) {
     return false;
   }
 
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( T annotation ) {
     return null;
   }
 
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, T annotation ) {
   }
 
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( T annotation ) {
     return null;
   }
 
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( T annotation ) {
     return null;
   }
 
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( T annotation ) {
     return null;
   }
 
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( T annotation ) {
     return null;
   }
 
-  protected String[] extractKeywords( Annotation annotation ) {
+  protected String[] extractKeywords( T annotation ) {
     return new String[] {};
   }
 
@@ -802,7 +802,7 @@ public abstract class BasePluginType implements IPluginType {
         List<String> libraries = Arrays.stream( urlClassLoader.getURLs() )
           .map( URL::getFile )
           .collect( Collectors.toList() );
-        Annotation annotation = clazz.getAnnotation( pluginType );
+        T annotation = clazz.getAnnotation( pluginType );
 
         handlePluginAnnotation( clazz, annotation, libraries, false, jarFilePlugin.getPluginFolder() );
       } catch ( Exception e ) {
@@ -828,8 +828,7 @@ public abstract class BasePluginType implements IPluginType {
    * @throws HopPluginException
    */
   @Override
-  public void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-                                      List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
+  public void handlePluginAnnotation( Class<?> clazz, T annotation, List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException {
 
     String idList = extractID( annotation );
     if ( Utils.isEmpty( idList ) ) {

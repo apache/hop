@@ -669,7 +669,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
       first = false;
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputRowMeta = data.outputRowMeta;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.istablenameInField() ) {
         // ICache the position of the table name field

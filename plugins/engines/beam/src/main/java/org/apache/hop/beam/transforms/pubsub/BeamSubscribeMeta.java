@@ -12,7 +12,7 @@ import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -21,11 +21,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-        id = "BeamSubscribe",
-        name = "Beam GCP Pub/Sub : Subscribe",
-        description = "Subscribe to data from a Pub/Sub topic",
-        categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamsubscriber.html"
+  id = "BeamSubscribe",
+  name = "Beam GCP Pub/Sub : Subscribe",
+  description = "Subscribe to data from a Pub/Sub topic",
+  image = "beam-gcp-pubsub-subscribe.svg",
+  categoryDescription = "Big Data"
 )
 public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMeta<BeamSubscribe, BeamSubscribeData> {
 
@@ -58,7 +58,11 @@ public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMe
     return new BeamSubscribeData();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
+  @Override public String getDialogClassName() {
+    return BeamSubscribeDialog.class.getName();
+  }
+
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( StringUtils.isEmpty( messageType ) ) {
@@ -91,7 +95,7 @@ public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMe
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     subscription = XmlHandler.getTagValue( transformNode, SUBSCRIPTION );
     topic = XmlHandler.getTagValue( transformNode, TOPIC );
     messageType = XmlHandler.getTagValue( transformNode, MESSAGE_TYPE );

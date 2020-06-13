@@ -21,13 +21,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -51,8 +46,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.http.client.methods.HttpGet;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -62,6 +55,13 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.dom4j.tree.AbstractNode;
+
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -347,7 +347,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         data.nrReadRow = getInputRowMeta().size();
         data.inputRowMeta = getInputRowMeta();
         data.outputRowMeta = data.inputRowMeta.clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
         // Get total previous fields
         data.totalpreviousfields = data.inputRowMeta.size();
@@ -642,7 +642,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
       // Create the output row meta-data
       data.outputRowMeta = new RowMeta();
 
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Create convert meta-data objects that will contain Date & Number formatters
       // For String to <type> conversions, we allocate a conversion meta data row as well...

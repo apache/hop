@@ -22,14 +22,14 @@
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -93,12 +93,12 @@ public class ZipFileMetaTest {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     TransformMeta mockParentTransformMeta = mock( TransformMeta.class );
     zipFileMeta.setParentTransformMeta( mockParentTransformMeta );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     when( mockParentTransformMeta.getParentPipelineMeta() ).thenReturn( mockPipelineMeta );
-    zipFileMeta.loadXml( transformNode, metaStore );
+    zipFileMeta.loadXml( transformNode, metadataProvider );
     assertXmlOutputMeta( zipFileMeta );
   }
 
@@ -109,12 +109,12 @@ public class ZipFileMetaTest {
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     TransformMeta transformInfo = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
-    ArrayList<CheckResultInterface> remarks = new ArrayList<>();
+    ArrayList<ICheckResult> remarks = new ArrayList<>();
 
     zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
-      new Variables(), metastore );
+      new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
     assertEquals( "Transform is receiving info from other transforms.", remarks.get( 1 ).getText() );
@@ -123,7 +123,7 @@ public class ZipFileMetaTest {
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
     zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[ 0 ], new String[] { "output" }, info,
-      new Variables(), metastore );
+      new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other transforms!", remarks.get( 1 ).getText() );

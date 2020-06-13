@@ -36,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
@@ -135,7 +135,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -233,7 +233,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     /*
      * @todo Need to check for the following: 1) Join type must be one of INNER / LEFT OUTER / RIGHT OUTER / FULL OUTER
      * 2) Number of input streams must be two (for now at least) 3) The field names of input streams must be unique
@@ -245,7 +245,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just merge in the info fields.
     //

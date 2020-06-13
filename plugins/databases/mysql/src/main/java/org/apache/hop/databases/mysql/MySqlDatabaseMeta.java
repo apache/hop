@@ -36,8 +36,8 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSetMetaData;
@@ -78,7 +78,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           comboValuesMethod = "getDriverClassNames",
           label = "Select database type:"
   )
-  @MetaStoreAttribute( key = "driverClassName" )
+  @HopMetadataProperty( key = "driverClassName" )
   private String driverClassName="";
 
   /**
@@ -543,10 +543,10 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
    *
    * @param log Logging object
-   * @param metaStore If the metastore is needed to get the values
+   * @param metadataProvider If shared metadata is needed to get the values
    * @return The list of driver type names shown in the GUI
    */
-  public List<String> getDriverClassNames( ILogChannel log, IMetaStore metaStore){
+  public List<String> getDriverClassNames( ILogChannel log, IHopMetadataProvider metadataProvider){
     List<String> names = new ArrayList<>();
     names.add("Mysql");
     names.add("Mysql 8+");

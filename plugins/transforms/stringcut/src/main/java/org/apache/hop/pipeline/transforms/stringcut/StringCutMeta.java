@@ -23,9 +23,8 @@
 package org.apache.hop.pipeline.transforms.stringcut;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,11 +34,12 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -48,14 +48,6 @@ import java.util.List;
  * @author Samatar Hassan
  * @since 30 September 2008
  */
-@Transform(
-        id = "StringCut",
-        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.stringcut",
-        name = "BaseTransform.TypeLongDesc.StringCut",
-        description = "BaseTransform.TypeTooltipDesc.StringCut",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringcut.html"
-)
 public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
 
   private static Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
@@ -116,7 +108,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     this.cutTo = cutTo;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -138,11 +130,6 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     System.arraycopy( cutFrom, 0, retval.cutFrom, 0, nrkeys );
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(TransformMeta transformMeta, StringCutData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new StringCut(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   private void readData( Node transformNode ) throws HopXmlException {
@@ -196,7 +183,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       IValueMeta v;
       if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
@@ -216,7 +203,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     String error_message = "";
@@ -295,6 +282,11 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
       }
 
     }
+  }
+
+  public StringCut createTransform( TransformMeta transformMeta, StringCutData data, int cnr,
+                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new StringCut( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public StringCutData getTransformData() {

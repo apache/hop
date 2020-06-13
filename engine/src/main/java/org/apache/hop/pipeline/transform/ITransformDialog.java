@@ -22,7 +22,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 /**
  * This interface is used to launch Transform Dialogs. All dialogs that implement this simple interface can be opened by
@@ -45,7 +45,7 @@ public interface ITransformDialog {
    * <p>
    * /**
    *
-   * @param metaStore The MetaStore to pass
+   * @param metadataProvider The MetaStore to pass
    */
-  void setMetaStore( IMetaStore metaStore );
+  void setMetadataProvider( IHopMetadataProvider metadataProvider );
 }

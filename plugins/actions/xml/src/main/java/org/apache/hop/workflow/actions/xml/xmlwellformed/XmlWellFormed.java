@@ -22,16 +22,15 @@
 
 package org.apache.hop.workflow.actions.xml.xmlwellformed;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.*;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -41,7 +40,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlCheck;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -52,6 +51,11 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 import org.xml.sax.helpers.DefaultHandler;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'xml well formed' workflow action.
@@ -143,7 +147,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return retval.toString();
   }
 
-  public void loadXml(Node entrynode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode);
 
@@ -588,7 +592,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IMetaStore metaStore ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
     boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {

@@ -1,5 +1,10 @@
 package org.apache.hop.env.config;
 
+import org.apache.hop.env.environment.Environment;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class EnvironmentConfig {
 
   public static final String HOP_CONFIG_ENVIRONMENT_CONFIG = "environmentConfig";
@@ -8,16 +13,20 @@ public class EnvironmentConfig {
 
   private boolean openingLastEnvironmentAtStartup;
 
+  private List<Environment> environments;
+
   public EnvironmentConfig() {
     enabled = true;
     openingLastEnvironmentAtStartup = true;
+    environments = new ArrayList<>();
   }
 
   public EnvironmentConfig(EnvironmentConfig c) {
+    this();
     enabled = c.enabled;
     openingLastEnvironmentAtStartup = c.openingLastEnvironmentAtStartup;
+    environments.addAll(c.environments);
   }
-
 
   /**
    * Gets enabled
@@ -51,4 +60,19 @@ public class EnvironmentConfig {
     this.openingLastEnvironmentAtStartup = openingLastEnvironmentAtStartup;
   }
 
+  /**
+   * Gets environments
+   *
+   * @return value of environments
+   */
+  public List<Environment> getEnvironments() {
+    return environments;
+  }
+
+  /**
+   * @param environments The environments to set
+   */
+  public void setEnvironments( List<Environment> environments ) {
+    this.environments = environments;
+  }
 }

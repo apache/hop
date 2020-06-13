@@ -11,7 +11,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -23,11 +23,11 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-        id = "BeamWindow",
-        name = "Beam Window",
-        description = "Create a Beam Window",
-        categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamwindow.html"
+  id = "BeamWindow",
+  name = "Beam Window",
+  description = "Create a Beam Window",
+  image = "beam-window.svg",
+  categoryDescription = "Big Data"
 )
 public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
@@ -67,7 +67,11 @@ public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<
     return new DummyData();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
+  @Override public String getDialogClassName() {
+    return BeamWindowDialog.class.getName();
+  }
+
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( StringUtils.isNotEmpty( startWindowField ) ) {
@@ -102,7 +106,7 @@ public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     windowType = XmlHandler.getTagValue( transformNode, WINDOW_TYPE );
     duration = XmlHandler.getTagValue( transformNode, DURATION );
     every = XmlHandler.getTagValue( transformNode, EVERY );

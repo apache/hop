@@ -104,7 +104,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
       data.outputRowMeta = data.TargetRowSet.getRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), new IRowMeta[] { data.TargetRowSet.getRowMeta() },
-          null, getPipelineMeta(), metaStore );
+          null, getPipelineMeta(), metadataProvider );
       data.outputRowData = rTarget.clone();
 
       // get the target xml structure and create a DOM

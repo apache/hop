@@ -26,7 +26,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
-import org.apache.hop.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -133,8 +133,8 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
       //
       if ( !Utils.isEmpty( load ) ) {
 
-        String metaStoreJson = RegisterPackageServlet.getMetaStoreJsonFromZIP( "zip:"+archiveUrl+"!metastore.json" );
-        SerializableMetaStore metaStore = new SerializableMetaStore(metaStoreJson);
+        String metaStoreJson = RegisterPackageServlet.getMetaStoreJsonFromZIP( "zip:"+archiveUrl+"!metadata.json" );
+        SerializableMetadataProvider metadataProvider = new SerializableMetadataProvider(metaStoreJson);
 
         fileUrl = "zip:" + archiveUrl + "!" + load;
 
@@ -157,15 +157,15 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
           String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
 
-          // Inflate the metastore and simply store it into the workflow metadata
+          // Inflate the metadata and simply store it into the workflow metadata
           //
-          workflowMeta.setMetaStore( metaStore );
+          workflowMeta.setMetadataProvider( metadataProvider );
 
-          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
+          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
 
           // store it all in the map...
           //
-          getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration, metaStore ) );
+          getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, new WorkflowConfiguration( workflowMeta, workflowExecutionConfiguration, metadataProvider ) );
 
           // Apply the execution configuration...
           //
@@ -189,7 +189,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
           // Open the pipeline from inside the ZIP archive
           //
-          PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metaStore, true, Variables.getADefaultVariableSpace() );
+          PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metadataProvider, true, Variables.getADefaultVariableSpace() );
 
 
           serverObjectId = UUID.randomUUID().toString();
@@ -197,7 +197,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
           String runConfigurationName = executionConfiguration.getRunConfiguration();
-          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, pipelineMeta );
+          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
           pipeline.setParent( servletLoggingObject );
 
           // store it all in the map...
@@ -206,7 +206,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
             pipeline.getPipelineMeta().getName(),
             serverObjectId,
             pipeline,
-            new PipelineConfiguration( pipelineMeta, executionConfiguration, metaStore )
+            new PipelineConfiguration( pipelineMeta, executionConfiguration, metadataProvider )
           );
         }
       } else {

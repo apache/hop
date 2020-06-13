@@ -31,7 +31,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 //import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
@@ -466,13 +466,13 @@ public class ScriptValuesModDummy implements ITransform {
   }
 
   @Override
-  public void setMetaStore( IMetaStore metaStore ) {
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public IMetaStore getMetaStore() {
+  public IHopMetadataProvider getMetadataProvider() {
     // TODO Auto-generated method stub
     return null;
   }

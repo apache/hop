@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.pipeline.transforms.pipelineexecutor;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -398,7 +397,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   private void loadPipelineFile( String fname ) throws HopException {
     String filename = pipelineMeta.environmentSubstitute( fname );
-    executorPipelineMeta = new PipelineMeta( filename, metaStore, true, pipelineMeta );
+    executorPipelineMeta = new PipelineMeta( filename, metadataProvider, true, pipelineMeta );
     executorPipelineMeta.clearChanged();
   }
 
@@ -422,7 +421,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wPath.setText( Const.NVL( pipelineExecutorMeta.getFilename(), "" ) );
 
     try {
-      List<String> runConfigurations = PipelineRunConfiguration.createFactory( metaStore).getElementNames();
+      List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class ).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );

@@ -9,8 +9,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -42,7 +41,7 @@ public class PipelineMetaModifier {
     this.unitTest = unitTest;
   }
 
-  public PipelineMeta getTestPipeline( ILogChannel log, IVariables space, IMetaStore metaStore ) throws HopException {
+  public PipelineMeta getTestPipeline( ILogChannel log, IVariables space, IHopMetadataProvider metadataProvider ) throws HopException {
     // OK, so now replace an input transform with a data set attached with an Injector transform...
     // However, we don't want to have the user see this so we need to copy pipeline.pipelineMeta first...
     //
@@ -54,11 +53,11 @@ public class PipelineMetaModifier {
     } catch ( UnsupportedEncodingException e ) {
       throw new HopException( "Encoding error", e );
     }
-    PipelineMeta copyPipelineMeta = new PipelineMeta( stream, metaStore, true, pipelineMeta );
+    PipelineMeta copyPipelineMeta = new PipelineMeta( stream, metadataProvider, true, pipelineMeta );
 
     // Pass the metadata references...
     //
-    copyPipelineMeta.setMetaStore( pipelineMeta.getMetaStore() );
+    copyPipelineMeta.setMetadataProvider( pipelineMeta.getMetadataProvider() );
 
     // Replace certain connections with another
     //
@@ -121,13 +120,13 @@ public class PipelineMetaModifier {
       // See if there's a unit test if the transform isn't flagged...
       //
       if ( inputLocation != null ) {
-        handleInputDataSet( log, inputLocation, unitTest, pipelineMeta, transformMeta, metaStore );
+        handleInputDataSet( log, inputLocation, unitTest, pipelineMeta, transformMeta, metadataProvider );
       }
 
       // Capture golden data in a dummy transform instead of the regular one?
       //
       if ( goldenLocation != null ) {
-        handleGoldenDataSet( log, goldenLocation, transformMeta, metaStore );
+        handleGoldenDataSet( log, goldenLocation, transformMeta, metadataProvider );
       }
 
       if ( transformTweak != null && transformTweak.getTweak() != null ) {
@@ -150,7 +149,7 @@ public class PipelineMetaModifier {
   }
 
   private void handleInputDataSet( ILogChannel log, PipelineUnitTestSetLocation inputLocation, PipelineUnitTest unitTest,
-                                   PipelineMeta pipelineMeta, TransformMeta transformMeta, IMetaStore metaStore ) throws HopException {
+                                   PipelineMeta pipelineMeta, TransformMeta transformMeta, IHopMetadataProvider metadataProvider ) throws HopException {
 
     String inputSetName = inputLocation.getDataSetName();
 
@@ -160,9 +159,9 @@ public class PipelineMetaModifier {
 
     DataSet dataSet;
     try {
-      dataSet = DataSet.createFactory( metaStore ).loadElement( inputSetName );
+      dataSet = metadataProvider.getSerializer( DataSet.class).load( inputSetName );
       dataSet.initializeVariablesFrom( pipelineMeta );
-    } catch ( MetaStoreException e ) {
+    } catch ( HopException e ) {
       throw new HopException( "Unable to load data set '" + inputSetName + "'" );
     }
 
@@ -190,7 +189,7 @@ public class PipelineMetaModifier {
     }
   }
 
-  private void handleGoldenDataSet( ILogChannel log, PipelineUnitTestSetLocation goldenSetName, TransformMeta transformMeta, IMetaStore metaStore ) {
+  private void handleGoldenDataSet( ILogChannel log, PipelineUnitTestSetLocation goldenSetName, TransformMeta transformMeta, IHopMetadataProvider metadataProvider ) {
 
     if ( log.isDetailed() ) {
       log.logDetailed( "Replacing transform '" + transformMeta.getName() + "' with an Dummy for golden dataset '" + goldenSetName + "'" );

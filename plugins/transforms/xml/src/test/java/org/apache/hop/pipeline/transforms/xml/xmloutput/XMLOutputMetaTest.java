@@ -22,21 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -48,14 +33,28 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class XMLOutputMetaTest {
   @BeforeClass
@@ -69,10 +68,10 @@ public class XMLOutputMetaTest {
   @Test
   public void testLoadAndGetXml() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
-    Node stepnode = getTestNode();
+    Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
-    xmlOutputMeta.loadXML( stepnode, metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    xmlOutputMeta.loadXML( transformNode, metadataProvider );
     assertXmlOutputMeta( xmlOutputMeta );
   }
 
@@ -231,10 +230,10 @@ public class XMLOutputMetaTest {
   @Test
   public void testClone() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
-    Node stepnode = getTestNode();
+    Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
-    xmlOutputMeta.loadXML( stepnode, metaStore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    xmlOutputMeta.loadXML( transformNode, metadataProvider );
     XmlOutputMeta cloned = (XmlOutputMeta) xmlOutputMeta.clone();
     assertNotSame( cloned, xmlOutputMeta );
     assertXmlOutputMeta( cloned );
@@ -289,10 +288,10 @@ public class XMLOutputMetaTest {
     IRowMeta row = mock( IRowMeta.class );
     IRowMeta rmi = mock( IRowMeta.class );
     TransformMeta nextStep = mock( TransformMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IValueMeta vmi = mock( IValueMeta.class );
     when( row.searchValueMeta( "aField" ) ).thenReturn( vmi );
-    xmlOutputMeta.getFields( row, "", new IRowMeta[] { rmi }, nextStep, new Variables(), metastore );
+    xmlOutputMeta.getFields( row, "", new IRowMeta[] { rmi }, nextStep, new Variables(), metadataProvider );
     verify( vmi ).setLength( 10, 3 );
   }
 
@@ -300,11 +299,11 @@ public class XMLOutputMetaTest {
   public void testLoadXmlException() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     Node stepNode = mock( Node.class );
     when( stepNode.getChildNodes() ).thenThrow( new RuntimeException( "some words" ) );
     try {
-      xmlOutputMeta.loadXML( stepNode, metaStore );
+      xmlOutputMeta.loadXML( stepNode, metadataProvider );
     } catch ( HopXmlException e ) {
       assertEquals( "some words", e.getCause().getMessage() );
     }
@@ -359,11 +358,11 @@ public class XMLOutputMetaTest {
     PipelineMeta transMeta = mock( PipelineMeta.class );
     TransformMeta stepInfo = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<ICheckResult> remarks = new ArrayList<>();
     xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
-        new Variables(), metastore );
+        new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Step is receiving info from other steps.", remarks.get( 0 ).getText() );
     assertEquals( "File specifications are not checked.", remarks.get( 1 ).getText() );
@@ -377,7 +376,7 @@ public class XMLOutputMetaTest {
     when( prev.size() ).thenReturn( 1 );
     remarks.clear();
     xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
-        new Variables(), metastore );
+        new Variables(), metadataProvider );
     assertEquals( 4, remarks.size() );
     assertEquals( "Step is connected to previous one, receiving 1 fields", remarks.get( 0 ).getText() );
     assertEquals( "All output fields are found in the input stream.", remarks.get( 1 ).getText() );

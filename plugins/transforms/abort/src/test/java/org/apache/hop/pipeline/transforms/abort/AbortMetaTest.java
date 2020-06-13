@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.transforms.abort;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -72,7 +72,7 @@ public class AbortMetaTest {
 
   @Test
   public void testBackwardsCapatibilityAbortWithError() throws HopXmlException {
-    IMetaStore metaStore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     AbortMeta meta = new AbortMeta();
 
     // Abort with error
@@ -82,7 +82,7 @@ public class AbortMetaTest {
       + "    <abort_with_error>Y</abort_with_error>\n"
       + "  </transform>";
     Node node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
-    meta.loadXml( node, metaStore );
+    meta.loadXml( node, metadataProvider );
     assertTrue( meta.isAbortWithError() );
 
     // Don't abort with error
@@ -92,7 +92,7 @@ public class AbortMetaTest {
       + "    <abort_with_error>N</abort_with_error>\n"
       + "  </transform>";
     node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
-    meta.loadXml( node, metaStore );
+    meta.loadXml( node, metadataProvider );
     assertTrue( meta.isAbort() );
 
     // Don't abort with error
@@ -101,7 +101,7 @@ public class AbortMetaTest {
       + "    <type>Abort</type>\n"
       + "  </transform>";
     node = XmlHandler.loadXmlString( inputXml ).getFirstChild();
-    meta.loadXml( node, metaStore );
+    meta.loadXml( node, metadataProvider );
     assertTrue( meta.isAbortWithError() );
   }
 }

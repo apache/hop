@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,14 +29,18 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.testing.DataSet;
@@ -44,11 +48,6 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.util.DataSetConst;
-import org.apache.hop.pipeline.RowProducer;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -86,14 +85,14 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
       log.logDetailed( "Unit test name: " + unitTestName );
     }
     try {
-      IMetaStore metaStore = pipelineMeta.getMetaStore();
+      IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();
 
       // If the pipeline has a variable set with the unit test in it, we're dealing with a unit test situation.
       //
       if ( StringUtil.isEmpty( unitTestName ) ) {
         return;
       }
-      PipelineUnitTest unitTest = PipelineUnitTest.createFactory( metaStore ).loadElement( unitTestName );
+      PipelineUnitTest unitTest = metadataProvider.getSerializer( PipelineUnitTest.class).load( unitTestName );
       if ( unitTest == null ) {
         if ( log.isDetailed() ) {
           log.logDetailed( "Unit test '" + unitTestName + "' could not be found" );
@@ -115,7 +114,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
 
           // We need to inject data from the data set with the specified name into the transform
           //
-          injectDataSetIntoTransform( (LocalPipelineEngine)pipeline, inputDataSetName, metaStore, transformMeta, inputLocation );
+          injectDataSetIntoTransform( (LocalPipelineEngine)pipeline, inputDataSetName, metadataProvider, transformMeta, inputLocation );
         }
 
         // How about capturing rows for golden data review?
@@ -165,10 +164,10 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
   }
 
   private void injectDataSetIntoTransform( final LocalPipelineEngine pipeline, final String dataSetName,
-                                           final IMetaStore metaStore, final TransformMeta transformMeta,
-                                           PipelineUnitTestSetLocation inputLocation ) throws MetaStoreException, HopException {
+                                           final IHopMetadataProvider metadataProvider, final TransformMeta transformMeta,
+                                           PipelineUnitTestSetLocation inputLocation ) throws HopException, HopException {
 
-    final DataSet dataSet = DataSet.createFactory( metaStore ).loadElement( dataSetName );
+    final DataSet dataSet = metadataProvider.getSerializer( DataSet.class).load( dataSetName );
     if (dataSet==null) {
       throw new HopException("Unable to find data set '"+dataSetName+"'");
     }

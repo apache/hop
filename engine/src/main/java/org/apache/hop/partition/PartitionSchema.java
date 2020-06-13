@@ -30,14 +30,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.core.xml.IXml;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.w3c.dom.Node;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,22 +44,24 @@ import java.util.Map;
  *
  * @author Matt
  */
-@MetaStoreElementType(
+@HopMetadata(
+  key = "partition",
   name = "Partition Schema",
-  description = "Describes a partition schema"
+  description = "Describes a partition schema",
+  iconImage = "ui/images/partition_schema.svg"
 )
-public class PartitionSchema extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetaStoreElement<PartitionSchema> {
-  public static final String XML_TAG = "partitionschema";
+public class PartitionSchema extends ChangedFlag implements Cloneable, IVariables, IHopMetadata {
 
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private List<String> partitionIDs;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean dynamicallyDefined;
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String numberOfPartitions;
 
   private IVariables variables = new Variables();
@@ -116,46 +113,12 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
     return name.hashCode();
   }
 
-  public String getXml() {
-    StringBuilder xml = new StringBuilder( 200 );
-
-    xml.append( "      " ).append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
-    xml.append( "        " ).append( XmlHandler.addTagValue( "name", name ) );
-    for ( int i = 0; i < partitionIDs.size(); i++ ) {
-      xml.append( "        " ).append( XmlHandler.openTag( "partition" ) ).append( Const.CR );
-      xml.append( "          " ).append( XmlHandler.addTagValue( "id", partitionIDs.get( i ) ) );
-      xml.append( "        " ).append( XmlHandler.closeTag( "partition" ) ).append( Const.CR );
-    }
-
-    xml.append( "        " ).append( XmlHandler.addTagValue( "dynamic", dynamicallyDefined ) );
-    xml
-      .append( "        " ).append(
-      XmlHandler.addTagValue( "nr_partitions", numberOfPartitions ) );
-
-    xml.append( "      " ).append( XmlHandler.closeTag( XML_TAG ) ).append( Const.CR );
-    return xml.toString();
-  }
-
-  public PartitionSchema( Node partitionSchemaNode ) {
-    name = XmlHandler.getTagValue( partitionSchemaNode, "name" );
-
-    int nrIDs = XmlHandler.countNodes( partitionSchemaNode, "partition" );
-    partitionIDs = new ArrayList<>();
-    for ( int i = 0; i < nrIDs; i++ ) {
-      Node partitionNode = XmlHandler.getSubNodeByNr( partitionSchemaNode, "partition", i );
-      partitionIDs.add( XmlHandler.getTagValue( partitionNode, "id" ) );
-    }
-
-    dynamicallyDefined = "Y".equalsIgnoreCase( XmlHandler.getTagValue( partitionSchemaNode, "dynamic" ) );
-    numberOfPartitions = XmlHandler.getTagValue( partitionSchemaNode, "nr_partitions" );
-  }
-
   public List<String> calculatePartitionIds() {
-    int nrPartitions = Const.toInt(environmentSubstitute( numberOfPartitions ), -1);
-    if (dynamicallyDefined) {
-      List<String> list = new ArrayList<>(  );
-      for (int i=0;i<nrPartitions;i++) {
-        list.add("Partition-"+(i+1));
+    int nrPartitions = Const.toInt( environmentSubstitute( numberOfPartitions ), -1 );
+    if ( dynamicallyDefined ) {
+      List<String> list = new ArrayList<>();
+      for ( int i = 0; i < nrPartitions; i++ ) {
+        list.add( "Partition-" + ( i + 1 ) );
       }
       return list;
     } else {
@@ -225,6 +188,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   public void injectVariables( Map<String, String> prop ) {
     variables.injectVariables( prop );
   }
+
   /**
    * @return the name
    */
@@ -281,13 +245,4 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
     this.numberOfPartitions = numberOfPartitions;
   }
 
-
-
-  @Override public MetaStoreFactory<PartitionSchema> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<PartitionSchema> createFactory( IMetaStore metaStore ) {
-    return new MetaStoreFactory<>( PartitionSchema.class, metaStore );
-  }
 }

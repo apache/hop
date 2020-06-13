@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.webserviceavailable;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,11 +33,12 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -48,14 +48,6 @@ import java.util.List;
  *
  */
 
-@Transform(
-        id = "WebServiceAvailable",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.webserviceavailable",
-        name = "BaseTransform.TypeLongDesc.WebServiceAvailable",
-        description = "BaseTransform.TypeTooltipDesc.WebServiceAvailable",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webserviceavailable.html"
-)
 public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -121,19 +113,14 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     this.resultfieldname = resultfieldname;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
     WebServiceAvailableMeta retval = (WebServiceAvailableMeta) super.clone();
 
     return retval;
-  }
-
-  @Override
-  public ITransform createTransform(TransformMeta transformMeta, WebServiceAvailableData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new WebServiceAvailable(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   public void setDefault() {
@@ -143,7 +130,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v = new ValueMetaBoolean( resultfieldname );
@@ -163,7 +150,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       urlField = XmlHandler.getTagValue( transformNode, "urlField" );
       connectTimeOut = XmlHandler.getTagValue( transformNode, "connectTimeOut" );
@@ -177,7 +164,7 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -212,6 +199,11 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
       remarks.add( cr );
     }
 
+  }
+
+  public WebServiceAvailable createTransform( TransformMeta transformMeta, WebServiceAvailableData data, int cnr,
+                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new WebServiceAvailable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public WebServiceAvailableData getTransformData() {

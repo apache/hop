@@ -29,7 +29,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
@@ -73,7 +73,7 @@ public class ActionDialog extends Dialog {
   /**
    * the MetaStore
    */
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   /**
    * The workflow metadata object.
@@ -128,7 +128,7 @@ public class ActionDialog extends Dialog {
 
     final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
       workflowMeta,
-      metaStore,
+      metadataProvider,
       DatabaseMeta.class, parent, SWT.NONE,
       BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
       "Select the relational database connection to use" // TODO : i18n
@@ -137,12 +137,12 @@ public class ActionDialog extends Dialog {
     return wConnection;
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
 

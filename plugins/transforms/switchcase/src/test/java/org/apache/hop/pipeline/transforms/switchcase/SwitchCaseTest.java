@@ -32,7 +32,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
@@ -196,7 +196,7 @@ public class SwitchCaseTest {
 
     // load transform info value-case mapping from xml.
     List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
-    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest.xml" ), mock( IMetaStore.class ) );
+    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest.xml" ), mock( IHopMetadataProvider.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
     Set<IRowSet> nulls = new HashSet<IRowSet>();
@@ -265,7 +265,7 @@ public class SwitchCaseTest {
 
     // load transform info value-case mapping from xml.
     List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
-    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseBinaryTest.xml" ), mock( IMetaStore.class ) );
+    krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseBinaryTest.xml" ), mock( IHopMetadataProvider.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
     Set<IRowSet> nulls = new HashSet<IRowSet>();
@@ -353,7 +353,7 @@ public class SwitchCaseTest {
   @Ignore
   public void processRow_NullsArePutIntoDefaultWhenNotSpecified() throws Exception {
     SwitchCaseCustom transform = new SwitchCaseCustom( mockHelper );
-    transform.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest_PDI-12671.xml" ), mock( IMetaStore.class ) );
+    transform.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest_PDI-12671.xml" ), mock( IHopMetadataProvider.class ) );
 
     List<IRowSet> outputRowSets = new LinkedList<IRowSet>();
     for ( SwitchCaseTarget item : transform.meta.getCaseTargets() ) {

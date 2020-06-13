@@ -37,7 +37,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -131,7 +131,7 @@ public class LoadFileInputTest {
 
     transformMetaInterface = spy( new LoadFileInputMeta() );
     transformInputFiles = new FileInputList();
-    Mockito.doReturn( transformInputFiles ).when( transformMetaInterface ).getFiles( any( iVariables.class ) );
+    Mockito.doReturn( transformInputFiles ).when( transformMetaInterface ).getFiles( any( IVariables.class ) );
     String transformId = PluginRegistry.getInstance().getPluginId( TransformPluginType.class, transformMetaInterface );
     transformMeta = new TransformMeta( transformId, "Load File Input", transformMetaInterface );
     pipelineMeta.addTransform( transformMeta );

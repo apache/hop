@@ -47,17 +47,17 @@ public class HopGuiContextDelegate {
   }
 
   /**
-   * Edit a metastore object...
+   * Edit a metadata object...
    */
-  public void fileMetaStoreEdit() {
+  public void fileMetadataEdit() {
 
     GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to edit...", new Point( 0, 0 ), hopGui, GuiActionType.Modify, true );
   }
 
   /**
-   * Delete a metastore object...
+   * Delete a metadata object...
    */
-  public void fileMetaStoreDelete() {
+  public void fileMetadataDelete() {
 
     GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the element type to delete...", new Point( 0, 0 ), hopGui, GuiActionType.Delete, true );
   }

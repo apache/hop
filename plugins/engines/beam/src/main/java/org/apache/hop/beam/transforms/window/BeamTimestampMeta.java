@@ -8,7 +8,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -20,11 +20,11 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-        id = "BeamTimestamp",
-        name = "Beam Timestamp",
-        description = "Add timestamps to a bounded data source",
-        categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamtimestamp.html"
+  id = "BeamTimestamp",
+  name = "Beam Timestamp",
+  description = "Add timestamps to a bounded data source",
+  image = "beam-timestamp.svg",
+  categoryDescription = "Big Data"
 )
 public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
@@ -51,7 +51,11 @@ public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMe
     return new DummyData();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
+  @Override public String getDialogClassName() {
+    return BeamTimestampDialog.class.getName();
+  }
+
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( readingTimestamp ) {
@@ -68,7 +72,7 @@ public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMe
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     fieldName = XmlHandler.getTagValue( transformNode, FIELD_NAME );
     readingTimestamp = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, READ_TIMESTAMP ) );
   }

@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
@@ -117,8 +117,8 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     DocumentBuilder db = dbf.newDocumentBuilder();
     Document doc = db.parse( new InputSource( new StringReader( "<transform>" + xmlOrig + "</transform>" ) ) );
-    IMetaStore metaStore = null;
-    testMeta.loadXml( doc.getFirstChild(), metaStore );
+    IHopMetadataProvider metadataProvider = null;
+    testMeta.loadXml( doc.getFirstChild(), metadataProvider );
     assertEquals( origMeta, testMeta );
   }
 

@@ -39,7 +39,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.HashMap;
@@ -109,7 +109,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
 
-  public ActionCopy( Node actionNode, IMetaStore metaStore ) throws HopXmlException {
+  public ActionCopy( Node actionNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String stype = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -125,8 +125,8 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
         if ( jobPlugin != null ) {
           action.setPluginId( jobPlugin.getIds()[ 0 ] );
         }
-        action.setMetaStore( metaStore ); // inject metastore
-        action.loadXml( actionNode, metaStore );
+        action.setMetadataProvider( metadataProvider ); // inject metadata
+        action.loadXml( actionNode, metadataProvider );
 
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XmlHandler.getTagValue( actionNode, "nr" ), 0 ) );

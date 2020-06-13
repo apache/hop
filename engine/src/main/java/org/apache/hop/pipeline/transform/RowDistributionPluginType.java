@@ -28,7 +28,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -38,7 +37,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IRowDistribution.class )
 @PluginAnnotationType( RowDistributionPlugin.class )
-public class RowDistributionPluginType extends BasePluginType implements IPluginType {
+public class RowDistributionPluginType extends BasePluginType<RowDistributionPlugin> implements IPluginType<RowDistributionPlugin> {
   private static RowDistributionPluginType pluginType;
 
   private RowDistributionPluginType() {
@@ -65,66 +64,66 @@ public class RowDistributionPluginType extends BasePluginType implements IPlugin
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( RowDistributionPlugin annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (RowDistributionPlugin) annotation ).description();
+  protected String extractDesc( RowDistributionPlugin annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (RowDistributionPlugin) annotation ).code();
+  protected String extractID( RowDistributionPlugin annotation ) {
+    return annotation.code();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (RowDistributionPlugin) annotation ).name();
+  protected String extractName( RowDistributionPlugin annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( RowDistributionPlugin annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, RowDistributionPlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( RowDistributionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (RowDistributionPlugin) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( RowDistributionPlugin annotation ) {
+    return annotation.classLoaderGroup();
   }
 }

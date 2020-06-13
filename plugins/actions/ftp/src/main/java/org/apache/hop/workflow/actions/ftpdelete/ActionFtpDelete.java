@@ -47,7 +47,7 @@ import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -231,7 +231,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
@@ -1067,7 +1067,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     ActionValidatorUtils.andValidator().validate( this, "serverName", remarks, AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
     ActionValidatorUtils.andValidator().validate(
       this, "targetDirectory", remarks, AndValidator.putValidators(

@@ -26,22 +26,19 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 
 import java.lang.reflect.Field;
@@ -126,23 +123,6 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addGuiContextAction( guiPluginClassName, method, contextAction, classLoader );
           }
         }
-
-
-        // Is this class annotated with @GuiMetaStoreElement ?
-        //
-        GuiMetaStoreElement guiMetaStoreElement = guiPluginClass.getAnnotation( GuiMetaStoreElement.class );
-        if (guiMetaStoreElement!=null) {
-          // The parent class is capable of serializing to a metastore
-          //
-          try {
-            IGuiMetaStorePlugin guiMetaStorePlugin = (IGuiMetaStorePlugin) guiPluginClass.newInstance();
-            Class<? extends IHopMetaStoreElement> managedClass = guiMetaStorePlugin.getMetaStoreElementClass();
-            guiRegistry.addMetaStoreElementType( managedClass, guiMetaStoreElement, classLoader );
-          } catch(ClassCastException e) {
-            System.err.println( "Classes annotated with @"+GuiMetaStoreElement.class.getSimpleName()+" need to implement interface "+IHopMetaStoreElement.class.getSimpleName() );
-          }
-        }
-
       }
 
       // Sort all GUI elements once.

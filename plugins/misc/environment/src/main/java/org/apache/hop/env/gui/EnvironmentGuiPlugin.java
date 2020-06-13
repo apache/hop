@@ -3,43 +3,35 @@ package org.apache.hop.env.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiMetaStoreElement;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.ui.cluster.IGuiMetaStorePlugin;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.metastore.MetaStoreManager;
+import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 @GuiPlugin
-@GuiMetaStoreElement(
-  name = "Environment",
-  description = "An environment to manage your project",
-  iconImage = "environment.svg"
-)
-public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
+public class EnvironmentGuiPlugin {
 
-  public static final String ID_TOOLBAR_ENVIRONMENT_LABEL = "toolbar-40000-environment";
-  public static final String ID_TOOLBAR_ENVIRONMENT_COMBO = "toolbar-40010-environment";
-
-  public static final String ID_MENU_TOOLS_CONFIGURE_ENVIRONMENTS = "40100-menu-tools-environment";
+  public static final String ID_TOOLBAR_ENVIRONMENT_LABEL = "toolbar-40000-environment-label";
+  public static final String ID_TOOLBAR_ENVIRONMENT_COMBO = "toolbar-40010-environment-list";
+  public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-40020-environment-edit";
+  public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-40030-environment-add";
+  public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-40040-environment-delete";
 
   private static EnvironmentGuiPlugin instance;
 
@@ -53,10 +45,6 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
       instance = new EnvironmentGuiPlugin();
     }
     return instance;
-  }
-
-  @Override public Class<Environment> getMetaStoreElementClass() {
-    return Environment.class;
   }
 
   /**
@@ -82,8 +70,10 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
     }
     String environmentName = combo.getText();
     try {
-      MetaStoreManager<Environment> manager = new MetaStoreManager<>( hopGui.getVariables(), EnvironmentSingleton.getEnvironmentMetaStore(), Environment.class );
-      if ( manager.editMetadata( environmentName ) ) {
+      Environment environment = EnvironmentConfigSingleton.load( environmentName );
+      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), hopGui.getMetadataProvider(), environment, hopGui.getVariables() );
+      if ( environmentDialog.open() != null ) {
+        EnvironmentConfigSingleton.save( environment );
         refreshEnvironmentsList();
         selectEnvironmentInList( environmentName );
       }
@@ -122,6 +112,52 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
     }
   }
 
+  @GuiToolbarElement(
+    root = HopGui.ID_MAIN_TOOLBAR,
+    id = ID_TOOLBAR_ENVIRONMENT_EDIT,
+    toolTip = "Edit the selected environment",
+    image = "environment-edit.svg"
+  )
+  public void editSelectedEnvironment() {
+    editEnvironment();
+  }
+
+  @GuiToolbarElement(
+    root = HopGui.ID_MAIN_TOOLBAR,
+    id = ID_TOOLBAR_ENVIRONMENT_ADD,
+    toolTip = "Add a new environment",
+    image = "environment-add.svg"
+  )
+  public void addNewEnvironment() {
+    HopGui hopGui = HopGui.getInstance();
+    try {
+      Environment environment = new Environment();
+      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), hopGui.getMetadataProvider(), environment, hopGui.getVariables() );
+      String name = environmentDialog.open();
+      if ( name != null ) {
+        // TODO: check if new environment exists
+        EnvironmentConfigSingleton.save( environment );
+        refreshEnvironmentsList();
+        selectEnvironmentInList( name );
+        enableHopGuiEnvironment( environment );
+      }
+    } catch ( Exception e ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error adding environment", e );
+    }
+  }
+
+  @GuiToolbarElement(
+    root = HopGui.ID_MAIN_TOOLBAR,
+    id = ID_TOOLBAR_ENVIRONMENT_DELETE,
+    toolTip = "Deleted the selected environment (TODO)",
+    image = "environment-delete.svg",
+    separator = true
+  )
+  public void deleteSelectedEnvironment() {
+    // TODO
+  }
+
+
   public static final void enableHopGuiEnvironment( Environment environment ) throws HopException {
     try {
       HopGui hopGui = HopGui.getInstance();
@@ -148,15 +184,12 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
 
       // Set the variables and so on...
       //
-      EnvironmentUtil.enableEnvironment( hopGui.getLog(), environment, hopGui.getMetaStore(), variables );
-
-      // We store the environment in the HopGui namespace
-      //
-      HopNamespace.setNamespace( environment.getName() );
+      EnvironmentUtil.enableEnvironment( hopGui.getLog(), environment, hopGui.getMetadataProvider(), variables );
 
       // We need to change the currently set variables in the newly loaded files
       //
       hopGui.setVariables( variables );
+
 
       // Re-open last open files for the namespace
       //
@@ -210,13 +243,12 @@ public class EnvironmentGuiPlugin implements IGuiMetaStorePlugin<Environment> {
    * Called by the Combo in the toolbar
    *
    * @param log
-   * @param metaStore
+   * @param metadataProvider
    * @return
    * @throws Exception
    */
-  public List<String> getEnvironmentsList( ILogChannel log, IMetaStore metaStore ) throws Exception {
-    List<String> names = Environment.createFactory( metaStore ).getElementNames();
-    Collections.sort( names );
+  public List<String> getEnvironmentsList( ILogChannel log, IHopMetadataProvider metadataProvider ) throws Exception {
+    List<String> names = EnvironmentConfigSingleton.getEnvironmentNames();
     return names;
   }
 

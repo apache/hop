@@ -31,7 +31,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -155,7 +155,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
   }
 
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       smtpCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "smtpCheck" ) );
@@ -246,7 +246,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
 
     ActionValidatorUtils.andValidator().validate( this, "emailAddress", remarks,
       AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );

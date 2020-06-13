@@ -151,7 +151,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     String runConfigLabel = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Label" );
     String runConfigTooltip = BaseMessages.getString( PKG, "ConfigurationDialog.RunConfiguration.Tooltip" );
 
-    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetaStore(), WorkflowRunConfiguration.class,
+    wRunConfiguration = new MetaSelectionLine<>( hopGui.getVariables(), hopGui.getMetadataProvider(), WorkflowRunConfiguration.class,
       shell, SWT.BORDER, runConfigLabel, runConfigTooltip, true );
     wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );

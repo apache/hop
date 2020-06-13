@@ -160,14 +160,14 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     return true;
   }
 
-  private void prepareProcessPreviousFields() {
+  private void prepareProcessPreviousFields() throws HopTransformException {
     if ( getInputRowMeta() == null ) {
       data.previousFieldsNumber = 0;
       data.finalOutputRowMeta = data.outputRowMeta;
     } else {
       data.previousFieldsNumber = getInputRowMeta().size();
       data.finalOutputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.finalOutputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.finalOutputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
   }
 
@@ -625,7 +625,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       data.encoding = this.environmentSubstitute( meta.getEncoding() );
 
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // get and save field positions
       data.pos_xml_filename = data.outputRowMeta.indexOfValue( meta.getFilenameField() );

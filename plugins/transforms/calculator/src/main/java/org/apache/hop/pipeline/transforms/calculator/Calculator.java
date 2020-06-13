@@ -77,7 +77,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
     if ( first ) {
       first = false;
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      meta.getFields( data.getOutputRowMeta(), getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.getOutputRowMeta(), getTransformName(), null, null, this, metadataProvider );
 
       // get all metadata, including source rows and temporary fields.
       data.setCalcRowMeta( meta.getAllFields( getInputRowMeta() ) );

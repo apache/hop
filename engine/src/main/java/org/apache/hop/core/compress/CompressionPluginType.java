@@ -24,11 +24,10 @@ package org.apache.hop.core.compress;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
+import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-import org.apache.hop.core.plugins.IPluginType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Map;
  */
 @PluginMainClassType( ICompressionProvider.class )
 @PluginAnnotationType( CompressionPlugin.class )
-public class CompressionPluginType extends BasePluginType implements IPluginType {
+public class CompressionPluginType extends BasePluginType<CompressionPlugin> implements IPluginType<CompressionPlugin> {
   protected static CompressionPluginType pluginType;
 
   private CompressionPluginType() {
@@ -76,66 +75,66 @@ public class CompressionPluginType extends BasePluginType implements IPluginType
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( CompressionPlugin annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
+  protected String extractDesc( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
+  protected String extractID( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
+  protected String extractName( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).name();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, CompressionPlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).documentationUrl();
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).forumUrl();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( CompressionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( CompressionPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
+  protected String extractClassLoaderGroup( CompressionPlugin annotation ) {
     return ( (CompressionPlugin) annotation ).classLoaderGroup();
   }
 }

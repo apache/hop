@@ -30,7 +30,7 @@ import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -348,7 +348,7 @@ public class TestUtilities {
   }
 
   public static Pipeline loadAndRunPipeline( String path, Object... parameters ) throws Exception {
-    PipelineMeta transMeta = new PipelineMeta( path, new MemoryMetaStore(), true, Variables.getADefaultVariableSpace() );
+    PipelineMeta transMeta = new PipelineMeta( path, new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace() );
 
     Pipeline trans = new LocalPipelineEngine( transMeta );
     if ( parameters != null ) {

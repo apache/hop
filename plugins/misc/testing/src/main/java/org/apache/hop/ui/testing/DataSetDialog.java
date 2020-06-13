@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,8 +30,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.DataSet;
 import org.apache.hop.testing.DataSetCsvUtil;
 import org.apache.hop.testing.DataSetField;
@@ -40,6 +39,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.Text;
 import java.io.File;
 import java.util.List;
 
-public class DataSetDialog extends Dialog implements IMetaStoreDialog {
+public class DataSetDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = DataSetDialog.class; // for i18n purposes, needed by Translator2!!
 
   private DataSet dataSet;
@@ -86,11 +86,11 @@ public class DataSetDialog extends Dialog implements IMetaStoreDialog {
 
   private String returnValue;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
-  public DataSetDialog( Shell parent, IMetaStore metaStore, DataSet dataSet ) {
+  public DataSetDialog( Shell parent, IHopMetadataProvider metadataProvider, DataSet dataSet ) {
     super( parent, SWT.NONE );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.dataSet = dataSet;
     props = PropsUi.getInstance();
     returnValue = null;
@@ -448,12 +448,12 @@ public class DataSetDialog extends Dialog implements IMetaStoreDialog {
 
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
 }

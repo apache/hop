@@ -68,7 +68,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
       data.previousRowMeta = getInputRowMeta().clone();
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // check result fieldname
       data.realResultFieldName = environmentSubstitute( meta.getResultFieldName() );

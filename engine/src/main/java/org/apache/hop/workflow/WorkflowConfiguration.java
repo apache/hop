@@ -25,10 +25,9 @@ package org.apache.hop.workflow;
 import org.apache.hop.cluster.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -40,41 +39,41 @@ public class WorkflowConfiguration {
 
   private WorkflowMeta workflowMeta;
   private WorkflowExecutionConfiguration workflowExecutionConfiguration;
-  private SerializableMetaStore metaStore;
+  private SerializableMetadataProvider metadataProvider;
 
   /**
    * @param workflowMeta
    * @param workflowExecutionConfiguration
    */
-  public WorkflowConfiguration( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration workflowExecutionConfiguration, IMetaStore metaStoreToEncode ) throws MetaStoreException {
+  public WorkflowConfiguration( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration workflowExecutionConfiguration, IHopMetadataProvider metadataProviderToEncode ) throws HopException {
     this.workflowMeta = workflowMeta;
     this.workflowExecutionConfiguration = workflowExecutionConfiguration;
-    this.metaStore = new SerializableMetaStore(metaStoreToEncode);
+    this.metadataProvider = new SerializableMetadataProvider(metadataProviderToEncode);
   }
 
-  public String getXml() throws IOException, MetaStoreException {
+  public String getXml() throws IOException, HopException {
     StringBuilder xml = new StringBuilder();
 
     xml.append( "<" + XML_TAG + ">" ).append( Const.CR );
 
     xml.append( workflowMeta.getXml() );
     xml.append( workflowExecutionConfiguration.getXml() );
-    xml.append( XmlHandler.addTagValue( "metastore_json", HttpUtil.encodeBase64ZippedString( metaStore.toJson() ) ) );
+    xml.append( XmlHandler.addTagValue( "metastore_json", HttpUtil.encodeBase64ZippedString( metadataProvider.toJson() ) ) );
     xml.append( "</" + XML_TAG + ">" ).append( Const.CR );
 
     return xml.toString();
   }
 
-  public WorkflowConfiguration( Node configNode ) throws HopException, MetaStoreException, ParseException, IOException {
+  public WorkflowConfiguration( Node configNode ) throws HopException, HopException, ParseException, IOException {
     Node workflowNode = XmlHandler.getSubNode( configNode, WorkflowMeta.XML_TAG );
     Node trecNode = XmlHandler.getSubNode( configNode, WorkflowExecutionConfiguration.XML_TAG );
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration( trecNode );
     String metaStoreJson = HttpUtil.decodeBase64ZippedString(XmlHandler.getTagValue( configNode, "metastore_json" ));
-    metaStore = new SerializableMetaStore( metaStoreJson );
-    workflowMeta = new WorkflowMeta( workflowNode, metaStore );
+    metadataProvider = new SerializableMetadataProvider( metaStoreJson );
+    workflowMeta = new WorkflowMeta( workflowNode, metadataProvider );
   }
 
-  public static final WorkflowConfiguration fromXML( String xml ) throws HopException, MetaStoreException, ParseException, IOException {
+  public static final WorkflowConfiguration fromXML( String xml ) throws HopException, HopException, ParseException, IOException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
     return new WorkflowConfiguration( configNode );
@@ -109,11 +108,11 @@ public class WorkflowConfiguration {
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public SerializableMetaStore getMetaStore() {
-    return metaStore;
+  public SerializableMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 }

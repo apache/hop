@@ -7,7 +7,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -16,11 +16,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-        id = "BeamPublish",
-        name = "Beam GCP Pub/Sub : Publish",
-        description = "Publish to a Pub/Sub topic",
-        categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beampublisher.html"
+  id = "BeamPublish",
+  name = "Beam GCP Pub/Sub : Publish",
+  description = "Publish to a Pub/Sub topic",
+  image = "beam-gcp-pubsub-publish.svg",
+  categoryDescription = "Big Data"
 )
 public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta<BeamPublish, BeamPublishData> {
 
@@ -50,7 +50,11 @@ public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta
     return new BeamPublishData();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
+  @Override public String getDialogClassName() {
+    return BeamPublishDialog.class.getName();
+  }
+
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     // No output
@@ -66,7 +70,7 @@ public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     topic = XmlHandler.getTagValue( transformNode, TOPIC );
     messageType = XmlHandler.getTagValue( transformNode, MESSAGE_TYPE );
     messageField = XmlHandler.getTagValue( transformNode, MESSAGE_FIELD );

@@ -22,10 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
-import java.io.File;
-import java.util.List;
-
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -34,13 +30,12 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,6 +43,9 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.util.List;
 
 /*
  * Created on 15-Oct-2007
@@ -202,8 +200,8 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     this.fieldName = fieldnamein;
   }
 
-  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public void allocate( int nrParameters, int outputProps ) {
@@ -258,26 +256,26 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return xslFieldIsAFile;
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      xslFilename = XmlHandler.getTagValue( stepnode, "xslfilename" );
-      fieldName = XmlHandler.getTagValue( stepnode, "fieldname" );
-      resultFieldname = XmlHandler.getTagValue( stepnode, "resultfieldname" );
-      xslFileField = XmlHandler.getTagValue( stepnode, "xslfilefield" );
-      xslFileFieldUse = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "xslfilefielduse" ) );
-      String isAFile = XmlHandler.getTagValue( stepnode, "xslfieldisafile" );
+      xslFilename = XmlHandler.getTagValue( transformNode, "xslfilename" );
+      fieldName = XmlHandler.getTagValue( transformNode, "fieldname" );
+      resultFieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
+      xslFileField = XmlHandler.getTagValue( transformNode, "xslfilefield" );
+      xslFileFieldUse = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "xslfilefielduse" ) );
+      String isAFile = XmlHandler.getTagValue( transformNode, "xslfieldisafile" );
       if ( xslFileFieldUse && Utils.isEmpty( isAFile ) ) {
         xslFieldIsAFile = true;
       } else {
         xslFieldIsAFile = "Y".equalsIgnoreCase( isAFile );
       }
 
-      xslFactory = XmlHandler.getTagValue( stepnode, "xslfactory" );
+      xslFactory = XmlHandler.getTagValue( transformNode, "xslfactory" );
 
-      Node parametersNode = XmlHandler.getSubNode( stepnode, "parameters" );
+      Node parametersNode = XmlHandler.getSubNode( transformNode, "parameters" );
       int nrparams = XmlHandler.countNodes( parametersNode, "parameter" );
 
-      Node parametersOutputProps = XmlHandler.getSubNode( stepnode, "outputproperties" );
+      Node parametersOutputProps = XmlHandler.getSubNode( transformNode, "outputproperties" );
       int nroutputprops = XmlHandler.countNodes( parametersOutputProps, "outputproperty" );
       allocate( nrparams, nroutputprops );
 
@@ -321,7 +319,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
-      IVariables space, IMetaStore metaStore ) throws HopTransformException {
+      IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (String)
     IValueMeta v = new ValueMetaString( space.environmentSubstitute( getResultfieldname() ));
     v.setOrigin( name );
@@ -364,7 +362,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
 
 
   public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

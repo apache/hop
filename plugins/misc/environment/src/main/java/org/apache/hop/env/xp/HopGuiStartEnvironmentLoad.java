@@ -10,7 +10,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.config.EnvironmentConfig;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.gui.EnvironmentGuiPlugin;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
@@ -65,7 +64,7 @@ public class HopGuiStartEnvironmentLoad implements IExtensionPoint {
 
               logChannelInterface.logBasic( "Found last environment at startup: "+lastEnvironmentName );
 
-              Environment environment = EnvironmentSingleton.getEnvironmentFactory().loadElement( lastEnvironmentName );
+              Environment environment = EnvironmentConfigSingleton.load( lastEnvironmentName );
               if ( environment == null ) {
                 // Environment no longer exists, pop up dialog
                 //

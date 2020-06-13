@@ -145,7 +145,7 @@ public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> im
    */
   void createOutputValueMapping() throws HopException {
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( getInputRowMeta(), getTransformName(), null, null, this, metaStore );
+    meta.getFields( getInputRowMeta(), getTransformName(), null, null, this, metadataProvider );
 
     data.fieldIndex = getInputRowMeta().indexOfValue( meta.getFieldname() );
     if ( data.fieldIndex < 0 ) {

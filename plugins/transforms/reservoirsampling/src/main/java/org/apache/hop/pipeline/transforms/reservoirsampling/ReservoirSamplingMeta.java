@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -171,7 +171,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
    * @param transformNode the transform to load
    * @throws HopXmlException if an error occurs
    */
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     int nrTransforms = XmlHandler.countNodes( transformNode, XML_TAG );
 
@@ -185,14 +185,14 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
   }
 
   public void getFields(IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                        IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                        IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // nothing to do, as no fields are added/deleted
   }
 
   public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
 

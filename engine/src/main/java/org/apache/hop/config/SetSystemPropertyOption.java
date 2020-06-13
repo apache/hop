@@ -6,7 +6,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import picocli.CommandLine;
 
 public class SetSystemPropertyOption implements IConfigOptions {
@@ -15,7 +15,7 @@ public class SetSystemPropertyOption implements IConfigOptions {
   @CommandLine.Option( names = { "-s", "--system-properties" }, description = "A comma separated list of KEY=VALUE pairs", split = "," )
   private String[] systemProperties = null;
 
-  @Override public boolean handleOption( ILogChannel log, IMetaStore metaStore, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     // Is this an option we want to handle?
     //
     if (systemProperties!=null) {

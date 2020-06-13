@@ -104,7 +104,7 @@ public class HopGuiPipelineClipboardDelegate {
       // Load the transforms...
       for ( int i = 0; i < nr; i++ ) {
         Node transformNode = XmlHandler.getSubNodeByNr( transformsNode, "transform", i );
-        transforms[ i ] = new TransformMeta( transformNode, hopGui.getMetaStore() );
+        transforms[ i ] = new TransformMeta( transformNode, hopGui.getMetadataProvider() );
 
         if ( loc != null ) {
           Point p = transforms[ i ].getLocation();

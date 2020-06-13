@@ -28,8 +28,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
 import org.junit.Before;
@@ -66,13 +66,13 @@ public class MemoryGroupByMetaGetFieldsTest {
 
   private IRowMeta[] mockInfo;
   private TransformMeta mockNextTransform;
-  private iVariables mockSpace;
-  private IMetaStore mockIMetaStore;
+  private IVariables mockSpace;
+  private IHopMetadataProvider mockIHopMetadataProvider;
 
 
   @Before
   public void setup() throws HopPluginException {
-    mockSpace = mock( iVariables.class );
+    mockSpace = mock( IVariables.class );
     doReturn( "N" ).when( mockSpace ).getVariable( any(), anyString() );
 
     rowMeta = spy( new RowMeta() );
@@ -105,7 +105,7 @@ public class MemoryGroupByMetaGetFieldsTest {
     memoryGroupByMeta.setAggregateField( new String[] { "maxDate" } );
     memoryGroupByMeta.setAggregateType( new int[] { TYPE_GROUP_MAX } );
 
-    memoryGroupByMeta.getFields( rowMeta, "Memory Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    memoryGroupByMeta.getFields( rowMeta, "Memory Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );
@@ -124,7 +124,7 @@ public class MemoryGroupByMetaGetFieldsTest {
     memoryGroupByMeta.setAggregateField( new String[] { "minDate" } );
     memoryGroupByMeta.setAggregateType( new int[] { TYPE_GROUP_MIN } );
 
-    memoryGroupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    memoryGroupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );
@@ -143,7 +143,7 @@ public class MemoryGroupByMetaGetFieldsTest {
     memoryGroupByMeta.setAggregateField( new String[] { "countDate" } );
     memoryGroupByMeta.setAggregateType( new int[] { TYPE_GROUP_COUNT_ANY } );
 
-    memoryGroupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIMetaStore );
+    memoryGroupByMeta.getFields( rowMeta, "Group by", mockInfo, mockNextTransform, mockSpace, mockIHopMetadataProvider );
 
     verify( rowMeta, times( 1 ) ).clear();
     verify( rowMeta, times( 1 ) ).addRowMeta( any() );

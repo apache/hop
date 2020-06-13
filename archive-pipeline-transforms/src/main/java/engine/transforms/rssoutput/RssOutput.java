@@ -123,7 +123,7 @@ public class RssOutput extends BaseTransform implements ITransform {
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       // Let's check for filename...
 
       if ( meta.isFilenameInField() ) {

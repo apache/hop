@@ -29,14 +29,14 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Project ID"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpProjectId;
 
   @GuiWidgetElement(
@@ -59,7 +59,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Application name"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpAppName;
 
   @GuiWidgetElement(
@@ -68,7 +68,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Staging location"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpStagingLocation;
 
   @GuiWidgetElement(
@@ -77,7 +77,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Initial number of workers"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpInitialNumberOfWorkers;
 
   @GuiWidgetElement(
@@ -86,7 +86,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Maximum number of workers"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpMaximumNumberOfWorkers;
 
   @GuiWidgetElement(
@@ -95,7 +95,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Auto scaling algorithm"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpAutoScalingAlgorithm;
 
   @GuiWidgetElement(
@@ -104,7 +104,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Worker machine type"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpWorkerMachineType;
 
   @GuiWidgetElement(
@@ -113,7 +113,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Worker disk type"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpWorkerDiskType;
 
   @GuiWidgetElement(
@@ -122,7 +122,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Disk size in GB"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpDiskSizeGb;
 
   @GuiWidgetElement(
@@ -131,7 +131,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Region"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpRegion;
 
   @GuiWidgetElement(
@@ -140,7 +140,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     type = GuiElementType.TEXT,
     label = "Zone"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String gcpZone;
 
 

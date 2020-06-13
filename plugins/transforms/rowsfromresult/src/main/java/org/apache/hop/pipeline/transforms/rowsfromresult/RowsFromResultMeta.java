@@ -35,7 +35,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -125,7 +125,7 @@ public class RowsFromResultMeta extends BaseTransformMeta implements ITransformM
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -189,7 +189,7 @@ public class RowsFromResultMeta extends BaseTransformMeta implements ITransformM
   }
 
   public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( int i = 0; i < this.fieldname.length; i++ ) {
       IValueMeta v;
       try {
@@ -204,7 +204,7 @@ public class RowsFromResultMeta extends BaseTransformMeta implements ITransformM
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =

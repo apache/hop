@@ -32,22 +32,22 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -215,7 +215,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       if ( inputWorkflowMeta == null ) {
         ActionWorkflow jej = new ActionWorkflow();
         getInfo( jej );
-        inputWorkflowMeta = jej.getWorkflowMeta( metaStore, workflowMeta );
+        inputWorkflowMeta = jej.getWorkflowMeta( metadataProvider, workflowMeta );
       }
       String[] parameters = inputWorkflowMeta.listParameters();
 
@@ -297,7 +297,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wFollowingAbortRemotely.setSelection( action.isFollowingAbortRemotely() );
 
     try {
-      List<String> runConfigurations = WorkflowRunConfiguration.createFactory( metaStore).getElementNames();
+      List<String> runConfigurations = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
@@ -305,15 +305,15 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
         // Ignore errors
       }
 
-      wRunConfiguration.setItems(runConfigurations.toArray( new String[0] ));
-      wRunConfiguration.setText( Const.NVL(action.getRunConfiguration(), "") );
+      wRunConfiguration.setItems( runConfigurations.toArray( new String[ 0 ] ) );
+      wRunConfiguration.setText( Const.NVL( action.getRunConfiguration(), "" ) );
 
       if ( Utils.isEmpty( action.getRunConfiguration() ) ) {
         wRunConfiguration.select( 0 );
       } else {
         wRunConfiguration.setText( action.getRunConfiguration() );
       }
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       LogChannel.UI.logError( "Error getting workflow run configurations", e );
     }
 

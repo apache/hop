@@ -23,17 +23,17 @@
 package org.apache.hop.pipeline.transforms.sftpput;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.actions.sftpput.JobEntrySFTPPUT;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -83,7 +83,7 @@ public class SftpPutMeta extends BaseTransformMeta implements ITransform {
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -191,22 +191,22 @@ public class SftpPutMeta extends BaseTransformMeta implements ITransform {
   }
 
   public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "SFTPPutMeta.CheckResult.NotReceivingFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SFTPPutMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -214,12 +214,12 @@ public class SftpPutMeta extends BaseTransformMeta implements ITransform {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SFTPPutMeta.CheckResult.TransformRecevingData2" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "SFTPPutMeta.CheckResult.NoInputReceivedFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     }

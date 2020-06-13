@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -36,20 +35,16 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutor;
-import org.apache.hop.workflow.IDelegationListener;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.pipeline.PipelineExecutionConfiguration;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
+import org.apache.hop.pipeline.transforms.workflowexecutor.WorkflowExecutor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -265,7 +260,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
     String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
-    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metaStore, getData().getExecutorPipelineMeta() );
+    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel( getLogLevel() );
@@ -497,7 +492,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   PipelineMeta loadExecutorPipelineMeta() throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetaStore(), this, meta.getParameters().isInheritingAllVariables() );
+    return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetadataProvider(), this, meta.getParameters().isInheritingAllVariables() );
   }
 
   public void dispose(){

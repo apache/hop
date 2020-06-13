@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
@@ -313,9 +313,9 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
   Result getResult();
 
 
-  void setMetaStore( IMetaStore metaStore );
+  void setMetadataProvider( IHopMetadataProvider metadataProvider );
 
-  IMetaStore getMetaStore();
+  IHopMetadataProvider getMetadataProvider();
 
   void setLogLevel( LogLevel logLevel );
 

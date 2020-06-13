@@ -26,7 +26,6 @@ package org.apache.hop.core.database;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -45,11 +44,10 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -70,11 +68,13 @@ import java.util.concurrent.Future;
  * @author Matt
  * @since 18-05-2003
  */
-@MetaStoreElementType(
+@HopMetadata(
+  key = "rdbms",
   name = "Relational Database Connection",
-  description = "This contains all the metadata needed to connect to a relational database"
+  description = "This contains all the metadata needed to connect to a relational database",
+  iconImage = "ui/images/CNC.svg"
 )
-public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement<DatabaseMeta> {
+public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "connection";
@@ -86,9 +86,10 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return dbm1.getName().compareToIgnoreCase( dbm2.getName() );
   };
 
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute( key = "rdbms" )
+  @HopMetadataProperty( key = "rdbms" )
   private IDatabase iDatabase;
 
   private static volatile Future<Map<String, IDatabase>> allDatabaseInterfaces;
@@ -175,22 +176,12 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     addOptions();
   }
 
-  @Override public MetaStoreFactory<DatabaseMeta> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore );
-    factory.setObjectFactory( new DatabaseMetaStoreObjectFactory() );
-    return factory;
-  }
-
-  public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXmlException {
-    if ( metaStore == null || StringUtils.isEmpty( connectionName ) ) {
+  public static DatabaseMeta loadDatabase( IHopMetadataProvider metadataProvider, String connectionName ) throws HopXmlException {
+    if ( metadataProvider == null || StringUtils.isEmpty( connectionName ) ) {
       return null; // Nothing to find or load
     }
     try {
-      return createFactory( metaStore ).loadElement( connectionName );
+      return metadataProvider.getSerializer( DatabaseMeta.class ).load(connectionName);
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load relational database connection '" + connectionName + "'", e );
     }

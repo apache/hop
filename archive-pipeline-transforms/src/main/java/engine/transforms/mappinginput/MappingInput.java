@@ -118,7 +118,7 @@ public class MappingInput
       }
 
       // Fill the output row meta with the processed fields
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.isSelectingAndSortingUnspecifiedFields() ) {
         //

@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,35 +34,37 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@MetaStoreElementType(
+@HopMetadata(
+  key = "dataset",
   name = "Data Set",
-  description = "This defines a data set, a static pre-defined collection of rows" )
-public class DataSet extends Variables implements Cloneable, IVariables, IHopMetaStoreElement<DataSet> {
+  description = "This defines a data set, a static pre-defined collection of rows",
+  iconImage = "dataset.svg"
+)
+public class DataSet extends Variables implements Cloneable, IVariables, IHopMetadata {
 
   public static final String VARIABLE_DATASETS_BASE_PATH = "DATASETS_BASE_PATH";
 
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute( key = "description" )
+  @HopMetadataProperty
   private String description;
 
-  @MetaStoreAttribute( key = "folder_name" )
+  @HopMetadataProperty( key = "folder_name" )
   private String folderName;
 
-  @MetaStoreAttribute( key = "base_filename" )
+  @HopMetadataProperty( key = "base_filename" )
   private String baseFilename;
 
-  @MetaStoreAttribute( key = "dataset_fields" )
+  @HopMetadataProperty( key = "dataset_fields" )
   private List<DataSetField> fields;
 
   public DataSet() {
@@ -243,15 +245,6 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
    */
   public void setFields( List<DataSetField> fields ) {
     this.fields = fields;
-  }
-
-  @Override public MetaStoreFactory<DataSet> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<DataSet> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<DataSet> setFactory = new MetaStoreFactory<>( DataSet.class, metaStore );
-    return setFactory;
   }
 
   public String getActualDataSetFolder() {

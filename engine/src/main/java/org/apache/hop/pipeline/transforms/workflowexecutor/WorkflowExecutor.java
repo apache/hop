@@ -104,19 +104,19 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
         if ( meta.getExecutionResultTargetTransformMeta() != null ) {
           meta.getFields( data.executionResultsOutputRowMeta, getTransformName(), null, meta
-            .getExecutionResultTargetTransformMeta(), this, metaStore );
+            .getExecutionResultTargetTransformMeta(), this, metadataProvider );
           data.executionResultRowSet = findOutputRowSet( meta.getExecutionResultTargetTransformMeta().getName() );
         }
         if ( meta.getResultRowsTargetTransformMeta() != null ) {
           meta.getFields(
             data.resultRowsOutputRowMeta, getTransformName(), null, meta.getResultRowsTargetTransformMeta(), this,
-            metaStore );
+            metadataProvider );
           data.resultRowsRowSet = findOutputRowSet( meta.getResultRowsTargetTransformMeta().getName() );
         }
         if ( meta.getResultFilesTargetTransformMeta() != null ) {
           meta.getFields(
             data.resultFilesOutputRowMeta, getTransformName(), null, meta.getResultFilesTargetTransformMeta(), this,
-            metaStore );
+            metadataProvider );
           data.resultFilesRowSet = findOutputRowSet( meta.getResultFilesTargetTransformMeta().getName() );
         }
 
@@ -309,7 +309,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   @VisibleForTesting
   IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
 
-    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metaStore, workflowMeta );
+    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta );
   }
 
   @VisibleForTesting

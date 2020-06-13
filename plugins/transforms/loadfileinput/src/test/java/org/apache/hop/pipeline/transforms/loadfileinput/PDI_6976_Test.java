@@ -27,7 +27,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
@@ -77,6 +77,6 @@ public class PDI_6976_Test {
 
     spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( IRowMeta.class ),
       new String[] {}, new String[] { "File content", "File size" }, mock( IRowMeta.class ),
-      mock( IVariables.class ), mock( IMetaStore.class ) );
+      mock( IVariables.class ), mock( IHopMetadataProvider.class ) );
   }
 }

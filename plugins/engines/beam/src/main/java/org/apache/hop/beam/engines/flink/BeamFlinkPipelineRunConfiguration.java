@@ -30,14 +30,14 @@ import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + " either be of the form \"host:port\" or one of the special values [local], "
       + "[collection] or [auto]."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkMaster;
 
   @GuiWidgetElement(
@@ -65,7 +65,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "The degree of parallelism to be used when distributing operations onto workers. "
       + "If the parallelism is not set, the configured Flink default is used, or 1 if none can be found."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkParallelism;
 
   @GuiWidgetElement(
@@ -76,7 +76,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "The interval in milliseconds at which to trigger checkpoints of the running pipeline. "
       + "Default: No checkpointing."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkCheckpointingInterval;
 
   @GuiWidgetElement(
@@ -86,7 +86,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Checkpointing interval",
     toolTip = "The checkpointing mode that defines consistency guarantee."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkCheckpointingMode;
 
   @GuiWidgetElement(
@@ -96,7 +96,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Checkpointing timeout (ms)",
     toolTip = "The maximum time in milliseconds that a checkpoint may take before being discarded."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkCheckpointTimeoutMillis;
 
   @GuiWidgetElement(
@@ -106,7 +106,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Minimum pause between checkpoints",
     toolTip = "The minimal pause in milliseconds before the next checkpoint is triggered."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkMinPauseBetweenCheckpoints;
 
   @GuiWidgetElement(
@@ -118,7 +118,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + "checkpointing procedure. If this is set to true, the task will fail on checkpointing error. "
       + "If this is set to false, the task will only decline a the checkpoint and continue running. "
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkFailingOnCheckpointingErrors;
 
   @GuiWidgetElement(
@@ -130,7 +130,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + "A value of zero effectively disables fault tolerance. A value of -1 indicates "
       + "that the system default value (as defined in the configuration) should be used."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkNumberOfExecutionRetries;
 
   @GuiWidgetElement(
@@ -141,7 +141,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "Sets the delay in milliseconds between executions. A value of -1"
       + "indicates that the default value should be used."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkExecutionRetryDelay;
 
   @GuiWidgetElement(
@@ -151,7 +151,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Object re-use",
     toolTip = "Sets the behavior of reusing objects."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkObjectReuse;
 
   @GuiWidgetElement(
@@ -161,7 +161,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Disable metrics",
     toolTip = "Disable Beam metrics in Flink Runner"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkDisableMetrics;
 
   @GuiWidgetElement(
@@ -172,7 +172,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "Enables or disables externalized checkpoints. "
       + "Works in conjunction with CheckpointingInterval"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkExternalizedCheckpointsEnabled;
 
   @GuiWidgetElement(
@@ -182,7 +182,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Retain externalized checkpoints on cancellation",
     toolTip = "Sets the behavior of externalized checkpoints on cancellation."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkRetainExternalizedCheckpointsOnCancellation;
 
   @GuiWidgetElement(
@@ -192,7 +192,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Maximum bundle size",
     toolTip = "The maximum number of elements in a bundle."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkMaxBundleSize;
 
   @GuiWidgetElement(
@@ -202,7 +202,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Maximum bundle time (ms)",
     toolTip = "The maximum time to wait before finalising a bundle (in milliseconds)."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkMaxBundleTimeMills;
 
   @GuiWidgetElement(
@@ -212,7 +212,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Shutdown sources on final watermark",
     toolTip = "If set, shutdown sources when their watermark reaches +Inf."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkShutdownSourcesOnFinalWatermark;
 
   @GuiWidgetElement(
@@ -223,7 +223,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     toolTip = "Interval in milliseconds for sending latency tracking marks from the sources to the sinks. "
       + "Interval value <= 0 disables the feature."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkLatencyTrackingInterval;
 
   @GuiWidgetElement(
@@ -233,7 +233,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     label = "Auto watermark interval",
     toolTip = "The interval in milliseconds for automatic watermark emission."
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkAutoWatermarkInterval;
 
   @GuiWidgetElement(
@@ -245,7 +245,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       + "Set this to BATCH_FORCED if pipelines get blocked, see "
       + "https://issues.apache.org/jira/browse/FLINK-10672"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String flinkExecutionModeForBatch;
 
   public BeamFlinkPipelineRunConfiguration() {

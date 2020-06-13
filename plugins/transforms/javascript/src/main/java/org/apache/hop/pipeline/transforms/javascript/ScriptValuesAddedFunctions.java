@@ -122,7 +122,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
   // This is only used for reading, so no concurrency problems.
   // todo: move in the real variables of the transform.
-  // private static iVariables variables = Variables.getADefaultVariableSpace();
+  // private static IVariables variables = Variables.getADefaultVariableSpace();
 
   // Functions to Add
   // date2num, num2date,

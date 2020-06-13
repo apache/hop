@@ -28,13 +28,13 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 @GuiPlugin
@@ -49,7 +49,7 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
       + " the greater of the number of available processors and 3. Must be a value greater"
       + " than zero."
   )
-  @MetaStoreAttribute(key="number_of_workers")
+  @HopMetadataProperty(key="number_of_workers")
   private String numberOfWorkers;
 
   public BeamDirectPipelineRunConfiguration( String numberOfWorkers ) {

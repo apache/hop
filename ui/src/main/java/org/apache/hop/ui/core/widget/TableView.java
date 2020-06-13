@@ -2699,6 +2699,23 @@ public class TableView extends Composite {
     return table.getItem( nonEmptyIndex );
   }
 
+  /**
+   * Give back a list with all the non-empty rows in the table...
+   * @return the rows/table-items that are not empty
+   */
+  public List<TableItem> getNonEmptyItems() {
+    List<TableItem> list = new ArrayList<>();
+
+    // Count only non-empty rows
+    for ( int i = 0; i < table.getItemCount(); i++ ) {
+      if ( !isEmpty( i, -1 ) ) {
+        list.add( table.getItem( i ) );
+      }
+    }
+
+    return list;
+  }
+
   public int indexOfString( String str, int column ) {
     int nrNonEmptyFields = nrNonEmpty();
     for ( int i = 0; i < nrNonEmptyFields; i++ ) {

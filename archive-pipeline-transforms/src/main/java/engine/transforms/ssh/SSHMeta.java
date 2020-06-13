@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.ssh;
 
 import com.trilead.ssh2.Connection;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -34,11 +34,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -91,7 +91,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -413,9 +413,9 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     String error_message = "";
@@ -474,7 +474,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( !isDynamicCommand() ) {
       row.clear();
@@ -524,11 +524,11 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
    * @param proxypassword
    * @return
    * @throws HopException
-   * @deprecated Use {@link SSHData#OpenConnection(String, int, String, String, boolean, String, String, int, iVariables, String, int, String, String)} instead
+   * @deprecated Use {@link SSHData#OpenConnection(String, int, String, String, boolean, String, String, int, IVariables, String, int, String, String)} instead
    */
   @Deprecated
   public static Connection OpenConnection( String serveur, int port, String username, String password,
-                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, iVariables variables, String proxyhost,
+                                           boolean useKey, String keyFilename, String passPhrase, int timeOut, IVariables variables, String proxyhost,
                                            int proxyport, String proxyusername, String proxypassword ) throws HopException {
     return SSHData.OpenConnection( serveur, port, username, password, useKey, keyFilename, passPhrase, timeOut,
       variables, proxyhost, proxyport, proxyusername, proxypassword );

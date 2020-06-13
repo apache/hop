@@ -1,18 +1,15 @@
 package org.apache.hop.env.environment;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.util.Objects;
 
 public class EnvironmentVariable {
 
-  @MetaStoreAttribute
   private String name;
 
-  @MetaStoreAttribute
   private String value;
 
-  @MetaStoreAttribute
   private String description;
 
   public EnvironmentVariable() {

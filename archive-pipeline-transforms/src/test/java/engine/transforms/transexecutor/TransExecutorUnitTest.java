@@ -36,7 +36,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -126,7 +126,7 @@ public class PipelineExecutorUnitTest {
 
     executor.init();
     when( transParentMock.getLogLevel() ).thenReturn( LogLevel.DEBUG );
-    doNothing().when( transParentMock ).initializeVariablesFrom( any( iVariables.class ) );
+    doNothing().when( transParentMock ).initializeVariablesFrom( any( IVariables.class ) );
     when( executor.getLogLevel() ).thenReturn( LogLevel.DEBUG );
     when( executor.createInternalPipeline() ).thenCallRealMethod();
     when( executor.getPipeline() ).thenReturn( transParentMock );

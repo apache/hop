@@ -43,7 +43,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
@@ -247,7 +247,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
@@ -356,7 +356,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       //
       logDetailed( "Loading workflow from XML file : [" + environmentSubstitute( filename ) + "]" );
 
-      WorkflowMeta workflowMeta = getWorkflowMeta( metaStore, this );
+      WorkflowMeta workflowMeta = getWorkflowMeta( metadataProvider, this );
 
       // Verify that we loaded something, complain if we did not...
       //
@@ -511,7 +511,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         // Create a new workflow
         //
-        workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfiguration ), metaStore, workflowMeta );
+        workflow = WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute( runConfiguration ), metadataProvider, workflowMeta );
         workflow.setParentWorkflow( parentWorkflow );
         workflow.setLogLevel( jobLogLevel );
         workflow.shareVariablesWith( this );
@@ -744,22 +744,22 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<SqlStatement> getSqlStatements( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     this.copyVariablesFrom( variables );
-    WorkflowMeta workflowMeta = getWorkflowMeta( metaStore, variables );
+    WorkflowMeta workflowMeta = getWorkflowMeta( metadataProvider, variables );
     return workflowMeta.getSqlStatements( null );
   }
 
-  public WorkflowMeta getWorkflowMeta( IMetaStore metaStore, IVariables variables ) throws HopException {
+  public WorkflowMeta getWorkflowMeta( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     WorkflowMeta workflowMeta = null;
     try {
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       IVariables tmpSpace = r.resolveCurrentDirectory( variables, parentWorkflow, getFilename() );
 
       String realFilename = tmpSpace.environmentSubstitute( getFilename() );
-      workflowMeta = new WorkflowMeta( tmpSpace, realFilename, metaStore );
+      workflowMeta = new WorkflowMeta( tmpSpace, realFilename, metadataProvider );
       if ( workflowMeta != null ) {
-        workflowMeta.setMetaStore( metaStore );
+        workflowMeta.setMetadataProvider( metadataProvider );
       }
       return workflowMeta;
     } catch ( Exception e ) {
@@ -802,13 +802,13 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
    * @param variables       The variable space to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
-   * @param metaStore       the metaStore to load external metadata from
+   * @param metadataProvider       the metadataProvider to load external metadata from
    * @return The filename for this object. (also contained in the definitions map)
    * @throws HopException in case something goes wrong during the export
    */
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming namingInterface, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming namingInterface, IHopMetadataProvider metadataProvider ) throws HopException {
     // Try to load the pipeline from file.
     // Modify this recursively too...
     //
@@ -818,13 +818,13 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     // First load the workflow meta data...
     //
     copyVariablesFrom( variables ); // To make sure variables are available.
-    WorkflowMeta workflowMeta = getWorkflowMeta( metaStore, variables );
+    WorkflowMeta workflowMeta = getWorkflowMeta( metadataProvider, variables );
 
     // Also go down into the workflow and export the files there. (going down
     // recursively)
     //
     String proposedNewFilename =
-      workflowMeta.exportResources( workflowMeta, definitions, namingInterface, metaStore );
+      workflowMeta.exportResources( workflowMeta, definitions, namingInterface, metadataProvider );
 
     // To get a relative path to it, we inject
     // ${Internal.Entry.Current.Directory}
@@ -844,7 +844,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     if ( setLogfile ) {
       ActionValidatorUtils.andValidator().validate( this, "logfile", remarks,
         AndValidator.putValidators( ActionValidatorUtils.notBlankValidator() ) );
@@ -927,14 +927,14 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param metaStore the metaStore
+   * @param metadataProvider the metadataProvider
    * @param variables the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException {
-    return getWorkflowMeta( metaStore, variables );
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    return getWorkflowMeta( metadataProvider, variables );
   }
 
 }

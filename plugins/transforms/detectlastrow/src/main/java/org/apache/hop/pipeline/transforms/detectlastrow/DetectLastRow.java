@@ -64,7 +64,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
       data.previousRowMeta = getInputRowMeta().clone();
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
     Object[] outputRow = null;
 

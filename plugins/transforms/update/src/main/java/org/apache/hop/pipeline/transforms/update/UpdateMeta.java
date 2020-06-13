@@ -42,7 +42,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -69,7 +69,7 @@ import java.util.List;
 public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * The lookup table name
@@ -157,7 +157,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( HopXmlException e ) {
       throw new RuntimeException( "Error loading conneciton '" + connectionName + "'", e );
     }
@@ -362,9 +362,9 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -399,14 +399,14 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
     return new Update(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       String csize;
       int nrkeys, nrvalues;
 
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       csize = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = ( csize == null ) ? "0" : csize;
       useBatchUpdate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_batch" ) );
@@ -515,7 +515,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( ignoreFlagField != null && ignoreFlagField.length() > 0 ) {
       IValueMeta v = new ValueMetaBoolean( ignoreFlagField );
       v.setOrigin( name );
@@ -527,7 +527,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -722,7 +722,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
   @Override
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) throws HopTransformException {
+                                        IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -791,7 +791,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {

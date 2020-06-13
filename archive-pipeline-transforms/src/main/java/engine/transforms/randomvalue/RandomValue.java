@@ -159,7 +159,7 @@ public class RandomValue extends BaseTransform implements ITransform {
       if ( first ) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
     } else {
       row = new Object[] {}; // empty row
@@ -168,7 +168,7 @@ public class RandomValue extends BaseTransform implements ITransform {
       if ( first ) {
         first = false;
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
     }
 

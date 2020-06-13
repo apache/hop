@@ -28,16 +28,16 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannelFactory;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.ILogChannelFactory;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -100,12 +100,12 @@ public class SubPipelineExecutorTest {
   }
 
   @Test
-  @Ignore // TODO : move database connections out of .hpl files and move to metastore if needed
+  @Ignore // TODO : move database connections out of .hpl files and move to metadata if needed
   public void testRunsAPipeline() throws Exception {
     PipelineMeta parentMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     PipelineMeta subMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
     Pipeline parentPipeline = spy( new LocalPipelineEngine( parentMeta, loggingObject ) );
     SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "subpipelinename", parentPipeline,
@@ -151,12 +151,12 @@ public class SubPipelineExecutorTest {
   }
 
   @Test
-  @Ignore // TODO : move database connections out of .hpl files and move to metastore if needed
+  @Ignore // TODO : move database connections out of .hpl files and move to metadata if needed
   public void stopsAll() throws HopException {
     PipelineMeta parentMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     PipelineMeta subMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
     IPipelineEngine<PipelineMeta> parentPipeline = new LocalPipelineEngine( parentMeta, loggingObject );
     SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", parentPipeline,
@@ -175,13 +175,13 @@ public class SubPipelineExecutorTest {
   }
 
   @Test
-  @Ignore // TODO : move database connections out of .hpl files and move to metastore if needed
+  @Ignore // TODO : move database connections out of .hpl files and move to metadata if needed
   public void doesNotExecuteWhenStopped() throws HopException {
 
     PipelineMeta parentMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-parent.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     PipelineMeta subMeta =
-      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetaStore(), true, new Variables() );
+      new PipelineMeta( this.getClass().getResource( "subpipeline-executor-sub.hpl" ).getPath(), new MemoryMetadataProvider(), true, new Variables() );
     ILoggingObject loggingObject = new LoggingObject( "anything" );
     IPipelineEngine<PipelineMeta> parentPipeline = new LocalPipelineEngine( parentMeta, loggingObject );
     SubPipelineExecutor subPipelineExecutor = new SubPipelineExecutor( "sub-pipeline-name", parentPipeline,

@@ -40,7 +40,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -179,7 +179,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * The MetaStore to use
    */
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   /**
    * The transform meta for this dialog.
@@ -606,7 +606,7 @@ public class BaseTransformDialog extends Dialog {
 
     final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
       pipelineMeta,
-      metaStore,
+      metadataProvider,
       DatabaseMeta.class, parent, SWT.NONE,
       BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
       "Select the relational database connection to use" // TODO : i18n
@@ -1202,12 +1202,12 @@ public class BaseTransformDialog extends Dialog {
     }
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
 

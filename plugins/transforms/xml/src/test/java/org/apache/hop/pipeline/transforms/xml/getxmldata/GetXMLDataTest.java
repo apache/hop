@@ -22,12 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -37,8 +32,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,6 +42,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowStepCollector;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Test class for the "Get XML Data" step.

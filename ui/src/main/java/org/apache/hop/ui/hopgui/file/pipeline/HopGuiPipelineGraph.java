@@ -3649,8 +3649,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // memory. To be able to completely test this, we need to run it as we would normally do in hop-run
           //
           String pipelineRunConfigurationName = executionConfiguration.getRunConfiguration();
-          pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfigurationName, hopGui.getMetaStore(), pipelineMeta );
-          pipeline.setMetaStore( hopGui.getMetaStore() );
+          pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfigurationName, hopGui.getMetadataProvider(), pipelineMeta );
+          pipeline.setMetadataProvider( hopGui.getMetadataProvider() );
 
           String guiLogObjectId = UUID.randomUUID().toString();
           SimpleLoggingObject guiLoggingObject = new SimpleLoggingObject( "HOP GUI", LoggingObjectType.HOP_GUI, null );
@@ -3770,7 +3770,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         pipeline = new LocalPipelineEngine( pipelineMeta );
         pipeline.setPreview( true );
-        pipeline.setMetaStore( hopGui.getMetaStore() );
+        pipeline.setMetadataProvider( hopGui.getMetadataProvider() );
         pipeline.prepareExecution();
 
         // Add the row listeners to the allocated threads

@@ -40,7 +40,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.w3c.dom.Node;
@@ -113,7 +113,7 @@ public class MailInputMeta extends BaseTransformMeta implements ITransformMeta<M
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -314,7 +314,7 @@ public class MailInputMeta extends BaseTransformMeta implements ITransformMeta<M
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     // See if we get input...
     if ( input.length > 0 ) {
@@ -605,7 +605,7 @@ public class MailInputMeta extends BaseTransformMeta implements ITransformMeta<M
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       MailInputField field = inputFields[ i ];

@@ -32,7 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.hamcrest.BaseMatcher;
@@ -69,8 +69,8 @@ public class WebServiceMetaTest {
   public void testLoadXml() throws Exception {
     Node node = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
-    WebServiceMeta webServiceMeta = new WebServiceMeta( node, metastore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    WebServiceMeta webServiceMeta = new WebServiceMeta( node, metadataProvider );
     assertEquals( "httpUser", webServiceMeta.getHttpLogin() );
     assertEquals( "tryandguess", webServiceMeta.getHttpPassword() );
     assertEquals( "http://webservices.gama-system.com/exchangerates.asmx?WSDL", webServiceMeta.getUrl() );
@@ -111,7 +111,7 @@ public class WebServiceMetaTest {
     IRowMeta rmi = mock( IRowMeta.class );
     IRowMeta rmi2 = mock( IRowMeta.class );
     TransformMeta nextTransform = mock( TransformMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     WebServiceField field1 = new WebServiceField();
     field1.setName( "field1" );
     field1.setWsName( "field1WS" );
@@ -125,7 +125,7 @@ public class WebServiceMetaTest {
     field3.setWsName( "field3WS" );
     field3.setXsdType( "string" );
     webServiceMeta.setFieldsOut( Arrays.asList( field1, field2, field3 ) );
-    webServiceMeta.getFields( rmi, "idk", new IRowMeta[] { rmi2 }, nextTransform, new Variables(), metastore );
+    webServiceMeta.getFields( rmi, "idk", new IRowMeta[] { rmi2 }, nextTransform, new Variables(), metadataProvider );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field1" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field2" ) ) );
     verify( rmi ).addValueMeta( argThat( matchValueMetaString( "field3" ) ) );
@@ -150,11 +150,11 @@ public class WebServiceMetaTest {
     TransformMeta transformMeta = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IRowMeta info = mock( IRowMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     String[] input = { "one" };
     ArrayList<ICheckResult> remarks = new ArrayList<>();
     webServiceMeta.check(
-      remarks, pipelineMeta, transformMeta, null, input, null, info, new Variables(), metastore );
+      remarks, pipelineMeta, transformMeta, null, input, null, info, new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Not receiving any fields from previous transforms!", remarks.get( 0 ).getText() );
     assertEquals( "Transform is receiving info from other transforms.", remarks.get( 1 ).getText() );
@@ -163,7 +163,7 @@ public class WebServiceMetaTest {
     webServiceMeta.setInFieldArgumentName( "ifan" );
     when( prev.size() ).thenReturn( 2 );
     webServiceMeta.check(
-      remarks, pipelineMeta, transformMeta, prev, new String[] {}, null, info, new Variables(), metastore );
+      remarks, pipelineMeta, transformMeta, prev, new String[] {}, null, info, new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Transform is connected to previous one, receiving 2 fields", remarks.get( 0 ).getText() );
     assertEquals( "No input received from other transforms!", remarks.get( 1 ).getText() );
@@ -172,8 +172,8 @@ public class WebServiceMetaTest {
   @Test
   public void testGetFieldOut() throws Exception {
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
-    IMetaStore metastore = mock( IMetaStore.class );
-    WebServiceMeta webServiceMeta = new WebServiceMeta( getTestNode(), metastore );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    WebServiceMeta webServiceMeta = new WebServiceMeta( getTestNode(), metadataProvider );
     assertNull( webServiceMeta.getFieldOutFromWsName( "", true ) );
     assertEquals(
       "GetCurrentExchangeRateResult",

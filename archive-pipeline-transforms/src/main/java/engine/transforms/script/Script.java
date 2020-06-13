@@ -139,7 +139,7 @@ public class Script extends BaseTransform implements ITransform {
       // What is the output row looking like?
       //
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Determine the indexes of the fields used!
       //

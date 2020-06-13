@@ -26,7 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -39,11 +39,11 @@ import org.apache.hop.core.logging.LogChannelInterface;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -105,7 +105,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
   private List<UsageParameter> usageParameters;
 
   static {
-    iVariables vs = new Variables();
+    IVariables vs = new Variables();
     vs.initializeVariablesFrom( null ); // sets up the default variables
     String maxSizeStr = vs.getVariable( UserDefinedJavaClass.HOP_DEFAULT_CLASS_CACHE_SIZE, "100" );
     int maxCacheSize = -1;
@@ -285,7 +285,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     changed = true;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -472,7 +472,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
   }
 
   public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !checkClassCookings( getLog() ) ) {
       if ( cookErrors.size() > 0 ) {
         throw new HopTransformException( "Error initializing UserDefinedJavaClass to get fields: ", cookErrors
@@ -486,7 +486,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
       Method getFieldsMethod =
         cookedTransformClass.getMethod(
           "getFields", boolean.class, IRowMeta.class, String.class, IRowMeta[].class,
-          TransformMeta.class, iVariables.class, List.class );
+          TransformMeta.class, IVariables.class, List.class );
       getFieldsMethod.invoke(
         null, isClearingResultFields(), row, originTransformName, info, nextTransform, variables, getFieldInfo() );
     } catch ( Exception e ) {
@@ -564,20 +564,20 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transforminfo,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "UserDefinedJavaClassMeta.CheckResult.ConnectedTransformOK2" ), transforminfo );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "UserDefinedJavaClassMeta.CheckResult.NoInputReceived" ), transforminfo );
       remarks.add( cr );
     }

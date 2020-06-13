@@ -31,7 +31,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.eclipse.swt.widgets.Button;
@@ -57,7 +57,7 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta imple
 	 i18nPackage = "org.apache.hop.ui.core.database",
 	 label = "DatabaseDialog.label.UseIntegratedSecurity"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private boolean usingIntegratedSecurity;
 
   @Override public void widgetsCreated( GuiCompositeWidgets compositeWidgets ) {

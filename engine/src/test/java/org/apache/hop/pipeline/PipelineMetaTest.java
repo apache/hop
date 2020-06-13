@@ -33,8 +33,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -97,12 +97,12 @@ public class PipelineMetaTest {
   }
 
   private PipelineMeta pipelineMeta;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   @Before
   public void setUp() throws Exception {
     pipelineMeta = new PipelineMeta();
-    metaStore = new MemoryMetaStore();
+    metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
@@ -145,7 +145,7 @@ public class PipelineMetaTest {
       }
     } ).when( smi ).getFields(
       any( IRowMeta.class ), anyString(), any( IRowMeta[].class ), eq( nextTransform ),
-      any( IVariables.class ), any( IMetaStore.class ) );
+      any( IVariables.class ), any( IHopMetadataProvider.class ) );
 
     TransformMeta thisTransform = mockTransformMeta( "thisTransform" );
     when( thisTransform.getTransform() ).thenReturn( smi );
@@ -409,7 +409,7 @@ public class PipelineMetaTest {
     IVariables variables = Mockito.mock( IVariables.class );
     Mockito.when( variables.listVariables() ).thenReturn( new String[ 0 ] );
 
-    meta.loadXml( workflowNode, null, metaStore, false, variables );
+    meta.loadXml( workflowNode, null, metadataProvider, false, variables );
     meta.setInternalHopVariables( null );
   }
 

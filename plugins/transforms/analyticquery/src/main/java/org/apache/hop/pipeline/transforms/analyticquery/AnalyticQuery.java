@@ -72,7 +72,7 @@ public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQuer
       }
 
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.groupnrs = new int[ meta.getGroupField().length ];
       for ( int i = 0; i < meta.getGroupField().length; i++ ) {

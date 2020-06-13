@@ -65,7 +65,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
       // get the RowMeta for the output
       //
       data.outputMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.argnrs = new int[ meta.getArgument().length ];
       for ( int i = 0; i < meta.getArgument().length; i++ ) {

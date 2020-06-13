@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -49,7 +50,7 @@ public class TreeUtil {
 
     for ( int i = 0; i < max.length; i++ ) {
       TreeColumn treeColumn = tree.getColumn( i );
-      treeColumn.setWidth( max[ i ] + 30 );
+      treeColumn.setWidth( max[ i ] + (int)(40* PropsUi.getInstance().getZoomFactor()) );
     }
   }
 

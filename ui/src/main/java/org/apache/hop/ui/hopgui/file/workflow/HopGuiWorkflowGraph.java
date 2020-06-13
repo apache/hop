@@ -775,8 +775,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private enum SingleClickType {
-    Job,
-    Entry,
+    Workflow,
+    Action,
     Note,
     Hop,
   }
@@ -818,7 +818,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
           singleClick = true;
-          singleClickType = HopGuiWorkflowGraph.SingleClickType.Job;
+          singleClickType = HopGuiWorkflowGraph.SingleClickType.Workflow;
         }
         workflowMeta.unselectAll();
         selectInRect( workflowMeta, selectionRegion );
@@ -837,7 +837,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 selectedEntry.flipSelected();
               } else {
                 singleClick = true;
-                singleClickType = SingleClickType.Entry;
+                singleClickType = SingleClickType.Action;
                 singleClickAction = selectedEntry;
               }
             } else {
@@ -1013,11 +1013,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             IGuiContextHandler contextHandler = null;
             String message = null;
             switch ( fSingleClickType ) {
-              case Job:
+              case Workflow:
                 message = "Select the action to execute or the action to create:";
                 contextHandler = new HopGuiWorkflowContext( workflowMeta, this, real );
                 break;
-              case Entry:
+              case Action:
                 message = "Select the action to take on action '" + fSingleClickAction.getName() + "':";
                 contextHandler = new HopGuiWorkflowActionContext( workflowMeta, fSingleClickAction, this, real );
                 break;
@@ -2397,7 +2397,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected void loadReferencedObject( ActionCopy actionCopy, int index ) {
     try {
-      IHasFilename referencedMeta = actionCopy.getAction().loadReferencedObject( index, hopGui.getMetaStore(), workflowMeta );
+      IHasFilename referencedMeta = actionCopy.getAction().loadReferencedObject( index, hopGui.getMetadataProvider(), workflowMeta );
       if ( referencedMeta == null ) {
         return; // Sorry, nothing loaded
       }
@@ -3250,14 +3250,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             WorkflowMeta runWorkflowMeta;
 
 
-            runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetaStore() );
+            runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetadataProvider() );
 
             String hopGuiObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject hopGuiLoggingObject = new SimpleLoggingObject( "HOPGUI", LoggingObjectType.HOP_GUI, null );
             hopGuiLoggingObject.setContainerObjectId( hopGuiObjectId );
             hopGuiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
-            workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetaStore(), runWorkflowMeta );
+            workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta );
 
             workflow.setLogLevel( executionConfiguration.getLogLevel() );
             workflow.shareVariablesWith( workflowMeta );

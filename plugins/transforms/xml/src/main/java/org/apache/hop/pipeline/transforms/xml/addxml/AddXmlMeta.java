@@ -22,14 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -41,15 +37,16 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * This class knows how to handle the MetaData for the XML output step
@@ -145,8 +142,8 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   }
 
   @Override
-  public void loadXml(Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public void allocate( int nrfields ) {
@@ -176,16 +173,16 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     return new AddXmlData();
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      encoding = XmlHandler.getTagValue( stepnode, "encoding" );
-      valueName = XmlHandler.getTagValue( stepnode, "valueName" );
-      rootNode = XmlHandler.getTagValue( stepnode, "xml_repeat_element" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      valueName = XmlHandler.getTagValue( transformNode, "valueName" );
+      rootNode = XmlHandler.getTagValue( transformNode, "xml_repeat_element" );
 
-      omitXMLheader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "omitXMLheader" ) );
-      omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "file", "omitNullValues" ) );
+      omitXMLheader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "omitXMLheader" ) );
+      omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "omitNullValues" ) );
 
-      Node fields = XmlHandler.getSubNode( stepnode, "fields" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
       int nrfields = XmlHandler.countNodes( fields, "field" );
 
       allocate( nrfields );
@@ -243,7 +240,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   }
 
   public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
-                        IVariables space,  IMetaStore metaStore ) throws HopTransformException {
+                        IVariables space,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v = new ValueMetaString( this.getValueName());
     v.setOrigin( name );
@@ -291,7 +288,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
 
   public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
                     String[] input, String[] output, IRowMeta info, IVariables space,
-                    IMetaStore metaStore ) {
+                    IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     // TODO - add checks for empty fieldnames

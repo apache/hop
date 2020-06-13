@@ -22,14 +22,10 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -41,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -49,6 +45,9 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class knows how to handle the MetaData for the XML join step
@@ -119,8 +118,8 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public Object clone() {
@@ -128,19 +127,19 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     return retval;
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      valueXMLfield = XmlHandler.getTagValue( stepnode, "valueXMLfield" );
-      targetXMLstep = XmlHandler.getTagValue( stepnode, "targetXMLstep" );
-      targetXMLfield = XmlHandler.getTagValue( stepnode, "targetXMLfield" );
-      sourceXMLstep = XmlHandler.getTagValue( stepnode, "sourceXMLstep" );
-      sourceXMLfield = XmlHandler.getTagValue( stepnode, "sourceXMLfield" );
-      targetXPath = XmlHandler.getTagValue( stepnode, "targetXPath" );
-      joinCompareField = XmlHandler.getTagValue( stepnode, "joinCompareField" );
-      encoding = XmlHandler.getTagValue( stepnode, "encoding" );
-      complexJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "complexJoin" ) );
-      omitXMLHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "omitXMLHeader" ) );
-      omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "omitNullValues" ) );
+      valueXMLfield = XmlHandler.getTagValue( transformNode, "valueXMLfield" );
+      targetXMLstep = XmlHandler.getTagValue( transformNode, "targetXMLstep" );
+      targetXMLfield = XmlHandler.getTagValue( transformNode, "targetXMLfield" );
+      sourceXMLstep = XmlHandler.getTagValue( transformNode, "sourceXMLstep" );
+      sourceXMLfield = XmlHandler.getTagValue( transformNode, "sourceXMLfield" );
+      targetXPath = XmlHandler.getTagValue( transformNode, "targetXPath" );
+      joinCompareField = XmlHandler.getTagValue( transformNode, "joinCompareField" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
+      complexJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "complexJoin" ) );
+      omitXMLHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "omitXMLHeader" ) );
+      omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "omitNullValues" ) );
 
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load step info from XML", e );
@@ -153,7 +152,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   }
 
   public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
-                        IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                        IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v = new ValueMetaString( this.getValueXmlField());
     v.setOrigin( name );
@@ -204,7 +203,7 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
 
 
   public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IMetaStore metaStore ) {
+                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     // checks for empty field which are required

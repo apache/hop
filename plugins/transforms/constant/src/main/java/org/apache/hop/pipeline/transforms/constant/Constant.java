@@ -228,7 +228,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> implemen
 
       data.firstRow = false;
       data.outputMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metadataProvider );
     }
 
     // Add the constant data to the end of the row.

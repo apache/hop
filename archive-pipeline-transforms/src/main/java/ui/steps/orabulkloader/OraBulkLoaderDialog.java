@@ -1537,7 +1537,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
         new TransformMeta( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

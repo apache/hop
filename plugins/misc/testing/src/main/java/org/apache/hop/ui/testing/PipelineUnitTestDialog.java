@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,12 +24,11 @@ package org.apache.hop.ui.testing;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestDatabaseReplacement;
 import org.apache.hop.testing.VariableValue;
@@ -37,6 +36,7 @@ import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -59,11 +59,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
+public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
   private static final Class<?> PKG = PipelineUnitTestDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final PipelineUnitTest pipelineUnitTest;
@@ -86,11 +85,11 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
 
   private String testName;
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
-  public PipelineUnitTestDialog( Shell parent, IMetaStore metaStore, PipelineUnitTest pipelineUnitTest ) {
+  public PipelineUnitTestDialog( Shell parent, IHopMetadataProvider metadataProvider, PipelineUnitTest pipelineUnitTest ) {
     super( parent, SWT.NONE );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.pipelineUnitTest = pipelineUnitTest;
     props = PropsUi.getInstance();
     testName = null;
@@ -188,7 +187,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     fdPipelineFilename.right = new FormAttachment( 100, 0 );
     wPipelineFilename.setLayoutData( fdPipelineFilename );
     lastControl = wPipelineFilename;
-    
+
     // The optional filename of the test result...
     //
     Label wlFilename = new Label( shell, SWT.RIGHT );
@@ -253,7 +252,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     props.setLook( wlFieldMapping );
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment( 0, 0 );
-    fdlUpIns.top = new FormAttachment( lastControl, 3* margin );
+    fdlUpIns.top = new FormAttachment( lastControl, 3 * margin );
     wlFieldMapping.setLayoutData( fdlUpIns );
     lastControl = wlFieldMapping;
 
@@ -272,17 +271,17 @@ public class PipelineUnitTestDialog extends Dialog implements IMetaStoreDialog {
     //
     List<String> dbNames;
     try {
-      dbNames = DatabaseMeta.createFactory(metaStore).getElementNames();
-      Collections.sort(dbNames);
-    } catch ( MetaStoreException e ) {
+      dbNames = metadataProvider.getSerializer( DatabaseMeta.class).listObjectNames();
+      Collections.sort( dbNames );
+    } catch ( HopException e ) {
       LogChannel.UI.logError( "Error getting list of databases", e );
       dbNames = Collections.emptyList();
     }
     ColumnInfo[] columns = new ColumnInfo[] {
       new ColumnInfo( BaseMessages.getString( PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.OriginalDb" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, dbNames.toArray( new String[0] ), false ),
+        ColumnInfo.COLUMN_TYPE_CCOMBO, dbNames.toArray( new String[ 0 ] ), false ),
       new ColumnInfo( BaseMessages.getString( PKG, "PipelineUnitTestDialog.DbReplacement.ColumnInfo.ReplacementDb" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, dbNames.toArray(new String[0]), false ), };
+        ColumnInfo.COLUMN_TYPE_CCOMBO, dbNames.toArray( new String[ 0 ] ), false ), };
     columns[ 0 ].setUsingVariables( true );
     columns[ 1 ].setUsingVariables( true );
 

@@ -50,7 +50,7 @@ String firstnameField;
 String lastnameField;
 String nameField;
  
-public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
+public boolean processRow() throws KettleException
 {
     // Let's look up parameters only once for performance reason.
     //

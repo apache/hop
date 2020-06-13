@@ -22,35 +22,40 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.vfs2.FileObject;
-
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Store run-time data on the getXMLData step.
@@ -637,8 +642,8 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     this.prunePath = prunePath;
   }
 
-  public void loadXml(Node stepnode, IMetaStore metaStore ) throws HopXmlException {
-    readData( stepnode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode );
   }
 
   public Object clone() {
@@ -751,27 +756,27 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
   }
 
-  private void readData( Node stepnode ) throws HopXmlException {
+  private void readData( Node transformNode ) throws HopXmlException {
     try {
-      includeFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "include" ) );
-      filenameField = XmlHandler.getTagValue( stepnode, "include_field" );
+      includeFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "include" ) );
+      filenameField = XmlHandler.getTagValue( transformNode, "include_field" );
 
-      addResultFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "addresultfile" ) );
-      nameSpaceAware = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "namespaceaware" ) );
-      ignorecomments = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "ignorecomments" ) );
+      addResultFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "addresultfile" ) );
+      nameSpaceAware = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "namespaceaware" ) );
+      ignorecomments = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "ignorecomments" ) );
 
-      readurl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "readurl" ) );
-      validating = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "validating" ) );
-      usetoken = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "usetoken" ) );
-      IsIgnoreEmptyFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "IsIgnoreEmptyFile" ) );
-      doNotFailIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "doNotFailIfNoFile" ) );
+      readurl = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "readurl" ) );
+      validating = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "validating" ) );
+      usetoken = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "usetoken" ) );
+      IsIgnoreEmptyFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsIgnoreEmptyFile" ) );
+      doNotFailIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "doNotFailIfNoFile" ) );
 
-      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "rownum" ) );
-      rowNumberField = XmlHandler.getTagValue( stepnode, "rownum_field" );
-      encoding = XmlHandler.getTagValue( stepnode, "encoding" );
+      includeRowNumber = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "rownum" ) );
+      rowNumberField = XmlHandler.getTagValue( transformNode, "rownum_field" );
+      encoding = XmlHandler.getTagValue( transformNode, "encoding" );
 
-      Node filenode = XmlHandler.getSubNode( stepnode, "file" );
-      Node fields = XmlHandler.getSubNode( stepnode, "fields" );
+      Node filenode = XmlHandler.getSubNode( transformNode, "file" );
+      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
       int nrFiles = XmlHandler.countNodes( filenode, "name" );
       int nrFields = XmlHandler.countNodes( fields, "field" );
 
@@ -797,24 +802,24 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
       }
 
       // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong( XmlHandler.getTagValue( stepnode, "limit" ), 0L );
+      rowLimit = Const.toLong( XmlHandler.getTagValue( transformNode, "limit" ), 0L );
       // Do we skip rows before starting to read
-      loopxpath = XmlHandler.getTagValue( stepnode, "loopxpath" );
+      loopxpath = XmlHandler.getTagValue( transformNode, "loopxpath" );
 
-      inFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "IsInFields" ) );
-      IsAFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( stepnode, "IsAFile" ) );
+      inFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsInFields" ) );
+      IsAFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "IsAFile" ) );
 
-      xmlField = XmlHandler.getTagValue( stepnode, "XmlField" );
-      prunePath = XmlHandler.getTagValue( stepnode, "prunePath" );
+      xmlField = XmlHandler.getTagValue( transformNode, "XmlField" );
+      prunePath = XmlHandler.getTagValue( transformNode, "prunePath" );
 
-      shortFileFieldName = XmlHandler.getTagValue( stepnode, "shortFileFieldName" );
-      pathFieldName = XmlHandler.getTagValue( stepnode, "pathFieldName" );
-      hiddenFieldName = XmlHandler.getTagValue( stepnode, "hiddenFieldName" );
-      lastModificationTimeFieldName = XmlHandler.getTagValue( stepnode, "lastModificationTimeFieldName" );
-      uriNameFieldName = XmlHandler.getTagValue( stepnode, "uriNameFieldName" );
-      rootUriNameFieldName = XmlHandler.getTagValue( stepnode, "rootUriNameFieldName" );
-      extensionFieldName = XmlHandler.getTagValue( stepnode, "extensionFieldName" );
-      sizeFieldName = XmlHandler.getTagValue( stepnode, "sizeFieldName" );
+      shortFileFieldName = XmlHandler.getTagValue( transformNode, "shortFileFieldName" );
+      pathFieldName = XmlHandler.getTagValue( transformNode, "pathFieldName" );
+      hiddenFieldName = XmlHandler.getTagValue( transformNode, "hiddenFieldName" );
+      lastModificationTimeFieldName = XmlHandler.getTagValue( transformNode, "lastModificationTimeFieldName" );
+      uriNameFieldName = XmlHandler.getTagValue( transformNode, "uriNameFieldName" );
+      rootUriNameFieldName = XmlHandler.getTagValue( transformNode, "rootUriNameFieldName" );
+      extensionFieldName = XmlHandler.getTagValue( transformNode, "extensionFieldName" );
+      sizeFieldName = XmlHandler.getTagValue( transformNode, "sizeFieldName" );
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG, "GetXMLDataMeta.Exception.ErrorLoadingXML", e
           .toString() ) );
@@ -884,7 +889,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public void getFields(IRowMeta r, String name, IRowMeta[] info, TransformMeta nextStep,
-                        IVariables space, IMetaStore metaStore ) throws HopTransformException {
+                        IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       GetXmlDataField field = inputFields[i];
@@ -992,7 +997,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
                     String[] input, String[] output, IRowMeta info, IVariables space,
-                    IMetaStore metaStore ) {
+                    IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we get input...
@@ -1065,13 +1070,12 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
    *          the variable space to use
    * @param definitions
    * @param resourceNamingInterface
-   * @param metaStore
-   *          the metaStore in which non-kettle metadata could reside.
+   * @param metadataProvider the metadata in which shared metadata could reside.
    * 
    * @return the filename of the exported resource
    */
   public String exportResources(IVariables space, Map<String, ResourceDefinition> definitions,
-                                IResourceNaming resourceNamingInterface, IMetaStore metaStore )
+                                IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!

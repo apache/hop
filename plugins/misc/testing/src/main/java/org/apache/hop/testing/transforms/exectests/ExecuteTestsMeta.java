@@ -3,7 +3,7 @@
  * Hop : The Hop Orchestration Platform
  *
  * http://www.project-hop.org
-*
+ *
  *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -43,6 +43,7 @@ import org.w3c.dom.Node;
   id = "ExecuteTests",
   description = "Execute Unit Tests",
   name = "Execute Unit Tests",
+  image = "ui/images/TRNEx.svg",
   categoryDescription = "Flow"
 )
 public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMeta<ExecuteTests, ExecuteTestsData> {
@@ -70,7 +71,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables variables, IMetaStore metaStore ) {
+                                   IVariables variables, IHopMetadataProvider metadataProvider ) {
     IRowMeta rowMeta = UnitTestResult.getRowMeta();
     int index = 0;
     rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( pipelineNameField ) );
@@ -100,7 +101,7 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
       testNameInputField = XmlHandler.getTagValue( transformNode, TAG_TEST_NAME_INPUT_FIELD );
@@ -129,6 +130,11 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public ExecuteTestsData getTransformData() {
     return new ExecuteTestsData();
+  }
+
+  @Override
+  public String getDialogClassName() {
+    return ExecuteTestsDialog.class.getName();
   }
 
   @Override

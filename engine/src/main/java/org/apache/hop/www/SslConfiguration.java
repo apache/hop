@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
 /**
@@ -50,16 +50,16 @@ public class SslConfiguration {
 
   private static final String NULL = "null";
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String keyStoreType = "JKS";
 
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private String keyStore;
 
-  @MetaStoreAttribute( password = true )
+  @HopMetadataProperty( password = true )
   private String keyStorePassword;
 
-  @MetaStoreAttribute( password = true )
+  @HopMetadataProperty( password = true )
   private String keyPassword;
 
   public SslConfiguration( Node sslConfigNode ) {
