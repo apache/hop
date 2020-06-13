@@ -50,10 +50,15 @@ import java.util.List;
  *
  * @since 14-june-2010
  */
-@Transform( id = "JsonOutput", image = "JSO.svg", i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsonoutput",
-  name = "JsonOutput.name", description = "JsonOutput.description",
-  categoryDescription = "JsonOutput.category",
-  keywords = { "json", "javascript", "object", "notation" }
+@Transform(
+        id = "JsonOutput",
+        image = "JSO.svg",
+        i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsonoutput",
+        name = "JsonOutput.name",
+        description = "JsonOutput.description",
+        categoryDescription = "JsonOutput.category",
+        keywords = { "json", "javascript", "object", "notation" },
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/jsonoutput.html"
   )
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
   private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!

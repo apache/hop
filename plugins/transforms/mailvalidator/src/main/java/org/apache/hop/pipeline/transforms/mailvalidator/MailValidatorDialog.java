@@ -60,9 +60,9 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "MailValidator",
         image = "mailvalidator.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
-)public class MailValidatorDialog extends BaseTransformDialog implements ITransformDialog {
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
+public class MailValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean gotPreviousFields = false;

@@ -53,7 +53,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.rest",
         name = "BaseTransform.TypeLongDesc.Rest",
         description = "BaseTransform.TypeTooltipDesc.Rest",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rest.html"
 )
 public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!

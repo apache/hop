@@ -56,8 +56,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "ClosureGenerator",
         image = "closuregenerator.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/closure.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ClosureGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ClosureGeneratorDialog.class; // for i18n purposes, needed by Translator!!

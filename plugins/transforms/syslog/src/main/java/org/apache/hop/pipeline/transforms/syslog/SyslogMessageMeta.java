@@ -44,7 +44,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.syslog",
         name = "BaseTransform.TypeLongDesc.SyslogMessage",
         description = "BaseTransform.TypeTooltipDesc.SyslogMessage",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/syslog.html"
 )
 public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMeta<SyslogMessage, SyslogMessageData> {
   private static Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!

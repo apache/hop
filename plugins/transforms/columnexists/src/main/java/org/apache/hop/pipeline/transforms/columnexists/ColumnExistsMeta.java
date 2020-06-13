@@ -50,9 +50,14 @@ import java.util.List;
  *
  */
 
-@Transform( id = "ColumnExists", i18nPackageName = "org.apache.hop.pipeline.transforms.columnexists", name = "ColumnExists.Name",
-  description = "ColumnExists.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup" )
+@Transform(
+        id = "ColumnExists",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.columnexists",
+        name = "ColumnExists.Name",
+        description = "ColumnExists.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/columnexists.html"
+)
 public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMeta<ColumnExists, ColumnExistsData> {
 
   private static final Class<?> PKG = ColumnExistsMeta.class; // for i18n purposes, needed by Translator!!

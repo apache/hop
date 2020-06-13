@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-  id = "BeamKafkaConsume",
-  name = "Beam Kafka Consume",
-  description = "Get messages from Kafka topics (Kafka Consumer)",
-  categoryDescription = "Big Data"
+        id = "BeamKafkaConsume",
+        name = "Beam Kafka Consume",
+        description = "Get messages from Kafka topics (Kafka Consumer)",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamconsume.html"
 )
 public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta<BeamConsume, DummyData> {
 

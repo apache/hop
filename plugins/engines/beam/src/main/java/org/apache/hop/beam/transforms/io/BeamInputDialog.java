@@ -31,8 +31,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "BeamInput",
         image = "beam-input.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamInput.class; // for i18n purposes, needed by Translator2!!

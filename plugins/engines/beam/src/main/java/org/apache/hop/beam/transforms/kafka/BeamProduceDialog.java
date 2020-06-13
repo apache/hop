@@ -26,8 +26,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 @PluginDialog(
         id = "BeamKafkaProduce",
         image = "beam-kafka-output.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamProduceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamProduce.class; // for i18n purposes, needed by Translator2!!

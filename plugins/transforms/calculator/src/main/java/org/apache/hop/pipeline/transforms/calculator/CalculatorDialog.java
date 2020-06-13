@@ -53,9 +53,7 @@ import java.util.*;
 @PluginDialog(
         id = "Calculator",
         image = "calculator.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/calculator.html"
-)
+        pluginType = PluginDialog.PluginType.TRANSFORM)
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 

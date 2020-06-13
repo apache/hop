@@ -53,8 +53,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "Denormaliser",
         image = "denormaliser.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$

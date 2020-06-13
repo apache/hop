@@ -71,8 +71,7 @@ import java.util.stream.IntStream;
 @PluginDialog(
         id = "Unique",
         image = "uniquerows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!

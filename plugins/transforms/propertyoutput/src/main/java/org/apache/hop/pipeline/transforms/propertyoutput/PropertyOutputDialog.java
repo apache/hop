@@ -72,8 +72,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "PropertyOutput",
         image = "propertyoutput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class PropertyOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!

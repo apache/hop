@@ -53,7 +53,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.webserviceavailable",
         name = "BaseTransform.TypeLongDesc.WebServiceAvailable",
         description = "BaseTransform.TypeTooltipDesc.WebServiceAvailable",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webserviceavailable.html"
 )
 public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!

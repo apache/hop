@@ -57,8 +57,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "FileLocked",
         image = "filelocked.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/filelocked.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class FileLockedDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!

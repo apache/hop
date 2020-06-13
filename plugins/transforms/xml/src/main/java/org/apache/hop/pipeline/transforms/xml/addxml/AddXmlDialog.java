@@ -77,8 +77,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "AddXML",
         image = "add_xml.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class AddXmlDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!

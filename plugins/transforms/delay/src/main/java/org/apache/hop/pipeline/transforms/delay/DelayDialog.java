@@ -53,8 +53,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "Delay",
         image = "delay.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DelayDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!

@@ -64,7 +64,8 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.systemdata",
         name = "BaseTransform.TypeLongDesc.SystemInfo",
         description = "BaseTransform.TypeTooltipDesc.SystemInfo",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/systemdata.html"
 )
 public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<SystemData, SystemDataData> {
   private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!

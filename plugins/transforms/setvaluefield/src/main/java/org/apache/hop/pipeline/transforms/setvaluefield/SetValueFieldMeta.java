@@ -50,7 +50,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.setvaluefield",
         name = "BaseTransform.TypeLongDesc.SetValueField",
         description = "BaseTransform.TypeTooltipDesc.SetValueField",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvaluefield.html"
 )
 public class SetValueFieldMeta extends BaseTransformMeta implements ITransformMeta<SetValueField, SetValueFieldData> {
   private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!

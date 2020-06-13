@@ -17,10 +17,11 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamOutput",
-  name = "Beam Output",
-  description = "Describes a Beam Output",
-  categoryDescription = "Big Data"
+        id = "BeamOutput",
+        name = "Beam Output",
+        description = "Describes a Beam Output",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamoutput.html"
 )
 public class BeamOutputMeta extends BaseTransformMeta implements ITransformMeta<BeamOutput, BeamOutputData> {
 

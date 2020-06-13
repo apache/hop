@@ -20,10 +20,11 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamTimestamp",
-  name = "Beam Timestamp",
-  description = "Add timestamps to a bounded data source",
-  categoryDescription = "Big Data"
+        id = "BeamTimestamp",
+        name = "Beam Timestamp",
+        description = "Add timestamps to a bounded data source",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamtimestamp.html"
 )
 public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

@@ -56,7 +56,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.http",
         name = "BaseTransform.TypeLongDesc.HTTP",
         description = "BaseTransform.TypeTooltipDesc.HTTP",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
 )
 public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
   private static Class<?> PKG = HttpMeta.class; // for i18n purposes, needed by Translator!!

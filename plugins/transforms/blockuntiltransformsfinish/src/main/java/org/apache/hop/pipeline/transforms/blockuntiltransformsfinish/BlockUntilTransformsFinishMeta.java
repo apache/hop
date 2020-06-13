@@ -52,7 +52,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
         description = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/blockuntiltransformsfinish.html"
 )
 public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements ITransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 

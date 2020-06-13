@@ -66,9 +66,15 @@ import org.w3c.dom.Node;
  * @since 14-jan-2006
  * 
  */
-@Transform( id = "XMLOutput", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
-    name = "XMLOutput.name", description = "XMLOutput.description", categoryDescription = "XMLOutput.category",
-    documentationUrl = "" )
+@Transform(
+        id = "XMLOutput",
+        image = "XOU.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
+        name = "XMLOutput.name",
+        description = "XMLOutput.description",
+        categoryDescription = "XMLOutput.category",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmloutput.html"
+)
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!

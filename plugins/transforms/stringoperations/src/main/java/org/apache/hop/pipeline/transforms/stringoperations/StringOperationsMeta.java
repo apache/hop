@@ -55,7 +55,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.stringoperations",
         name = "BaseTransform.TypeLongDesc.StringOperations",
         description = "BaseTransform.TypeTooltipDesc.StringOperations",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringoperations.html"
 )
 public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations, StringOperationsData> {
 

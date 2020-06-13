@@ -70,8 +70,7 @@ import java.util.Set;
 @PluginDialog(
         id = "SortedMerge",
         image = "sortedmerge.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SortedMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator!!

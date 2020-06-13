@@ -65,8 +65,7 @@ import java.util.*;
 @PluginDialog(
         id = "SelectValues",
         image = "selectvalues.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/selectvalues.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!

@@ -74,8 +74,7 @@ import org.eclipse.swt.widgets.Text;
 
 @PluginDialog(
         id = "XSLT", image = "XSLT.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!

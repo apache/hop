@@ -83,8 +83,7 @@ import java.util.Random;
 @PluginDialog(
         id = "Mail",
         image = "mail.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class MailDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!

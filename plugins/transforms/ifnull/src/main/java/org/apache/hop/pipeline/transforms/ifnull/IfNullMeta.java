@@ -45,9 +45,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "IfNull", i18nPackageName = "org.apache.hop.pipeline.transforms.ifnull",
-        name = "IfNull.Name", description = "IfNull.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "IfNull",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.ifnull",
+        name = "IfNull.Name",
+        description = "IfNull.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" ,
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ifnull.html"
+)
 @InjectionSupported( localizationPrefix = "IfNull.Injection.", groups = { "FIELDS", "VALUE_TYPES" } )
 public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull,IfNullData> {
 

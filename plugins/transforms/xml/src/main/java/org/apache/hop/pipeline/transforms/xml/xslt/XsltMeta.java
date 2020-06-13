@@ -53,9 +53,15 @@ import org.w3c.dom.Node;
  * Created on 15-Oct-2007
  *
  */
-@Transform( id = "XSLT", image = "XSLT.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xslt", name = "XSLT.name",
-    description = "XSLT.description", categoryDescription = "XSLT.category",
-    documentationUrl = "" )
+@Transform(
+        id = "XSLT",
+        image = "XSLT.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xslt",
+        name = "XSLT.name",
+        description = "XSLT.description",
+        categoryDescription = "XSLT.category",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xslt.html"
+)
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 

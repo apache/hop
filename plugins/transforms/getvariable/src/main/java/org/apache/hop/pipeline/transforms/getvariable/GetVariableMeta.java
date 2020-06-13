@@ -58,7 +58,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getvariable",
         name = "BaseTransform.TypeLongDesc.GetVariable",
         description = "BaseTransform.TypeTooltipDesc.GetVariable",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
 )
 public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta<GetVariable, GetVariableData> {
   private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!

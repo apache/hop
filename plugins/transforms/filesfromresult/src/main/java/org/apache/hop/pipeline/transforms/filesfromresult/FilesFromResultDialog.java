@@ -51,8 +51,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "FilesFromResult",
         image = "filesfromresult.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/filesfromresult.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class FilesFromResultDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilesFromResultMeta.class; // for i18n purposes, needed by Translator!!

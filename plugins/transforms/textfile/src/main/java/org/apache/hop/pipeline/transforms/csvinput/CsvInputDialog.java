@@ -105,8 +105,7 @@ import java.util.stream.Collectors;
 @PluginDialog(
   id = "CSVInput",
   image = "textfileinput.svg",
-  pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/csvinput.html"
+  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {

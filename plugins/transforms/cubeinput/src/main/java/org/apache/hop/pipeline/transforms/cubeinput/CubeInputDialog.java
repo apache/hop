@@ -55,8 +55,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "CubeInput",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        image = "cubeinput.svg",
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/cubeinput.html"
+        image = "cubeinput.svg"
 )
 public class CubeInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!

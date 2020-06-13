@@ -54,9 +54,14 @@ import java.util.List;
  * @author Sven Boden
  * @since 3-june-2007
  */
-@Transform( id = "Append", i18nPackageName = "org.apache.hop.pipeline.transforms.append",
-  name = "Append.Name", description = "Append.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "Append",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.append",
+        name = "Append.Name",
+        description = "Append.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/append.html"
+)
 @InjectionSupported( localizationPrefix = "AppendMeta.Injection." )
 public class AppendMeta extends BaseTransformMeta implements ITransformMeta<Append, AppendData> {
 

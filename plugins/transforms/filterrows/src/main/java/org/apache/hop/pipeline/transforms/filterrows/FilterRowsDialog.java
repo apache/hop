@@ -62,8 +62,7 @@ import java.util.List;
 @PluginDialog(
         id = "FilterRows",
         image = "filterrows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!

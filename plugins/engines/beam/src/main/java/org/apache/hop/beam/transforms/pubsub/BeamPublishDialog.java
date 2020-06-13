@@ -28,8 +28,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 @PluginDialog(
         id = "BeamPublish",
         image = "beam-gcp-pubsub-publish.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BeamPublishDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamPublish.class; // for i18n purposes, needed by Translator2!!

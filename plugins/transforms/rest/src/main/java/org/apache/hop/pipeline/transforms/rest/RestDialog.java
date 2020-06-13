@@ -77,8 +77,7 @@ import java.util.Set;
 @PluginDialog(
         id = "Rest",
         image = "rest.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/rest.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!

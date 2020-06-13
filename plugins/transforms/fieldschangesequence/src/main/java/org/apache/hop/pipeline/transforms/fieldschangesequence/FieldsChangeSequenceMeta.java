@@ -52,7 +52,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.datagrid",
         name = "BaseTransform.TypeLongDesc.FieldsChangeSequence",
         description = "BaseTransform.TypeTooltipDesc.FieldsChangeSequence",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fieldschangesequence.html"
 )
 public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!

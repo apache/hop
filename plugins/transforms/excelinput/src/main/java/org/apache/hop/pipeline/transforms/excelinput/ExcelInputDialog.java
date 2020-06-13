@@ -98,8 +98,7 @@ import java.util.List;
 @PluginDialog(
   id = "ExcelInput",
   image = "excelinput.svg",
-  pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = ""
+  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
