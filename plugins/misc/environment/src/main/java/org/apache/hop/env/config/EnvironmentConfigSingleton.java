@@ -22,7 +22,6 @@ public class EnvironmentConfigSingleton {
     Object configObject = HopConfig.getConfigMap().get( EnvironmentConfig.HOP_CONFIG_ENVIRONMENT_CONFIG );
     if ( configObject == null ) {
       config = new EnvironmentConfig();
-      saveConfig();
     } else {
       // The way Jackson stores these simple POJO is with a map per default...
       // So we don't really need to mess around with Deserializer and so on.
