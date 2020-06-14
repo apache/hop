@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.randomvalue;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,10 +40,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
@@ -51,7 +49,16 @@ import java.util.List;
 /**
  * Created on 08-07-2008
  */
-public class RandomValueMeta extends BaseTransformMeta implements ITransform {
+
+@Transform(
+        id = "RandomValue",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.randomvalue",
+        name = "BaseTransform.TypeTooltipDesc.RandomValue",
+        description = "BaseTransform.TypeLongDesc.RandomValue",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = ""
+)
+public class RandomValueMeta extends BaseTransformMeta implements ITransformMeta<RandomValue, RandomValueData> {
 
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -280,13 +287,13 @@ public class RandomValueMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RandomValue( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  public ITransform createTransform(TransformMeta transformMeta, RandomValueData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new RandomValue( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
+
   @Override
-  public ITransformData getTransformData() {
+  public RandomValueData getTransformData() {
     return new RandomValueData();
   }
 }

@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -53,15 +53,15 @@ public class RandomValueMetaTest {
     setterMap.put( "name", "setFieldName" );
     setterMap.put( "type", "setFieldType" );
 
-    Map<String, FieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
+      new HashMap<String, IFieldLoadSaveValidator<?>>();
     fieldLoadSaveValidatorAttributeMap.put( "name",
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 ) );
     fieldLoadSaveValidatorAttributeMap.put( "type",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( RandomValueMeta.functions.length ), 25 ) );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( RandomValueMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, FieldLoadSaveValidator<?>>() );
+      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
     loadSaveTester.testSerialization();
   }
 }

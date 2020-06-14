@@ -20,11 +20,13 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.randomvalue;
+package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
@@ -52,6 +54,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+@PluginDialog(
+        id = "RandomValue",
+        image = "randomvalue.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class RandomValueDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -62,6 +69,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
   private Label wlFields;
   private TableView wFields;
   private FormData fdlFields, fdFields;
+  private IHopMetadataProvider metadataProvider;
 
   private RandomValueMeta input;
 
@@ -215,6 +223,11 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
       }
     }
     return transformName;
+  }
+
+  @Override
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.UUID4Util;
+import org.apache.hop.core.util.Uuid4Util;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -39,7 +39,7 @@ public class RandomValueData extends BaseTransformData implements ITransformData
 
   public IRowMeta outputRowMeta;
 
-  public UUID4Util u4;
+  public Uuid4Util u4;
   /* Generating a random Message Authentication Code (MAC MD5) */
   public KeyGenerator keyGenHmacMD5;
   /* Generating a random Message Authentication Code (MAC SHA1) */
