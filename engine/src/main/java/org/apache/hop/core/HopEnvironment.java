@@ -126,7 +126,7 @@ public class HopEnvironment {
 
         // If the HopConfig system properties is empty, initialize with the variables...
         //
-        if ( HopConfig.readSystemProperties().isEmpty() ) {
+        if ( HopConfig.getSystemProperties().isEmpty() ) {
           HopConfig.saveSystemProperties( HopVariablesList.getInstance().getDefaultValueMap() );
         }
 
