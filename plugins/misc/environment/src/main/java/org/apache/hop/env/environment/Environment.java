@@ -14,13 +14,8 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Environment {
-
-  // Information about the environment itself
-  //
-  private String name;
 
   private String description;
 
@@ -33,10 +28,6 @@ public class Environment {
   private String department;
 
   private String project;
-
-  // Technical information
-  //
-  private String environmentHomeFolder;
 
   private String metadataBaseFolder;
 
@@ -57,26 +48,10 @@ public class Environment {
 
   public Environment() {
     variables = new ArrayList<>();
-    environmentHomeFolder = "/path/to/your/environment/folder/";
     metadataBaseFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/metadata";
     dataSetsCsvFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/datasets";
     unitTestsBasePath = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
     enforcingExecutionInHome = true;
-  }
-
-  @Override public boolean equals( Object o ) {
-    if ( this == o ) {
-      return true;
-    }
-    if ( o == null || getClass() != o.getClass() ) {
-      return false;
-    }
-    Environment that = (Environment) o;
-    return name.equals( that.name );
-  }
-
-  @Override public int hashCode() {
-    return Objects.hash( name );
   }
 
   public String toJsonString() throws IOException {
@@ -91,7 +66,7 @@ public class Environment {
     return objectMapper.readValue( jsonString, Environment.class );
   }
 
-  public void modifyVariables( IVariables variables ) {
+  public void modifyVariables( IVariables variables, String environmentName, String environmentHomeFolder ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
@@ -99,7 +74,7 @@ public class Environment {
 
     // Set the name of the active environment
     //
-    variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
+    variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( environmentName, "" ) );
 
     if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
       String realValue = variables.environmentSubstitute( environmentHomeFolder );
@@ -123,30 +98,6 @@ public class Environment {
         variables.setVariable( variable.getName(), variable.getValue() );
       }
     }
-  }
-
-  public String getActualHomeFolder( IVariables variables ) {
-    if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
-      return variables.environmentSubstitute( environmentHomeFolder );
-    } else {
-      return variables.environmentSubstitute( variables.getVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME ) );
-    }
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**
@@ -195,22 +146,6 @@ public class Environment {
    */
   public void setDepartment( String department ) {
     this.department = department;
-  }
-
-  /**
-   * Gets environmentHomeFolder
-   *
-   * @return value of environmentHomeFolder
-   */
-  public String getEnvironmentHomeFolder() {
-    return environmentHomeFolder;
-  }
-
-  /**
-   * @param environmentHomeFolder The environmentHomeFolder to set
-   */
-  public void setEnvironmentHomeFolder( String environmentHomeFolder ) {
-    this.environmentHomeFolder = environmentHomeFolder;
   }
 
   /**

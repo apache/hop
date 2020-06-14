@@ -6,8 +6,10 @@ import org.apache.hop.history.local.LocalAuditManager;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AuditManager {
 
@@ -52,8 +54,9 @@ public class AuditManager {
     getActive().storeEvent( new AuditEvent( group, type, name, operation, new Date() ) );
   }
 
-  public static final List<AuditEvent> findEvents( String group, String type, String operation, int maxNrEvents ) throws HopException {
-    List<AuditEvent> events = getActive().findEvents( group, type );
+  public static final List<AuditEvent> findEvents( String group, String type, String operation, int maxNrEvents, boolean unique ) throws HopException {
+    List<AuditEvent> events = getActive().findEvents( group, type, unique );
+    Set<String> names = new HashSet<>();
 
     if ( operation == null ) {
       return events;
@@ -63,8 +66,15 @@ public class AuditManager {
     List<AuditEvent> operationEvents = new ArrayList<>();
     for ( AuditEvent event : events ) {
       if ( event.getOperation().equalsIgnoreCase( operation ) ) {
-        operationEvents.add( event );
 
+        if (unique) {
+          if (!names.contains( event.getName() )) {
+            operationEvents.add( event );
+            names.add(event.getName());
+          }
+        } else {
+          operationEvents.add( event );
+        }
         if ( maxNrEvents > 0 && operationEvents.size() >= maxNrEvents ) {
           break;
         }

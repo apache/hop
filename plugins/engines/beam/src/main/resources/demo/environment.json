@@ -1,0 +1,12 @@
+{
+  "description" : "",
+  "version" : "",
+  "company" : "",
+  "department" : "",
+  "project" : "",
+  "metadataBaseFolder" : "${ENVIRONMENT_HOME}/metadata",
+  "unitTestsBasePath" : "${ENVIRONMENT_HOME}",
+  "dataSetsCsvFolder" : "${ENVIRONMENT_HOME}/datasets",
+  "enforcingExecutionInHome" : true,
+  "variables" : [ ]
+}

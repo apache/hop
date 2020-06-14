@@ -43,9 +43,10 @@ public interface IAuditManager {
    *
    * @param group The event group
    * @param type The event type
+   * @param unique Set to true if you want to have a unique list by name
    * @return The matching events reverse sorted by event date (last events first).
    */
-  List<AuditEvent> findEvents( String group, String type) throws HopException;
+  List<AuditEvent> findEvents( String group, String type, boolean unique) throws HopException;
 
 
   /**

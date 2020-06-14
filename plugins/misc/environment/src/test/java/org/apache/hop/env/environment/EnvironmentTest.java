@@ -10,18 +10,14 @@ import static org.junit.Assert.*;
 public class EnvironmentTest {
 
   private static final String JSON_CASE1 = "{\n"
-    + "  \"name\" : \"name1\",\n"
     + "  \"description\" : \"description1\",\n"
-    + "  \"environmentHomeFolder\" : \"/path/to/your/environment/folder/\",\n"
     + "  \"metadataBaseFolder\" : \"${ENVIRONMENT_HOME}/metadata\",\n"
     + "  \"unitTestsBasePath\" : \"${ENVIRONMENT_HOME}\",\n"
     + "  \"dataSetsCsvFolder\" : \"${ENVIRONMENT_HOME}/datasets\",\n"
     + "  \"enforcingExecutionInHome\" : true\n"
     + "}";
   private static final String JSON_CASE2 = "{\n"
-    + "  \"name\" : \"name2\",\n"
     + "  \"description\" : \"description2\",\n"
-    + "  \"environmentHomeFolder\" : \"/path/to/your/environment/folder/\",\n"
     + "  \"metadataBaseFolder\" : \"${ENVIRONMENT_HOME}/metadata\",\n"
     + "  \"unitTestsBasePath\" : \"${ENVIRONMENT_HOME}\",\n"
     + "  \"dataSetsCsvFolder\" : \"${ENVIRONMENT_HOME}/datasets\",\n"
@@ -50,7 +46,6 @@ public class EnvironmentTest {
     @Test
   public void toJsonStringCase1() throws Exception {
     Environment environment = new Environment();
-    environment.setName( "name1" );
     environment.setDescription( "description1" );
 
     String jsonString = environment.toJsonString();
@@ -60,14 +55,12 @@ public class EnvironmentTest {
   @Test
   public void fromJsonStringCase1() throws Exception {
     Environment environment = Environment.fromJsonString(JSON_CASE1);
-    assertEquals( "name1", environment.getName() );
     assertEquals( "description1", environment.getDescription( ) );
   }
 
   @Test
   public void toJsonStringCase2() throws Exception {
     Environment environment = new Environment();
-    environment.setName( "name2" );
     environment.setDescription( "description2" );
     environment.getVariables().addAll( case2Variables );
 
@@ -78,7 +71,6 @@ public class EnvironmentTest {
   @Test
   public void fromJsonStringCase2() throws Exception {
     Environment environment = Environment.fromJsonString(JSON_CASE2);
-    assertEquals( "name2", environment.getName() );
     assertEquals( "description2", environment.getDescription( ) );
     assertEquals( case2Variables.size(), environment.getVariables().size());
     for (int v=0;v<environment.getVariables().size();v++) {

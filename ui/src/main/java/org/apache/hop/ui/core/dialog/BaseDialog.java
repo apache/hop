@@ -23,6 +23,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -194,7 +195,14 @@ public abstract class BaseDialog extends Dialog {
   }
 
   public static String presentDirectoryDialog( Shell shell, TextVar textVar, IVariables variables ) {
+    return presentDirectoryDialog(shell, textVar, null, variables);
+  }
+
+  public static String presentDirectoryDialog( Shell shell, TextVar textVar, String message, IVariables variables ) {
     DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
+    if ( StringUtils.isNotEmpty(message)) {
+      directoryDialog.setMessage( message );
+    }
     directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" ) );
     if ( textVar != null && variables != null && textVar.getText() != null ) {
       directoryDialog.setFilterPath( variables.environmentSubstitute( textVar.getText() ) );

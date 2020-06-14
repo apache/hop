@@ -218,7 +218,7 @@ public class HopGuiFileDelegate {
     try {
       // Let's limit ourselves to 100 operations...
       //
-      List<AuditEvent> events = AuditManager.findEvents( HopNamespace.getNamespace(), "file", "open", 100 );
+      List<AuditEvent> events = AuditManager.findEvents( HopNamespace.getNamespace(), "file", "open", 100, true );
       Set<String> filenames = new HashSet<>();
       List<RowMetaAndData> rows = new ArrayList<>();
       IRowMeta rowMeta = new RowMeta();

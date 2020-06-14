@@ -2517,15 +2517,6 @@ public class Const {
   }
 
   /**
-   * Return the current time as nano-seconds.
-   *
-   * @return time as nano-seconds.
-   */
-  public static long nanoTime() {
-    return new Date().getTime() * 1000;
-  }
-
-  /**
    * Return the input string trimmed as specified.
    *
    * @param string   String to be trimmed

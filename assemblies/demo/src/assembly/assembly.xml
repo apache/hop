@@ -5,15 +5,11 @@
     <format>zip</format>
   </formats>
   <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>samples</baseDirectory>
+  <baseDirectory>demo</baseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${project.basedir}/src/main/resources</directory>
-      <outputDirectory>.</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${assembly.dir}</directory>
-      <outputDirectory>.</outputDirectory>
+      <directory>${project.basedir}/../../plugins/engines/beam/src/main/resources/demo/</directory>
+      <outputDirectory>beam</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

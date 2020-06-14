@@ -1,0 +1,5 @@
+{
+  "name": "git",
+  "description": "",
+  "directory": "${ENVIRONMENT_HOME}"
+}

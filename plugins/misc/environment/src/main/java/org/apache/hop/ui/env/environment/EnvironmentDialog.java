@@ -32,21 +32,22 @@ import org.eclipse.swt.widgets.Text;
 public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = EnvironmentDialog.class; // for i18n purposes, needed by Translator2!!
 
-  private Environment environment;
+  private final Environment environment;
+  private final String environmentName;
+  private final String environmentHomeFolder;
+
   private String returnValue;
 
   private Shell shell;
   private final PropsUi props;
 
-  private Text wName;
   private Text wDescription;
   private Text wCompany;
   private Text wDepartment;
   private Text wProject;
   private Text wVersion;
 
-  private TextVar wEnvironmentHome;
-  private TextVar wMetaStoreBaseFolder;
+  private TextVar wMetadataBaseFolder;
   private TextVar wUnitTestsBasePath;
   private TextVar wDataSetCsvFolder;
   private Button wEnforceHomeExecution;
@@ -55,19 +56,20 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   private int margin;
   private int middle;
 
-  private IVariables space;
+  private IVariables variables;
 
-  public EnvironmentDialog( Shell parent, IHopMetadataProvider metadataProvider, Environment environment, IVariables variables ) {
+  public EnvironmentDialog( Shell parent, Environment environment, String environmentName, String environmentHomeFolder, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
     this.environment = environment;
+    this.environmentName = environmentName;
+    this.environmentHomeFolder = environmentHomeFolder;
 
     props = PropsUi.getInstance();
 
-    space = new Variables();
-    space.initializeVariablesFrom( null );
-    environment.modifyVariables( space );
-
+    this.variables = new Variables();
+    this.variables.initializeVariablesFrom( null );
+    environment.modifyVariables( variables, environmentName, environmentHomeFolder );
   }
 
   public String open() {
@@ -97,31 +99,13 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
     wCancel.addListener( SWT.Selection, event -> cancel() );
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin * 3, null );
 
-
-    Label wlName = new Label( shell, SWT.RIGHT );
-    props.setLook( wlName );
-    wlName.setText( "Name " );
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment( 0, 0 );
-    fdlName.right = new FormAttachment( middle, 0 );
-    fdlName.top = new FormAttachment( 0, 0 );
-    wlName.setLayoutData( fdlName );
-    wName = new Text( shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wName );
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment( middle, margin );
-    fdName.right = new FormAttachment( 100, 0 );
-    fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
-    wName.setLayoutData( fdName );
-    Control lastControl = wName;
-
     Label wlDescription = new Label( shell, SWT.RIGHT );
     props.setLook( wlDescription );
     wlDescription.setText( "Description " );
     FormData fdlDescription = new FormData();
     fdlDescription.left = new FormAttachment( 0, 0 );
     fdlDescription.right = new FormAttachment( middle, 0 );
-    fdlDescription.top = new FormAttachment( lastControl, margin );
+    fdlDescription.top = new FormAttachment( 0, margin );
     wlDescription.setLayoutData( fdlDescription );
     wDescription = new Text( shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
     props.setLook( wDescription );
@@ -130,7 +114,7 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
     fdDescription.right = new FormAttachment( 100, 0 );
     fdDescription.top = new FormAttachment( wlDescription, 0, SWT.CENTER );
     wDescription.setLayoutData( fdDescription );
-    lastControl = wDescription;
+    Control lastControl = wDescription;
 
     Label wlCompany = new Label( shell, SWT.RIGHT );
     props.setLook( wlCompany );
@@ -200,43 +184,23 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
     wVersion.setLayoutData( fdVersion );
     lastControl = wVersion;
 
-    Label wlEnvironmentHome = new Label( shell, SWT.RIGHT );
-    props.setLook( wlEnvironmentHome );
-    wlEnvironmentHome.setFont( GuiResource.getInstance().getFontBold() );
-    wlEnvironmentHome.setText( "Environment base folder (" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + ") " );
-    FormData fdlEnvironmentHome = new FormData();
-    fdlEnvironmentHome.left = new FormAttachment( 0, 0 );
-    fdlEnvironmentHome.right = new FormAttachment( middle, 0 );
-    fdlEnvironmentHome.top = new FormAttachment( lastControl, margin );
-    wlEnvironmentHome.setLayoutData( fdlEnvironmentHome );
-    wEnvironmentHome = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wEnvironmentHome );
-    wEnvironmentHome.setFont( GuiResource.getInstance().getFontBold() );
-    FormData fdEnvironmentHome = new FormData();
-    fdEnvironmentHome.left = new FormAttachment( middle, margin );
-    fdEnvironmentHome.right = new FormAttachment( 100, 0 );
-    fdEnvironmentHome.top = new FormAttachment( wlEnvironmentHome, 0, SWT.CENTER );
-    wEnvironmentHome.setLayoutData( fdEnvironmentHome );
-    wEnvironmentHome.addModifyListener( e -> updateIVariables() );
-    lastControl = wEnvironmentHome;
-
-    Label wlMetaStoreBaseFolder = new Label( shell, SWT.RIGHT );
-    props.setLook( wlMetaStoreBaseFolder );
-    wlMetaStoreBaseFolder.setText( "Metadata base folder (HOP_METADATA_FOLDER)" );
-    FormData fdlMetaStoreBaseFolder = new FormData();
-    fdlMetaStoreBaseFolder.left = new FormAttachment( 0, 0 );
-    fdlMetaStoreBaseFolder.right = new FormAttachment( middle, 0 );
-    fdlMetaStoreBaseFolder.top = new FormAttachment( lastControl, margin );
-    wlMetaStoreBaseFolder.setLayoutData( fdlMetaStoreBaseFolder );
-    wMetaStoreBaseFolder = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
-    props.setLook( wMetaStoreBaseFolder );
-    FormData fdMetaStoreBaseFolder = new FormData();
-    fdMetaStoreBaseFolder.left = new FormAttachment( middle, margin );
-    fdMetaStoreBaseFolder.right = new FormAttachment( 100, 0 );
-    fdMetaStoreBaseFolder.top = new FormAttachment( wlMetaStoreBaseFolder, 0, SWT.CENTER );
-    wMetaStoreBaseFolder.setLayoutData( fdMetaStoreBaseFolder );
-    wMetaStoreBaseFolder.addModifyListener( e -> updateIVariables() );
-    lastControl = wMetaStoreBaseFolder;
+    Label wlMetadataBaseFolder = new Label( shell, SWT.RIGHT );
+    props.setLook( wlMetadataBaseFolder );
+    wlMetadataBaseFolder.setText( "Metadata base folder (HOP_METADATA_FOLDER)" );
+    FormData fdlMetadataBaseFolder = new FormData();
+    fdlMetadataBaseFolder.left = new FormAttachment( 0, 0 );
+    fdlMetadataBaseFolder.right = new FormAttachment( middle, 0 );
+    fdlMetadataBaseFolder.top = new FormAttachment( lastControl, margin );
+    wlMetadataBaseFolder.setLayoutData( fdlMetadataBaseFolder );
+    wMetadataBaseFolder = new TextVar( variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
+    props.setLook( wMetadataBaseFolder );
+    FormData fdMetadataBaseFolder = new FormData();
+    fdMetadataBaseFolder.left = new FormAttachment( middle, margin );
+    fdMetadataBaseFolder.right = new FormAttachment( 100, 0 );
+    fdMetadataBaseFolder.top = new FormAttachment( wlMetadataBaseFolder, 0, SWT.CENTER );
+    wMetadataBaseFolder.setLayoutData( fdMetadataBaseFolder );
+    wMetadataBaseFolder.addModifyListener( e -> updateIVariables() );
+    lastControl = wMetadataBaseFolder;
 
     Label wlUnitTestsBasePath = new Label( shell, SWT.RIGHT );
     props.setLook( wlUnitTestsBasePath );
@@ -246,7 +210,7 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
     fdlUnitTestsBasePath.right = new FormAttachment( middle, 0 );
     fdlUnitTestsBasePath.top = new FormAttachment( lastControl, margin );
     wlUnitTestsBasePath.setLayoutData( fdlUnitTestsBasePath );
-    wUnitTestsBasePath = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
+    wUnitTestsBasePath = new TextVar( variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
     props.setLook( wUnitTestsBasePath );
     FormData fdUnitTestsBasePath = new FormData();
     fdUnitTestsBasePath.left = new FormAttachment( middle, margin );
@@ -264,7 +228,7 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
     fdlDataSetCsvFolder.right = new FormAttachment( middle, 0 );
     fdlDataSetCsvFolder.top = new FormAttachment( lastControl, margin );
     wlDataSetCsvFolder.setLayoutData( fdlDataSetCsvFolder );
-    wDataSetCsvFolder = new TextVar( space, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
+    wDataSetCsvFolder = new TextVar( variables, shell, SWT.SINGLE | SWT.BORDER | SWT.LEFT );
     props.setLook( wDataSetCsvFolder );
     FormData fdDataSetCsvFolder = new FormData();
     fdDataSetCsvFolder.left = new FormAttachment( middle, margin );
@@ -320,14 +284,12 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
 
     // When enter is hit, close the dialog
     //
-    wName.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wDescription.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wCompany.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wDepartment.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wProject.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wVersion.addListener( SWT.DefaultSelection, ( e ) -> ok() );
-    wEnvironmentHome.addListener( SWT.DefaultSelection, ( e ) -> ok() );
-    wMetaStoreBaseFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
+    wMetadataBaseFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wUnitTestsBasePath.addListener( SWT.DefaultSelection, ( e ) -> ok() );
     wDataSetCsvFolder.addListener( SWT.DefaultSelection, ( e ) -> ok() );
 
@@ -350,12 +312,12 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   private void updateIVariables() {
     Environment env = new Environment();
     getInfo( env );
-    env.modifyVariables( space );
+    env.modifyVariables( variables, environmentName, environmentHomeFolder );
   }
 
   private void ok() {
     getInfo( environment );
-    returnValue = environment.getName();
+    returnValue = environmentName;
 
     dispose();
   }
@@ -372,14 +334,12 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   }
 
   private void getData() {
-    wName.setText( Const.NVL( environment.getName(), "" ) );
     wDescription.setText( Const.NVL( environment.getDescription(), "" ) );
     wCompany.setText( Const.NVL( environment.getCompany(), "" ) );
     wDepartment.setText( Const.NVL( environment.getDepartment(), "" ) );
     wProject.setText( Const.NVL( environment.getProject(), "" ) );
     wVersion.setText( Const.NVL( environment.getVersion(), "" ) );
-    wEnvironmentHome.setText( Const.NVL( environment.getEnvironmentHomeFolder(), "" ) );
-    wMetaStoreBaseFolder.setText( Const.NVL( environment.getMetadataBaseFolder(), "" ) );
+    wMetadataBaseFolder.setText( Const.NVL( environment.getMetadataBaseFolder(), "" ) );
     wUnitTestsBasePath.setText( Const.NVL( environment.getUnitTestsBasePath(), "" ) );
     wDataSetCsvFolder.setText( Const.NVL( environment.getDataSetsCsvFolder(), "" ) );
     wEnforceHomeExecution.setSelection( environment.isEnforcingExecutionInHome() );
@@ -395,14 +355,12 @@ public class EnvironmentDialog extends Dialog implements IMetadataDialog {
   }
 
   private void getInfo( Environment env ) {
-    env.setName( wName.getText() );
     env.setDescription( wDescription.getText() );
     env.setCompany( wCompany.getText() );
     env.setDepartment( wDepartment.getText() );
     env.setProject( wProject.getText() );
     env.setVersion( wVersion.getText() );
-    env.setEnvironmentHomeFolder( wEnvironmentHome.getText() );
-    env.setMetadataBaseFolder( wMetaStoreBaseFolder.getText() );
+    env.setMetadataBaseFolder( wMetadataBaseFolder.getText() );
     env.setUnitTestsBasePath( wUnitTestsBasePath.getText() );
     env.setDataSetsCsvFolder( wDataSetCsvFolder.getText() );
     env.setEnforcingExecutionInHome( wEnforceHomeExecution.getSelection() );
