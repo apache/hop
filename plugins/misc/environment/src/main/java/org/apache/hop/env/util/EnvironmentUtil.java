@@ -10,7 +10,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -31,17 +30,22 @@ public class EnvironmentUtil {
    * Force reload of a number of settings
    *
    * @param log the log channel to log to
+   * @param environmentName
    * @param environment
-   * @param hopMetadataProvider
+   * @param variables
    * @throws HopException
    * @throws HopException
    */
-  public static void enableEnvironment( ILogChannel log, Environment environment, IHopMetadataProvider hopMetadataProvider, IVariables variables ) throws HopException, HopException {
+  public static void enableEnvironment( ILogChannel log, String environmentName, Environment environment, IVariables variables ) throws HopException {
 
     // Variable system variables but also apply them to variables
     // We'll use those to change the loaded variables in HopGui
     //
-    environment.modifyVariables( variables );
+    String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName );
+    if (StringUtils.isEmpty(environmentHomeFolder)) {
+      throw new HopException("Error enabling environment "+environmentName+": it is not available or has no home folder configured");
+    }
+    environment.modifyVariables( variables, environmentName, environmentHomeFolder );
 
     // Change the metadata
     //
@@ -49,18 +53,17 @@ public class EnvironmentUtil {
 
     // We store the environment in the HopGui namespace
     //
-    HopNamespace.setNamespace( environment.getName() );
+    HopNamespace.setNamespace( environmentName );
 
     // Signal others that we have a new active environment
     //
-    ExtensionPointHandler.callExtensionPoint( log, Defaults.EXTENSION_POINT_ENVIRONMENT_ACTIVATED, environment.getName() );
+    ExtensionPointHandler.callExtensionPoint( log, Defaults.EXTENSION_POINT_ENVIRONMENT_ACTIVATED, environmentName );
   }
 
-  public static void validateFileInEnvironment( ILogChannel log, String transFilename, Environment environment, IVariables space ) throws HopException, FileSystemException {
+  public static void validateFileInEnvironment( ILogChannel log, String transFilename, String environmentName, String environmentHome, IVariables space ) throws HopException, FileSystemException {
     if ( StringUtils.isNotEmpty( transFilename ) ) {
       // See that this filename is located under the environment home folder
       //
-      String environmentHome = space.environmentSubstitute( environment.getEnvironmentHomeFolder() );
       log.logBasic( "Validation against environment home : " + environmentHome );
 
       FileObject envHome = HopVfs.getFileObject( environmentHome );
@@ -102,21 +105,26 @@ public class EnvironmentUtil {
 
     // What is the active environment?
     //
-    String activeEnvironment = System.getProperty( Defaults.VARIABLE_ACTIVE_ENVIRONMENT );
-    if ( StringUtils.isEmpty( activeEnvironment ) ) {
+    String activeEnvironmentName = System.getProperty( Defaults.VARIABLE_ACTIVE_ENVIRONMENT );
+    if ( StringUtils.isEmpty( activeEnvironmentName ) ) {
       // Nothing to be done here...
       //
       return;
     }
 
-    log.logBasic( "Validating active environment '" + activeEnvironment + "'" );
-    Environment environment = EnvironmentConfigSingleton.load( activeEnvironment );
+    log.logBasic( "Validating active environment '" + activeEnvironmentName + "'" );
+    String homeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( activeEnvironmentName );
+    if ( StringUtils.isEmpty( homeFolder ) ) {
+      throw new HopException( "The home folder for active environment '" + activeEnvironmentName + "' is not defined" );
+    }
+
+    Environment environment = EnvironmentConfigSingleton.load( activeEnvironmentName );
     if ( environment == null ) {
-      throw new HopException( "Active environment '" + activeEnvironment + "' couldn't be found. Fix your setup." );
+      throw new HopException( "Active environment '" + activeEnvironmentName + "' couldn't be found. Fix your setup." );
     }
 
     if ( environment.isEnforcingExecutionInHome() ) {
-      EnvironmentUtil.validateFileInEnvironment( log, executableFilename, environment, space );
+      EnvironmentUtil.validateFileInEnvironment( log, executableFilename, activeEnvironmentName, homeFolder, space );
     }
   }
 

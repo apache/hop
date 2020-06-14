@@ -5,8 +5,8 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.util.EnvironmentUtil;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
@@ -20,16 +20,16 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopGuiDirectoryDialogExtension> {
 
   @Override public void callExtensionPoint( ILogChannel log, HopGuiDirectoryDialogExtension ext ) throws HopException {
-    HopGui hopGui = HopGui.getInstance();
+    IVariables variables = HopGui.getInstance().getVariables();
     String environmentName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(environmentName)) {
       return;
     }
     try {
-      Environment environment = EnvironmentUtil.getEnvironment(environmentName);
-      if (environment!=null) {
+      String homeFolder = variables.environmentSubstitute( EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName ) );
+      if (homeFolder!=null) {
         DirectoryDialog dialog = ext.getDirectoryDialog();
-        dialog.setFilterPath(environment.getEnvironmentHomeFolder());
+        dialog.setFilterPath(homeFolder);
       }
     } catch(Exception e) {
       log.logError( "Error setting default folder for environment "+environmentName, e );

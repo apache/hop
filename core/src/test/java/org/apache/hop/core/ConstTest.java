@@ -2027,11 +2027,6 @@ public class ConstTest {
   }
 
   @Test
-  public void testNanoTime() {
-    assertTrue( String.valueOf( Const.nanoTime() ).endsWith( "000" ) );
-  }
-
-  @Test
   public void testTrimToType() {
     final String source = " trim me hard ";
     assertEquals( "trim me hard", Const.trimToType( source, IValueMeta.TRIM_TYPE_BOTH ) );

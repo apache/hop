@@ -1,31 +1,34 @@
 package org.apache.hop.env.config;
 
-import org.apache.hop.env.environment.Environment;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EnvironmentConfig {
 
   public static final String HOP_CONFIG_ENVIRONMENT_CONFIG = "environmentConfig";
+  public static final String HOP_CONFIG_ENVIRONMENT_FILE = "environment.json";
 
   private boolean enabled;
 
   private boolean openingLastEnvironmentAtStartup;
 
-  private List<Environment> environments;
+  private String environmentConfigFilename;
+
+  private Map<String, String> environmentFolders;
 
   public EnvironmentConfig() {
     enabled = true;
     openingLastEnvironmentAtStartup = true;
-    environments = new ArrayList<>();
+    environmentFolders = new HashMap<>();
+    environmentConfigFilename = HOP_CONFIG_ENVIRONMENT_FILE;
   }
 
-  public EnvironmentConfig(EnvironmentConfig c) {
+  public EnvironmentConfig( EnvironmentConfig config ) {
     this();
-    enabled = c.enabled;
-    openingLastEnvironmentAtStartup = c.openingLastEnvironmentAtStartup;
-    environments.addAll(c.environments);
+    enabled = config.enabled;
+    openingLastEnvironmentAtStartup = config.openingLastEnvironmentAtStartup;
+    environmentFolders.putAll( config.environmentFolders);
+    environmentConfigFilename = config.environmentConfigFilename;
   }
 
   /**
@@ -61,18 +64,34 @@ public class EnvironmentConfig {
   }
 
   /**
-   * Gets environments
+   * Gets environmentFolders
    *
-   * @return value of environments
+   * @return value of environmentFolders
    */
-  public List<Environment> getEnvironments() {
-    return environments;
+  public Map<String, String> getEnvironmentFolders() {
+    return environmentFolders;
   }
 
   /**
-   * @param environments The environments to set
+   * @param environmentFolders The environmentFolders to set
    */
-  public void setEnvironments( List<Environment> environments ) {
-    this.environments = environments;
+  public void setEnvironmentFolders( Map<String, String> environmentFolders ) {
+    this.environmentFolders = environmentFolders;
+  }
+
+  /**
+   * Gets environmentConfigFilename
+   *
+   * @return value of environmentConfigFilename
+   */
+  public String getEnvironmentConfigFilename() {
+    return environmentConfigFilename;
+  }
+
+  /**
+   * @param environmentConfigFilename The environmentConfigFilename to set
+   */
+  public void setEnvironmentConfigFilename( String environmentConfigFilename ) {
+    this.environmentConfigFilename = environmentConfigFilename;
   }
 }

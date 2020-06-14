@@ -3,30 +3,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
-  <artifactId>hop-assemblies</artifactId>
-  <version>0.30-SNAPSHOT</version>
+  <artifactId>hop-assemblies-demo</artifactId>
   <packaging>pom</packaging>
 
-  <name>Hop Assemblies</name>
+  <name>Hop Assemblies Demo</name>
 
   <parent>
     <groupId>org.hop</groupId>
-    <artifactId>hop</artifactId>
+    <artifactId>hop-assemblies</artifactId>
     <version>0.30-SNAPSHOT</version>
   </parent>
 
   <properties>
-    <assembly.dir>${project.build.directory}/assembly</assembly.dir>
+    <!-- build plugins -->
+    <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+    <sql-maven-plugin.version>1.5</sql-maven-plugin.version>
   </properties>
 
-  <modules>
-    <module>plugins</module>
-    <module>static</module>
-    <module>demo</module>
-    <module>lib</module>
-    <module>client</module>
-    <module>core</module>
-    <module>debug</module>
-  </modules>
 </project>

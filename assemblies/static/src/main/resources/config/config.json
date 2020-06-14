@@ -1,3 +1,10 @@
 {
-
+  "environmentConfig" : {
+    "enabled" : true,
+    "openingLastEnvironmentAtStartup" : true,
+    "environmentConfigFilename" : "environment.json",
+    "environmentFolders" : {
+      "demo-beam" : "demo/beam"
+    }
+  }
 }

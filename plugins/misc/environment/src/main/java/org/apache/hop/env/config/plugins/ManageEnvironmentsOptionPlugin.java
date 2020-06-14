@@ -1,6 +1,7 @@
 package org.apache.hop.env.config.plugins;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -72,7 +73,8 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     List<String> names = EnvironmentConfigSingleton.getEnvironmentNames();
     for ( String name : names ) {
       Environment environment = EnvironmentConfigSingleton.load( name );
-      log.logBasic( environment.getName() + " : " + environment.getEnvironmentHomeFolder() );
+      String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( name );
+      log.logBasic( name + " : " + environmentHomeFolder );
       for ( EnvironmentVariable variable : environment.getVariables() ) {
         log.logBasic( "  " + variable.getName() + " = " + variable.getValue() + ( StringUtils.isEmpty( variable.getDescription() ) ? "" : " (" + variable.getDescription() + ")" ) );
       }
@@ -92,13 +94,16 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     if ( !EnvironmentConfigSingleton.exists( environmentName ) ) {
       throw new HopException( "Environment '" + environmentName + "' doesn't exists, it can't be modified" );
     }
+    // Optionally update the env home to a new location before modifying
+    //
+    updateHopConfig( environmentName, environmentHome );
+
     Environment environment = EnvironmentConfigSingleton.load( environmentHome );
 
-    updateEnvironmentHome( environment );
     updateEnvironmentVariables( environment );
 
-    EnvironmentConfigSingleton.save( environment );
-    log.logBasic( "Environment '" + environment.getName() + "' was modified." );
+    EnvironmentConfigSingleton.save( environmentName, environment );
+    log.logBasic( "Environment '" + environmentName + "' was modified." );
   }
 
 
@@ -106,10 +111,12 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     validateEnvironmentNameSpecified();
     validateEnvironmentHomeSpecified();
 
-    Environment environment = new Environment();
-    environment.setName( environmentName );
+    // Create the entry in the environment configuration (in Hop config.json)
+    //
+    updateHopConfig(environmentName, environmentHome);
 
-    updateEnvironmentHome( environment );
+    Environment environment = new Environment();
+
     updateEnvironmentVariables( environment );
 
     log.logBasic( "Creating environment '" + environmentName + "'" );
@@ -117,8 +124,15 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
       throw new HopException( "Environment '" + environmentName + "' already exists." );
     }
 
-    EnvironmentConfigSingleton.save( environment );
-    log.logBasic( "Environment '" + environment.getName() + "' was created for home folder : " + environment.getEnvironmentHomeFolder() );
+    EnvironmentConfigSingleton.save( environmentName, environment );
+    log.logBasic( "Environment '" + environmentName + "' was created for home folder : " + environmentHome );
+  }
+
+  private void updateHopConfig( String environmentName, String environmentHome ) throws HopException {
+    if (StringUtils.isNotEmpty( environmentHome )) {
+      EnvironmentConfigSingleton.getConfig().getEnvironmentFolders().put( environmentName, environmentHome );
+      HopConfig.saveToFile();
+    }
   }
 
 
@@ -131,12 +145,6 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   private void validateEnvironmentHomeSpecified() throws Exception {
     if ( StringUtil.isEmpty( environmentHome ) ) {
       throw new HopException( "Please specify the home directory of the environment to create" );
-    }
-  }
-
-  private void updateEnvironmentHome( Environment environment ) {
-    if ( environmentHome != null ) {
-      environment.setEnvironmentHomeFolder( environmentHome );
     }
   }
 

@@ -15,11 +15,15 @@ import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.Date;
 import java.util.List;
@@ -69,11 +73,12 @@ public class EnvironmentGuiPlugin {
       return;
     }
     String environmentName = combo.getText();
+    String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName );
     try {
       Environment environment = EnvironmentConfigSingleton.load( environmentName );
-      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), hopGui.getMetadataProvider(), environment, hopGui.getVariables() );
+      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), environment, environmentName, environmentHomeFolder, hopGui.getVariables() );
       if ( environmentDialog.open() != null ) {
-        EnvironmentConfigSingleton.save( environment );
+        EnvironmentConfigSingleton.save( environmentName, environment );
         refreshEnvironmentsList();
         selectEnvironmentInList( environmentName );
       }
@@ -103,7 +108,7 @@ public class EnvironmentGuiPlugin {
     try {
       Environment environment = EnvironmentUtil.getEnvironment( environmentName );
       if ( environment != null ) {
-        enableHopGuiEnvironment( environment );
+        enableHopGuiEnvironment( environmentName, environment );
       } else {
         hopGui.getLog().logError( "Unable to find environment '" + environmentName + "'" );
       }
@@ -131,15 +136,29 @@ public class EnvironmentGuiPlugin {
   public void addNewEnvironment() {
     HopGui hopGui = HopGui.getInstance();
     try {
+      EnterStringDialog enterNameDialog = new EnterStringDialog( hopGui.getShell(), "",
+        "New Environment", "Please enter the name of the new environment:" );
+      String environmentName = enterNameDialog.open();
+      if ( StringUtils.isEmpty( environmentName ) ) {
+        return;
+      }
+      String environmentHomeFolder = BaseDialog.presentDirectoryDialog( hopGui.getShell(), null,
+        "Please select the home folder of the environment:", hopGui.getVariables() );
+      if ( StringUtils.isEmpty( environmentHomeFolder ) ) {
+        return;
+      }
+
+      // Save it in the hop config JSON configuration file
+      //
+      EnvironmentConfigSingleton.createEnvironment( environmentName, environmentHomeFolder );
+
       Environment environment = new Environment();
-      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), hopGui.getMetadataProvider(), environment, hopGui.getVariables() );
-      String name = environmentDialog.open();
-      if ( name != null ) {
-        // TODO: check if new environment exists
-        EnvironmentConfigSingleton.save( environment );
+      EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), environment, environmentName, environmentHomeFolder, hopGui.getVariables() );
+      if ( environmentDialog.open() != null ) {
+        EnvironmentConfigSingleton.save( environmentName, environment );
         refreshEnvironmentsList();
-        selectEnvironmentInList( name );
-        enableHopGuiEnvironment( environment );
+        selectEnvironmentInList( environmentName );
+        enableHopGuiEnvironment( environmentName, environment );
       }
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error adding environment", e );
@@ -154,11 +173,31 @@ public class EnvironmentGuiPlugin {
     separator = true
   )
   public void deleteSelectedEnvironment() {
-    // TODO
+    Combo combo = getEnvironmentsCombo();
+    if ( combo == null ) {
+      return;
+    }
+    String environmentName = combo.getText();
+
+    String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName );
+
+    MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+    box.setText( "Delete?" );
+    box.setMessage( "Do you want to delete environment '"+environmentName+"' from the configuration?"+Const.CR+"Please note that the folder '"+environmentHomeFolder+"' or the environment configuration file "+EnvironmentConfigSingleton.getConfig().getEnvironmentConfigFilename()+" in it are not removed or altered in any way." );
+    int anwser = box.open();
+    if ((anwser&SWT.YES)!=0) {
+      try {
+        EnvironmentConfigSingleton.delete( environmentName );
+        refreshEnvironmentsList();
+        selectEnvironmentInList( null );
+      } catch(Exception e) {
+        new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error removing environment '"+environmentName+"'", e );
+      }
+    }
   }
 
 
-  public static final void enableHopGuiEnvironment( Environment environment ) throws HopException {
+  public static final void enableHopGuiEnvironment( String environmentName, Environment environment ) throws HopException {
     try {
       HopGui hopGui = HopGui.getInstance();
 
@@ -184,7 +223,7 @@ public class EnvironmentGuiPlugin {
 
       // Set the variables and so on...
       //
-      EnvironmentUtil.enableEnvironment( hopGui.getLog(), environment, hopGui.getMetadataProvider(), variables );
+      EnvironmentUtil.enableEnvironment( hopGui.getLog(), environmentName, environment, variables );
 
       // We need to change the currently set variables in the newly loaded files
       //
@@ -212,21 +251,21 @@ public class EnvironmentGuiPlugin {
 
       // Update the toolbar combo
       //
-      EnvironmentGuiPlugin.selectEnvironmentInList( environment.getName() );
+      EnvironmentGuiPlugin.selectEnvironmentInList( environmentName );
 
       // Also add this as an event so we know what the environment usage history is
       //
       AuditEvent envUsedEvent = new AuditEvent(
         EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_GROUP,
-        EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_TYPE, environment
-        .getName(),
+        EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+        environmentName,
         "open",
         new Date()
       );
       AuditManager.getActive().storeEvent( envUsedEvent );
 
     } catch ( Exception e ) {
-      throw new HopException( "Error enabling environment '" + environment.getName() + "' in HopGui", e );
+      throw new HopException( "Error enabling environment '" + environmentName + "' in HopGui", e );
     }
   }
 

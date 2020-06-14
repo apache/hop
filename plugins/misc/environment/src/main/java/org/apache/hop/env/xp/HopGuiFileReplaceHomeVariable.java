@@ -1,12 +1,13 @@
 package org.apache.hop.env.xp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.env.environment.Environment;
+import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -26,26 +27,24 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
 
     // Is there an active environment?
     //
-    HopGui hopGui = HopGui.getInstance();
+    IVariables variables;
+    if (ext.variables==null) {
+      variables = HopGui.getInstance().getVariables();
+    } else {
+      variables = ext.variables;
+    }
     String environmentName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(environmentName)) {
       return;
     }
+    String homeFolder = variables.environmentSubstitute( EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName ) );
     try {
-      Environment environment = EnvironmentUtil.getEnvironment(environmentName);
-      if (environment!=null) {
+      if ( StringUtils.isNotEmpty(homeFolder)) {
 
         File file = new File(ext.filename);
         String absoluteFile = file.getAbsolutePath();
 
-        IVariables variables;
-        if (ext.variables==null) {
-          variables = hopGui.getVariables();
-        } else {
-          variables = ext.variables;
-        }
-
-        File home = new File(environment.getActualHomeFolder(variables));
+        File home = new File(homeFolder);
         String absoluteHome = home.getAbsolutePath();
         // Make it always end with a / or \
         if (!absoluteHome.endsWith( Const.FILE_SEPARATOR )) {

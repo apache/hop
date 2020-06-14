@@ -1,14 +1,20 @@
 package org.apache.hop.env.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentVariable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class EnvironmentConfigSingleton {
 
@@ -27,39 +33,12 @@ public class EnvironmentConfigSingleton {
       // So we don't really need to mess around with Deserializer and so on.
       // This way we can keep the class name out of the JSON as well.
       //
-      Map<String, Object> map = (Map<String, Object>) configObject;
-      config = new EnvironmentConfig();
-      config.setEnabled( (Boolean) map.get( "enabled" ) );
-      config.setOpeningLastEnvironmentAtStartup( (Boolean) map.get( "openingLastEnvironmentAtStartup" ) );
-
-      List envList = (List) map.get( "environments" );
-      if ( envList != null ) {
-        for ( Object env : envList ) {
-          Map<String, Object> envMap = (Map<String, Object>) env;
-          Environment environment = new Environment();
-          environment.setName( (String) envMap.get( "name" ) );
-          environment.setDescription( (String) envMap.get( "description" ) );
-          environment.setVersion( (String) envMap.get( "version" ) );
-          environment.setCompany( (String) envMap.get( "company" ) );
-          environment.setDepartment( (String) envMap.get( "department" ) );
-          environment.setProject( (String) envMap.get( "project" ) );
-          environment.setEnvironmentHomeFolder( (String) envMap.get( "environmentHomeFolder" ) );
-          environment.setMetadataBaseFolder( (String) envMap.get( "metadataBaseFolder" ) );
-          environment.setUnitTestsBasePath( (String) envMap.get( "unitTestsBasePath" ) );
-          environment.setDataSetsCsvFolder( (String) envMap.get( "dataSetsCsvFolder" ) );
-          environment.setEnforcingExecutionInHome( (Boolean) envMap.get( "enforcingExecutionInHome" ) );
-          environment.setEnforcingExecutionInHome( (Boolean) envMap.get( "enforcingExecutionInHome" ) );
-          List<Object> envVariables = (List<Object>) envMap.get("variables");
-          for (Object envVariable : envVariables) {
-            EnvironmentVariable environmentVariable = new EnvironmentVariable();
-            Map<String,Object> envVarMap = (Map<String, Object>) envVariable;
-            environmentVariable.setName( (String) envVarMap.get("name") );
-            environmentVariable.setDescription( (String) envVarMap.get("description") );
-            environmentVariable.setValue( (String) envVarMap.get("value") );
-            environment.getVariables().add(environmentVariable);
-          }
-          config.getEnvironments().add( environment );
-        }
+      try {
+        ObjectMapper mapper = new ObjectMapper();
+        config = mapper.readValue( new Gson().toJson( configObject ), EnvironmentConfig.class );
+      } catch ( Exception e ) {
+        LogChannel.GENERAL.logError( "Error reading environments configuration, check property '" + EnvironmentConfig.HOP_CONFIG_ENVIRONMENT_CONFIG + "' in the Hop config json file", e );
+        config = new EnvironmentConfig();
       }
     }
   }
@@ -75,70 +54,94 @@ public class EnvironmentConfigSingleton {
     return configSingleton.config;
   }
 
+  public static final List<Environment> loadAllEnvironments() {
+    IVariables variables = Variables.getADefaultVariableSpace();
+    List<Environment> environments = new ArrayList<>();
+    for ( String environmentName : getEnvironmentNames() ) {
+      try {
+        Environment environment = load( environmentName );
+        environments.add( environment );
+      } catch ( Exception e ) {
+        LogChannel.GENERAL.logError( "Error loading environment", e );
+      }
+    }
+    return environments;
+  }
+
+  public static final String getActualEnvironmentConfigFilename( String homeFolder ) {
+    IVariables variables = Variables.getADefaultVariableSpace();
+    String actualHomeFolder = variables.environmentSubstitute( homeFolder );
+    String actualConfigFilename = variables.environmentSubstitute( getConfig().getEnvironmentConfigFilename() );
+    return FilenameUtils.concat( actualHomeFolder, actualConfigFilename );
+  }
+
+  public static final String getEnvironmentHomeFolder(String environmentName) {
+    return getConfig().getEnvironmentFolders().get(environmentName);
+  }
+
   /**
-   * Add or replace the provided environments in the list.
+   * Save the environment to disk.
    *
    * @param environment
    */
-  public static void save( Environment environment ) throws HopException {
-    List<Environment> environments = getConfig().getEnvironments();
-    int index = environments.indexOf( environment );
-    if ( index < 0 ) {
-      environments.add( environment );
-    } else {
-      environments.set( index, environment );
+  public static void save( String environmentName, Environment environment ) throws HopException {
+    String homeFolder = getEnvironmentHomeFolder( environmentName );
+    if ( StringUtils.isEmpty(homeFolder)) {
+      throw new HopException("The environment '"+environmentName+"' is not configured yet. The home folder for it is not defined.");
     }
+
+    String envFile = getActualEnvironmentConfigFilename( homeFolder );
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.writerWithDefaultPrettyPrinter().writeValue( new File( envFile ), environment );
+    } catch ( Exception e ) {
+      throw new HopException( "Error saving environment to file '" + envFile + "'", e );
+    }
+  }
+
+  public static boolean exists( String environmentName ) {
+    return StringUtils.isNotEmpty( getEnvironmentHomeFolder( environmentName ) );
+  }
+
+  public static Environment load( String environmentName ) throws HopException {
+    String homeFolder = getEnvironmentHomeFolder( environmentName );
+    if ( StringUtils.isEmpty(homeFolder)) {
+      throw new HopException("The environment '"+environmentName+"' is not configured yet. The home folder for it is not defined.");
+    }
+
+    String envFileName = getActualEnvironmentConfigFilename( homeFolder );
+    File envFile = new File(envFileName);
+    if (!envFile.exists()) {
+      return new Environment(); // just return an empty new one. This is not an error
+    }
+    try {
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.readValue( envFile, Environment.class );
+    } catch ( Exception e ) {
+      throw new HopException( "Error load environment from file '" + envFileName + "'", e );
+    }
+  }
+
+  /**
+   * It just removes from the index, not the file itself
+   *
+   * @param environmentName
+   */
+  public static void delete( String environmentName ) throws HopException {
+    getConfig().getEnvironmentFolders().remove( environmentName );
     saveConfig();
     HopConfig.saveToFile();
   }
 
-  public static boolean exists( String environmentName ) {
-    for ( Environment environment : getConfig().getEnvironments() ) {
-      if ( environment.getName().equals( environmentName ) ) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static Environment load( String environmentName ) {
-    for ( Environment environment : getConfig().getEnvironments() ) {
-      if ( environment.getName().equals( environmentName ) ) {
-        return environment;
-      }
-    }
-    return null;
-  }
-
-  private static int indexOf( String environmentName ) {
-    List<Environment> environments = getConfig().getEnvironments();
-    for ( int i = 0; i < environments.size(); i++ ) {
-      if ( environments.get( i ).getName().equals( environmentName ) ) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  public static Environment delete( String environmentName ) throws HopException {
-    int index = indexOf( environmentName );
-    if ( index < 0 ) {
-      return null;
-    } else {
-      Environment environment = getConfig().getEnvironments().remove( index );
-      saveConfig();
-      HopConfig.saveToFile();
-      return environment;
-    }
-  }
-
   public static List<String> getEnvironmentNames() {
-    List<String> list = new ArrayList<>();
-    for ( Environment environment : getConfig().getEnvironments() ) {
-      list.add( environment.getName() );
-    }
+    List<String> list = new ArrayList<>(getConfig().getEnvironmentFolders().keySet());
     Collections.sort( list );
     return list;
   }
 
+  public static void createEnvironment( String environmentName, String environmentHomeFolder ) throws HopException {
+    getConfig().getEnvironmentFolders().put(environmentName, environmentHomeFolder);
+    saveConfig();
+    HopConfig.saveToFile();
+  }
 }

@@ -35,7 +35,7 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
       }
       // Now we just enable this environment
       //
-      EnvironmentUtil.enableEnvironment( log, environment, hopRun.getMetadataProvider(), hopRun.getVariables() );
+      EnvironmentUtil.enableEnvironment( log, environmentName, environment, hopRun.getVariables() );
     } catch(Exception e) {
       throw new HopException( "Error enabling environment '"+environmentName+"'", e );
     }

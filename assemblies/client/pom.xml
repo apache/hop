@@ -59,19 +59,19 @@
         </exclusion>
       </exclusions>
     </dependency>
-<!--        TODO: Reactivate when we have new samples-->
-<!--    <dependency>-->
-<!--      <groupId>org.hop</groupId>-->
-<!--      <artifactId>hop-assemblies-samples</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--      <type>zip</type>-->
-<!--      <exclusions>-->
-<!--        <exclusion>-->
-<!--          <groupId>*</groupId>-->
-<!--          <artifactId>*</artifactId>-->
-<!--        </exclusion>-->
-<!--      </exclusions>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-demo</artifactId>
+      <version>${project.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <!-- swt -->
     <dependency>
       <groupId>org.eclipse.platform</groupId>
