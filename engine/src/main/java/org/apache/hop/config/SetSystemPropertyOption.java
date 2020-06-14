@@ -28,12 +28,12 @@ public class SetSystemPropertyOption implements IConfigOptions {
           if ( Utils.isEmpty( value ) ) {
             // Remove this property
             //
-            HopConfig.getConfigMap().remove( key );
+            HopConfig.getSystemProperties().remove( key );
             HopConfig.saveToFile();
             log.logBasic( "Removed system property '" + key + "'" );
           } else {
             log.logBasic( "Set system property '" + key + "'" );
-            HopConfig.saveOption( key, value );
+            HopConfig.saveSystemProperty( key, value );
           }
           changed=true;
         }

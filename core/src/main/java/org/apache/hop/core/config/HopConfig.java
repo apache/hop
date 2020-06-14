@@ -151,7 +151,7 @@ public class HopConfig {
     }
   }
 
-  public synchronized static Map<String, String> readSystemProperties() {
+  public synchronized static Map<String, String> getSystemProperties() {
     try {
       Object propertiesObject = getInstance().configMap.get( HOP_SYSTEM_PROPERTIES_KEY );
       if ( propertiesObject == null ) {
@@ -168,7 +168,7 @@ public class HopConfig {
 
   public static void saveSystemProperty( String key, String value ) {
     try {
-      readSystemProperties().put( key, value );
+      getSystemProperties().put( key, value );
       saveToFile();
     } catch ( HopException e ) {
       throw new RuntimeException( "Error adding system property key '" + key + "' with value '" + value + "'", e );
@@ -177,7 +177,7 @@ public class HopConfig {
 
   public synchronized static void saveSystemProperties( Map<String, String> map ) {
     try {
-      readSystemProperties().putAll( map );
+      getSystemProperties().putAll( map );
       saveToFile();
     } catch ( HopException e ) {
       throw new RuntimeException( "Error adding system properties map with " + map.size() + " entries", e );

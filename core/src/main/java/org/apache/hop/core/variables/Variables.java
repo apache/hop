@@ -118,7 +118,7 @@ public class Variables implements IVariables {
 
     // Also get the Hop system properties if they're available
     //
-    Map<String, String> systemProperties = HopConfig.readSystemProperties();
+    Map<String, String> systemProperties = HopConfig.getSystemProperties();
     if (systemProperties!=null) {
       getProperties().putAll(systemProperties);
     } else {

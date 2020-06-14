@@ -183,7 +183,7 @@ public class HopSystemPropertiesDialog extends Dialog {
 
       // Here are the current properties...
       //
-      systemProperties = HopConfig.readSystemProperties();
+      systemProperties = HopConfig.getSystemProperties();
 
       // Obtain and sort the list of keys...
       //
