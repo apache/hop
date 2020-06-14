@@ -15,16 +15,22 @@ import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
+import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.MessageBox;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -160,6 +166,64 @@ public class EnvironmentGuiPlugin {
         selectEnvironmentInList( environmentName );
         enableHopGuiEnvironment( environmentName, environment );
       }
+
+      // Now see if these environment contains any local run configurations.
+      // If not we can add those automatically
+      //
+      // First pipeline
+      //
+      IHopMetadataSerializer<PipelineRunConfiguration> prcSerializer = hopGui.getMetadataProvider().getSerializer( PipelineRunConfiguration.class );
+      List<PipelineRunConfiguration> pipelineRunConfigs = prcSerializer.loadAll();
+      boolean localFound = false;
+      for ( PipelineRunConfiguration pipelineRunConfig : pipelineRunConfigs ) {
+        if ( pipelineRunConfig.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) {
+          localFound = true;
+        }
+      }
+      if ( !localFound ) {
+        MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+        box.setText( "Create local pipeline run configuration?" );
+        box.setMessage( "Do you want to have a local pipeline run configuration for this environment?" );
+        int anwser = box.open();
+        if ( ( anwser & SWT.YES ) != 0 ) {
+          LocalPipelineRunConfiguration localPipelineRunConfiguration = new LocalPipelineRunConfiguration();
+          localPipelineRunConfiguration.setEnginePluginId( "Local" );
+          PipelineRunConfiguration local = new PipelineRunConfiguration(
+            "local",
+            "Runs your pipelines locally with the standard local Hop pipeline engine",
+            new ArrayList<>(),
+            localPipelineRunConfiguration );
+          prcSerializer.save( local );
+        }
+      }
+
+      // Now workflow
+      //
+      IHopMetadataSerializer<WorkflowRunConfiguration> wrcSerializer = hopGui.getMetadataProvider().getSerializer( WorkflowRunConfiguration.class );
+      localFound = false;
+      List<WorkflowRunConfiguration> workflowRunConfigs = wrcSerializer.loadAll();
+      for ( WorkflowRunConfiguration workflowRunConfig : workflowRunConfigs ) {
+        if ( workflowRunConfig.getEngineRunConfiguration() instanceof LocalWorkflowRunConfiguration ) {
+          localFound = true;
+        }
+      }
+      if ( !localFound ) {
+        MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+        box.setText( "Create local workflow run configuration?" );
+        box.setMessage( "Do you want to have a local workflow run configuration for this environment?" );
+        int anwser = box.open();
+        if ( ( anwser & SWT.YES ) != 0 ) {
+          LocalWorkflowRunConfiguration localWorkflowRunConfiguration = new LocalWorkflowRunConfiguration();
+          localWorkflowRunConfiguration.setEnginePluginId( "Local" );
+          WorkflowRunConfiguration local = new WorkflowRunConfiguration(
+            "local",
+            "Runs your workflows locally with the standard local Hop workflow engine",
+            localWorkflowRunConfiguration );
+          wrcSerializer.save( local );
+        }
+      }
+
+
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error adding environment", e );
     }
@@ -183,15 +247,16 @@ public class EnvironmentGuiPlugin {
 
     MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
     box.setText( "Delete?" );
-    box.setMessage( "Do you want to delete environment '"+environmentName+"' from the configuration?"+Const.CR+"Please note that the folder '"+environmentHomeFolder+"' or the environment configuration file "+EnvironmentConfigSingleton.getConfig().getEnvironmentConfigFilename()+" in it are not removed or altered in any way." );
+    box.setMessage( "Do you want to delete environment '" + environmentName + "' from the configuration?" + Const.CR + "Please note that the folder '" + environmentHomeFolder
+      + "' or the environment configuration file " + EnvironmentConfigSingleton.getConfig().getEnvironmentConfigFilename() + " in it are not removed or altered in any way." );
     int anwser = box.open();
-    if ((anwser&SWT.YES)!=0) {
+    if ( ( anwser & SWT.YES ) != 0 ) {
       try {
         EnvironmentConfigSingleton.delete( environmentName );
         refreshEnvironmentsList();
         selectEnvironmentInList( null );
-      } catch(Exception e) {
-        new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error removing environment '"+environmentName+"'", e );
+      } catch ( Exception e ) {
+        new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error removing environment '" + environmentName + "'", e );
       }
     }
   }
