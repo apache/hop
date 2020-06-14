@@ -98,7 +98,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     //
     updateHopConfig( environmentName, environmentHome );
 
-    Environment environment = EnvironmentConfigSingleton.load( environmentHome );
+    Environment environment = EnvironmentConfigSingleton.load( environmentName );
 
     updateEnvironmentVariables( environment );
 
