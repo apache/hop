@@ -23,8 +23,9 @@
 package org.apache.hop.pipeline.transforms.setvariable;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -34,10 +35,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -47,7 +46,16 @@ import java.util.List;
  * <p>
  * Created on 27-apr-2006
  */
-public class SetVariableMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+  id = "SetVariable",
+  i18nPackageName = "org.apache.hop.pipeline.transforms.setvariable",
+  name = "BaseTransform.TypeLongDesc.SetVariable",
+  description = "BaseTransform.TypeTooltipDesc.SetVariable",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvariable.html",
+  image = "ui/images/SVG.svg"
+)
+public class SetVariableMeta extends BaseTransformMeta implements ITransformMeta<SetVariable,SetVariableData> {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int VARIABLE_TYPE_JVM = 0;
@@ -55,10 +63,19 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
   public static final int VARIABLE_TYPE_GRAND_PARENT_WORKFLOW = 2;
   public static final int VARIABLE_TYPE_ROOT_WORKFLOW = 3;
 
-  private static final String[] variableTypeCode = { "JVM", "PARENT_WORKFLOW", "GP_WORKFLOW", "ROOT_WORKFLOW" };
+  private static final String[] variableTypeCode = {
+    "JVM",
+    "PARENT_WORKFLOW",
+    "GP_WORKFLOW",
+    "ROOT_WORKFLOW",
+  };
+
   private static final String[] variableTypeDesc = {
-    "Valid in the Java Virtual Machine", "Valid in the parent workflow", "Valid in the grand-parent workflow",
-    "Valid in the root workflow" };
+    "Valid in the Java Virtual Machine",
+    "Valid in the parent workflow",
+    "Valid in the grand-parent workflow",
+    "Valid in the root workflow",
+  };
 
   private String[] fieldName;
   private String[] variableName;
@@ -281,12 +298,12 @@ public class SetVariableMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  public SetVariable createTransform( TransformMeta transformMeta, SetVariableData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return new SetVariable( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
-  public ITransformData getTransformData() {
+  public SetVariableData getTransformData() {
     return new SetVariableData();
   }
 

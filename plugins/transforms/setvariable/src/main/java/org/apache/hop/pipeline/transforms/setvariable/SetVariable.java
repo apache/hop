@@ -28,13 +28,14 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Job;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * Convert Values in a certain fields to other values
@@ -42,21 +43,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt
  * @since 27-apr-2006
  */
-public class SetVariable extends BaseTransform implements ITransform {
+public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> implements ITransform<SetVariableMeta,SetVariableData> {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SetVariableMeta meta;
-  private SetVariableData data;
-
-  public SetVariable( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public SetVariable( TransformMeta transformMeta, SetVariableMeta meta, SetVariableData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (SetVariableMeta) smi;
-    data = (SetVariableData) sdi;
-
     // Get one row from one of the rowsets...
     //
     Object[] rowData = getRow();
@@ -92,8 +87,7 @@ public class SetVariable extends BaseTransform implements ITransform {
       return true;
     }
 
-    throw new HopTransformException( BaseMessages.getString(
-      PKG, "SetVariable.RuntimeError.MoreThanOneRowReceived.SETVARIABLE0007" ) );
+    throw new HopTransformException( BaseMessages.getString(PKG, "SetVariable.RuntimeError.MoreThanOneRowReceived.SETVARIABLE0007" ) );
   }
 
   private void setValue( Object[] rowData, int i, boolean usedefault ) throws HopException {
@@ -135,7 +129,7 @@ public class SetVariable extends BaseTransform implements ITransform {
       }
     }
 
-    Job parentJob = null;
+    IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
     // We always set the variable in this transform and in the parent pipeline...
     //
@@ -143,7 +137,7 @@ public class SetVariable extends BaseTransform implements ITransform {
 
     // Set variable in the pipeline
     //
-    Pipeline pipeline = getPipeline();
+    IPipelineEngine<PipelineMeta> pipeline = getPipeline();
     pipeline.setVariable( varname, value );
 
     // Make a link between the pipeline and the parent pipeline (in a sub-pipeline)
@@ -162,30 +156,30 @@ public class SetVariable extends BaseTransform implements ITransform {
 
         System.setProperty( varname, value );
 
-        parentJob = pipeline.getParentJob();
-        while ( parentJob != null ) {
-          parentJob.setVariable( varname, value );
-          parentJob = parentJob.getParentJob();
+        parentWorkflow = pipeline.getParentWorkflow();
+        while ( parentWorkflow != null ) {
+          parentWorkflow.setVariable( varname, value );
+          parentWorkflow = parentWorkflow.getParentWorkflow();
         }
 
         break;
       case SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW:
         // Comments by SB
         // IVariables rootJob = null;
-        parentJob = pipeline.getParentJob();
-        while ( parentJob != null ) {
-          parentJob.setVariable( varname, value );
-          // rootJob = parentJob;
-          parentJob = parentJob.getParentJob();
+        parentWorkflow = pipeline.getParentWorkflow();
+        while ( parentWorkflow != null ) {
+          parentWorkflow.setVariable( varname, value );
+          // rootJob = parentWorkflow;
+          parentWorkflow = parentWorkflow.getParentWorkflow();
         }
         break;
 
       case SetVariableMeta.VARIABLE_TYPE_GRAND_PARENT_WORKFLOW:
         // Set the variable in the parent workflow
         //
-        parentJob = pipeline.getParentJob();
-        if ( parentJob != null ) {
-          parentJob.setVariable( varname, value );
+        parentWorkflow = pipeline.getParentWorkflow();
+        if ( parentWorkflow != null ) {
+          parentWorkflow.setVariable( varname, value );
         } else {
           throw new HopTransformException( "Can't set variable ["
             + varname + "] on parent workflow: the parent workflow is not available" );
@@ -193,7 +187,7 @@ public class SetVariable extends BaseTransform implements ITransform {
 
         // Set the variable on the grand-parent workflow
         //
-        IVariables gpJob = pipeline.getParentJob().getParentJob();
+        IVariables gpJob = pipeline.getParentWorkflow().getParentWorkflow();
         if ( gpJob != null ) {
           gpJob.setVariable( varname, value );
         } else {
@@ -205,12 +199,11 @@ public class SetVariable extends BaseTransform implements ITransform {
       case SetVariableMeta.VARIABLE_TYPE_PARENT_WORKFLOW:
         // Set the variable in the parent workflow
         //
-        parentJob = pipeline.getParentJob();
-        if ( parentJob != null ) {
-          parentJob.setVariable( varname, value );
+        parentWorkflow = pipeline.getParentWorkflow();
+        if ( parentWorkflow != null ) {
+          parentWorkflow.setVariable( varname, value );
         } else {
-          throw new HopTransformException( "Can't set variable ["
-            + varname + "] on parent workflow: the parent workflow is not available" );
+          throw new HopTransformException( "Can't set variable [" + varname + "] on parent workflow: the parent workflow is not available" );
         }
         break;
 
@@ -220,22 +213,4 @@ public class SetVariable extends BaseTransform implements ITransform {
 
     logBasic( BaseMessages.getString( PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[ i ], value ) );
   }
-
-  public void.dispose() {
-    meta = (SetVariableMeta) smi;
-    data = (SetVariableData) sdi;
-
-    super.dispose();
-  }
-
-  public boolean init() {
-    meta = (SetVariableMeta) smi;
-    data = (SetVariableData) sdi;
-
-    if ( super.init() ) {
-      return true;
-    }
-    return false;
-  }
-
 }
