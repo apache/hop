@@ -20,26 +20,24 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.setvariable;
+package org.apache.hop.pipeline.transforms.setvariable;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.setvariable.SetVariableMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -67,6 +65,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@PluginDialog(
+  id = "SetVariable",
+  image = "SVA.svg",
+  pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -93,7 +96,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
   public SetVariableDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SetVariableMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -374,7 +377,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
           0,
           BaseMessages.getString( PKG, "SetVariableDialog.UsageWarning.Option2" ),
           "N".equalsIgnoreCase( props.getCustomParameter( STRING_USAGE_WARNING_PARAMETER, "Y" ) ) );
-      MessageDialogWithToggle.setDefaultImage( GUIResource.getInstance().getImageHopUi() );
+      MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
       md.open();
       props.setCustomParameter( STRING_USAGE_WARNING_PARAMETER, md.getToggleState() ? "N" : "Y" );
     }
@@ -387,13 +390,11 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, new TableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-              tableItem.setText( 2, v.getName().toUpperCase() );
-              tableItem.setText( 3, SetVariableMeta
-                .getVariableTypeDescription( SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW ) );
-              return true;
-            }
+          r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, ( tableItem, v ) -> {
+            tableItem.setText( 2, v.getName().toUpperCase() );
+            tableItem.setText( 3, SetVariableMeta
+              .getVariableTypeDescription( SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW ) );
+            return true;
           } );
       }
     } catch ( HopException ke ) {
