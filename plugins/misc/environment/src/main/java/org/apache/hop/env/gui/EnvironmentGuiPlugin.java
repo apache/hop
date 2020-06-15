@@ -362,5 +362,15 @@ public class EnvironmentGuiPlugin {
 
   public static void selectEnvironmentInList( String name ) {
     HopGui.getInstance().getMainToolbarWidgets().selectComboItem( ID_TOOLBAR_ENVIRONMENT_COMBO, name );
+
+    // Update the combo tooltip with the home folder
+    //
+    Combo environmentsCombo = getInstance().getEnvironmentsCombo();
+    if (environmentsCombo!=null) {
+      String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( name );
+      if (StringUtils.isNotEmpty( environmentHomeFolder )) {
+        environmentsCombo.setToolTipText( environmentHomeFolder );
+      }
+    }
   }
 }
