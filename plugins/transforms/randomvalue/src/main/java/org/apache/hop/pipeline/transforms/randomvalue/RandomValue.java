@@ -25,8 +25,8 @@ package org.apache.hop.pipeline.transforms.randomvalue;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.UUID4Util;
-import org.apache.hop.core.util.UUIDUtil;
+import org.apache.hop.core.util.Uuid4Util;
+import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -48,7 +48,7 @@ import java.util.List;
  * @author Matt, Samatar
  * @since 8-8-2008
  */
-public class RandomValue extends BaseTransform implements ITransform {
+public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> implements ITransform<RandomValueMeta, RandomValueData> {
 
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -56,7 +56,7 @@ public class RandomValue extends BaseTransform implements ITransform {
 
   private RandomValueData data;
 
-  public RandomValue( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public RandomValue( TransformMeta transformMeta, RandomValueMeta meta, RandomValueData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -80,7 +80,7 @@ public class RandomValue extends BaseTransform implements ITransform {
           row[ index ] = Long.toString( Math.abs( data.randomgen.nextLong() ), 32 );
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID:
-          row[ index ] = UUIDUtil.getUUIDAsString();
+          row[ index ] = UuidUtil.getUUIDAsString();
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID4:
           row[ index ] = data.u4.getUUID4AsString();
@@ -197,11 +197,9 @@ public class RandomValue extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (RandomValueMeta) smi;
-    data = (RandomValueData) sdi;
 
     if ( super.init() ) {
-      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
+//      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
       if ( previous != null && previous.size() > 0 ) {
         data.readsRows = true;
@@ -242,14 +240,14 @@ public class RandomValue extends BaseTransform implements ITransform {
         }
       }
       if ( uuid4 ) {
-        data.u4 = new UUID4Util();
+        data.u4 = new Uuid4Util();
       }
       return true;
     }
     return false;
   }
 
-  public void.dispose() {
+  public void dispose() {
     super.dispose();
   }
 
