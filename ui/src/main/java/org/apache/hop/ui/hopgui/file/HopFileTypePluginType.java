@@ -30,11 +30,9 @@ import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
-
 @PluginMainClassType( IHopFileType.class )
 @PluginAnnotationType( HopFileTypePlugin.class )
-public class HopFileTypePluginType extends BasePluginType implements IPluginType {
+public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> implements IPluginType<HopFileTypePlugin> {
 
   private HopFileTypePluginType() {
     super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type Plugins" );
@@ -77,17 +75,17 @@ public class HopFileTypePluginType extends BasePluginType implements IPluginType
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (HopFileTypePlugin) annotation ).description();
+  protected String extractDesc( HopFileTypePlugin annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (HopFileTypePlugin) annotation ).id();
+  protected String extractID( HopFileTypePlugin annotation ) {
+    return  annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (HopFileTypePlugin) annotation ).name();
+  protected String extractName( HopFileTypePlugin annotation ) {
+    return  annotation.name();
   }
 }
