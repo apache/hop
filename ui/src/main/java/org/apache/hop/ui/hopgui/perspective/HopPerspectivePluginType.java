@@ -29,11 +29,9 @@ import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.plugins.IPluginType;
 
-import java.lang.annotation.Annotation;
-
 @PluginMainClassType( IHopPerspective.class )
 @PluginAnnotationType( HopPerspectivePlugin.class )
-public class HopPerspectivePluginType extends BasePluginType implements IPluginType {
+public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugin> implements IPluginType<HopPerspectivePlugin> {
 
   private HopPerspectivePluginType() {
     super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective Plugin" );
@@ -71,17 +69,17 @@ public class HopPerspectivePluginType extends BasePluginType implements IPluginT
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (HopPerspectivePlugin) annotation ).description();
+  protected String extractDesc( HopPerspectivePlugin annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (HopPerspectivePlugin) annotation ).id();
+  protected String extractID( HopPerspectivePlugin annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (HopPerspectivePlugin) annotation ).name();
+  protected String extractName( HopPerspectivePlugin annotation ) {
+    return annotation.name();
   }
 }
