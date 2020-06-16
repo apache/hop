@@ -156,7 +156,7 @@ public class EnvironmentGuiPlugin {
 
       // Save it in the hop config JSON configuration file
       //
-      EnvironmentConfigSingleton.createEnvironment( environmentName, environmentHomeFolder );
+      EnvironmentConfigSingleton.saveEnvironment( environmentName, environmentHomeFolder );
 
       Environment environment = new Environment();
       EnvironmentDialog environmentDialog = new EnvironmentDialog( hopGui.getShell(), environment, environmentName, environmentHomeFolder, hopGui.getVariables() );

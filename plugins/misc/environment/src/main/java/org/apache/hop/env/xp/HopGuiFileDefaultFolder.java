@@ -5,10 +5,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
+import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
-import org.eclipse.swt.widgets.FileDialog;
 
 public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialogExtension> {
 
@@ -24,7 +24,7 @@ public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialog
     try {
       String homeFolder = variables.environmentSubstitute( EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName ) );
       if (homeFolder!=null) {
-        FileDialog dialog = ext.getFileDialog();
+        IFileDialog dialog = ext.getFileDialog();
         dialog.setFilterPath(homeFolder);
       }
     } catch(Exception e) {
