@@ -33,8 +33,6 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
-import org.apache.hop.core.dnd.DragAndDropContainer;
-import org.apache.hop.core.dnd.XMLTransfer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -64,7 +62,6 @@ import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -91,7 +88,6 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transforms.tableinput.TableInputMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -144,11 +140,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -555,155 +546,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     canvas.addMouseWheelListener( this );
     // canvas.addKeyListener( this );
 
-    // Drag & Drop for transforms
-    Transfer[] ttypes = new Transfer[] { XMLTransfer.getInstance() };
-    DropTarget ddTarget = new DropTarget( canvas, DND.DROP_MOVE );
-    ddTarget.setTransfer( ttypes );
-    ddTarget.addDropListener( new DropTargetListener() {
-      @Override
-      public void dragEnter( DropTargetEvent event ) {
-        clearSettings();
-
-        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
-
-        redraw();
-      }
-
-      @Override
-      public void dragLeave( DropTargetEvent event ) {
-        drop_candidate = null;
-        redraw();
-      }
-
-      @Override
-      public void dragOperationChanged( DropTargetEvent event ) {
-      }
-
-      @Override
-      public void dragOver( DropTargetEvent event ) {
-        drop_candidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
-
-        redraw();
-      }
-
-      @Override
-      public void drop( DropTargetEvent event ) {
-        // no data to copy, indicate failure in event.detail
-        if ( event.data == null ) {
-          event.detail = DND.DROP_NONE;
-          return;
-        }
-
-        // What's the real drop position?
-        Point p = getRealPosition( canvas, event.x, event.y );
-
-        //
-        // We expect a Drag and Drop container... (encased in XML)
-        try {
-          DragAndDropContainer container = (DragAndDropContainer) event.data;
-
-          TransformMeta transformMeta = null;
-          boolean newTransform = false;
-
-          switch ( container.getType() ) {
-            // Put an existing one on the canvas.
-            case DragAndDropContainer.TYPE_TRANSFORM:
-              // Drop hidden transform onto canvas....
-              transformMeta = pipelineMeta.findTransform( container.getData() );
-              if ( transformMeta != null ) {
-                if ( pipelineMeta.isTransformUsedInPipelineHops( transformMeta ) ) {
-                  modalMessageDialog( BaseMessages.getString( PKG, "PipelineGraph.Dialog.TransformIsAlreadyOnCanvas.Title" ),
-                    BaseMessages.getString( PKG, "PipelineGraph.Dialog.TransformIsAlreadyOnCanvas.Message" ), SWT.OK );
-                  return;
-                }
-                // This transform gets the drawn attribute and position set below.
-              } else {
-                // Unknown transform dropped: ignore this to be safe!
-                return;
-              }
-              break;
-
-            // Create a new transform
-            case DragAndDropContainer.TYPE_BASE_TRANSFORM_TYPE:
-              // Not an existing transform: data refers to the type of transform to create
-              String id = container.getId();
-              String name = container.getData();
-              transformMeta = pipelineTransformDelegate.newTransform( pipelineMeta, id, name, name, false, true, p );
-              if ( transformMeta != null ) {
-                newTransform = true;
-              } else {
-                return; // Cancelled pressed in dialog or unable to create transform.
-              }
-              break;
-
-            // Create a new TableInput transform using the selected connection...
-            case DragAndDropContainer.TYPE_DATABASE_CONNECTION:
-              newTransform = true;
-              String connectionName = container.getData();
-              TableInputMeta tii = new TableInputMeta();
-              tii.setDatabaseMeta( pipelineMeta.findDatabase( connectionName ) );
-              PluginRegistry registry = PluginRegistry.getInstance();
-              String transformID = registry.getPluginId( TransformPluginType.class, tii );
-              IPlugin transformPlugin = registry.findPluginWithId( TransformPluginType.class, transformID );
-              String transformName = pipelineMeta.getAlternativeTransformName( transformPlugin.getName() );
-              transformMeta = new TransformMeta( transformID, transformName, tii );
-              if ( pipelineTransformDelegate.editTransform( pipelineMeta, transformMeta ) != null ) {
-                pipelineMeta.addTransform( transformMeta );
-                redraw();
-              } else {
-                return;
-              }
-              break;
-
-            // Drag hop on the canvas: create a new Hop...
-            case DragAndDropContainer.TYPE_PIPELINE_HOP:
-              newHop();
-              return;
-
-            default:
-              // Nothing we can use: give an error!
-              modalMessageDialog( BaseMessages.getString( PKG, "PipelineGraph.Dialog.ItemCanNotBePlacedOnCanvas.Title" ),
-                BaseMessages.getString( PKG, "PipelineGraph.Dialog.ItemCanNotBePlacedOnCanvas.Message" ), SWT.OK );
-              return;
-          }
-
-          pipelineMeta.unselectAll();
-
-          TransformMeta before = null;
-          if ( !newTransform ) {
-            before = (TransformMeta) transformMeta.clone();
-          }
-
-
-          transformMeta.setSelected( true );
-          PropsUi.setLocation( transformMeta, p.x, p.y );
-
-          if ( newTransform ) {
-            hopGui.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
-          } else {
-            hopGui.undoDelegate.addUndoChange( pipelineMeta, new TransformMeta[] { before }, new TransformMeta[] { (TransformMeta) transformMeta.clone() },
-              new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
-          }
-
-          forceFocus();
-          redraw();
-
-          // See if we want to draw a tool tip explaining how to create new hops...
-          //
-          if ( newTransform && pipelineMeta.nrTransforms() > 1 && pipelineMeta.nrTransforms() < 5 && hopGui.getProps().isShowingHelpToolTips() ) {
-            showHelpTip( p.x, p.y, BaseMessages.getString( PKG, "PipelineGraph.HelpToolTip.CreatingHops.Title" ),
-              BaseMessages.getString( PKG, "PipelineGraph.HelpToolTip.CreatingHops.Message" ) );
-          }
-        } catch ( Exception e ) {
-          new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "PipelineGraph.Dialog.ErrorDroppingObject.Message" ),
-            BaseMessages.getString( PKG, "PipelineGraph.Dialog.ErrorDroppingObject.Title" ), e );
-        }
-      }
-
-      @Override
-      public void dropAccept( DropTargetEvent event ) {
-      }
-    } );
 
     setBackground( GuiResource.getInstance().getColorBackground() );
 
