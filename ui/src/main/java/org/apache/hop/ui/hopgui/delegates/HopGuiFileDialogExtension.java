@@ -22,15 +22,15 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.eclipse.swt.widgets.FileDialog;
+import org.apache.hop.ui.core.dialog.IFileDialog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopGuiFileDialogExtension {
   public AtomicBoolean doIt;
-  public FileDialog fileDialog;
+  public IFileDialog fileDialog;
 
-  public HopGuiFileDialogExtension( AtomicBoolean doIt, FileDialog fileDialog ) {
+  public HopGuiFileDialogExtension( AtomicBoolean doIt, IFileDialog fileDialog ) {
     this.doIt = doIt;
     this.fileDialog = fileDialog;
   }
@@ -56,14 +56,14 @@ public class HopGuiFileDialogExtension {
    *
    * @return value of fileDialog
    */
-  public FileDialog getFileDialog() {
+  public IFileDialog getFileDialog() {
     return fileDialog;
   }
 
   /**
    * @param fileDialog The fileDialog to set
    */
-  public void setFileDialog( FileDialog fileDialog ) {
+  public void setFileDialog( IFileDialog fileDialog ) {
     this.fileDialog = fileDialog;
   }
 }

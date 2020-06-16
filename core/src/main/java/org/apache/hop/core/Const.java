@@ -759,6 +759,11 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_VFS_PLUGINS = "hop-vfs-plugins.xml";
+
+  /**
    * The XML file that contains the list of native Hop metadata plugins (DatabaseMeta, SlaveServer, ...)
    */
   public static final String XML_FILE_HOP_METADATA_PLUGINS = "hop-metadata-plugins.xml";

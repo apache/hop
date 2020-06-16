@@ -25,6 +25,7 @@ package org.apache.hop.history;
 import org.apache.hop.core.exception.HopException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface describes all the things you can do with a history manager
@@ -104,4 +105,22 @@ public interface IAuditManager {
    * @throws HopException
    */
   void saveAuditStateMap( String group, String type, AuditStateMap auditStateMap ) throws HopException;
+
+  /**
+   * Load a map of String values for a given group for a given type
+   * @param group
+   * @param type
+   * @return The map
+   * @throws HopException
+   */
+  Map<String, String> loadMap(String group, String type) throws HopException;
+
+  /**
+   * Store a Strings Map
+   * @param group
+   * @param type
+   * @param map The map to save
+   * @throws HopException
+   */
+  void saveMap(String group, String type, Map<String,String> map) throws HopException;
 }

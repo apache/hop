@@ -30,6 +30,7 @@
         <module>actions</module>
         <module>misc</module>
         <module>engines</module>
+        <module>vfs</module>
       </modules>
     </profile>
 

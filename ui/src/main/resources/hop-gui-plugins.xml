@@ -84,4 +84,10 @@
   </gui-plugin>
   -->
 
+  <!-- The VFS file dialog is a GUI plugin as well -->
+  <gui-plugin>
+    <classname>org.apache.hop.ui.core.vfs.HopVfsFileDialog</classname>
+    <description>Allows you to browse to local or VFS locations</description>
+  </gui-plugin>
+
 </gui-plugins>

@@ -84,7 +84,10 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     order = "20040-dataflow-options",
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
-    label = "Maximum number of workers"
+    label = "Maximum number of workers",
+    toolTip = "The maximum number of workers to use for the workerpool. This options limits the "
+      + "size of the workerpool for the lifetime of the job, including pipeline updates. "
+      + "If left unspecified, the Dataflow service will compute a ceiling."
   )
   @HopMetadataProperty
   private String gcpMaximumNumberOfWorkers;
