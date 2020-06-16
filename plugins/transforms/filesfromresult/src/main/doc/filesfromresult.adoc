@@ -5,7 +5,7 @@
 
 == Description
 
-Every time a file gets processed, used or created in a pipeline or a job, the details of the file, the job entry, the transform, etc. is captured and added to an internal result set when the option 'Add file names to result' is set, e.g. in a Text File Output transform. You can access this file information using this transform.
+Every time a file gets processed, used or created in a pipeline or a workflow, the details of the file, the workflow action, the transform, etc. is captured and added to an internal result set when the option 'Add file names to result' is set, e.g. in a Text File Output transform. You can access this file information using this transform.
 
 == Options
 

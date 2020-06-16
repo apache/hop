@@ -11,7 +11,7 @@ This streaming transform is recommended when you have limitations with other tra
 * You need fast data loads which are independent of the memory regardless of the file size.
 * You need flexibility in reading various parts of the XML file in different ways, and do not want to repeatedly parse the file.
 
-Because the processing logic of some XML files can be complex, you should have a good knowledge of the existing Kettle transforms when using this transform.
+Because the processing logic of some XML files can be complex, you should have a good knowledge of the existing Hop transforms when using this transform.
 
 == Options
 

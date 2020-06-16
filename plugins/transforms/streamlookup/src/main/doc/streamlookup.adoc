@@ -17,7 +17,7 @@ The Stream lookup transform type allows you to look up data using information co
 |Lookup Transform|The Transform name where the lookup data is coming from
 |The keys to lookup...|Allows you to specify the names of the fields that are used to look up values. Values are always searched using the "equal" comparison
 |Fields to retrieve|You can specify the names of the fields to retrieve here, as well as the default value in case the value was not found or a new field name in case you didn't like the old one.
-|Preserve memory|Encodes rows of data to preserve memory while sorting. (Technical background: Kettle will store the lookup data as raw bytes in a custom storage object that uses a hashcode of the bytes as the key. More CPU cost related to calculating the hashcode, less memory needed.)
+|Preserve memory|Encodes rows of data to preserve memory while sorting. (Technical background: Hop will store the lookup data as raw bytes in a custom storage object that uses a hashcode of the bytes as the key. More CPU cost related to calculating the hashcode, less memory needed.)
 |Key and value are exactly one integer field|Preserves memory while executing a sort by . Note: Works only when "Preserve memory" is checked. Cannot be combined with the "Use sorted list" option.
 |Use sorted list|Enable to store values using a sorted list; this provides better memory usage when working with data sets containing wide row. Note: Works only when "Preserve memory" is checked. Cannot be combined with the "Key and value are exactly one integer field" option. 
 |Get fields|Automatically fills in the names of all the available fields on the source side (A); you can then delete all the fields you don't want to use for lookup.

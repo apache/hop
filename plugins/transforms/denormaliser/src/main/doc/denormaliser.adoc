@@ -21,7 +21,7 @@ If you get key-value pair collisions (key is not unique for the group specified)
 |===
 
 == Metadata Injection Support
-You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your transformation at runtime. The following Value fields of the Row Denormaliser transform support metadata injection:
+You can use the Metadata Injection supported fields with ETL Metadata Injection transform to pass metadata to your pipeline at runtime. The following Value fields of the Row Denormaliser transform support metadata injection:
 
 * Target Filename, Value Fieldname, Key Value, Type, Format, Length, Precision, Currency, Decimal, Group, and Aggregation
 
