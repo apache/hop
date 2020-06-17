@@ -494,7 +494,7 @@ public class HopVfsFileDialog implements IFileDialog {
     // Browse to the selected file location...
     //
     try {
-      activeFileObject = HopVfs.getFileObject( filename, variables );
+      activeFileObject = HopVfs.getFileObject( filename );
       if ( activeFileObject.isFolder() ) {
         activeFolder = activeFileObject;
       } else {
@@ -512,7 +512,7 @@ public class HopVfsFileDialog implements IFileDialog {
       populateFolder( activeFolder, parentFolderItem );
 
       parentFolderItem.setExpanded( true );
-    } catch ( Exception e ) {
+    } catch ( Throwable e ) {
       wDetails.setText( "Error browsing to location: " + filename + Const.CR + Const.NVL( Const.getSimpleStackTrace( e ), "" ) );
     }
 
@@ -554,7 +554,7 @@ public class HopVfsFileDialog implements IFileDialog {
       }
     }
     for ( final FileObject child : children ) {
-      if ( child.isFolder() ) {
+      if ( child.isFile() ) {
         String baseFilename = child.getName().getBaseName();
         if (!showingHiddenFiles && baseFilename.startsWith( "." )) {
           continue;
