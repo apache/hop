@@ -65,8 +65,8 @@ public class GoogleDriveFileSystem extends AbstractFileSystem implements FileSys
       if ( file == null ) {
         try {
           file = this.createFile( (AbstractFileName) name );
-        } catch ( Exception var5 ) {
-          return null;
+        } catch ( Exception e ) {
+          throw new FileSystemException( "Unable to get Google Drive file object for '"+name+"'", e );
         }
 
         file = super.decorateFileObject( file );

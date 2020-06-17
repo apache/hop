@@ -10,7 +10,7 @@
         <version>0.30-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-plugins-vfs-gs</artifactId>
+    <artifactId>hop-plugins-vfs-googledrive</artifactId>
     <packaging>jar</packaging>
 
     <name>Hop Plugins VFS gs://</name>

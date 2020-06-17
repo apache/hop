@@ -52,7 +52,7 @@ import java.util.ResourceBundle;
 
 public class GoogleDriveFileObject extends AbstractFileObject {
 
-  public static final String PROJECT_NAME = "pentaho-googledrive-vfs";
+  public static final String PROJECT_NAME = "googledrive";
 
   private static final List<String> SCOPES = Arrays.asList( DriveScopes.DRIVE );
   private CustomDataStoreFactory DATA_STORE_FACTORY;
