@@ -24,18 +24,16 @@ package org.apache.hop.core.plugins;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A folder to search plugins in.
@@ -104,35 +102,44 @@ public class PluginFolder implements IPluginFolder {
   }
 
   @Override
-  public FileObject[] findJarFiles() throws HopFileException {
+  public File[] findJarFiles() throws HopFileException {
     return findJarFiles( searchLibDir );
   }
 
-  public FileObject[] findJarFiles( final boolean includeLibJars ) throws HopFileException {
+  public File[] findJarFiles( final boolean includeLibJars ) throws HopFileException {
 
     try {
       // Find all the jar files in this folder...
       //
-      FileObject folderObject = HopVfs.getFileObject( this.getFolder() );
+      File folderFile = new File( this.getFolder() );
 
-      return folderObject.findFiles( new FileSelector() {
-        @Override
-        public boolean traverseDescendents( FileSelectInfo fileSelectInfo ) throws Exception {
-          FileObject fileObject = fileSelectInfo.getFile();
-          String folder = fileObject.getName().getBaseName();
-          FileObject kettleIgnore = fileObject.getChild( ".kettle-ignore" );
-          return includeLibJars || ( kettleIgnore == null && !"lib".equals( folder ) );
-        }
+      Set<File> pluginJarFiles = findFiles(folderFile);
 
-        @Override
-        public boolean includeFile( FileSelectInfo fileSelectInfo ) throws Exception {
-          FileObject file = fileSelectInfo.getFile();
-          return file.isFile() && file.toString().endsWith( ".jar" );
-        }
-      } );
+      return pluginJarFiles.toArray(new File[0]);
     } catch ( Exception e ) {
       throw new HopFileException( "Unable to list jar files in plugin folder '" + toString() + "'", e );
     }
+  }
+
+  private Set<File> findFiles( File folder ) {
+    Set<File> files = new HashSet<>();
+    File[] children = folder.listFiles();
+    if (children!=null) {
+      for ( File child : children ) {
+        if ( child.isFile() ) {
+          if ( child.getName().endsWith( ".jar" ) ) {
+            files.add( child );
+          }
+        }
+        if ( child.isDirectory() ) {
+          if ( !"lib".equals( child.getName() ) ) {
+            files.addAll( findFiles( child ) );
+          }
+        }
+      }
+    }
+
+    return files;
   }
 
   /**

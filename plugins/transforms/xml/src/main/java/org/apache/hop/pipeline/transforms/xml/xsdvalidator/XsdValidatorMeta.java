@@ -393,7 +393,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
       // To : /home/matt/test/files/foo/bar.xsd
       //
       if ( !Utils.isEmpty( xsdFilename ) ) {
-        FileObject fileObject = HopVfs.getFileObject( space.environmentSubstitute( xsdFilename ), space );
+        FileObject fileObject = HopVfs.getFileObject( space.environmentSubstitute( xsdFilename ) );
         xsdFilename = resourceNamingInterface.nameResource( fileObject, space, true );
         return xsdFilename;
       }

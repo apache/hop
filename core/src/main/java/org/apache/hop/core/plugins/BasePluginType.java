@@ -404,9 +404,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         try {
           // Get all the jar files in the plugin folder...
           //
-          FileObject[] fileObjects = jarFileCache.getFileObjects( pluginFolder );
+          File[] fileObjects = jarFileCache.getFileObjects( pluginFolder );
           if ( fileObjects != null ) {
-            for ( FileObject fileObject : fileObjects ) {
+            for ( File fileObject : fileObjects ) {
 
               // These are the jar files : find annotations in it...
               //
@@ -415,8 +415,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
               if ( impls != null ) {
 
                 for ( String fil : impls ) {
-                  classFiles.add( new JarFileAnnotationPlugin( fil, fileObject.getURL(), fileObject
-                    .getParent().getURL() ) );
+                  classFiles.add( new JarFileAnnotationPlugin( fil, fileObject.toURI().toURL(), fileObject.getParentFile().toURI().toURL() ) );
                 }
               }
             }
@@ -680,9 +679,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       String libFolderName = parentFolderName + Const.FILE_SEPARATOR + "lib";
       if ( new File( libFolderName ).exists() ) {
         PluginFolder pluginFolder = new PluginFolder( libFolderName, false, true, searchLibDir );
-        FileObject[] libFiles = pluginFolder.findJarFiles( true );
-        for ( FileObject libFile : libFiles ) {
-          urls.add( libFile.getURL() );
+        File[] libFiles = pluginFolder.findJarFiles( true );
+        for ( File libFile : libFiles ) {
+          urls.add( libFile.toURI().toURL() );
         }
       }
 
@@ -706,9 +705,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             // This includes the possible lib/ folder dependencies in there
             //
             PluginFolder pluginFolder = new PluginFolder( dependenciesFolderName, false, false, true );
-            FileObject[] libFiles = pluginFolder.findJarFiles( true );
-            for ( FileObject libFile : libFiles ) {
-              urls.add( libFile.getURL() );
+            File[] libFiles = pluginFolder.findJarFiles( true );
+            for ( File libFile : libFiles ) {
+              urls.add( libFile.toURI().toURL() );
             }
           }
         }

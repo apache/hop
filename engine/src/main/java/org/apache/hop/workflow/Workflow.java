@@ -972,7 +972,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     boolean hasFilename = !Utils.isEmpty( filename );
     if ( hasFilename ) { // we have a filename that's defined.
       try {
-        FileObject fileObject = HopVfs.getFileObject( filename, space );
+        FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline

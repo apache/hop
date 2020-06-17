@@ -55,7 +55,7 @@ public class ImageUtil {
 
   static {
     try {
-      base = HopVfs.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
+      base = HopVfs.getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
     } catch ( FileSystemException e ) {
       e.printStackTrace();
       base = null;
@@ -89,7 +89,7 @@ public class ImageUtil {
       }
     }
     try {
-      FileObject imageFileObject = HopVfs.getInstance().getFileSystemManager().resolveFile( base, location );
+      FileObject imageFileObject = HopVfs.getFileSystemManager().resolveFile( base, location );
       return HopVfs.getInputStream( imageFileObject );
     } catch ( FileSystemException e ) {
       throw new RuntimeException( "Unable to load image with name [" + location + "]", e );

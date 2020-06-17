@@ -40,10 +40,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import javax.activation.DataHandler;
 import javax.activation.URLDataSource;
@@ -755,7 +753,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       }
 
       if ( !Utils.isEmpty( realSourceFileFoldername ) ) {
-        sourcefile = HopVfs.getFileObject( realSourceFileFoldername, getPipelineMeta() );
+        sourcefile = HopVfs.getFileObject( realSourceFileFoldername );
         if ( sourcefile.exists() ) {
           long FileSize = 0;
           FileObject[] list = null;
@@ -777,7 +775,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
             for ( int i = 0; i < list.length; i++ ) {
 
-              file = HopVfs.getFileObject( HopVfs.getFilename( list[ i ] ), getPipelineMeta() );
+              file = HopVfs.getFileObject( HopVfs.getFilename( list[ i ] ) );
 
               if ( zipFiles ) {
 
@@ -817,7 +815,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
                 for ( int i = 0; i < list.length; i++ ) {
 
-                  file = HopVfs.getFileObject( HopVfs.getFilename( list[ i ] ), getPipelineMeta() );
+                  file = HopVfs.getFileObject( HopVfs.getFilename( list[ i ] ) );
 
                   ZipEntry zipEntry = new ZipEntry( file.getName().getBaseName() );
                   zipOutputStream.putNextEntry( zipEntry );
@@ -835,7 +833,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
               }
               if ( data.zipFileLimit > 0 && FileSize > data.zipFileLimit || data.zipFileLimit == 0 ) {
-                file = HopVfs.getFileObject( masterZipfile.getAbsolutePath(), getPipelineMeta() );
+                file = HopVfs.getFileObject( masterZipfile.getAbsolutePath() );
                 addAttachedFilePart( file );
               }
             }

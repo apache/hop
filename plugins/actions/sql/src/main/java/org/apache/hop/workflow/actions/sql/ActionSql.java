@@ -208,7 +208,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
 
           try {
             String realfilename = environmentSubstitute( sqlfilename );
-            sqlFile = HopVfs.getFileObject( realfilename, this );
+            sqlFile = HopVfs.getFileObject( realfilename );
             if ( !sqlFile.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSQL.SQLFileNotExist", realfilename ) );
               throw new HopDatabaseException( BaseMessages.getString(

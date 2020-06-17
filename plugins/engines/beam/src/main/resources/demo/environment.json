@@ -8,5 +8,9 @@
   "unitTestsBasePath" : "${ENVIRONMENT_HOME}",
   "dataSetsCsvFolder" : "${ENVIRONMENT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
-  "variables" : [ ]
+  "variables" : [ {
+    "name" : "INPUT_DIRECTORY",
+    "value" : "/path/to/input",
+    "description" : ""
+  } ]
 }

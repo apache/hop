@@ -410,26 +410,24 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         realScript = environmentSubstitute( script );
       } else {
         String realFilename = environmentSubstitute( getFilename() );
-        fileObject = HopVfs.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename );
       }
 
       if ( Const.getOS().equals( "Windows 95" ) ) {
         base = new String[] { "command.com", "/C" };
         if ( insertScript ) {
-          tempFile =
-            HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
+          tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
       } else if ( Const.getOS().startsWith( "Windows" ) ) {
         base = new String[] { "cmd.exe", "/C" };
         if ( insertScript ) {
-          tempFile =
-            HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ), this );
+          tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
       } else {
         if ( insertScript ) {
-          tempFile = HopVfs.createTempFile( "hop", "shell", System.getProperty( "java.io.tmpdir" ), this );
+          tempFile = HopVfs.createTempFile( "hop", "shell", System.getProperty( "java.io.tmpdir" ) );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
         base = new String[] { HopVfs.getFilename( fileObject ) };
@@ -529,7 +527,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
       if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
         String vfsFilename = environmentSubstitute( getWorkDirectory() );
-        File file = new File( HopVfs.getFilename( HopVfs.getFileObject( vfsFilename, this ) ) );
+        File file = new File( HopVfs.getFilename( HopVfs.getFileObject( vfsFilename ) ) );
         procBuilder.directory( file );
       }
       Process proc = procBuilder.start();

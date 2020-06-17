@@ -136,7 +136,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
         final LogChannelFileWriter logChannelFileWriter;
         try {
           FileUtil.createParentFolder( AddPipelineServlet.class, realLogFilename, pipelineExecutionConfiguration
-            .isCreateParentFolder(), pipeline.getLogChannel(), pipeline );
+            .isCreateParentFolder(), pipeline.getLogChannel() );
           logChannelFileWriter =
             new LogChannelFileWriter( servletLoggingObject.getLogChannelId(), HopVfs.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );
           logChannelFileWriter.startLogging();

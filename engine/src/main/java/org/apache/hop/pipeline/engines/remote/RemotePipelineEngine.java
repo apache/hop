@@ -260,7 +260,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
         // First export the workflow...
         //
-        FileObject tempFile = HopVfs.createTempFile( "pipelineExport", HopVfs.Suffix.ZIP, pipelineMeta );
+        FileObject tempFile = HopVfs.createTempFile( "pipelineExport", HopVfs.Suffix.ZIP );
 
         // The executionConfiguration should not include external references here because all the resources should be
         // retrieved from the exported zip file

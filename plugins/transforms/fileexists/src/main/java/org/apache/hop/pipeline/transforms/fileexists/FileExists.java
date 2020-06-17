@@ -101,7 +101,7 @@ public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> im
       // get filename
       String filename = data.previousRowMeta.getString( r, data.indexOfFileename );
       if ( !Utils.isEmpty( filename ) ) {
-        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename );
 
         // Check if file
         fileexists = data.file.exists();

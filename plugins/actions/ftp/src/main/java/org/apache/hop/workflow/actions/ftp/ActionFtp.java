@@ -1095,7 +1095,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     if ( isaddresult ) {
       FileObject targetFile = null;
       try {
-        targetFile = HopVfs.getFileObject( filename, this );
+        targetFile = HopVfs.getFileObject( filename );
 
         // Add to the result files...
         ResultFile resultFile =

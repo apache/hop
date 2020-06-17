@@ -24,8 +24,8 @@ package org.apache.hop.workflow.actions.copymoveresultfilenames;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileUtil;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
@@ -35,15 +35,14 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
@@ -460,7 +459,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
   private boolean CreateDestinationFolder( String foldername ) {
     FileObject folder = null;
     try {
-      folder = HopVfs.getFileObject( foldername, this );
+      folder = HopVfs.getFileObject( foldername );
 
       if ( !folder.exists() ) {
         logError( BaseMessages.getString( PKG, "ActionCopyMoveResultFilenames.Log.FolderNotExists", foldername ) );
@@ -524,7 +523,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
         String shortfilename = getDestinationFilename( sourcefile.getName().getBaseName() );
         // build full destination filename
         String destinationFilename = destinationFolder + Const.FILE_SEPARATOR + shortfilename;
-        FileObject destinationfile = HopVfs.getFileObject( destinationFilename, this );
+        FileObject destinationfile = HopVfs.getFileObject( destinationFilename );
         boolean filexists = destinationfile.exists();
         if ( filexists ) {
           if ( log.isDetailed() ) {
@@ -560,7 +559,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
             // Add destination filename to Resultfilenames ...
             ResultFile resultFile =
               new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject(
-                destinationfile.toString(), this ), parentWorkflow.getWorkflowName(), toString() );
+                destinationfile.toString()), parentWorkflow.getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             if ( log.isDetailed() ) {
               logDetailed( BaseMessages.getString(

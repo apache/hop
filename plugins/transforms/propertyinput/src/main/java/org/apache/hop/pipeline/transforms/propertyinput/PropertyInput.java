@@ -37,10 +37,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.ini4j.Wini;
 
 import java.io.InputStream;
@@ -381,7 +379,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
             .getDynamicFilenameField(), filename ) );
         }
 
-        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename );
         // Check if file exists!
       }
 

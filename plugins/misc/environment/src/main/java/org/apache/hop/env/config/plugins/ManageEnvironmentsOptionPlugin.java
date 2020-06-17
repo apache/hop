@@ -96,7 +96,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
     // Optionally update the env home to a new location before modifying
     //
-    updateHopConfig( environmentName, environmentHome );
+    EnvironmentConfigSingleton.saveEnvironment( environmentName, environmentHome );
 
     Environment environment = EnvironmentConfigSingleton.load( environmentName );
 
@@ -111,18 +111,18 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     validateEnvironmentNameSpecified();
     validateEnvironmentHomeSpecified();
 
-    // Create the entry in the environment configuration (in Hop config.json)
-    //
-    updateHopConfig(environmentName, environmentHome);
-
-    Environment environment = new Environment();
-
-    updateEnvironmentVariables( environment );
-
     log.logBasic( "Creating environment '" + environmentName + "'" );
     if ( EnvironmentConfigSingleton.exists( environmentName ) ) {
       throw new HopException( "Environment '" + environmentName + "' already exists." );
     }
+
+    // Create the entry in the environment configuration (in Hop config.json)
+    //
+    EnvironmentConfigSingleton.saveEnvironment(environmentName, environmentHome);
+
+    Environment environment = new Environment();
+
+    updateEnvironmentVariables( environment );
 
     EnvironmentConfigSingleton.save( environmentName, environment );
     log.logBasic( "Environment '" + environmentName + "' was created for home folder : " + environmentHome );

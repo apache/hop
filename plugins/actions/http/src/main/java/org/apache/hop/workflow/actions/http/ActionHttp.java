@@ -435,7 +435,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         }
 
         // Create the output File...
-        outputFile = HopVfs.getOutputStream( realTargetFile, this, fileAppended );
+        outputFile = HopVfs.getOutputStream( realTargetFile, fileAppended );
 
         // Get a stream for the specified URL
         server = new URL( urlToUse );
@@ -513,7 +513,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           // Add to the result files...
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realTargetFile, this ), parentWorkflow
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realTargetFile ), parentWorkflow
               .getWorkflowName(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         }

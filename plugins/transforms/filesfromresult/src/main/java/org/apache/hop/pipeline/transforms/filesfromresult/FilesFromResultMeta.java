@@ -84,7 +84,7 @@ public class FilesFromResultMeta extends BaseTransformMeta implements ITransform
     try {
       ResultFile resultFile =
         new ResultFile(
-          ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( "foo.bar", variables ), "parentOrigin", "origin" );
+          ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( "foo.bar" ), "parentOrigin", "origin" );
       RowMetaAndData add = resultFile.getRow();
 
       // Set the origin on the fields...
