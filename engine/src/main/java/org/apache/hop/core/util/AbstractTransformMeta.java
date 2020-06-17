@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.PluginPropertyHandler.LoadXml;
 import org.apache.hop.core.util.PluginPropertyHandler.ReadFromPreferences;
 import org.apache.hop.core.util.PluginPropertyHandler.SaveToPreferences;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -91,7 +91,7 @@ public abstract class AbstractTransformMeta extends BaseTransformMeta implements
     this.getProperties().walk( new ReadFromPreferences( node ) );
   }
 
-  public void loadXml( final Node node, final List<DatabaseMeta> databaseMeta, final IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( final Node node, final List<DatabaseMeta> databaseMeta, final IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this.getProperties().walk( new LoadXml( node ) );
     initDbMeta( databaseMeta );
   }

@@ -44,14 +44,13 @@ public class WorkflowEntryShellTest {
   /**
    * tests if Windows's EOL characters is replaced.
    *
-   * @see <a href="http://jira.pentaho.com/browse/PDI-12176">Jira issue</a>
    */
   @Test
   public void replaceWinEOLtest() {
     // string is shell content from PDI-12176
     String content = "#!/bin/bash\r\n"
       + "\r\n"
-      + "echo `date` > /home/pentaho/test_output/output.txt";
+      + "echo `date` > /home/project-hop/test_output/output.txt";
     doCallRealMethod().when( jobEntryShellMock ).replaceWinEOL( anyString() );
     content = jobEntryShellMock.replaceWinEOL( content );
     verify( jobEntryShellMock ).replaceWinEOL( anyString() );

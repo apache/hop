@@ -54,8 +54,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "TypeExitEdi2XmlTransform",
         image = "EDI2XML.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDialog {
 

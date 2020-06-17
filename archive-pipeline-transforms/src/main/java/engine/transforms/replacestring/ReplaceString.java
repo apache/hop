@@ -166,7 +166,7 @@ public class ReplaceString extends BaseTransform implements ITransform {
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
       data.inputFieldsNr = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.numFields = meta.getFieldInStream().length;
       data.inStreamNrs = new int[ data.numFields ];

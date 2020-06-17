@@ -73,7 +73,7 @@ import java.util.Arrays;
 		  id = "TRUNCATE_TABLES", 
 		  image = "TruncateTables.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/truncatetables.html"
 )
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!

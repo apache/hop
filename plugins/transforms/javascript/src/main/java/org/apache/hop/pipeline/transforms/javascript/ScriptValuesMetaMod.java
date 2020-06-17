@@ -43,7 +43,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -70,11 +70,12 @@ import java.util.Properties;
  *
  */
 @Transform(
-        id = "ScriptValuesMod",
+        id = "ScriptValueMod",
         i18nPackageName = "org.apache.hop.pipeline.transforms.javascript",
         name = "ScriptValuesMod.Name",
         description = "ScriptValuesMod.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/javascript.html"
 )
 @InjectionSupported( localizationPrefix = "ScriptValuesMod.Injection.", groups = { "FIELDS", "SCRIPTS" } )
 public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransformMeta<ScriptValuesMod, ScriptValuesModData> {
@@ -217,7 +218,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     this.jsScripts = jsScripts;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -380,7 +381,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
   }
 
   public void getFields( IRowMeta row, String originTransformName, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     try {
       for ( int i = 0; i < fieldname.length; i++ ) {
         if ( !Utils.isEmpty( fieldname[ i ] ) ) {
@@ -469,7 +470,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     boolean error_found = false;
     String error_message = "";
     CheckResult cr;
@@ -795,10 +796,6 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  public String getDialogClassName() {
-    return "org.apache.hop.ui.pipeline.transforms.scriptvalues_mod.ScriptValuesModDialog";
   }
 
   /**

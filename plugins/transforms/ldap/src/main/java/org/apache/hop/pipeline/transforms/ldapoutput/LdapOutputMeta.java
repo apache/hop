@@ -33,7 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -52,7 +52,8 @@ import java.util.List;
 		image = "ldapoutput.svg",
 		i18nPackageName = "org.apache.hop.pipeline.transforms.ldapoutput",
 		categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-		keywords = {"ldap","output"}
+		keywords = {"ldap","output"},
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldapoutput.html"
 )
 public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static Class<?> PKG = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
@@ -531,7 +532,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     this.failIfNotExist = failIfNotExist;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -784,7 +785,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
   
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
  

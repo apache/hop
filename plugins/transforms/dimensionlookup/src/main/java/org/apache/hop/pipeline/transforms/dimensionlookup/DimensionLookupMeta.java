@@ -42,7 +42,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -66,7 +66,8 @@ import java.util.*;
         i18nPackageName = "org.apache.hop.pipeline.transforms.dimensionlookup",
         name = "BaseTransform.TypeLongDesc.DimensionUpdate",
         description = "BaseTransform.TypeTooltipDesc.DimensionUpdate",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/dimensionlookup.html"
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
 public class DimensionLookupMeta extends BaseTransformMeta implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {
@@ -126,7 +127,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   @Injection( name = "TARGET_TABLE" )
   private String tableName;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * The database connection
@@ -316,7 +317,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( Exception e ) {
       throw new RuntimeException( "Error loading relational database connection '" + connectionName + "'", e );
     }
@@ -600,8 +601,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrkeys, int nrFields ) {
@@ -770,7 +771,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // Change all the fields to normal storage, this is the fastest way to handle lazy conversion.
     // It doesn't make sense to use it in the SCD context but people try it anyway
@@ -916,8 +917,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       String upd;
       int nrkeys, nrFields;
@@ -926,7 +927,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tableName = XmlHandler.getTagValue( transformNode, "table" );
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       commit = XmlHandler.getTagValue( transformNode, "commit" );
       commitSize = Const.toInt( commit, 0 );
 
@@ -1026,7 +1027,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     if ( update ) {
       checkUpdate( remarks, transformMeta, prev );
     } else {
@@ -1454,7 +1455,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
   @Override
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) {
+                                        IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( update ) { // Only bother in case of update, not lookup!
@@ -1631,7 +1632,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                             String[] input, String[] output, IRowMeta info, IMetaStore metaStore ) {
+                             String[] input, String[] output, IRowMeta info, IHopMetadataProvider metadataProvider ) {
     if ( prev != null ) {
       if ( !update ) {
         // Lookup: we do a lookup on the natural keys + the return fields!

@@ -90,8 +90,7 @@ import java.util.Iterator;
 @PluginDialog(
         id = "PropertyInput",
         image = "propertyinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
@@ -1628,7 +1627,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(), oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "PropertyInputDialog.NumberRows.DialogTitle" ),

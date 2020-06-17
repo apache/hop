@@ -13,7 +13,7 @@ public class FilterPipelineTest extends org.apache.hop.beam.transform.PipelineTe
       "io-filter-rows-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     try {

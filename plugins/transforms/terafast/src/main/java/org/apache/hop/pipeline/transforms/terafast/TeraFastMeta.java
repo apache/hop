@@ -33,7 +33,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.*;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -51,7 +51,7 @@ import java.util.List;
 		  name = "TeraFast.Name",
 		  categoryDescription = "BaseTransform.Category.Bulk",
 		  image = "TeraFast.svg",
-		  documentationUrl = "http://wiki.pentaho.com/display/EAI/Teradata+Fastload+Bulk+Loader"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 
@@ -156,7 +156,7 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
 
   public void check( final List<ICheckResult> remarks, final PipelineMeta transmeta, final TransformMeta transformMeta,
                      final IRowMeta prev, final String[] input, final String[] output, final IRowMeta info,
-                     IVariables variables, IMetaStore metaStore ) {
+                     IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult checkResult;
     try {
       IRowMeta tableFields = getRequiredFields( transmeta );
@@ -274,7 +274,7 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
 
   @Override
   public void getFields( final IRowMeta inputRowMeta, final String name, final IRowMeta[] info,
-                         final TransformMeta nextTransform, final IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         final TransformMeta nextTransform, final IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 

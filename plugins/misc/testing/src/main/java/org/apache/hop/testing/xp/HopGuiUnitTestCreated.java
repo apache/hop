@@ -13,8 +13,8 @@ import org.eclipse.swt.widgets.MessageBox;
 
 @ExtensionPoint(
   id = "HopGuiUnitTestCreated",
-  extensionPointId = "HopGuiMetaStoreElementCreated",
-  description = "When HopGui create a new metastore element somewhere"
+  extensionPointId = "HopGuiMetadataObjectCreated",
+  description = "When HopGui create a new metadata object somewhere"
 )
 public class HopGuiUnitTestCreated extends HopGuiUnitTestChanged implements IExtensionPoint {
 
@@ -24,7 +24,7 @@ public class HopGuiUnitTestCreated extends HopGuiUnitTestChanged implements IExt
     //
     super.callExtensionPoint( log, object );
 
-    // Ignore all other metastore object changes
+    // Ignore all other metadata object changes
     //
     if (!(object instanceof PipelineUnitTest)) {
       return;

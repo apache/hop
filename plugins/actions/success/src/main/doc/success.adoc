@@ -2,3 +2,15 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/success/src/main/doc/success.adoc
 = Success Action
+
+== Description
+
+The Success Action action clears any error state encountered in a workflow and forces it to a success state.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|===

@@ -40,7 +40,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -59,11 +59,12 @@ import java.util.List;
  */
 
 @Transform(
-  id = "ExecSql",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
-  name = "ExecSql.Name",
-  description = "ExecSql.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        id = "ExecSql",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
+        name = "ExecSql.Name",
+        description = "ExecSql.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sql.html"
 )
 @InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
 public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<ExecSql, ExecSqlData> {
@@ -239,8 +240,8 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     this.updateField = updateField;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -255,10 +256,10 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     arguments = new String[ nrargs ];
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       String eachRow = XmlHandler.getTagValue( transformNode, "execute_each_row" );
       executedEachInputRow = "Y".equalsIgnoreCase( eachRow );
       singleStatement = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "single_statement" ) );
@@ -292,7 +293,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     RowMetaAndData add =
       ExecSql.getResultRow( new Result(), getUpdateField(), getInsertField(), getDeleteField(), getReadField() );
 
@@ -329,7 +330,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( databaseMeta != null ) {

@@ -13,7 +13,7 @@ public class StreamLookupPipelineTest extends PipelineTestBase {
       "io-stream-lookup-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     try {

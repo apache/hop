@@ -97,11 +97,11 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Load the workflow from file
       //
-      WorkflowMeta workflowMeta = new WorkflowMeta( parentVariableSpace, filename, hopGui.getMetaStore() );
+      WorkflowMeta workflowMeta = new WorkflowMeta( parentVariableSpace, filename, hopGui.getMetadataProvider() );
 
       // Pass the MetaStore for reference lookups
       //
-      workflowMeta.setMetaStore( hopGui.getMetaStore() );
+      workflowMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
       // Inform those that want to know about it that we loaded a pipeline
       //
@@ -130,7 +130,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Pass the MetaStore for reference lookups
       //
-      workflowMeta.setMetaStore( hopGui.getMetaStore() );
+      workflowMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
       // Show it in the perspective
       //

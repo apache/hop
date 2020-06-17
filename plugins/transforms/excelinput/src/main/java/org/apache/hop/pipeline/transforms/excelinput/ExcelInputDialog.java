@@ -98,8 +98,7 @@ import java.util.List;
 @PluginDialog(
   id = "ExcelInput",
   image = "excelinput.svg",
-  pluginType = PluginDialog.PluginType.TRANSFORM,
-  documentationUrl = ""
+  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
@@ -1848,7 +1847,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       return;
     }
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =

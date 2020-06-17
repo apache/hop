@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "CHECK_FILES_LOCKED", 
 		  image = "CheckFilesLocked.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/checkfilelocked.html"
 )
 public class ActionCheckFilesLockedDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionICheckFilesLocked.class; // for i18n purposes, needed by Translator!!

@@ -24,9 +24,8 @@ package org.apache.hop.base;
 
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -57,7 +56,7 @@ public abstract class LoadSaveBase<T> {
   protected final JavaBeanManipulator<T> manipulator;
   protected final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
   protected final IInitializer<T> initializer;
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
 
   public LoadSaveBase( Class<T> clazz,
                        List<String> commonAttributes, List<String> xmlAttributes,
@@ -78,7 +77,7 @@ public abstract class LoadSaveBase<T> {
     }
     this.fieldLoadSaveValidatorFactory =
       new DefaultFieldLoadSaveValidatorFactory( fieldLoadSaveValidatorMethodMap, fieldLoadSaveValidatorTypeMap );
-    metaStore = new MemoryMetaStore();
+    metadataProvider = new MemoryMetadataProvider();
   }
 
   public LoadSaveBase( Class<T> clazz,
@@ -93,7 +92,7 @@ public abstract class LoadSaveBase<T> {
   public LoadSaveBase( Class<T> clazz, List<String> commonAttributes ) {
     this( clazz, commonAttributes, new ArrayList<>(),
       new HashMap<>(), new HashMap<>(),
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public T createMeta() {
@@ -115,7 +114,7 @@ public abstract class LoadSaveBase<T> {
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
                                                                                         T metaToSave ) {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    metaStore = new MemoryMetaStore();
+    metadataProvider = new MemoryMetadataProvider();
     for ( String attribute : attributes ) {
       IGetter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )
@@ -184,9 +183,9 @@ public abstract class LoadSaveBase<T> {
 
   protected void addDatabase( DatabaseMeta db ) {
     try {
-      DatabaseMeta.createFactory( metaStore ).saveElement( db );
-    } catch ( MetaStoreException e ) {
-      throw new RuntimeException( "Error adding database to the test metastore", e );
+      metadataProvider.getSerializer( DatabaseMeta.class ).save( db );
+    } catch ( HopException e ) {
+      throw new RuntimeException( "Error adding database to the test metadata", e );
     }
   }
 

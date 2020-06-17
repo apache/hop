@@ -81,7 +81,7 @@ public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> im
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( getInputRowMeta(), getTransformName(), null, null, this, metaStore );
+      meta.getFields( getInputRowMeta(), getTransformName(), null, null, this, metadataProvider );
 
       // if filter refers to non-existing fields, throw exception
       checkNonExistingFields();

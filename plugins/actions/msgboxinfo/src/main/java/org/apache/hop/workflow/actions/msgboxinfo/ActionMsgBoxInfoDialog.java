@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "MSGBOX_INFO", 
 		  image = "MsgBoxInfo.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/msgboxinfo.html"
 )
 public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMsgBoxInfo.class; // for i18n purposes, needed by Translator!!

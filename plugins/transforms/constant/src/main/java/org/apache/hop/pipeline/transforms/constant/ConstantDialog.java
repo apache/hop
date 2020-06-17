@@ -44,8 +44,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "Constant",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        image = "constant.svg",
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/constant.html"
+        image = "constant.svg"
 )
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!

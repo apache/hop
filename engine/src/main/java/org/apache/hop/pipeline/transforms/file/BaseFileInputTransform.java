@@ -209,7 +209,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
     }
 
     // get the metadata populated. Simple and easy.
-    meta.getFields( data.outputRowMeta, getTransformName(), infoTransform, null, this, metaStore );
+    meta.getFields( data.outputRowMeta, getTransformName(), infoTransform, null, this, metadataProvider );
     // Create convert meta-data objects that will contain Date & Number formatters
     //
     data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );

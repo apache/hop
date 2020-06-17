@@ -39,6 +39,7 @@ import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformDialogFragmentType;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
@@ -91,7 +92,8 @@ public class HopEnvironment {
       AuthenticationConsumerPluginType.getInstance(),
       PipelineEnginePluginType.getInstance(),
       WorkflowEnginePluginType.getInstance(),
-      ConfigPluginType.getInstance()
+      ConfigPluginType.getInstance(),
+      MetadataPluginType.getInstance()
     );
   }
 
@@ -124,7 +126,7 @@ public class HopEnvironment {
 
         // If the HopConfig system properties is empty, initialize with the variables...
         //
-        if ( HopConfig.readSystemProperties().isEmpty() ) {
+        if ( HopConfig.getSystemProperties().isEmpty() ) {
           HopConfig.saveSystemProperties( HopVariablesList.getInstance().getDefaultValueMap() );
         }
 

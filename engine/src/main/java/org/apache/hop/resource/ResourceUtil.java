@@ -25,10 +25,11 @@ package org.apache.hop.resource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 
 import java.io.IOException;
@@ -48,15 +49,15 @@ public class ResourceUtil {
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
    * @param variables                   the space to use for variable replacement
-   * @param metaStore               the metaStore to load from
+   * @param metadataProvider               the metadataProvider to load from
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
    * @throws HopException in case anything goes wrong during serialization
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
                                                                          IResourceExport resourceExportInterface, IVariables variables,
-                                                                         IMetaStore metaStore ) throws HopException {
+                                                                         IHopMetadataProvider metadataProvider ) throws HopException {
     return serializeResourceExportInterface(
-      zipFilename, resourceExportInterface, variables, metaStore, null, null );
+      zipFilename, resourceExportInterface, variables, metadataProvider, null, null );
   }
 
   /**
@@ -65,7 +66,8 @@ public class ResourceUtil {
    *
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
-   * @param variables                   the space to use for variable replacement
+   * @param variables                the variables to use for variable replacement
+   * @param metadataProvider               The metadata for which we want to include the metadata.json file
    * @param injectXML               The XML to inject into the resulting ZIP archive (optional, can be null)
    * @param injectFilename          The name of the file for the XML to inject in the ZIP archive (optional, can be null)
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
@@ -73,7 +75,7 @@ public class ResourceUtil {
    */
   public static final TopLevelResource serializeResourceExportInterface( String zipFilename,
                                                                          IResourceExport resourceExportInterface, IVariables variables,
-                                                                         IMetaStore metaStore, String injectXML, String injectFilename ) throws HopException {
+                                                                         IHopMetadataProvider metadataProvider, String injectXML, String injectFilename ) throws HopException {
 
     ZipOutputStream out = null;
 
@@ -90,7 +92,7 @@ public class ResourceUtil {
       IResourceNaming namingInterface = new SequenceResourceNaming();
 
       String topLevelResource =
-        resourceExportInterface.exportResources( variables, definitions, namingInterface, metaStore );
+        resourceExportInterface.exportResources( variables, definitions, namingInterface, metadataProvider );
 
       if ( topLevelResource != null && !definitions.isEmpty() ) {
 
@@ -107,16 +109,22 @@ public class ResourceUtil {
 
           ZipEntry zipEntry = new ZipEntry( resourceDefinition.getFilename() );
 
-          String comment =
-            BaseMessages.getString(
-              PKG, "ResourceUtil.SerializeResourceExportInterface.ZipEntryComment.OriginatingFile", filename,
-              Const.NVL( resourceDefinition.getOrigin(), "-" ) );
+          String comment = BaseMessages.getString( PKG, "ResourceUtil.SerializeResourceExportInterface.ZipEntryComment.OriginatingFile", filename, Const.NVL( resourceDefinition.getOrigin(), "-" ) );
           zipEntry.setComment( comment );
           out.putNextEntry( zipEntry );
 
           out.write( resourceDefinition.getContent().getBytes() );
           out.closeEntry();
         }
+
+        // Add the metadata JSON file
+        //
+        ZipEntry jsonEntry = new ZipEntry( "metadata.json" );
+        jsonEntry.setComment( "Export of the client metadata" );
+        out.putNextEntry( jsonEntry );
+        out.write( new SerializableMetadataProvider(metadataProvider).toJson().getBytes("UTF-8") );
+        out.closeEntry();
+
         String zipURL = fileObject.getName().toString();
         return new TopLevelResource( topLevelResource, zipURL, "zip:" + zipURL + "!" + topLevelResource );
       } else {

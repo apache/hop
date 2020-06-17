@@ -90,8 +90,7 @@ import java.util.Set;
 @PluginDialog( 
 		  id = "PGBulkLoader", 
 		  image = "PGBulkLoader.svg", 
-		  pluginType = PluginDialog.PluginType.TRANSFORM,
-		  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
+		  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
@@ -864,7 +863,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         new TransformMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =

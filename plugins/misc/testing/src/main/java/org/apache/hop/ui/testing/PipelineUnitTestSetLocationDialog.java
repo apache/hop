@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -23,6 +23,23 @@
 package org.apache.hop.ui.testing;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.SourceToTargetMapping;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.testing.DataSet;
+import org.apache.hop.testing.PipelineUnitTestFieldMapping;
+import org.apache.hop.testing.PipelineUnitTestSetLocation;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -41,24 +58,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.testing.DataSet;
-import org.apache.hop.testing.PipelineUnitTestFieldMapping;
-import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,8 +91,6 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
   private int margin;
 
   private boolean ok;
-
-  private List<DatabaseMeta> databases;
 
   public PipelineUnitTestSetLocationDialog( Shell parent, PipelineUnitTestSetLocation location, List<DataSet> dataSets, Map<String, IRowMeta> transformFieldsMap ) {
     super( parent, SWT.NONE );

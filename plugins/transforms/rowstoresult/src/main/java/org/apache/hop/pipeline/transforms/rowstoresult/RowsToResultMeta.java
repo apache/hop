@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -49,7 +49,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowstoresult",
         name = "BaseTransform.TypeLongDesc.RowsToResult",
         description = "BaseTransform.TypeTooltipDesc.RowsToResult",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowstoresult.html"
 )
 public class RowsToResultMeta extends BaseTransformMeta implements ITransformMeta<RowsToResult, RowsToResultData> {
   private static Class<?> PKG = RowsToResult.class; // for i18n purposes, needed by Translator!!
@@ -58,7 +59,7 @@ public class RowsToResultMeta extends BaseTransformMeta implements ITransformMet
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -79,13 +80,13 @@ public class RowsToResultMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       CheckResult cr =

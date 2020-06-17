@@ -1,18 +1,17 @@
 package org.apache.hop.env.config.plugins;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.environment.EnvironmentVariable;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -32,7 +31,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   @CommandLine.Option( names = { "-eh", "--environments-home" }, description = "The home directory of the environment" )
   private String environmentHome;
 
-  @CommandLine.Option( names = { "-ev", "--environment-variables" }, description = "The variables to be set in the environment", split = ",")
+  @CommandLine.Option( names = { "-ev", "--environment-variables" }, description = "The variables to be set in the environment", split = "," )
   private String[] environmentVariables;
 
   @CommandLine.Option( names = { "-em", "-environment-modify" }, description = "Modify an environment" )
@@ -45,91 +44,96 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   private boolean listEnvironments;
 
 
-  @Override public boolean handleOption( ILogChannel log, IMetaStore metaStore, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     try {
-      // See if the environment already exists
-      //
-      if (!EnvironmentSingleton.isInitialized()) {
-        EnvironmentSingleton.initializeEnvironments();
-      }
-      MetaStoreFactory<Environment> factory = EnvironmentSingleton.getEnvironmentFactory();
-      boolean changed=false;
-      if ( createEnvironment) {
-        createEnvironment( log, factory );
-        changed=true;
-      } else if ( modifyEnvironment) {
-        modifyEnvironment( log, factory );
-        changed=true;
-      } else if ( deleteEnvironment) {
-        deleteEnvironment( log, factory );
-        changed=true;
-      } else if ( listEnvironments) {
-        listEnvironments( log, factory );
-        changed=true;
+      boolean changed = false;
+      if ( createEnvironment ) {
+        createEnvironment( log );
+        changed = true;
+      } else if ( modifyEnvironment ) {
+        modifyEnvironment( log );
+        changed = true;
+      } else if ( deleteEnvironment ) {
+        deleteEnvironment( log );
+        changed = true;
+      } else if ( listEnvironments ) {
+        listEnvironments( log );
+        changed = true;
       }
       return changed;
-    } catch(Exception e) {
-      throw new HopException("Error handling environment configuration options", e);
+    } catch ( Exception e ) {
+      throw new HopException( "Error handling environment configuration options", e );
     }
 
   }
 
-  private void listEnvironments( ILogChannel log, MetaStoreFactory<Environment> factory ) throws MetaStoreException {
+  private void listEnvironments( ILogChannel log ) throws HopException {
 
     log.logBasic( "Environments:" );
-    List<String> names = factory.getElementNames();
-    for (String name : names) {
-      Environment environment = factory.loadElement( name );
-      log.logBasic( environment.getName()+" : "+environment.getEnvironmentHomeFolder() );
-      for (EnvironmentVariable variable : environment.getVariables()) {
-        log.logBasic( "  "+variable.getName()+" = "+variable.getValue()+ ( StringUtils.isEmpty(variable.getDescription()) ? "" : " ("+variable.getDescription()+")") );
+    List<String> names = EnvironmentConfigSingleton.getEnvironmentNames();
+    for ( String name : names ) {
+      Environment environment = EnvironmentConfigSingleton.load( name );
+      String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( name );
+      log.logBasic( name + " : " + environmentHomeFolder );
+      for ( EnvironmentVariable variable : environment.getVariables() ) {
+        log.logBasic( "  " + variable.getName() + " = " + variable.getValue() + ( StringUtils.isEmpty( variable.getDescription() ) ? "" : " (" + variable.getDescription() + ")" ) );
       }
     }
   }
 
-  private void deleteEnvironment( ILogChannel log, MetaStoreFactory<Environment> factory ) throws Exception {
+  private void deleteEnvironment( ILogChannel log  ) throws Exception {
     validateEnvironmentNameSpecified();
-    if ( !factory.elementExists( environmentName ) ) {
+    if ( !EnvironmentConfigSingleton.exists( environmentName ) ) {
       throw new HopException( "Environment '" + environmentName + "' doesn't exists, it can't be deleted" );
     }
-    factory.deleteElement( environmentName );
+    EnvironmentConfigSingleton.delete( environmentName );
   }
 
-  private void modifyEnvironment( ILogChannel log, MetaStoreFactory<Environment> factory ) throws Exception {
+  private void modifyEnvironment( ILogChannel log ) throws Exception {
     validateEnvironmentNameSpecified();
-    if ( !factory.elementExists( environmentName ) ) {
+    if ( !EnvironmentConfigSingleton.exists( environmentName ) ) {
       throw new HopException( "Environment '" + environmentName + "' doesn't exists, it can't be modified" );
     }
-    Environment environment = factory.loadElement( environmentHome );
+    // Optionally update the env home to a new location before modifying
+    //
+    updateHopConfig( environmentName, environmentHome );
 
-    updateEnvironmentHome( environment );
+    Environment environment = EnvironmentConfigSingleton.load( environmentName );
+
     updateEnvironmentVariables( environment );
 
-    factory.saveElement( environment );
-    log.logBasic( "Environment '" + environment.getName() + "' was modified.");
+    EnvironmentConfigSingleton.save( environmentName, environment );
+    log.logBasic( "Environment '" + environmentName + "' was modified." );
   }
 
 
-
-  private void createEnvironment( ILogChannel log, MetaStoreFactory<Environment> factory ) throws Exception {
+  private void createEnvironment( ILogChannel log ) throws Exception {
     validateEnvironmentNameSpecified();
     validateEnvironmentHomeSpecified();
 
+    // Create the entry in the environment configuration (in Hop config.json)
+    //
+    updateHopConfig(environmentName, environmentHome);
+
     Environment environment = new Environment();
-    environment.setName( environmentName );
 
-    updateEnvironmentHome(environment);
-    updateEnvironmentVariables(environment);
+    updateEnvironmentVariables( environment );
 
-    log.logBasic( "Creating environment '"+environmentName+"'" );
-    if ( factory.elementExists( environmentName ) ) {
+    log.logBasic( "Creating environment '" + environmentName + "'" );
+    if ( EnvironmentConfigSingleton.exists( environmentName ) ) {
       throw new HopException( "Environment '" + environmentName + "' already exists." );
     }
 
-    factory.saveElement( environment );
-    log.logBasic( "Environment '" + environment.getName() + "' was created for home folder : " + environment.getEnvironmentHomeFolder() );
+    EnvironmentConfigSingleton.save( environmentName, environment );
+    log.logBasic( "Environment '" + environmentName + "' was created for home folder : " + environmentHome );
   }
 
+  private void updateHopConfig( String environmentName, String environmentHome ) throws HopException {
+    if (StringUtils.isNotEmpty( environmentHome )) {
+      EnvironmentConfigSingleton.getConfig().getEnvironmentFolders().put( environmentName, environmentHome );
+      HopConfig.saveToFile();
+    }
+  }
 
 
   private void validateEnvironmentNameSpecified() throws Exception {
@@ -141,12 +145,6 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   private void validateEnvironmentHomeSpecified() throws Exception {
     if ( StringUtil.isEmpty( environmentHome ) ) {
       throw new HopException( "Please specify the home directory of the environment to create" );
-    }
-  }
-
-  private void updateEnvironmentHome( Environment environment ) {
-    if (environmentHome!=null) {
-      environment.setEnvironmentHomeFolder( environmentHome );
     }
   }
 
@@ -165,10 +163,10 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
             //
             List<EnvironmentVariable> variables = environment.getVariables();
             int index = variables.indexOf( variable );
-            if (index>=0) {
-              variables.set(index, variable);
+            if ( index >= 0 ) {
+              variables.set( index, variable );
             } else {
-              variables.add(variable);
+              variables.add( variable );
             }
           }
         }

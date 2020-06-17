@@ -88,7 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "MAIL", 
 		  image = "Mail.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mail.html"
 )
 public class ActionMailDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMail.class; // for i18n purposes, needed by Translator!!

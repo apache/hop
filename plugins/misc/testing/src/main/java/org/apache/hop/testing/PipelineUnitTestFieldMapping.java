@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,7 +22,7 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
  * This class simply describes a mapping between the transform fields we want to test and the data set fields you want to match with.
@@ -31,10 +31,10 @@ import org.apache.hop.metastore.persist.MetaStoreAttribute;
  */
 public class PipelineUnitTestFieldMapping {
 
-  @MetaStoreAttribute( key = "transform_field" )
+  @HopMetadataProperty( key = "transform_field" )
   private String transformFieldName;
 
-  @MetaStoreAttribute( key = "data_set_field" )
+  @HopMetadataProperty( key = "data_set_field" )
   private String dataSetFieldName;
 
   public PipelineUnitTestFieldMapping() {

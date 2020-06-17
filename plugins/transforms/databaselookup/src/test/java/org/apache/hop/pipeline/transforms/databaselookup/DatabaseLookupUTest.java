@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -187,7 +187,7 @@ public class DatabaseLookupUTest {
       any( IRowMeta[].class ),
       any( TransformMeta.class ),
       any( IVariables.class ),
-      any( IMetaStore.class ) );
+      any( IHopMetadataProvider.class ) );
     return meta;
   }
 
@@ -288,7 +288,7 @@ public class DatabaseLookupUTest {
       any( IRowMeta[].class ),
       any( TransformMeta.class ),
       any( IVariables.class ),
-      any( IMetaStore.class ) );
+      any( IHopMetadataProvider.class ) );
 
     DatabaseLookup look = new MockDatabaseLookup( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );
 

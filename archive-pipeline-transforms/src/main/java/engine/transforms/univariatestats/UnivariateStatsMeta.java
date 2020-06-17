@@ -24,16 +24,16 @@
 package org.apache.hop.pipeline.transforms.univariatestats;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -111,7 +111,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * @throws HopXmlException if an error occurs
    */
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     int nrStats = XmlHandler.countNodes( transformNode, UnivariateStatsMetaFunction.XML_TAG );
 
@@ -190,7 +190,7 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     row.clear();
     for ( int i = 0; i < m_stats.length; i++ ) {
@@ -278,9 +278,9 @@ public class UnivariateStatsMeta extends BaseTransformMeta implements ITransform
    * @param info      the fields that are used as information by the transform
    */
   @Override
-  public void check( List<CheckResultInterface> remarks, PipelineMeta transmeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
 

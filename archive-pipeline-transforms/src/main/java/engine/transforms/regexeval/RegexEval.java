@@ -79,7 +79,7 @@ public class RegexEval extends BaseTransform implements ITransform {
       // get the RowMeta
       data.outputRowMeta = getInputRowMeta().clone();
       int captureIndex = getInputRowMeta().size();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Let's check that Result Field is given
       if ( Utils.isEmpty( environmentSubstitute( meta.getResultFieldName() ) ) ) {

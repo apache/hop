@@ -1,14 +1,14 @@
 package org.apache.hop.beam.pipeline.handler;
 
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 
 import java.util.List;
 
 public class BeamBaseStepHandler {
 
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
   protected PipelineMeta pipelineMeta;
   protected List<String> transformPluginClasses;
   protected List<String> xpPluginClasses;
@@ -16,30 +16,30 @@ public class BeamBaseStepHandler {
   protected boolean output;
   protected IBeamPipelineEngineRunConfiguration runConfiguration;
 
-  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IMetaStore metaStore, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.runConfiguration = runConfiguration;
     this.input = input;
     this.output = output;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.pipelineMeta = pipelineMeta;
     this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**

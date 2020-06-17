@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -35,11 +35,11 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.DatabaseImpact;
@@ -136,8 +136,8 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
 
   private boolean DoNotOpenNewFileInit;
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -452,11 +452,11 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tablename = XmlHandler.getTagValue( transformNode, "table" );
       truncateTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "truncate" ) );
@@ -525,9 +525,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     if ( databaseMeta != null ) {
       CheckResult cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -677,7 +677,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) {
+                             IHopMetadataProvider metadataProvider ) {
     if ( truncateTable ) {
       DatabaseImpact ii =
         new DatabaseImpact(
@@ -701,7 +701,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
   }
 
   public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) {
+                                        IHopMetadataProvider metadataProvider ) {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -740,7 +740,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     return retval;
   }
 
-  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     String realTableName = variables.environmentSubstitute( tablename );
     String realSchemaName = variables.environmentSubstitute( schemaName );
 
@@ -805,11 +805,11 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( iVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

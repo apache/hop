@@ -2,7 +2,7 @@ package org.apache.hop.beam.engines;
 
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 
@@ -15,7 +15,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "User agent"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String userAgent;
 
   @GuiWidgetElement(
@@ -24,7 +24,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Temp location"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String tempLocation;
 
   @GuiWidgetElement(
@@ -33,7 +33,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Plugins to stage (, delimited)"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String pluginsToStage;
 
   @GuiWidgetElement(
@@ -42,7 +42,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Transform plugin classes"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String transformPluginClasses;
 
   @GuiWidgetElement(
@@ -51,7 +51,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "XP plugin classes"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String xpPluginClasses;
 
   @GuiWidgetElement(
@@ -60,7 +60,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Streaming Hop transforms flush interval (ms)"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String streamingHopTransformsFlushInterval;
 
   @GuiWidgetElement(
@@ -69,7 +69,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Hop streaming transforms buffer size"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String streamingHopTransformsBufferSize;
 
   @GuiWidgetElement(
@@ -78,7 +78,7 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     type = GuiElementType.TEXT,
     label = "Fat jar file location"
   )
-  @MetaStoreAttribute
+  @HopMetadataProperty
   protected String fatJar;
 
   public BeamPipelineRunConfiguration() {

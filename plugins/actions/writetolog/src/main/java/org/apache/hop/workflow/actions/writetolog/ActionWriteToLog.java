@@ -36,7 +36,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.w3c.dom.Node;
 
 import java.util.Date;
@@ -101,7 +101,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IMetaStore metaStore ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       logmessage = XmlHandler.getTagValue( entrynode, "logmessage" );
@@ -173,7 +173,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
      * @return the execution container object id
      */
     @Override
-    public String getContainerObjectId() {
+    public String getContainerId() {
       return containerObjectId;
     }
 

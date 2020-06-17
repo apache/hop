@@ -60,8 +60,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "CreditCardValidator",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        image = "creditcardvalidator.svg",
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/creditcardvalidator.html"
+        image = "creditcardvalidator.svg"
 )
 public class CreditCardValidatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CreditCardValidatorMeta.class; // for i18n purposes, needed by Translator!!

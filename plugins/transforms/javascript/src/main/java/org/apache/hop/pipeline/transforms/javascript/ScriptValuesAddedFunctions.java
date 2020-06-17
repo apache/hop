@@ -108,7 +108,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     "createRowCopy", "putRow", "deleteFile", "createFolder", "copyFile", "getFileSize", "isFile", "isFolder",
     "getShortFilename", "getFileExtension", "getParentFoldername", "getLastModifiedTime", "trunc", "truncDate",
     "moveFile", "execProcess", "isEmpty", "isMailValid", "escapeXml", "removeDigits", "initCap",
-    "protectXMLCDATA", "unEscapeXml", "escapeSQL", "escapeHtml", "unEscapeHtml", "loadFileContent",
+    "protectXmlCdata", "unEscapeXml", "escapeSql", "escapeHtml", "unEscapeHtml", "loadFileContent",
     "getOcuranceString", "removeCRLF" };
 
 
@@ -122,7 +122,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
   // This is only used for reading, so no concurrency problems.
   // todo: move in the real variables of the transform.
-  // private static iVariables variables = Variables.getADefaultVariableSpace();
+  // private static IVariables variables = Variables.getADefaultVariableSpace();
 
   // Functions to Add
   // date2num, num2date,
@@ -2732,7 +2732,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     if ( ArgList.length == 1 ) {
       return Const.escapeSql( Context.toString( ArgList[ 0 ] ) );
     } else {
-      throw Context.reportRuntimeError( "The function call escapeSQL requires 1 argument." );
+      throw Context.reportRuntimeError( "The function call escapeSql requires 1 argument." );
 
     }
   }
@@ -2742,7 +2742,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     if ( ArgList.length == 1 ) {
       return Const.protectXmlCdata( Context.toString( ArgList[ 0 ] ) );
     } else {
-      throw Context.reportRuntimeError( "The function call protectXMLCDATA requires 1 argument." );
+      throw Context.reportRuntimeError( "The function call protectXmlCdata requires 1 argument." );
 
     }
   }

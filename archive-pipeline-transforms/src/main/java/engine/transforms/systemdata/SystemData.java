@@ -689,7 +689,7 @@ public class SystemData extends BaseTransform implements ITransform {
       if ( first ) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
 
     } else {
@@ -699,7 +699,7 @@ public class SystemData extends BaseTransform implements ITransform {
       if ( first ) {
         first = false;
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       }
     }
 

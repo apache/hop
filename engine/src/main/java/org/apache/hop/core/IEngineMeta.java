@@ -145,4 +145,14 @@ public interface IEngineMeta {
    */
   void setInternalHopVariables();
 
+  /**
+   * @return true if the name is derived from the filename
+   */
+  boolean isNameSynchronizedWithFilename();
+
+  /**
+   * @param nameSynchronizedWithFilename Set to true if the name is derived from the filename
+   */
+  void setNameSynchronizedWithFilename( boolean nameSynchronizedWithFilename );
+
 }

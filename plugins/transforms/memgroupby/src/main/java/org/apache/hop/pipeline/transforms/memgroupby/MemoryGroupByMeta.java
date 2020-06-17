@@ -41,7 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -61,7 +61,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.memgroupby",
         name = "BaseTransform.TypeLongDesc.MemoryGroupBy",
         description = "BaseTransform.TypeTooltipDesc.MemoryGroupBy",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/memgroupby.html"
 )
 public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
   private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
@@ -222,7 +223,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -334,7 +335,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
 
   @Override
   public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) {
     // Check compatibility mode
     boolean compatibilityMode = ValueMetaBase.convertStringToBoolean(
       variables.getVariable( Const.HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE, "N" ) );
@@ -472,7 +473,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

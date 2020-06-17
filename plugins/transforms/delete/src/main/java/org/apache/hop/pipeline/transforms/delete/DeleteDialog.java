@@ -62,8 +62,7 @@ import java.util.*;
 @PluginDialog(
         id = "Delete",
         image = "delete.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!

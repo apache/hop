@@ -72,7 +72,7 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
       // prepare the outputMeta
       //
       data.outputMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Now create objects to do string to data type conversion...
       //

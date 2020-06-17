@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -113,9 +113,9 @@ public class MySQLBulkLoaderTest {
   public void testFieldFormatType() throws HopXmlException {
     MySQLBulkLoaderMeta lm = new MySQLBulkLoaderMeta();
     Document document = XmlHandler.loadXmlFile( this.getClass().getResourceAsStream( "transform.xml" ) );
-    IMetaStore metastore = null;
+    IHopMetadataProvider metadataProvider = null;
     Node transformNode = (Node) document.getDocumentElement();
-    lm.loadXml( transformNode, metastore );
+    lm.loadXml( transformNode, metadataProvider );
     int[] codes = lm.getFieldFormatType();
     assertEquals( 3, codes[ 0 ] );
     assertEquals( 4, codes[ 1 ] );

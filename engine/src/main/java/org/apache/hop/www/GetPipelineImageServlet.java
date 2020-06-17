@@ -22,6 +22,8 @@
 
 package org.apache.hop.www;
 
+import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.hop.core.gui.HopSvgGraphics2D;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SwingGc;
 import org.apache.hop.core.util.Utils;
@@ -29,20 +31,23 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
+  public static final float ZOOM_FACTOR = 1.5f;
 
   private static Class<?> PKG = GetPipelineImageServlet.class; // for i18n purposes, needed by Translator!!
 
@@ -61,66 +66,73 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     String pipelineName = request.getParameter( "name" );
     String id = request.getParameter( "id" );
 
-    // ID is optional...
-    //
-    IPipelineEngine<PipelineMeta> pipeline;
-    HopServerObjectEntry entry;
-    if ( Utils.isEmpty( id ) ) {
-      // get the first pipeline that matches...
+    ByteArrayOutputStream svgStream = null;
+    try {
+      // ID is optional...
       //
-      entry = getPipelineMap().getFirstServerObjectEntry( pipelineName );
-      if ( entry == null ) {
-        pipeline = null;
+      IPipelineEngine<PipelineMeta> pipeline;
+      HopServerObjectEntry entry;
+      if ( Utils.isEmpty( id ) ) {
+        throw new Exception("Please provide the ID of pipeline '"+pipelineName+"'");
       } else {
-        id = entry.getId();
+        entry = new HopServerObjectEntry( pipelineName, id );
         pipeline = getPipelineMap().getPipeline( entry );
       }
-    } else {
-      // Take the ID into account!
-      //
-      entry = new HopServerObjectEntry( pipelineName, id );
-      pipeline = getPipelineMap().getPipeline( entry );
-    }
 
-    try {
       if ( pipeline != null ) {
 
         response.setStatus( HttpServletResponse.SC_OK );
 
         response.setCharacterEncoding( "UTF-8" );
-        response.setContentType( "image/png" );
+        response.setContentType( "image/svg+xml" );
 
-        // Generate xform image
+        // Generate pipeline SVG image
         //
-        BufferedImage image = generatePipelineImage( pipeline.getPipelineMeta() );
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        String svgXml = generatePipelineSvgImage( pipeline.getPipelineMeta() );
+        svgStream = new ByteArrayOutputStream();
         try {
-          ImageIO.write( image, "png", os );
+          svgStream.write( svgXml.getBytes("UTF-8") );
         } finally {
-          os.flush();
+          svgStream.flush();
         }
-        response.setContentLength( os.size() );
+        response.setContentLength( svgStream.size() );
 
         OutputStream out = response.getOutputStream();
-        out.write( os.toByteArray() );
-
+        out.write( svgStream.toByteArray() );
       }
     } catch ( Exception e ) {
       e.printStackTrace();
+    } finally {
+      if (svgStream!=null) {
+        svgStream.close();
+      }
     }
   }
 
-  private BufferedImage generatePipelineImage( PipelineMeta pipelineMeta ) throws Exception {
-    float magnification = 1.0f;
+  private String generatePipelineSvgImage( PipelineMeta pipelineMeta ) throws Exception {
+    float magnification = ZOOM_FACTOR;
     Point maximum = pipelineMeta.getMaximum();
     maximum.multiply( magnification );
 
-    SwingGc gc = new SwingGc( null, maximum, 32, 0, 0 );
+    DOMImplementation domImplementation = GenericDOMImplementation.getDOMImplementation();
+
+    // Create an instance of org.w3c.dom.Document.
+    String svgNamespace = "http://www.w3.org/2000/svg";
+    Document document = domImplementation.createDocument(svgNamespace, "svg", null);
+
+    HopSvgGraphics2D graphics2D = new HopSvgGraphics2D( document );
+
+    SwingGc gc = new SwingGc( graphics2D, new Rectangle(0, 0, maximum.x+100, maximum.y+100), 32, 0, 0 );
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.buildPipelineImage();
 
-    return (BufferedImage) gc.getImage();
+    // convert to SVG
+    //
+    StringWriter stringWriter = new StringWriter();
+    graphics2D.stream( stringWriter, true );
+
+    return stringWriter.toString();
   }
 
   public String toString() {

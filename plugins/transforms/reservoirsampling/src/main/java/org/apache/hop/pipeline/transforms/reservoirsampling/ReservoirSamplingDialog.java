@@ -53,14 +53,12 @@ import org.eclipse.swt.widgets.Text;
 /**
  * The UI class for the ReservoirSampling transform
  *
- * @author Mark Hall (mhall{[at]}pentaho.org
  * @version 1.0
  */
 @PluginDialog(
         id = "ReservoirSampling",
         image = "reservoirsampling.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 

@@ -1,0 +1,79 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl:  https://github.com/project-hop/hop/edit/master/plugins/actions/pgpdecryptfiles/src/main/doc/pgpdecryptfiles.adoc
+= Decrypt files with PGP
+
+== Description
+
+This workflow action can be used to decrypt files.
+
+== Options
+
+=== General Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|GPG location|The signature file path.
+|Include subfolders|Whether or not to include subfolders.
+|Copy previous results to args|
+|File/Folder source|The file to decrypt, can be added to the Files/Folders list using Add.
+|File/Folder destination|The destination of the decrypted files.
+|Wildcard|A regex wildcard.
+|User ID|
+|Files/Folders|The files to decrypt.
+|===
+
+=== Destination File Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Create destination folder|Whether or not to create the destination folder.
+|Destination is a file|Whether or not the destination is a file.
+|Do not keep folder structure|Whether or not to keep the folder structure.
+|Add date to filename|Adds the date to the file name.
+|Add time to filename|Adds the time to the file name.
+|Specify Date time format|Whether or not to specify the date time format.
+|Date time format|The format of the date time.
+|Add date before extension|Before or after extension.
+|If destination file exists a|
+
+* Do nothing
+* Overwrite the destination file
+* Create file with unique name
+* Delete source file
+* Move source file to folder
+* Fail
+
+|Destination folder|The destination folder.
+|Create folder|Whether or not to create the folder.
+|Add date|Adds the date.
+|Add time|Adds the time.
+|Specify format|Whether or not to specify the date time format.
+|Add date before extension|The format of the date time.
+|If file exists in destination folder a|
+
+* Do nothing
+* Overwrite the destination file
+* Create file with unique name
+* Delete source file
+* Move source file to folder
+* Fail
+|===
+
+
+=== Destination File Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Success condition a|Which condition to validate for a successful run
+
+* Success when all works
+* Success when at least x files decrypted
+* Success when number of errors lesser than
+|Nr error lesser than|Success if errors lesser than.
+|Add files to result files name|
+|===

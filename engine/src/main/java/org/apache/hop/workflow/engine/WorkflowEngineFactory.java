@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -37,13 +37,13 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 public class WorkflowEngineFactory {
 
-  public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( String runConfigurationName, IMetaStore metaStore, T workflowMeta ) throws HopException {
+  public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( String runConfigurationName, IHopMetadataProvider metadataProvider, T workflowMeta ) throws HopException {
     if ( StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException( "You need to specify a workflow run configuration to execute this workflow" );
     }
     WorkflowRunConfiguration runConfiguration;
     try {
-      runConfiguration = WorkflowRunConfiguration.createFactory( metaStore ).loadElement( runConfigurationName );
+      runConfiguration = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).load( runConfigurationName );
     } catch(Exception e) {
       throw new HopException( "Error loading workflow run configuration '"+runConfigurationName+"'", e );
     }
@@ -58,8 +58,8 @@ public class WorkflowEngineFactory {
 
     // Pass the metastores around to make sure
     //
-    workflowEngine.setMetaStore( metaStore );
-    workflowMeta.setMetaStore( metaStore );
+    workflowEngine.setMetadataProvider( metadataProvider );
+    workflowMeta.setMetadataProvider( metadataProvider );
 
     return workflowEngine;
   }

@@ -53,8 +53,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "GetSlaveSequence",
         image = "getslavesequence.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getslavesequence.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetSlaveSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetSlaveSequenceMeta.class; // for i18n purposes, needed by Translator!!

@@ -55,7 +55,7 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       String realSplitFieldName = environmentSubstitute( meta.getSplitField() );
       data.fieldnr = rowMeta.indexOfValue( realSplitFieldName );

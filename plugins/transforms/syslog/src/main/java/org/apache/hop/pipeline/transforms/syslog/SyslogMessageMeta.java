@@ -33,7 +33,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.workflow.actions.syslog.SyslogDefs;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.w3c.dom.Node;
@@ -44,7 +44,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.syslog",
         name = "BaseTransform.TypeLongDesc.SyslogMessage",
         description = "BaseTransform.TypeTooltipDesc.SyslogMessage",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/syslog.html"
 )
 public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMeta<SyslogMessage, SyslogMessageData> {
   private static Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
@@ -65,8 +66,8 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMe
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -230,7 +231,7 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMe
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       messagefieldname = XmlHandler.getTagValue( transformNode, "messagefieldname" );
       port = XmlHandler.getTagValue( transformNode, "port" );
@@ -249,7 +250,7 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMe
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

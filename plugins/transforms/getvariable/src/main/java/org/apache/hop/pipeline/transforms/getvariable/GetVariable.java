@@ -74,7 +74,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
         data.inputRowMeta = new RowMeta();
       }
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Create a copy of the output row metadata to do the data conversion...
       //

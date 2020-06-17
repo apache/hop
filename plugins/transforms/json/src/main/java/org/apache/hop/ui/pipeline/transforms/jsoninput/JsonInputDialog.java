@@ -1429,7 +1429,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       JsonInputMeta oneMeta = new JsonInputMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metaStore, oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "JsonInputDialog.NumberRows.DialogTitle" ),

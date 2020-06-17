@@ -44,7 +44,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.lineage.FieldnameLineage;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -65,7 +65,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.selectvalues",
         name = "BaseTransform.TypeLongDesc.SelectValues",
         description = "BaseTransform.TypeTooltipDesc.SelectValues",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/selectvalues.html"
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {
@@ -213,7 +214,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -380,7 +381,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  // Not called anywhere else in Hitachi Vantara. It's important to call the method below passing in the IVariables
+  // Not called anywhere else in Hop. It's important to call the method below passing in the IVariables
   @Deprecated
   public void getMetadataFields( IRowMeta inputRowMeta, String name ) throws HopPluginException {
     getMetadataFields( inputRowMeta, name, null );
@@ -471,7 +472,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
 
   @Override
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     try {
       IRowMeta rowMeta = inputRowMeta.clone();
       inputRowMeta.clear();
@@ -521,7 +522,7 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {
@@ -793,11 +794,6 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
     }
 
     return lineages;
-  }
-
-  @Override
-  public String getDialogClassName(){
-    return SelectValuesDialog.class.getName();
   }
 
   public static class SelectField implements Cloneable {

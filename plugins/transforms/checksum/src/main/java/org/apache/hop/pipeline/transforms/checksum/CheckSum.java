@@ -68,7 +68,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implemen
 
       data.outputRowMeta = getInputRowMeta().clone();
       data.nrInfields = data.outputRowMeta.size();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
         data.fieldnrs = new int[ meta.getFieldName().length ];

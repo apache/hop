@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -30,7 +30,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -85,9 +85,9 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
     } );
 
     try {
-      IMetaStore metaStore = pipelineMeta.getMetaStore();
+      IHopMetadataProvider metadataProvider = pipelineMeta.getMetadataProvider();
 
-      if ( metaStore == null ) {
+      if ( metadataProvider == null ) {
         return; // Nothing to do here, we can't reference data sets.
       }
 

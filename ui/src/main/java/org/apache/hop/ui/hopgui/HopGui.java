@@ -53,10 +53,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
@@ -68,16 +66,16 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metastore.MetaStoreManager;
+import org.apache.hop.ui.core.metastore.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.context.metastore.MetaStoreContext;
+import org.apache.hop.ui.hopgui.context.metadata.MetadataContext;
 import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
-import org.apache.hop.ui.hopgui.dialog.MetaStoreExplorerDialog;
+import org.apache.hop.ui.hopgui.dialog.MetadataExplorerDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -131,8 +129,8 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_FILE_OPEN_RECENT = "10025-menu-file-open-recent";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
-  public static final String ID_MAIN_MENU_FILE_EDIT_METASTORE = "10060-menu-file-edit-metastore";
-  public static final String ID_MAIN_MENU_FILE_DELETE_METASTORE = "10065-menu-file-delete-metastore";
+  public static final String ID_MAIN_MENU_FILE_EDIT_METASTORE = "10060-menu-file-edit-metadata";
+  public static final String ID_MAIN_MENU_FILE_DELETE_METASTORE = "10065-menu-file-delete-metadata";
   public static final String ID_MAIN_MENU_FILE_EXPLORE_METASTORE = "10070-menu-file-explore_metastore";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
@@ -166,9 +164,10 @@ public class HopGui implements IActionContextHandlersProvider {
   // The main toolbar IDs
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
   public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
-  public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10010-open";
-  public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10010-save";
-  public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10010-save-as";
+  public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10020-open";
+  public static final String ID_MAIN_TOOLBAR_METADATA = "toolbar-10030-metadata";
+  public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
+  public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10050-save-as";
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
@@ -181,8 +180,7 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private static HopGui hopGui;
 
-  private DelegatingMetaStore metaStore;
-  private MetaStoreContext metaStoreContext;
+  private IHopMetadataProvider metadataProvider;
 
   private ILoggingObject loggingObject;
   private ILogChannel log;
@@ -209,9 +207,9 @@ public class HopGui implements IActionContextHandlersProvider {
   private static PrintStream originalSystemOut = System.out;
   private static PrintStream originalSystemErr = System.err;
 
-  public MetaStoreManager<DatabaseMeta> databaseMetaManager;
-  public MetaStoreManager<SlaveServer> slaveServerManager;
-  public MetaStoreManager<PartitionSchema> partitionManager;
+  public MetadataManager<DatabaseMeta> databaseMetaManager;
+  public MetadataManager<SlaveServer> slaveServerManager;
+  public MetadataManager<PartitionSchema> partitionManager;
 
   public HopGuiFileDelegate fileDelegate;
   public HopGuiUndoDelegate undoDelegate;
@@ -247,22 +245,13 @@ public class HopGui implements IActionContextHandlersProvider {
     contextDelegate = new HopGuiContextDelegate( this );
     auditDelegate = new HopGuiAuditDelegate( this );
 
-    // TODO: create metastore plugin system
+    // TODO: create metadata plugin system
     //
-    metaStore = new DelegatingMetaStore();
-    try {
-      IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore(variables);
-      metaStore.addMetaStore( localMetaStore );
-      metaStore.setActiveMetaStoreName( localMetaStore.getName() );
-    } catch ( MetaStoreException e ) {
-      new ErrorDialog( shell, "Error opening Hop Metastore", "Unable to open the local Hop Metastore", e );
-    }
+    metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider( variables );
 
-    databaseMetaManager = new MetaStoreManager<>( variables, metaStore, DatabaseMeta.class );
-    slaveServerManager = new MetaStoreManager<>( variables, metaStore, SlaveServer.class );
-    partitionManager = new MetaStoreManager<>( variables, metaStore, PartitionSchema.class );
-
-    metaStoreContext = new MetaStoreContext( this, metaStore );
+    databaseMetaManager = new MetadataManager<>( variables, metadataProvider, DatabaseMeta.class );
+    slaveServerManager = new MetadataManager<>( variables, metadataProvider, SlaveServer.class );
+    partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
   }
@@ -484,20 +473,21 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EDIT_METASTORE, label = "Edit MetaStore element", parentId = ID_MAIN_MENU_FILE, separator = true )
-  public void menuFileEditMetaStore() {
-    contextDelegate.fileMetaStoreEdit();
+  public void menuFileEditMetadata() {
+    contextDelegate.fileMetadataEdit();
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
-  public void menuFileDeleteMetaStore() {
-    contextDelegate.fileMetaStoreDelete();
+  public void menuFileDeleteMetadata() {
+    contextDelegate.fileMetadataDelete();
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore the MetaStore", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_METADATA, image = "ui/images/metadata.svg", toolTip = "Explore metadata", separator = true )
   @GuiKeyboardShortcut( control = true, shift=true, key = SWT.F5 )
   @GuiOsxKeyboardShortcut( command = true, shift=true, key = SWT.F5 )
-  public void menuFileMetaStoreExplorer() {
-    new MetaStoreExplorerDialog( shell, metaStore ).open();
+  public void menuFileExplorerMetadata() {
+    new MetadataExplorerDialog( shell, metadataProvider ).open();
   }
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
@@ -830,19 +820,19 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public DelegatingMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( DelegatingMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**
@@ -1033,7 +1023,7 @@ public class HopGui implements IActionContextHandlersProvider {
   /**
    * What are the contexts to consider:
    * - the file types registered
-   * - the available IMetaStore element types
+   * - the available metadata types
    *
    * @return The list of context handlers
    */
@@ -1048,9 +1038,9 @@ public class HopGui implements IActionContextHandlersProvider {
       contextHandlers.addAll( hopFileType.getContextHandlers() );
     }
 
-    // Get all the metastore context handlers...
+    // Get all the metadata context handlers...
     //
-    contextHandlers.addAll( metaStoreContext.getContextHandlers() );
+    contextHandlers.addAll( new MetadataContext( this, metadataProvider ).getContextHandlers() );
 
     return contextHandlers;
   }
@@ -1071,14 +1061,14 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of databaseMetaManager
    */
-  public MetaStoreManager<DatabaseMeta> getDatabaseMetaManager() {
+  public MetadataManager<DatabaseMeta> getDatabaseMetaManager() {
     return databaseMetaManager;
   }
 
   /**
    * @param databaseMetaManager The databaseMetaManager to set
    */
-  public void setDatabaseMetaManager( MetaStoreManager<DatabaseMeta> databaseMetaManager ) {
+  public void setDatabaseMetaManager( MetadataManager<DatabaseMeta> databaseMetaManager ) {
     this.databaseMetaManager = databaseMetaManager;
   }
 
@@ -1087,14 +1077,14 @@ public class HopGui implements IActionContextHandlersProvider {
    *
    * @return value of partitionManager
    */
-  public MetaStoreManager<PartitionSchema> getPartitionManager() {
+  public MetadataManager<PartitionSchema> getPartitionManager() {
     return partitionManager;
   }
 
   /**
    * @param partitionManager The partitionManager to set
    */
-  public void setPartitionManager( MetaStoreManager<PartitionSchema> partitionManager ) {
+  public void setPartitionManager( MetadataManager<PartitionSchema> partitionManager ) {
     this.partitionManager = partitionManager;
   }
 
@@ -1137,15 +1127,6 @@ public class HopGui implements IActionContextHandlersProvider {
    */
   public IHopPerspective getActivePerspective() {
     return activePerspective;
-  }
-
-  /**
-   * Gets metaStoreContext
-   *
-   * @return value of metaStoreContext
-   */
-  public MetaStoreContext getMetaStoreContext() {
-    return metaStoreContext;
   }
 
   /**

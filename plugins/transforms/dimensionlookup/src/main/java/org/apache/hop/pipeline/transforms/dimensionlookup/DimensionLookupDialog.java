@@ -71,8 +71,7 @@ import java.util.*;
 @PluginDialog(
         id = "DimensionLookup",
         image = "dimensionlookup.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DimensionLookupMeta.class; // for
@@ -1793,7 +1792,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
 
       if ( message == null ) {
-        SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
+        SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metadataProvider );
         if ( !sql.hasError() ) {
           if ( sql.hasSql() ) {
             SqlEditor sqledit =

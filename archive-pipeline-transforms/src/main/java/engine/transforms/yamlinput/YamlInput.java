@@ -103,7 +103,7 @@ public class YamlInput extends BaseTransform implements ITransform {
         // Get total previous fields
         data.totalPreviousFields = data.outputRowMeta.size();
         data.totalOutFields = data.totalPreviousFields + data.nrInputFields;
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
         // Check is Yaml field is provided
         if ( Utils.isEmpty( meta.getYamlField() ) ) {
@@ -229,7 +229,7 @@ public class YamlInput extends BaseTransform implements ITransform {
       data.outputRowMeta = new RowMeta();
       data.totalPreviousFields = 0;
       data.totalOutFields = data.totalPreviousFields + data.nrInputFields;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       data.totalOutStreamFields = data.outputRowMeta.size();
 
     }

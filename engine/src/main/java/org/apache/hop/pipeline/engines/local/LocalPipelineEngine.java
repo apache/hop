@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -56,8 +56,8 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     setDefaultRunConfiguration();
   }
 
-  public <Parent extends IVariables & INamedParams> LocalPipelineEngine( Parent parent, String name, String filename, IMetaStore metaStore ) throws HopException {
-    super( parent, name, filename, metaStore );
+  public <Parent extends IVariables & INamedParams> LocalPipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
+    super( parent, name, filename, metadataProvider );
     setDefaultRunConfiguration();
   }
 

@@ -1,0 +1,28 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/uniquerowsbyhashset/src/main/doc/uniquerowsbyhashset.adoc
+= Unique Rows (HashSet)
+
+== Description
+
+The Unique Rows (HashSet) transform removes duplicate rows and filters only the unique rows as input data for the transform.
+
+This transform differs from the Unique Rows pipeline transform by keeping track of the duplicate rows in memory and does not require a sorted input to process duplicate rows. 
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform Name|Name of the transform this name has to be unique in a single pipeline.
+|Compare using stored row values|Select this option to store values for the selected fields in memory for every record. Storing row values requires more memory, but it prevents possible false positives if there are hash collisions.
+|Redirect duplicate row|Select this option to process duplicate rows as an error and redirect them to the error stream of the transform. If you do not select this option, the duplicate rows are deleted.
+|Error description|Specify the error handling description that displays when the transform detects duplicate rows. This description is only available when Redirect duplicate row is selected.
+|Fields to compare table|	
+
+Specify the field names for which you want to find unique values.
+
+-OR-
+
+Select Get to insert all the fields from the input stream. 
+|===

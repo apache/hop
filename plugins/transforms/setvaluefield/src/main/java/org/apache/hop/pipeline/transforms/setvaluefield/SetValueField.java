@@ -64,7 +64,7 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
       first = false;
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.indexOfField = new int[ meta.getFieldName().length ];
       data.indexOfReplaceByValue = new int[ meta.getFieldName().length ];

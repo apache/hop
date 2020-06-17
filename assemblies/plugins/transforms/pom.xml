@@ -75,14 +75,19 @@
         <module>ldap</module>
         <module>ldifinput</module>
         <module>loadfileinput</module>
+        <module>mail</module>
+        <module>mailinput</module>
+        <module>mailvalidator</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
+        <module>mergerows</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>
+        <module>randomvalue</module>
         <module>reservoirsampling</module>
         <module>rest</module>
         <module>rowgenerator</module>
@@ -91,10 +96,13 @@
         <module>selectvalues</module>
         <module>setvalueconstant</module>
         <module>setvaluefield</module>
+        <module>setvariable</module>
         <module>sort</module>
         <module>sortedmerge</module>
         <module>sql</module>
         <module>streamlookup</module>
+        <module>stringcut</module>
+        <module>stringoperations</module>
         <module>syslog</module>
         <module>systemdata</module>
         <module>switchcase</module>
@@ -107,7 +115,10 @@
         <module>uniquerowsbyhashset</module>
         <module>update</module>
         <module>valuemapper</module>
+        <module>webserviceavailable</module>
+        <module>webservices</module>
         <module>writetolog</module>
+        <module>xml</module>
     </modules>
 
 </project>

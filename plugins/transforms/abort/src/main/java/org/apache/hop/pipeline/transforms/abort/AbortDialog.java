@@ -56,8 +56,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "Abort",
         image = "abort.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/abort.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class AbortDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AbortDialog.class; // for i18n purposes, needed by Translator!!

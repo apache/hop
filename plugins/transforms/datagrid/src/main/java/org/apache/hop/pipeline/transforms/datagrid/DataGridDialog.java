@@ -58,8 +58,7 @@ import java.util.List;
 @PluginDialog(
         id = "DataGrid",
         image = "datagrid.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/datagrid.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
@@ -593,7 +592,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     DataGridMeta oneMeta = new DataGridMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =

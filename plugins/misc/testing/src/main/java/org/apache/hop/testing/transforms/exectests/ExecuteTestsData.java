@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -23,7 +23,6 @@
 package org.apache.hop.testing.transforms.exectests;
 
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -33,7 +32,6 @@ import java.util.List;
 
 public class ExecuteTestsData extends BaseTransformData implements ITransformData {
 
-  public MetaStoreFactory<PipelineUnitTest> testFactory;
   public List<PipelineUnitTest> tests;
   public Iterator<PipelineUnitTest> testsIterator;
   public IRowMeta outputRowMeta;

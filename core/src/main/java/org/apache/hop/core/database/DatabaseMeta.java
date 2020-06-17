@@ -26,7 +26,6 @@ package org.apache.hop.core.database;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.database.metastore.DatabaseMetaStoreObjectFactory;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
@@ -45,17 +44,15 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,11 +68,13 @@ import java.util.concurrent.Future;
  * @author Matt
  * @since 18-05-2003
  */
-@MetaStoreElementType(
+@HopMetadata(
+  key = "rdbms",
   name = "Relational Database Connection",
-  description = "This contains all the metadata needed to connect to a relational database"
+  description = "This contains all the metadata needed to connect to a relational database",
+  iconImage = "ui/images/CNC.svg"
 )
-public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement<DatabaseMeta> {
+public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
   private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "connection";
@@ -84,12 +83,13 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
 
   // Comparator for sorting databases alphabetically by name
   public static final Comparator<DatabaseMeta> comparator = ( DatabaseMeta dbm1, DatabaseMeta dbm2 ) -> {
-	      return dbm1.getName().compareToIgnoreCase( dbm2.getName() );	    
+    return dbm1.getName().compareToIgnoreCase( dbm2.getName() );
   };
-  
+
+  @HopMetadataProperty
   private String name;
 
-  @MetaStoreAttribute( key = "rdbms" )
+  @HopMetadataProperty( key = "rdbms" )
   private IDatabase iDatabase;
 
   private static volatile Future<Map<String, IDatabase>> allDatabaseInterfaces;
@@ -176,22 +176,12 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     addOptions();
   }
 
-  @Override public MetaStoreFactory<DatabaseMeta> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<DatabaseMeta> createFactory( IMetaStore metaStore ) {
-    MetaStoreFactory<DatabaseMeta> factory = new MetaStoreFactory<>( DatabaseMeta.class, metaStore );
-    factory.setObjectFactory( new DatabaseMetaStoreObjectFactory() );
-    return factory;
-  }
-
-  public static DatabaseMeta loadDatabase( IMetaStore metaStore, String connectionName ) throws HopXmlException {
-    if ( metaStore == null || StringUtils.isEmpty( connectionName ) ) {
+  public static DatabaseMeta loadDatabase( IHopMetadataProvider metadataProvider, String connectionName ) throws HopXmlException {
+    if ( metadataProvider == null || StringUtils.isEmpty( connectionName ) ) {
       return null; // Nothing to find or load
     }
     try {
-      return createFactory( metaStore ).loadElement( connectionName );
+      return metadataProvider.getSerializer( DatabaseMeta.class ).load(connectionName);
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load relational database connection '" + connectionName + "'", e );
     }
@@ -278,15 +268,17 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
   public void replaceMeta( DatabaseMeta databaseMeta ) {
-    this.setValues(
-      databaseMeta.getName(), databaseMeta.getPluginId(), databaseMeta.getAccessTypeDesc(), databaseMeta
-        .getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getPort(),
+    this.setValues( databaseMeta.getName(), databaseMeta.getPluginId(), databaseMeta.getAccessTypeDesc(),
+      databaseMeta.getHostname(), databaseMeta.getDatabaseName(), databaseMeta.getPort(),
       databaseMeta.getUsername(), databaseMeta.getPassword() );
     this.setServername( databaseMeta.getServername() );
     this.setDataTablespace( databaseMeta.getDataTablespace() );
     this.setIndexTablespace( databaseMeta.getIndexTablespace() );
 
     this.iDatabase = (IDatabase) databaseMeta.iDatabase.clone();
+
+    // Replace all attributes
+    this.getAttributes().putAll(databaseMeta.getAttributes());
 
     this.setChanged();
   }
@@ -590,7 +582,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @return The extra attributes for this database connection
    */
-  public Properties getAttributes() {
+  public Map<String, String> getAttributes() {
     return iDatabase.getAttributes();
   }
 
@@ -599,7 +591,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    *
    * @param attributes The extra attributes to set on this database connection.
    */
-  public void setAttributes( Properties attributes ) {
+  public void setAttributes( Map<String, String> attributes ) {
     iDatabase.setAttributes( attributes );
   }
 
@@ -1061,7 +1053,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return sbsql.toString();
   }
 
-  public String getSeqNextvalSql(String sequenceName ) {
+  public String getSeqNextvalSql( String sequenceName ) {
     return iDatabase.getSqlNextSequenceValue( sequenceName );
   }
 
@@ -1581,10 +1573,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
       r.addValue( val, IValueMeta.TYPE_STRING, getServername() );
       list.add( r );
       // Other properties...
-      Enumeration<Object> keys = getAttributes().keys();
-      while ( keys.hasMoreElements() ) {
-        String key = (String) keys.nextElement();
-        String value = getAttributes().getProperty( key );
+      for ( String key : getAttributes().keySet() ) {
+        String value = getAttributes().get( key );
         r = new RowMetaAndData();
         r.addValue( par, IValueMeta.TYPE_STRING, "Extra attribute [" + key + "]" );
         r.addValue( val, IValueMeta.TYPE_STRING, value );
@@ -1905,7 +1895,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   /**
    * @param sql The SQL to execute right after connecting
    */
-  public void setConnectSql(String sql ) {
+  public void setConnectSql( String sql ) {
     iDatabase.setConnectSql( sql );
   }
 
@@ -2135,9 +2125,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     }
   }
 
-  
 
-  
   /**
    * @return true if the Microsoft SQL server uses two decimals (..) to separate schema and table (default==false).
    */
@@ -2160,7 +2148,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
   }
 
 
-  
   public String testConnection() {
 
     StringBuilder report = new StringBuilder();
@@ -2302,7 +2289,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
     return iDatabase.getSqlListOfSequences();
   }
 
-  public String quoteSqlString(String string ) {
+  public String quoteSqlString( String string ) {
     return iDatabase.quoteSqlString( string );
   }
 
@@ -2371,7 +2358,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetaStoreElement
    *
    * @param tableName Name of the table to drop
    * @return Drop table statement specific for the current database
-   * @see <a href="http://jira.pentaho.com/browse/BISERVER-13024">BISERVER-13024</a>
    */
   public String getDropTableIfExistsStatement( String tableName ) {
     return iDatabase.getDropTableIfExistsStatement( tableName );

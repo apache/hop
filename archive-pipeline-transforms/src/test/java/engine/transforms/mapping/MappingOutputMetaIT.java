@@ -26,8 +26,8 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.variables.iVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mappingoutput.MappingOutputMeta;
 import org.junit.Ignore;
@@ -43,8 +43,8 @@ import static org.mockito.Mockito.mock;
 
 public class MappingOutputMetaIT {
 
-  private IMetaStore metaStore = mock( IMetaStore.class );
-  private iVariables variables = mock( iVariables.class );
+  private IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+  private IVariables variables = mock( IVariables.class );
   private TransformMeta nextTransform = mock( TransformMeta.class );
   private IRowMeta[] info = new IRowMeta[] { mock( IRowMeta.class ) };
 
@@ -62,7 +62,7 @@ public class MappingOutputMetaIT {
     outputValueRenames.add( new MappingValueRename( "valueMeta2", "valueMeta1" ) );
     MappingOutputMeta meta = new MappingOutputMeta();
     meta.setOutputValueRenames( outputValueRenames );
-    meta.getFields( rowMeta, null, info, nextTransform, variables, metaStore );
+    meta.getFields( rowMeta, null, info, nextTransform, variables, metadataProvider );
 
     //we must not add additional field
     assertEquals( 2, rowMeta.getValueMetaList().size() );

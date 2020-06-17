@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -120,14 +120,14 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           //
           synchronized ( this ) {
             WorkflowConfiguration workflowConfiguration = getWorkflowMap().getConfiguration( workflowName );
+            IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
 
             String serverObjectId = UUID.randomUUID().toString();
             SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
             servletLoggingObject.setContainerObjectId( serverObjectId );
 
             String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-            IMetaStore metaStore = HopServerSingleton.getInstance().getWorkflowMap().getSlaveServerConfig().getMetaStore();
-            IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflow.getWorkflowMeta() );
+            IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta() );
             newWorkflow.setLogLevel( workflow.getLogLevel() );
 
             // Discard old log lines from the old workflow

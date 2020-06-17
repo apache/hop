@@ -34,7 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -56,7 +56,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transform.calculator",
         name = "BaseTransform.TypeLongDesc.Calculator",
         description = "BaseTransform.TypeTooltipDesc.Calculator",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/calculator.html"
 )
 public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<Calculator, CalculatorData> {
 
@@ -93,7 +94,7 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     failIfNoFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "failIfNoFile" ) );
 
     int nrCalcs = XmlHandler.countNodes( transformNode, CalculatorMetaFunction.XML_TAG );
@@ -157,7 +158,7 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( CalculatorMetaFunction fn : calculation ) {
       if ( !fn.isRemovedFromResult() ) {
         if ( !Utils.isEmpty( fn.getFieldName() ) ) { // It's a new field!
@@ -209,7 +210,7 @@ public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!

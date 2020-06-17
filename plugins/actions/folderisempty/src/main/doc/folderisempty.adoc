@@ -2,3 +2,19 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/folderisempty/src/main/doc/folderisempty.adoc
 = Folder is Empty
+
+== Description
+
+The Folder is empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|Folder name|The name of the folder to verify for emptiness.
+|Limit search to|Limits the search for files to those with a certain wildcard (regular expression)
+|Wildcard|The wildcard (regular expression) to limit the files to look for with, for example: .*\.txt$ 
+|===
+

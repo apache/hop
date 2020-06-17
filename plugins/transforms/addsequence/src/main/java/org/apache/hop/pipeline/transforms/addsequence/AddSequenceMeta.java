@@ -38,7 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -59,7 +59,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.AddSequence",
         description = "BaseTransform.TypeTooltipDesc.AddSequence",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/addsequence.html"
 )
 public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta<AddSequence, AddSequenceData> {
 
@@ -218,13 +218,13 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       valuename = XmlHandler.getTagValue( transformNode, "valuename" );
 
       useDatabase = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "use_database" ) );
       String conn = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, conn );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, conn );
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       sequenceName = XmlHandler.getTagValue( transformNode, "seqname" );
 
@@ -261,7 +261,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     IValueMeta v = new ValueMetaInteger( valuename );
     // v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0); Removed for 2.5.x compatibility reasons.
     v.setOrigin( name );
@@ -291,7 +291,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( useDatabase ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -334,7 +334,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) {
+                                        IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( useDatabase ) {

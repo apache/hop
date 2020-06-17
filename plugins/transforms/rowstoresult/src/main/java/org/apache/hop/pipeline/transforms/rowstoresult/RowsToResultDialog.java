@@ -52,8 +52,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "RowsToResult",
         image = "rowstoresult.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/rowgenerator.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class RowsToResultDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RowsToResultMeta.class; // for i18n purposes, needed by Translator!!

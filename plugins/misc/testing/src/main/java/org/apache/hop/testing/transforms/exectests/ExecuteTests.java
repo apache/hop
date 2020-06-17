@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -28,8 +28,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -81,7 +80,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
     if ( first ) {
       first = false;
 
-      MetaStoreFactory<PipelineUnitTest> testFactory = PipelineUnitTest.createFactory( metaStore );
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer = metadataProvider.getSerializer( PipelineUnitTest.class );
 
       // Read all the unit test names from the previous transform(s)
       //
@@ -105,7 +104,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         while ( row != null ) {
           String testName = getInputRowMeta().getString( row, inputFieldIndex );
           try {
-            PipelineUnitTest pipelineUnitTest = testFactory.loadElement( testName );
+            PipelineUnitTest pipelineUnitTest = testSerializer.load( testName );
             pipelineUnitTest.initializeVariablesFrom( this );
 
             data.tests.add( pipelineUnitTest );
@@ -120,20 +119,20 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         //
         try {
           data.tests = new ArrayList<>();
-          for ( String testName : testFactory.getElementNames() ) {
-            PipelineUnitTest pipelineUnitTest = testFactory.loadElement( testName );
+          for ( String testName : testSerializer.listObjectNames() ) {
+            PipelineUnitTest pipelineUnitTest = testSerializer.load( testName );
             if ( meta.getTypeToExecute() == null || meta.getTypeToExecute() == pipelineUnitTest.getType() ) {
               data.tests.add( pipelineUnitTest );
             }
           }
-        } catch ( MetaStoreException e ) {
-          throw new HopException( "Unable to read pipeline unit tests from the metastore", e );
+        } catch ( HopException e ) {
+          throw new HopException( "Unable to read pipeline unit tests from the metadata", e );
         }
       }
 
       data.testsIterator = data.tests.iterator();
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
 
     // Execute one test per iteration.
@@ -161,7 +160,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         //
         testTrans.initializeVariablesFrom( this );
         testTrans.setLogLevel( getPipeline().getLogLevel() );
-        testTrans.setMetaStore( getMetaStore() );
+        testTrans.setMetadataProvider( getMetadataProvider() );
 
         // 4. Execute
         //
@@ -187,7 +186,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         }
 
         List<UnitTestResult> testResults = new ArrayList<UnitTestResult>();
-        DataSetConst.validateTransResultAgainstUnitTest( testTrans, test, metaStore, testResults );
+        DataSetConst.validateTransResultAgainstUnitTest( testTrans, test, metadataProvider, testResults );
 
         for ( UnitTestResult testResult : testResults ) {
           Object[] row = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
@@ -230,7 +229,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
     //
     String filename = test.calculateCompleteFilename();
     if ( StringUtils.isNotEmpty( filename ) ) {
-      unitTestPipelineMeta = new PipelineMeta( filename, metaStore, true, this );
+      unitTestPipelineMeta = new PipelineMeta( filename, metadataProvider, true, this );
     }
     if ( unitTestPipelineMeta == null ) {
       throw new HopException( "Unable to find a valid pipeline filename in unit test '" + test.getName() + "'" );
@@ -242,7 +241,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
 
     // Pass some data from the parent...
     //
-    unitTestPipelineMeta.setMetaStore( metaStore );
+    unitTestPipelineMeta.setMetadataProvider( metadataProvider );
     unitTestPipelineMeta.initializeVariablesFrom( this );
     unitTestPipelineMeta.copyParametersFrom( getPipeline() );
 

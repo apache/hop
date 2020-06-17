@@ -40,7 +40,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -58,7 +58,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.databaselookup",
         name = "BaseTransform.TypeLongDesc.DatabaseLookup",
         description = "BaseTransform.TypeTooltipDesc.DatabaseLookup",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/databaselookup.html"
 )
 public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 
@@ -369,11 +370,11 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     streamKeyField1 = null;
     returnValueField = null;
 
-    readData( transformNode, metaStore );
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -409,13 +410,13 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String dtype;
       String csize;
 
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       cached = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "cache" ) );
       loadingAllDataInCache = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "cache_load_all" ) );
       csize = XmlHandler.getTagValue( transformNode, "cache_size" );
@@ -504,7 +505,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( Utils.isEmpty( info ) || info[ 0 ] == null ) { // null or length 0 : no info from database
       for ( int i = 0; i < getReturnValueNewName().length; i++ ) {
         try {
@@ -573,7 +574,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -754,7 +755,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transforminfo,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) {
+                             IHopMetadataProvider metadataProvider ) {
     // The keys are read-only...
     for ( int i = 0; i < streamKeyField1.length; i++ ) {
       IValueMeta v = prev.searchValueMeta( streamKeyField1[ i ] );

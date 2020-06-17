@@ -32,7 +32,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -58,7 +58,8 @@ import java.util.Objects;
         i18nPackageName = "org.apache.hop.pipeline.transforms.javafilter",
         name = "BaseTransform.TypeLongDesc.JavaFilter",
         description = "BaseTransform.TypeTooltipDesc.JavaFilter",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/javafilter.html"
 )
 public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<JavaFilter, JavaFilterData> {
   private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
@@ -83,7 +84,7 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<
   public void allocate( int nrCalcs ) {
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
 
     targetStreams.get( 0 ).setSubject( XmlHandler.getTagValue( transformNode, "send_true_to" ) );
@@ -137,7 +138,7 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

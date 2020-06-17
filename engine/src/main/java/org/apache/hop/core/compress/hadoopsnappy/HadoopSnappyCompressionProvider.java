@@ -36,7 +36,7 @@ public class HadoopSnappyCompressionProvider implements ICompressionProvider {
   private static final String HADOOP_CONFIG_UTIL_CLASS_PROPERTY = "hadoop.config.util.class";
 
   private static final String[] HADOOP_CONFIG_UTIL_CLASS = { "org.apache.hadoop.hive.jdbc.HadoopConfigurationUtil",
-    "org.pentaho.hadoop.hive.jdbc.HadoopConfigurationUtil", };
+    "org.apache.hop.hadoop.hive.jdbc.HadoopConfigurationUtil", };
 
   private static final String GET_ACTIVE_CONFIGURATION_METHOD = "getActiveConfiguration";
 
@@ -45,11 +45,11 @@ public class HadoopSnappyCompressionProvider implements ICompressionProvider {
   /**
    * Locate the Snappy Shim for the active Hadoop Configuration via the Hadoop Configuration Util
    *
-   * @return A {@link org.pentaho.hadoop.shim.spi.SnappyShim} to interact with Snappy
+   * @return A {@link org.apache.hop.hadoop.shim.spi.SnappyShim} to interact with Snappy
    * @throws Exception Error locating a valid Snappy shim:
    *                   <p>
    *                   <ul>
-   *                   <li>{@link org.pentaho.hadoop.hive.jdbc.HadoopConfigurationUtil} could not be located</li>
+   *                   <li>{@link org.apache.hop.hadoop.hive.jdbc.HadoopConfigurationUtil} could not be located</li>
    *                   <li>No active Hadoop configuration</li>
    *                   <li>Active Hadoop configuration doesn't support Snappy</li>
    *                   </ul>

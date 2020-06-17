@@ -107,7 +107,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
   private void openReferencedObject( IAction action, String objectDescription, int index ) {
     HopGui hopGui = HopGui.getInstance();
     try {
-      IHasFilename hasFilename = action.loadReferencedObject( index, workflowMeta.getMetaStore(), workflowMeta );
+      IHasFilename hasFilename = action.loadReferencedObject( index, workflowMeta.getMetadataProvider(), workflowMeta );
       if ( hasFilename != null ) {
         String filename = workflowMeta.environmentSubstitute( hasFilename.getFilename() );
 

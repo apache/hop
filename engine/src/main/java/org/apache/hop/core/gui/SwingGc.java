@@ -120,10 +120,10 @@ public class SwingGc implements IGc {
 
   private Graphics2D gc;
 
-  private int iconsize;
+  private int iconSize;
 
   //TODO should be changed to PropsUI usage
-  private int small_icon_size = 16;
+  private int smallIconSize = 16;
 
   private Map<String, SwingUniversalImage> transformImages;
   private Map<String, SwingUniversalImage> entryImages;
@@ -153,7 +153,7 @@ public class SwingGc implements IGc {
   private AffineTransform originalTransform;
 
   private SwingGc( BufferedImage image, Graphics2D gc, ImageObserver observer,
-                   Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
+                   Point area, int iconSize, int xOffset, int yOffset ) throws HopException {
     this.image = image;
     this.gc = gc;
     if ( gc == null && image != null ) {
@@ -162,7 +162,7 @@ public class SwingGc implements IGc {
     this.observer = observer;
     this.transformImages = SwingGUIResource.getInstance().getTransformImages();
     this.entryImages = SwingGUIResource.getInstance().getEntryImages();
-    this.iconsize = iconsize;
+    this.iconSize = iconSize;
     this.area = area;
     this.xOffset = xOffset;
     this.yOffset = yOffset;
@@ -171,14 +171,9 @@ public class SwingGc implements IGc {
     init();
   }
 
-  public SwingGc( ImageObserver observer, Point area, int iconsize, int xOffset, int yOffset ) throws HopException {
-    this( new BufferedImage( area.x, area.y, BufferedImage.TYPE_INT_ARGB ), null, observer,
-      area, iconsize, xOffset, yOffset );
-  }
-
-  public SwingGc( Graphics2D gc, Rectangle2D rect, int iconsize, int xOffset, int yOffset ) throws HopException {
+  public SwingGc( Graphics2D gc, Rectangle2D rect, int iconSize, int xOffset, int yOffset ) throws HopException {
     this( null, gc, null,
-      new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconsize, xOffset, yOffset );
+      new Point( (int) rect.getWidth(), (int) rect.getHeight() ), iconSize, xOffset, yOffset );
   }
 
   private void init() throws HopException {
@@ -329,7 +324,7 @@ public class SwingGc implements IGc {
   @Override
   public void drawImage( String location, ClassLoader classLoader, int x, int y ) {
     SwingUniversalImage img = SwingSvgImageUtil.getUniversalImage( classLoader, location );
-    drawImage( img, x, y, small_icon_size );
+    drawImage( img, x, y, smallIconSize );
   }
 
   @Override
@@ -342,7 +337,7 @@ public class SwingGc implements IGc {
 
     SwingUniversalImage img = getNativeImage( image );
 
-    drawImage( img, locationX, locationY, small_icon_size );
+    drawImage( img, locationX, locationY, smallIconSize );
 
     // gc.drawImage(img, locationX+xOffset, locationY+yOffset, observer);
 
@@ -356,10 +351,10 @@ public class SwingGc implements IGc {
   @Override
   public void drawImage( EImage image, int x, int y, float magnification, double angle ) {
     SwingUniversalImage img = getNativeImage( image );
-    drawImage( img, x, y, angle, small_icon_size );
+    drawImage( img, x, y, angle, smallIconSize );
   }
 
-  private void drawImage( SwingUniversalImage image, int locationX, int locationY, int imageSize ) {
+  protected void drawImage( SwingUniversalImage image, int locationX, int locationY, int imageSize ) {
     if ( isDrawingPixelatedImages() && image.isBitmap() ) {
       BufferedImage img = image.getAsBitmapForSize( imageSize, imageSize );
       ColorModel cm = img.getColorModel();
@@ -382,7 +377,7 @@ public class SwingGc implements IGc {
     }
   }
 
-  private void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
+  protected void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
     if ( isDrawingPixelatedImages() && image.isBitmap() ) {
       BufferedImage img = image.getAsBitmapForSize( imageSize, imageSize, angle );
       ColorModel cm = img.getColorModel();
@@ -408,7 +403,7 @@ public class SwingGc implements IGc {
   }
 
   public Point getImageBounds( EImage image ) {
-    return new Point( small_icon_size, small_icon_size );
+    return new Point( smallIconSize, smallIconSize );
   }
 
   public static final SwingUniversalImage getNativeImage( EImage image ) {
@@ -691,7 +686,7 @@ public class SwingGc implements IGc {
     SwingUniversalImage im = transformImages.get( transformtype );
     if ( im != null ) { // Draw the icon!
 
-      drawImage( im, x + xOffset, y + xOffset, iconsize );
+      drawImage( im, x + xOffset, y + xOffset, iconSize );
     }
   }
 
@@ -719,7 +714,7 @@ public class SwingGc implements IGc {
       return;
     }
 
-    drawImage( image, x + xOffset, y + xOffset, iconsize );
+    drawImage( image, x + xOffset, y + xOffset, iconSize );
     // gc.drawImage(image, x+xOffset, y+yOffset, observer);
   }
 

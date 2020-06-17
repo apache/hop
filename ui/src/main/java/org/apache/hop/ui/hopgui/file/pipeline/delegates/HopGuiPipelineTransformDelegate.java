@@ -86,6 +86,7 @@ public class HopGuiPipelineTransformDelegate {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
     String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
+
     if ( dialogClassName == null ) {
       // Calculate it from the base meta class...
       //
@@ -131,7 +132,7 @@ public class HopGuiPipelineTransformDelegate {
       TransformMeta before = (TransformMeta) transformMeta.clone();
       ITransformDialog dialog = getTransformDialog( transformMeta.getTransform(), pipelineMeta, name );
       if ( dialog != null ) {
-        dialog.setMetaStore( hopGui.getMetaStore() );
+        dialog.setMetadataProvider( hopGui.getMetadataProvider() );
         transformName = dialog.open();
       }
 

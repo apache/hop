@@ -40,7 +40,7 @@ import org.apache.hop.core.row.IValueMeta;
  */
 @DatabaseMetaPlugin(
   type = "EXASOL4",
-  typeDescription = "Exasol 4"
+  typeDescription = "Exasol"
 )
 @GuiPlugin( id = "GUI-ExasolDatabaseMeta" )
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
@@ -399,4 +399,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public boolean isExasolVariant() {
     return true;
   }
+
+  @Override
+  public boolean isQuoteAllFields() { return true; };
 }

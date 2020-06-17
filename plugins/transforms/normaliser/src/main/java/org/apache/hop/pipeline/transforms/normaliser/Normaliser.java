@@ -68,7 +68,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> imp
 
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       int normFieldsLength = meta.getNormaliserFields().length;
       data.typeToFieldIndex = new HashMap<>();
       String typeValue;

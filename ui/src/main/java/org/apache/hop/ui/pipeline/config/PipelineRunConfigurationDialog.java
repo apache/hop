@@ -31,8 +31,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -41,6 +40,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
@@ -79,16 +79,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
   description = "This dialog allows you to configure the various pipeline run configurations"
 )
 /**
- * The dialog for IMetaStore element PipelineRunConfiguration
+ * The dialog for metadata object PipelineRunConfiguration
  * Don't move this class around as it's sync'ed with the PipelineRunConfiguration package to find the dialog.
  */
-public class PipelineRunConfigurationDialog extends Dialog implements IMetaStoreDialog {
+public class PipelineRunConfigurationDialog extends Dialog implements IMetadataDialog {
 
   private static Class<?> PKG = PipelineRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
   private PipelineRunConfiguration runConfiguration;
   private PipelineRunConfiguration workingConfiguration;
 
@@ -110,13 +110,13 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
 
   /**
    * @param parent           The parent shell
-   * @param metaStore        metaStore
+   * @param metadataProvider metadataProvider
    * @param runConfiguration The object to edit
    */
-  public PipelineRunConfigurationDialog( Shell parent, IMetaStore metaStore, PipelineRunConfiguration runConfiguration ) {
+  public PipelineRunConfigurationDialog( Shell parent, IHopMetadataProvider metadataProvider, PipelineRunConfiguration runConfiguration ) {
     super( parent, SWT.NONE );
     this.parent = parent;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.runConfiguration = runConfiguration;
     this.workingConfiguration = new PipelineRunConfiguration( runConfiguration );
     props = PropsUi.getInstance();
@@ -294,9 +294,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     wMainSComp.setMinHeight( mainBounds.height );
 
     wMainTab.setControl( wMainSComp );
-    
-    
-    
+
 
     // Add the variables tab
     //
@@ -347,7 +345,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     wVariablesSComp.setMinHeight( variablesBound.height );
 
     wVariablesTab.setControl( wVariablesSComp );
-    
+
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
@@ -392,7 +390,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetaStore
     }
 
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
-      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25);
+      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25 );
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
       for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
         control.addListener( SWT.DefaultSelection, okListener );

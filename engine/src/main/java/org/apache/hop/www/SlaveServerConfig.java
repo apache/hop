@@ -36,11 +36,6 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
-import org.apache.hop.metastore.stores.xml.XmlMetaStore;
 import org.w3c.dom.Node;
 
 import java.net.SocketException;
@@ -80,35 +75,12 @@ public class SlaveServerConfig {
 
   private boolean automaticCreationAllowed;
 
-  private DelegatingMetaStore metaStore;
-
   private String passwordFile;
 
   public SlaveServerConfig() {
     databases = new ArrayList<>();
     slaveSequences = new ArrayList<SlaveSequence>();
     automaticCreationAllowed = false;
-    metaStore = new DelegatingMetaStore();
-    // Add the local MetaStore to the delegation.
-    // This sets it as the active one.
-    //
-    try {
-      XmlMetaStore localStore = new XmlMetaStore( MetaStoreConst.getDefaultHopMetaStoreLocation() );
-      metaStore.addMetaStore( localStore );
-      metaStore.setActiveMetaStoreName( localStore.getName() );
-    } catch ( MetaStoreException e ) {
-      LogChannel.GENERAL.logError( "Unable to open local hop metastore from [" + MetaStoreConst.getDefaultHopMetaStoreLocation() + "]", e );
-      // now replace this with an in memory metastore.
-      //
-      try {
-        MemoryMetaStore memoryStore = new MemoryMetaStore();
-        memoryStore.setName( "Memory metastore" );
-        metaStore.addMetaStore( memoryStore );
-        metaStore.setActiveMetaStoreName( memoryStore.getName() );
-      } catch ( MetaStoreException e2 ) {
-        throw new RuntimeException( "Unable to add a default memory metastore to the delegating store", e );
-      }
-    }
     passwordFile = null; // force lookup by server in ~/.hop or local folder
   }
 
@@ -453,14 +425,6 @@ public class SlaveServerConfig {
    */
   public void setAutomaticCreationAllowed( boolean automaticCreationAllowed ) {
     this.automaticCreationAllowed = automaticCreationAllowed;
-  }
-
-  public DelegatingMetaStore getMetaStore() {
-    return metaStore;
-  }
-
-  public void setMetaStore( DelegatingMetaStore metaStore ) {
-    this.metaStore = metaStore;
   }
 
   public String getPasswordFile() {

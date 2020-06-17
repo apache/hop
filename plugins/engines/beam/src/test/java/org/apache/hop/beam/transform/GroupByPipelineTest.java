@@ -13,7 +13,7 @@ public class GroupByPipelineTest extends org.apache.hop.beam.transform.PipelineT
       "io-group-output",
       "INPUT",
       "OUTPUT",
-      metaStore
+      metadataProvider
     );
 
     try {

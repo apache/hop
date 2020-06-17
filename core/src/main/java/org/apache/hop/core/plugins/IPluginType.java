@@ -24,6 +24,7 @@ package org.apache.hop.core.plugins;
 
 import org.apache.hop.core.exception.HopPluginException;
 
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import java.util.List;
  *
  * @author matt
  */
-public interface IPluginType {
+public interface IPluginType<T extends Annotation> {
 
   /**
    * Register an additional class type to be managed by the plugin system.
@@ -75,8 +76,7 @@ public interface IPluginType {
    * @param pluginFolder     The plugin folder to use
    * @throws HopPluginException
    */
-  void handlePluginAnnotation( Class<?> clazz, java.lang.annotation.Annotation annotation,
-                               List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException;
+  void handlePluginAnnotation( Class<?> clazz, T annotation, List<String> libraries, boolean nativePluginType, URL pluginFolder ) throws HopPluginException;
 
   default boolean isFragment() {
     return false;

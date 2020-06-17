@@ -78,8 +78,7 @@ import java.util.Set;
 @PluginDialog(
         id = "Update",
         image = "update.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/update.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class UpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
@@ -877,7 +876,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       TransformMeta transforminfo = new TransformMeta( BaseMessages.getString( PKG, "UpdateDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =

@@ -9,7 +9,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -111,13 +111,13 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   void fireWorkflowStartedListeners() throws HopException;
 
-  void setContainerObjectId( String toString );
+  void setContainerId( String toString );
 
-  String getContainerObjectId();
+  String getContainerId();
 
   String getStatusDescription();
 
-  void setMetaStore( IMetaStore metaStore );
+  void setMetadataProvider( IHopMetadataProvider metadataProvider );
 
-  IMetaStore getMetaStore();
+  IHopMetadataProvider getMetadataProvider();
 }

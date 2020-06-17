@@ -68,7 +68,7 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       if ( first ) {
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
         // Check is tablename field is provided
         if ( Utils.isEmpty( meta.getDynamicTablenameField() ) ) {

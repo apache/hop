@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains the meta-data for the Formula transform: calculates ad-hoc formula's Powered by Pentaho's "libformula"
+ * Contains the meta-data for the Formula transform: calculates ad-hoc formula's Powered by "libformula"
  * <p>
  * Created on 22-feb-2007
  */
@@ -57,7 +57,8 @@ import java.util.Objects;
         i18nPackageName = "org.apache.hop.pipeline.transforms.janino",
         name = "BaseTransform.TypeLongDesc.Janino",
         description = "BaseTransform.TypeTooltipDesc.Janino",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/janino.html"
 )
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!
@@ -83,7 +84,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
     formula = new JaninoMetaFunction[ nrCalcs ];
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     int nrCalcs = XmlHandler.countNodes( transformNode, JaninoMetaFunction.XML_TAG );
     allocate( nrCalcs );
     for ( int i = 0; i < nrCalcs; i++ ) {
@@ -142,7 +143,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( int i = 0; i < formula.length; i++ ) {
       JaninoMetaFunction fn = formula[ i ];
       if ( Utils.isEmpty( fn.getReplaceField() ) ) {
@@ -188,7 +189,7 @@ public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Jani
    */
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

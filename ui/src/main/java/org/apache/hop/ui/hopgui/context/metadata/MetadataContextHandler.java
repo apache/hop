@@ -1,0 +1,93 @@
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
+package org.apache.hop.ui.hopgui.context.metadata;
+
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MetadataContextHandler implements IGuiContextHandler {
+
+  private HopGui hopGui;
+  private IHopMetadataProvider metadataProvider;
+  private Class<? extends IHopMetadata> metadataObjectClass;
+  private MetadataManager<? extends IHopMetadata> metadataManager;
+
+  public MetadataContextHandler( HopGui hopGui, IHopMetadataProvider metadataProvider,
+                                 Class<? extends IHopMetadata> metadataObjectClass ) {
+    this.hopGui = hopGui;
+    this.metadataProvider = metadataProvider;
+    this.metadataObjectClass = metadataObjectClass;
+
+    metadataManager = new MetadataManager<>( hopGui.getVariables(), metadataProvider, metadataObjectClass );
+    metadataManager.setClassLoader( metadataObjectClass.getClassLoader() );
+  }
+
+  @Override public List<GuiAction> getSupportedActions() {
+
+    HopMetadata hopMetadata = HopMetadataUtil.getHopMetadataAnnotation( metadataObjectClass );
+
+    List<GuiAction> actions = new ArrayList<>();
+
+    GuiAction newAction = new GuiAction(
+      "CREATE_" + hopMetadata.name(),
+      GuiActionType.Create,
+      hopMetadata.name(),
+      "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
+      hopMetadata.iconImage(),
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadata() );
+    newAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    actions.add( newAction );
+
+    GuiAction editAction = new GuiAction(
+      "EDIT_" + hopMetadata.name(),
+      GuiActionType.Modify,
+      hopMetadata.name(),
+      "Edits a " + hopMetadata.name() + " : " + hopMetadata.description(),
+      hopMetadata.iconImage(),
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.editMetadata() );
+    editAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    actions.add( editAction );
+
+    GuiAction deleteAction = new GuiAction(
+      "DELETE_" + hopMetadata.name(),
+      GuiActionType.Delete,
+      hopMetadata.name(),
+      "After confirmation this deletes a " + hopMetadata.name() + " : " + hopMetadata.description(),
+      hopMetadata.iconImage(),
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.deleteMetadata() );
+    deleteAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    actions.add( deleteAction );
+
+    return actions;
+  }
+}

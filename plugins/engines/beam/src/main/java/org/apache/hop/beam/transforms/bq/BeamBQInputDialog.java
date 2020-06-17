@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -43,6 +44,11 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 
+@PluginDialog(
+        id = "BeamBQInput",
+        image = "beam-bq-input.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class BeamBQInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamBQInputDialog.class; // for i18n purposes, needed by Translator2!!
   private final BeamBQInputMeta input;

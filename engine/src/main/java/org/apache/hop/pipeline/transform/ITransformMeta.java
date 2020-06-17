@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
@@ -155,11 +155,11 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param info         Fields used as extra lookup information
    * @param nextTransform     the next transform that is targeted
    * @param variables        the space The variable space to use to replace variables
-   * @param metaStore    the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider    the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopTransformException the hop transform exception
    */
   void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                  IVariables variables, IMetaStore metaStore ) throws HopTransformException;
+                  IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException;
 
   /**
    * Get the XML that represents the values in this transform
@@ -173,10 +173,10 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * Load the values for this transform from an XML Node
    *
    * @param transformNode  the Node to get the info from
-   * @param metaStore the metastore to optionally load external reference metadata from
+   * @param metadataProvider the metadata to optionally load external reference metadata from
    * @throws HopXmlException When an unexpected XML error occurred. (malformed etc.)
    */
-  void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException;
+  void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException;
 
 
   /**
@@ -189,11 +189,11 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param output    The output transform names
    * @param info      The fields that are used as information by the transform
    * @param variables     the variable space to resolve variable expressions with
-   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
               IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-              IMetaStore metaStore );
+              IHopMetadataProvider metadataProvider );
 
   /**
    * Make an exact copy of this transform, make sure to explicitly copy Collections etc.
@@ -241,10 +241,10 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param input     The previous transform names
    * @param output    The output transform names
    * @param info      The fields used as information by this transform
-   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IMetaStore metaStore ) throws HopTransformException;
+                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IHopMetadataProvider metadataProvider ) throws HopTransformException;
 
   /**
    * Standard method to return an SqlStatement object with SQL statements that the transform needs in order to work
@@ -254,12 +254,12 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param pipelineMeta PipelineMeta object containing the complete pipeline
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
-   * @param metaStore the MetaStore to use to load additional external data or metadata impacting the output fields
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
    * SqlStatement
    */
   SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                 IMetaStore metaStore ) throws HopTransformException;
+                                 IHopMetadataProvider metadataProvider ) throws HopTransformException;
 
   /**
    * Call this to cancel trailing database queries (too long running, etc)
@@ -297,11 +297,11 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                          IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException;
+                          IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException;
 
   /**
    * @return The TransformMeta object to which this metadata class belongs. With this, we can see to which pipeline
@@ -372,12 +372,12 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * Load the referenced object
    *
    * @param index     the referenced object index to load (in case there are multiple references)
-   * @param metaStore the MetaStore to use
+   * @param metadataProvider the MetaStore to use
    * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  IHasFilename loadReferencedObject( int index, IMetaStore metaStore, IVariables variables ) throws HopException;
+  IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
 
   /**
    * Action remove hop exiting this transform
@@ -422,16 +422,18 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
   }
 
   /**
-   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
-   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
-   * <p>
-   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
-   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
-   * <p>
-   * If the dialog class for a action does not match this pattern it should override this method and return the
-   * appropriate class name
-   *
-   * @return full class name of the dialog
-   */
+￼   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
+￼   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
+￼   * <p>
+￼   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
+￼   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
+￼   * <p>
+￼   * If the dialog class for a action does not match this pattern it should override this method and return the
+￼   * appropriate class name
+￼   *
+￼   * @return full class name of the dialog
+￼   */
   String getDialogClassName();
+
+
 }

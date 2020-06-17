@@ -83,8 +83,7 @@ import java.util.Set;
 @PluginDialog(
         id = "CombinationLookup",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        image = "combinationlookup.svg",
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/combinationlookup.html"
+        image = "combinationlookup.svg"
 )
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // for i18n purposes, needed by Translator!!
@@ -1026,7 +1025,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
         new TransformMeta( BaseMessages.getString( PKG, "CombinationLookupDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =

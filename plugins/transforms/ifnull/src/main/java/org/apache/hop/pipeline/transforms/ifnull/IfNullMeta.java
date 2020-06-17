@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -45,9 +45,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "IfNull", i18nPackageName = "org.apache.hop.pipeline.transforms.ifnull",
-        name = "IfNull.Name", description = "IfNull.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "IfNull",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.ifnull",
+        name = "IfNull.Name",
+        description = "IfNull.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" ,
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ifnull.html"
+)
 @InjectionSupported( localizationPrefix = "IfNull.Injection.", groups = { "FIELDS", "VALUE_TYPES" } )
 public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull,IfNullData> {
 
@@ -230,8 +235,8 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     this.setEmptyStringAll = setEmptyStringAll;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -311,7 +316,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
     this.valueTypes = valueTypes;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       selectFields = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "selectFields" ) );
       selectValuesType = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "selectValuesType" ) );
@@ -417,7 +422,7 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

@@ -71,7 +71,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
 
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       String realInputField = environmentSubstitute( meta.getInputField() );
       String realOutputField = environmentSubstitute( meta.getOutputField() );

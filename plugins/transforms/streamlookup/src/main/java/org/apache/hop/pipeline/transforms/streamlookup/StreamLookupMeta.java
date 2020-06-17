@@ -37,7 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -56,7 +56,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.streamlookup",
         name = "BaseTransform.TypeLongDesc.StreamLookup",
         description = "BaseTransform.TypeTooltipDesc.StreamLookup",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/streamlookup.html"
 )
 public class StreamLookupMeta extends BaseTransformMeta implements ITransformMeta<StreamLookup, StreamLookupData> {
   private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
@@ -125,7 +126,7 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -236,7 +237,7 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( info != null && info.length == 1 && info[ 0 ] != null ) {
       for ( int i = 0; i < getValueName().length; i++ ) {
         IValueMeta v = info[ 0 ].searchValueMeta( getValue()[ i ] );
@@ -299,7 +300,7 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

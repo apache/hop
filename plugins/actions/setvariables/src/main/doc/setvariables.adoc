@@ -2,3 +2,23 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/setvariables/src/main/doc/setvariables.adoc
 = Set Variables
+
+== Description
+
+The Set Variables action can be used to set variables at various scopes.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action.
+|Name of properties file|The name of the properties file.
+|Variable scope a|
+* Valid in the Java Virtual machine
+* Valid in the current workflow
+* Valid in the parent workflow
+* Valid in the root workflow
+|Variable substitution|Whether or not to substitute variables.
+|Variables|A list of variables to set to a certain value at a certain scope.
+|===

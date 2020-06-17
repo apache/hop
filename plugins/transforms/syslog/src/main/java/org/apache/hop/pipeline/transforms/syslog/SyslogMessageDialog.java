@@ -65,8 +65,7 @@ import java.net.InetAddress;
 @PluginDialog(
         id = "SyslogMessage",
         image = "syslogmessage.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SyslogMessageDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!

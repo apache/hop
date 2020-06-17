@@ -37,7 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -59,7 +59,8 @@ import java.util.Locale;
         i18nPackageName = "org.apache.hop.pipeline.transforms.sort",
         name = "BaseTransform.TypeLongDesc.SortRows",
         description = "BaseTransform.TypeTooltipDesc.SortRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sort.html"
 )
 public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
@@ -203,7 +204,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -346,7 +347,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
 
   @Override
   public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                        IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                        IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Set the sorted properties: ascending/descending
     assignSortingCriteria( inputRowMeta );
   }
@@ -384,7 +385,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
   @Override
   public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                     String[] input, String[] output, IRowMeta info, IVariables variables,
-                    IMetaStore metaStore ) {
+                    IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( prev != null && prev.size() > 0 ) {

@@ -45,7 +45,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.resource.ResourceDefinition;
@@ -70,7 +70,8 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.fileinput",
         name = "BaseTransform.TypeLongDesc.TextFileInput",
         description = "BaseTransform.TypeTooltipDesc.TextFileInput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/textfileinput.html"
 )
 public class TextFileInputMeta
   extends BaseTransformMeta
@@ -849,7 +850,7 @@ public class TextFileInputMeta
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       acceptingFilenames = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "accept_filenames" ) );
       passingThruFields = YES.equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "passing_through_fields" ) );
@@ -901,7 +902,7 @@ public class TextFileInputMeta
         Node excludefilemasknode = XmlHandler.getSubNodeByNr( filenode, "exclude_filemask", i );
         Node fileRequirednode = XmlHandler.getSubNodeByNr( filenode, "file_required", i );
         Node includeSubFoldersnode = XmlHandler.getSubNodeByNr( filenode, "include_subfolders", i );
-        fileName[ i ] = loadSource( filenode, filenamenode, i, metaStore );
+        fileName[ i ] = loadSource( filenode, filenamenode, i, metadataProvider );
         fileMask[ i ] = XmlHandler.getNodeValue( filemasknode );
         excludeFileMask[ i ] = XmlHandler.getNodeValue( excludefilemasknode );
         fileRequired[ i ] = XmlHandler.getNodeValue( fileRequirednode );
@@ -1122,7 +1123,7 @@ public class TextFileInputMeta
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !isPassingThruFields() ) {
       // all incoming fields are not transmitted !
       row.clear();
@@ -1431,7 +1432,7 @@ public class TextFileInputMeta
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we get input...
@@ -1838,12 +1839,12 @@ public class TextFileInputMeta
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   @Override
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...
@@ -1875,7 +1876,7 @@ public class TextFileInputMeta
     setFileName( fileName );
   }
 
-  protected String loadSource( Node filenode, Node filenamenode, int i, IMetaStore metaStore ) {
+  protected String loadSource( Node filenode, Node filenamenode, int i, IHopMetadataProvider metadataProvider ) {
     return XmlHandler.getNodeValue( filenamenode );
   }
 

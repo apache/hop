@@ -7,7 +7,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -58,7 +58,7 @@ public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta
     return BeamProduceDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IMetaStore metaStore )
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     // No output
@@ -75,7 +75,7 @@ public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta
     return xml.toString();
   }
 
-  @Override public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     bootstrapServers = XmlHandler.getTagValue( transformNode, BOOTSTRAP_SERVERS );
     topic = XmlHandler.getTagValue( transformNode, TOPIC );
     keyField = XmlHandler.getTagValue( transformNode, KEY_FIELD );

@@ -1,0 +1,30 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/engines/beam/src/main/doc/beamconsume.adoc
+= Beam Kafka Consume
+
+== Description
+
+The Beam Kafka Consume transform link:https://kafka.apache.org/23/javadoc/index.html?org/apache/kafka/clients/consumer/KafkaConsumer.html[consumes] records from a Kafka cluster using the Beam execution engine.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Bootstrap servers|A comma separated list of hosts which are Kafka brokers in a "bootstrap" Kafka cluster.
+|Topics to consume|A comma separated list of topics to consume.
+|Group ID|Specifies the ID of a consumer group a Kafka consumer belongs to.
+|The name of the key output field|The result key field.
+|The name of the message output field|The result message field.
+|Use processing time|The time when the record is processed by Beam.
+|Use log append time|The time when the record is appended by the broker.
+|Use create time|The time when the producer record is created.
+|Restrict read to committed messages|Restricts reading to committed records only.
+|Allow offsets to be committed back|Allows committing offsets as to mark an offset as consumed.
+|Configuration options|A list of configuration parameters.
+|Parameter|A configuration parameter.
+|Value|The parameter value.
+|Type|The value data type.
+|===

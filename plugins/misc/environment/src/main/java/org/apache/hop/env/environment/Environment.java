@@ -9,73 +9,46 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.env.util.Defaults;
 import org.apache.hop.env.util.EnvironmentUtil;
-import org.apache.hop.metastore.IHopMetaStoreElement;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.persist.MetaStoreAttribute;
-import org.apache.hop.metastore.persist.MetaStoreElementType;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@MetaStoreElementType(
-  name = "Hop Environment",
-  description = "An environment to tie together all sorts of configuration options"
-)
-public class Environment implements IHopMetaStoreElement<Environment> {
+public class Environment {
 
-  // Information about the environment itself
-  //
-  private String name;
-
-  @MetaStoreAttribute
   private String description;
 
-  @MetaStoreAttribute
   private String version;
 
   // Environment metadata (nice to know)
   //
-  @MetaStoreAttribute
   private String company;
 
-  @MetaStoreAttribute
   private String department;
 
-  @MetaStoreAttribute
   private String project;
 
-  // Technical information
-  //
-  @MetaStoreAttribute
-  private String environmentHomeFolder;
-
-  @MetaStoreAttribute
-  private String metaStoreBaseFolder;
+  private String metadataBaseFolder;
 
 
   // Data Sets , Unit tests
   //
-  @MetaStoreAttribute
   private String unitTestsBasePath;
 
-  @MetaStoreAttribute
   private String dataSetsCsvFolder;
 
-  @MetaStoreAttribute( key = "enforce_execution_in_environment" )
   private boolean enforcingExecutionInHome;
 
   // Variables
   //
-  @MetaStoreAttribute
+  @HopMetadataProperty
   private List<EnvironmentVariable> variables;
 
 
   public Environment() {
     variables = new ArrayList<>();
-    environmentHomeFolder = "/path/to/your/environment/folder/";
-    metaStoreBaseFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
+    metadataBaseFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/metadata";
     dataSetsCsvFolder = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}/datasets";
     unitTestsBasePath = "${" + EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME + "}";
     enforcingExecutionInHome = true;
@@ -93,7 +66,7 @@ public class Environment implements IHopMetaStoreElement<Environment> {
     return objectMapper.readValue( jsonString, Environment.class );
   }
 
-  public void modifyVariables( IVariables variables ) {
+  public void modifyVariables( IVariables variables, String environmentName, String environmentHomeFolder ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
@@ -101,15 +74,15 @@ public class Environment implements IHopMetaStoreElement<Environment> {
 
     // Set the name of the active environment
     //
-    variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( name, "" ) );
+    variables.setVariable( Defaults.VARIABLE_ACTIVE_ENVIRONMENT, Const.NVL( environmentName, "" ) );
 
     if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
       String realValue = variables.environmentSubstitute( environmentHomeFolder );
       variables.setVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME, realValue );
     }
-    if ( StringUtils.isNotEmpty( metaStoreBaseFolder ) ) {
-      String realValue = variables.environmentSubstitute( metaStoreBaseFolder );
-      variables.setVariable( Const.HOP_METASTORE_FOLDER, realValue );
+    if ( StringUtils.isNotEmpty( metadataBaseFolder ) ) {
+      String realValue = variables.environmentSubstitute( metadataBaseFolder );
+      variables.setVariable( Const.HOP_METADATA_FOLDER, realValue );
     }
     if ( StringUtils.isNotEmpty( unitTestsBasePath ) ) {
       String realValue = variables.environmentSubstitute( unitTestsBasePath );
@@ -125,30 +98,6 @@ public class Environment implements IHopMetaStoreElement<Environment> {
         variables.setVariable( variable.getName(), variable.getValue() );
       }
     }
-  }
-
-  public String getActualHomeFolder(IVariables variables) {
-    if (StringUtils.isNotEmpty(environmentHomeFolder)) {
-      return variables.environmentSubstitute( environmentHomeFolder );
-    } else {
-      return variables.environmentSubstitute( variables.getVariable( EnvironmentUtil.VARIABLE_ENVIRONMENT_HOME ) );
-    }
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**
@@ -200,35 +149,19 @@ public class Environment implements IHopMetaStoreElement<Environment> {
   }
 
   /**
-   * Gets environmentHomeFolder
+   * Gets metadataBaseFolder
    *
-   * @return value of environmentHomeFolder
+   * @return value of metadataBaseFolder
    */
-  public String getEnvironmentHomeFolder() {
-    return environmentHomeFolder;
+  public String getMetadataBaseFolder() {
+    return metadataBaseFolder;
   }
 
   /**
-   * @param environmentHomeFolder The environmentHomeFolder to set
+   * @param metadataBaseFolder The metadataBaseFolder to set
    */
-  public void setEnvironmentHomeFolder( String environmentHomeFolder ) {
-    this.environmentHomeFolder = environmentHomeFolder;
-  }
-
-  /**
-   * Gets metaStoreBaseFolder
-   *
-   * @return value of metaStoreBaseFolder
-   */
-  public String getMetaStoreBaseFolder() {
-    return metaStoreBaseFolder;
-  }
-
-  /**
-   * @param metaStoreBaseFolder The metaStoreBaseFolder to set
-   */
-  public void setMetaStoreBaseFolder( String metaStoreBaseFolder ) {
-    this.metaStoreBaseFolder = metaStoreBaseFolder;
+  public void setMetadataBaseFolder( String metadataBaseFolder ) {
+    this.metadataBaseFolder = metadataBaseFolder;
   }
 
   /**
@@ -325,18 +258,5 @@ public class Environment implements IHopMetaStoreElement<Environment> {
    */
   public void setEnforcingExecutionInHome( boolean enforcingExecutionInHome ) {
     this.enforcingExecutionInHome = enforcingExecutionInHome;
-  }
-
-  @Override public MetaStoreFactory<Environment> getFactory( IMetaStore metaStore ) {
-    return createFactory( metaStore );
-  }
-
-  public static final MetaStoreFactory<Environment> createFactory( IMetaStore metaStore ) {
-    // Environment doesn't use the default metastore.
-    try {
-      return EnvironmentSingleton.getEnvironmentFactory();
-    } catch(Exception e) {
-      throw new RuntimeException( "Environment MetaStore configuration error", e );
-    }
   }
 }

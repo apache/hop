@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.stores.memory.MemoryMetaStore;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -55,12 +55,7 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import static com.google.common.collect.ImmutableList.of;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -187,7 +182,7 @@ public class PipelineTest {
       InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, ktr.getURL().toURI().toString(), new MemoryMetaStore() );
+    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, ktr.getURL().toURI().toString(), new MemoryMetadataProvider() );
     assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
   }
 
@@ -389,11 +384,11 @@ public class PipelineTest {
     doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     String carteId = UUID.randomUUID().toString();
-    doReturn( carteId ).when( meta ).getContainerObjectId();
+    doReturn( carteId ).when( meta ).getContainerId();
 
     Pipeline pipeline = new LocalPipelineEngine( meta );
 
-    assertEquals( carteId, pipeline.getContainerObjectId() );
+    assertEquals( carteId, pipeline.getContainerId() );
   }
 
   /**

@@ -31,7 +31,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -44,14 +44,14 @@ import java.util.Objects;
 /**
  * Contains the meta data for the ReservoirSampling transform.
  *
- * @author Mark Hall (mhall{[at]}pentaho.org)
  * @version 1.0
  */
 @Transform(  id = "ReservoirSampling",
         i18nPackageName = "org.apache.hop.pipeline.transforms.reservoirsampling",
         name = "BaseTransform.TypeLongDesc.ReservoirSampling",
         description = "BaseTransform.TypeTooltipDesc.ReservoirSampling",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/reservoirsampling.html"
 )
 public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransformMeta<ReservoirSampling, ReservoirSamplingData> {
 
@@ -171,7 +171,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
    * @param transformNode the transform to load
    * @throws HopXmlException if an error occurs
    */
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     int nrTransforms = XmlHandler.countNodes( transformNode, XML_TAG );
 
@@ -185,14 +185,14 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
   }
 
   public void getFields(IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                        IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                        IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // nothing to do, as no fields are added/deleted
   }
 
   public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
 

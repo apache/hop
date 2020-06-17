@@ -157,6 +157,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       case COMBO:
         ToolItem comboSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
         Combo combo = new Combo( parent, SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+        combo.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
         combo.setItems( getComboItems( toolbarItem ) );
         combo.pack();
         comboSeparator.setWidth( calculateComboWidth( combo ) + toolbarItem.getExtraWidth() ); // extra room for widget decorations
@@ -200,8 +201,14 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         if ( control instanceof Combo ) {
           Combo combo = (Combo) control;
           combo.setItems( getComboItems( item ) );
+        } else {
+          System.err.println("toolbar item with id '"+id+"' : widget not of instance Combo");
         }
+      } else {
+        System.err.println("toolbar item with id '"+id+"' : control not found when refreshing combo");
       }
+    } else {
+      System.err.println("toolbar item with id '"+id+"' : not found when refreshing combo");
     }
   }
 

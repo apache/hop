@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "MAIL_VALIDATOR", 
 		  image = "MailValidator.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mailvalidator.html"
 )
 public class ActionMailValidatorDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!

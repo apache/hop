@@ -74,7 +74,7 @@ public class CreditCardValidator extends BaseTransform<CreditCardValidatorMeta, 
       data.previousRowMeta = getInputRowMeta().clone();
       data.NrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Check if field is provided
       if ( Utils.isEmpty( meta.getDynamicField() ) ) {

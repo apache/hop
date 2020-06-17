@@ -225,9 +225,9 @@ public class BaseDatabaseMetaTest {
     assertEquals( "FOO", nativeMeta.getDataTablespace() );
     nativeMeta.setIndexTablespace( "FOO" );
     assertEquals( "FOO", nativeMeta.getIndexTablespace() );
-    Properties attrs = nativeMeta.getAttributes();
-    Properties testAttrs = new Properties();
-    testAttrs.setProperty( "FOO", "BAR" );
+    Map<String,String> attrs = nativeMeta.getAttributes();
+    Map<String,String> testAttrs = new HashMap<>();
+    testAttrs.put( "FOO", "BAR" );
     nativeMeta.setAttributes( testAttrs );
     assertEquals( testAttrs, nativeMeta.getAttributes() );
     nativeMeta.setAttributes( attrs ); // reset attributes back to what they were...

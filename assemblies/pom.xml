@@ -23,8 +23,7 @@
   <modules>
     <module>plugins</module>
     <module>static</module>
-<!--    TODO: Reactivate when we have new samples-->
-<!--    <module>samples</module>-->
+    <module>demo</module>
     <module>lib</module>
     <module>client</module>
     <module>core</module>

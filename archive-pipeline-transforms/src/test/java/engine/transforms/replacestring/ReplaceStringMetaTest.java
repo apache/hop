@@ -26,9 +26,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -73,9 +73,9 @@ public class ReplaceStringMetaTest {
     when( inputRowMeta.searchValueMeta( anyString() ) ).thenReturn( inputFieldMeta );
 
     TransformMeta nextTransform = mock( TransformMeta.class );
-    iVariables variables = mock( iVariables.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
-    meta.getFields( inputRowMeta, "test", null, nextTransform, variables, metaStore );
+    IVariables variables = mock( IVariables.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
+    meta.getFields( inputRowMeta, "test", null, nextTransform, variables, metadataProvider );
 
     ArgumentCaptor<IValueMeta> argument = ArgumentCaptor.forClass( IValueMeta.class );
     verify( inputRowMeta ).addValueMeta( argument.capture() );

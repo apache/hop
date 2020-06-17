@@ -30,7 +30,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -275,11 +275,11 @@ public class GuiCompositeWidgets {
 
   private String[] getComboItems( Object sourceObject, String getComboValuesMethod ) {
     try {
-      Method method = sourceObject.getClass().getMethod( getComboValuesMethod, ILogChannel.class, IMetaStore.class );
+      Method method = sourceObject.getClass().getMethod( getComboValuesMethod, ILogChannel.class, IHopMetadataProvider.class );
       if (method==null) {
-        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IMetaStore in object '"+sourceObject+"'" );
+        throw new HopException( "Unable to find method '"+getComboValuesMethod+"' with parameters ILogChannel and IHopMetadataProvider in object '"+sourceObject+"'" );
       }
-      List<String> names = (List<String>) method.invoke( sourceObject, LogChannel.UI, HopGui.getInstance().getMetaStore() );
+      List<String> names = (List<String>) method.invoke( sourceObject, LogChannel.UI, HopGui.getInstance().getMetadataProvider() );
       return names.toArray( new String[0] );
     } catch(Exception e) {
       LogChannel.UI.logError( "Error getting list of combo items for method '"+getComboValuesMethod +"' on source object: "+sourceObject, e );

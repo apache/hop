@@ -357,7 +357,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
       first = false;
 
       data.outputRowMeta = new RowMeta(); // start from scratch!
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.isAcceptingFilenames() ) {
         // Read the files from the specified input stream...

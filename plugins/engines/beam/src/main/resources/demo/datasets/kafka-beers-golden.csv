@@ -1,0 +1,77 @@
+BeerBrand,pct,AlcoholPercentage,Brewery,BeerType,someId,StrengthEvaluation
+Achel 5 Blond,5,"5,00%",Achelse Kluis,trappist,32,High
+Achel 5 Blond,5,"5,00%",Achelse Kluis,blond,32,High
+Achel 5 Bruin,5,"5,00%",Achelse Kluis,trappist,33,High
+Achel 5 Bruin,5,"5,00%",Achelse Kluis,bruin,33,High
+Achel 7,7,"7,00%",Achelse Kluis,trappist,34,High
+Achel 6,6,"6,00%",Achelse Kluis,trappist,35,High
+Achel 8 Blond,8,"8,00%",Achelse Kluis,trappist,36,Very High
+Achel 8 Blond,8,"8,00%",Achelse Kluis,blond,36,Very High
+Achel 8 Bruin,8,"8,00%",Achelse Kluis,trappist,37,Very High
+Achel 8 Bruin,8,"8,00%",Achelse Kluis,bruin,37,Very High
+Achel Blond Extra,9.5,"9,50%",Achelse Kluis,trappist,38,Very High
+Achel Blond Extra,9.5,"9,50%",Achelse Kluis,blond,38,Very High
+Achel Bruin Extra,9.5,"9,50%",Achelse Kluis,trappist,39,Very High
+Achel Bruin Extra,9.5,"9,50%",Achelse Kluis,bruin,39,Very High
+Affligem 10,10,"10,00%",Affligem Brouwerij (Heineken),abdijbier,45,Very High
+Affligem Dubbel,6.8,"6,80%",Affligem Brouwerij (Heineken),abdijbier,47,High
+Affligem Dubbel,6.8,"6,80%",Affligem Brouwerij (Heineken),bruin,47,High
+Affligem 950 Cuvee,6.8,"6,80%",Affligem Brouwerij (Heineken),abdijbier,48,High
+Affligem 950 Cuvee,6.8,"6,80%",Affligem Brouwerij (Heineken),blond,48,High
+Affligem Noël,9,"9,00%",Affligem Brouwerij (Heineken),abdijbier,49,Very High
+Affligem Noël,9,"9,00%",Affligem Brouwerij (Heineken),kerstbier,49,Very High
+Affligem Patersvat,6.8,"6,80%",Affligem Brouwerij (Heineken),abdijbier,50,High
+Affligem Patersvat,6.8,"6,80%",Affligem Brouwerij (Heineken),dubbel gehopt,50,High
+Affligem Rood,6.7,"6,70%",Affligem Brouwerij (Heineken),abdijbier,51,High
+Affligem Tripel,8.5,"8,50%",Affligem Brouwerij (Heineken),abdijbier,52,Very High
+Affligem Tripel,8.5,"8,50%",Affligem Brouwerij (Heineken),tripel,52,Very High
+Affligem Blond,6.8,"6,80%",Affligem Brouwerij (vroeger Brouwerij De Smedt nu deel van Heineken),abdijbier,46,High
+Affligem Blond,6.8,"6,80%",Affligem Brouwerij (vroeger Brouwerij De Smedt nu deel van Heineken),blond,46,High
+Abbaye de la Thure,10,"10,00%",Brasserie Brootcoorens,abdijbier,17,Very High
+Airborne,7.5,"7,50%",Brasserie De Bouillon,abdijbier,54,High
+Airborne,7.5,"7,50%",Brasserie De Bouillon,dubbel,54,High
+Abbay d'Aulne Triple Brune,8,"8,00%",Brasserie Val de Sambre,abdijbier,13,Very High
+Abbay d'Aulne Triple Brune,8,"8,00%",Brasserie Val de Sambre,tripel,13,Very High
+Abbay d'Aulne Val de Sambre,6.4,"6,40%",Brasserie Val de Sambre,abdijbier,14,High
+Abbay d'Aulne Val de Sambre,6.4,"6,40%",Brasserie Val de Sambre,amber,14,High
+Abbaye de Saint-Martin Blonde,7,"7,00%",Brasserie de Brunehaut,abdijbier,18,High
+Abbaye de Saint-Martin Brune,8,"8,00%",Brasserie de Brunehaut,abdijbier,19,Very High
+Abbaye de Saint-Martin Cuvée de Noël,8.5,"8,50%",Brasserie de Brunehaut,abdijbier,20,Very High
+Abbaye de Saint-Martin Cuvée de Noël,8.5,"8,50%",Brasserie de Brunehaut,kerstbier,20,Very High
+Abbaye de Saint-Martin Triple,9,"9,00%",Brasserie de Brunehaut,abdijbier,21,Very High
+Abbaye de Saint-Martin Triple,9,"9,00%",Brasserie de Brunehaut,tripel,21,Very High
+Abbaye de Forest,6.5,"6,50%",Brasserie de Silly,abdijbier,16,High
+Abbaye de Forest,6.5,"6,50%",Brasserie de Silly,tripel,16,High
+Abbaye des Rocs Blonde,7.5,"7,50%",Brasserie de l'Abbaye des Rocs,abdijbier,23,High
+Abbaye des Rocs Blonde,7.5,"7,50%",Brasserie de l'Abbaye des Rocs,hoge gisting,23,High
+Abbaye des Rocs Brune,9,"9,00%",Brasserie de l'Abbaye des Rocs,abdijbier bruin,24,Very High
+Abbaye des Rocs Grand Cru,9.5,"9,50%",Brasserie de l'Abbaye des Rocs,abdijbier ale,25,Very High
+Abbaye des Rocs Spéciale Noël,9,"9,00%",Brasserie de l'Abbaye des Rocs,abdijbier,26,Very High
+Abbaye des Rocs Spéciale Noël,9,"9,00%",Brasserie de l'Abbaye des Rocs,kerstbier,26,Very High
+Altitude 6,6,"6,00%",Brasserie de l'Abbaye des Rocs,ale,61,High
+Altitude 6,6,"6,00%",Brasserie de l'Abbaye des Rocs,blond,61,High
+Agrumbocq,3.1,"3,10%",Brasserie du Bocq,hoge gisting,53,Low
+Agrumbocq,3.1,"3,10%",Brasserie du Bocq,witbier,53,Low
+Agrumbocq,3.1,"3,10%",Brasserie du Bocq,fruitbier,53,Low
+Alvinne blond,6.3,"6,30%",Brouwerij Alvinne,blond,62,High
+Alpha,6,"6,00%",Brouwerij Anders! voor Brussels Beer Project,amber,60,High
+Adler,6.5,"6,50%",Brouwerij Haacht,pils,42,High
+Abbaye de Bonne-Espérance,7.8,"7,80%",Brouwerij Lefebvre,abdijbier,15,High
+Abbaye de Oudkerken,6.2,"6,20%",Brouwerij Lefebvre,abdijbier,22,High
+Akila Pils,5,"5,00%",Brouwerij Louwaege,pils,55,High
+Alpaïde,10,"10,00%",Brouwerij Nieuwhuys,donkere tripel,58,Very High
+Alpaïde Cuvée van de generaal,8.5,"8,50%",Brouwerij Nieuwhuys,blonde tripel,59,Very High
+Abdis Blond,6.5,"6,50%",Brouwerij Riva,blond,27,High
+Abdis Bruin,6.5,"6,50%",Brouwerij Riva,bruin,28,High
+Abdis Tripel,8.2,"8,20%",Brouwerij Riva,tripel,29,Very High
+Adriaen Brouwer,5,"5,00%",Brouwerij Roman,hoge gisting,43,High
+Adriaen Brouwer,5,"5,00%",Brouwerij Roman,bruin,43,High
+Adriaen Brouwer Dark Gold,8.5,"8,50%",Brouwerij Roman,hoge gisting,44,Very High
+Adriaen Brouwer Dark Gold,8.5,"8,50%",Brouwerij Roman,bruin,44,Very High
+Alfri,0.5,"0,50%",Brouwerij Roman,NA pils,57,Low
+Adelardus,7,"7,00%",Brouwerij Sint-Jozef voor Brouwerij Kerkom,abdijbier,40,High
+Adelardus Tripel,9,"9,00%",Brouwerij Sint-Jozef voor Brouwerij Kerkom,abdijbier,41,Very High
+Adelardus Tripel,9,"9,00%",Brouwerij Sint-Jozef voor Brouwerij Kerkom,tripel,41,Very High
+Alfoncine,8.5,"8,50%",Brouwerij Strubbe voor Biofresh Gavere,robijnrood,56,Very High
+Abdij van Roosenberg Dubbel,7,"7,00%",Brouwerij Van Steenberge,dubbel,30,High
+Abdij van Roosenberg Tripel,9,"9,00%",Brouwerij Van Steenberge,Tripel,31,Very High

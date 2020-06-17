@@ -1,6 +1,7 @@
 
 package org.apache.hop.beam.transforms.pubsub;
 
+import org.apache.hop.core.annotations.PluginDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -24,6 +25,11 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 
+@PluginDialog(
+        id = "BeamSubscribe",
+        image = "beam-gcp-pubsub-subscribe.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class BeamSubscribeDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamSubscribe.class; // for i18n purposes, needed by Translator2!!
   private final BeamSubscribeMeta input;

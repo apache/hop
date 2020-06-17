@@ -23,6 +23,7 @@
 package org.apache.hop.ui.workflow.actions.pipeline;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -199,7 +200,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             if (inputPipelineMeta == null) {
                 ActionPipeline jet = new ActionPipeline();
                 getInfo(jet);
-                inputPipelineMeta = jet.getPipelineMeta(metaStore, workflowMeta);
+                inputPipelineMeta = jet.getPipelineMeta(metadataProvider, workflowMeta);
             }
             String[] parameters = inputPipelineMeta.listParameters();
 
@@ -289,7 +290,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         }
 
         try {
-            List<String> runConfigurations = PipelineRunConfiguration.createFactory(metaStore).getElementNames();
+            List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class).listObjectNames();
 
             try {
                 ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});

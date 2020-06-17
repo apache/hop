@@ -1,0 +1,32 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/xml/src/main/doc/xslt.adoc
+= XSL Transformation
+
+== Description
+
+The XSL Transformation action is designed to transform XML documents into other documents (XML or other format, such as HTML or plain text) using Extensible Stylesheet Language Transformations or link:http://en.wikipedia.org/wiki/XSLT[XSLT].
+
+The original document is not changed; rather, a new document is created based on the content of the XML file.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. *Note*: This name has to be unique in a single workflow. A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Get filenames from previous result|When this option is checked, the XML File name, XSL File name and Output File name are read from the previous result set. When multilpe rows exists, it will loop. At this time XML File name is the first field in the result set, XSL File name the second fields and Output File name the third field.
+|XML File name|The full name of the source XML file
+|XSL File name|The full name of the XSL file
+|Output File name|The full name of the created document (result of XSL transformation)
+|Transformer Factory|You can select JAXP or SAXON as the transformer factory.
+|If file exists a|Define the behavior when an output file with the same name exists
+
+Options :
+
+* Create new with unique name : a new output file will be created
+* Do nothing : nothing will be done
+* Fail : the workflow will fail
+
+|Result file name|Add files to result files name : add the target file names to the list of result files of this workflow action for use in the next workflow actions. 
+|===

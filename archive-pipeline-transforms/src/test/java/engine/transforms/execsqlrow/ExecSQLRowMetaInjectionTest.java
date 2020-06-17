@@ -92,8 +92,8 @@ public class ExecSqlRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
     skipPropertyTest( "CONNECTION_NAME" );
 
     DatabaseMeta dbMeta = new DatabaseMeta( "testDBMeta", "MySQL", "Native", "localhost", "test", "3306", "user", "password" );
-    DatabaseMeta.createFactory( metaStore ).saveElement( dbMeta );
-    meta.setMetaStore( metaStore );
+    DatabaseMeta.createFactory( metadataProvider ).save( dbMeta );
+    meta.setMetadataProvider( metadataProvider );
 
     IValueMeta valueMeta = new ValueMetaString( "DBMETA" );
     injector.setProperty( meta, "CONNECTION_NAME", setValue( valueMeta, "testDBMeta" ), "DBMETA" );

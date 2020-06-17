@@ -22,20 +22,21 @@
 
 package org.apache.hop.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import picocli.CommandLine;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
@@ -52,14 +53,14 @@ public class HopConfig implements Runnable {
   private CommandLine cmd;
   private IVariables variables;
   private ILogChannel log;
-  private DelegatingMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public void run() {
 
     try {
       log = new LogChannel( "hop-config" );
       variables = Variables.getADefaultVariableSpace();
-      buildMetaStore();
+      buildMetadataProvider();
 
       boolean actionTaken = false;
 
@@ -69,7 +70,7 @@ public class HopConfig implements Runnable {
         if (mixin instanceof IConfigOptions) {
           IConfigOptions configOptions = (IConfigOptions) mixin;
 
-          actionTaken = configOptions.handleOption( log, metaStore, variables ) || actionTaken;
+          actionTaken = configOptions.handleOption( log, metadataProvider, variables ) || actionTaken;
         }
       }
 
@@ -82,11 +83,13 @@ public class HopConfig implements Runnable {
     }
   }
 
-  private void buildMetaStore() throws MetaStoreException {
-    metaStore = new DelegatingMetaStore();
-    IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore( variables );
-    metaStore.addMetaStore( localMetaStore );
-    metaStore.setActiveMetaStoreName( localMetaStore.getName() );
+  private void buildMetadataProvider() throws HopException {
+    String folder = variables.getVariable( Const.HOP_METADATA_FOLDER );
+    if ( StringUtils.isEmpty(folder)) {
+      metadataProvider = new JsonMetadataProvider();
+    } else {
+      metadataProvider = new JsonMetadataProvider( new HopTwoWayPasswordEncoder(), folder, variables );
+    }
   }
 
   /**

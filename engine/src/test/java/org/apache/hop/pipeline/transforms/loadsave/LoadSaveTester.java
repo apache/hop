@@ -164,7 +164,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     String xml = "<transform>" + metaToSave.getXml() + "</transform>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
     metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXmlFile( is, null, false, false ), "transform" ),
-      metaStore );
+      metadataProvider );
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
 
     // TODO Remove after method visibility changed, it should be called in testSerialization

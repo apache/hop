@@ -72,7 +72,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "FOLDER_IS_EMPTY", 
 		  image = "FolderIsEmpty.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/folderisempty.html"
 )
 public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFolderIsEmpty.class; // for i18n purposes, needed by Translator!!

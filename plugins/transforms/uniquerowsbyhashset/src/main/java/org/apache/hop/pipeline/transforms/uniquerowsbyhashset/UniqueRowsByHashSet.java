@@ -60,7 +60,7 @@ public class UniqueRowsByHashSet extends BaseTransform<UniqueRowsByHashSetMeta, 
 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.storeValues = meta.getStoreValues();
 

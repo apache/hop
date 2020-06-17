@@ -65,8 +65,7 @@ import java.util.Set;
 @PluginDialog(
         id = "SetValueField",
         image = "setvaluefield.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class SetValueFieldDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!

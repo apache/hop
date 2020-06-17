@@ -154,6 +154,11 @@ public class Const {
     System.getProperty( "user.dir" ) + File.separator + "config" );
 
   /**
+   * The variable which points to a shared folder with JDBC drivers in them.
+   */
+  public static final String HOP_SHARED_JDBC_DIRECTORY = "HOP_SHARED_JDBC_DIRECTORY";
+
+  /**
    * An empty ("") String.
    */
   public static final String EMPTY_STRING = "";
@@ -754,6 +759,11 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
+   * The XML file that contains the list of native Hop metadata plugins (DatabaseMeta, SlaveServer, ...)
+   */
+  public static final String XML_FILE_HOP_METADATA_PLUGINS = "hop-metadata-plugins.xml";
+
+  /**
    * The XML file that contains the list of native config plugins
    */
   public static final String XML_FILE_HOP_CONFIG_PLUGINS = "hop-config-plugins.xml";
@@ -888,15 +898,9 @@ public class Const {
   public static final ReleaseType RELEASE = ReleaseType.GA;
 
   /**
-   * The system environment variable indicating where the alternative location for the Pentaho metastore folder is
-   * located.
+   * The system environment variable pointing to the alternative location for the Hop metadata folder
    */
-  public static final String HOP_METASTORE_FOLDER = "HOP_METASTORE_FOLDER";
-
-  /**
-   * The name of the local client MetaStore
-   */
-  public static final String HOP_METASTORE_NAME = "Hop Local Client Metastore";
+  public static final String HOP_METADATA_FOLDER = "HOP_METADATA_FOLDER";
 
   /**
    * A variable to configure turning on/off detailed subjects in log.
@@ -2517,15 +2521,6 @@ public class Const {
     }
 
     return formats;
-  }
-
-  /**
-   * Return the current time as nano-seconds.
-   *
-   * @return time as nano-seconds.
-   */
-  public static long nanoTime() {
-    return new Date().getTime() * 1000;
   }
 
   /**

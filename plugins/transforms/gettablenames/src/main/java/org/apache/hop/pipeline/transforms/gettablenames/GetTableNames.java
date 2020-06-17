@@ -109,7 +109,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         data.outputRowMeta = new RowMeta();
       }
 
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
     }
 
@@ -413,7 +413,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       try {
         // Create the output row meta-data
         data.outputRowMeta = new RowMeta();
-        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore ); // get the
+        meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider ); // get the
         // metadata
         // populated
       } catch ( Exception e ) {

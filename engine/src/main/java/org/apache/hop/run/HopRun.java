@@ -37,11 +37,9 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.MetaStoreConst;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.exceptions.MetaStoreException;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
-import org.apache.hop.metastore.stores.delegate.DelegatingMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -90,7 +88,7 @@ public class HopRun implements Runnable {
   private String realFilename;
   private CommandLine cmd;
   private ILogChannel log;
-  private DelegatingMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public void run() {
     validateOptions();
@@ -140,9 +138,9 @@ public class HopRun implements Runnable {
       //
       buildVariableSpace();
 
-      // Set up the metastore(s) to use
+      // Set up the metadata to use
       //
-      buildMetaStore();
+      metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider(variables);
 
       HopEnvironment.init();
     } catch ( Exception e ) {
@@ -163,7 +161,7 @@ public class HopRun implements Runnable {
 
       // Run the pipeline with the given filename
       //
-      PipelineMeta pipelineMeta = new PipelineMeta( realFilename, metaStore, true, variables );
+      PipelineMeta pipelineMeta = new PipelineMeta( realFilename, metadataProvider, true, variables );
 
       // Configure the basic execution settings
       //
@@ -204,13 +202,13 @@ public class HopRun implements Runnable {
   private void runPipeline( CommandLine cmd, ILogChannel log, PipelineExecutionConfiguration configuration, PipelineMeta pipelineMeta ) {
     try {
       String pipelineRunConfigurationName = pipelineMeta.environmentSubstitute( configuration.getRunConfiguration() );
-      IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfigurationName, metaStore, pipelineMeta );
+      IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( pipelineRunConfigurationName, metadataProvider, pipelineMeta );
       pipeline.initializeVariablesFrom( null );
       pipeline.getPipelineMeta().setInternalHopVariables( pipeline );
       pipeline.injectVariables( configuration.getVariablesMap() );
 
       pipeline.setLogLevel( configuration.getLogLevel() );
-      pipeline.setMetaStore( metaStore );
+      pipeline.setMetadataProvider( metadataProvider );
 
       // Also copy the parameters over...
       //
@@ -234,7 +232,7 @@ public class HopRun implements Runnable {
 
       // Run the workflow with the given filename
       //
-      WorkflowMeta workflowMeta = new WorkflowMeta( variables, realFilename, metaStore );
+      WorkflowMeta workflowMeta = new WorkflowMeta( variables, realFilename, metadataProvider );
 
       // Configure the basic execution settings
       //
@@ -244,7 +242,7 @@ public class HopRun implements Runnable {
       //
       parseOptions( cmd, configuration, workflowMeta );
 
-      // Certain Pentaho plugins rely on this.  Meh.
+      // Certain Hop plugins rely on this.  Meh.
       //
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
 
@@ -264,7 +262,7 @@ public class HopRun implements Runnable {
   private void runWorkflow( CommandLine cmd, ILogChannel log, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
     try {
       String runConfigurationName = workflowMeta.environmentSubstitute(configuration.getRunConfiguration());
-      IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metaStore, workflowMeta );
+      IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
       workflow.initializeVariablesFrom( null );
       workflow.getWorkflowMeta().setInternalHopVariables( workflow );
       workflow.injectVariables( configuration.getVariablesMap() );
@@ -288,7 +286,7 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void parseOptions( CommandLine cmd, IExecutionConfiguration configuration, INamedParams namedParams ) throws MetaStoreException {
+  private void parseOptions( CommandLine cmd, IExecutionConfiguration configuration, INamedParams namedParams ) throws HopException {
 
     realRunConfigurationName = variables.environmentSubstitute( runConfigurationName );
     configuration.setRunConfiguration( realRunConfigurationName );
@@ -303,11 +301,12 @@ public class HopRun implements Runnable {
     return LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) );
   }
 
-  private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws MetaStoreException {
-    MetaStoreFactory<SlaveServer> slaveFactory = new MetaStoreFactory<>( SlaveServer.class, metaStore );
-    SlaveServer slaveServer = slaveFactory.loadElement( name );
+  private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws HopException {
+
+    IHopMetadataSerializer<SlaveServer> serializer = metadataProvider.getSerializer( SlaveServer.class );
+    SlaveServer slaveServer = serializer.load( name );
     if ( slaveServer == null ) {
-      throw new ParameterException( cmd, "Unable to find slave server '" + name + "' in the metastore" );
+      throw new ParameterException( cmd, "Unable to find slave server '" + name + "' in the metadata" );
     }
   }
 
@@ -374,14 +373,6 @@ public class HopRun implements Runnable {
     }
   }
 
-  private void buildMetaStore() throws MetaStoreException {
-    metaStore = new DelegatingMetaStore();
-    IMetaStore localMetaStore = MetaStoreConst.openLocalHopMetaStore(variables);
-    metaStore.addMetaStore( localMetaStore );
-    metaStore.setActiveMetaStoreName( localMetaStore.getName() );
-  }
-
-
   /**
    * Configure the variables and parameters in the given configuration on the given variable space and named parameters
    *
@@ -446,12 +437,12 @@ public class HopRun implements Runnable {
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  public DelegatingMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
@@ -654,10 +645,10 @@ public class HopRun implements Runnable {
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  public void setMetaStore( DelegatingMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   public static void main( String[] args ) {

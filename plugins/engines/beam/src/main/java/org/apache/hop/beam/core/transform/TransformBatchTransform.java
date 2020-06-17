@@ -13,7 +13,7 @@ import org.apache.beam.sdk.values.TupleTagList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.core.util.JsonRowMeta;
@@ -25,7 +25,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -250,16 +250,16 @@ public class TransformBatchTransform extends TransformTransform {
           //
           BeamHop.init( transformPluginClasses, xpPluginClasses );
 
-          // The content of the metastore is JSON serialized and inflated below.
+          // The content of the metadata is JSON serialized and inflated below.
           //
-          IMetaStore metaStore = new SerializableMetaStore( metastoreJson );
+          IHopMetadataProvider metadataProvider = new SerializableMetadataProvider( metastoreJson );
 
           // Create a very simple new transformation to run single threaded...
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
           pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
-          pipelineMeta.setMetaStore( metaStore );
+          pipelineMeta.setMetadataProvider( metadataProvider );
 
           // When the first row ends up in the buffer we start the timer.
           // If the rows are flushed out we reset back to -1;
@@ -339,7 +339,7 @@ public class TransformBatchTransform extends TransformTransform {
             throw new HopException( "Unable to load transform plugin with ID " + stepPluginId + ", this plugin isn't in the plugin registry or classpath" );
           }
 
-          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetaStore() );
+          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetadataProvider() );
 
           transformMeta = new TransformMeta( transformName, iTransformMeta );
           transformMeta.setTransformPluginId( stepPluginId );
@@ -366,7 +366,7 @@ public class TransformBatchTransform extends TransformTransform {
           //
           pipeline = new LocalPipelineEngine( pipelineMeta, new LoggingObject( "apache-beam-transform" ) );
           pipeline.setLogLevel( LogLevel.ERROR );
-          pipeline.setMetaStore( pipelineMeta.getMetaStore() );
+          pipeline.setMetadataProvider( pipelineMeta.getMetadataProvider() );
           pipeline.prepareExecution();
 
           // Create producers so we can efficiently pass data

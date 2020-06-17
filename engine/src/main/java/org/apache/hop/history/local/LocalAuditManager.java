@@ -39,13 +39,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The local audit manager stores its history in the hop home directory (~/.hop) under the history folder
  * So : $HOME/.hop/history
  * <p>
- * It will be done using a new metastore.
+ * It will be done using a new metadata.
  * - Event groups are mapped to namespaces
  * -
  */
@@ -92,14 +94,14 @@ public class LocalAuditManager implements IAuditManager {
   }
 
   private String calculateGroupPath( String group ) {
-    return rootFolder + File.separator + group ;
+    return rootFolder + File.separator + group;
   }
 
   private String calculateTypePath( String group, String type ) {
     return calculateGroupPath( group ) + File.separator + type;
   }
 
-  @Override public List<AuditEvent> findEvents( String group, String type ) throws HopException {
+  @Override public List<AuditEvent> findEvents( String group, String type, boolean unique ) throws HopException {
     if ( StringUtils.isEmpty( group ) ) {
       throw new HopException( "You need to specify a group to find events" );
     }
@@ -108,6 +110,7 @@ public class LocalAuditManager implements IAuditManager {
     }
 
     ArrayList<AuditEvent> events = new ArrayList<>();
+    Set<String> names = new HashSet<>();
 
     String folderPath = calculateTypePath( group, type );
     File folder = new File( folderPath );
@@ -123,7 +126,14 @@ public class LocalAuditManager implements IAuditManager {
     for ( File eventFile : eventFiles ) {
       try {
         AuditEvent event = mapper.readValue( eventFile, AuditEvent.class );
-        events.add(event);
+        if ( unique ) {
+          if ( !names.contains( event.getName() ) ) {
+            events.add( event );
+            names.add( event.getName() );
+          }
+        } else {
+          events.add( event );
+        }
       } catch ( IOException e ) {
         throw new HopException( "Error reading event file '" + eventFile.toString() + "'", e );
       }
@@ -142,9 +152,9 @@ public class LocalAuditManager implements IAuditManager {
     String filename = calculateGroupPath( group ) + File.separator + type + ".list";
     checkFileAndFolder( filename );
     try {
-      new ObjectMapper().writeValue( new File(filename), auditList );
-    } catch(IOException e) {
-      throw new HopException( "It was not possible to write to audit list file '"+filename+"'", e );
+      new ObjectMapper().writeValue( new File( filename ), auditList );
+    } catch ( IOException e ) {
+      throw new HopException( "It was not possible to write to audit list file '" + filename + "'", e );
     }
   }
 
@@ -157,7 +167,7 @@ public class LocalAuditManager implements IAuditManager {
     }
 
     String filename = calculateGroupPath( group ) + File.separator + type + ".list";
-    if (!checkFileAndFolder( filename )) {
+    if ( !checkFileAndFolder( filename ) ) {
       return new AuditList();
     } else {
       try {
@@ -178,7 +188,7 @@ public class LocalAuditManager implements IAuditManager {
 
     // Load the state map for the given group and type
     //
-    AuditStateMap auditStateMap = loadAuditStateMap(group, type);
+    AuditStateMap auditStateMap = loadAuditStateMap( group, type );
 
     // Add the state
     //
@@ -186,21 +196,22 @@ public class LocalAuditManager implements IAuditManager {
 
     // save the state map
     //
-    saveAuditStateMap(group, type, auditStateMap);
+    saveAuditStateMap( group, type, auditStateMap );
   }
 
-  private String calculateStateFilename(String group, String type) {
+  private String calculateStateFilename( String group, String type ) {
     return calculateTypePath( group, type ) + "-state.json";
   }
 
   /**
    * Check the file and folder. Create the parent folder if it doesn't exist.
+   *
    * @param filename The filename to check
    * @return True if the file exists, false if it doesn't
    */
-  private boolean checkFileAndFolder(String filename) {
+  private boolean checkFileAndFolder( String filename ) {
     File file = new File( filename );
-    if (!file.exists()) {
+    if ( !file.exists() ) {
       // A new file, create the parent folder if needed
       //
       File parent = file.getParentFile();
@@ -213,6 +224,7 @@ public class LocalAuditManager implements IAuditManager {
 
   /**
    * Load the auditing state map for the specified group and type
+   *
    * @param group
    * @param type
    * @return The map. An empty one if there are any loading problems. They are simply logged and you start over.
@@ -220,15 +232,15 @@ public class LocalAuditManager implements IAuditManager {
   public AuditStateMap loadAuditStateMap( String group, String type ) {
     String filename = calculateStateFilename( group, type );
     try {
-      if (!checkFileAndFolder( filename )) {
+      if ( !checkFileAndFolder( filename ) ) {
         // A new file, create the parent folder if needed
         //
         return new AuditStateMap();
       } else {
         return new ObjectMapper().readValue( new File( filename ), AuditStateMap.class );
       }
-    } catch(Exception e) {
-      LogChannel.GENERAL.logError("Error loading state map from file '"+filename+"'", e);
+    } catch ( Exception e ) {
+      LogChannel.GENERAL.logError( "Error loading state map from file '" + filename + "'", e );
       return new AuditStateMap(); // probably corrupt: start over, it's not that important
     }
   }
@@ -239,7 +251,7 @@ public class LocalAuditManager implements IAuditManager {
       checkFileAndFolder( filename );
       new ObjectMapper().writeValue( new File( filename ), auditStateMap );
     } catch ( Exception e ) {
-      throw new HopException("Error saving state map to file '"+filename+"'", e);
+      throw new HopException( "Error saving state map to file '" + filename + "'", e );
     }
   }
 
@@ -278,13 +290,13 @@ public class LocalAuditManager implements IAuditManager {
   }
 
   private void validateList( String group, String type, AuditList auditList ) throws HopException {
-    if (StringUtils.isEmpty(group)) {
+    if ( StringUtils.isEmpty( group ) ) {
       throw new HopException( "An audit list needs to belong to a group" );
     }
-    if (StringUtils.isEmpty(type)) {
+    if ( StringUtils.isEmpty( type ) ) {
       throw new HopException( "An audit list needs to have a type" );
     }
-    if (auditList.getNames()==null) {
+    if ( auditList.getNames() == null ) {
       throw new HopException( "The audit list of names can't be null" );
     }
   }

@@ -122,10 +122,9 @@ import java.util.List;
 import java.util.Vector;
 
 @PluginDialog(
-        id = "ScriptValuesMod",
+        id = "ScriptValueMod",
         image = "javascript.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class ScriptValuesModDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!

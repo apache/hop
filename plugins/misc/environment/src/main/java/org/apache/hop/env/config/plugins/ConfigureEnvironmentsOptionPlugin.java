@@ -1,5 +1,6 @@
 package org.apache.hop.env.config.plugins;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -9,8 +10,9 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.env.config.EnvironmentConfig;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import picocli.CommandLine;
 
 @ConfigPlugin(
@@ -23,7 +25,6 @@ import picocli.CommandLine;
   description = "Environments"
 )
 public class ConfigureEnvironmentsOptionPlugin implements IConfigOptions {
-  public static final String[] OPTION_NAMES = { "-s", "--system-properties" };
 
   @CommandLine.Option( names = { "-ee", "--environments-enable" }, description = "Enable the environments system" )
   @GuiWidgetElement(
@@ -44,6 +45,15 @@ public class ConfigureEnvironmentsOptionPlugin implements IConfigOptions {
   )
   private boolean openLastUsedEnvironment;
 
+  @CommandLine.Option( names = { "-ef", "--environment-config-file" }, description = "Specify the name of the local environment config json file (default: "+ EnvironmentConfig.HOP_CONFIG_ENVIRONMENT_FILE+")" )
+  @GuiWidgetElement(
+    id = "environment-config-file",
+    type = GuiElementType.TEXT,
+    label = "Specify the name of the local environment json file",
+    parentId = "ConfigureEnvironments"
+  )
+  private String environmentConfigFile;
+
   public ConfigureEnvironmentsOptionPlugin() {
   }
 
@@ -54,19 +64,28 @@ public class ConfigureEnvironmentsOptionPlugin implements IConfigOptions {
     return optionPlugin;
   }
 
-  @Override public boolean handleOption( ILogChannel log, IMetaStore metaStore, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    EnvironmentConfig config = EnvironmentConfigSingleton.getConfig();
+
     boolean changed=false;
     if (enableEnvironments) {
-      EnvironmentConfigSingleton.getConfig().setEnabled( enableEnvironments );
+      config.setEnabled( enableEnvironments );
       HopConfig.saveToFile();
       log.logBasic( "The environment system is now "+(enableEnvironments?"enabled":"disabled") );
       changed=true;
     }
 
     if (openLastUsedEnvironment) {
-      EnvironmentConfigSingleton.getConfig().setOpeningLastEnvironmentAtStartup( openLastUsedEnvironment );
+      config.setOpeningLastEnvironmentAtStartup( openLastUsedEnvironment );
       HopConfig.saveToFile();
       log.logBasic( "The environment system is "+(!openLastUsedEnvironment?"not ":"")+" opening the last used environment in the Hop GUI." );
+      changed=true;
+    }
+
+    if ( StringUtils.isNotEmpty(environmentConfigFile)) {
+      config.setEnvironmentConfigFilename( environmentConfigFile );
+      HopConfig.saveToFile();
+      log.logBasic( "The environment config filename is now set to "+environmentConfigFile+". It will be picked up relative to every environment home folder." );
       changed=true;
     }
 
@@ -105,7 +124,22 @@ public class ConfigureEnvironmentsOptionPlugin implements IConfigOptions {
   public void setOpenLastUsedEnvironment( boolean openLastUsedEnvironment ) {
     this.openLastUsedEnvironment = openLastUsedEnvironment;
     EnvironmentConfigSingleton.getConfig().setOpeningLastEnvironmentAtStartup( openLastUsedEnvironment );
+  }
 
+  /**
+   * Gets environmentConfigFile
+   *
+   * @return value of environmentConfigFile
+   */
+  public String getEnvironmentConfigFile() {
+    return environmentConfigFile;
+  }
+
+  /**
+   * @param environmentConfigFile The environmentConfigFile to set
+   */
+  public void setEnvironmentConfigFile( String environmentConfigFile ) {
+    this.environmentConfigFile = environmentConfigFile;
   }
 }
 

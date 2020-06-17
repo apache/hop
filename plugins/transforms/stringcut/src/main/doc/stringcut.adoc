@@ -1,0 +1,24 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/stringcut/src/main/doc/stringcut.adoc
+= Strings cut
+
+== Description
+
+The Strings cut transform allows you to cut a portion of a substring. If the designated field is out of range, it returns blank.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|In stream field|Name of the field whose substring to cut.
+|Out stream field|When a field name is given here, the transform creates a new field with the substring. Otherwise the original field gets replaced by the substring.
+|Cut from|Designate where to begin cutting the substring. This value is 0-based, thus the first character in a string is 0.
+|Cut to|Designate where to end cutting the substring. This value is exclusive (1-based), so using a 1 includes the first character. The maximum length of the new string is Cut to minus Cut from.
+|===
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.

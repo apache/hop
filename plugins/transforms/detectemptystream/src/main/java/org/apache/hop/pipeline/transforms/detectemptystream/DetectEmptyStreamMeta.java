@@ -29,7 +29,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
@@ -47,7 +47,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectemptystream",
         name = "BaseTransform.TypeLongDesc.DetectEmptyStream",
         description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/detectemptystream.html"
 )
 public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
@@ -56,7 +57,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -73,7 +74,7 @@ public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransfo
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

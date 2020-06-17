@@ -75,7 +75,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "DELETE_FOLDERS", 
 		  image = "DeleteFolders.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefolders.html"
 )
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!

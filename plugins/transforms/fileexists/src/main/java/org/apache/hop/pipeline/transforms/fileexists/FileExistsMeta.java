@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -53,7 +53,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fileexists",
         name = "BaseTransform.TypeLongDesc.FileExists",
         description = "BaseTransform.TypeTooltipDesc.FileExists",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fileexists.html"
 )
 public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<FileExists, FileExistsData> {
   private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
@@ -136,8 +137,8 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
     this.includefiletype = includefiletype;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -154,7 +155,7 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v =
@@ -182,7 +183,7 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       filenamefield = XmlHandler.getTagValue( transformNode, "filenamefield" );
       resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
@@ -197,7 +198,7 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

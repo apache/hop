@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -38,7 +38,7 @@ public class LdapProtocolFactoryTest {
     String host = "localhost";
 
     LdapProtocolFactory ldapProtocolFactory = new LdapProtocolFactory( Mockito.mock( LogChannelInterface.class ) );
-    iVariables variables = Mockito.mock( iVariables.class );
+    IVariables variables = Mockito.mock( IVariables.class );
     LdapMeta meta = Mockito.mock( LdapMeta.class );
     Mockito.doReturn( ldapVariable ).when( meta ).getProtocol();
     Mockito.doReturn( ldap ).when( variables ).environmentSubstitute( ldapVariable );

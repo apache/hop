@@ -1,0 +1,48 @@
+{
+  "base_filename": "input-process-output-golden.csv",
+  "name": "input-process-output-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "#",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": 20,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "First name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Last name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 8,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "city"
+    },
+    {
+      "field_comment": "",
+      "field_length": 30,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state"
+    }
+  ],
+  "folder_name": ""
+}

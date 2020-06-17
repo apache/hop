@@ -65,7 +65,7 @@ public class WorkflowMapConcurrencyTest {
   private static IWorkflowEngine<WorkflowMeta> mockWorkflow( int id ) {
     IWorkflowEngine<WorkflowMeta> workflow = mock( LocalWorkflowEngine.class );
     when (workflow.getWorkflowName()).thenReturn( WORKFLOW_NAME_STRING );
-    when( workflow.getContainerObjectId() ).thenReturn( WORKFLOW_NAME_STRING + id );
+    when( workflow.getContainerId() ).thenReturn( WORKFLOW_NAME_STRING + id );
     return workflow;
   }
 

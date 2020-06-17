@@ -62,7 +62,7 @@ public class NumberRange extends BaseTransform<NumberRangeMeta, NumberRangeData>
       numberRange = new NumberRangeSet( meta.getRules(), meta.getFallBackValue() );
       data.outputRowMeta = getInputRowMeta().clone();
       // Prepare output fields
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Find column numbers
       data.inputColumnNr = data.outputRowMeta.indexOfValue( meta.getInputField() );

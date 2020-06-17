@@ -28,7 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -36,18 +35,9 @@ import java.util.Map;
  *
  * @author matt
  */
-
-@PluginTypeCategoriesOrder(
-  getNaturalCategoriesOrder = {
-    "ActionCategory.Category.General", "ActionCategory.Category.Mail", "ActionCategory.Category.FileManagement",
-    "ActionCategory.Category.Conditions", "ActionCategory.Category.Scripting", "ActionCategory.Category.BulkLoading",
-    "ActionCategory.Category.BigData", "ActionCategory.Category.Modeling", "ActionCategory.Category.DataQuality",
-    "ActionCategory.Category.XML", "ActionCategory.Category.Utility", "ActionCategory.Category.Repository",
-    "ActionCategory.Category.FileTransfer", "ActionCategory.Category.FileEncryption", "ActionCategory.Category.Palo",
-    "ActionCategory.Category.Experimental", "ActionCategory.Category.Deprecated" }, i18nPackageClass = WorkflowMeta.class )
 @PluginMainClassType( IAction.class )
 @PluginAnnotationType( Action.class )
-public class ActionPluginType extends BasePluginType implements IPluginType {
+public class ActionPluginType extends BasePluginType<Action> implements IPluginType<Action> {
   private static Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String GENERAL_CATEGORY = BaseMessages.getString( PKG, "ActionCategory.Category.General" );
@@ -59,7 +49,7 @@ public class ActionPluginType extends BasePluginType implements IPluginType {
     populateFolders( "actions" );
   }
 
-  protected ActionPluginType( Class<? extends Annotation> pluginType, String id, String name ) {
+  protected ActionPluginType( Class<Action> pluginType, String id, String name ) {
     super( pluginType, id, name );
   }
 
@@ -89,70 +79,70 @@ public class ActionPluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
-    return ( (Action) annotation ).categoryDescription();
+  protected String extractCategory( Action annotation ) {
+    return annotation.categoryDescription();
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (Action) annotation ).description();
+  protected String extractDesc( Action annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (Action) annotation ).id();
+  protected String extractID( Action annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (Action) annotation ).name();
+  protected String extractName( Action annotation ) {
+    return annotation.name();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
-    return ( (Action) annotation ).image();
+  protected String extractImageFile( Action annotation ) {
+    return annotation.image();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( Action annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
-    return ( (Action) annotation ).i18nPackageName();
+  protected String extractI18nPackageName( Action annotation ) {
+    return annotation.i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Action annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
-    return Const.getDocUrl( ( (Action) annotation ).documentationUrl() );
+  protected String extractDocumentationUrl( Action annotation ) {
+    return Const.getDocUrl( annotation.documentationUrl() );
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
-    return ( (Action) annotation ).casesUrl();
+  protected String extractCasesUrl( Action annotation ) {
+    return annotation.casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
-    return ( (Action) annotation ).forumUrl();
+  protected String extractForumUrl( Action annotation ) {
+    return annotation.forumUrl();
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
-    return ( (Action) annotation ).suggestion();
+  protected String extractSuggestion( Action annotation ) {
+    return annotation.suggestion();
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
-    return ( (Action) annotation ).classLoaderGroup();
+  protected String extractClassLoaderGroup( Action annotation ) {
+    return annotation.classLoaderGroup();
   }
 
-  @Override protected String[] extractKeywords( Annotation annotation ) {
-    return ( (Action) annotation ).keywords();
+  @Override protected String[] extractKeywords( Action annotation ) {
+    return annotation.keywords();
   }
 }

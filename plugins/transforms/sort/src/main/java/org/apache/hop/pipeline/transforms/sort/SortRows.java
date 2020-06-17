@@ -403,7 +403,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
       // Metadata
       data.outputRowMeta = inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       data.comparator = new RowTemapFileComparator( data.outputRowMeta, data.fieldnrs );
 
       for ( int i = 0; i < fieldNames.length; i++ ) {

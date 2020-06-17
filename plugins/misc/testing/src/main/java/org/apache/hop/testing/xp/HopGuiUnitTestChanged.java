@@ -7,7 +7,7 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 
 /**
- * Used for create/update/delete of unit test metastore elements
+ * Used for create/update/delete of unit test metadata objects
  */
 public class HopGuiUnitTestChanged implements IExtensionPoint {
 

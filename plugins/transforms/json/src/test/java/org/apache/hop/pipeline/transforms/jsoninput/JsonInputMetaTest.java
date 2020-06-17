@@ -27,7 +27,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class JsonInputMetaTest {
   IVariables space;
 
   @Mock
-  IMetaStore metaStore;
+  IHopMetadataProvider metadataProvider;
 
   @Mock
   JsonInputMeta.InputFiles inputFiles;
@@ -96,7 +96,7 @@ public class JsonInputMetaTest {
 
     when( rowMeta.indexOfValue( DATA ) ).thenReturn( 0 );
 
-    jsonInputMeta.getFields( rowMeta, NAME, info, nextStep, space, metaStore );
+    jsonInputMeta.getFields( rowMeta, NAME, info, nextStep, space, metadataProvider );
 
     verify( rowMeta ).removeValueMeta( 0 );
   }
@@ -122,7 +122,7 @@ public class JsonInputMetaTest {
   @Test
   public void testMetaLoad_DefaultPathLeafToNull_Is_N() throws HopXmlException {
     jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml( loadTransformFile( "/transform_defaultPathLeafToNull_N.xml" ), metaStore );
+    jsonInputMeta.loadXml( loadTransformFile( "/transform_defaultPathLeafToNull_N.xml" ), metadataProvider );
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", false, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 
@@ -130,7 +130,7 @@ public class JsonInputMetaTest {
   @Test
   public void testDefaultMetaLoad_DefaultPathLeafToNull_Is_Y() throws HopXmlException {
     jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml( loadTransformFile( "/transform_default.xml" ), metaStore );
+    jsonInputMeta.loadXml( loadTransformFile( "/transform_default.xml" ), metadataProvider );
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", true, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 
@@ -140,7 +140,7 @@ public class JsonInputMetaTest {
   @Test
   public void testMetaLoadAsDefault_NoDefaultPathLeafToNull_In_Xml() throws HopXmlException {
     jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml( loadTransformFile( "/transform_no_defaultPathLeafToNull_node.xml" ), metaStore );
+    jsonInputMeta.loadXml( loadTransformFile( "/transform_no_defaultPathLeafToNull_node.xml" ), metadataProvider );
     assertEquals( "Option.DEFAULT_PATH_LEAF_TO_NULL ", true, jsonInputMeta.isDefaultPathLeafToNull() );
   }
 

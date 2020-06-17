@@ -28,7 +28,7 @@ import com.trilead.ssh2.ServerHostKeyVerifier;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVFS;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class SSHDataTest {
   @Mock
   FileContent fileContent;
   @Mock
-  iVariables variables;
+  IVariables variables;
 
   String server = "testServerUrl";
   String keyFilePath = "keyFilePath";

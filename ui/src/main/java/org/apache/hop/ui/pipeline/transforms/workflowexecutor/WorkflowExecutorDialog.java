@@ -420,7 +420,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wPath.setText( Const.NVL( workflowExecutorMeta.getFilename(), "" ) );
 
     try {
-      List<String> runConfigurations = WorkflowRunConfiguration.createFactory( metaStore).getElementNames();
+      List<String> runConfigurations = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );

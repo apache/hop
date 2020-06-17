@@ -61,7 +61,7 @@ public abstract class HopFileTypeBase<T extends IXml> implements IHopFileType<T>
         // Verify the extension
         //
         for ( String typeExtension : getFilterExtensions() ) {
-          if ( fileExtension.equalsIgnoreCase( typeExtension ) ) {
+          if ( typeExtension.toLowerCase().endsWith( fileExtension ) ) {
             return true;
           }
         }

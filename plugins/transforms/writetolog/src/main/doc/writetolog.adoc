@@ -1,0 +1,44 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/writetolog/src/main/doc/writetolog.adoc
+= Write to log
+
+== Description
+
+This transform writes information to the Hop logging system.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform Name|Name of the transform this name has to be unique in a single pipeline.
+|Log level|The logging level to use.
+|Print header|Whether or not the column names for data values is printed. In the example below, this value has been set to false, so only the actual values (3, 4) are printed.
+|Limit rows|Limit the number of rows given by the parameter "Nr. of rows to print".
+|Nr. of rows to print|The number of rows to print when option "limit rows" is checked.
+|Write to log|The text to use in the logging line(s).
+|Fields|The data from fields that should we written to the log.
+|===
+
+== Example log output
+
+[source,bash]
+----
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 - ----------> Linenr 1----------------------------
+2020/05/14 12:30:52 - Write to log.0 - test log
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 -  3
+2020/05/14 12:30:52 - Write to log.0 -  4
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 - ====================
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 - ----------> Linenr 2----------------------------
+2020/05/14 12:30:52 - Write to log.0 - test log
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 -  3
+2020/05/14 12:30:52 - Write to log.0 -  4
+2020/05/14 12:30:52 - Write to log.0 -
+2020/05/14 12:30:52 - Write to log.0 - ====================
+----

@@ -68,7 +68,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
   }
 
-  public void drawJob() {
+  public void drawWorkflow() {
 
     Point max = workflowMeta.getMaximum();
     Point thumb = getThumb( area, max );

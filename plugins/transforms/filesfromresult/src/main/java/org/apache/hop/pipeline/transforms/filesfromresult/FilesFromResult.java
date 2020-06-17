@@ -63,7 +63,7 @@ public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFro
     if ( first ) {
       first = false;
       data.outputRowMeta = new RowMeta();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
     incrementLinesRead();
 

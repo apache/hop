@@ -33,7 +33,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.*;
@@ -49,9 +49,10 @@ import java.util.List;
 @Transform(
         id = "GetSlaveSequence",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getslavesequence",
-        name = "BaseTransform.TypeLongDesc.GetSlaveSequence",
-        description = "BaseTransform.TypeTooltipDesc.GetSlaveSequence",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+        name = "GetSlaveSequence.Name",
+        description = "GetSlaveSequence.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getslavesequence.html"
 )
 public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetSlaveSequence, GetSlaveSequenceData> {
   private static Class<?> PKG = GetSlaveSequenceMeta.class; // for i18n purposes, needed by Translator!!
@@ -62,8 +63,8 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
   private String increment;
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   @Override
@@ -72,7 +73,7 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       valuename = XmlHandler.getTagValue( transformNode, "valuename" );
       slaveServerName = XmlHandler.getTagValue( transformNode, "slave" );
@@ -94,7 +95,7 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     IValueMeta v = new ValueMetaInteger( valuename );
     v.setOrigin( name );
     row.addValueMeta( v );
@@ -115,7 +116,7 @@ public class GetSlaveSequenceMeta extends BaseTransformMeta implements ITransfor
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

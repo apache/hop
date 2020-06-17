@@ -66,7 +66,7 @@ public class FieldsChangeSequence extends BaseTransform<FieldsChangeSequenceMeta
       data.previousMeta = getInputRowMeta().clone();
       data.nextIndexField = data.previousMeta.size();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( meta.getFieldName() == null || meta.getFieldName().length > 0 ) {
         data.fieldnr = meta.getFieldName().length;

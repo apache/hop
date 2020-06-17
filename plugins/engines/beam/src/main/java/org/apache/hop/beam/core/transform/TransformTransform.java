@@ -16,7 +16,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.joda.time.Instant;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.metastore.SerializableMetaStore;
+import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.core.util.HopBeamUtil;
@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,16 +267,16 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           //
           BeamHop.init( transformPluginClasses, xpPluginClasses );
 
-          // The content of the metastore is JSON serialized and inflated below.
+          // The content of the metadata is JSON serialized and inflated below.
           //
-          IMetaStore metaStore = new SerializableMetaStore( metastoreJson );
+          IHopMetadataProvider metadataProvider = new SerializableMetadataProvider( metastoreJson );
 
           // Create a very simple new transformation to run single threaded...
           // Single threaded...
           //
           pipelineMeta = new PipelineMeta();
           pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
-          pipelineMeta.setMetaStore( metaStore );
+          pipelineMeta.setMetadataProvider( metadataProvider );
 
           // Give transforms variables from above
           //
@@ -351,7 +351,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
             throw new HopException( "Unable to load transform plugin with ID " + stepPluginId + ", this plugin isn't in the plugin registry or classpath" );
           }
 
-          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetaStore() );
+          HopBeamUtil.loadTransformMetadataFromXml( transformName, iTransformMeta, stepMetaInterfaceXml, pipelineMeta.getMetadataProvider() );
 
           transformMeta = new TransformMeta( transformName, iTransformMeta );
           transformMeta.setTransformPluginId( stepPluginId );
@@ -378,7 +378,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           //
           pipeline = new LocalPipelineEngine( pipelineMeta );
           pipeline.setLogLevel( LogLevel.ERROR );
-          pipeline.setMetaStore( pipelineMeta.getMetaStore() );
+          pipeline.setMetadataProvider( pipelineMeta.getMetadataProvider() );
           pipeline.prepareExecution();
 
           // Create producers so we can efficiently pass data

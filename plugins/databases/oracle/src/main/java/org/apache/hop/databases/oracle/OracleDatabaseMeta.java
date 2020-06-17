@@ -631,14 +631,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   @Override
   public boolean isStrictBigNumberInterpretation() {
-    return "Y".equalsIgnoreCase( getAttributes().getProperty( STRICT_BIGNUMBER_INTERPRETATION, "N" ) );
+    return "Y".equalsIgnoreCase( getAttributeProperty( STRICT_BIGNUMBER_INTERPRETATION, "N" ) );
   }
 
   /**
    * @param strictBigNumberInterpretation true if use strict number(38) interpretation
    */
   public void setStrictBigNumberInterpretation( boolean strictBigNumberInterpretation ) {
-    getAttributes().setProperty( STRICT_BIGNUMBER_INTERPRETATION, strictBigNumberInterpretation ? "Y" : "N" );
+    getAttributes().put( STRICT_BIGNUMBER_INTERPRETATION, strictBigNumberInterpretation ? "Y" : "N" );
   }
 
   @Override

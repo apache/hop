@@ -64,12 +64,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param driverClass The driverClass to set
    */
   public void setDriverClass( String driverClass ) {
-    getAttributes().setProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
+    getAttributes().put( ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass );
   }
 
   @Override
   public String getDriverClass() {
-    return getAttributes().getProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
+    return getAttributeProperty( ATRRIBUTE_CUSTOM_DRIVER_CLASS, "" );
   }
 
   @Override

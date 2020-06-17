@@ -24,17 +24,17 @@ package org.apache.hop.pipeline.transforms.simplemapping;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -74,7 +74,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   private MappingIODefinition outputMapping;
   private MappingParameters mappingParameters;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public SimpleMappingMeta() {
     super(); // allocate BaseTransformMeta
@@ -85,7 +85,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     mappingParameters = new MappingParameters();
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       fileName = XmlHandler.getTagValue( transformNode, "filename" );
 
@@ -165,7 +165,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // First load some interesting data...
 
     // Then see which fields get added to the row.
@@ -173,7 +173,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     PipelineMeta mappingPipelineMeta = null;
     try {
       mappingPipelineMeta =
-        loadMappingMeta( this, metaStore, variables, mappingParameters.isInheritingAllVariables() );
+        loadMappingMeta( this, metadataProvider, variables, mappingParameters.isInheritingAllVariables() );
     } catch ( HopException e ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "SimpleMappingMeta.Exception.UnableToLoadMappingPipeline" ), e );
@@ -270,18 +270,18 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_WARNING, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.NotReceivingAnyFields" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
@@ -289,12 +289,12 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.TransformReceivingFieldsFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "SimpleMappingMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
@@ -377,7 +377,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
   }
 
   @Deprecated
-  public IHasFilename loadReferencedObject( int index, iVariables variables ) throws HopException {
+  public IHasFilename loadReferencedObject( int index, IVariables variables ) throws HopException {
     return loadReferencedObject( index, null, variables );
   }
 
@@ -385,21 +385,21 @@ public class SimpleMappingMeta extends TransformWithMappingMeta implements ITran
    * Load the referenced object
    *
    * @param index     the object index to load
-   * @param metaStore the MetaStore to use
+   * @param metadataProvider the MetaStore to use
    * @param variables     the variable space to use
    * @return the referenced object once loaded
    * @throws HopException
    */
-  public IHasFilename loadReferencedObject( int index, IMetaStore metaStore, iVariables variables ) throws HopException {
-    return loadMappingMeta( this, metaStore, variables );
+  public IHasFilename loadReferencedObject( int index, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+    return loadMappingMeta( this, metadataProvider, variables );
   }
 
-  public IMetaStore getMetaStore() {
-    return metaStore;
+  public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
-  public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   public MappingIODefinition getInputMapping() {

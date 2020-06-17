@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "CREATE_FILE", 
 		  image = "CreateFile.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfile.html"
 )
 public class ActionCreateFileDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionCreateFile.class; // for i18n purposes, needed by Translator!!

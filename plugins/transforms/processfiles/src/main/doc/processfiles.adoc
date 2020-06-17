@@ -1,0 +1,25 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/processfiles/src/main/doc/processfiles.adoc
+= Process files
+
+== Description
+
+This transform copies, moves or deletes files by giving the source and target file names in the data stream.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Operation|This defines the operation: Copy, Move or Delete
+|Create target parent folder|When this option is checked, the target parent folder is created.
+Otherwise it throws an exception when the target parent folder is not existing.
+|Overwrite target file|When this option is checked and the target file exists, it will be overwritten.
+Otherwise it will not be overwritten and silently ignored.
+|Add target filename to result|When this option is checked, add the copied, moved or deleted files to the list of result files.
+|Set simulation mode|For testing purposes: No action will be taken at the end and no file will be copied, moved or deleted.
+|Source filename field|This defined the field that contains the complete path to the source file for copy or move or the file to be deleted.
+|Target filename field|This defined the field that contains the complete path to the target file. This field must not be given in the Delete mode. 
+|===

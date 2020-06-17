@@ -10,7 +10,7 @@ import org.apache.beam.sdk.metrics.MetricQueryResults;
 import org.apache.beam.sdk.metrics.MetricResult;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
-import org.apache.hop.beam.metastore.RunnerType;
+import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -28,7 +28,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
 import org.apache.hop.pipeline.IExecutionStoppedListener;
@@ -79,10 +79,10 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected boolean hasHaltedComponents;
   protected boolean preview;
   protected int errors;
-  protected IMetaStore metaStore;
+  protected IHopMetadataProvider metadataProvider;
   protected ILogChannel logChannel;
   protected ILoggingObject loggingObject;
-  protected String serverObjectId;
+  protected String containerId;
   protected EngineMetrics engineMetrics;
   protected Result previousResult;
 
@@ -90,8 +90,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   protected IPipelineEngine parentPipeline;
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
   protected LogLevel logLevel;
-
-  protected String containerId;
 
   protected Date executionStartDate;
   protected Date executionEndDate;
@@ -151,12 +149,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     activeSubWorkflows = new HashMap<>();
     engineCapabilities = new BeamPipelineEngineCapabilities();
     extensionDataMap = Collections.synchronizedMap( new HashMap<>() );
+    statusDescription = "IDLE";
   }
 
   public BeamPipelineEngine( PipelineMeta pipelineMeta ) {
     this();
     this.pipelineMeta = pipelineMeta;
-    this.metaStore = pipelineMeta.getMetaStore();
+    this.metadataProvider = pipelineMeta.getMetadataProvider();
     this.loggingObject = new LoggingObject( this );
     this.logChannel = new LogChannel( this, pipelineMeta );
     this.logLevel = this.logChannel.getLogLevel();
@@ -179,6 +178,8 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   @Override public void prepareExecution() throws HopException {
     ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
     try {
+      executionStartDate = new Date();
+
       // Explain to various classes in the Beam API (@see org.apache.beam.sdk.io.FileSystems)
       // what the context classloader is.
       // Set it back when we're done here.
@@ -191,13 +192,13 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       if ( !( engineRunConfiguration instanceof IBeamPipelineEngineRunConfiguration ) ) {
         throw new HopException( "A beam pipeline needs a beam pipeline engine configuration to run, not '" + pipelineRunConfiguration.getName() + "'" );
       }
-      if ( metaStore == null ) {
-        throw new HopException( "The beam pipeline engine didn't receive a metastore" );
+      if ( metadataProvider == null ) {
+        throw new HopException( "The beam pipeline engine didn't receive a metadata" );
       }
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
-      converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metaStore, beamEngineRunConfiguration );
+      converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metadataProvider, beamEngineRunConfiguration );
 
       beamPipeline = converter.createPipeline();
 
@@ -264,7 +265,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
       setReadyToStart( false );
 
       if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
-        // Certain runners like DataFlow allow async execution
+        // Certain runners like Direct and DataFlow allow async execution
         //
         try {
           beamPipelineResults = executePipeline( beamPipeline );
@@ -313,6 +314,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
                 refreshTimer.cancel(); // no more needed
               }
               setRunning( false );
+              executionEndDate = new Date();
             } catch ( Exception e ) {
               throw new RuntimeException( "Error post-processing a beam pipeline", e );
             }
@@ -478,6 +480,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
         if ( isRunning() ) {
           // First time we've hit this:
           setRunning( false );
+          executionEndDate = new Date();
           if ( beamEngineRunConfiguration.isRunningAsynchronous() ) {
             firePipelineExecutionFinishedListeners();
           }
@@ -709,10 +712,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
 
   @Override public String getObjectCopy() {
     return null;
-  }
-
-  @Override public String getContainerObjectId() {
-    return serverObjectId;
   }
 
   @Override public Date getRegistrationDate() {
@@ -1015,19 +1014,19 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   }
 
   /**
-   * Gets metaStore
+   * Gets metadataProvider
    *
-   * @return value of metaStore
+   * @return value of metadataProvider
    */
-  @Override public IMetaStore getMetaStore() {
-    return metaStore;
+  @Override public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
   }
 
   /**
-   * @param metaStore The metaStore to set
+   * @param metadataProvider The metadataProvider to set
    */
-  @Override public void setMetaStore( IMetaStore metaStore ) {
-    this.metaStore = metaStore;
+  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   /**
@@ -1051,15 +1050,17 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of serverObjectId
    */
-  public String getServerObjectId() {
-    return serverObjectId;
+  @Override
+  public String getContainerId() {
+    return containerId;
   }
 
   /**
-   * @param serverObjectId The serverObjectId to set
+   * @param containerId The serverObjectId to set
    */
-  public void setServerObjectId( String serverObjectId ) {
-    this.serverObjectId = serverObjectId;
+  @Override
+  public void setContainerId( String containerId ) {
+    this.containerId = containerId;
   }
 
   /**
@@ -1421,22 +1422,6 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    */
   public void setNamedParams( INamedParams namedParams ) {
     this.namedParams = namedParams;
-  }
-
-  /**
-   * Gets containerId
-   *
-   * @return value of containerId
-   */
-  public String getContainerId() {
-    return containerId;
-  }
-
-  /**
-   * @param containerId The containerId to set
-   */
-  @Override public void setContainerId( String containerId ) {
-    this.containerId = containerId;
   }
 
   /**

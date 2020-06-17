@@ -67,7 +67,7 @@ public class LogChannel implements ILogChannel {
   public LogChannel( Object subject, ILoggingObject parentObject ) {
     if ( parentObject != null ) {
       this.logLevel = parentObject.getLogLevel();
-      this.containerObjectId = parentObject.getContainerObjectId();
+      this.containerObjectId = parentObject.getContainerId();
     } else {
       this.logLevel = DefaultLogLevel.getLogLevel();
       this.containerObjectId = null;

@@ -932,7 +932,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
         new TransformMeta( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.TransformMeta.Title" ), name, info );
       IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
 
-      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metaStore );
+      SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSQL() ) {
           SQLEditor sqledit =

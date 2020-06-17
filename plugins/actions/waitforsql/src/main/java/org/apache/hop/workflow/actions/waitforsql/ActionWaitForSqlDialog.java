@@ -82,7 +82,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "WAIT_FOR_SQL", 
 		  image = "WaitForSQL.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/waitforsql.html"
 )
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionWaitForSql.class; // for i18n purposes, needed by Translator!!

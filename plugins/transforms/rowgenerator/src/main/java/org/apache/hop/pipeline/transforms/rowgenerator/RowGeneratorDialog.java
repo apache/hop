@@ -53,8 +53,7 @@ import org.eclipse.swt.widgets.*;
 @PluginDialog(
         id = "RowGenerator",
         image = "rowgenerator.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/rowgenerator.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
@@ -496,7 +495,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       return;
     }
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =

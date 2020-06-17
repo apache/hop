@@ -67,8 +67,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "GetTableNames",
         image = "gettablenames.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/gettablenames.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetTableNamesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
@@ -798,7 +797,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
       return;
     }
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),

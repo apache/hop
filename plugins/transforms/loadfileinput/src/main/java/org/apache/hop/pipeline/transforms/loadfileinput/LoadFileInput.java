@@ -89,7 +89,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
           data.inputRowMeta = getInputRowMeta();
           data.outputRowMeta = data.inputRowMeta.clone();
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
           // Create convert meta-data objects that will contain Date & Number formatters
           // All non binary content is handled as a String. It would be converted to the target type after the processing.
@@ -466,7 +466,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
           handleMissingFiles();
           // Create the output row meta-data
           data.outputRowMeta = new RowMeta();
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore ); // get the
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider ); // get the
           // metadata
           // populated
 

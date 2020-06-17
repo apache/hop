@@ -29,7 +29,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -39,7 +38,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IConfigOptions.class )
 @PluginAnnotationType( ConfigPlugin.class )
-public class ConfigPluginType extends BasePluginType implements IPluginType {
+public class ConfigPluginType extends BasePluginType<ConfigPlugin> implements IPluginType<ConfigPlugin> {
   private static ConfigPluginType pluginType;
 
   private ConfigPluginType() {
@@ -83,66 +82,66 @@ public class ConfigPluginType extends BasePluginType implements IPluginType {
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( ConfigPlugin annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
-    return ( (ConfigPlugin) annotation ).description();
+  protected String extractDesc( ConfigPlugin annotation ) {
+    return annotation.description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
-    return ( (ConfigPlugin) annotation ).id();
+  protected String extractID( ConfigPlugin annotation ) {
+    return annotation.id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
-    return ( (ConfigPlugin) annotation ).guiPluginId();
+  protected String extractName( ConfigPlugin annotation ) {
+    return annotation.guiPluginId();
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( ConfigPlugin annotation ) {
     return false;
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, ConfigPlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( ConfigPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractClassLoaderGroup( Annotation annotation ) {
+  protected String extractClassLoaderGroup( ConfigPlugin annotation ) {
     return null;
   }
 }

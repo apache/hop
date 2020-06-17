@@ -28,7 +28,6 @@ import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 
 /**
@@ -36,7 +35,7 @@ import java.util.Map;
  */
 @PluginMainClassType( IAuthenticationProviderType.class )
 @PluginAnnotationType( AuthenticationProviderPlugin.class )
-public class AuthenticationProviderPluginType extends BasePluginType implements IPluginType {
+public class AuthenticationProviderPluginType extends BasePluginType<AuthenticationProviderPlugin> implements IPluginType<AuthenticationProviderPlugin> {
   protected static AuthenticationProviderPluginType pluginType = new AuthenticationProviderPluginType();
 
   private AuthenticationProviderPluginType() {
@@ -73,61 +72,61 @@ public class AuthenticationProviderPluginType extends BasePluginType implements 
   }
 
   @Override
-  protected String extractCategory( Annotation annotation ) {
+  protected String extractCategory( AuthenticationProviderPlugin annotation ) {
     return "";
   }
 
   @Override
-  protected String extractDesc( Annotation annotation ) {
+  protected String extractDesc( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).description();
   }
 
   @Override
-  protected String extractID( Annotation annotation ) {
+  protected String extractID( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).id();
   }
 
   @Override
-  protected String extractName( Annotation annotation ) {
+  protected String extractName( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).name();
   }
 
   @Override
-  protected boolean extractSeparateClassLoader( Annotation annotation ) {
+  protected boolean extractSeparateClassLoader( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).isSeparateClassLoaderNeeded();
   }
 
   @Override
-  protected String extractI18nPackageName( Annotation annotation ) {
+  protected String extractI18nPackageName( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).i18nPackageName();
   }
 
   @Override
-  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, Annotation annotation ) {
+  protected void addExtraClasses( Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationProviderPlugin annotation ) {
   }
 
   @Override
-  protected String extractDocumentationUrl( Annotation annotation ) {
+  protected String extractDocumentationUrl( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).documentationUrl();
   }
 
   @Override
-  protected String extractCasesUrl( Annotation annotation ) {
+  protected String extractCasesUrl( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).casesUrl();
   }
 
   @Override
-  protected String extractForumUrl( Annotation annotation ) {
+  protected String extractForumUrl( AuthenticationProviderPlugin annotation ) {
     return ( (AuthenticationProviderPlugin) annotation ).forumUrl();
   }
 
   @Override
-  protected String extractSuggestion( Annotation annotation ) {
+  protected String extractSuggestion( AuthenticationProviderPlugin annotation ) {
     return null;
   }
 
   @Override
-  protected String extractImageFile( Annotation annotation ) {
+  protected String extractImageFile( AuthenticationProviderPlugin annotation ) {
     return "";
   }
 }

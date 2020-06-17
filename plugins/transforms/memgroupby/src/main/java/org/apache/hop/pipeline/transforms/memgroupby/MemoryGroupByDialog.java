@@ -65,8 +65,7 @@ import java.util.Set;
 @PluginDialog(
         id = "MemoryGroupBy",
         image = "memorygroupby.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class MemoryGroupByDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!

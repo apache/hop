@@ -53,12 +53,6 @@
 
   <dependencies>
 
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-metastore</artifactId>
-      <version>0.30-SNAPSHOT</version>
-    </dependency>
-
     <!-- Third-party dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -513,6 +507,28 @@
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
       <version>1.4.01</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>${json-simple.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

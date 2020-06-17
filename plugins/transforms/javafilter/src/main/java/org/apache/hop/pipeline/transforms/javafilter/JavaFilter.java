@@ -68,7 +68,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> im
       first = false;
 
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // ICache the position of the RowSet for the output.
       //

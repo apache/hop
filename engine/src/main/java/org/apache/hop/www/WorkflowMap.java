@@ -28,11 +28,8 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -68,13 +65,13 @@ public class WorkflowMap {
         workflowMap.put( entry, workflow );
         configurationMap.put( entry, workflowConfiguration );
       } else {
-        addWorkflow( workflow.getWorkflowName(), workflow.getContainerObjectId(), workflow, workflowConfiguration );
+        addWorkflow( workflow.getWorkflowName(), workflow.getContainerId(), workflow, workflowConfiguration );
       }
     }
   }
 
   private HopServerObjectEntry getEntry(IWorkflowEngine<WorkflowMeta> workflow) {
-    return new HopServerObjectEntry( workflow.getWorkflowName(), workflow.getContainerObjectId() );
+    return new HopServerObjectEntry( workflow.getWorkflowName(), workflow.getContainerId() );
   }
 
   /**
@@ -172,7 +169,7 @@ public class WorkflowMap {
   public synchronized IWorkflowEngine<WorkflowMeta> findWorkflow( String id ) {
     synchronized ( workflowMap ) {
       for ( IWorkflowEngine<WorkflowMeta> workflow : workflowMap.values() ) {
-        if ( workflow.getContainerObjectId().equals( id ) ) {
+        if ( workflow.getContainerId().equals( id ) ) {
           return workflow;
         }
       }

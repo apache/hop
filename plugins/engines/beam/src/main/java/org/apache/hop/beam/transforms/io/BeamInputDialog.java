@@ -1,8 +1,9 @@
 
 package org.apache.hop.beam.transforms.io;
 
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -27,6 +28,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 
+@PluginDialog(
+        id = "BeamInput",
+        image = "beam-input.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class BeamInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamInput.class; // for i18n purposes, needed by Translator2!!
   private final BeamInputMeta input;
@@ -101,7 +107,7 @@ public class BeamInputDialog extends BaseTransformDialog implements ITransformDi
     wInputLocation.setLayoutData( fdInputLocation );
     lastControl = wInputLocation;
 
-    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metaStore, FileDefinition.class, shell, SWT.NONE,
+    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metadataProvider, FileDefinition.class, shell, SWT.NONE,
       BaseMessages.getString( PKG, "BeamInputDialog.FileDefinition" ), BaseMessages.getString( PKG, "BeamInputDialog.FileDefinition" ) );
     props.setLook( wFileDefinition );
     FormData fdFileDefinition = new FormData();
@@ -164,7 +170,7 @@ public class BeamInputDialog extends BaseTransformDialog implements ITransformDi
    */
   public void getData() {
     wTransformName.setText( transformName );
-    wFileDefinition.setText( Const.NVL( input.getFileDescriptionName(), "" ) );
+    wFileDefinition.setText( Const.NVL( input.getFileDefinitionName(), "" ) );
     wInputLocation.setText( Const.NVL( input.getInputLocation(), "" ) );
 
     wTransformName.selectAll();
@@ -190,7 +196,7 @@ public class BeamInputDialog extends BaseTransformDialog implements ITransformDi
   private void getInfo( BeamInputMeta in ) {
     transformName = wTransformName.getText(); // return value
 
-    in.setFileDescriptionName( wFileDefinition.getText() );
+    in.setFileDefinitionName( wFileDefinition.getText() );
     in.setInputLocation( wInputLocation.getText() );
 
     input.setChanged();

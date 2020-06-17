@@ -28,12 +28,12 @@ import org.apache.hop.core.extension.IPluginMock;
 import org.apache.hop.core.logging.LoggingPluginType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -143,33 +143,33 @@ public class PluginRegistryUnitTest {
     // setup
     // initialize Fragment Type
     PluginRegistry registry = PluginRegistry.getInstance();
-    BaseFragmentType fragmentType = new BaseFragmentType( Annotation.class, "", "", ValueMetaPluginType.class ) {
+    BaseFragmentType<ValueMetaPlugin> fragmentType = new BaseFragmentType<ValueMetaPlugin>( ValueMetaPlugin.class, "", "", ValueMetaPluginType.class ) {
       @Override protected void initListeners( Class<? extends IPluginType> aClass,
                                               Class<? extends IPluginType> typeToTrack ) {
         super.initListeners( BaseFragmentType.class, typeToTrack );
       }
 
-      @Override protected String extractID( Annotation annotation ) {
+      @Override protected String extractID( ValueMetaPlugin annotation ) {
         return null;
       }
 
-      @Override protected String extractImageFile( Annotation annotation ) {
+      @Override protected String extractImageFile( ValueMetaPlugin annotation ) {
         return null;
       }
 
-      @Override protected String extractDocumentationUrl( Annotation annotation ) {
+      @Override protected String extractDocumentationUrl( ValueMetaPlugin annotation ) {
         return null;
       }
 
-      @Override protected String extractCasesUrl( Annotation annotation ) {
+      @Override protected String extractCasesUrl( ValueMetaPlugin annotation ) {
         return null;
       }
 
-      @Override protected String extractForumUrl( Annotation annotation ) {
+      @Override protected String extractForumUrl( ValueMetaPlugin annotation ) {
         return null;
       }
 
-      @Override protected String extractSuggestion( Annotation annotation ) {
+      @Override protected String extractSuggestion( ValueMetaPlugin annotation ) {
         return null;
       }
     };

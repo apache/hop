@@ -10,7 +10,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.config.EnvironmentConfig;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
 import org.apache.hop.env.environment.Environment;
-import org.apache.hop.env.environment.EnvironmentSingleton;
 import org.apache.hop.env.gui.EnvironmentGuiPlugin;
 import org.apache.hop.env.util.EnvironmentUtil;
 import org.apache.hop.history.AuditEvent;
@@ -52,39 +51,39 @@ public class HopGuiStartEnvironmentLoad implements IExtensionPoint {
           //
           List<AuditEvent> auditEvents = AuditManager.getActive().findEvents(
             EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_GROUP,
-            EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_TYPE
+            EnvironmentUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
+            true
           );
           if ( !auditEvents.isEmpty() ) {
 
-            logChannelInterface.logBasic( "Audit events found for hop-gui/environment : "+auditEvents.size() );
+            logChannelInterface.logBasic( "Audit events found for hop-gui/environment : " + auditEvents.size() );
 
-            AuditEvent auditEvent = auditEvents.get( 0 );
-            String lastEnvironmentName = auditEvent.getName();
+            for ( AuditEvent auditEvent : auditEvents ) {
+              String lastEnvironmentName = auditEvent.getName();
 
-            if ( StringUtils.isNotEmpty( lastEnvironmentName ) ) {
+              if ( StringUtils.isNotEmpty( lastEnvironmentName ) ) {
 
-              logChannelInterface.logBasic( "Found last environment at startup: "+lastEnvironmentName );
+                if ( EnvironmentConfigSingleton.exists( lastEnvironmentName ) ) {
+                  Environment environment = EnvironmentConfigSingleton.load( lastEnvironmentName );
 
-              Environment environment = EnvironmentSingleton.getEnvironmentFactory().loadElement( lastEnvironmentName );
-              if ( environment == null ) {
-                // Environment no longer exists, pop up dialog
-                //
-                logChannelInterface.logError( "The last used environment '" + lastEnvironmentName + "' no longer exists" );
-              } else {
-                logChannelInterface.logBasic( "Setting environment : '" + environment.getName() + "'" );
+                  logChannelInterface.logBasic( "Enabling environment : '" + lastEnvironmentName + "'" );
 
-                // Set system variables for HOP_HOME, HOP_METASTORE_FOLDER, ...
-                // Sets the namespace in HopGui to the name of the environment
-                //
-                EnvironmentGuiPlugin.enableHopGuiEnvironment( environment );
+                  // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
+                  // Sets the namespace in HopGui to the name of the environment
+                  //
+                  EnvironmentGuiPlugin.enableHopGuiEnvironment( lastEnvironmentName, environment );
 
-                // Don't open the files twice
-                //
-                HopGui.getInstance().setOpeningLastFiles( false );
+                  // Don't open the files twice
+                  //
+                  HopGui.getInstance().setOpeningLastFiles( false );
+                  break;// we have an environment
+                } else {
+                  logChannelInterface.logError( "The last used environment '" + lastEnvironmentName + "' no longer exists" );
+                }
               }
             }
           } else {
-            logChannelInterface.logBasic( "No last environments history found");
+            logChannelInterface.logBasic( "No last environments history found" );
           }
         }
       }

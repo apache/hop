@@ -64,8 +64,7 @@ import java.util.List;
 @PluginDialog(
         id = "JoinRows",
         image = "joinrows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class JoinRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!

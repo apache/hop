@@ -33,7 +33,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -49,11 +49,12 @@ import java.util.List;
  */
 
 @Transform(
-  id = "ClosureGenerator",
-  name = "ClosureGenerator.Name",
-  description = "ClosureGenerator.Description",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+      id = "ClosureGenerator",
+      name = "ClosureGenerator.Name",
+      description = "ClosureGenerator.Description",
+      i18nPackageName = "org.apache.hop.pipeline.transforms.closure",
+      categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+      documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/closure.html"
 )
 public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransformMeta<ClosureGenerator, ClosureGeneratorData> {
 
@@ -68,8 +69,8 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   @Override
@@ -78,7 +79,7 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       parentIdFieldName = XmlHandler.getTagValue( transformNode, "parent_id_field" );
       childIdFieldName = XmlHandler.getTagValue( transformNode, "child_id_field" );
@@ -95,7 +96,7 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // The output for the closure table is:
     //
     // - parentId
@@ -138,7 +139,7 @@ public class ClosureGeneratorMeta extends BaseTransformMeta implements ITransfor
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     IValueMeta parentValueMeta = prev.searchValueMeta( parentIdFieldName );

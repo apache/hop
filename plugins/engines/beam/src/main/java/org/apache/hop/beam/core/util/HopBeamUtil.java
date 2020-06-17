@@ -6,7 +6,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Document;
@@ -38,7 +38,7 @@ public class HopBeamUtil {
 
   private static Object object = new Object();
 
-  public static void loadTransformMetadataFromXml( String transformName, ITransformMeta iTransformMeta, String iTransformXml, IMetaStore metaStore ) throws HopException {
+  public static void loadTransformMetadataFromXml( String transformName, ITransformMeta iTransformMeta, String iTransformXml, IHopMetadataProvider metadataProvider ) throws HopException {
     synchronized ( object ) {
       Document transformDocument = XmlHandler.loadXmlString( iTransformXml );
       if ( transformDocument == null ) {
@@ -49,7 +49,7 @@ public class HopBeamUtil {
         throw new HopException( "Unable to find XML tag " + TransformMeta.XML_TAG + " from : " + iTransformXml );
       }
       try {
-        iTransformMeta.loadXml( transformNode, metaStore );
+        iTransformMeta.loadXml( transformNode, metadataProvider );
       } catch ( Exception e ) {
         throw new HopException( "There was an error loading transform metadata information (loadXml) for transform '" + transformName + "'", e );
       } finally {

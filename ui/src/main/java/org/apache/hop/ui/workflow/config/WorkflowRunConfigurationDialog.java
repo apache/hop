@@ -30,12 +30,12 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiEnvironment;
@@ -69,16 +69,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
   description = "This dialog allows you to configure the various pipeline run configurations"
 )
 /**
- * The dialog for IMetaStore element WorkflowRunConfiguration
+ * The dialog for metadata object WorkflowRunConfiguration
  * Don't move this class around as it's sync'ed with the WorkflowRunConfiguration package to find the dialog.
  */
-public class WorkflowRunConfigurationDialog extends Dialog implements IMetaStoreDialog {
+public class WorkflowRunConfigurationDialog extends Dialog implements IMetadataDialog {
 
   private static Class<?> PKG = WorkflowRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
   private WorkflowRunConfiguration runConfiguration;
   private WorkflowRunConfiguration workingConfiguration;
 
@@ -99,13 +99,13 @@ public class WorkflowRunConfigurationDialog extends Dialog implements IMetaStore
 
   /**
    * @param parent           The parent shell
-   * @param metaStore        metaStore
+   * @param metadataProvider metadataProvider
    * @param runConfiguration The object to edit
    */
-  public WorkflowRunConfigurationDialog( Shell parent, IMetaStore metaStore, WorkflowRunConfiguration runConfiguration ) {
+  public WorkflowRunConfigurationDialog( Shell parent, IHopMetadataProvider metadataProvider, WorkflowRunConfiguration runConfiguration ) {
     super( parent, SWT.NONE );
     this.parent = parent;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.runConfiguration = runConfiguration;
     this.workingConfiguration = new WorkflowRunConfiguration( runConfiguration );
     props = PropsUi.getInstance();

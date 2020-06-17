@@ -36,7 +36,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -54,7 +54,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.execprocess",
         name = "BaseTransform.TypeLongDesc.ExecProcess",
         description = "BaseTransform.TypeTooltipDesc.ExecProcess",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/execprocess.html"
 )
 public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
@@ -188,8 +189,8 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore) throws HopXmlException {
-    readData(transformNode, metaStore);
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
+    readData(transformNode, metadataProvider);
   }
 
   @Override
@@ -209,7 +210,7 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
 
   @Override
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
     // Output fields (String)
     String realOutputFieldname = variables.environmentSubstitute(resultfieldname);
     if (!Utils.isEmpty(realOutputFieldname)) {
@@ -256,7 +257,7 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
     return retval.toString();
   }
 
-  private void readData(Node transformNode, IMetaStore metaStore) throws HopXmlException {
+  private void readData(Node transformNode, IHopMetadataProvider metadataProvider) throws HopXmlException {
     try {
       processfield = XmlHandler.getTagValue(transformNode, "processfield");
       resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
@@ -290,7 +291,7 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore) {
+                     IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String error_message = "";
 

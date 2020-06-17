@@ -35,7 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -57,7 +57,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowgenerator",
         name = "BaseTransform.TypeLongDesc.GenerateRows",
         description = "BaseTransform.TypeTooltipDesc.GenerateRows",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowgenerator.html"
       )
 public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMeta<RowGenerator, RowGeneratorData> {
   private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
@@ -99,7 +100,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMet
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -205,7 +206,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public void getFields( IRowMeta row, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     try {
       List<ICheckResult> remarks = new ArrayList<ICheckResult>();
       RowMetaAndData rowMetaAndData = RowGenerator.buildRow( this, remarks, origin );
@@ -259,7 +260,7 @@ public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMet
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev != null && prev.size() > 0 ) {
       cr =

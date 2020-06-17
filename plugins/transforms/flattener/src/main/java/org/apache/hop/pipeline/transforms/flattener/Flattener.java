@@ -65,7 +65,7 @@ public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> imple
     if ( first ) {
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.fieldNr = data.inputRowMeta.indexOfValue( meta.getFieldName() );
       if ( data.fieldNr < 0 ) {

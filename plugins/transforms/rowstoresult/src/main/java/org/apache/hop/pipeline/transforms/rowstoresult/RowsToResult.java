@@ -66,7 +66,7 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
     // Add all rows to rows buffer...
     data.rows.add( new RowMetaAndData( getInputRowMeta(), r ) );
     data.outputRowMeta = getInputRowMeta().clone();
-    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+    meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     putRow( data.outputRowMeta, r ); // copy row to possible alternate
     // rowset(s).
 

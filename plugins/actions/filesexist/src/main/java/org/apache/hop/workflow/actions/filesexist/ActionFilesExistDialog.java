@@ -76,7 +76,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 		  id = "FILES_EXIST", 
 		  image = "FilesExist.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/filesexist.html"
 )
 public class ActionFilesExistDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFilesExist.class; // for i18n purposes, needed by Translator!!

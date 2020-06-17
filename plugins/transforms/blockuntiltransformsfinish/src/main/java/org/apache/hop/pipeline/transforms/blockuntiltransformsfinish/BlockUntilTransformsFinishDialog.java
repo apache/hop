@@ -59,8 +59,7 @@ import java.util.List;
 @PluginDialog(
         id = "BlockUntilTransformsFinish",
         image = "blockinguntiltransformsfinish.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/blockuntiltransformsfinish.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!

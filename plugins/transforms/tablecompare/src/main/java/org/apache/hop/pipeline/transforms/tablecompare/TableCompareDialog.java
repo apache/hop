@@ -59,8 +59,7 @@ import java.util.Arrays;
 @PluginDialog(
         id = "TableCompare",
         image = "tablecompare.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!

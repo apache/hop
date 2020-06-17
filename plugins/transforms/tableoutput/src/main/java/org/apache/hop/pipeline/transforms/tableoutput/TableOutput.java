@@ -80,7 +80,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         truncateTable();
       }
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       if ( !meta.specifyFields() ) {
         // Just take the input row

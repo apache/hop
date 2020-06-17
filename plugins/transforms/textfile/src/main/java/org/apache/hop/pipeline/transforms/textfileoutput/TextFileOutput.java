@@ -451,7 +451,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
       if ( data.outputRowMeta != null ) {
         initFieldNumbers( data.outputRowMeta, meta.getOutputFields() );
         if ( row != null ) {
-          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+          meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
         }
       }
     }

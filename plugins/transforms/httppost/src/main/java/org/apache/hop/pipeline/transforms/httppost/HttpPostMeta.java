@@ -37,7 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -57,7 +57,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.httppost",
         name = "BaseTransform.TypeLongDesc.HTTPPOST",
         description = "BaseTransform.TypeTooltipDesc.HTTPPOST",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/httppost.html"
 )
 public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<HttpPost, HttpPostData> {
   private static Class<?> PKG = HttpPostMeta.class; // for i18n purposes, needed by Translator!!
@@ -316,8 +317,8 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
     this.fieldName = resultName;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrargs ) {
@@ -381,7 +382,7 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
       IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
       inputRowMeta.addValueMeta( v );
@@ -452,7 +453,7 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       postafile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "postafile" ) );
       encoding = XmlHandler.getTagValue( transformNode, "encoding" );
@@ -502,7 +503,7 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // See if we have input streams leading to this transform!

@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -151,7 +151,7 @@ public class GroupByTest {
       GroupByMeta.TYPE_GROUP_CONCAT_STRING } );
 
     meta.getFields( outputFields, "Group By Transform", (IRowMeta[]) null, (TransformMeta) null,
-      (Variables) null, (IMetaStore) null );
+      (Variables) null, (IHopMetadataProvider) null );
 
     assertEquals( outputFields.getValueMetaList().size(), 9 );
     assertTrue( outputFields.getValueMeta( 0 ).getType() == IValueMeta.TYPE_STRING );

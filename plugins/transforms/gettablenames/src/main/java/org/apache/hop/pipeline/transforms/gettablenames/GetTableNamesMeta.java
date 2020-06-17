@@ -38,7 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -56,7 +56,8 @@ import java.util.List;
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.gettablenames",
         name = "BaseTransform.TypeLongDesc.GetTableNames",
         description = "BaseTransform.TypeTooltipDesc.GetTableNames",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/gettablenames.html"
 )
 public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMeta<GetTableNames, GetTableNamesData> {
   private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
@@ -109,7 +110,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
   @Injection( name = "SCHEMANAMEFIELD", group = "FIELDS" )
   private String schemaNameField;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public GetTableNamesMeta() {
     super(); // allocate BaseTransformMeta
@@ -285,14 +286,14 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
   @Injection( name = "CONNECTIONNAME" )
   public void setConnection( String connectionName ) {
     try {
-      database = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      database = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( Exception e ) {
       throw new RuntimeException( "Unable to load connection '" + connectionName + "'", e );
     }
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public Object clone() {
@@ -320,7 +321,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     String realtablename = variables.environmentSubstitute( tablenamefieldname );
     if ( !Utils.isEmpty( realtablename ) ) {
       IValueMeta v = new ValueMetaString( realtablename );
@@ -378,11 +379,11 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
     return retval.toString();
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
-      this.metaStore = metaStore;
+      this.metadataProvider = metadataProvider;
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      database = DatabaseMeta.loadDatabase( metaStore, con );
+      database = DatabaseMeta.loadDatabase( metadataProvider, con );
       schemaname = XmlHandler.getTagValue( transformNode, "schemaname" );
       tablenamefieldname = XmlHandler.getTagValue( transformNode, "tablenamefieldname" );
       objecttypefieldname = XmlHandler.getTagValue( transformNode, "objecttypefieldname" );
@@ -414,7 +415,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 

@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.mysqlbulkloader;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ProvidesDatabaseConnectionInformation;
 import org.apache.hop.core.SQLStatement;
@@ -41,10 +41,10 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -182,7 +182,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
   @Injection( name = "BULK_SIZE" )
   private String bulkSize;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * @return Returns the database.
@@ -240,8 +240,8 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     this.fieldStream = fieldStream;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrvalues ) {
@@ -262,11 +262,11 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
 
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
       tableName = XmlHandler.getTagValue( transformNode, "table" );
@@ -351,13 +351,13 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
   }
 
   public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         iVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Default: nothing changes to rowMeta
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -369,7 +369,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
         if ( !Utils.isEmpty( tableName ) ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
               "MySQLBulkLoaderMeta.CheckResult.TableNameOK" ), transformMeta );
           remarks.add( cr );
 
@@ -384,7 +384,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
           IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                 "MySQLBulkLoaderMeta.CheckResult.TableExists" ), transformMeta );
             remarks.add( cr );
 
@@ -409,16 +409,16 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
               }
             }
             if ( error_found ) {
-              cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             } else {
               cr =
-                new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+                new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                   "MySQLBulkLoaderMeta.CheckResult.AllFieldsFoundInTargetTable" ), transformMeta );
             }
             remarks.add( cr );
           } else {
             error_message = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
             remarks.add( cr );
           }
         }
@@ -426,7 +426,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           cr =
-            new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+            new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
               "MySQLBulkLoaderMeta.CheckResult.TransformReceivingDatas", prev.size() + "" ), transformMeta );
           remarks.add( cr );
 
@@ -447,49 +447,49 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
             }
           }
           if ( error_found ) {
-            cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           } else {
             cr =
-              new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
                 "MySQLBulkLoaderMeta.CheckResult.AllFieldsFoundInInput" ), transformMeta );
           }
           remarks.add( cr );
         } else {
           error_message =
             BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
-          cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
         error_message =
           BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.DatabaseErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
       error_message = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
           "MySQLBulkLoaderMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-        new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "MySQLBulkLoaderMeta.CheckResult.NoInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
 
   public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) throws HopTransformException {
+                                        IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -545,7 +545,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
@@ -578,7 +578,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
     }
   }
 
-  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     String realTableName = variables.environmentSubstitute( tableName );
     String realSchemaName = variables.environmentSubstitute( schemaName );
 

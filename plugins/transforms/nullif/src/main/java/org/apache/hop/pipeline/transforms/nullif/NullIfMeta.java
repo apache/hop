@@ -36,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -46,9 +46,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "NullIf", i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
-        name = "NullIf.Name", description = "NullIf.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" )
+@Transform(
+        id = "NullIf",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
+        name = "NullIf.Name",
+        description = "NullIf.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/nullif.html"
+)
 @InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
 public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf,NullIfData> {
 
@@ -122,7 +127,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
     this.fields = fields;
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -177,7 +182,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
   }
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) {
     if ( r == null ) {
       r = new RowMeta(); // give back values
       // Meta-data doesn't change here, only the value possibly turns to NULL
@@ -204,7 +209,7 @@ public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<Null
 
   public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                     String[] input, String[] output, IRowMeta info, IVariables variables,
-                    IMetaStore metaStore ) {
+                    IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

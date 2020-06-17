@@ -34,7 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.IResourceNaming;
@@ -52,9 +52,10 @@ import java.util.Map;
 @Transform(
         id = "CubeOutput",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeoutput",
-        name = "BaseTransform.TypeLongDesc.CubeOutput",
-        description = "BaseTransform.TypeTooltipDesc.CubeOutput",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output"
+        name = "CubeOutput.Name",
+        description = "CubeOutput.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/cubeoutput.html"
 )
 public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<CubeOutput, CubeOutputData> {
 
@@ -75,7 +76,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
     super(); // allocate BaseTransformMeta
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -162,7 +163,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
 
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check output fields
@@ -192,11 +193,11 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
    * @param variables                   the variable space to use
    * @param definitions
    * @param iResourceNaming
-   * @param metaStore               the metaStore in which non-hop metadata could reside.
+   * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
   public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
-                                 IResourceNaming iResourceNaming, IMetaStore metaStore ) throws HopException {
+                                 IResourceNaming iResourceNaming, IHopMetadataProvider metadataProvider ) throws HopException {
     try {
       // The object that we're modifying here is a copy of the original!
       // So let's change the filename from relative to absolute by grabbing the file object...

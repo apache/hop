@@ -30,9 +30,9 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.Metrics;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -49,9 +49,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,13 +87,12 @@ public class PluginRegistry {
   private final Map<String, URLClassLoader> classLoaderGroupsMap = new HashMap<>();
   private final Map<String, URLClassLoader> folderBasedClassLoaderMap = new HashMap<>();
 
-  private final Map<Class<? extends IPluginType>, Set<String>> categoryMap = new HashMap<>();
   private final Map<IPlugin, String[]> parentClassloaderPatternMap = new HashMap<>();
 
   private final Map<Class<? extends IPluginType>, Set<IPluginTypeListener>> listeners = new HashMap<>();
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 3000;
+  private static final int WAIT_FOR_PLUGIN_TO_BE_AVAILABLE_LIMIT = 5;
 
 
   /**
@@ -111,38 +108,10 @@ public class PluginRegistry {
     return pluginRegistry;
   }
 
-  private static Comparator<String> getNaturalCategoriesOrderComparator( Class<? extends IPluginType> pluginType ) {
-    PluginTypeCategoriesOrder naturalOrderAnnotation = pluginType.getAnnotation( PluginTypeCategoriesOrder.class );
-    final String[] naturalOrder;
-    if ( naturalOrderAnnotation != null ) {
-      String[] naturalOrderKeys = naturalOrderAnnotation.getNaturalCategoriesOrder();
-      Class<?> i18nClass = naturalOrderAnnotation.i18nPackageClass();
-
-      naturalOrder = Arrays.stream( naturalOrderKeys )
-        .map( key -> BaseMessages.getString( i18nClass, key ) )
-        .toArray( String[]::new );
-    } else {
-      naturalOrder = null;
-    }
-    return ( s1, s2 ) -> {
-      if ( naturalOrder != null ) {
-        int idx1 = Const.indexOfString( s1, naturalOrder );
-        int idx2 = Const.indexOfString( s2, naturalOrder );
-        return idx1 - idx2;
-      }
-      return 0;
-    };
-  }
-
   public void registerPluginType( Class<? extends IPluginType> pluginType ) {
     lock.writeLock().lock();
     try {
       pluginMap.computeIfAbsent( pluginType, k -> new TreeSet<>( Plugin.nullStringComparator ) );
-
-      // Keep track of the categories separately for performance reasons...
-      //
-      categoryMap.computeIfAbsent( pluginType, k -> new TreeSet<>(
-        getNaturalCategoriesOrderComparator( pluginType ) ) );
     } finally {
       lock.writeLock().unlock();
     }
@@ -221,13 +190,6 @@ public class PluginRegistry {
         list.remove( plugin );
         list.add( plugin );
         changed = true;
-      }
-
-      if ( !Utils.isEmpty( plugin.getCategory() ) ) {
-        // Keep categories sorted in the natural order here too!
-        //
-        categoryMap.computeIfAbsent( pluginType, k -> new TreeSet<>( getNaturalCategoriesOrderComparator( pluginType ) ) )
-          .add( plugin.getCategory() );
       }
     } finally {
       lock.writeLock().unlock();
@@ -315,19 +277,17 @@ public class PluginRegistry {
   }
 
   /**
-   * Retrieve a list of all categories for a certain plugin type.
+   * List all the main types (classes) for the specified plugin type.
    *
-   * @param pluginType The plugin type to search categories for.
-   * @return The list of categories for this plugin type. The list can be modified (sorted etc) but will not impact the
-   * registry in any way.
+   * @param pluginType
+   * @return The list of plugin classes
    */
-  public List<String> getCategories( Class<? extends IPluginType> pluginType ) {
-    lock.readLock().lock();
-    try {
-      return new ArrayList<>( categoryMap.get( pluginType ) );
-    } finally {
-      lock.readLock().unlock();
+  public List<Class<?>> listMainTypes( Class<? extends IPluginType> pluginType ) {
+    List<Class<?>> classes = new ArrayList<>();
+    for ( IPlugin plugin : getPlugins( pluginType ) ) {
+      classes.add( plugin.getMainType() );
     }
+    return classes;
   }
 
   /**
@@ -377,13 +337,13 @@ public class PluginRegistry {
     return loadClass( plugin, classType );
   }
 
-  private HopURLClassLoader createClassLoader( IPlugin plugin ) throws MalformedURLException,
-    UnsupportedEncodingException {
+  private HopURLClassLoader createClassLoader( IPlugin plugin ) throws MalformedURLException, UnsupportedEncodingException {
+
     List<String> jarFiles = plugin.getLibraries();
     URL[] urls = new URL[ jarFiles.size() ];
     for ( int i = 0; i < jarFiles.size(); i++ ) {
-      File jarfile = new File( jarFiles.get( i ) );
-      urls[ i ] = new URL( URLDecoder.decode( jarfile.toURI().toURL().toString(), "UTF-8" ) );
+      File jarFile = new File( jarFiles.get( i ) );
+      urls[ i ] = new URL( URLDecoder.decode( jarFile.toURI().toURL().toString(), "UTF-8" ) );
     }
     ClassLoader classLoader = getClass().getClassLoader();
     String[] patterns = parentClassloaderPatternMap.get( plugin );
@@ -766,9 +726,9 @@ public class PluginRegistry {
       row[ rowIndex++ ] = Const.NVL( plugin.getDescription(), "" );
       row[ rowIndex++ ] = Const.NVL( plugin.getImageFile(), "" );
       row[ rowIndex++ ] = Const.NVL( plugin.getCategory(), "" );
-      row[ rowIndex++ ] = String.join(",", plugin.getKeywords());
+      row[ rowIndex++ ] = String.join( ",", plugin.getKeywords() );
       row[ rowIndex++ ] = plugin.getClassMap().values().toString();
-      row[ rowIndex++ ] = String.join(",", plugin.getLibraries());
+      row[ rowIndex++ ] = String.join( ",", plugin.getLibraries() );
 
       rowBuffer.getBuffer().add( row );
     }
@@ -794,8 +754,7 @@ public class PluginRegistry {
         URLClassLoader ucl;
         lock.writeLock().lock();
         try {
-          Map<IPlugin, URLClassLoader> classLoaders =
-            classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
+          Map<IPlugin, URLClassLoader> classLoaders = classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
           ucl = classLoaders.get( plugin );
 
           if ( ucl == null ) {
@@ -871,8 +830,7 @@ public class PluginRegistry {
             ucl = createClassLoader( plugin );
           } else {
             // See if we can find a class loader to re-use.
-            Map<IPlugin, URLClassLoader> classLoaders =
-              classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
+            Map<IPlugin, URLClassLoader> classLoaders = classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
             ucl = classLoaders.get( plugin );
 
             if ( ucl == null ) {
@@ -895,7 +853,7 @@ public class PluginRegistry {
                 }
               } else {
                 // fallthrough folder based plugin
-                if ( plugin.getPluginDirectory() != null ) {
+                if ( !plugin.isUsingLibrariesOutsidePluginFolder() && plugin.getPluginDirectory() != null ) {
                   ucl = folderBasedClassLoaderMap.get( plugin.getPluginDirectory().toString() );
                   if ( ucl == null ) {
                     ucl = createClassLoader( plugin );
@@ -956,17 +914,6 @@ public class PluginRegistry {
     try {
       Set<IPluginTypeListener> list = listeners.computeIfAbsent( typeToTrack, k -> new HashSet<>() );
       list.add( listener );
-    } finally {
-      lock.writeLock().unlock();
-    }
-  }
-
-  public void addClassLoader( URLClassLoader ucl, IPlugin plugin ) {
-    lock.writeLock().lock();
-    try {
-      Map<IPlugin, URLClassLoader> classLoaders =
-        classLoaderMap.computeIfAbsent( plugin.getPluginType(), k -> new HashMap<>() );
-      classLoaders.put( plugin, ucl );
     } finally {
       lock.writeLock().unlock();
     }
@@ -1034,7 +981,6 @@ public class PluginRegistry {
         }
       } );
       inverseClassLoaderLookup.clear();
-      categoryMap.clear();
       parentClassloaderPatternMap.clear();
       listeners.clear();
       JarFileCache.getInstance().clear();

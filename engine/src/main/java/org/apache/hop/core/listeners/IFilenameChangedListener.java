@@ -25,7 +25,6 @@ package org.apache.hop.core.listeners;
 /**
  * A listener that will signal when the filename of an object changes.
  *
- * @author Matt Casters (mcasters@pentaho.org)
  */
 public interface IFilenameChangedListener {
   /**

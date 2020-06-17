@@ -33,7 +33,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.IXml;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.IPartitioner;
 import org.w3c.dom.Node;
@@ -168,7 +169,7 @@ public class TransformPartitioningMeta implements IXml, Cloneable {
     return xml.toString();
   }
 
-  public TransformPartitioningMeta( Node partitioningMethodNode, IMetaStore metaStore ) throws HopException {
+  public TransformPartitioningMeta( Node partitioningMethodNode, IHopMetadataProvider metadataProvider ) throws HopException {
     this();
     setMethod( getMethod( XmlHandler.getTagValue( partitioningMethodNode, "method" ) ) );
     String partitionSchemaName = XmlHandler.getTagValue( partitioningMethodNode, "schema_name" );
@@ -176,7 +177,8 @@ public class TransformPartitioningMeta implements IXml, Cloneable {
       partitionSchema = new PartitionSchema(  );
     } else {
       try {
-        partitionSchema = PartitionSchema.createFactory( metaStore ).loadElement( partitionSchemaName );
+        IHopMetadataSerializer<PartitionSchema> serializer = metadataProvider.getSerializer( PartitionSchema.class );
+        partitionSchema = serializer.load( partitionSchemaName );
       } catch(Exception e) {
         throw new HopException( "Unable to load partition schema with name '"+partitionSchemaName+"'", e );
       }

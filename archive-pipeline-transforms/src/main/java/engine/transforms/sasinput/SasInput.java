@@ -96,7 +96,7 @@ public class SasInput extends BaseTransform implements ITransform {
       // Determine the output row layout
       //
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
     }
 
     String rawFilename = getInputRowMeta().getString( fileRowData, meta.getAcceptingField(), null );

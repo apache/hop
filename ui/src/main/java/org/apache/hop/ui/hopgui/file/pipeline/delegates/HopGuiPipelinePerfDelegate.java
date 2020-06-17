@@ -539,8 +539,8 @@ public class HopGuiPipelinePerfDelegate {
     chart.setBackgroundPaint( Color.white );
     TextTitle title = new TextTitle( chartTitle );
     // title.setExpandToFitSpace(true);
-    // org.eclipse.swt.graphics.Color pentahoColor = GuiResource.getInstance().getColorPentaho();
-    // java.awt.Color color = new java.awt.Color(pentahoColor.getRed(), pentahoColor.getGreen(),pentahoColor.getBlue());
+    // org.eclipse.swt.graphics.Color hopColor = GuiResource.getInstance().getColorHop();
+    // java.awt.Color color = new java.awt.Color(hopColor.getRed(), hopColor.getGreen(),hopColor.getBlue());
     // title.setBackgroundPaint(color);
     title.setFont( new Font( "SansSerif", Font.BOLD, 12 ) );
     chart.setTitle( title );

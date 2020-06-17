@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.CheckResultInterface;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SQLStatement;
 import org.apache.hop.core.database.Database;
@@ -38,10 +38,10 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -75,7 +75,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
   @Injection( name = "TABLE_NAME" )
   private String tableName;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * database connection
@@ -161,7 +161,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
   @Injection( name = "CONNECTION_NAME" )
   public void setConnection( String connectionName ) {
     try {
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, connectionName );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, connectionName );
     } catch ( HopXmlException e ) {
       throw new RuntimeException( "Error load connection '" + connectionName + "'", e );
     }
@@ -398,8 +398,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     }
   }
 
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrkeys, int nrvalues ) {
@@ -429,13 +429,13 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       int nrkeys, nrvalues;
       this.databases = databases;
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       commitSize = XmlHandler.getTagValue( transformNode, "commit" );
       schemaName = XmlHandler.getTagValue( transformNode, "lookup", "schema" );
       tableName = XmlHandler.getTagValue( transformNode, "lookup", "table" );
@@ -573,9 +573,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     return retval.toString();
   }
 
-  public void check( List<CheckResultInterface> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, iVariables variables,
-                     IMetaStore metaStore ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     String error_message = "";
 
@@ -832,7 +832,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
   }
 
   public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
-                                        IMetaStore metaStore ) throws HopTransformException {
+                                        IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -925,7 +925,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
 
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {
       // Lookup: we do a lookup on the natural keys
       for ( int i = 0; i < keyLookup.length; i++ ) {
@@ -970,7 +970,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     }
   }
 
-  public IRowMeta getRequiredFields( iVariables variables ) throws HopException {
+  public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     String realTableName = variables.environmentSubstitute( tableName );
     String realSchemaName = variables.environmentSubstitute( schemaName );
 

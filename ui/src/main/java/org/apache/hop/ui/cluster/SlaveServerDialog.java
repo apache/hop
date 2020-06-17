@@ -26,14 +26,14 @@ import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
-import org.apache.hop.metastore.api.dialog.IMetaStoreDialog;
-import org.apache.hop.metastore.persist.MetaStoreFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.metastore.IMetadataDialog;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -53,7 +53,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -70,9 +69,9 @@ import org.eclipse.swt.widgets.Text;
  * @since 31-10-2006
  */
 
-public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
+public class SlaveServerDialog extends Dialog implements IMetadataDialog {
   private static Class<?> PKG = SlaveServerDialog.class; // for i18n purposes, needed by Translator!!
-  private final IMetaStore metaStore;
+  private final IHopMetadataProvider metadataProvider;
 
   private SlaveServer slaveServer;
 
@@ -89,7 +88,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   // Service
   private Text wName;
   private TextVar wHostname, wPort, wWebAppName, wUsername, wPassword;
-  private Button wMaster;
   private Button wSSL;
 
   // Proxy
@@ -107,9 +105,9 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
   private SlaveServer originalServer;
   private String result;
 
-  public SlaveServerDialog( Shell par, IMetaStore metaStore, SlaveServer slaveServer ) {
+  public SlaveServerDialog( Shell par, IHopMetadataProvider metadataProvider, SlaveServer slaveServer ) {
     super( par, SWT.NONE );
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
     this.slaveServer = (SlaveServer) slaveServer.clone();
     this.slaveServer.shareVariablesWith( slaveServer );
     this.originalServer = slaveServer;
@@ -344,31 +342,12 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     fdPassword.right = new FormAttachment( 95, 0 );
     wPassword.setLayoutData( fdPassword );
 
-    // Master
-    Label wlMaster = new Label( wServiceComp, SWT.RIGHT );
-    wlMaster.setText( BaseMessages.getString( PKG, "SlaveServerDialog.IsTheMaster.Label" ) );
-    props.setLook( wlMaster );
-    FormData fdlMaster = new FormData();
-    fdlMaster.top = new FormAttachment( wPassword, margin );
-    fdlMaster.left = new FormAttachment( 0, 0 );
-    fdlMaster.right = new FormAttachment( middle, -margin );
-    wlMaster.setLayoutData( fdlMaster );
-
-    wMaster = new Button( wServiceComp, SWT.CHECK );
-    props.setLook( wMaster );
-    FormData fdMaster = new FormData();
-    fdMaster.top = new FormAttachment( wPassword, margin );
-    fdMaster.left = new FormAttachment( middle, 0 );
-    fdMaster.right = new FormAttachment( 95, 0 );
-    wMaster.setLayoutData( fdMaster );
-
     // Https
-    Control lastControl = wMaster;
     Label wlSSL = new Label( wServiceComp, SWT.RIGHT );
     wlSSL.setText( BaseMessages.getString( PKG, "SlaveServerDialog.UseSsl.Label" ) );
     props.setLook( wlSSL );
     FormData fd = new FormData();
-    fd.top = new FormAttachment( lastControl, margin );
+    fd.top = new FormAttachment( wPassword, margin );
     fd.left = new FormAttachment( 0, 0 );
     fd.right = new FormAttachment( middle, -margin );
     wlSSL.setLayoutData( fd );
@@ -377,7 +356,7 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     wSSL = new Button( wServiceComp, SWT.CHECK );
     props.setLook( wSSL );
     FormData bfd = new FormData();
-    bfd.top = new FormAttachment( lastControl, margin );
+    bfd.top = new FormAttachment( wlSSL, 0, SWT.CENTER );
     bfd.left = new FormAttachment( middle, 0 );
     bfd.right = new FormAttachment( 95, 0 );
     wSSL.setLayoutData( bfd );
@@ -498,8 +477,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     wProxyPort.setText( Const.NVL( slaveServer.getProxyPort(), "" ) );
     wNonProxyHosts.setText( Const.NVL( slaveServer.getNonProxyHosts(), "" ) );
 
-    wMaster.setSelection( slaveServer.isMaster() );
-
     wSSL.setSelection( slaveServer.isSslMode() );
 
     wName.setFocus();
@@ -519,8 +496,8 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
       // TODO: provide name changes utilities
       //
       try {
-        MetaStoreFactory<SlaveServer> factory = SlaveServer.createFactory( metaStore );
-        if ( factory.elementExists( slaveServer.getName() ) ) {
+        IHopMetadataSerializer<SlaveServer> serializer = metadataProvider.getSerializer( SlaveServer.class );
+        if ( serializer.exists( slaveServer.getName() ) ) {
           String title = BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists.Title" );
           String message =
             BaseMessages.getString( PKG, "SlaveServerDialog.SlaveServerNameExists", slaveServer.getName() );
@@ -547,8 +524,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     originalServer.setProxyPort( slaveServer.getProxyPort() );
     originalServer.setNonProxyHosts( slaveServer.getNonProxyHosts() );
 
-    originalServer.setMaster( slaveServer.isMaster() );
-
     originalServer.setSslMode( slaveServer.isSslMode() );
 
     originalServer.setChanged();
@@ -570,8 +545,6 @@ public class SlaveServerDialog extends Dialog implements IMetaStoreDialog {
     slaveServer.setProxyHostname( wProxyHost.getText() );
     slaveServer.setProxyPort( wProxyPort.getText() );
     slaveServer.setNonProxyHosts( wNonProxyHosts.getText() );
-
-    slaveServer.setMaster( wMaster.getSelection() );
 
     slaveServer.setSslMode( wSSL.getSelection() );
   }

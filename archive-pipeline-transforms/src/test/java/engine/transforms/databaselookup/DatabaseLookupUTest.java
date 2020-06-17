@@ -35,9 +35,9 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -187,8 +187,8 @@ public class DatabaseLookupUTest {
       anyString(),
       any( IRowMeta[].class ),
       any( TransformMeta.class ),
-      any( iVariables.class ),
-      any( IMetaStore.class ) );
+      any( IVariables.class ),
+      any( IHopMetadataProvider.class ) );
     return meta;
   }
 
@@ -291,8 +291,8 @@ public class DatabaseLookupUTest {
       anyString(),
       any( IRowMeta[].class ),
       any( TransformMeta.class ),
-      any( iVariables.class ),
-      any( IMetaStore.class ) );
+      any( IVariables.class ),
+      any( IHopMetadataProvider.class ) );
 
 
     look.init();

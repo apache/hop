@@ -26,7 +26,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -54,27 +54,27 @@ public class CheckPipelineProgressDialog {
 
   private IVariables variables;
 
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * Creates a new dialog that will handle the wait while checking a pipeline...
    */
   public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
                                       boolean onlySelected ) {
-    this( shell, pipelineMeta, remarks, onlySelected, pipelineMeta, HopGui.getInstance().getMetaStore() );
+    this( shell, pipelineMeta, remarks, onlySelected, pipelineMeta, HopGui.getInstance().getMetadataProvider() );
   }
 
   /**
    * Creates a new dialog that will handle the wait while checking a pipeline...
    */
   public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
-                                      boolean onlySelected, IVariables variables, IMetaStore metaStore ) {
+                                      boolean onlySelected, IVariables variables, IHopMetadataProvider metadataProvider ) {
     this.shell = shell;
     this.pipelineMeta = pipelineMeta;
     this.onlySelected = onlySelected;
     this.remarks = remarks;
     this.variables = variables;
-    this.metaStore = metaStore;
+    this.metadataProvider = metadataProvider;
   }
 
   public void open() {
@@ -84,7 +84,7 @@ public class CheckPipelineProgressDialog {
       public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
         try {
           pipelineMeta.checkTransforms(
-            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), variables, metaStore );
+            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), variables, metadataProvider );
         } catch ( Exception e ) {
           throw new InvocationTargetException( e, BaseMessages.getString(
             PKG, "AnalyseImpactProgressDialog.RuntimeError.ErrorCheckingPipeline.Exception", e.toString() ) );

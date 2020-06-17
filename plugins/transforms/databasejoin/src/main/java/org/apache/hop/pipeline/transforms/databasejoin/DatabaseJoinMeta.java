@@ -41,7 +41,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -57,7 +57,8 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.databasejoin",
         name = "BaseTransform.TypeLongDesc.DatabaseJoin",
         description = "BaseTransform.TypeTooltipDesc.DatabaseJoin",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/databasejoin.html"
 )
 public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 
@@ -201,12 +202,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     parameterField = null;
     parameterType = null;
     outerJoin = false;
     replacevars = false;
-    readData( transformNode, metaStore );
+    readData( transformNode, metadataProvider );
   }
 
   public void allocate( int nrparam ) {
@@ -228,10 +229,10 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
     return retval;
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
-      databaseMeta = DatabaseMeta.loadDatabase( metaStore, con );
+      databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       sql = XmlHandler.getTagValue( transformNode, "sql" );
       outerJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "outer_join" ) );
       replacevars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "replace_vars" ) );
@@ -291,7 +292,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( databaseMeta == null ) {
       return;
@@ -369,7 +370,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     String error_message = "";
@@ -529,12 +530,12 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
-                             IMetaStore metaStore ) throws HopTransformException {
+                             IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // Find the lookupfields...
     //
     IRowMeta out = prev.clone();
-    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, pipelineMeta, metaStore );
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, pipelineMeta, metadataProvider );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

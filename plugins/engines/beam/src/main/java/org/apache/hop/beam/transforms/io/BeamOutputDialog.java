@@ -1,8 +1,9 @@
 
 package org.apache.hop.beam.transforms.io;
 
-import org.apache.hop.beam.metastore.FileDefinition;
+import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -27,6 +28,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 
+@PluginDialog(
+        id = "BeamOutput",
+        image = "beam-output.svg",
+        pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class BeamOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamOutput.class; // for i18n purposes, needed by Translator2!!
   private final BeamOutputMeta input;
@@ -154,7 +160,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     wWindowed.setLayoutData( fdWindowed );
     lastControl = wWindowed;
 
-    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metaStore, FileDefinition.class, shell, SWT.NONE,
+    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metadataProvider, FileDefinition.class, shell, SWT.NONE,
       BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ), BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ));
     props.setLook( wFileDefinition );
     FormData fdFileDefinition = new FormData();
@@ -218,7 +224,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
    */
   public void getData() {
     wTransformName.setText( transformName );
-    wFileDefinition.setText( Const.NVL( input.getFileDescriptionName(), "" ) );
+    wFileDefinition.setText( Const.NVL( input.getFileDefinitionName(), "" ) );
     wOutputLocation.setText( Const.NVL( input.getOutputLocation(), "" ) );
     wFilePrefix.setText( Const.NVL( input.getFilePrefix(), "" ) );
     wFileSuffix.setText( Const.NVL( input.getFileSuffix(), "" ) );
@@ -247,7 +253,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
   private void getInfo( BeamOutputMeta in ) {
     transformName = wTransformName.getText(); // return value
 
-    in.setFileDescriptionName( wFileDefinition.getText() );
+    in.setFileDefinitionName( wFileDefinition.getText() );
     in.setOutputLocation( wOutputLocation.getText() );
     in.setFilePrefix( wFilePrefix.getText() );
     in.setFileSuffix( wFileSuffix.getText() );

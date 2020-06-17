@@ -99,7 +99,7 @@ public class HopGuiWorkflowClipboardDelegate {
       // Load the entries...
       for ( int i = 0; i < nr; i++ ) {
         Node entryNode = XmlHandler.getSubNodeByNr( entriesNode, ActionCopy.XML_TAG, i );
-        entries[ i ] = new ActionCopy( entryNode, hopGui.getMetaStore() );
+        entries[ i ] = new ActionCopy( entryNode, hopGui.getMetadataProvider() );
 
         if ( loc != null ) {
           Point p = entries[ i ].getLocation();

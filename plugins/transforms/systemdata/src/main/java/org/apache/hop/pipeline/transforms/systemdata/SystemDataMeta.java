@@ -40,7 +40,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -64,7 +64,8 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.systemdata",
         name = "BaseTransform.TypeLongDesc.SystemInfo",
         description = "BaseTransform.TypeTooltipDesc.SystemInfo",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/systemdata.html"
 )
 public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<SystemData, SystemDataData> {
   private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
@@ -108,7 +109,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -170,7 +171,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     for ( int i = 0; i < fieldName.length; i++ ) {
       IValueMeta v;
 
@@ -294,7 +295,7 @@ public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
     for ( int i = 0; i < fieldName.length; i++ ) {

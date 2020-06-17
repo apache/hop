@@ -46,8 +46,8 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-@PluginDialog( id = "NullIf", image = "NullIf.svg", pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/nullif.html" )
+@PluginDialog( id = "NullIf", image = "NullIf.svg", pluginType = PluginDialog.PluginType.TRANSFORM
+)
 public class NullIfDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
 

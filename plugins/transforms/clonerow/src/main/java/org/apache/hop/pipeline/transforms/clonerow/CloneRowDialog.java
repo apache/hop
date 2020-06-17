@@ -59,8 +59,7 @@ import org.eclipse.swt.widgets.Text;
 @PluginDialog(
         id = "CloneRow",
         pluginType = PluginDialog.PluginType.TRANSFORM,
-        image = "clonerow.svg",
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/clonerow.html"
+        image = "clonerow.svg"
 )
 public class CloneRowDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CloneRowDialog.class; // for i18n purposes, needed by Translator!!

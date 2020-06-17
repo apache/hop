@@ -68,7 +68,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
 
       // What's the format of the output row?
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metaStore );
+      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
       // Create convert meta-data objects that will contain Date & Number formatters
       data.convertRowMeta = data.outputRowMeta.clone();
 

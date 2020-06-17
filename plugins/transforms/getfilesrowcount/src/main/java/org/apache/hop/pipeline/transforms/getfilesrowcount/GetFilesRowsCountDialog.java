@@ -61,8 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @PluginDialog(
         id = "GetFilesRowsCount",
         image = "getfilesrowcount.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/getfilesrowcount.html"
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
@@ -1077,7 +1076,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
       GetFilesRowsCountMeta oneMeta = new GetFilesRowsCountMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetaStore(),
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
         oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog =

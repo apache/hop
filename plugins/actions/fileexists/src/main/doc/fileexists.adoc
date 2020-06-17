@@ -2,3 +2,22 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/fileexists/src/main/doc/fileexists.adoc
 = File Exists
+
+== Description
+
+Use the File exists action to verify that a specified file exists on the server on which Hop is running. You must provide the file name. Hop returns a True or False value depending on whether or not the file exists.
+The File Exists workflow action can be an easy integration point with other systems. For example, suppose you have a three-part data warehouse load process. The first part runs in PERL. You have batch scripts that accesses data from a remote location, performs first-level row processing, and outputs the data to a specified directory. You do not want to start the workflow until this is done, so you put the workflow on a scheduler. As soon as the task is complete, the file is placed in a well-known location so that the "file exists." That is the signal that launches the workflow for final processing.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Workflow action name|The name of the workflow action. This name has to be unique in a single workflow.
+|Filename field|Specify the filename and path of the file to verify. Click Browse to navigate to the source file or folder through the VFS browser.
+|Result fieldname|The field containing the result.
+|Add filename to result|Adds the filename to the result.
+|Include file type|Adds the type of file.
+|File type field|The field containing the type of file.
+|===
+

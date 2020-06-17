@@ -36,7 +36,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
@@ -48,11 +48,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-    id = "TableCompare",
-    description ="BaseTransform.TypeTooltipDesc.TableCompare",
-    name = "BaseTransform.TypeLongDesc.TableCompare",
-    categoryDescription="kJube.Category.Name",
-    i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare"
+        id = "TableCompare",
+        description ="BaseTransform.TypeTooltipDesc.TableCompare",
+        name = "BaseTransform.TypeLongDesc.TableCompare",
+        categoryDescription="kJube.Category.Name",
+        i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
   )
 public class TableCompareMeta extends BaseTransformMeta implements ITransformMeta<TableCompare, TableCompareData> {
   private static Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
@@ -78,7 +79,7 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
   private String keyDescriptionField;
   private String valueReferenceField;
   private String valueCompareField;
-  private IMetaStore metaStore;
+  private IHopMetadataProvider metadataProvider;
 
   public TableCompareMeta() {
     super(); // allocate BaseTransformMeta
@@ -341,8 +342,8 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    readData( transformNode, metaStore );
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    readData( transformNode, metadataProvider );
   }
 
   @Override
@@ -359,7 +360,7 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
 
   @Override
   public void getFields( IRowMeta inputRowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( Utils.isEmpty( nrErrorsField ) ) {
       throw new HopTransformException( BaseMessages.getString(
@@ -418,16 +419,16 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
     inputRowMeta.addValueMeta( nrErrorsRight );
   }
 
-  private void readData( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
-    this.metaStore = metaStore;
+  private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+    this.metadataProvider = metadataProvider;
     try {
       referenceConnection =
-        DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "reference_connection" ) );
+        DatabaseMeta.loadDatabase( metadataProvider, XmlHandler.getTagValue( transformNode, "reference_connection" ) );
       referenceSchemaField = XmlHandler.getTagValue( transformNode, "reference_schema_field" );
       referenceTableField = XmlHandler.getTagValue( transformNode, "reference_table_field" );
 
       compareConnection =
-        DatabaseMeta.loadDatabase( metaStore, XmlHandler.getTagValue( transformNode, "compare_connection" ) );
+        DatabaseMeta.loadDatabase( metadataProvider, XmlHandler.getTagValue( transformNode, "compare_connection" ) );
       compareSchemaField = XmlHandler.getTagValue( transformNode, "compare_schema_field" );
       compareTableField = XmlHandler.getTagValue( transformNode, "compare_table_field" );
 
@@ -500,7 +501,7 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
       cr =

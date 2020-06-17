@@ -83,7 +83,7 @@ public interface ILoggingObject {
    *
    * @return The execution container (Carte/DI server/BI Server) object id.
    */
-  String getContainerObjectId();
+  String getContainerId();
 
   /**
    * Gets the registration date of this logging object. Null if it's not registered.

@@ -57,8 +57,7 @@ import java.util.*;
 @PluginDialog( 
 		  id = "TeraFast", 
 		  image = "TeraFast.svg", 
-		  pluginType = PluginDialog.PluginType.TRANSFORM,
-		  documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
+		  pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -119,8 +118,6 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
   private Label wlTruncateTable;
 
   private Button wbTruncateTable;
-
-  private Link wAscLink;
 
   private Label wlReturn;
 
@@ -346,11 +343,11 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
       }
     } );
 
-    this.wAscLink.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( final Event event ) {
-        Program.launch( event.text );
-      }
-    } );
+//    this.wAscLink.addListener( SWT.Selection, new Listener() {
+//      public void handleEvent( final Event event ) {
+//        Program.launch( event.text );
+//      }
+//    } );
 
     // Detect X or ALT-F4 or something that kills this window...
     this.shell.addShellListener( new ShellAdapter() {
@@ -549,8 +546,8 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
     this.wOk = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.OK" ) );
     this.wCancel = factory.createPushButton( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { this.wOk, this.wCancel, }, factory.getMargin(), this.wAscLink );
-    
+    setButtonPositions( new Button[] { this.wOk, this.wCancel, }, factory.getMargin(), this.wReturn );
+
     this.wTransformName.addModifyListener( lsMod );
     this.wControlFile.addModifyListener( lsMod );
     this.wFastLoadPath.addModifyListener( lsMod );
@@ -790,11 +787,8 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
   protected void buildAscLink( final PluginWidgetFactory factory ) {
     final Control topControl = this.wReturn;
 
-    this.wAscLink = new Link( this.shell, SWT.NONE );
-    this.wAscLink.setText( BaseMessages.getString( PKG, "TeraFastDialog.Provided.Info" ) );
     FormData formData = factory.createLabelLayoutData( topControl );
     formData.right = null;
-    this.wAscLink.setLayoutData( formData );
   }
 
   /**

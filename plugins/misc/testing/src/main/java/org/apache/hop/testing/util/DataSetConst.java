@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2017 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -30,7 +30,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.DataSet;
@@ -90,12 +90,12 @@ public class DataSetConst {
    *
    * @param pipeline     The pipeline after execution
    * @param unitTest  The unit test
-   * @param metaStore The MetaStore to use
+   * @param metadataProvider The MetaStore to use
    * @param results   The results list to add comments to
    * @return The nr of errors, 0 if no errors found
    * @throws HopException In case there was an error loading data or metadata.
    */
-  public static final int validateTransResultAgainstUnitTest( IPipelineEngine<PipelineMeta> pipeline, PipelineUnitTest unitTest, IMetaStore metaStore, List<UnitTestResult> results ) throws HopException {
+  public static final int validateTransResultAgainstUnitTest( IPipelineEngine<PipelineMeta> pipeline, PipelineUnitTest unitTest, IHopMetadataProvider metadataProvider, List<UnitTestResult> results ) throws HopException {
     int nrErrors = 0;
 
     ILogChannel log = pipeline.getLogChannel();
@@ -136,7 +136,7 @@ public class DataSetConst {
 
       log.logDetailed( "Found " + resultCollection.getRows().size() + " results for data comparing in transform '" + location.getTransformName() + "', fields: " + resultRowMeta.toString() );
 
-      DataSet goldenDataSet = unitTest.getGoldenDataSet( log, metaStore, location );
+      DataSet goldenDataSet = unitTest.getGoldenDataSet( log, metadataProvider, location );
       List<Object[]> goldenRows = goldenDataSet.getAllRows( log, location );
       IRowMeta goldenRowMeta = goldenDataSet.getMappedDataSetFieldsRowMeta( location );
 

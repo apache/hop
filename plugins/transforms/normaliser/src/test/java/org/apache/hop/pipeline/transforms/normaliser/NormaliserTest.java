@@ -159,8 +159,6 @@ public class NormaliserTest {
  // @Test
   public void testNormaliserProcessRowsWikiData() throws Exception {
     // We should have 1 row as input to the normaliser and 3 rows as output to the normaliser with the data
-    // shown on the Wiki page: http://wiki.pentaho.com/display/EAI/Row+Normaliser
-    //
     //
     // Data input looks like this:
     //

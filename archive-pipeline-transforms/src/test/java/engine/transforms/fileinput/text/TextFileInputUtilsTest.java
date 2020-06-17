@@ -23,7 +23,7 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.logging.LogChannelInterface;
-import org.apache.hop.core.variables.iVariables;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class TextFileInputUtilsTest {
     String line = "\"\\\\valueA\"|\"valueB\\\\\"|\"val\\\\ueC\""; // "\\valueA"|"valueB\\"|"val\\ueC"
 
     String[] strings = TextFileInputUtils
-      .guessStringsFromLine( Mockito.mock( iVariables.class ), Mockito.mock( LogChannelInterface.class ),
+      .guessStringsFromLine( Mockito.mock( IVariables.class ), Mockito.mock( LogChannelInterface.class ),
         line, inputMeta, "|", "\"", "\\" );
     Assert.assertNotNull( strings );
     Assert.assertEquals( "\\valueA", strings[ 0 ] );

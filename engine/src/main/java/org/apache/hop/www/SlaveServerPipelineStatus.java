@@ -252,24 +252,30 @@ public class SlaveServerPipelineStatus {
   }
 
   public boolean isRunning() {
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
+    return getStatusDescription()!=null && (
+         getStatusDescription().equalsIgnoreCase( Pipeline.STRING_RUNNING )
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_INITIALIZING )
       || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_PAUSED )
+    )
       ;
   }
 
   public boolean isStopped() {
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED_WITH_ERRORS );
+    return getStatusDescription()!=null && (
+         getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_STOPPED_WITH_ERRORS )
+    );
   }
 
   public boolean isWaiting() {
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_WAITING );
+    return getStatusDescription()!=null && getStatusDescription().equalsIgnoreCase( Pipeline.STRING_WAITING );
   }
 
   public boolean isFinished() {
-    return getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED )
-      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS );
+    return getStatusDescription()!=null && (
+         getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED )
+      || getStatusDescription().equalsIgnoreCase( Pipeline.STRING_FINISHED_WITH_ERRORS )
+    );
   }
 
   public long getNrTransformErrors() {

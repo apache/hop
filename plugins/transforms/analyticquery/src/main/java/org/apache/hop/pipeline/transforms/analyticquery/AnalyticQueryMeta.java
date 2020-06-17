@@ -38,7 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
@@ -53,9 +53,14 @@ import java.util.List;
  * @author ngoodman
  * @since 27-jan-2009
  */
-@Transform( id = "AnalyticQuery", i18nPackageName = "org.apache.hop.pipeline.transforms.analyticquery",
-  name = "AnalyticQuery.Name", description = "AnalyticQuery.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics" )
+@Transform( 
+        id = "AnalyticQuery",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.analyticquery",
+        name = "AnalyticQuery.Name",
+        description = "AnalyticQuery.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/analyticquery.html"
+)
 @InjectionSupported( localizationPrefix = "AnalyticQuery.Injection." )
 public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 
@@ -180,7 +185,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   }
 
   @Override
-  public void loadXml( Node transformNode, IMetaStore metaStore ) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformNode );
   }
 
@@ -267,7 +272,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
 
   @Override
   public void getFields( IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables variables, IMetaStore metaStore ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // re-assemble a new row of metadata
     //
     IRowMeta fields = new RowMeta();
@@ -334,7 +339,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   @Override
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IMetaStore metaStore ) {
+                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     if ( input.length > 0 ) {

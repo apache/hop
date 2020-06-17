@@ -84,8 +84,7 @@ import java.util.Set;
 @PluginDialog(
         id = "TextFileOutput",
         image = "textfileoutput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class TextFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!

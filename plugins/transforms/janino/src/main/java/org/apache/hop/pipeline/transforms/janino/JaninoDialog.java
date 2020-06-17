@@ -66,8 +66,7 @@ import java.util.Set;
 @PluginDialog(
         id = "Janino",
         image = "janino.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM,
-        documentationUrl = ""
+        pluginType = PluginDialog.PluginType.TRANSFORM
 )
 public class JaninoDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!

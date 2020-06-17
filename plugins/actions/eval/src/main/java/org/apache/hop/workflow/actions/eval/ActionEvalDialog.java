@@ -70,7 +70,7 @@ import org.eclipse.swt.widgets.Text;
 		  id = "EVAL", 
 		  image = "Eval.svg", 
 		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/eval.html"
 )
 public class ActionEvalDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionEval.class; // for i18n purposes, needed by Translator!!

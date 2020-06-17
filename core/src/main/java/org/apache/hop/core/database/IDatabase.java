@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -33,7 +34,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 
 /**
@@ -42,6 +42,9 @@ import java.util.Properties;
  * @author Matt
  * @since 11-mrt-2005
  */
+@HopMetadataObject(
+  objectFactory = DatabaseMetaObjectFactory.class
+)
 public interface IDatabase extends Cloneable {
   /**
    * @return the plugin id of this database
@@ -156,14 +159,14 @@ public interface IDatabase extends Cloneable {
   /**
    * @return The extra attributes for this database connection
    */
-  public Properties getAttributes();
+  public Map<String, String> getAttributes();
 
   /**
    * Set extra attributes on this database connection
    *
    * @param attributes The extra attributes to set on this database connection.
    */
-  public void setAttributes( Properties attributes );
+  public void setAttributes( Map<String,String> attributes );
 
   /**
    * Add extra attribute on this connection
