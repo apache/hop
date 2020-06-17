@@ -147,8 +147,8 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     try {
 
       if ( xmlfilename != null && xsdfilename != null ) {
-        xmlfile = HopVfs.getFileObject( realxmlfilename, this );
-        xsdfile = HopVfs.getFileObject( realxsdfilename, this );
+        xmlfile = HopVfs.getFileObject( realxmlfilename );
+        xsdfile = HopVfs.getFileObject( realxsdfilename );
 
         if ( xmlfile.exists() && xsdfile.exists() ) {
 

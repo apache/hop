@@ -280,7 +280,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
       }
       String fileValue = prevInfoFields.getString( fileRow, idx );
       try {
-        FileObject fileObject = HopVfs.getFileObject( fileValue, getPipelineMeta() );
+        FileObject fileObject = HopVfs.getFileObject( fileValue );
         data.files.addFile( fileObject );
         if ( meta.inputFiles.passingThruFields ) {
           StringBuilder sb = new StringBuilder();

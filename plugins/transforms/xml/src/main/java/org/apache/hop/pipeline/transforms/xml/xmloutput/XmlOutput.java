@@ -278,7 +278,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
         data.writer.writeCharacters( EOL );
       } else {
 
-        FileObject file = HopVfs.getFileObject( buildFilename( true ), getPipelineMeta() );
+        FileObject file = HopVfs.getFileObject( buildFilename( true ) );
 
         if ( meta.isAddToResultFiles() ) {
           // Add this to the result file names...

@@ -82,7 +82,7 @@ public class RestoreHopEnvironment extends ExternalResource {
     Class.forName( LogChannel.class.getName() );
     DatabaseMeta.init();
     ExtensionPointMap.getInstance().reInitialize();
-    HopVfs.getInstance().reset(); // reinit
+    HopVfs.reset(); // reinit
   }
 
   void cleanUp() {
@@ -97,7 +97,7 @@ public class RestoreHopEnvironment extends ExternalResource {
     if ( Props.isInitialized() ) {
       Props.getInstance().reset();
     }
-    HopVfs.getInstance().reset();
+    HopVfs.reset();
     XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
     // under no circumstance reset the LoggingRegistry

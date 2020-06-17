@@ -128,7 +128,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
 
       FileObject fileObject = null;
       try {
-        fileObject = HopVfs.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename );
 
         if ( !fileObject.exists() ) {
           if ( isFailIfFileNotExists() ) {

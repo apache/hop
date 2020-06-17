@@ -60,7 +60,7 @@ public class FileExistsValidator extends AbstractFileValidator {
     String realFileName = variables.environmentSubstitute( filename );
     FileObject fileObject = null;
     try {
-      fileObject = HopVfs.getFileObject( realFileName, variables );
+      fileObject = HopVfs.getFileObject( realFileName );
       if ( fileObject == null || ( fileObject != null && !fileObject.exists() && failIfDoesNotExist ) ) {
         ActionValidatorUtils.addFailureRemark(
           source, propertyName, VALIDATOR_NAME, remarks, ActionValidatorUtils.getLevelOnFail(

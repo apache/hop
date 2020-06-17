@@ -29,6 +29,7 @@ import junit.framework.ComparisonFailure;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.util.FileObjectUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -82,7 +83,7 @@ import static org.mockito.Mockito.when;
 
 public class JsonInputTest {
 
-  protected static final String BASE_RAM_DIR = "ram:/jsonInputTest/";
+  protected static final String BASE_RAM_DIR = "ram:///jsonInputTest/";
   protected TransformMockHelper<JsonInputMeta, JsonInputData> helper;
 
   protected static final String getBasicTestJson() {
@@ -883,11 +884,14 @@ public class JsonInputTest {
         try ( ZipOutputStream zipOut = new ZipOutputStream( out ) ) {
           ZipEntry jsonFile = new ZipEntry( "test.json" );
           zipOut.putNextEntry( jsonFile );
-          zipOut.write( input.getBytes() );
+          zipOut.write( input.getBytes("UTF-8") );
           zipOut.closeEntry();
           zipOut.flush();
         }
       }
+
+      String json = FileObjectUtils.getContentAsString( HopVfs.getFileObject( "zip:" + BASE_RAM_DIR + "test.zip!/test.json" ), "UTF-8" );
+
       JsonInputField price = new JsonInputField();
       price.setName( "price" );
       price.setType( IValueMeta.TYPE_NUMBER );

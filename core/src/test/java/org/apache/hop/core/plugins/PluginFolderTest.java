@@ -21,12 +21,12 @@
  ******************************************************************************/
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -54,15 +54,12 @@ public class PluginFolderTest {
   /**
    *
    */
-  private static final Path PATH_TO_HOP_IGNORE_FILE =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, ".kettle-ignore" );
   private static final String JAR_FILE1_NAME = "workflow.jar";
   private static final String JAR_FILE2_NAME = "test.jar";
   /**
    *
    */
-  private static final Path PATH_TO_JAR_IN_LIB_DIR =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, "lib", JAR_FILE2_NAME );
+  private static final Path PATH_TO_JAR_IN_LIB_DIR = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, "lib", JAR_FILE2_NAME );
   private static final String NOT_JAR_FILE_NAME = "test.txt";
   private static final Path PATH_TO_PLUGIN_DIR = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME );
   /**
@@ -74,12 +71,9 @@ public class PluginFolderTest {
    * <p>
    * <TMP_DIR>/plugins/workflow.jar/test.txt - file
    */
-  private static final Path PATH_TO_DIR_WITH_JAR_IN_NAME =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME );
-  private static final Path PATH_TO_JAR_FILE1 =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME, JAR_FILE1_NAME );
-  private static final Path PATH_TO_NOT_JAR_FILE =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME, NOT_JAR_FILE_NAME );
+  private static final Path PATH_TO_DIR_WITH_JAR_IN_NAME = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME );
+  private static final Path PATH_TO_JAR_FILE1 = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME, JAR_FILE1_NAME );
+  private static final Path PATH_TO_NOT_JAR_FILE = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, WITH_JAR_IN_NAME_DIR_NAME, NOT_JAR_FILE_NAME );
 
   /**
    * Paths below represent the following structure of the folder and files in them:
@@ -91,10 +85,8 @@ public class PluginFolderTest {
    * <TMP_DIR>/plugins/test_dir/test.txt - file
    */
   private static final Path PATH_TO_TEST_DIR_NAME = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME );
-  private static final Path PATH_TO_JAR_FILE2 =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, JAR_FILE2_NAME );
-  private static final Path PATH_TO_NOT_JAR_FILE_IN_TEST_DIR =
-    Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, NOT_JAR_FILE_NAME );
+  private static final Path PATH_TO_JAR_FILE2 = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, JAR_FILE2_NAME );
+  private static final Path PATH_TO_NOT_JAR_FILE_IN_TEST_DIR = Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, TEST_DIR_NAME, NOT_JAR_FILE_NAME );
 
   private PluginFolder plFolder;
 
@@ -145,7 +137,7 @@ public class PluginFolderTest {
   public void testFindJarFiles_DirWithJarInNameNotAdded() throws IOException, HopFileException {
     Files.createDirectories( PATH_TO_DIR_WITH_JAR_IN_NAME );
 
-    FileObject[] findJarFiles = plFolder.findJarFiles();
+    File[] findJarFiles = plFolder.findJarFiles();
     assertNotNull( findJarFiles );
     assertEquals( 0, findJarFiles.length );
   }
@@ -155,11 +147,11 @@ public class PluginFolderTest {
     Files.createDirectories( PATH_TO_DIR_WITH_JAR_IN_NAME );
     Files.createFile( PATH_TO_JAR_FILE1 );
 
-    FileObject[] findJarFiles = plFolder.findJarFiles();
+    File[] findJarFiles = plFolder.findJarFiles();
     assertNotNull( findJarFiles );
     assertEquals( 1, findJarFiles.length );
     assertTrue( findJarFiles[ 0 ].isFile() );
-    assertEquals( PATH_TO_JAR_FILE1.toUri().toString(), findJarFiles[ 0 ].getURL().toString() );
+    assertEquals( PATH_TO_JAR_FILE1.toUri().toString(), findJarFiles[ 0 ].toPath().toUri().toString() );
   }
 
   @Test
@@ -167,7 +159,7 @@ public class PluginFolderTest {
     Files.createDirectories( PATH_TO_DIR_WITH_JAR_IN_NAME );
     Files.createFile( PATH_TO_NOT_JAR_FILE );
 
-    FileObject[] findJarFiles = plFolder.findJarFiles();
+    File[] findJarFiles = plFolder.findJarFiles();
     assertNotNull( findJarFiles );
     assertEquals( 0, findJarFiles.length );
   }
@@ -186,20 +178,9 @@ public class PluginFolderTest {
     Files.createFile( Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, JAR_FILE2_NAME ) );
     Files.createFile( Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, NOT_JAR_FILE_NAME ) );
 
-    FileObject[] findJarFiles = plFolder.findJarFiles();
+    File[] findJarFiles = plFolder.findJarFiles();
     assertNotNull( findJarFiles );
     assertEquals( 3, findJarFiles.length );
-  }
-
-  @Test
-  public void testFindJarFiles_DirWithHopIgnoreFileIgnored() throws IOException, HopFileException {
-    Files.createDirectories( PATH_TO_TEST_DIR_NAME );
-    Files.createFile( PATH_TO_JAR_FILE2 );
-    Files.createFile( PATH_TO_HOP_IGNORE_FILE );
-
-    FileObject[] findJarFiles = plFolder.findJarFiles();
-    assertNotNull( findJarFiles );
-    assertEquals( 0, findJarFiles.length );
   }
 
   @Test
@@ -207,23 +188,11 @@ public class PluginFolderTest {
     Files.createDirectories( Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, "lib" ) );
     Files.createFile( PATH_TO_JAR_IN_LIB_DIR );
 
-    FileObject[] findJarFiles = plFolder.findJarFiles();
+    File[] findJarFiles = plFolder.findJarFiles();
     assertNotNull( findJarFiles );
     assertEquals( 0, findJarFiles.length );
   }
 
-  @Test
-  public void testFindJarFiles_LibDirNOTIgnored() throws IOException, HopFileException {
-    Files.createDirectories( Paths.get( BASE_TEMP_DIR, PLUGINS_DIR_NAME, "lib" ) );
-    Files.createFile( PATH_TO_JAR_IN_LIB_DIR );
-
-    plFolder = new PluginFolder( PATH_TO_PLUGIN_DIR.toAbsolutePath().toString(), false, true, true );
-    FileObject[] findJarFiles = plFolder.findJarFiles();
-    assertNotNull( findJarFiles );
-    assertEquals( 1, findJarFiles.length );
-    assertTrue( findJarFiles[ 0 ].isFile() );
-    assertEquals( PATH_TO_JAR_IN_LIB_DIR.toUri().toString(), findJarFiles[ 0 ].getURL().toString() );
-  }
 
   @Test
   public void testFindJarFiles_ExceptionThrows() {

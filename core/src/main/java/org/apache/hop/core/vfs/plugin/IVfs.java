@@ -1,4 +1,9 @@
 package org.apache.hop.core.vfs.plugin;
 
-public class IVfs {
+import org.apache.commons.vfs2.provider.FileProvider;
+
+public interface IVfs {
+  String[] getUrlSchemes();
+
+  FileProvider getProvider();
 }

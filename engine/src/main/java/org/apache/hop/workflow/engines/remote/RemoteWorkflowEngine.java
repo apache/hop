@@ -340,7 +340,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if ( executionConfiguration.isPassingExport() ) {
         // First export the workflow... slaveServer.getVariable("MASTER_HOST")
         //
-        FileObject tempFile = HopVfs.createTempFile( "workflowExport", ".zip", System.getProperty( "java.io.tmpdir" ), workflowMeta );
+        FileObject tempFile = HopVfs.createTempFile( "workflowExport", ".zip", System.getProperty( "java.io.tmpdir" ) );
 
         TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
           metadataProvider, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );

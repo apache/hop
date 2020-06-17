@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -44,6 +45,11 @@ import static org.junit.Assert.assertTrue;
 public class ResultFileTest {
 
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+
+  @Before
+  public void before() throws Exception {
+    HopClientEnvironment.init();
+  }
 
   @Test
   public void testGetRow() throws HopFileException, FileSystemException {

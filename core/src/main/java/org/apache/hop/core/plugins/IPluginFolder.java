@@ -22,8 +22,9 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
+
+import java.io.File;
 
 /**
  * Describes a possible location for a plugin
@@ -53,5 +54,5 @@ public interface IPluginFolder {
    * @return The jar files
    * @throws HopFileException In case there is a problem reading
    */
-  FileObject[] findJarFiles() throws HopFileException;
+  File[] findJarFiles() throws HopFileException;
 }

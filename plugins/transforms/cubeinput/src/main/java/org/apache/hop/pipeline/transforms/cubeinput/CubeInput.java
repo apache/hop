@@ -94,13 +94,13 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> imple
         if ( meta.isAddResultFile() ) {
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename, getPipelineMeta() ),
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename ),
               getPipelineMeta().getName(), toString() );
           resultFile.setComment( "File was read by a Cube Input transform" );
           addResultFile( resultFile );
         }
 
-        data.fis = HopVfs.getInputStream( filename, this );
+        data.fis = HopVfs.getInputStream( filename );
         data.zip = new GZIPInputStream( data.fis );
         data.dis = new DataInputStream( data.zip );
 

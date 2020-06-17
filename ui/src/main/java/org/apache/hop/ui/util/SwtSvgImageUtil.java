@@ -63,7 +63,7 @@ public class SwtSvgImageUtil {
 
   static {
     try {
-      base = HopVfs.getInstance().getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
+      base = HopVfs.getFileSystemManager().resolveFile( System.getProperty( "user.dir" ) );
     } catch ( FileSystemException e ) {
       e.printStackTrace();
       base = null;
@@ -257,7 +257,7 @@ public class SwtSvgImageUtil {
    */
   private static SwtUniversalImage loadFromBasedVFS( Display display, String location ) {
     try {
-      FileObject imageFileObject = HopVfs.getInstance().getFileSystemManager().resolveFile( base, location );
+      FileObject imageFileObject = HopVfs.getFileSystemManager().resolveFile( base, location );
       InputStream s = HopVfs.getInputStream( imageFileObject );
       if ( s == null ) {
         return null;

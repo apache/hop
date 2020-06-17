@@ -1258,7 +1258,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
         fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 

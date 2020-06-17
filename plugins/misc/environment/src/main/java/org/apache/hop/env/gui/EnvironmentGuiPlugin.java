@@ -21,6 +21,8 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.env.environment.EnvironmentDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -42,6 +44,9 @@ public class EnvironmentGuiPlugin {
   public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-40020-environment-edit";
   public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-40030-environment-add";
   public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-40040-environment-delete";
+
+  public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
+  private static final String BROWSER_ITEM_ID_NAVIGATE_ENV_OME = "1000-navigate-environment-home";
 
   private static EnvironmentGuiPlugin instance;
 
@@ -372,5 +377,26 @@ public class EnvironmentGuiPlugin {
         environmentsCombo.setToolTipText( environmentHomeFolder );
       }
     }
+  }
+
+  // Add an e button to the file dialog browser toolbar
+  //
+  @GuiToolbarElement(
+    root = BROWSER_TOOLBAR_PARENT_ID,
+    id = BROWSER_ITEM_ID_NAVIGATE_ENV_OME,
+    toolTip = "Navigate to the environment home directory",
+    image = "environment.svg"
+  )
+  public void fileDialogBrowserEnvironmentHome() {
+    String homeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( HopNamespace.getNamespace() );
+    if (StringUtils.isNotEmpty(homeFolder)) {
+      // Navigate to the home folder
+      //
+      HopVfsFileDialog instance = HopVfsFileDialog.getInstance();
+      if (instance!=null) {
+        instance.navigateTo( homeFolder, true );
+      }
+    }
+
   }
 }

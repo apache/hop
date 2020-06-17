@@ -117,7 +117,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
       String realLogFilename = pipelineExecutionConfiguration.getLogFileName();
       try {
         FileUtil.createParentFolder( AddPipelineServlet.class, realLogFilename, pipelineExecutionConfiguration
-          .isCreateParentFolder(), pipeline.getLogChannel(), pipeline );
+          .isCreateParentFolder(), pipeline.getLogChannel() );
         final LogChannelFileWriter logChannelFileWriter =
           new LogChannelFileWriter( servletLoggingObject.getLogChannelId(),
             HopVfs.getFileObject( realLogFilename ), pipelineExecutionConfiguration.isSetAppendLogfile() );

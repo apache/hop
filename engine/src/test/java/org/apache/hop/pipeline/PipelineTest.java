@@ -177,12 +177,12 @@ public class PipelineTest {
     when( mockPipelineMeta.listVariables() ).thenReturn( new String[] {} );
     when( mockPipelineMeta.listParameters() ).thenReturn( new String[] { testParam } );
     when( mockPipelineMeta.getParameterValue( testParam ) ).thenReturn( testParamValue );
-    FileObject ktr = HopVfs.createTempFile( "parameters", ".hpl", "ram://" );
-    try ( OutputStream outputStream = ktr.getContent().getOutputStream( true ) ) {
+    FileObject hpl = HopVfs.createTempFile( "parameters", ".hpl", "ram://" );
+    try ( OutputStream outputStream = hpl.getContent().getOutputStream( true ) ) {
       InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
       IOUtils.copy( inputStream, outputStream );
     }
-    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, ktr.getURL().toURI().toString(), new MemoryMetadataProvider() );
+    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, hpl.getURL().toURI().toString(), new MemoryMetadataProvider() );
     assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
   }
 

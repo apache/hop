@@ -203,7 +203,6 @@ public class TextFileInputTest {
   }
 
   @Test
-  // @Ignore // TODO: see what the issue is here, new VFS2 API?
   public void testErrorHandlerLineNumber() throws Exception {
     final String content = new StringBuilder()
       .append( "123" ).append( '\n' ).append( "333\n" )
@@ -226,6 +225,7 @@ public class TextFileInputTest {
     List<Object[]> output = PipelineTestingUtil.execute( input, 4, false );
 
     Mockito.verify( data.dataErrorLineHandler ).handleLineError( 4, AbstractFileErrorHandler.NO_PARTS );
+    input.dispose(); // close file
     deleteVfsFile( virtualFile );
   }
 

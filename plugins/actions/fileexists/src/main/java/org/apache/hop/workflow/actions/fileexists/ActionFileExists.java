@@ -124,7 +124,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
 
       String realFilename = getRealFilename();
       try {
-        FileObject file = HopVfs.getFileObject( realFilename, this );
+        FileObject file = HopVfs.getFileObject( realFilename );
         if ( file.exists() && file.isReadable() ) {
           logDetailed( BaseMessages.getString( PKG, "ActionFileExists.File_Exists", realFilename ) );
           result.setResult( true );
@@ -188,7 +188,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

@@ -305,7 +305,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject( filename, getPipelineMeta() ).getParent();
+      parentfolder = HopVfs.getFileObject( filename ).getParent();
       if ( !parentfolder.exists() ) {
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "JsonOutput.Error.ParentFolderNotExist", parentfolder.getName() ) );
@@ -343,14 +343,14 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
         // Add this to the result file names...
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename, getPipelineMeta() ),
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename ),
             getPipelineMeta().getName(), getTransformName() );
         resultFile.setComment( BaseMessages.getString( PKG, "JsonOutput.ResultFilenames.Comment" ) );
         addResultFile( resultFile );
       }
 
       OutputStream outputStream;
-      OutputStream fos = HopVfs.getOutputStream( filename, getPipelineMeta(), meta.isFileAppended() );
+      OutputStream fos = HopVfs.getOutputStream( filename, meta.isFileAppended() );
       outputStream = fos;
 
       if ( !Utils.isEmpty( meta.getEncoding() ) ) {
