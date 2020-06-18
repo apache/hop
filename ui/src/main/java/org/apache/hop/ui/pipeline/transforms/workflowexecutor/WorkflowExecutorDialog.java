@@ -48,7 +48,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -155,7 +154,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private Button wGetParameters;
 
-  private HopWorkflowFileType<WorkflowMeta> fileType = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType();
+  private HopWorkflowFileType<WorkflowMeta> fileType = HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
 
   public WorkflowExecutorDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );

@@ -92,7 +92,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     try {
       // This file is opened in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
 
       // Load the workflow from file
@@ -119,7 +119,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     try {
       // This file is created in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
 
       // Create the empty pipeline

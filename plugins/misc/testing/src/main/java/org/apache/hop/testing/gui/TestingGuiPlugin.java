@@ -93,7 +93,7 @@ public class TestingGuiPlugin {
 
   private Map<PipelineMeta, PipelineUnitTest> activeTests;
 
-  private TestingGuiPlugin() {
+  public TestingGuiPlugin() {
     activeTests = new HashMap<>();
   }
 
@@ -762,7 +762,11 @@ public class TestingGuiPlugin {
   }
 
   private Combo getUnitTestsCombo() {
-    Control control = HopGuiPipelineGraph.getInstance().getToolBarWidgets().getWidgetsMap().get( ID_TOOLBAR_UNIT_TESTS_COMBO );
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph==null) {
+      return null;
+    }
+    Control control = pipelineGraph.getToolBarWidgets().getWidgetsMap().get( ID_TOOLBAR_UNIT_TESTS_COMBO );
     if ( ( control != null ) && ( control instanceof Combo ) ) {
       Combo combo = (Combo) control;
       return combo;
@@ -771,11 +775,19 @@ public class TestingGuiPlugin {
   }
 
   public static void refreshUnitTestsList() {
-    HopGuiPipelineGraph.getInstance().getToolBarWidgets().refreshComboItemList( ID_TOOLBAR_UNIT_TESTS_COMBO );
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph==null) {
+      return;
+    }
+    pipelineGraph.getToolBarWidgets().refreshComboItemList( ID_TOOLBAR_UNIT_TESTS_COMBO );
   }
 
   public static void selectUnitTestInList( String name ) {
-    HopGuiPipelineGraph.getInstance().getToolBarWidgets().selectComboItem( ID_TOOLBAR_UNIT_TESTS_COMBO, name );
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph==null) {
+      return;
+    }
+    pipelineGraph.getToolBarWidgets().selectComboItem( ID_TOOLBAR_UNIT_TESTS_COMBO, name );
   }
 
   @GuiToolbarElement(

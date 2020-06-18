@@ -696,7 +696,7 @@ public class Database implements IVariables, ILoggingObject {
       }
     } catch ( Exception e ) {
       if ( log.isDebug() ) {
-        log.logDebug( "Can't turn auto commit " + onOff + Const.CR + Const.getStackTracker( e ) );
+        log.logDebug( "Can't turn auto commit " + onOff + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) );
       }
     }
   }

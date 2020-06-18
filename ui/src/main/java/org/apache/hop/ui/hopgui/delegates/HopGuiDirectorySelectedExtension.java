@@ -23,14 +23,14 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.core.variables.IVariables;
-import org.eclipse.swt.widgets.DirectoryDialog;
+import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 
 public class HopGuiDirectorySelectedExtension {
-  public DirectoryDialog directoryDialog;
+  public IDirectoryDialog directoryDialog;
   public IVariables variables;
   public String folderName;
 
-  public HopGuiDirectorySelectedExtension( DirectoryDialog directoryDialog, IVariables variables, String folderName ) {
+  public HopGuiDirectorySelectedExtension( IDirectoryDialog directoryDialog, IVariables variables, String folderName ) {
     this.directoryDialog = directoryDialog;
     this.variables = variables;
     this.folderName = folderName;
@@ -41,14 +41,14 @@ public class HopGuiDirectorySelectedExtension {
    *
    * @return value of directoryDialog
    */
-  public DirectoryDialog getDirectoryDialog() {
+  public IDirectoryDialog getDirectoryDialog() {
     return directoryDialog;
   }
 
   /**
    * @param directoryDialog The directoryDialog to set
    */
-  public void setDirectoryDialog( DirectoryDialog directoryDialog ) {
+  public void setDirectoryDialog( IDirectoryDialog directoryDialog ) {
     this.directoryDialog = directoryDialog;
   }
 

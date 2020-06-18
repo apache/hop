@@ -49,6 +49,8 @@
         </property>
       </activation>
       <modules>
+        <module>azure</module>
+        <module>gcs</module>
         <module>googledrive</module>
         <module>hdfs</module>
         <module>s3</module>

@@ -388,7 +388,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public HopGuiPipelineGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
                               final HopDataOrchestrationPerspective perspective, final PipelineMeta pipelineMeta, final HopPipelineFileType fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
-    activePipelineGraph = this; // We're working on this one
     this.hopGui = hopGui;
     this.parentTabItem = parentTabItem;
     this.perspective = perspective;
@@ -434,8 +433,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // The form-data is set on the native widget automatically
     //
     addToolBar();
-
-    activePipelineGraph = null; // No longer needed
 
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
@@ -558,20 +555,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
-  private static HopGuiPipelineGraph activePipelineGraph;
-
-  // In case anyone asks...
-  //
   public static HopGuiPipelineGraph getInstance() {
-    if ( activePipelineGraph != null ) {
-      return activePipelineGraph;
-    }
-    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
-      return (HopGuiPipelineGraph) fileTypeHandler;
-    }
-    return null;
+    return HopGui.getActivePipelineGraph();
   }
+
 
   @Override
   public void mouseDoubleClick( MouseEvent e ) {
@@ -583,14 +570,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Hide the tooltip!
     hideToolTips();
 
-    /** TODO: Add back in
-     try {
-     ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseDoubleClick.id,
-     new HopGuiPipelineGraphExtension( this, e, real ) );
-     } catch ( Exception ex ) {
-     LogChannel.GENERAL.logError( "Error calling PipelineGraphMouseDoubleClick extension point", ex );
-     }
-     **/
+
+    try {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseDoubleClick.id,
+        new HopGuiPipelineGraphExtension( this, e, real ) );
+    } catch ( Exception ex ) {
+      LogChannel.GENERAL.logError( "Error calling PipelineGraphMouseDoubleClick extension point", ex );
+    }
 
     TransformMeta transformMeta = pipelineMeta.getTransform( real.x, real.y, iconsize );
     if ( transformMeta != null ) {
@@ -1571,6 +1557,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       //
       toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
       toolBarWidgets = new GuiToolbarWidgets();
+      toolBarWidgets.registerGuiPluginObject( this );
       toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
@@ -1628,12 +1615,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // When zooming out we want to correct the scroll bars.
     //
     float factor = magnification / oldMagnification;
-    int newHThumb = Math.min((int)( horizontalScrollBar.getThumb() / factor), 100);
+    int newHThumb = Math.min( (int) ( horizontalScrollBar.getThumb() / factor ), 100 );
     horizontalScrollBar.setThumb( newHThumb );
-    horizontalScrollBar.setSelection( (int)( horizontalScrollBar.getSelection()*factor ));
-    int newVThumb = Math.min((int)( verticalScrollBar.getThumb() / factor), 100);
+    horizontalScrollBar.setSelection( (int) ( horizontalScrollBar.getSelection() * factor ) );
+    int newVThumb = Math.min( (int) ( verticalScrollBar.getThumb() / factor ), 100 );
     verticalScrollBar.setThumb( newVThumb );
-    verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
+    verticalScrollBar.setSelection( (int) ( verticalScrollBar.getSelection() * factor ) );
 
     canvas.setFocus();
     redraw();
@@ -2870,8 +2857,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/snap-to-grid.svg",
     disabledImage = "ui/images/toolbar/snap-to-grid-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.HOME )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.HOME )
+  @GuiKeyboardShortcut( control = true, key = SWT.HOME )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.HOME )
   public void snapToGrid() {
     snapToGrid( ConstUi.GRID_SIZE );
   }
@@ -2887,8 +2874,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_LEFT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_LEFT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_LEFT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_LEFT )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -2900,8 +2887,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_RIGHT )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -2913,8 +2900,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_UP )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -2927,8 +2914,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_DOWN )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_DOWN )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_DOWN )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_DOWN )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -2941,8 +2928,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -2955,8 +2942,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
@@ -3156,7 +3143,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         pipelineMeta.clearChanged();
         updateGui();
-        HopDataOrchestrationPerspective.getInstance().updateTabs();
+        HopGui.getDataOrchestrationPerspective().updateTabs();
       } finally {
         out.flush();
         out.close();

@@ -155,7 +155,7 @@ public class SlaveServerPipelineStatus {
         loggingString = HttpUtil.decodeBase64ZippedString( dataString64 );
       } catch ( IOException e ) {
         loggingString =
-          "Unable to decode logging from remote server : " + e.toString() + Const.CR + Const.getStackTracker( e );
+          "Unable to decode logging from remote server : " + e.toString() + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e );
       }
     } else {
       loggingString = "";
@@ -169,7 +169,7 @@ public class SlaveServerPipelineStatus {
         result = new Result( resultNode );
       } catch ( HopException e ) {
         loggingString +=
-          "Unable to serialize result object as XML" + Const.CR + Const.getStackTracker( e ) + Const.CR;
+          "Unable to serialize result object as XML" + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) + Const.CR;
       }
       result.setLogText( loggingString );
     }

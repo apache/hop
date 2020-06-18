@@ -168,6 +168,7 @@ public class HopGuiWorkflowLogDelegate {
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
     toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject( this );
     toolBarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }

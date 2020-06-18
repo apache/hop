@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -56,12 +57,14 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, ToolItem> toolItemMap;
 
   public GuiToolbarWidgets() {
+    super( UuidUtil.getUUIDAsString() );
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
   }
 
   public void createToolbarWidgets( Composite parent, String root ) {
+
     // Find the GUI Elements for the given toolbar root...
     //
     List<GuiToolbarItem> toolbarItems = GuiRegistry.getInstance().findGuiToolbarItems( root );
@@ -81,6 +84,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // Force re-layout
     //
     parent.layout( true, true );
+
+    // Clean up when the parent is disposed
+    //
+    addDeRegisterGuiPluginObjectListener( parent );
   }
 
   private void addToolbarWidgets( Composite parent, GuiToolbarItem toolbarItem ) {

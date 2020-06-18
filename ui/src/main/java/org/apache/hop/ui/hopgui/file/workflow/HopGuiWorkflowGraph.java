@@ -200,11 +200,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   protected PropsUi props;
 
-  protected int iconsize;
+  protected int iconSize;
 
-  protected int linewidth;
+  protected int lineWidth;
 
-  protected Point lastclick;
+  protected Point lastClick;
 
   protected List<ActionCopy> selectedEntries;
 
@@ -292,7 +292,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public HopGuiWorkflowGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
                               final HopDataOrchestrationPerspective perspective, final WorkflowMeta workflowMeta, final HopWorkflowFileType fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
-    activeInstance = this;
     this.perspective = perspective;
     this.workflowMeta = workflowMeta;
     this.fileType = fileType;
@@ -324,8 +323,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // The form-data is set on the native widget automatically
     //
     addToolBar();
-
-    activeInstance = null; // no longer needed
 
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
@@ -409,7 +406,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } );
 
     selectedEntries = null;
-    lastclick = null;
+    lastClick = null;
 
     canvas.addMouseListener( this );
     canvas.addMouseMoveListener( this );
@@ -423,21 +420,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
   }
 
-  private static HopGuiWorkflowGraph activeInstance;
-
-  // In case anyone asks...
-  //
   public static HopGuiWorkflowGraph getInstance() {
-    if ( activeInstance != null ) {
-      return activeInstance;
-    }
-    IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if ( fileTypeHandler instanceof HopGuiWorkflowGraph ) {
-      return (HopGuiWorkflowGraph) fileTypeHandler;
-    }
-    return null;
+    return HopGui.getActiveWorkflowGraph();
   }
-
 
   protected void hideToolTips() {
     toolTip.hide();
@@ -459,7 +444,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError( "Error calling JobGraphMouseDoubleClick extension point", ex );
     }
 
-    ActionCopy action = workflowMeta.getAction( real.x, real.y, iconsize );
+    ActionCopy action = workflowMeta.getAction( real.x, real.y, iconSize );
     if ( action != null ) {
       if ( e.button == 1 ) {
         editEntry( action );
@@ -497,7 +482,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     lastButton = e.button;
     Point real = screen2real( e.x, e.y );
-    lastclick = new Point( real.x, real.y );
+    lastClick = new Point( real.x, real.y );
 
     // Hide the tooltip!
     hideToolTips();
@@ -692,7 +677,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         if ( selectedEntry != null && startHopEntry == null ) {
           if ( e.button == 1 ) {
             Point realclick = screen2real( e.x, e.y );
-            if ( lastclick.x == realclick.x && lastclick.y == realclick.y ) {
+            if ( lastClick.x == realclick.x && lastClick.y == realclick.y ) {
               // Flip selection when control is pressed!
               if ( control ) {
                 selectedEntry.flipSelected();
@@ -727,7 +712,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // OK, we moved the transform, did we move it across a hop?
           // If so, ask to split the hop!
           if ( splitHop ) {
-            WorkflowHopMeta hi = findHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedEntry );
+            WorkflowHopMeta hi = findHop( icon.x + iconSize / 2, icon.y + iconSize / 2, selectedEntry );
             if ( hi != null ) {
               int id = 0;
               if ( !hopGui.getProps().getAutoSplit() ) {
@@ -801,7 +786,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Notes?
           if ( selectedNote != null ) {
             if ( e.button == 1 ) {
-              if ( lastclick.x == e.x && lastclick.y == e.y ) {
+              if ( lastClick.x == e.x && lastClick.y == e.y ) {
                 // Flip selection when control is pressed!
                 if ( control ) {
                   selectedNote.flipSelected();
@@ -988,7 +973,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       // See if we have a hop-split candidate
       //
-      WorkflowHopMeta hi = findHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedEntry );
+      WorkflowHopMeta hi = findHop( icon.x + iconSize / 2, icon.y + iconSize / 2, selectedEntry );
       if ( hi != null ) {
         // OK, we want to split the hop in 2
         //
@@ -1030,7 +1015,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Are we creating a new hop with the middle button or pressing SHIFT?
       //
 
-      ActionCopy actionCopy = workflowMeta.getAction( real.x, real.y, iconsize );
+      ActionCopy actionCopy = workflowMeta.getAction( real.x, real.y, iconSize );
       endHopLocation = new Point( real.x, real.y );
       if ( actionCopy != null
         && ( ( startHopEntry != null && !startHopEntry.equals( actionCopy ) ) || ( endHopEntry != null && !endHopEntry
@@ -1264,6 +1249,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       //
       toolBar = new ToolBar( this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
       toolBarWidgets = new GuiToolbarWidgets();
+      toolBarWidgets.registerGuiPluginObject( this );
       toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
       FormData layoutData = new FormData();
       layoutData.left = new FormAttachment( 0, 0 );
@@ -1533,11 +1519,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point to = ts.getLocation();
     offset = getOffset();
 
-    int x1 = from.x + iconsize / 2;
-    int y1 = from.y + iconsize / 2;
+    int x1 = from.x + iconSize / 2;
+    int y1 = from.y + iconSize / 2;
 
-    int x2 = to.x + iconsize / 2;
-    int y2 = to.y + iconsize / 2;
+    int x2 = to.x + iconSize / 2;
+    int y2 = to.y + iconSize / 2;
 
     return new int[] { x1, y1, x2, y2 };
   }
@@ -2300,7 +2286,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public Image getJobImage( Device device, int x, int y, float magnificationFactor ) {
-    IGc gc = new SwtGc( device, new Point( x, y ), iconsize );
+    IGc gc = new SwtGc( device, new Point( x, y ), iconSize );
 
     int gridSize =
       PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
@@ -2440,7 +2426,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     dist = (int) Math.sqrt( a * a + b * b );
 
     // determine factor (position of arrow to left side or right side 0-->100%)
-    if ( dist >= 2 * iconsize ) {
+    if ( dist >= 2 * iconSize ) {
       factor = 1.5;
     } else {
       factor = 1.2;
@@ -2642,8 +2628,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void newProps() {
-    iconsize = hopGui.getProps().getIconSize();
-    linewidth = hopGui.getProps().getLineWidth();
+    iconSize = hopGui.getProps().getIconSize();
+    lineWidth = hopGui.getProps().getLineWidth();
   }
 
   public String toString() {
@@ -2809,7 +2795,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         out.write( xml.getBytes( Const.XML_ENCODING ) );
         workflowMeta.clearChanged();
         updateGui();
-        HopDataOrchestrationPerspective.getInstance().updateTabs();
+        HopGui.getDataOrchestrationPerspective().updateTabs();
       } finally {
         out.flush();
         out.close();
