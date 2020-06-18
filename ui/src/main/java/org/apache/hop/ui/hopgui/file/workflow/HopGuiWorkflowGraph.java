@@ -36,8 +36,6 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
-import org.apache.hop.core.dnd.DragAndDropContainer;
-import org.apache.hop.core.dnd.XMLTransfer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -123,11 +121,6 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTarget;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -441,139 +434,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     canvas.addMouseListener( this );
     canvas.addMouseMoveListener( this );
     canvas.addMouseTrackListener( this );
-
-    // Drag & Drop for transforms
-    Transfer[] ttypes = new Transfer[] { XMLTransfer.getInstance() };
-    DropTarget ddTarget = new DropTarget( canvas, DND.DROP_MOVE );
-    ddTarget.setTransfer( ttypes );
-    ddTarget.addDropListener( new DropTargetListener() {
-      public void dragEnter( DropTargetEvent event ) {
-        dropCandidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
-        redraw();
-      }
-
-      public void dragLeave( DropTargetEvent event ) {
-        dropCandidate = null;
-        redraw();
-      }
-
-      public void dragOperationChanged( DropTargetEvent event ) {
-      }
-
-      public void dragOver( DropTargetEvent event ) {
-        dropCandidate = PropsUi.calculateGridPosition( getRealPosition( canvas, event.x, event.y ) );
-        redraw();
-      }
-
-      public void drop( DropTargetEvent event ) {
-        // no data to copy, indicate failure in event.detail
-        if ( event.data == null ) {
-          event.detail = DND.DROP_NONE;
-          return;
-        }
-
-        Point p = getRealPosition( canvas, event.x, event.y );
-        lastMove = p;
-
-        try {
-          DragAndDropContainer container = (DragAndDropContainer) event.data;
-          String actionName = container.getData();
-
-          switch ( container.getType() ) {
-             /*
-            case DragAndDropContainer.TYPE_BASE_JOB_ENTRY: // Create a new Workflow Entry on the canvas
-
-              ActionCopy jge = hopGui.newJobEntry( workflowMeta, actionName, false );
-              if ( jge != null ) {
-                PropsUi.setLocation( jge, p.x, p.y );
-                jge.setDrawn();
-                redraw();
-
-                // See if we want to draw a tool tip explaining how to create new hops...
-                //
-                if ( workflowMeta.nrJobEntries() > 1
-                  && workflowMeta.nrJobEntries() < 5 && hopGui.getProps().isShowingHelpToolTips() ) {
-                  showHelpTip(
-                    p.x, p.y, BaseMessages.getString( PKG, "WorkflowGraph.HelpToolTip.CreatingHops.Title" ),
-                    BaseMessages.getString( PKG, "WorkflowGraph.HelpToolTip.CreatingHops.Message" ) );
-                }
-              }
-
-              break;
-
-            case DragAndDropContainer.TYPE_JOB_ENTRY: // Drag existing one onto the canvas
-              jge = workflowMeta.findJobEntry( actionName, 0, true );
-              if ( jge != null ) {
-                // Create duplicate of existing actionName
-
-                // There can be only 1 start!
-                if ( jge.isStart() && jge.isDrawn() ) {
-                  showOnlyStartOnceMessage( shell );
-                  return;
-                }
-
-                boolean jge_changed = false;
-
-                // For undo :
-                ActionCopy before = (ActionCopy) jge.clone_deep();
-
-                ActionCopy newjge = jge;
-                if ( jge.isDrawn() ) {
-                  newjge = (ActionCopy) jge.clone();
-                  if ( newjge != null ) {
-                    // newjge.setEntry(jge.getEntry());
-                    if ( log.isDebug() ) {
-                      log.logDebug( "actionName aft = " + ( (Object) jge.getEntry() ).toString() );
-                    }
-
-                    newjge.setNr( workflowMeta.findUnusedNr( newjge.getName() ) );
-
-                    workflowMeta.addJobEntry( newjge );
-                    hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { newjge }, new int[] { workflowMeta
-                      .indexOfJobEntry( newjge ) } );
-                  } else {
-                    if ( log.isDebug() ) {
-                      log.logDebug( "jge is not cloned!" );
-                    }
-                  }
-                } else {
-                  if ( log.isDebug() ) {
-                    log.logDebug( jge.toString() + " is not drawn" );
-                  }
-                  jge_changed = true;
-                }
-                PropsUi.setLocation( newjge, p.x, p.y );
-                newjge.setDrawn();
-                if ( jge_changed ) {
-                  hopGui.undoDelegate.addUndoChange(
-                    workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { newjge }, new int[] { workflowMeta
-                      .indexOfJobEntry( newjge ) } );
-                }
-                redraw();
-                hopGui.refreshTree();
-                log.logBasic( "DropTargetEvent", "DROP "
-                  + newjge.toString() + "!, type=" + newjge.getEntry().getPluginId() );
-              } else {
-                log.logError( "Unknown action dropped onto the canvas." );
-              }
-            break;
-
-            */
-
-            default:
-              break;
-          }
-        } catch ( Exception e ) {
-          new ErrorDialog(
-            hopShell(), BaseMessages.getString( PKG, "WorkflowGraph.Dialog.ErrorDroppingObject.Message" ), BaseMessages
-            .getString( PKG, "WorkflowGraph.Dialog.ErrorDroppingObject.Title" ), e );
-        }
-      }
-
-      public void dropAccept( DropTargetEvent event ) {
-        dropCandidate = null;
-      }
-    } );
 
     hopGui.replaceKeyboardShortcutListeners( this );
 

@@ -1971,7 +1971,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc = null;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject( fname, parentVariableSpace );
+      final FileObject pipelineFile = HopVfs.getFileObject( fname );
       if ( !pipelineFile.exists() ) {
         throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
       }
@@ -3524,7 +3524,7 @@ public class PipelineMeta extends AbstractMeta
     //
     if ( !Utils.isEmpty( filename ) ) {
       try {
-        FileObject fileObject = HopVfs.getFileObject( filename, var );
+        FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
@@ -3663,7 +3663,7 @@ public class PipelineMeta extends AbstractMeta
       String fullname;
       String extension = "ktr";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ) );
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();

@@ -139,7 +139,7 @@ public class EnvironmentConfigSingleton {
     return list;
   }
 
-  public static void createEnvironment( String environmentName, String environmentHomeFolder ) throws HopException {
+  public static void saveEnvironment( String environmentName, String environmentHomeFolder ) throws HopException {
     getConfig().getEnvironmentFolders().put(environmentName, environmentHomeFolder);
     saveConfig();
     HopConfig.saveToFile();

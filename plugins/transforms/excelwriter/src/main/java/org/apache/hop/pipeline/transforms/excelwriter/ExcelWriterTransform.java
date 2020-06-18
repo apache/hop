@@ -581,7 +581,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       // build new filename
       String buildFilename = buildFilename( data.splitnr );
 
-      data.file = HopVfs.getFileObject( buildFilename, getPipelineMeta() );
+      data.file = HopVfs.getFileObject( buildFilename );
 
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "ExcelWriterTransform.Log.OpeningFile", buildFilename ) );
@@ -621,7 +621,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
 
           if ( HopVfs.getFileObject( data.realTemplateFileName ).exists() ) {
             // if the template exists just copy the template in place
-            copyFile( HopVfs.getFileObject( data.realTemplateFileName, getPipelineMeta() ), data.file );
+            copyFile( HopVfs.getFileObject( data.realTemplateFileName ), data.file );
           } else {
             // template is missing, log it and get out
             if ( log.isBasic() ) {

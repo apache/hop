@@ -960,11 +960,11 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
         fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
       if ( !Utils.isEmpty( templateFileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( templateFileName ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( templateFileName ) );
         templateFileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 

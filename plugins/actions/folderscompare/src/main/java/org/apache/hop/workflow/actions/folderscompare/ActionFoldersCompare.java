@@ -198,12 +198,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     try {
       // Really read the contents and do comparisons
 
-      in1 =
-        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
-          HopVfs.getFilename( file1 ), this ) ) );
-      in2 =
-        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
-          HopVfs.getFilename( file2 ), this ) ) );
+      in1 = new DataInputStream( new BufferedInputStream( HopVfs.getInputStream( HopVfs.getFilename( file1 ) ) ) );
+      in2 = new DataInputStream( new BufferedInputStream( HopVfs.getInputStream( HopVfs.getFilename( file2 ) ) ) );
 
       char ch1, ch2;
       while ( in1.available() != 0 && in2.available() != 0 ) {
@@ -254,8 +250,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     try {
       if ( filename1 != null && filename2 != null ) {
         // Get Folders/Files to compare
-        folder1 = HopVfs.getFileObject( realFilename1, this );
-        folder2 = HopVfs.getFileObject( realFilename2, this );
+        folder1 = HopVfs.getFileObject( realFilename1 );
+        folder2 = HopVfs.getFileObject( realFilename2 );
 
         if ( folder1.exists() && folder2.exists() ) {
           if ( !folder1.getType().equals( folder2.getType() ) ) {
@@ -338,8 +334,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                         .getKey().toString(), realFilename2 ) );
                     }
 
-                    filefolder1 = HopVfs.getFileObject( entree.getValue().toString(), this );
-                    filefolder2 = HopVfs.getFileObject( collection2.get( entree.getKey() ).toString(), this );
+                    filefolder1 = HopVfs.getFileObject( entree.getValue() );
+                    filefolder2 = HopVfs.getFileObject( collection2.get( entree.getKey() ) );
 
                     if ( !filefolder2.getType().equals( filefolder1.getType() ) ) {
                       // The file1 exist in the folder2..but they don't have the same type

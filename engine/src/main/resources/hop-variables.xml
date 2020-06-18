@@ -261,5 +261,11 @@
     <default-value>0</default-value>
   </hop-variable>
 
+  <hop-variable>
+    <description>Set this value to Y if you want to use the system file open/save dialog when browsing files</description>
+    <variable>HOP_USE_NATIVE_FILE_DIALOG</variable>
+    <default-value>N</default-value>
+  </hop-variable>
+
 </hop-variables>
 

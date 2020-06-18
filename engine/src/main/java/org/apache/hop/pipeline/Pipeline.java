@@ -2308,7 +2308,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
     boolean hasFilename = pipelineMeta != null && !Utils.isEmpty( pipelineMeta.getFilename() );
     if ( hasFilename ) { // we have a filename that's defined.
       try {
-        FileObject fileObject = HopVfs.getFileObject( pipelineMeta.getFilename(), var );
+        FileObject fileObject = HopVfs.getFileObject( pipelineMeta.getFilename() );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline

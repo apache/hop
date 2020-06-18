@@ -39,8 +39,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -298,6 +300,44 @@ public class LocalAuditManager implements IAuditManager {
     }
     if ( auditList.getNames() == null ) {
       throw new HopException( "The audit list of names can't be null" );
+    }
+  }
+
+
+  private String calculateMapFilename( String group, String type ) {
+    return calculateTypePath( group, type ) + "-map.json";
+  }
+
+  /**
+   * Load the auditing state map for the specified group and type
+   *
+   * @param group
+   * @param type
+   * @return The map. An empty one if there are any loading problems. They are simply logged and you start over.
+   */
+  public Map<String,String> loadMap( String group, String type ) {
+    String filename = calculateMapFilename( group, type );
+    try {
+      if ( !checkFileAndFolder( filename ) ) {
+        // A new file, create the parent folder if needed
+        //
+        return new HashMap<>();
+      } else {
+        return new ObjectMapper().readValue( new File( filename ), Map.class );
+      }
+    } catch ( Exception e ) {
+      LogChannel.GENERAL.logError( "Error loading strings map from file '" + filename + "'", e );
+      return new HashMap<>(); // probably corrupt: start over, it's not that important
+    }
+  }
+
+  public void saveMap( String group, String type, Map<String,String> map ) throws HopException {
+    String filename = calculateMapFilename( group, type );
+    try {
+      checkFileAndFolder( filename );
+      new ObjectMapper().writeValue( new File( filename ), map );
+    } catch ( Exception e ) {
+      throw new HopException( "Error saving strings map to file '" + filename + "'", e );
     }
   }
 }

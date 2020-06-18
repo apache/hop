@@ -11,7 +11,6 @@ import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
 import org.apache.hop.beam.core.util.HopBeamUtil;
@@ -51,6 +50,7 @@ import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.scannotation.AnnotationDB;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,11 +142,11 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     try {
       // Get all the jar files in the plugin folder...
       //
-      FileObject[] fileObjects = jarFileCache.getFileObjects( pluginFolder );
+      File[] fileObjects = jarFileCache.getFileObjects( pluginFolder );
       if ( fileObjects != null ) {
         // System.out.println( "Found " + fileObjects.length + " jar files in folder " + pluginFolder.getFolder() );
 
-        for ( FileObject fileObject : fileObjects ) {
+        for ( File fileObject : fileObjects ) {
 
           // These are the jar files : find annotations in it...
           //

@@ -148,7 +148,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
       String realFilename = getRealFilename();
 
       try {
-        fileObject = HopVfs.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename );
 
         long iMaximumTimeout = Const.toInt( getRealMaximumTimeout(), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
         long iCycleTime = Const.toInt( getRealCheckCycleTime(), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
@@ -183,7 +183,7 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
         boolean continueLoop = true;
         while ( continueLoop && !parentWorkflow.isStopped() ) {
-          fileObject = HopVfs.getFileObject( realFilename, this );
+          fileObject = HopVfs.getFileObject( realFilename );
 
           if ( fileObject.exists() ) {
             // file exists, we're happy to exit

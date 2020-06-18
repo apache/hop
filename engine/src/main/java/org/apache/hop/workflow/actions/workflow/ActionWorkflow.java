@@ -646,7 +646,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     boolean resultat = true;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject( filename, this ).getParent();
+      parentfolder = HopVfs.getFileObject( filename ).getParent();
       if ( !parentfolder.exists() ) {
         if ( createParentFolder ) {
           if ( log.isDebug() ) {

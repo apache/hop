@@ -173,13 +173,13 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> im
         // Add this to the result file names...
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename, getPipelineMeta() ), getPipelineMeta()
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename ), getPipelineMeta()
             .getName(), getTransformName() );
         resultFile.setComment( "This file was created with a cube file output transform" );
         addResultFile( resultFile );
       }
 
-      data.fos = HopVfs.getOutputStream( filename, getPipelineMeta(), false );
+      data.fos = HopVfs.getOutputStream( filename, false );
       data.zip = new GZIPOutputStream( data.fos );
       data.dos = new DataOutputStream( data.zip );
     } catch ( Exception e ) {

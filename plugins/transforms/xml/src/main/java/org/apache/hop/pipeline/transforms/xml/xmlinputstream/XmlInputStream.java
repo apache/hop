@@ -43,7 +43,6 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -53,7 +52,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -177,7 +175,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       if ( data.filenr >= data.filenames.length ) {
         return false;
       }
-      data.fileObject = HopVfs.getFileObject( data.filenames[data.filenr], getPipelineMeta() );
+      data.fileObject = HopVfs.getFileObject( data.filenames[data.filenr] );
       data.inputStream = HopVfs.getInputStream( data.fileObject );
       data.xmlEventReader = data.staxInstance.createXMLEventReader( data.inputStream, data.encoding );
     } catch ( IOException e ) {

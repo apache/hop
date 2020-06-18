@@ -32,10 +32,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.OutputStream;
 import java.util.Properties;
@@ -174,7 +172,7 @@ public class PropertyOutput extends BaseTransform implements ITransform {
   }
 
   private void openNewFile() throws HopException {
-    try ( FileObject newFile = HopVfs.getFileObject( data.filename, getPipelineMeta() ) ) {
+    try ( FileObject newFile = HopVfs.getFileObject( data.filename ) ) {
       data.pro = new Properties();
       data.KeySet.clear();
 

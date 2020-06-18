@@ -23,16 +23,14 @@
 package org.apache.hop.ui.hopgui.delegates;
 
 import org.apache.hop.core.variables.IVariables;
-import org.eclipse.swt.widgets.FileDialog;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.ui.core.dialog.IFileDialog;
 
 public class HopGuiFileOpenedExtension {
-  public FileDialog fileDialog;
+  public IFileDialog fileDialog;
   public IVariables variables;
   public String filename;
 
-  public HopGuiFileOpenedExtension( FileDialog fileDialog, IVariables variables, String filename ) {
+  public HopGuiFileOpenedExtension( IFileDialog fileDialog, IVariables variables, String filename ) {
     this.fileDialog = fileDialog;
     this.variables = variables;
     this.filename = filename;
@@ -43,14 +41,14 @@ public class HopGuiFileOpenedExtension {
    *
    * @return value of fileDialog
    */
-  public FileDialog getFileDialog() {
+  public IFileDialog getFileDialog() {
     return fileDialog;
   }
 
   /**
    * @param fileDialog The fileDialog to set
    */
-  public void setFileDialog( FileDialog fileDialog ) {
+  public void setFileDialog( IFileDialog fileDialog ) {
     this.fileDialog = fileDialog;
   }
 

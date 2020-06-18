@@ -484,7 +484,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !isFoldernameDynamic ) {
         for ( int i = 0; i < folderName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( folderName[ i ] ), variables );
+          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( folderName[ i ] ) );
           folderName[ i ] = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }

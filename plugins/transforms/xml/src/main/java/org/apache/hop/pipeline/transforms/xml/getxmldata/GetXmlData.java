@@ -393,7 +393,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject( environmentSubstitute( Fieldvalue ), getPipelineMeta() );
+            file = HopVfs.getFileObject( environmentSubstitute( Fieldvalue ) );
 
             if ( meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0 ) {
               logBasic( BaseMessages.getString( PKG, "GetXMLData.Error.FileSizeZero", "" + file.getName() ) );

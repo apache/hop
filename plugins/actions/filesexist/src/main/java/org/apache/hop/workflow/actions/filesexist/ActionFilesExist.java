@@ -164,7 +164,7 @@ public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
 
         try {
           String realFilefoldername = environmentSubstitute( arguments[ i ] );
-          file = HopVfs.getFileObject( realFilefoldername, this );
+          file = HopVfs.getFileObject( realFilefoldername );
 
           if ( file.exists() && file.isReadable() ) { // TODO: is it needed to check file for readability?
             if ( log.isDetailed() ) {

@@ -112,7 +112,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
             // Is XSD file exists ?
             FileObject xsdfile = null;
             try {
-              xsdfile = HopVfs.getFileObject( environmentSubstitute( meta.getXSDFilename() ), getPipelineMeta() );
+              xsdfile = HopVfs.getFileObject( environmentSubstitute( meta.getXSDFilename() ) );
               if ( !xsdfile.exists() ) {
                 logError( BaseMessages.getString( PKG, "XsdValidator.Log.Error.XSDFileNotExists" ) );
                 throw new HopTransformException( BaseMessages.getString( PKG, "XsdValidator.Exception.XSDFileNotExists" ) );
@@ -184,7 +184,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
         SchemaFactory factoryXSDValidator = SchemaFactory.newInstance( XMLConstants.W3C_XML_SCHEMA_NS_URI );
 
-        xsdfile = HopVfs.getFileObject( xsdfilename, getPipelineMeta() );
+        xsdfile = HopVfs.getFileObject( xsdfilename );
 
         // Get XML stream
         Source sourceXML = new StreamSource( new StringReader( XMLFieldvalue ) );

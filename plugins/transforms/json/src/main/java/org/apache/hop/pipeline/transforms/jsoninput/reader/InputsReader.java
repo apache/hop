@@ -22,12 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Iterator;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -40,6 +34,12 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInput;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputData;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputMeta;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Iterator;
 
 public class InputsReader implements Iterable<InputStream> {
 
@@ -177,7 +177,7 @@ public class InputsReader implements Iterable<InputStream> {
     @Override
     public FileObject tryNext() throws HopFileException {
       String fileName = transform.environmentSubstitute( inner.next() );
-      return fileName == null ? null : HopVfs.getFileObject( fileName, vars );
+      return fileName == null ? null : HopVfs.getFileObject( fileName );
     }
   }
 

@@ -374,7 +374,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         return result;
       }
       // create parent folder?
-      if ( !FileUtil.createParentFolder( PKG, realLogFilename, createParentFolder, this.getLogChannel(), this ) ) {
+      if ( !FileUtil.createParentFolder( PKG, realLogFilename, createParentFolder, this.getLogChannel() ) ) {
         result.setNrErrors( 1 );
         result.setResult( false );
         return result;
@@ -382,7 +382,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       try {
         logChannelFileWriter =
           new LogChannelFileWriter(
-            this.getLogChannelId(), HopVfs.getFileObject( realLogFilename, this ), setAppendLogfile );
+            this.getLogChannelId(), HopVfs.getFileObject( realLogFilename ), setAppendLogfile );
         logChannelFileWriter.startLogging();
       } catch ( HopException e ) {
         logError( BaseMessages.getString( PKG, "ActionPipeline.Error.UnableOpenAppender", realLogFilename, e.toString() ) );
@@ -598,7 +598,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           if ( setLogfile ) {
             ResultFile resultFile =
               new ResultFile(
-                ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename, this ), parentWorkflow
+                ResultFile.FILE_TYPE_LOG, HopVfs.getFileObject( realLogFilename ), parentWorkflow
                 .getWorkflowName(), toString()
               );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );

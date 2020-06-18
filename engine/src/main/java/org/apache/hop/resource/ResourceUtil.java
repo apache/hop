@@ -98,7 +98,7 @@ public class ResourceUtil {
 
         // Create the ZIP file...
         //
-        FileObject fileObject = HopVfs.getFileObject( zipFilename, variables );
+        FileObject fileObject = HopVfs.getFileObject( zipFilename );
 
         // Store the XML in the definitions in a ZIP file...
         //

@@ -469,7 +469,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
     try {
       // Static filename
       data.realFilename = buildFilename();
-      data.file = HopVfs.getFileObject( data.realFilename, getPipelineMeta() );
+      data.file = HopVfs.getFileObject( data.realFilename );
       if ( meta.isCreateParentFolder() ) {
         if ( !createParentFolder( data.file ) ) {
           return retval;
@@ -512,7 +512,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
         }
       } else {
         String templateFilename = environmentSubstitute( meta.getTemplateFileName() );
-        try ( FileObject templateFile = HopVfs.getFileObject( templateFilename, getPipelineMeta() ) ) {
+        try ( FileObject templateFile = HopVfs.getFileObject( templateFilename ) ) {
           // create the openFile from the template
           Workbook templateWorkbook = Workbook.getWorkbook( HopVfs.getInputStream( templateFile ), data.ws );
 
