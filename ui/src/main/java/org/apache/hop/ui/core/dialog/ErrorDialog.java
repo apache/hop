@@ -24,7 +24,6 @@ package org.apache.hop.ui.core.dialog;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -53,7 +52,6 @@ import org.eclipse.swt.widgets.Text;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Function;
 
 /**
@@ -123,8 +121,7 @@ public class ErrorDialog extends Dialog {
     final Font largeFont = GuiResource.getInstance().getFontBold();
     final Color gray = GuiResource.getInstance().getColorDemoGray();
 
-    shell =
-      new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL | SWT.SHEET );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageShowErrorLines() );
 
@@ -239,40 +236,8 @@ public class ErrorDialog extends Dialog {
 
   @VisibleForTesting
   protected void handleException( String message, Exception exception, StringBuilder text, StringBuilder details ) {
-    if ( exception instanceof HopException ) {
-      // Normal error
-      HopException ke = (HopException) exception;
-      Throwable cause = ke.getCause();
-      if ( cause != null && cause.getMessage() != null ) {
-        text.append( cause.getMessage() );
-      } else {
-        text.append( ke.getMessage() );
-      }
-
-    } else if ( exception instanceof InvocationTargetException ) {
-      // Error from somewhere else, what is the cause?
-      Throwable cause = exception.getCause();
-      if ( cause instanceof HopException ) {
-        HopException ke = (HopException) cause;
-        text.append( ke.getMessage() );
-      } else {
-        text.append( Const.NVL( cause.getMessage(), cause.toString() ) );
-        while ( text.length() == 0 && cause != null ) {
-          cause = cause.getCause();
-          if ( cause != null ) {
-            text.append( Const.NVL( cause.getMessage(), cause.toString() ) );
-          }
-        }
-      }
-    } else {
-      // Error from somewhere else...
-
-      if ( exception.getMessage() == null ) {
-        text.append( message );
-      } else {
-        text.append( exception.getMessage() );
-      }
-    }
+    text.append(Const.getSimpleStackTrace( exception ));
+    text.append(Const.CR);
 
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter( sw );
@@ -282,9 +247,9 @@ public class ErrorDialog extends Dialog {
   }
 
   protected void showDetails( String details ) {
-    EnterTextDialog dialog =
-      new EnterTextDialog( shell, BaseMessages.getString( PKG, "ErrorDialog.ShowDetails.Title" ), BaseMessages
-        .getString( PKG, "ErrorDialog.ShowDetails.Message" ), details );
+    EnterTextDialog dialog = new EnterTextDialog( shell,
+      BaseMessages.getString( PKG, "ErrorDialog.ShowDetails.Title" ),
+      BaseMessages.getString( PKG, "ErrorDialog.ShowDetails.Message" ), details );
     dialog.setReadOnly();
     dialog.open();
   }

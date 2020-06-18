@@ -25,16 +25,18 @@ package org.apache.hop.ui.core.gui;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginTypeListener;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -491,6 +493,24 @@ public class GuiResource {
     return guiResource;
   }
 
+  public static void registerGuiPlugin( Object guiPluginObject, String instanceId ) {
+    GuiRegistry.getInstance().registerGuiPluginObject(
+      HopGui.getId(),
+      guiPluginObject.getClass().getName(),
+      instanceId,
+      guiPluginObject
+    );
+  }
+
+  public static void deRegisterGuiPlugin( Object guiPluginObject, String instanceId ) {
+    GuiRegistry.getInstance().removeGuiPluginObject(
+      HopGui.getId(),
+      guiPluginObject.getClass().getName(),
+      instanceId
+    );
+  }
+
+
   /**
    * reloads all colors, fonts and images.
    */
@@ -837,15 +857,15 @@ public class GuiResource {
     fontMediumBold = new ManagedFont( display, mediumFontBoldData );
 
     // Create a large version of the graph font
-    FontData largeFontData =new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() * 3, props.getGraphFont().getStyle() );
+    FontData largeFontData =new FontData( props.getGraphFont().getName(), mediumFontData.getHeight() + 2, props.getGraphFont().getStyle() );
     fontLarge = new ManagedFont( display, largeFontData );
 
     // Create a tiny version of the graph font
-    FontData tinyFontData = new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 2, props.getGraphFont().getStyle() );
+    FontData tinyFontData = new FontData( props.getGraphFont().getName(), mediumFontData.getHeight() - 2, props.getGraphFont().getStyle() );
     fontTiny = new ManagedFont( display, tinyFontData );
 
     // Create a small version of the graph font
-    FontData smallFontData = new FontData( props.getGraphFont().getName(), props.getGraphFont().getHeight() - 1, props.getGraphFont().getStyle() );
+    FontData smallFontData = new FontData( props.getGraphFont().getName(), mediumFontData.getHeight() - 1, props.getGraphFont().getStyle() );
     fontSmall = new ManagedFont( display, smallFontData );
 
     FontData boldFontData = new FontData( props.getDefaultFontData().getName(), props.getDefaultFontData().getHeight(), props.getDefaultFontData().getStyle() | SWT.BOLD );

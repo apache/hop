@@ -162,18 +162,14 @@ public class HopGitPerspective implements IHopPerspective {
   private ToolBar filesToolBar;
   private GuiToolbarWidgets filesToolBarWidgets;
 
-
   public HopGitPerspective() {
     gitPerspectiveToolbarItem = null;
     revisions = Collections.emptyList();
     changedFiles = Collections.emptyList();
   }
 
-  public static final HopGitPerspective getInstance() {
-    if ( instance == null ) {
-      instance = new HopGitPerspective();
-    }
-    return instance;
+  public static HopGitPerspective getInstance() {
+    return (HopGitPerspective) HopGui.getInstance().getPerspectiveManager().findPerspective( HopGitPerspective.class );
   }
 
   @Override public void initialize( HopGui hopGui, Composite parent ) {
@@ -217,6 +213,7 @@ public class HopGitPerspective implements IHopPerspective {
     props.setLook( toolBar, Props.WIDGET_STYLE_TOOLBAR );
 
     toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject( this );
     toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolBar.pack();
 
@@ -340,6 +337,7 @@ public class HopGitPerspective implements IHopPerspective {
     props.setLook( filesToolBar, Props.WIDGET_STYLE_TOOLBAR );
 
     filesToolBarWidgets = new GuiToolbarWidgets();
+    filesToolBarWidgets.registerGuiPluginObject( this );
     filesToolBarWidgets.createToolbarWidgets( filesToolBar, GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID );
     filesToolBar.pack();
 
@@ -494,12 +492,23 @@ public class HopGitPerspective implements IHopPerspective {
     return null;
   }
 
-  public static void refreshGitRepositoriesList() {
-    getInstance().toolBarWidgets.refreshComboItemList( TOOLBAR_ITEM_REPOSITORY_SELECT );
+  private HopGitPerspective findActiveInstance() {
+    return (HopGitPerspective) HopGui.getInstance().getPerspectiveManager().findPerspective( HopGitPerspective.class );
   }
 
-  public static void selectRepositoryInList( String name ) {
-    getInstance().toolBarWidgets.selectComboItem( TOOLBAR_ITEM_REPOSITORY_SELECT, name );
+  public void refreshGitRepositoriesList() {
+    HopGitPerspective perspective = findActiveInstance();
+    if (perspective!=null) {
+      perspective.toolBarWidgets.refreshComboItemList( TOOLBAR_ITEM_REPOSITORY_SELECT );
+    }
+  }
+
+
+  public void selectRepositoryInList( String name ) {
+    HopGitPerspective perspective = findActiveInstance();
+    if (perspective!=null) {
+      perspective.toolBarWidgets.selectComboItem( TOOLBAR_ITEM_REPOSITORY_SELECT, name );
+    }
   }
 
   public List<String> getGitRepositoryNames( ILogChannel log, IHopMetadataProvider metadataProvider ) throws Exception {
@@ -1002,7 +1011,7 @@ public class HopGitPerspective implements IHopPerspective {
     if ( ( answer & SWT.YES ) == 0 ) {
       return;
     }
-    HopDataOrchestrationPerspective doPerspective = HopDataOrchestrationPerspective.getInstance();
+    HopDataOrchestrationPerspective doPerspective = HopGui.getInstance().getDataOrchestrationPerspective();
     HopPipelineFileType<PipelineMeta> pipelineFileType = doPerspective.getPipelineFileType();
     HopWorkflowFileType<WorkflowMeta> workflowFileType = doPerspective.getWorkflowFileType();
 
@@ -1022,7 +1031,7 @@ public class HopGitPerspective implements IHopPerspective {
             PipelineMeta pipelineMeta = new PipelineMeta( xmlStream, hopGui.getMetadataProvider(), true, hopGui.getVariables() );
             meta = pipelineMeta;
             IHopFileTypeHandler typeHandler = doPerspective.addPipeline( doPerspective.getComposite(), hopGui, pipelineMeta, pipelineFileType );
-            typeHandlers.add(typeHandler);
+            typeHandlers.add( typeHandler );
           }
           if ( workflowFileType.isHandledBy( filePath, false ) ) {
             // A workflow...
@@ -1031,9 +1040,9 @@ public class HopGitPerspective implements IHopPerspective {
             meta = workflowMeta;
             workflowMeta.initializeVariablesFrom( hopGui.getVariables() );
             IHopFileTypeHandler typeHandler = doPerspective.addWorkflow( doPerspective.getComposite(), hopGui, workflowMeta, workflowFileType );
-            typeHandlers.add(typeHandler);
+            typeHandlers.add( typeHandler );
           }
-          if ( meta!=null && !isOnlyWIP() ) {
+          if ( meta != null && !isOnlyWIP() ) {
             meta.setNameSynchronizedWithFilename( false );
             meta.setName( String.format( "%s (%s)", meta.getName(), vcs.getShortenedName( commitId, IVCS.TYPE_COMMIT ) ) );
           }
@@ -1044,13 +1053,13 @@ public class HopGitPerspective implements IHopPerspective {
 
     // Did we open any files?
     //
-    if (!typeHandlers.isEmpty()) {
+    if ( !typeHandlers.isEmpty() ) {
       // switch to the data orchestration perspective and select the first opened file
       //
       doPerspective.show();
 
       TabItemHandler tabItemHandler = doPerspective.findTabItemHandler( typeHandlers.get( 0 ) );
-      if (tabItemHandler!=null) {
+      if ( tabItemHandler != null ) {
         doPerspective.switchToTab( tabItemHandler );
       }
     }

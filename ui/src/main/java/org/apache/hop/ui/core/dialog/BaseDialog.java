@@ -148,9 +148,8 @@ public abstract class BaseDialog extends Dialog {
       FileDialog fileDialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
       dialog = new NativeFileDialog( fileDialog );
     } else {
-      dialog = new HopVfsFileDialog( shell, variables, fileObject );
+      dialog = new HopVfsFileDialog( shell, variables, fileObject, false );
     }
-
 
     if ( save ) {
       dialog.setText( BaseMessages.getString( PKG, "BaseDialog.SaveFile" ) );
@@ -213,7 +212,16 @@ public abstract class BaseDialog extends Dialog {
   }
 
   public static String presentDirectoryDialog( Shell shell, TextVar textVar, String message, IVariables variables ) {
-    DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
+
+    boolean useNativeFileDialog = "Y".equalsIgnoreCase( HopGui.getInstance().getVariables().getVariable( "HOP_USE_NATIVE_FILE_DIALOG", "N" ) );
+
+    IDirectoryDialog directoryDialog;
+    if (useNativeFileDialog) {
+      directoryDialog = new NativeDirectoryDialog( new DirectoryDialog( shell, SWT.OPEN ) );
+    } else {
+      directoryDialog = new HopVfsFileDialog( shell, variables, null, true );
+    }
+
     if ( StringUtils.isNotEmpty( message ) ) {
       directoryDialog.setMessage( message );
     }

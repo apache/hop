@@ -73,7 +73,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
-  private static HopDataOrchestrationPerspective perspective;
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
   private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
 
@@ -91,14 +90,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private Stack<Integer> tabSelectionHistory;
   private int tabSelectionIndex;
 
-  public static final HopDataOrchestrationPerspective getInstance() {
-    if ( perspective == null ) {
-      perspective = new HopDataOrchestrationPerspective();
-    }
-    return perspective;
-  }
-
-  private HopDataOrchestrationPerspective() {
+  public HopDataOrchestrationPerspective() {
     items = new ArrayList<>();
     activeItem = null;
     tabSelectionHistory = new Stack<>();

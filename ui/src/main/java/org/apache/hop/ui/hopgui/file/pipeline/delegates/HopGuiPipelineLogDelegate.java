@@ -151,7 +151,7 @@ public class HopGuiPipelineLogDelegate {
    */
   public static HopGuiPipelineLogDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph ) {
+    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
       HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
       return graph.pipelineLogDelegate;
     }
@@ -168,7 +168,8 @@ public class HopGuiPipelineLogDelegate {
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
     toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolBarWidgets.registerGuiPluginObject( this );
+    toolBarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
 
