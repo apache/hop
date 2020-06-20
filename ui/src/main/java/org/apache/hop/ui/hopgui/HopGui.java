@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
@@ -211,7 +211,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private static PrintStream originalSystemErr = System.err;
 
   public MetadataManager<DatabaseMeta> databaseMetaManager;
-  public MetadataManager<SlaveServer> slaveServerManager;
+  public MetadataManager<HopServer> hopServerManager;
   public MetadataManager<PartitionSchema> partitionManager;
 
   public HopGuiFileDelegate fileDelegate;
@@ -243,7 +243,7 @@ public class HopGui implements IActionContextHandlersProvider {
     metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider( variables );
 
     databaseMetaManager = new MetadataManager<>( variables, metadataProvider, DatabaseMeta.class );
-    slaveServerManager = new MetadataManager<>( variables, metadataProvider, SlaveServer.class );
+    hopServerManager = new MetadataManager<>( variables, metadataProvider, HopServer.class );
     partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );

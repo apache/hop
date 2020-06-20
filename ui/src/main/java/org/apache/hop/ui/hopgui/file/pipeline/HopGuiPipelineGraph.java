@@ -82,6 +82,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.SampleType;
 import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -107,7 +108,7 @@ import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.delegates.HopGuiSlaveDelegate;
+import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
 import org.apache.hop.ui.hopgui.dialog.EnterPreviewRowsDialog;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.dialog.SearchFieldsProgressDialog;
@@ -176,9 +177,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -329,7 +332,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public HopGuiPipelineHopDelegate pipelineHopDelegate;
   public HopGuiPipelineUndoDelegate pipelineUndoDelegate;
 
-  public HopGuiSlaveDelegate slaveDelegate;
+  public HopGuiServerDelegate serverDelegate;
   public HopGuiNotePadDelegate notePadDelegate;
 
   public List<ISelectedTransformListener> transformListeners;
@@ -407,7 +410,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineUndoDelegate = new HopGuiPipelineUndoDelegate( hopGui, this );
     pipelineRunDelegate = new HopGuiPipelineRunDelegate( hopGui, this );
 
-    slaveDelegate = new HopGuiSlaveDelegate( hopGui, this );
+    serverDelegate = new HopGuiServerDelegate( hopGui, this );
     notePadDelegate = new HopGuiNotePadDelegate( hopGui, this );
 
     transformListeners = new ArrayList<>();
@@ -829,44 +832,104 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case TRANSFORM_OUTPUT_DATA:
           TransformMeta dataTransform = (TransformMeta) areaOwner.getParent();
           RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
-          if (rowBuffer!=null && !rowBuffer.isEmpty()) {
+          if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
             PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
-            previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform "+dataTransform.getName() );
+            previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform " + dataTransform.getName() );
             previewRowsDialog.open();
+            return;
           }
           break;
         default:
           break;
       }
+    }
+
+    // Did we select a region on the screen? Mark transforms in region as
+    // selected
+    //
+    if ( selectionRegion != null ) {
+      selectionRegion.width = real.x - selectionRegion.x;
+      selectionRegion.height = real.y - selectionRegion.y;
+      if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
+        singleClick = true;
+        singleClickType = SingleClickType.Pipeline;
+      }
+      pipelineMeta.unselectAll();
+      selectInRect( pipelineMeta, selectionRegion );
+      selectionRegion = null;
+      updateGui();
     } else {
-      // Did we select a region on the screen? Mark transforms in region as
-      // selected
+      // Clicked on an icon?
       //
-      if ( selectionRegion != null ) {
-        selectionRegion.width = real.x - selectionRegion.x;
-        selectionRegion.height = real.y - selectionRegion.y;
-        if ( selectionRegion.width == 0 && selectionRegion.height == 0 ) {
-          singleClick = true;
-          singleClickType = SingleClickType.Pipeline;
+      if ( selectedTransform != null && startHopTransform == null ) {
+        if ( e.button == 1 ) {
+          Point realclick = screen2real( e.x, e.y );
+          if ( lastclick.x == realclick.x && lastclick.y == realclick.y ) {
+            // Flip selection when control is pressed!
+            if ( control ) {
+              selectedTransform.flipSelected();
+            } else {
+              singleClick = true;
+              singleClickType = SingleClickType.Transform;
+              singleClickTransform = selectedTransform;
+            }
+          } else {
+            // Find out which Transforms & Notes are selected
+            selectedTransforms = pipelineMeta.getSelectedTransforms();
+            selectedNotes = pipelineMeta.getSelectedNotes();
+
+            // We moved around some items: store undo info...
+            //
+            boolean also = false;
+            if ( selectedNotes != null && selectedNotes.size() > 0 && previous_note_locations != null ) {
+              int[] indexes = pipelineMeta.getNoteIndexes( selectedNotes );
+
+              also = selectedTransforms != null && selectedTransforms.size() > 0;
+              hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ),
+                indexes, previous_note_locations, pipelineMeta.getSelectedNoteLocations(), also );
+            }
+            if ( selectedTransforms != null && previous_transform_locations != null ) {
+              int[] indexes = pipelineMeta.getTransformIndexes( selectedTransforms );
+              hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedTransforms.toArray( new TransformMeta[ selectedTransforms.size() ] ), indexes,
+                previous_transform_locations, pipelineMeta.getSelectedTransformLocations(), also );
+            }
+          }
         }
-        pipelineMeta.unselectAll();
-        selectInRect( pipelineMeta, selectionRegion );
-        selectionRegion = null;
+
+        // OK, we moved the transform, did we move it across a hop?
+        // If so, ask to split the hop!
+        if ( split_hop ) {
+          PipelineHopMeta hi = findPipelineHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedTransform );
+          if ( hi != null ) {
+            splitHop( hi );
+          }
+          split_hop = false;
+        }
+
+        selectedTransforms = null;
+        selectedNotes = null;
+        selectedTransform = null;
+        selectedNote = null;
+        startHopTransform = null;
+        endHopLocation = null;
+
         updateGui();
       } else {
-        // Clicked on an icon?
+        // Notes?
         //
-        if ( selectedTransform != null && startHopTransform == null ) {
+
+        if ( selectedNote != null ) {
           if ( e.button == 1 ) {
-            Point realclick = screen2real( e.x, e.y );
-            if ( lastclick.x == realclick.x && lastclick.y == realclick.y ) {
+            if ( lastclick.x == real.x && lastclick.y == real.y ) {
               // Flip selection when control is pressed!
               if ( control ) {
-                selectedTransform.flipSelected();
+                selectedNote.flipSelected();
               } else {
+                // single click on a note: ask what needs to happen...
+                //
                 singleClick = true;
-                singleClickType = SingleClickType.Transform;
-                singleClickTransform = selectedTransform;
+                singleClickType = SingleClickType.Note;
+                singleClickNote = selectedNote;
               }
             } else {
               // Find out which Transforms & Notes are selected
@@ -874,16 +937,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               selectedNotes = pipelineMeta.getSelectedNotes();
 
               // We moved around some items: store undo info...
-              //
+
               boolean also = false;
               if ( selectedNotes != null && selectedNotes.size() > 0 && previous_note_locations != null ) {
                 int[] indexes = pipelineMeta.getNoteIndexes( selectedNotes );
-
+                hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
+                  previous_note_locations, pipelineMeta.getSelectedNoteLocations(), also );
                 also = selectedTransforms != null && selectedTransforms.size() > 0;
-                hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ),
-                  indexes, previous_note_locations, pipelineMeta.getSelectedNoteLocations(), also );
               }
-              if ( selectedTransforms != null && previous_transform_locations != null ) {
+              if ( selectedTransforms != null && selectedTransforms.size() > 0 && previous_transform_locations != null ) {
                 int[] indexes = pipelineMeta.getTransformIndexes( selectedTransforms );
                 hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedTransforms.toArray( new TransformMeta[ selectedTransforms.size() ] ), indexes,
                   previous_transform_locations, pipelineMeta.getSelectedTransformLocations(), also );
@@ -891,73 +953,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             }
           }
 
-          // OK, we moved the transform, did we move it across a hop?
-          // If so, ask to split the hop!
-          if ( split_hop ) {
-            PipelineHopMeta hi = findPipelineHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedTransform );
-            if ( hi != null ) {
-              splitHop( hi );
-            }
-            split_hop = false;
-          }
-
-          selectedTransforms = null;
           selectedNotes = null;
+          selectedTransforms = null;
           selectedTransform = null;
           selectedNote = null;
           startHopTransform = null;
           endHopLocation = null;
-
-          updateGui();
-        } else {
-          // Notes?
-          //
-
-          if ( selectedNote != null ) {
-            if ( e.button == 1 ) {
-              if ( lastclick.x == real.x && lastclick.y == real.y ) {
-                // Flip selection when control is pressed!
-                if ( control ) {
-                  selectedNote.flipSelected();
-                } else {
-                  // single click on a note: ask what needs to happen...
-                  //
-                  singleClick = true;
-                  singleClickType = SingleClickType.Note;
-                  singleClickNote = selectedNote;
-                }
-              } else {
-                // Find out which Transforms & Notes are selected
-                selectedTransforms = pipelineMeta.getSelectedTransforms();
-                selectedNotes = pipelineMeta.getSelectedNotes();
-
-                // We moved around some items: store undo info...
-
-                boolean also = false;
-                if ( selectedNotes != null && selectedNotes.size() > 0 && previous_note_locations != null ) {
-                  int[] indexes = pipelineMeta.getNoteIndexes( selectedNotes );
-                  hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedNotes.toArray( new NotePadMeta[ selectedNotes.size() ] ), indexes,
-                    previous_note_locations, pipelineMeta.getSelectedNoteLocations(), also );
-                  also = selectedTransforms != null && selectedTransforms.size() > 0;
-                }
-                if ( selectedTransforms != null && selectedTransforms.size() > 0 && previous_transform_locations != null ) {
-                  int[] indexes = pipelineMeta.getTransformIndexes( selectedTransforms );
-                  hopGui.undoDelegate.addUndoPosition( pipelineMeta, selectedTransforms.toArray( new TransformMeta[ selectedTransforms.size() ] ), indexes,
-                    previous_transform_locations, pipelineMeta.getSelectedTransformLocations(), also );
-                }
-              }
-            }
-
-            selectedNotes = null;
-            selectedTransforms = null;
-            selectedTransform = null;
-            selectedNote = null;
-            startHopTransform = null;
-            endHopLocation = null;
-          }
         }
       }
     }
+
     if ( clickedPipelineHop != null ) {
       // Clicked on a hop
       //
@@ -2485,8 +2490,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
         case TRANSFORM_OUTPUT_DATA:
           RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
-          if (rowBuffer!=null && !rowBuffer.isEmpty()) {
-            tip.append( "Available output rows: "+rowBuffer.size() );
+          if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
+            tip.append( "Available output rows: " + rowBuffer.size() );
             tipImage = GuiResource.getInstance().getImageData();
           }
           break;
@@ -3532,26 +3537,87 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private void addRowsSamplerToPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
 
-    outputRowsMap = new HashMap<>();
+    if ( !( pipeline.getPipelineRunConfiguration().getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) ) {
+      return;
+    }
+    LocalPipelineRunConfiguration lprConfig = (LocalPipelineRunConfiguration) pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
 
-    for ( final String transformName : pipelineMeta.getTransformNames() ) {
-      IEngineComponent component = pipeline.findComponent( transformName, 0 );
-      if ( component != null ) {
-        component.addRowListener( new RowAdapter() {
-          @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-            RowBuffer rowBuffer = outputRowsMap.get( transformName );
-            if ( rowBuffer == null ) {
-              rowBuffer = new RowBuffer( rowMeta );
-              outputRowsMap.put( transformName, rowBuffer );
-            }
-            if ( rowBuffer.size() < 100 ) {
-              rowBuffer.addRow( row );
-            }
-          }
-        } );
-      }
+    if ( StringUtils.isEmpty( lprConfig.getSampleTypeInGui() ) ) {
+      return;
     }
 
+    try {
+      SampleType sampleType = SampleType.valueOf( lprConfig.getSampleTypeInGui() );
+      if ( sampleType == SampleType.None ) {
+        return;
+      }
+
+      final int sampleSize = Const.toInt( pipeline.environmentSubstitute( lprConfig.getSampleSize() ), 100 );
+      if ( sampleSize <= 0 ) {
+        return;
+      }
+
+      outputRowsMap = new HashMap<>();
+      final Random random = new Random();
+
+      for ( final String transformName : pipelineMeta.getTransformNames() ) {
+        IEngineComponent component = pipeline.findComponent( transformName, 0 );
+        if ( component != null ) {
+          component.addRowListener( new RowAdapter() {
+            int nrRows = 0;
+
+            @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+              RowBuffer rowBuffer = outputRowsMap.get( transformName );
+              if ( rowBuffer == null ) {
+                rowBuffer = new RowBuffer( rowMeta );
+                outputRowsMap.put( transformName, rowBuffer );
+
+                // Linked list for faster adding and removing at the front and end of the list
+                //
+                if ( sampleType == SampleType.Last ) {
+                  rowBuffer.setBuffer( new LinkedList<>() );
+                }
+              }
+
+              switch ( sampleType ) {
+                case First: {
+                  if ( rowBuffer.size() < sampleSize ) {
+                    rowBuffer.addRow( row );
+                  }
+                }
+                break;
+                case Last: {
+                  rowBuffer.addRow( 0, row );
+                  if ( rowBuffer.size() > sampleSize ) {
+                    rowBuffer.removeRow( rowBuffer.size() - 1 );
+                  }
+                }
+                break;
+                case Random: {
+                  // Reservoir sampling
+                  //
+                  nrRows++;
+                  if ( rowBuffer.size() < sampleSize ) {
+                    rowBuffer.addRow( row );
+                  } else {
+                    int randomIndex = random.nextInt( nrRows );
+                    if ( randomIndex < sampleSize ) {
+                      rowBuffer.setRow( randomIndex, row );
+                    }
+                  }
+                }
+                break;
+
+              }
+
+            }
+          } );
+        }
+      }
+
+    } catch ( Exception e ) {
+      // Ignore : simply not recognized or empty
+    }
   }
 
   public void showSaveFileMessage() {
@@ -3767,9 +3833,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // When running locally in the GUI, sample rows in every transform to show in the user interface...
         //
-        if ( pipeline.getPipelineRunConfiguration().getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) {
-          addRowsSamplerToPipeline( pipeline );
-        }
+        addRowsSamplerToPipeline( pipeline );
+
 
         initialized = true;
       } catch ( HopException e ) {

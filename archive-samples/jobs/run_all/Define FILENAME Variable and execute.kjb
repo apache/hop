@@ -17,8 +17,8 @@
         <description>The filename of the transformation to execute</description>
       </parameter>
     </parameters>
-    <slaveservers>
-    </slaveservers>
+    <hop-servers>
+    </hop-servers>
       <workflow-log-table>
         <connection/>
         <schema/>
@@ -441,7 +441,7 @@
       <add_time>N</add_time>
       <loglevel>Error</loglevel>
       <cluster>N</cluster>
-      <slave_server_name/>
+      <hop_server_name/>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>
@@ -476,7 +476,7 @@
       <add_time>N</add_time>
       <loglevel>Basic</loglevel>
       <cluster>N</cluster>
-      <slave_server_name/>
+      <hop_server_name/>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>

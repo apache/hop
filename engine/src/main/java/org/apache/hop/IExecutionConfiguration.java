@@ -22,7 +22,6 @@
 
 package org.apache.hop;
 
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;

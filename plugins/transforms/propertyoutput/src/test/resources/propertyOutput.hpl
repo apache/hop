@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2018/02/21 19:18:45.746</created_date>
     <modified_user>-</modified_user>
@@ -483,9 +477,7 @@
         <item>propertyValue</item>
       </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -523,9 +515,7 @@
       <addtoresult>N</addtoresult>
       <append>Y</append>
     </file>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -538,7 +528,4 @@
   </transform>
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

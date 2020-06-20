@@ -148,8 +148,7 @@ public class WindowProperty {
   /**
    * Performs calculations to size and position a dialog If the size passed in is too large for the primary monitor
    * client area, it is shrunk to fit. If the positioning leaves part of the dialog outside the client area, it is
-   * centered instead Note that currently, many of the defaults in org.apache.hop.ui.core/default.properties have crazy
-   * values. This causes the failsafe code in here to fire a lot more than is really necessary.
+   * centered instead.
    *
    * @param shell        The dialog to position and size
    * @param onlyPosition Unused argument. If the window is outside the viewable client are, it must be resized to prevent

@@ -46,7 +46,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   protected volatile String destinationTransformName;
   protected AtomicInteger destinationTransformCopy;
 
-  protected volatile String remoteSlaveServerName;
+  protected volatile String remoteHopServerName;
   private ReadWriteLock lock;
 
   public BaseRowSet() {
@@ -68,13 +68,13 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
     String target;
 
     try {
-      target = remoteSlaveServerName + "." + destinationTransformName + "." + destinationTransformCopy.intValue();
+      target = remoteHopServerName + "." + destinationTransformName + "." + destinationTransformCopy.intValue();
     } finally {
       lock.readLock().unlock();
     }
 
     String comp =
-      rowSet.getRemoteSlaveServerName()
+      rowSet.getRemoteHopServerName()
         + "." + rowSet.getDestinationTransformName() + "." + rowSet.getDestinationTransformCopy();
 
     return target.compareTo( comp );
@@ -239,9 +239,9 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
         .append( "." )
         .append( destinationTransformCopy );
 
-      if ( !Utils.isEmpty( remoteSlaveServerName ) ) {
+      if ( !Utils.isEmpty( remoteHopServerName ) ) {
         str.append( " (" )
-          .append( remoteSlaveServerName )
+          .append( remoteHopServerName )
           .append( ")" );
       }
     } finally {
@@ -274,21 +274,21 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getRemoteSlaveServerName()
+   * @see org.apache.hop.core.RowSetInterface#getRemoteHopServerName()
    */
   @Override
-  public String getRemoteSlaveServerName() {
-    return remoteSlaveServerName;
+  public String getRemoteHopServerName() {
+    return remoteHopServerName;
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#setRemoteSlaveServerName(java.lang.String)
+   * @see org.apache.hop.core.RowSetInterface#setRemoteHopServerName(java.lang.String)
    */
   @Override
-  public void setRemoteSlaveServerName( String remoteSlaveServerName ) {
-    this.remoteSlaveServerName = remoteSlaveServerName;
+  public void setRemoteHopServerName( String remoteHopServerName ) {
+    this.remoteHopServerName = remoteHopServerName;
   }
 
   /**

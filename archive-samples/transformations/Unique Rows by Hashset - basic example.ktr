@@ -423,8 +423,8 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-      <slaveserver>
+    <hop-servers>
+      <hop-server>
         <name>local5</name>
         <hostname>localhost</hostname>
         <port>40005</port>
@@ -434,8 +434,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>local4</name>
         <hostname>localhost</hostname>
         <port>40004</port>
@@ -445,8 +445,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>local3</name>
         <hostname>localhost</hostname>
         <port>40003</port>
@@ -456,8 +456,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>tmp04</name>
         <hostname>cm-metricstmp04</hostname>
         <port>40000</port>
@@ -467,8 +467,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>tmp03</name>
         <hostname>cm-metricstmp03</hostname>
         <port>40000</port>
@@ -478,8 +478,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>tmp02</name>
         <hostname>cm-metricstmp02</hostname>
         <port>40000</port>
@@ -489,8 +489,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>etl01</name>
         <hostname>cm-metricsetl01</hostname>
         <port>40000</port>
@@ -500,8 +500,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>tmp01</name>
         <hostname>cm-metricstmp01</hostname>
         <port>40000</port>
@@ -511,8 +511,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>local2</name>
         <hostname>localhost</hostname>
         <port>40002</port>
@@ -522,8 +522,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>local1</name>
         <hostname>localhost</hostname>
         <port>40001</port>
@@ -533,8 +533,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>cm-metricsapp01</name>
         <hostname>cm-metricsapp01</hostname>
         <port>40000</port>
@@ -544,8 +544,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>cm-metricsdb01</name>
         <hostname>cm-metricsdb01</hostname>
         <port>40000</port>
@@ -555,8 +555,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>cm-metricsetl01</name>
         <hostname>cm-metricsetl01</hostname>
         <port>40000</port>
@@ -566,8 +566,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>cm-metricsdb03</name>
         <hostname>cm-metricsdb03</hostname>
         <port>40000</port>
@@ -577,8 +577,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>cm-metricsdb02</name>
         <hostname>cm-metricsdb02</hostname>
         <port>40000</port>
@@ -588,8 +588,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-    </slaveservers>
+        <sslMode>N</sslMode>      </hop-server>
+    </hop-servers>
     <clusterschemas>
       <clusterschema>
         <name>tmp</name>
@@ -598,13 +598,13 @@
         <sockets_flush_interval>10000</sockets_flush_interval>
         <sockets_compressed>N</sockets_compressed>
         <dynamic>N</dynamic>
-        <slaveservers>
+        <hop-servers>
           <name>etl01</name>
           <name>tmp01</name>
           <name>tmp02</name>
           <name>tmp03</name>
           <name>tmp04</name>
-        </slaveservers>
+        </hop-servers>
       </clusterschema>
       <clusterschema>
         <name>local</name>
@@ -613,10 +613,10 @@
         <sockets_flush_interval>5000</sockets_flush_interval>
         <sockets_compressed>Y</sockets_compressed>
         <dynamic>N</dynamic>
-        <slaveservers>
+        <hop-servers>
           <name>local1</name>
           <name>local2</name>
-        </slaveservers>
+        </hop-servers>
       </clusterschema>
       <clusterschema>
         <name>3 node</name>
@@ -625,11 +625,11 @@
         <sockets_flush_interval>2000</sockets_flush_interval>
         <sockets_compressed>N</sockets_compressed>
         <dynamic>N</dynamic>
-        <slaveservers>
+        <hop-servers>
           <name>cm-metricsapp01</name>
           <name>cm-metricsdb01</name>
           <name>cm-metricsdb02</name>
-        </slaveservers>
+        </hop-servers>
       </clusterschema>
       <clusterschema>
         <name>4 node</name>
@@ -638,12 +638,12 @@
         <sockets_flush_interval>2000</sockets_flush_interval>
         <sockets_compressed>N</sockets_compressed>
         <dynamic>N</dynamic>
-        <slaveservers>
+        <hop-servers>
           <name>cm-metricsetl01</name>
           <name>cm-metricsdb01</name>
           <name>cm-metricsdb02</name>
           <name>cm-metricsdb03</name>
-        </slaveservers>
+        </hop-servers>
       </clusterschema>
     </clusterschemas>
     <created_user/>
@@ -726,9 +726,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -768,9 +766,7 @@
         <length>16</length>
         <precision>2</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -844,9 +840,7 @@
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -874,9 +868,7 @@
       </field>      <field>        <name>word</name>
         <rename>word2</rename>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -906,9 +898,7 @@
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
    <delimiter_is_regex>N</delimiter_is_regex>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -935,9 +925,7 @@
       <reject_duplicate_row>N</reject_duplicate_row>
       <error_description/>
     <fields>      <field>        <name>val1</name>
-        </field>      </fields>    <cluster_schema/>
-
-      <input>
+        </field>      </fields><input>
       </input>
       <output>
       </output>
@@ -964,9 +952,7 @@
       <reject_duplicate_row>N</reject_duplicate_row>
       <error_description/>
     <fields>      <field>        <name>word1</name>
-        </field>      </fields>    <cluster_schema/>
-
-      <input>
+        </field>      </fields><input>
       </input>
       <output>
       </output>
@@ -993,9 +979,7 @@
       <reject_duplicate_row>N</reject_duplicate_row>
       <error_description/>
     <fields>      <field>        <name>word1</name>
-        </field>      </fields>    <cluster_schema/>
-
-      <input>
+        </field>      </fields><input>
       </input>
       <output>
       </output>
@@ -1009,7 +993,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

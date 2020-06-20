@@ -39,71 +39,6 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
   public GetRootServlet() {
   }
 
-  /**
-   * <div id="mindtouch">
-   * <h1>/</h1>
-   * <a name="GET"></a>
-   * <h2>GET</h2>
-   * <p>Display initial HopServer page.</p>
-   *
-   * <p><b>Example Request:</b><br />
-   * <pre function="syntax.xml">
-   * GET /
-   * </pre>
-   *
-   * </p>
-   *
-   * <h3>Response Body</h3>
-   *
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <td align="right">element:</td>
-   * <td>(custom)</td>
-   * </tr>
-   * <tr>
-   * <td align="right">media types:</td>
-   * <td>text/html</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * <p>HTML response containing content of initial page is returned.</p>
-   *
-   * <p><b>Example Response:</b></p>
-   * <pre function="syntax.xml">
-   * <HTML>
-   * <HEAD><TITLE>Hop slave server</TITLE>
-   * <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   * </HEAD>
-   * <BODY>
-   * <H2>Slave server menu</H2>
-   * <p>
-   * <a href="/hop/status">Show status</a><br>
-   * <p>
-   * </BODY>
-   * </HTML>
-   *
-   * </pre>
-   *
-   * <h3>Status Codes</h3>
-   * <table class="hop-table">
-   * <tbody>
-   * <tr>
-   * <th>code</th>
-   * <th>description</th>
-   * </tr>
-   * <tr>
-   * <td>200</td>
-   * <td>Request was processed.</td>
-   * </tr>
-   * <tr>
-   * <td>500</td>
-   * <td>Internal server error occurs during request processing.</td>
-   * </tr>
-   * </tbody>
-   * </table>
-   * </div>
-   */
   public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException,
     IOException {
     if ( isJettyMode() && !request.getRequestURI().equals( CONTEXT_PATH ) ) {
@@ -122,11 +57,11 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
 
     out.println( "<HTML>" );
     out.println( "<HEAD><TITLE>"
-      + BaseMessages.getString( PKG, "GetRootServlet.HopSlaveServer.Title" ) + "</TITLE>" );
+      + BaseMessages.getString( PKG, "GetRootServlet.HopHopServer.Title" ) + "</TITLE>" );
     out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
     out.println( "</HEAD>" );
     out.println( "<BODY>" );
-    out.println( "<H2>" + BaseMessages.getString( PKG, "GetRootServlet.SlaveServerMenu" ) + "</H2>" );
+    out.println( "<H2>" + BaseMessages.getString( PKG, "GetRootServlet.HopServerMenu" ) + "</H2>" );
 
     out.println( "<p>" );
     out.println( "<a href=\""

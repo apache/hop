@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2012&#x2f;03&#x2f;16 10&#x3a;30&#x3a;08.060</created_date>
     <modified_user>-</modified_user>
@@ -551,9 +545,7 @@
 <send_true_to>We are friends</send_true_to>
 <send_false_to>We are not friends</send_false_to>
 <condition>FRIEND &#x3d;&#x3d; Boolean.TRUE</condition>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -611,9 +603,7 @@
       <line> <item>pstoellberger</item><item>Y</item> </line>
       <line> <item>sjobs</item><item>N</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -636,9 +626,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -661,9 +649,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -677,7 +663,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

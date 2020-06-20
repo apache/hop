@@ -423,8 +423,8 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-      <slaveserver>
+    <hop-servers>
+      <hop-server>
         <name>ID-Server</name>
         <hostname>localhost</hostname>
         <port>8181</port>
@@ -434,9 +434,9 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
-        <name>Slave3</name>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
+        <name>Server3</name>
         <hostname>localhost</hostname>
         <port>8084</port>
         <webAppName/>
@@ -445,9 +445,9 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
-        <name>Slave2</name>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
+        <name>Server2</name>
         <hostname>localhost</hostname>
         <port>8083</port>
         <webAppName/>
@@ -456,9 +456,9 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
-        <name>Slave1</name>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
+        <name>Server1</name>
         <hostname>localhost</hostname>
         <port>8082</port>
         <webAppName/>
@@ -467,8 +467,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>Pentaho Server</name>
         <hostname>localhost</hostname>
         <port>8080</port>
@@ -478,8 +478,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-      <slaveserver>
+        <sslMode>N</sslMode>      </hop-server>
+      <hop-server>
         <name>Master</name>
         <hostname>localhost</hostname>
         <port>8081</port>
@@ -489,8 +489,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-    </slaveservers>
+        <sslMode>N</sslMode>      </hop-server>
+    </hop-servers>
     <clusterschemas>
       <clusterschema>
         <name>ClusterSchema</name>
@@ -499,11 +499,11 @@
         <sockets_flush_interval>5000</sockets_flush_interval>
         <sockets_compressed>Y</sockets_compressed>
         <dynamic>N</dynamic>
-        <slaveservers>
-          <name>Slave2</name>
-          <name>Slave1</name>
+        <hop-servers>
+          <name>Server2</name>
+          <name>Server1</name>
           <name>Master</name>
-        </slaveservers>
+        </hop-servers>
       </clusterschema>
     </clusterschemas>
     <created_user>-</created_user>
@@ -621,9 +621,7 @@
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -703,9 +701,7 @@
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -732,9 +728,7 @@
       </field>      <field>        <name>field</name>
       </field>      <field>        <name>value</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -748,7 +742,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

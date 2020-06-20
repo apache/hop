@@ -288,7 +288,7 @@ public interface ITransform<Meta extends ITransformMeta, Data extends ITransform
   String getPartitionId();
 
   /**
-   * Call this method typically, after ALL the slave pipelines in a clustered run have finished.
+   * Cleanup any left-over resources for this transform.
    */
   void cleanup();
 

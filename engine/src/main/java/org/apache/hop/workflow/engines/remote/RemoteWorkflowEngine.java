@@ -2,7 +2,7 @@ package org.apache.hop.workflow.engines.remote;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -43,7 +43,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
-import org.apache.hop.www.SlaveServerWorkflowStatus;
+import org.apache.hop.www.HopServerWorkflowStatus;
 import org.apache.hop.www.WebResult;
 
 import java.util.ArrayList;
@@ -75,11 +75,11 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   protected LogLevel logLevel;
   protected long serverPollDelay;
   protected long serverPollInterval;
-  protected SlaveServer slaveServer;
+  protected HopServer hopServer;
   protected String containerId;
   protected int lastLogLineNr;
   protected boolean stopped;
-  protected SlaveServerWorkflowStatus workflowStatus;
+  protected HopServerWorkflowStatus workflowStatus;
 
   protected boolean interactive;
   protected boolean finished;
@@ -199,8 +199,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
       RemoteWorkflowRunConfiguration remoteWorkflowRunConfiguration = (RemoteWorkflowRunConfiguration) workflowRunConfiguration.getEngineRunConfiguration();
 
-      String slaveServerName = remoteWorkflowRunConfiguration.getSlaveServerName();
-      if ( StringUtils.isEmpty( slaveServerName ) ) {
+      String hopServerName = remoteWorkflowRunConfiguration.getHopServerName();
+      if ( StringUtils.isEmpty( hopServerName ) ) {
         throw new HopException( "No remote Hop server was specified to run the workflow on" );
       }
       String remoteRunConfigurationName = remoteWorkflowRunConfiguration.getRunConfigurationName();
@@ -208,7 +208,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         throw new HopException( "No run configuration was specified to the remote workflow with" );
       }
       if ( metadataProvider == null ) {
-        throw new HopException( "The remote workflow engine didn't receive a metadata to load slave server '" + slaveServerName + "'" );
+        throw new HopException( "The remote workflow engine didn't receive a metadata to load hop server '" + hopServerName + "'" );
       }
 
       logChannel.logBasic( "Executing this workflow using the Remote Workflow Engine with run configuration '" + workflowRunConfiguration.getName() + "'" );
@@ -216,9 +216,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       serverPollDelay = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
       serverPollInterval = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
 
-      slaveServer = metadataProvider.getSerializer( SlaveServer.class ).load( slaveServerName );
-      if ( slaveServer == null ) {
-        throw new HopException( "Slave server '" + slaveServerName + "' could not be found" );
+      hopServer = metadataProvider.getSerializer( HopServer.class ).load( hopServerName );
+      if ( hopServer == null ) {
+        throw new HopException( "Hop server '" + hopServerName + "' could not be found" );
       }
 
       WorkflowExecutionConfiguration workflowExecutionConfiguration = new WorkflowExecutionConfiguration();
@@ -234,7 +234,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       // TODO: pass variables and source rows as well...
       //
 
-      sendToSlaveServer( workflowMeta, workflowExecutionConfiguration, metadataProvider );
+      sendToHopServer( workflowMeta, workflowExecutionConfiguration, metadataProvider );
       fireWorkflowStartedListeners();
 
       initialized = true;
@@ -276,7 +276,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   public synchronized void getWorkflowStatus() throws HopException {
     try {
-      workflowStatus = slaveServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
+      workflowStatus = hopServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
       lastLogLineNr = workflowStatus.getLastLoggingLineNr();
       if ( StringUtils.isNotEmpty( workflowStatus.getLoggingString() ) ) {
         logChannel.logBasic( workflowStatus.getLoggingString() ); // TODO implement detailed logging and add option to log at all
@@ -295,7 +295,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   @Override public void stopExecution() {
     try {
-      slaveServer.stopWorkflow( workflowMeta.getName(), containerId );
+      hopServer.stopWorkflow( workflowMeta.getName(), containerId );
       getWorkflowStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Stopping of pipeline '" + workflowMeta.getName() + "' with ID " + containerId + " failed", e );
@@ -303,24 +303,24 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Send to slave server.
+   * Send to hop server.
    *
    * @param workflowMeta           the workflow meta
    * @param executionConfiguration the execution configuration
    * @param metadataProvider       the metadataProvider
    * @throws HopException the hop exception
    */
-  public void sendToSlaveServer( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration, IHopMetadataProvider metadataProvider ) throws HopException {
+  public void sendToHopServer( WorkflowMeta workflowMeta, WorkflowExecutionConfiguration executionConfiguration, IHopMetadataProvider metadataProvider ) throws HopException {
 
-    if ( slaveServer == null ) {
-      throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.NoSlaveServerSpecified" ) );
+    if ( hopServer == null ) {
+      throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.NoHopServerSpecified" ) );
     }
     if ( Utils.isEmpty( workflowMeta.getName() ) ) {
       throw new HopException( BaseMessages.getString( PKG, "Workflow.Log.UniqueWorkflowName" ) );
     }
 
     // Align logging levels between execution configuration and remote server
-    slaveServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
+    hopServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
 
     try {
       // Inject certain internal variables to make it more intuitive.
@@ -338,15 +338,15 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
 
       if ( executionConfiguration.isPassingExport() ) {
-        // First export the workflow... slaveServer.getVariable("MASTER_HOST")
+        // First export the workflow... hopServer.getVariable("MASTER_HOST")
         //
         FileObject tempFile = HopVfs.createTempFile( "workflowExport", ".zip", System.getProperty( "java.io.tmpdir" ) );
 
         TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
           metadataProvider, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
-        // Send the zip file over to the slave server...
-        String result = slaveServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
+        // Send the zip file over to the hop server...
+        String result = hopServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
         WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR + webResult.getMessage() );
@@ -355,7 +355,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       } else {
         String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration, metadataProvider ).getXml();
 
-        String reply = slaveServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
+        String reply = hopServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
@@ -365,7 +365,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       // Start the workflow
       //
-      WebResult webResult = slaveServer.startWorkflow( workflowMeta.getName(), containerId );
+      WebResult webResult = hopServer.startWorkflow( workflowMeta.getName(), containerId );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error starting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
       }
@@ -779,19 +779,19 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets slaveServer
+   * Gets hopServer
    *
-   * @return value of slaveServer
+   * @return value of hopServer
    */
-  public SlaveServer getSlaveServer() {
-    return slaveServer;
+  public HopServer getHopServer() {
+    return hopServer;
   }
 
   /**
-   * @param slaveServer The slaveServer to set
+   * @param hopServer The hopServer to set
    */
-  public void setSlaveServer( SlaveServer slaveServer ) {
-    this.slaveServer = slaveServer;
+  public void setHopServer( HopServer hopServer ) {
+    this.hopServer = hopServer;
   }
 
   /**
@@ -845,7 +845,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /**
    * @param workflowStatus The workflowStatus to set
    */
-  public void setWorkflowStatus( SlaveServerWorkflowStatus workflowStatus ) {
+  public void setWorkflowStatus( HopServerWorkflowStatus workflowStatus ) {
     this.workflowStatus = workflowStatus;
   }
 

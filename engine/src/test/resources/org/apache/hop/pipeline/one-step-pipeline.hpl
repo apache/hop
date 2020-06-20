@@ -420,12 +420,6 @@
     <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2017/09/14 15:13:42.912</created_date>
     <modified_user>-</modified_user>
@@ -470,7 +464,5 @@
   </transform>
   <step_error_handling>
   </step_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_pipeline>N</slave_pipeline>
+<slave_pipeline>N</slave_pipeline>
 </pipeline>

@@ -40,7 +40,7 @@ public class HopServerPluginType extends BasePluginType<HopServerServlet> implem
   private static HopServerPluginType hopServerPluginType;
 
   private HopServerPluginType() {
-    super( HopServerServlet.class, "CARTE_SERVLET", "HopServer Servlet" );
+    super( HopServerServlet.class, "HOP_SERVER_SERVLET", "HopServer Servlet" );
     populateFolders( "servlets" );
   }
 

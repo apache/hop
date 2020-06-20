@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 public class HopServerStatusCache implements Cache {
 
-  public static final String CARTE_STATUS_CACHE = "CARTE_CACHE";
+  public static final String HOP_SERVER_STATUS_CACHE = "HOP_SERVER_CACHE";
 
   /**
    * Switching the thread launched to be daemon otherwise it blocks the Hop server shutdown
@@ -73,8 +73,8 @@ public class HopServerStatusCache implements Cache {
   }
 
   private HopServerStatusCache() {
-    period = Integer.parseInt( Const.getEnvironmentVariable( "CARTE_CLEAR_PERIOD", "1" ) );
-    timeUnit = TimeUnit.valueOf( Const.getEnvironmentVariable( "CARTE_CLEAR_TIMEUNIT", "DAYS" ) );
+    period = Integer.parseInt( Const.getEnvironmentVariable( "HOP_SERVER_CLEAR_PERIOD", "1" ) );
+    timeUnit = TimeUnit.valueOf( Const.getEnvironmentVariable( "HOP_SERVER_CLEAR_TIMEUNIT", "DAYS" ) );
 
     removeService.scheduleAtFixedRate( this::clear, 1, 1, TimeUnit.DAYS );
   }

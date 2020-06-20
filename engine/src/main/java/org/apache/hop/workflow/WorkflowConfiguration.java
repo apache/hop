@@ -22,7 +22,7 @@
 
 package org.apache.hop.workflow;
 
-import org.apache.hop.cluster.HttpUtil;
+import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;

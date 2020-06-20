@@ -17,8 +17,8 @@
             <description>Test parameter</description>
         </parameter>
     </parameters>
-    <slaveservers>
-    </slaveservers>
+    <hop-servers>
+    </hop-servers>
 <workflow-log-table><connection/>
 <schema/>
 <table/>

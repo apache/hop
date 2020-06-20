@@ -21,7 +21,7 @@
  ******************************************************************************/
 package org.apache.hop.www;
 
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -77,8 +77,8 @@ public class WebServerTest {
   private WebServer webServer;
   private WebServer webServerNg;
   private PipelineMap trMapMock = mock( PipelineMap.class );
-  private SlaveServerConfig sServerConfMock = mock( SlaveServerConfig.class );
-  private SlaveServer sServer = mock( SlaveServer.class );
+  private HopServerConfig sServerConfMock = mock( HopServerConfig.class );
+  private HopServer sServer = mock( HopServer.class );
   private WorkflowMap jbMapMock = mock( WorkflowMap.class );
   private ILogChannel logMock = mock( ILogChannel.class );
   //  private static final SocketConnector defSocketConnector = new SocketConnector();
@@ -86,15 +86,15 @@ public class WebServerTest {
 
   @Before
   public void setup() throws Exception {
-    System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, ACCEPTORS );
-    System.setProperty( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE );
-    System.setProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME );
+    System.setProperty( Const.HOP_SERVER_JETTY_ACCEPTORS, ACCEPTORS );
+    System.setProperty( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE );
+    System.setProperty( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME );
 
     Server server = new Server();
     defServerConnector = new ServerConnector( server );
 
-    when( sServerConfMock.getSlaveServer() ).thenReturn( sServer );
-    when( trMapMock.getSlaveServerConfig() ).thenReturn( sServerConfMock );
+    when( sServerConfMock.getHopServer() ).thenReturn( sServer );
+    when( trMapMock.getHopServerConfig() ).thenReturn( sServerConfMock );
     when( sServer.getPassword() ).thenReturn( "cluster" );
     when( sServer.getUsername() ).thenReturn( "cluster" );
     webServer = new WebServer( logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHOULD_JOIN, null );
@@ -106,9 +106,9 @@ public class WebServerTest {
     webServer.setWebServerShutdownHandler( null ); // disable system.exit
     webServer.stopServer();
 
-    System.getProperties().remove( Const.HOP_CARTE_JETTY_ACCEPTORS );
-    System.getProperties().remove( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE );
-    System.getProperties().remove( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME );
+    System.getProperties().remove( Const.HOP_SERVER_JETTY_ACCEPTORS );
+    System.getProperties().remove( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE );
+    System.getProperties().remove( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME );
 
   }
 
@@ -142,7 +142,7 @@ public class WebServerTest {
 
   @Test
   public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsInvalidValue() throws Exception {
-    System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, "TEST" );
+    System.setProperty( Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST" );
     try {
       webServerNg =
         new WebServer( logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHOULD_JOIN, null );
@@ -159,7 +159,7 @@ public class WebServerTest {
 
   @Test
   public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty() throws Exception {
-    System.setProperty( Const.HOP_CARTE_JETTY_ACCEPTORS, EMPTY_STRING );
+    System.setProperty( Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING );
     try {
       webServerNg =
         new WebServer( logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHOULD_JOIN, null );

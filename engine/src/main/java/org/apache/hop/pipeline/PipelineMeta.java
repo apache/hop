@@ -500,7 +500,7 @@ public class PipelineMeta extends AbstractMeta
 
   /**
    * Clears the pipeline's meta-data, including the lists of databases, transforms, hops, notes, dependencies,
-   * partition schemas, slave servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
+   * partition schemas, hop servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
    * recent connection info is cleared.
    */
   @Override
@@ -1829,7 +1829,7 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the XML representation of this pipeline, including or excluding transform, database, slave server, cluster,
+   * Gets the XML representation of this pipeline, including or excluding transform, database, hop server, cluster,
    * or partition information as specified by the parameters
    *
    * @param includeTransforms      whether to include transform data

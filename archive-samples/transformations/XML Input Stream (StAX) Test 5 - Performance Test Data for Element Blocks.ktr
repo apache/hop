@@ -426,12 +426,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2011&#x2f;01&#x2f;14 13&#x3a;37&#x3a;59.729</created_date>
     <modified_user>-</modified_user>
@@ -664,9 +658,7 @@
       <line> <item>&#x3c;AnalyzerLists&#x3e;</item> </line>
       <line> <item>&#x3c;AnalyzerList name&#x3d;&#x22;items.added&#x22;&#x3e;</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -708,9 +700,7 @@
       <line> <item>&#x3c;&#x2f;AnalyzerResult&#x3e;</item> </line>
       <line> <item>&#x3c;Products&#x3e;</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -735,9 +725,7 @@
     </partitioning>
 <head_name>AnalyzerList HEAD - items.added</head_name>
 <tail_name>Select values</tail_name>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -762,9 +750,7 @@
     </partitioning>
 <head_name>Append streams</head_name>
 <tail_name>AnalyzerList TAIL &#x2f; Products HEAD</tail_name>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -789,9 +775,7 @@
     </partitioning>
 <head_name>Append streams 2</head_name>
 <tail_name>Select values 2</tail_name>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -816,9 +800,7 @@
     </partitioning>
 <head_name>Append streams 3</head_name>
 <tail_name>Products TAIL</tail_name>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -856,9 +838,7 @@
       <grouping_symbol/>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -896,9 +876,7 @@
       <grouping_symbol/>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -940,9 +918,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -984,9 +960,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1015,9 +989,7 @@
         <type>random integer</type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1058,9 +1030,7 @@
         <type>random string</type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1100,9 +1070,7 @@
       <line> <item>&#x3c;&#x2f;Products&#x3e;</item> </line>
       <line> <item>&#x3c;&#x2f;ProductInformation&#x3e;</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1138,9 +1106,7 @@
         <case_sensitive>no</case_sensitive>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1209,9 +1175,7 @@
         <case_sensitive>no</case_sensitive>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1236,9 +1200,7 @@
     </partitioning>
     <fields>      <field>        <name>xml_data</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -1263,9 +1225,7 @@
     </partitioning>
     <fields>      <field>        <name>xml_data</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -1321,9 +1281,7 @@
     </file>
     <fields>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1337,7 +1295,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

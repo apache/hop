@@ -24,7 +24,7 @@ package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
 import org.apache.hop.core.IEngineMeta;
@@ -514,34 +514,34 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
 
 
   /**
-   * Find a slave server using the name
+   * Find a hop server using the name
    *
-   * @param serverString the name of the slave server
-   * @return the slave server or null if we couldn't spot an approriate entry.
+   * @param serverString the name of the hop server
+   * @return the hop server or null if we couldn't spot an approriate entry.
    */
-  public SlaveServer findSlaveServer( String serverString ) {
+  public HopServer findHopServer( String serverString ) {
     if ( metadataProvider == null || StringUtils.isEmpty( name ) ) {
       return null;
     }
     try {
-      return metadataProvider.getSerializer( SlaveServer.class ).load( name );
+      return metadataProvider.getSerializer( HopServer.class ).load( name );
     } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to load slave server with name '" + name + "' from the metadata", e );
+      throw new RuntimeException( "Unable to load hop server with name '" + name + "' from the metadata", e );
     }
   }
 
   /**
-   * Gets an array of slave server names.
+   * Gets an array of hop server names.
    *
-   * @return An array list slave server names
+   * @return An array list hop server names
    */
-  public String[] getSlaveServerNames() {
+  public String[] getHopServerNames() {
     try {
-      List<String> names = metadataProvider.getSerializer( SlaveServer.class ).listObjectNames();
+      List<String> names = metadataProvider.getSerializer( HopServer.class ).listObjectNames();
       Collections.sort( names );
       return names.toArray( new String[ 0 ] );
     } catch ( HopException e ) {
-      throw new RuntimeException( "Unable to get slave server names from the metadata", e );
+      throw new RuntimeException( "Unable to get hop server names from the metadata", e );
     }
   }
 

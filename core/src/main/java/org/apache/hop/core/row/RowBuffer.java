@@ -97,6 +97,18 @@ public class RowBuffer {
     buffer.add( row );
   }
 
+  public void addRow(int index, Object[] row) {
+    buffer.add( index, row );
+  }
+
+  public Object[] removeRow(int index) {
+    return buffer.remove( index );
+  }
+
+  public void setRow( int index, Object[] row ) {
+    buffer.set( index, row );
+  }
+
   /**
    * @return the rowMeta
    */

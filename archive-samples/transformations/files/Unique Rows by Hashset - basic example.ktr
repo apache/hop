@@ -41,23 +41,23 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-         <slaveserver><name>local5</name><hostname>localhost</hostname><port>40005</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>local4</name><hostname>localhost</hostname><port>40004</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>local3</name><hostname>localhost</hostname><port>40003</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>tmp04</name><hostname>cm-metricstmp04</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>tmp03</name><hostname>cm-metricstmp03</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>tmp02</name><hostname>cm-metricstmp02</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>etl01</name><hostname>cm-metricsetl01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-         <slaveserver><name>tmp01</name><hostname>cm-metricstmp01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>local2</name><hostname>localhost</hostname><port>40002</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>local1</name><hostname>localhost</hostname><port>40001</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-         <slaveserver><name>cm-metricsapp01</name><hostname>cm-metricsapp01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-         <slaveserver><name>cm-metricsdb01</name><hostname>cm-metricsdb01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>cm-metricsetl01</name><hostname>cm-metricsetl01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-         <slaveserver><name>cm-metricsdb03</name><hostname>cm-metricsdb03</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>cm-metricsdb02</name><hostname>cm-metricsdb02</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-    </slaveservers>
+    <hop-servers>
+         <hop-server><name>local5</name><hostname>localhost</hostname><port>40005</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>local4</name><hostname>localhost</hostname><port>40004</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>local3</name><hostname>localhost</hostname><port>40003</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>tmp04</name><hostname>cm-metricstmp04</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>tmp03</name><hostname>cm-metricstmp03</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>tmp02</name><hostname>cm-metricstmp02</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>etl01</name><hostname>cm-metricsetl01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+         <hop-server><name>tmp01</name><hostname>cm-metricstmp01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>local2</name><hostname>localhost</hostname><port>40002</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>local1</name><hostname>localhost</hostname><port>40001</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+         <hop-server><name>cm-metricsapp01</name><hostname>cm-metricsapp01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+         <hop-server><name>cm-metricsdb01</name><hostname>cm-metricsdb01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>cm-metricsetl01</name><hostname>cm-metricsetl01</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+         <hop-server><name>cm-metricsdb03</name><hostname>cm-metricsdb03</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>cm-metricsdb02</name><hostname>cm-metricsdb02</hostname><port>40000</port><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+    </hop-servers>
     <clusterschemas>
         <clusterschema>
           <name>tmp</name>
@@ -66,13 +66,13 @@
           <sockets_flush_interval>10000</sockets_flush_interval>
           <sockets_compressed>N</sockets_compressed>
           <dynamic>N</dynamic>
-          <slaveservers>
+          <hop-servers>
             <name>etl01</name>
             <name>tmp01</name>
             <name>tmp02</name>
             <name>tmp03</name>
             <name>tmp04</name>
-          </slaveservers>
+          </hop-servers>
         </clusterschema>
         <clusterschema>
           <name>local</name>
@@ -81,10 +81,10 @@
           <sockets_flush_interval>5000</sockets_flush_interval>
           <sockets_compressed>Y</sockets_compressed>
           <dynamic>N</dynamic>
-          <slaveservers>
+          <hop-servers>
             <name>local1</name>
             <name>local2</name>
-          </slaveservers>
+          </hop-servers>
         </clusterschema>
         <clusterschema>
           <name>3 node</name>
@@ -93,11 +93,11 @@
           <sockets_flush_interval>2000</sockets_flush_interval>
           <sockets_compressed>N</sockets_compressed>
           <dynamic>N</dynamic>
-          <slaveservers>
+          <hop-servers>
             <name>cm-metricsapp01</name>
             <name>cm-metricsdb01</name>
             <name>cm-metricsdb02</name>
-          </slaveservers>
+          </hop-servers>
         </clusterschema>
         <clusterschema>
           <name>4 node</name>
@@ -106,12 +106,12 @@
           <sockets_flush_interval>2000</sockets_flush_interval>
           <sockets_compressed>N</sockets_compressed>
           <dynamic>N</dynamic>
-          <slaveservers>
+          <hop-servers>
             <name>cm-metricsetl01</name>
             <name>cm-metricsdb01</name>
             <name>cm-metricsdb02</name>
             <name>cm-metricsdb03</name>
-          </slaveservers>
+          </hop-servers>
         </clusterschema>
     </clusterschemas>
   <modified_user>-</modified_user>
@@ -143,8 +143,7 @@ only 9 are returned.</note>
     <fields>
     </fields>
     <limit>100</limit>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>50</yloc>
       <draw>Y</draw>
@@ -177,8 +176,7 @@ var val2 = Math.floor(Math.random()*10+1)
         <type>Integer</type>
         <length>16</length>
         <precision>2</precision>
-      </field>    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </field>    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
@@ -197,8 +195,7 @@ var val2 = Math.floor(Math.random()*10+1)
            </partitioning>
       <store_values>N</store_values>
     <fields>      <field>        <name>val1</name>
-        </field>      </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+        </field>      </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>200</xloc>
       <yloc>150</yloc>
       <draw>Y</draw>
@@ -255,8 +252,7 @@ var val2 = Math.floor(Math.random()*10+1)
     <IsAFile>N</IsAFile>
     <XmlField/>
     <prunePath/>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>50</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
@@ -279,8 +275,7 @@ var val2 = Math.floor(Math.random()*10+1)
    <rownum>N</rownum>
    <rownum_field/>
    <resetrownumber>Y</resetrownumber>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>150</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
@@ -299,8 +294,7 @@ var val2 = Math.floor(Math.random()*10+1)
            </partitioning>
       <store_values>N</store_values>
     <fields>      <field>        <name>word1</name>
-        </field>      </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+        </field>      </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>350</xloc>
       <yloc>200</yloc>
       <draw>Y</draw>
@@ -326,8 +320,7 @@ var val2 = Math.floor(Math.random()*10+1)
         <length>-2</length>
         <precision>-2</precision>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>250</xloc>
       <yloc>250</yloc>
       <draw>Y</draw>
@@ -346,8 +339,7 @@ var val2 = Math.floor(Math.random()*10+1)
            </partitioning>
       <store_values>Y</store_values>
     <fields>      <field>        <name>word1</name>
-        </field>      </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+        </field>      </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>350</xloc>
       <yloc>300</yloc>
       <draw>Y</draw>
@@ -356,7 +348,4 @@ var val2 = Math.floor(Math.random()*10+1)
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-</pipeline>
+ </pipeline>

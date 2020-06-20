@@ -36,13 +36,7 @@
     <shared_objects_file/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <modified_user>-</modified_user>
+    <modified_user>-</modified_user>
   <modified_date>2007&#47;09&#47;06 09:40:08.557</modified_date>
   </info>
   <notepads>
@@ -88,8 +82,7 @@
         </field>
       </fields>
     <limit>1</limit>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>158</xloc>
       <yloc>190</yloc>
       <draw>Y</draw>
@@ -121,8 +114,7 @@
         </field>
       </fields>
     <limit>1</limit>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>164</xloc>
       <yloc>264</yloc>
       <draw>Y</draw>
@@ -154,8 +146,7 @@
         </field>
       </fields>
     <limit>1</limit>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>166</xloc>
       <yloc>337</yloc>
       <draw>Y</draw>
@@ -173,8 +164,7 @@
            <field_name/>
            <schema_name/>
            </partitioning>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>330</xloc>
       <yloc>271</yloc>
       <draw>Y</draw>
@@ -192,8 +182,7 @@
            <field_name/>
            <schema_name/>
            </partitioning>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>466</xloc>
       <yloc>269</yloc>
       <draw>Y</draw>

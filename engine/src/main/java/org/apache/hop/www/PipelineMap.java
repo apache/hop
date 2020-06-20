@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PipelineMap {
   private final Map<HopServerObjectEntry, PipelineData> pipelineMap;
 
-  private SlaveServerConfig slaveServerConfig;
+  private HopServerConfig hopServerConfig;
 
   public PipelineMap() {
     pipelineMap = new ConcurrentHashMap<>();
@@ -135,41 +135,41 @@ public class PipelineMap {
   }
 
   /**
-   * @return the slaveServerConfig
+   * @return the hopServerConfig
    */
-  public SlaveServerConfig getSlaveServerConfig() {
-    return slaveServerConfig;
+  public HopServerConfig getHopServerConfig() {
+    return hopServerConfig;
   }
 
   /**
-   * @param slaveServerConfig the slaveServerConfig to set
+   * @param hopServerConfig the hopServerConfig to set
    */
-  public void setSlaveServerConfig( SlaveServerConfig slaveServerConfig ) {
-    this.slaveServerConfig = slaveServerConfig;
+  public void setHopServerConfig( HopServerConfig hopServerConfig ) {
+    this.hopServerConfig = hopServerConfig;
   }
 
-  public SlaveSequence getSlaveSequence( String name ) {
-    return SlaveSequence.findSlaveSequence( name, slaveServerConfig.getSlaveSequences() );
+  public HopServerSequence getServerSequence( String name ) {
+    return HopServerSequence.findServerSequence( name, hopServerConfig.getHopServerSequences() );
   }
 
-  public boolean isAutomaticSlaveSequenceCreationAllowed() {
-    return slaveServerConfig.isAutomaticCreationAllowed();
+  public boolean isAutomaticServerSequenceCreationAllowed() {
+    return hopServerConfig.isAutomaticCreationAllowed();
   }
 
-  public SlaveSequence createSlaveSequence( String name ) throws HopException {
-    SlaveSequence auto = slaveServerConfig.getAutoSequence();
+  public HopServerSequence createServerSequence( String name ) throws HopException {
+    HopServerSequence auto = hopServerConfig.getAutoSequence();
     if ( auto == null ) {
-      throw new HopException( "No auto-sequence information found in the slave server config.  "
-        + "Slave sequence could not be created automatically." );
+      throw new HopException( "No auto-sequence information found in the hop server config.  "
+        + "Server sequence could not be created automatically." );
     }
 
-    SlaveSequence slaveSequence =
-      new SlaveSequence( name, auto.getStartValue(), auto.getDatabaseMeta(), auto.getSchemaName(), auto
+    HopServerSequence hopServerSequence =
+      new HopServerSequence( name, auto.getStartValue(), auto.getDatabaseMeta(), auto.getSchemaName(), auto
         .getTableName(), auto.getSequenceNameField(), auto.getValueField() );
 
-    slaveServerConfig.getSlaveSequences().add( slaveSequence );
+    hopServerConfig.getHopServerSequences().add( hopServerSequence );
 
-    return slaveSequence;
+    return hopServerSequence;
   }
 
   private static class PipelineData {

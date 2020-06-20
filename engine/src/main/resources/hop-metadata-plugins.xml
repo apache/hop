@@ -8,9 +8,9 @@
   </metadata-plugin>
 
   <metadata-plugin id="server">
-    <description>Slave Server</description>
-    <tooltip>Defines a Hop Slave Server</tooltip>
-    <classname>org.apache.hop.cluster.SlaveServer</classname>
+    <description>Hop Server</description>
+    <tooltip>Defines a Hop Hop Server</tooltip>
+    <classname>org.apache.hop.server.HopServer</classname>
     <iconfile>ui/images/slave.svg</iconfile>
   </metadata-plugin>
 
