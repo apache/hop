@@ -171,6 +171,7 @@ public class GuiResource {
   private SwtUniversalImage imageDisabledHop;
 
   private SwtUniversalImage imageConnection;
+  private SwtUniversalImage imageData;
 
   private SwtUniversalImage imageConnectionTree;
 
@@ -614,6 +615,7 @@ public class GuiResource {
       imageHop.dispose();
       imageDisabledHop.dispose();
       imageConnection.dispose();
+      imageData.dispose();
       imageConnectionTree.dispose();
       imageAdd.dispose();
       imageTable.dispose();
@@ -904,6 +906,9 @@ public class GuiResource {
 
     // "ui/images/CNC.png"
     imageConnection = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_image" ) );
+
+    // "ui/images/CNC.png"
+    imageData = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Data_image" ) );
 
     // "ui/images/CNC_tree"
     imageConnectionTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_tree_image" ) );
@@ -1527,12 +1532,23 @@ public class GuiResource {
     return imageConnection.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
+  /**
+   * @return Returns the imageConnection.
+   */
+  public Image getImageData() {
+    return imageData.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+  }
+
   public Image getImageConnectionTree() {
     return imageConnectionTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   public SwtUniversalImage getSwtImageConnection() {
     return imageConnection;
+  }
+
+  public SwtUniversalImage getSwtImageData() {
+    return imageData;
   }
 
   public Image getImageAdd() {

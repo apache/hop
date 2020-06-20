@@ -25,13 +25,13 @@ package org.apache.hop.ui.hopgui.shared;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+import org.apache.hop.workflow.action.ActionCopy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
@@ -238,6 +238,8 @@ public class SwtGc implements IGc {
         return GuiResource.getInstance().getDisabledArrow();
       case ARROW_CANDIDATE:
         return GuiResource.getInstance().getCandidateArrow();
+      case DATA:
+        return GuiResource.getInstance().getSwtImageData();
       default:
         break;
     }
@@ -399,7 +401,7 @@ public class SwtGc implements IGc {
       transform.dispose();
     }
     transform = new Transform( gc.getDevice() );
-    transform.translate( translationX , translationY );
+    transform.translate( translationX, translationY );
     transform.scale( magnification, magnification );
     gc.setTransform( transform );
     currentMagnification = magnification;

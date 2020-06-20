@@ -121,9 +121,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineClipboardD
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineHopDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineLogDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineMetricsDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePerfDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineRunDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
@@ -326,14 +323,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public HopGuiPipelineLogDelegate pipelineLogDelegate;
   public HopGuiPipelineGridDelegate pipelineGridDelegate;
-  public HopGuiPipelineMetricsDelegate pipelineMetricsDelegate;
-  public HopGuiPipelinePreviewDelegate pipelinePreviewDelegate;
   public HopGuiPipelineRunDelegate pipelineRunDelegate;
   public HopGuiPipelineTransformDelegate pipelineTransformDelegate;
   public HopGuiPipelineClipboardDelegate pipelineClipboardDelegate;
   public HopGuiPipelineHopDelegate pipelineHopDelegate;
   public HopGuiPipelineUndoDelegate pipelineUndoDelegate;
-  public HopGuiPipelinePerfDelegate pipelinePerfDelegate;
 
   public HopGuiSlaveDelegate slaveDelegate;
   public HopGuiNotePadDelegate notePadDelegate;
@@ -407,15 +401,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     pipelineLogDelegate = new HopGuiPipelineLogDelegate( hopGui, this );
     pipelineGridDelegate = new HopGuiPipelineGridDelegate( hopGui, this );
-    pipelinePerfDelegate = new HopGuiPipelinePerfDelegate( hopGui, this );
-    pipelineMetricsDelegate = new HopGuiPipelineMetricsDelegate( hopGui, this );
-    pipelinePreviewDelegate = new HopGuiPipelinePreviewDelegate( hopGui, this );
     pipelineClipboardDelegate = new HopGuiPipelineClipboardDelegate( hopGui, this );
     pipelineTransformDelegate = new HopGuiPipelineTransformDelegate( hopGui, this );
     pipelineHopDelegate = new HopGuiPipelineHopDelegate( hopGui, this );
     pipelineUndoDelegate = new HopGuiPipelineUndoDelegate( hopGui, this );
     pipelineRunDelegate = new HopGuiPipelineRunDelegate( hopGui, this );
-    pipelinePerfDelegate = new HopGuiPipelinePerfDelegate( hopGui, this );
 
     slaveDelegate = new HopGuiSlaveDelegate( hopGui, this );
     notePadDelegate = new HopGuiNotePadDelegate( hopGui, this );
@@ -832,21 +822,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError( "Error calling PipelineGraphMouseUp extension point", ex );
     }
 
-    // Quick new hop option? (drag from one transform to another)
+    // Special cases...
     //
-    if ( candidate != null && areaOwner != null && areaOwner.getAreaType() != null ) {
+    if ( areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
-        case TRANSFORM_ICON:
-          currentTransform = (TransformMeta) areaOwner.getOwner();
-          break;
-        case TRANSFORM_INPUT_HOP_ICON:
-          currentTransform = (TransformMeta) areaOwner.getParent();
+        case TRANSFORM_OUTPUT_DATA:
+          TransformMeta dataTransform = (TransformMeta) areaOwner.getParent();
+          RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
+          if (rowBuffer!=null && !rowBuffer.isEmpty()) {
+            PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
+            previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform "+dataTransform.getName() );
+            previewRowsDialog.open();
+          }
           break;
         default:
           break;
       }
-      addCandidateAsHop( e.x, e.y );
-      redraw();
     } else {
       // Did we select a region on the screen? Mark transforms in region as
       // selected
@@ -2365,9 +2356,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     StringBuilder tip = new StringBuilder();
     AreaOwner areaOwner = getVisibleAreaOwner( x, y );
-    AreaType areaType = null;
     if ( areaOwner != null && areaOwner.getAreaType() != null ) {
-      areaType = areaOwner.getAreaType();
+      AreaType areaType = areaOwner.getAreaType();
       switch ( areaType ) {
         case TRANSFORM_PARTITIONING:
           TransformMeta transform = (TransformMeta) areaOwner.getParent();
@@ -2491,6 +2481,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             }
             tipImage = GuiResource.getInstance().getImageDeprecated();
             toolTip.setHideDelay( TOOLTIP_HIDE_DELAY_LONG );
+          }
+          break;
+        case TRANSFORM_OUTPUT_DATA:
+          RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
+          if (rowBuffer!=null && !rowBuffer.isEmpty()) {
+            tip.append( "Available output rows: "+rowBuffer.size() );
+            tipImage = GuiResource.getInstance().getImageData();
           }
           break;
         default:
@@ -2709,7 +2706,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       candidate, drop_candidate, selectionRegion, areaOwners,
       PropsUi.getInstance().getIconSize(), PropsUi.getInstance().getLineWidth(), gridSize,
       PropsUi.getInstance().getNoteFont().getName(), PropsUi.getInstance()
-      .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor() );
+      .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor(), outputRowsMap );
 
     // correct the magnification with the overall zoom factor
     //
@@ -3496,11 +3493,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           pipeline.setLogLevel( executionConfiguration.getLogLevel() );
           log.logBasic( BaseMessages.getString( PKG, "PipelineLog.Log.PipelineOpened" ) );
 
-          // When running locally in the GUI, sample rows in every transform to show in the user interface...
-          //
-          if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) {
-            addRowsSamplerToPipeline( pipeline );
-          }
         } catch ( HopException e ) {
           pipeline = null;
           new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Title" ),
@@ -3542,20 +3534,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     outputRowsMap = new HashMap<>();
 
-    for (final String transformName : pipelineMeta.getTransformNames()) {
+    for ( final String transformName : pipelineMeta.getTransformNames() ) {
       IEngineComponent component = pipeline.findComponent( transformName, 0 );
-      component.addRowListener(new RowAdapter(){
-        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-          RowBuffer rowBuffer = outputRowsMap.get( transformName );
-          if (rowBuffer==null) {
-            rowBuffer = new RowBuffer(rowMeta);
-            outputRowsMap.put(transformName, rowBuffer);
+      if ( component != null ) {
+        component.addRowListener( new RowAdapter() {
+          @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+            RowBuffer rowBuffer = outputRowsMap.get( transformName );
+            if ( rowBuffer == null ) {
+              rowBuffer = new RowBuffer( rowMeta );
+              outputRowsMap.put( transformName, rowBuffer );
+            }
+            if ( rowBuffer.size() < 100 ) {
+              rowBuffer.addRow( row );
+            }
           }
-          if (rowBuffer.size()<100) {
-            rowBuffer.addRow( row );
-          }
-        }
-      });
+        } );
+      }
     }
 
   }
@@ -3574,9 +3568,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     pipelineLogDelegate.addPipelineLog();
     pipelineGridDelegate.addPipelineGrid();
-    pipelineMetricsDelegate.addPipelineMetrics();
-    pipelinePreviewDelegate.addPipelinePreview();
-    pipelinePerfDelegate.addPipelinePerf();
 
     /*
     List<HopUiExtenderPluginInterface> relevantExtenders = HopUiExtenderPluginType.getInstance().getRelevantExtenders( HopGuiPipelineGraph.class, LOAD_TAB );
@@ -3644,10 +3635,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         pipelineDebugMeta.addBreakPointListers( ( pipelineDebugMeta1, transformDebugMeta, rowBufferMeta, rowBuffer )
           -> showPreview( pipelineDebugMeta1, transformDebugMeta, rowBufferMeta, rowBuffer ) );
-
-        // Capture data?
-        //
-        pipelinePreviewDelegate.capturePreviewData( pipeline, pipelineMeta.getTransforms() );
 
         // Start the threads for the transforms...
         //
@@ -3778,9 +3765,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         //
         updateGui();
 
-        // Capture data?
+        // When running locally in the GUI, sample rows in every transform to show in the user interface...
         //
-        pipelinePreviewDelegate.capturePreviewData( pipeline, pipelineMeta.getTransforms() );
+        if ( pipeline.getPipelineRunConfiguration().getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) {
+          addRowsSamplerToPipeline( pipeline );
+        }
 
         initialized = true;
       } catch ( HopException e ) {
@@ -3815,9 +3804,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           checkPipelineEnded();
           checkErrorVisuals();
           stopRedrawTimer();
-
-          pipelineMetricsDelegate.resetLastRefreshTime();
-          pipelineMetricsDelegate.updateGraph();
         }
       );
 
@@ -3831,17 +3817,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       checkErrorVisuals();
       stopRedrawTimer();
     }
-
-    // See if we have to fire off the performance graph updater etc.
-    //
-    getDisplay().asyncExec( () -> {
-      if ( pipelinePerfDelegate.getPipelinePerfTab() != null ) {
-        // If there is a tab open, try to the correct content on there now
-        //
-        pipelinePerfDelegate.setupContent();
-        pipelinePerfDelegate.layoutPerfComposite();
-      }
-    } );
   }
 
   private void startRedrawTimer() {

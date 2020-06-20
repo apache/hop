@@ -31,11 +31,6 @@
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDelegate</classname>
-    <description>Pipeline Graph Preview Delegate</description>
-  </gui-plugin>
-
-  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineGridDelegate</classname>
     <description>Pipeline Graph Grid Delegate</description>
   </gui-plugin>
