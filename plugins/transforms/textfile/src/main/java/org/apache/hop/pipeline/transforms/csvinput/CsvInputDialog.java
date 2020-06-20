@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -62,8 +61,6 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -87,7 +84,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -1019,10 +1015,6 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         }
 
         pipelineGraph.extraViewTabFolder.setSelection( 5 );
-
-        pipelineGraph.pipelinePreviewDelegate.addPreviewData( transformMeta, rowMeta, rowsData, buffer );
-        pipelineGraph.pipelinePreviewDelegate.setSelectedTransform( transformMeta );
-        pipelineGraph.pipelinePreviewDelegate.refreshView();
       }
     } finally {
       previewBusy.set( false );
@@ -1031,15 +1023,11 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
   protected void asyncUpdatePreview() {
 
-    Runnable update = new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          updatePreview();
-        } catch ( SWTException e ) {
-          // Ignore widget disposed errors
-        }
+    Runnable update = () -> {
+      try {
+        updatePreview();
+      } catch ( SWTException e ) {
+        // Ignore widget disposed errors
       }
     };
 

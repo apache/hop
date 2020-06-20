@@ -227,7 +227,6 @@ public class HopGui implements IActionContextHandlersProvider {
 
     commandLineArguments = new ArrayList<>();
     variables = Variables.getADefaultVariableSpace();
-    props = PropsUi.getInstance();
 
     loggingObject = new LoggingObject( APP_NAME );
     log = new LogChannel( APP_NAME );
@@ -265,17 +264,14 @@ public class HopGui implements IActionContextHandlersProvider {
       OsHelper.initOsHandlers( display );
       UIManager.setLookAndFeel( new MetalLookAndFeel() );
 
-      // Load images and so on...
-      //
-      PropsUi.init( display );
-
       // Initialize the logging backend
       //
-      HopLogStore.init( PropsUi.getInstance().getMaxNrLinesInLog(), PropsUi.getInstance().getMaxLogLineTimeoutMinutes() );
+      HopLogStore.init( );
       Locale.setDefault( LanguageChoice.getInstance().getDefaultLocale() );
 
       hopGui = new HopGui( display );
       hopGui.getCommandLineArguments().addAll( Arrays.asList( arguments ) );
+      hopGui.setProps( PropsUi.getInstance() );
 
       // Add and load the Hop GUI Plugins...
       // - Load perspectives

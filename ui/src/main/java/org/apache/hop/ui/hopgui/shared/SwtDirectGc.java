@@ -232,6 +232,8 @@ public class SwtDirectGc implements IGc {
         return GuiResource.getInstance().getDisabledArrow();
       case ARROW_CANDIDATE:
         return GuiResource.getInstance().getCandidateArrow();
+      case DATA:
+        return GuiResource.getInstance().getSwtImageData();
       default:
         break;
     }

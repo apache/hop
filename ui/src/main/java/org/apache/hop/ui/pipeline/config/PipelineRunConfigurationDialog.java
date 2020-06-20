@@ -528,7 +528,6 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
 
     HopClientEnvironment.init();
-    PropsUi.init( display );
     HopEnvironment.init();
     HopGuiEnvironment.init();
     // LocalWorkflowRunConfiguration localConfig = new LocalWorkflowRunConfiguration( "Local", "Local pipeline engine", "5000" );

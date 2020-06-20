@@ -398,7 +398,6 @@ public class WorkflowRunConfigurationDialog extends Dialog implements IMetadataD
     Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
 
     HopClientEnvironment.init();
-    PropsUi.init( display );
     HopEnvironment.init();
     HopGuiEnvironment.init();
     WorkflowRunConfiguration configuration = new WorkflowRunConfiguration( "test", "A test run config", null );

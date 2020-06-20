@@ -66,23 +66,35 @@ public class RowBuffer {
 
   public String getXml() throws IOException {
     String xml = XmlHandler.openTag( XML_TAG );
-    xml+=rowMeta.getMetaXml();
-    for (Object[] row : buffer) {
-      xml+=rowMeta.getDataXml( row );
+    xml += rowMeta.getMetaXml();
+    for ( Object[] row : buffer ) {
+      xml += rowMeta.getDataXml( row );
     }
     xml += XmlHandler.closeTag( XML_TAG );
 
     return xml;
   }
 
-  public RowBuffer( Node node) throws HopException {
+  public RowBuffer( Node node ) throws HopException {
     this();
     Node rowMetaNode = XmlHandler.getSubNode( node, RowMeta.XML_META_TAG );
-    rowMeta = new RowMeta(rowMetaNode);
+    rowMeta = new RowMeta( rowMetaNode );
     List<Node> dataNodes = XmlHandler.getNodes( node, RowMeta.XML_DATA_TAG );
-    for (Node dataNode : dataNodes) {
+    for ( Node dataNode : dataNodes ) {
       buffer.add( rowMeta.getRow( dataNode ) );
     }
+  }
+
+  public int size() {
+    return buffer.size();
+  }
+
+  public boolean isEmpty() {
+    return buffer.isEmpty();
+  }
+
+  public void addRow( Object[] row ) {
+    buffer.add( row );
   }
 
   /**

@@ -30,7 +30,6 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -396,9 +395,7 @@ public class ContextDialog extends Dialog {
 			if ( x + maxNameWidth < event.width ) {
 				Item item = filteredItems.get( i );
 
-
 				org.eclipse.swt.graphics.Point extent = gc.textExtent( item.getText() );
-				LogChannel.GENERAL.logBasic( "Text size of '" + item.getText() + " : (" + extent.x + ", " + extent.y + ")" );
 
 				boolean selected = item.equals( selectedItem );
 				if ( selected ) {
@@ -627,7 +624,6 @@ public class ContextDialog extends Dialog {
 		// shell.open();
 
 		HopClientEnvironment.init();
-		PropsUi.init( display );
 		HopEnvironment.init();
 
 		List<GuiAction> actions = new ArrayList<>();

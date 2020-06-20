@@ -194,9 +194,6 @@ public class HopGuiPipelineRunDelegate {
     if ( execConfigAnswer ) {
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
-      pipelineGraph.pipelinePreviewDelegate.addPipelinePreview();
-      pipelineGraph.pipelineMetricsDelegate.addPipelineMetrics();
-      pipelineGraph.pipelinePerfDelegate.addPipelinePerf();
       pipelineGraph.extraViewTabFolder.setSelection( 0 );
 
       // Set the named parameters
