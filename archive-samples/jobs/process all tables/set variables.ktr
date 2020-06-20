@@ -31,13 +31,7 @@
     <shared_objects_file/>
     <dependencies>
       </dependencies>
-    <partitionschemas>
-      </partitionschemas>
-    <slaveservers>
-      </slaveservers>
-    <clusterschemas>
-      </clusterschemas>
-  <modified_user>admin</modified_user>
+    <modified_user>admin</modified_user>
   <modified_date>2007&#47;01&#47;18 13:48:33.000</modified_date>
     </info>
   <notepads>
@@ -60,8 +54,7 @@
         <type>String</type>
         <length>64</length>
         <precision>-1</precision>
-        </field>      </fields>     <cluster_schema/>
-    <GUI>
+        </field>      </fields> <GUI>
       <xloc>113</xloc>
       <yloc>71</yloc>
       <draw>Y</draw>
@@ -86,8 +79,7 @@
         <variable_type>ROOT_JOB</variable_type>
         </field>
       </fields>
-     <cluster_schema/>
-    <GUI>
+ <GUI>
       <xloc>274</xloc>
       <yloc>70</yloc>
       <draw>Y</draw>

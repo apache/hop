@@ -422,8 +422,8 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-      <slaveserver>
+    <hop-servers>
+      <hop-server>
         <name>ID-Server</name>
         <hostname>localhost</hostname>
         <port>8181</port>
@@ -433,8 +433,8 @@
         <proxy_port/>
         <non_proxy_hosts/>
         <master>N</master>
-        <sslMode>N</sslMode>      </slaveserver>
-    </slaveservers>
+        <sslMode>N</sslMode>      </hop-server>
+    </hop-servers>
     <clusterschemas>
     </clusterschemas>
     <created_user>-</created_user>
@@ -503,9 +503,7 @@
       <line> <item>4</item><item>Twelve</item> </line>
       <line> <item>4</item><item>Thirteen</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -530,9 +528,7 @@
     </partitioning>
     <linesrange>1,3..7,10..12</linesrange>
     <linenumfield>linenr</linenumfield>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -546,7 +542,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

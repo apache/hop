@@ -561,11 +561,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       RowBuffer rowBuffer = outputRowsMap.get( transformMeta.getName() );
       if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
-        int iconWidth = MINI_ICON_SIZE / 2;
-        int iconX = x + iconSize - iconWidth + 4;
-        int iconY = y + iconSize - iconWidth + 1 ;
+        int iconWidth = MINI_ICON_SIZE;
+        int iconX = x + iconSize - iconWidth + 10;
+        int iconY = y + iconSize - iconWidth + 10 ;
         gc.drawImage( EImage.DATA, iconX, iconY, magnification );
-        areaOwners.add( new AreaOwner( AreaType.TRANSFORM_OUTPUT_DATA, iconX + iconWidth, iconY + iconWidth, iconWidth, iconWidth, offset, transformMeta, rowBuffer ) );
+        areaOwners.add( new AreaOwner( AreaType.TRANSFORM_OUTPUT_DATA, iconX, iconY, iconWidth, iconWidth, offset, transformMeta, rowBuffer ) );
       }
     }
   }

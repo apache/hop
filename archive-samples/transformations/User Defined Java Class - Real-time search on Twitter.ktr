@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2012&#x2f;02&#x2f;24 11&#x3a;35&#x3a;52.416</created_date>
     <modified_user>-</modified_user>
@@ -639,9 +633,7 @@ public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface 
 </usage_parameter><usage_parameter><parameter_tag>DELAY</parameter_tag>
 <parameter_value>600</parameter_value>
 <parameter_description>Delay between searches in seconds</parameter_description>
-</usage_parameter></usage_parameters>    <cluster_schema/>
-
-      <input>
+</usage_parameter></usage_parameters><input>
       </input>
       <output>
       </output>
@@ -707,9 +699,7 @@ public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface 
         <update>Y</update>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -723,7 +713,4 @@ public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface 
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

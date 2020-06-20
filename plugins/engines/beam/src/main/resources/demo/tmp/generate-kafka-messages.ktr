@@ -422,8 +422,8 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-      <slaveserver>
+    <hop-servers>
+      <hop-server>
         <name>8888</name>
         <hostname>localhost</hostname>
         <port>8888</port>
@@ -435,8 +435,8 @@
         <non_proxy_hosts />
         <master>N</master>
         <sslMode>N</sslMode>
-      </slaveserver>
-      <slaveserver>
+      </hop-server>
+      <hop-server>
         <name>sandbox</name>
         <hostname>sandbox.kettle.be</hostname>
         <port>8080</port>
@@ -448,9 +448,9 @@
         <non_proxy_hosts />
         <master>N</master>
         <sslMode>N</sslMode>
-      </slaveserver>
-      <slaveserver>
-        <name>slave2</name>
+      </hop-server>
+      <hop-server>
+        <name>server2</name>
         <hostname>localhost</hostname>
         <port>8301</port>
         <webAppName />
@@ -461,9 +461,9 @@
         <non_proxy_hosts />
         <master>N</master>
         <sslMode>N</sslMode>
-      </slaveserver>
-      <slaveserver>
-        <name>slave1</name>
+      </hop-server>
+      <hop-server>
+        <name>server1</name>
         <hostname>localhost</hostname>
         <port>8300</port>
         <webAppName />
@@ -474,8 +474,8 @@
         <non_proxy_hosts />
         <master>N</master>
         <sslMode>N</sslMode>
-      </slaveserver>
-    </slaveservers>
+      </hop-server>
+    </hop-servers>
     <clusterschemas>
     </clusterschemas>
     <created_user>-</created_user>
@@ -709,6 +709,5 @@ var msg = JSON.stringify(m)</jsScript_script>
   </step_error_handling>
   <slave-step-copy-partition-distribution>
   </slave-step-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
-  <attributes />
+<attributes />
 </transformation>

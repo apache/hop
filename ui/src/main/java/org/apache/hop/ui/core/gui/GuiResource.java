@@ -207,9 +207,9 @@ public class GuiResource {
 
   private SwtUniversalImage imageCluster;
 
-  private SwtUniversalImage imageSlave;
+  private SwtUniversalImage imageServer;
 
-  private SwtUniversalImage imageSlaveTree;
+  private SwtUniversalImage imageServerTree;
 
   private SwtUniversalImage imageArrow;
 
@@ -631,8 +631,8 @@ public class GuiResource {
       imageBol.dispose();
       imageCalendar.dispose();
       imageCluster.dispose();
-      imageSlave.dispose();
-      imageSlaveTree.dispose();
+      imageServer.dispose();
+      imageServerTree.dispose();
       imageArrow.dispose();
       imageFolder.dispose();
       imageWizard.dispose();
@@ -904,73 +904,74 @@ public class GuiResource {
 
     imageDisabledHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Disabled_HOP_image" ) );
 
-    // "ui/images/CNC.png"
+    // "ui/images/CNC.svg"
     imageConnection = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_image" ) );
 
-    // "ui/images/CNC.png"
+    // "ui/images/CNC.svg"
     imageData = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Data_image" ) );
 
     // "ui/images/CNC_tree"
     imageConnectionTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CNC_tree_image" ) );
 
-    // "ui/images/Add.png"
+    // "ui/images/Add.svg"
     imageAdd = loadAsResource( display, BasePropertyHandler.getProperty( "Add_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/table.png"
+    // "ui/images/table.svg"
     imageTable = loadAsResource( display, BasePropertyHandler.getProperty( "Table_image" ), ConstUi.SMALL_ICON_SIZE );
 
     // "ui/images/preview.svg"
     imagePreview = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Preview_image" ) );
 
-    // "ui/images/schema.png"
+    // "ui/images/schema.svg"
     imageSchema = loadAsResource( display, BasePropertyHandler.getProperty( "Schema_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/synonym.png"
+    // "ui/images/synonym.svg"
     imageSynonym = loadAsResource( display, BasePropertyHandler.getProperty( "Synonym_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/view.png"
+    // "ui/images/view.svg"
     imageView = loadAsResource( display, BasePropertyHandler.getProperty( "View_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/color.png.png"
+    // "ui/images/color.svg.svg"
     imageColor = loadAsResource( display, BasePropertyHandler.getProperty( "Color_image" ), 12 );
 
-    // "ui/images/noteSmall.png"
+    // "ui/images/noteSmall.svg"
     imageNoteSmall = loadAsResource( display, BasePropertyHandler.getProperty( "Note_image" ), 12 );
 
-    // "ui/images/proc.png"
+    // "ui/images/proc.svg"
     imageProcedure = loadAsResource( display, BasePropertyHandler.getProperty( "ProcedureSmall_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // , "ui/images/exploreDbSmall.png"
+    // , "ui/images/exploreDbSmall.svg"
     imageExploreDbSmall =
       loadAsResource( display, BasePropertyHandler.getProperty( "ExploreDbSmall_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/cluster.png"
+    // "ui/images/cluster.svg"
     imageCluster = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Cluster_image" ) );
 
-    // , "ui/images/slave.png"
-    imageSlave = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Slave_image" ) );
+    // , "ui/images/server.svg"
+    imageServer = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Server_image" ) );
 
-    // , "ui/images/slave-tree.png"
-    imageSlaveTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Slave_tree_image" ) );
+    // , "ui/images/server-tree.svg"
+    imageServerTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Server_tree_image" ) );
 
-    // "ui/images/logo_kettle_lrg.png"
+    // "ui/images/hop_logo_lrg.svg"
     imageHopLogo = loadAsResource( display, BasePropertyHandler.getProperty( "Logo_lrg_image" ), 0 );
-    // "ui/images/bg_banner.png"
+
+    // "ui/images/bg_banner.svg"
     imageBanner = loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 );
 
-    // "ui/images/BOL.png"
+    // "ui/images/BOL.svg"
     imageBol = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BOL_image" ) );
 
-    // "ui/images/Calendar.png"
+    // "ui/images/Calendar.svg"
     imageCalendar = loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUi.SMALL_ICON_SIZE ); // ,
 
-    // "ui/images/credits.png"
+    // "ui/images/credits.svg"
     imageCredits = loadAsResource( display, BasePropertyHandler.getProperty( "Credits_image" ), 0 );
 
-    // "ui/images/STR.png"
+    // "ui/images/STR.svg"
     imageStart = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "STR_image" ) );
 
-    // "ui/images/DUM.png"
+    // "ui/images/DUM.svg"
     imageDummy = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "DUM_image" ) );
 
     //ui/images/missing_entry.svg
@@ -982,176 +983,176 @@ public class GuiResource {
     // "ui/images/variable.svg"
     imageVariable = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Variable_image" ) );
 
-    // "ui/images/edit_option.png"
+    // "ui/images/edit_option.svg"
     imageEditOptionButton = loadAsResource( display, BasePropertyHandler.getProperty( "EditOption_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/reset_option.png"
+    // "ui/images/reset_option.svg"
     imageResetOptionButton = loadAsResource( display, BasePropertyHandler.getProperty( "ResetOption_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/Edit.png"
+    // "ui/images/Edit.svg"
     imageEditSmall = loadAsResource( display, BasePropertyHandler.getProperty( "EditSmall_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/exploreSolution.png"
+    // "ui/images/exploreSolution.svg"
     imageExploreSolutionSmall = loadAsResource( display, BasePropertyHandler.getProperty( "ExploreSolutionSmall_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-log.png"
+    // "ui/images/show-log.svg"
     imageShowLog = loadAsResource( display, BasePropertyHandler.getProperty( "ShowLog_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-grid.png"
+    // "ui/images/show-grid.svg"
     imageShowGrid = loadAsResource( display, BasePropertyHandler.getProperty( "ShowGrid_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-history.png"
+    // "ui/images/show-history.svg"
     imageShowHistory = loadAsResource( display, BasePropertyHandler.getProperty( "ShowHistory_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-perf.png"
+    // "ui/images/show-perf.svg"
     imageShowPerf = loadAsResource( display, BasePropertyHandler.getProperty( "ShowPerf_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // ui/images/show-inactive-selected.png
+    // ui/images/show-inactive-selected.svg
     imageShowInactive = loadAsResource( display, BasePropertyHandler.getProperty( "ShowInactive_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // ui/images/show-inactive-selected.png
+    // ui/images/show-inactive-selected.svg
     imageHideInactive = loadAsResource( display, BasePropertyHandler.getProperty( "HideInactive_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // ui/images/show-selected.png
+    // ui/images/show-selected.svg
     imageShowSelected = loadAsResource( display, BasePropertyHandler.getProperty( "ShowSelected_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // ui/images/show-all.png
+    // ui/images/show-all.svg
     imageShowAll = loadAsResource( display, BasePropertyHandler.getProperty( "ShowAll_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-perf.png"
+    // "ui/images/show-perf.svg"
     imageClosePanel = loadAsResource( display, BasePropertyHandler.getProperty( "ClosePanel_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-perf.png"
+    // "ui/images/show-perf.svg"
     imageMaximizePanel = loadAsResource( display, BasePropertyHandler.getProperty( "MaximizePanel_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-perf.png"
+    // "ui/images/show-perf.svg"
     imageMinimizePanel = loadAsResource( display, BasePropertyHandler.getProperty( "MinimizePanel_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-perf.png"
+    // "ui/images/show-perf.svg"
     imageShowErrorLines = loadAsResource( display, BasePropertyHandler.getProperty( "ShowErrorLines_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-results.png
+    // "ui/images/show-results.svg
     imageShowResults = loadAsResource( display, BasePropertyHandler.getProperty( "ShowResults_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/hide-results.png
+    // "ui/images/hide-results.svg
     imageHideResults = loadAsResource( display, BasePropertyHandler.getProperty( "HideResults_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/Design.png;
+    // "ui/images/Design.svg;
     imageDesignPanel = loadAsResource( display, BasePropertyHandler.getProperty( "DesignPanel_image" ), 0 );
 
-    // "ui/images/View.png;
+    // "ui/images/View.svg;
     imageViewPanel = loadAsResource( display, BasePropertyHandler.getProperty( "ViewPanel_image" ), 0 );
 
-    // "ui/images/ClearText.png;
+    // "ui/images/ClearText.svg;
     imageClearText = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearText_image" ) );
 
-    // "ui/images/ClearTextDisabled.png;
+    // "ui/images/ClearTextDisabled.svg;
     imageClearTextDisabled = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearTextDisabled_image" ) );
 
-    // "ui/images/ExpandAll.png;
+    // "ui/images/ExpandAll.svg;
     imageExpandAll = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ExpandAll_image" ) );
 
-    // "ui/images/CollapseAll.png;
+    // "ui/images/CollapseAll.svg;
     imageCollapseAll = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CollapseAll_image" ) );
 
-    // "ui/images/show-error-lines.png;
+    // "ui/images/show-error-lines.svg;
     imageTransformError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "TransformErrorLines_image" ) );
 
     // "ui/images/transform-error.svg;
     imageRedTransformError = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "TransformErrorLinesRed_image" ) );
 
-    // "ui/images/copy-hop.png;
+    // "ui/images/copy-hop.svg;
     imageCopyHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CopyHop_image" ) );
 
-    // "ui/images/error-hop.png;
+    // "ui/images/error-hop.svg;
     imageErrorHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ErrorHop_image" ) );
 
-    // "ui/images/info-hop.png;
+    // "ui/images/info-hop.svg;
     imageInfoHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "InfoHop_image" ) );
 
-    // "ui/images/warning.png;
+    // "ui/images/warning.svg;
     imageWarning = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Warning_image" ) );
 
     // "ui/images/deprecated.svg
     imageDeprecated = loadAsResource( display, BasePropertyHandler.getProperty( "Deprecated_image" ),
       ConstUi.LARGE_ICON_SIZE );
 
-    // "ui/images/version-history.png;
+    // "ui/images/version-history.svg;
     imageVersionBrowser = loadAsResource( display, BasePropertyHandler.getProperty( "VersionBrowser_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/generic-new.png;
+    // "ui/images/generic-new.svg;
     imageNew = loadAsResource( display, BasePropertyHandler.getProperty( "Add_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/generic-edit.png;
+    // "ui/images/generic-edit.svg;
     imageEdit = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "EditSmall_image" ) );
 
-    // "ui/images/generic-delete.png;
+    // "ui/images/generic-delete.svg;
     imageDelete = loadAsResource( display, BasePropertyHandler.getProperty( "DeleteOriginal_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-deleted.png;
+    // "ui/images/show-deleted.svg;
     imageShowDeleted = loadAsResource( display, BasePropertyHandler.getProperty( "ShowDeleted_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/pause-log.png;
+    // "ui/images/pause-log.svg;
     imagePauseLog = loadAsResource( display, BasePropertyHandler.getProperty( "PauseLog_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/continue-log.png;
+    // "ui/images/continue-log.svg;
     imageContinueLog = loadAsResource( display, BasePropertyHandler.getProperty( "ContinueLog_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/import.png;
+    // "ui/images/import.svg;
     imageImport = loadAsResource( display, BasePropertyHandler.getProperty( "Import_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/export.png;
+    // "ui/images/export.svg;
     imageExport = loadAsResource( display, BasePropertyHandler.getProperty( "Export_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/hop-input.png;
+    // "ui/images/hop-input.svg;
     imageHopInput = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopInput_image" ) );
 
-    // "ui/images/hop-output.png;
+    // "ui/images/hop-output.svg;
     imageHopOutput = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopOutput_image" ) );
 
-    // "ui/images/hop-target.png;
+    // "ui/images/hop-target.svg;
     imageHopTarget = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopTarget_image" ) );
 
-    // "ui/images/locked.png;
+    // "ui/images/locked.svg;
     imageLocked = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Locked_image" ) );
 
-    // "ui/images/true.png;
+    // "ui/images/true.svg;
     imageTrue = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "True_image" ) );
 
-    // "ui/images/false.png;
+    // "ui/images/false.svg;
     imageFalse = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "False_image" ) );
 
-    // "ui/images/context_menu.png;
+    // "ui/images/context_menu.svg;
     imageContextMenu = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ContextMenu_image" ) );
 
-    // "ui/images/parallel-hop.png
+    // "ui/images/parallel-hop.svg
     imageParallelHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ParallelHop_image" ) );
 
-    // "ui/images/unconditional-hop.png
+    // "ui/images/unconditional-hop.svg
     imageUnconditionalHop = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "UnconditionalHop_image" ) );
 
-    // "ui/images/busy.png
+    // "ui/images/busy.svg
     imageBusy = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Busy_image" ) );
 
-    // "ui/images/inject.png
+    // "ui/images/inject.svg
     imageInject = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Inject_image" ) );
 
-    // "ui/images/scales.png
+    // "ui/images/scales.svg
     imageBalance = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "LoadBalance_image" ) );
 
-    // "ui/images/scales.png
+    // "ui/images/scales.svg
     imageCheckpoint = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CheckeredFlag_image" ) );
 
-    // "ui/images/gantt.png
+    // "ui/images/gantt.svg
     imageGantt = loadAsResource( display, BasePropertyHandler.getProperty( "Gantt_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/help_web.png
+    // "ui/images/help_web.svg
     imageHelpWeb = loadAsResource( display, BasePropertyHandler.getProperty( "HelpWeb_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/hadoop.png
+    // "ui/images/hadoop.svg
     imageHadoop = loadAsResource( display, BasePropertyHandler.getProperty( "Hadoop_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/drop_here.png
+    // "ui/images/drop_here.svg
     imageDropHere = loadAsResource( display, BasePropertyHandler.getProperty( "DropHere_image" ), 0 );
 
     // "ui/images/pipeline_canvas.svg
@@ -1160,46 +1161,46 @@ public class GuiResource {
     // "ui/images/job_canvas.svg
     imageWorkflowCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "WorkflowCanvas_image" ), 800, 250 );
 
-    // "ui/images/add_all.png
+    // "ui/images/add_all.svg
     imageAddAll = loadAsResource( display, BasePropertyHandler.getProperty( "AddAll_image" ), 12 );
 
-    // "ui/images/add_single.png
+    // "ui/images/add_single.svg
     imageAddSingle = loadAsResource( display, BasePropertyHandler.getProperty( "AddSingle_image" ), 12 );
 
-    // "ui/images/remove_all.png
+    // "ui/images/remove_all.svg
     imageRemoveAll = loadAsResource( display, BasePropertyHandler.getProperty( "RemoveAll_image" ), 12 );
 
-    // "ui/images/remove_single.png
+    // "ui/images/remove_single.svg
     imageRemoveSingle = loadAsResource( display, BasePropertyHandler.getProperty( "RemoveSingle_image" ), 12 );
 
-    // ui/images/back-enabled.png
+    // ui/images/back-enabled.svg
     imageBackEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BackEnabled" ) );
 
-    // ui/images/back-disabled.png
+    // ui/images/back-disabled.svg
     imageBackDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BackDisabled" ) );
 
-    // ui/images/forward-enabled.png
+    // ui/images/forward-enabled.svg
     imageForwardEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ForwardEnabled" ) );
 
-    // ui/images/forward-disabled.png
+    // ui/images/forward-disabled.svg
     imageForwardDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ForwardDisabled" ) );
 
-    // ui/images/refresh-enabled.png
+    // ui/images/refresh-enabled.svg
     imageRefreshEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "RefreshEnabled" ) );
 
-    // ui/images/refresh-disabled.png
+    // ui/images/refresh-disabled.svg
     imageRefreshDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "RefreshDisabled" ) );
 
-    // ui/images/home-enabled.png
+    // ui/images/home-enabled.svg
     imageHomeEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "HomeEnabled" ) );
 
-    // ui/images/home-disabled.png
+    // ui/images/home-disabled.svg
     imageHomeDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "HomeDisabled" ) );
 
-    // ui/images/print-enabled.png
+    // ui/images/print-enabled.svg
     imagePrintEnabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "PrintEnabled" ) );
 
-    // ui/images/print-disabled.png
+    // ui/images/print-disabled.svg
     imagePrintDisabled = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "PrintDisabled" ) );
 
     imageEmpty16x16 = new Image( display, 16, 16 );
@@ -1213,31 +1214,31 @@ public class GuiResource {
     imagePipelineTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Pipeline_tree_image" ) );
     imageWorkflowTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Workflow_tree_image" ) );
 
-    // "ui/images/hop-logo.png"
+    // "ui/images/hop-logo.svg"
     imageLogoSmall = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Logo_sml_image" ) );
 
-    // "ui/images/arrow.png"
+    // "ui/images/arrow.svg"
     imageArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ArrowIcon_image" ) );
 
-    // "ui/images/folder.png"
+    // "ui/images/folder.svg"
     imageFolder = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Folder_image" ) );
 
     // Makes transparent images "on the fly"
     //
 
-    // "ui/images/wizard.png"
+    // "ui/images/wizard.svg"
     imageWizard = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_icon" ), 0 );
 
-    // , "ui/images/bg_banner.png"
+    // , "ui/images/bg_banner.svg"
     imageBanner = ImageUtil.makeImageTransparent( display, loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 ), new RGB( 255, 255, 255 ) );
 
-    // , "ui/images/user.png"
+    // , "ui/images/user.svg"
     imageUser = loadAsResource( display, BasePropertyHandler.getProperty( "User_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/profil.png"
+    // "ui/images/profil.svg"
     imageProfil = loadAsResource( display, BasePropertyHandler.getProperty( "Profil_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/folder_connection.png"
+    // "ui/images/folder_connection.svg"
     imageFolderConnections = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "FolderConnections_image" ) );
 
     imageRegExSmall = loadAsResource( display, BasePropertyHandler.getProperty( "RegExSmall_image" ), ConstUi.SMALL_ICON_SIZE );
@@ -1498,31 +1499,31 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imageSlave.
+   * @return Returns the imageServer.
    */
-  public Image getImageSlave() {
-    return imageSlave.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+  public Image getImageServer() {
+    return imageServer.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
 
   /**
-   * @return Returns the imageSlave.
+   * @return Returns the imageServer.
    */
-  public Image getImageSlaveMedium() {
-    return imageSlave.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+  public Image getImageServerMedium() {
+    return imageServer.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
-   * @return Returns the imageSlaveTree.
+   * @return Returns the imageServerTree.
    */
-  public Image getImageSlaveTree() {
-    return imageSlaveTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+  public Image getImageServerTree() {
+    return imageServerTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
-   * @return Returns the imageSlave.
+   * @return Returns the imageServer.
    */
-  public Image getImageSlaveTreeMedium() {
-    return imageSlaveTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
+  public Image getImageServerTreeMedium() {
+    return imageServerTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**

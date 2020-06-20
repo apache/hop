@@ -37,7 +37,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
@@ -58,36 +57,36 @@ public class HopServer {
   private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
 
   private WebServer webServer;
-  private SlaveServerConfig config;
+  private HopServerConfig config;
   private boolean allOK;
   private static Options options;
 
-  public HopServer( final SlaveServerConfig config ) throws Exception {
+  public HopServer( final HopServerConfig config ) throws Exception {
     this( config, null );
   }
 
-  public HopServer( final SlaveServerConfig config, Boolean joinOverride ) throws Exception {
+  public HopServer( final HopServerConfig config, Boolean joinOverride ) throws Exception {
     this.config = config;
 
     allOK = true;
 
-    HopServerSingleton.setSlaveServerConfig( config );
+    HopServerSingleton.setHopServerConfig( config );
     ILogChannel log = HopServerSingleton.getInstance().getLog();
 
     final PipelineMap pipelineMap = HopServerSingleton.getInstance().getPipelineMap();
-    pipelineMap.setSlaveServerConfig( config );
+    pipelineMap.setHopServerConfig( config );
     final WorkflowMap workflowMap = HopServerSingleton.getInstance().getWorkflowMap();
-    workflowMap.setSlaveServerConfig( config );
+    workflowMap.setHopServerConfig( config );
 
-    SlaveServer slaveServer = config.getSlaveServer();
+    org.apache.hop.server.HopServer hopServer = config.getHopServer();
 
-    String hostname = slaveServer.getHostname();
+    String hostname = hopServer.getHostname();
     int port = WebServer.PORT;
-    if ( !Utils.isEmpty( slaveServer.getPort() ) ) {
+    if ( !Utils.isEmpty( hopServer.getPort() ) ) {
       try {
-        port = Integer.parseInt( slaveServer.getPort() );
+        port = Integer.parseInt( hopServer.getPort() );
       } catch ( Exception e ) {
-        log.logError( BaseMessages.getString( PKG, "HopServer.Error.CanNotPartPort", slaveServer.getHostname(), "" + port ),
+        log.logError( BaseMessages.getString( PKG, "HopServer.Error.CanNotPartPort", hopServer.getHostname(), "" + port ),
           e );
         allOK = false;
       }
@@ -103,7 +102,7 @@ public class HopServer {
         shouldJoin = joinOverride;
       }
 
-      this.webServer = new WebServer( log, pipelineMap, workflowMap, hostname, port, shouldJoin, config.getPasswordFile(), slaveServer.getSslConfig() );
+      this.webServer = new WebServer( log, pipelineMap, workflowMap, hostname, port, shouldJoin, config.getPasswordFile(), hopServer.getSslConfig() );
     }
   }
 
@@ -139,7 +138,7 @@ public class HopServer {
 
     // Load from an xml file that describes the complete configuration...
     //
-    SlaveServerConfig config = null;
+    HopServerConfig config = null;
     if ( arguments.length == 1 && !Utils.isEmpty( arguments[ 0 ] ) ) {
       if ( cmd.hasOption( 's' ) ) {
         throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.illegalStop" ) );
@@ -148,8 +147,8 @@ public class HopServer {
       FileObject file = HopVfs.getFileObject( arguments[ 0 ] );
       Document document = XmlHandler.loadXmlFile( file );
       setHopEnvironment(); // Must stand up server now to allow decryption of password
-      Node configNode = XmlHandler.getSubNode( document, SlaveServerConfig.XML_TAG );
-      config = new SlaveServerConfig( new LogChannel( "Slave server config" ), configNode );
+      Node configNode = XmlHandler.getSubNode( document, HopServerConfig.XML_TAG );
+      config = new HopServerConfig( new LogChannel( "Hop server config" ), configNode );
       if ( config.getAutoSequence() != null ) {
         config.readAutoSequences();
       }
@@ -166,10 +165,10 @@ public class HopServer {
         System.exit( 0 );
       }
 
-      SlaveServer slaveServer = new SlaveServer( hostname + ":" + port, hostname, port, null, null );
+      org.apache.hop.server.HopServer hopServer = new org.apache.hop.server.HopServer( hostname + ":" + port, hostname, port, null, null );
 
-      config = new SlaveServerConfig();
-      config.setSlaveServer( slaveServer );
+      config = new HopServerConfig();
+      config.setHopServer( hopServer );
     }
 
     // Nothing configured: show the usage
@@ -189,7 +188,7 @@ public class HopServer {
     HopEnvironment.init();
   }
 
-  public static void runHopServer( SlaveServerConfig config ) throws Exception {
+  public static void runHopServer( HopServerConfig config ) throws Exception {
     HopLogStore.init();
 
     config.setJoining( true );
@@ -215,16 +214,16 @@ public class HopServer {
   }
 
   /**
-   * @return the slave server (HopServer) configuration
+   * @return the hop server (HopServer) configuration
    */
-  public SlaveServerConfig getConfig() {
+  public HopServerConfig getConfig() {
     return config;
   }
 
   /**
-   * @param config the slave server (HopServer) configuration
+   * @param config the hop server (HopServer) configuration
    */
-  public void setConfig( SlaveServerConfig config ) {
+  public void setConfig( HopServerConfig config ) {
     this.config = config;
   }
 

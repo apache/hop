@@ -76,7 +76,7 @@ public class FileDefinitionDialog implements IMetadataDialog {
     Display display = parent.getDisplay();
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageSlave() );
+    shell.setImage( GuiResource.getInstance().getImageServer() );
 
     middle = props.getMiddlePct();
     margin = Const.MARGIN + 2;

@@ -92,7 +92,7 @@
         <module>fuzzymatch</module>
         <module>getfilenames</module>
         <module>getfilesrowcount</module>
-        <module>getslavesequence</module>
+        <module>getserversequence</module>
         <module>getsubfolders</module>
         <module>gettablenames</module>
         <module>getvariable</module>

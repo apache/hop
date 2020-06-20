@@ -59,13 +59,7 @@
     <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <created_user>-</created_user>
+    <created_user>-</created_user>
   <created_date>2014&#x2f;10&#x2f;28 14&#x3a;49&#x3a;25.990</created_date>
   <modified_user>-</modified_user>
   <modified_date>2014&#x2f;10&#x2f;28 14&#x3a;49&#x3a;25.990</modified_date>
@@ -141,7 +135,6 @@
     <xmlDataNameField>xml_data_name</xmlDataNameField>
     <includeXmlDataValueField>Y</includeXmlDataValueField>
     <xmlDataValueField>xml_data_value</xmlDataValueField>
-     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>96</xloc>
       <yloc>112</yloc>
@@ -337,7 +330,6 @@
         <precision>-1</precision>
       </field>
     </fields>
-     <cluster_schema/>
  <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
       <xloc>256</xloc>
       <yloc>112</yloc>
@@ -349,6 +341,4 @@
   </step_error_handling>
    <slave-step-copy-partition-distribution>
 </slave-step-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-
-</transformation>
+ </transformation>

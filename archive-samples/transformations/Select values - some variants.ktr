@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;03&#x2f;03 20&#x3a;39&#x3a;07.429</created_date>
     <modified_user/>
@@ -594,9 +588,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -725,9 +717,7 @@
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
-      </meta>    </fields>    <cluster_schema/>
-
-      <input>
+      </meta>    </fields><input>
       </input>
       <output>
       </output>
@@ -754,9 +744,7 @@
       <remove>        <name>NotUsed</name>
       </remove>      <remove>        <name>Reserved</name>
       </remove>      <remove>        <name>Remarks</name>
-      </remove>    </fields>    <cluster_schema/>
-
-      <input>
+      </remove>    </fields><input>
       </input>
       <output>
       </output>
@@ -782,9 +770,7 @@
     <fields>      <field>        <name>Gender</name>
       </field>      <field>        <name>InternetIsKnown</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -1141,9 +1127,7 @@
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1157,7 +1141,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

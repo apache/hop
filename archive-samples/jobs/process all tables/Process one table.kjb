@@ -11,8 +11,8 @@
   <modified_date>2007&#x2f;01&#x2f;19 11&#x3a;40&#x3a;47.281</modified_date>
     <parameters>
     </parameters>
-    <slaveservers>
-    </slaveservers>
+    <hop-servers>
+    </hop-servers>
 <workflow-log-table><connection/>
 <schema/>
 <table/>
@@ -74,7 +74,7 @@
       <add_time>N</add_time>
       <loglevel>Error</loglevel>
       <cluster>N</cluster>
-      <slave_server_name/>
+      <hop_server_name/>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>
@@ -108,7 +108,7 @@
       <add_time>N</add_time>
       <loglevel>Error</loglevel>
       <cluster>N</cluster>
-      <slave_server_name/>
+      <hop_server_name/>
       <set_append_logfile>N</set_append_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>

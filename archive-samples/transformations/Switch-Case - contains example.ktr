@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;02&#x2f;26 16&#x3a;24&#x3a;10.296</created_date>
     <modified_user>-</modified_user>
@@ -561,9 +555,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -611,9 +603,7 @@
 <target_transform>six</target_transform>
 </case><case><value/>
 <target_transform>null</target_transform>
-</case></cases>    <cluster_schema/>
-
-      <input>
+</case></cases><input>
       </input>
       <output>
       </output>
@@ -636,9 +626,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -661,9 +649,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -686,9 +672,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -711,9 +695,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -736,9 +718,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -761,9 +741,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -786,9 +764,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -811,9 +787,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -836,9 +810,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -861,9 +833,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -877,7 +847,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

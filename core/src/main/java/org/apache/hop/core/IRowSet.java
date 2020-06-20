@@ -126,14 +126,14 @@ public interface IRowSet {
   void setRowMeta( IRowMeta rowMeta );
 
   /**
-   * @return the targetSlaveServer
+   * @return the targetHopServer
    */
-  String getRemoteSlaveServerName();
+  String getRemoteHopServerName();
 
   /**
-   * @param remoteSlaveServerName the remote slave server to set
+   * @param remoteHopServerName the remote hop server to set
    */
-  void setRemoteSlaveServerName( String remoteSlaveServerName );
+  void setRemoteHopServerName( String remoteHopServerName );
 
   /**
    * @return true if this row set is blocking.

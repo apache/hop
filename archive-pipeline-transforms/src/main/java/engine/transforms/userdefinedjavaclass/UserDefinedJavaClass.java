@@ -478,19 +478,19 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     return super.getRuntime();
   }
 
-  public int getSlaveNr() {
+  public int getServerNr() {
     if ( child == null ) {
-      return getSlaveNrImpl();
+      return getServerNrImpl();
     } else {
-      return child.getSlaveNr();
+      return child.getServerNr();
     }
   }
 
-  public int getSlaveNrImpl() {
+  public int getServerNrImpl() {
     if ( child == null ) {
-      return getSlaveNrImpl();
+      return getServerNrImpl();
     } else {
-      return super.getSlaveNr();
+      return super.getServerNr();
     }
   }
 
@@ -606,28 +606,28 @@ public class UserDefinedJavaClass extends BaseTransform implements ITransform {
     return super.getTypeId();
   }
 
-  public int getUniqueTransformCountAcrossSlaves() {
+  public int getUniqueTransformCountAcrossServers() {
     if ( child == null ) {
-      return getUniqueTransformCountAcrossSlavesImpl();
+      return getUniqueTransformCountAcrossServersImpl();
     } else {
-      return child.getUniqueTransformCountAcrossSlaves();
+      return child.getUniqueTransformCountAcrossServers();
     }
   }
 
-  public int getUniqueTransformCountAcrossSlavesImpl() {
-    return super.getUniqueTransformCountAcrossSlaves();
+  public int getUniqueTransformCountAcrossServersImpl() {
+    return super.getUniqueTransformCountAcrossServers();
   }
 
-  public int getUniqueTransformNrAcrossSlaves() {
+  public int getUniqueTransformNrAcrossServers() {
     if ( child == null ) {
-      return getUniqueTransformNrAcrossSlavesImpl();
+      return getUniqueTransformNrAcrossServersImpl();
     } else {
-      return child.getUniqueTransformNrAcrossSlaves();
+      return child.getUniqueTransformNrAcrossServers();
     }
   }
 
-  public int getUniqueTransformNrAcrossSlavesImpl() {
-    return super.getUniqueTransformNrAcrossSlaves();
+  public int getUniqueTransformNrAcrossServersImpl() {
+    return super.getUniqueTransformNrAcrossServers();
   }
 
   public String getVariable( String variableName ) {

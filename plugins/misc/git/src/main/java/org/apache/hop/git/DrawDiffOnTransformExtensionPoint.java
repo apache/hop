@@ -68,7 +68,7 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
           try {
             iconsize = PropsUi.getInstance().getIconSize();
           } catch ( Exception e ) {
-            // Exception when accessed from Carte
+            // Exception when accessed from Hop Server
           }
           gc.drawImage( location, getClass().getClassLoader(), ( n.x + iconsize + offset.x ) - ( BasePainter.MINI_ICON_SIZE / 2 ), n.y + offset.y - ( BasePainter.MINI_ICON_SIZE / 2 ) );
         } else {

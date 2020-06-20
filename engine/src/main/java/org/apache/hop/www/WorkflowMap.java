@@ -43,7 +43,7 @@ public class WorkflowMap {
   private final Map<HopServerObjectEntry, IWorkflowEngine<WorkflowMeta>> workflowMap;
   private final Map<HopServerObjectEntry, WorkflowConfiguration> configurationMap;
 
-  private SlaveServerConfig slaveServerConfig;
+  private HopServerConfig hopServerConfig;
 
   public WorkflowMap() {
     workflowMap = new ConcurrentHashMap<>(  );
@@ -147,17 +147,17 @@ public class WorkflowMap {
   }
 
   /**
-   * @return the slaveServerConfig
+   * @return the hopServerConfig
    */
-  public SlaveServerConfig getSlaveServerConfig() {
-    return slaveServerConfig;
+  public HopServerConfig getHopServerConfig() {
+    return hopServerConfig;
   }
 
   /**
-   * @param slaveServerConfig the slaveServerConfig to set
+   * @param hopServerConfig the hopServerConfig to set
    */
-  public void setSlaveServerConfig( SlaveServerConfig slaveServerConfig ) {
-    this.slaveServerConfig = slaveServerConfig;
+  public void setHopServerConfig( HopServerConfig hopServerConfig ) {
+    this.hopServerConfig = hopServerConfig;
   }
 
   /**

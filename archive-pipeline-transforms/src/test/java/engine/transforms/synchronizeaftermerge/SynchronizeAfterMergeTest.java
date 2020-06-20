@@ -57,7 +57,7 @@ public class SynchronizeAfterMergeTest {
     doReturn( "${commit.size}" ).when( smi ).getCommitSize();
 
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    doReturn( "1" ).when( pipelineMeta ).getVariable( Const.INTERNAL_VARIABLE_SLAVE_SERVER_NUMBER );
+    doReturn( "1" ).when( pipelineMeta ).getVariable( Const.INTERNAL_VARIABLE_HOP_SERVER_NUMBER );
     doReturn( "2" ).when( pipelineMeta ).getVariable( Const.INTERNAL_VARIABLE_CLUSTER_SIZE );
     doReturn( "Y" ).when( pipelineMeta ).getVariable( Const.INTERNAL_VARIABLE_CLUSTER_MASTER );
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( TRANSFORM_NAME );

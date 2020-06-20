@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2011&#x2f;05&#x2f;25 21&#x3a;13&#x3a;08.245</created_date>
     <modified_user/>
@@ -534,9 +528,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -614,9 +606,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -694,9 +684,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -747,9 +735,7 @@
     </mappings>
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -772,9 +758,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -797,9 +781,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -822,9 +804,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -875,9 +855,7 @@
     </mappings>
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -929,9 +907,7 @@
     </mappings>
     <allow_multiple_input>N</allow_multiple_input>
     <allow_multiple_output>N</allow_multiple_output>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -945,7 +921,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

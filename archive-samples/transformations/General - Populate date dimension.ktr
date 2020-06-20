@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2011&#x2f;04&#x2f;19 20&#x3a;41&#x3a;51.868</created_date>
     <modified_user/>
@@ -503,9 +497,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -678,9 +670,7 @@
       <grouping_symbol>,</grouping_symbol>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -713,9 +703,7 @@
       <start_at>0</start_at>
       <increment_by>1</increment_by>
       <max_value>10000000</max_value>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -755,9 +743,7 @@
         <grouping_symbol/>
         <currency_symbol/>
         <storage_type/>
-      </meta>    </fields>    <cluster_schema/>
-
-      <input>
+      </meta>    </fields><input>
       </input>
       <output>
       </output>
@@ -771,7 +757,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

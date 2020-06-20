@@ -169,7 +169,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetadataDialog {
     wName.setLayoutData( fdName );
     Control lastControl = wlName;
 
-    // is the schema defined dynamically using the number of slave servers in the used cluster.
+    // is the schema defined dynamically using the number of hop servers in the used cluster.
     //
     Label wlDynamic = new Label( shell, SWT.RIGHT );
     props.setLook( wlDynamic );

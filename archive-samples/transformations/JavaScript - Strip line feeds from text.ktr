@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;03&#x2f;03 20&#x3a;39&#x3a;05.159</created_date>
     <modified_user>-</modified_user>
@@ -469,9 +463,7 @@
         <length>100</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -501,9 +493,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -531,9 +521,7 @@
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>ScriptValue</jsScript_name>
         <jsScript_script>&#xa;&#x2f;&#x2f; Which one to take depends on the platform &#x3a; Unix or MS-DOS&#xa;&#x2f;&#x2f; Do both to make sure&#xa;&#x2f;&#x2f;&#xa;value.replace&#x28;&#x22;&#x5c;n&#x5c;r&#x22;, &#x22;,&#x22;&#x29;.replace&#x28;&#x22;&#x5c;n&#x22;, &#x22;,&#x22;&#x29;&#x3b;&#xa;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-
-      <input>
+      </jsScript>    </jsScripts>    <fields>    </fields><input>
       </input>
       <output>
       </output>
@@ -547,7 +535,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

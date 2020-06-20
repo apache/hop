@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2011&#x2f;08&#x2f;09 10&#x3a;07&#x3a;36.830</created_date>
     <modified_user>-</modified_user>
@@ -539,9 +533,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -569,9 +561,7 @@
   <parameters>   <parameter>   <name>CustomerNo</name>   <field>CustomerNo</field>   </parameter>
    <parameter>   <name>Report Type</name>   <field>report_output</field>   </parameter>
   </parameters>    <processor_type>PDF</processor_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -649,9 +639,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -665,7 +653,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

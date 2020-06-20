@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2012&#x2f;06&#x2f;29 10&#x3a;16&#x3a;24.834</created_date>
     <modified_user>-</modified_user>
@@ -511,9 +505,7 @@
     <read_field/>
     <sqlFromfile>N</sqlFromfile>
     <sendOneStatement>Y</sendOneStatement>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -553,9 +545,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -598,9 +588,7 @@
       <file_required>N</file_required>
       <include_subfolders>N</include_subfolders>
     </file>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -633,9 +621,7 @@
  <rightvalue/>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -660,9 +646,7 @@
     </partitioning>
     <fields>      <field>        <name>filename</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -699,9 +683,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -737,9 +719,7 @@
     <include_logging_config>N</include_logging_config>
     <include_last_exec_result>N</include_last_exec_result>
     <include_image_area_list>N</include_image_area_list>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -753,7 +733,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>
