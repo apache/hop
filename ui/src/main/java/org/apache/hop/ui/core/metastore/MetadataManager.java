@@ -34,7 +34,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -61,14 +60,12 @@ public class MetadataManager<T extends IHopMetadata> {
   private ClassLoader classLoader;
 
   private Class<T> managedClass;
-  private PropsUi props;
 
   public MetadataManager( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass ) {
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
-    this.props = PropsUi.getInstance();
   }
 
   public void openMetaStoreExplorer() {
@@ -403,22 +400,6 @@ public class MetadataManager<T extends IHopMetadata> {
    */
   public void setManagedClass( Class<T> managedClass ) {
     this.managedClass = managedClass;
-  }
-
-  /**
-   * Gets props
-   *
-   * @return value of props
-   */
-  public PropsUi getProps() {
-    return props;
-  }
-
-  /**
-   * @param props The props to set
-   */
-  public void setProps( PropsUi props ) {
-    this.props = props;
   }
 
   public T loadElement( String selectedItem ) throws HopException {

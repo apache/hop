@@ -489,7 +489,7 @@ public class GuiResource {
     if ( guiResource != null ) {
       return guiResource;
     }
-    guiResource = new GuiResource( PropsUi.getDisplay() );
+    guiResource = new GuiResource( HopGui.getInstance().getDisplay() );
     return guiResource;
   }
 

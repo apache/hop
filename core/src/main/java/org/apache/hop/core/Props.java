@@ -38,8 +38,6 @@ public class Props implements Cloneable {
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 
-  protected static Props props;
-
   public static final String STRING_FONT_FIXED_NAME = "FontFixedName";
   public static final String STRING_FONT_FIXED_SIZE = "FontFixedSize";
   public static final String STRING_FONT_FIXED_STYLE = "FontFixedStyle";
@@ -100,9 +98,6 @@ public class Props implements Cloneable {
 
   public static final String STRING_DEFAULT_PREVIEW_SIZE = "DefaultPreviewSize";
 
-  private static final String STRING_MAX_NR_LINES_IN_LOG = "MaxNrOfLinesInLog";
-  private static final String STRING_MAX_LOG_LINE_TIMEOUT_MINUTES = "MaxLogLineTimeOutMinutes";
-
   protected ILogChannel log;
 
   public static final int WIDGET_STYLE_DEFAULT = 0;
@@ -113,36 +108,7 @@ public class Props implements Cloneable {
   public static final int WIDGET_STYLE_TAB = 5;
   public static final int WIDGET_STYLE_TOOLBAR = 6;
 
-  /**
-   * Initialize the properties: load from disk.
-   */
-  public static final void init() {
-    if ( props == null ) {
-      props = new Props();
-
-    } else {
-      throw new RuntimeException( "The Properties systems settings are already initialised!" );
-    }
-  }
-
-  /**
-   * Check to see whether the Hop properties where loaded.
-   *
-   * @return true if the Hop properties where loaded.
-   */
-  public static boolean isInitialized() {
-    return props != null;
-  }
-
-  public static Props getInstance() {
-    if ( props != null ) {
-      return props;
-    }
-
-    throw new RuntimeException( "Properties, Hop systems settings, not initialised!" );
-  }
-
-  protected Props() {
+  public Props() {
     log = new LogChannel( STRING_USER_PREFERENCES );
   }
 
@@ -218,26 +184,7 @@ public class Props implements Cloneable {
     }
   }
 
-  public int getMaxNrLinesInLog() {
-    String lines = getProperty( STRING_MAX_NR_LINES_IN_LOG );
-    return Const.toInt( lines, Const.MAX_NR_LOG_LINES );
-  }
-
-  public void setMaxNrLinesInLog( int maxNrLinesInLog ) {
-    setProperty( STRING_MAX_NR_LINES_IN_LOG, Integer.toString( maxNrLinesInLog ) );
-  }
-
-  public int getMaxLogLineTimeoutMinutes() {
-    String minutes = getProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES );
-    return Const.toInt( minutes, Const.MAX_LOG_LINE_TIMEOUT_MINUTES );
-  }
-
-  public void setMaxLogLineTimeoutMinutes( int maxLogLineTimeoutMinutes ) {
-    setProperty( STRING_MAX_LOG_LINE_TIMEOUT_MINUTES, Integer.toString( maxLogLineTimeoutMinutes ) );
-  }
-
   public void reset() {
-    props = null;
     clear();
   }
 

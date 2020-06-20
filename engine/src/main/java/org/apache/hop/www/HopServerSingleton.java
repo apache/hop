@@ -61,7 +61,7 @@ public class HopServerSingleton {
 
   private HopServerSingleton( SlaveServerConfig config ) throws HopException {
     HopEnvironment.init();
-    HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
+    HopLogStore.init();
 
     this.log = new LogChannel( "HopServer" );
     pipelineMap = new PipelineMap();

@@ -25,7 +25,6 @@ package org.apache.hop.junit.rules;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.extension.ExtensionPointMap;
@@ -94,9 +93,6 @@ public class RestoreHopEnvironment extends ExternalResource {
       HopLogStore.getInstance().reset();
     }
     HopLogStore.setLogChannelFactory( new LogChannelFactory() );
-    if ( Props.isInitialized() ) {
-      Props.getInstance().reset();
-    }
     HopVfs.reset();
     XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();

@@ -237,7 +237,6 @@ public class HopGuiPipelinePreviewDelegate {
       EngineMetrics engineMetrics = engine.getEngineMetrics( transformMeta.getName(), 0 );
       IEngineComponent component = engine.findComponent( transformMeta.getName(), 0 );
       Long errors = engineMetrics.getComponentMetric( component, Pipeline.METRIC_ERROR );
-
       if ( errors != null && errors > 0 ) {
         errorTransform = true;
       }
@@ -282,8 +281,7 @@ public class HopGuiPipelinePreviewDelegate {
       columnInfo[ i ].setValueMeta( valueMeta );
     }
 
-    tableView =
-      new TableView( pipelineMeta, previewComposite, SWT.NONE, columnInfo, rowsData.size(), null, PropsUi.getInstance() );
+    tableView = new TableView( pipelineMeta, previewComposite, SWT.NONE, columnInfo, rowsData.size(), null, PropsUi.getInstance() );
 
     // Put data on it...
     //
