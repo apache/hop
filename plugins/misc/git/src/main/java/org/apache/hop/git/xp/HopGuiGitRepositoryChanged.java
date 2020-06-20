@@ -18,6 +18,6 @@ public class HopGuiGitRepositoryChanged implements IExtensionPoint {
 
     // We want to reload the combo box in the Git perspective GUI plugin
     //
-    HopGitPerspective.refreshGitRepositoriesList();
+    HopGitPerspective.getInstance().refreshGitRepositoriesList();
   }
 }

@@ -566,7 +566,7 @@ public class PluginRegistry {
       } catch ( Exception e ) {
         if ( HopLogStore.isInitialized() ) {
           LogChannel.GENERAL.logError( "Error registring plugin class from HOP_PLUGIN_CLASSES: "
-            + className + Const.CR + Const.getStackTracker( e ) );
+            + className + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) );
         }
       }
     }

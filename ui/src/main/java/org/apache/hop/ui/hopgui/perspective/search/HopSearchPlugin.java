@@ -54,21 +54,12 @@ public class HopSearchPlugin implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";
 
-  private static HopSearchPlugin perspective;
-
   private HopGui hopGui;
   private Composite parent;
   private Composite composite;
   private FormData formData;
 
-  public static final HopSearchPlugin getInstance() {
-    if ( perspective == null ) {
-      perspective = new HopSearchPlugin();
-    }
-    return perspective;
-  }
-
-  private HopSearchPlugin() {
+  public HopSearchPlugin() {
   }
 
   @Override public String getId() {

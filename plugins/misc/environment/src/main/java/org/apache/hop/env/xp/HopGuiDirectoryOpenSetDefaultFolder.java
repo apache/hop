@@ -7,10 +7,10 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.env.config.EnvironmentConfigSingleton;
+import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
-import org.eclipse.swt.widgets.DirectoryDialog;
 
 @ExtensionPoint(
   id = "HopGuiDirectoryOpenSetDefaultFolder",
@@ -28,7 +28,7 @@ public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopG
     try {
       String homeFolder = variables.environmentSubstitute( EnvironmentConfigSingleton.getEnvironmentHomeFolder( environmentName ) );
       if (homeFolder!=null) {
-        DirectoryDialog dialog = ext.getDirectoryDialog();
+        IDirectoryDialog dialog = ext.getDirectoryDialog();
         dialog.setFilterPath(homeFolder);
       }
     } catch(Exception e) {

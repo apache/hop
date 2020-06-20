@@ -61,12 +61,19 @@ public class GuiRegistry {
   private Map<String, List<KeyboardShortcut>> shortCutsMap;
   private Map<String, List<GuiAction>> contextActionsMap;
 
+  /**
+   * The first entry in this map is the HopGui ID
+   * Then the maps found are GuiPlugin class names and their instances.  It's used to get the methods and fields for toolbars, components, ...
+   */
+  private Map<String, Map<String, Map<String, Object>>> guiPluginObjectsMap;
+
   private GuiRegistry() {
     guiMenuMap = new HashMap<>();
     guiToolbarMap = new HashMap<>();
     dataElementsMap = new HashMap<>();
     shortCutsMap = new HashMap<>();
     contextActionsMap = new HashMap<>();
+    guiPluginObjectsMap = new HashMap<>();
   }
 
   public static final GuiRegistry getInstance() {
@@ -176,9 +183,6 @@ public class GuiRegistry {
     }
     return items;
   }
-
-
-
 
 
   /**
@@ -395,6 +399,77 @@ public class GuiRegistry {
     return contextActionsMap.get( parentContextId );
   }
 
+  /**
+   * @param hopGuiId           The HopGui ID
+   * @param guiPluginClassname
+   * @param instanceId
+   * @param guiPluginObject
+   */
+  public void registerGuiPluginObject( String hopGuiId, String guiPluginClassname, String instanceId, Object guiPluginObject ) {
+    Map<String, Map<String, Object>> instanceObjectsMap = guiPluginObjectsMap.get( hopGuiId );
+    if ( instanceObjectsMap == null ) {
+      instanceObjectsMap = new HashMap<>();
+      guiPluginObjectsMap.put( hopGuiId, instanceObjectsMap );
+    }
+    Map<String, Object> objectsMap = instanceObjectsMap.get( instanceId );
+    if ( objectsMap == null ) {
+      objectsMap = new HashMap<>();
+      instanceObjectsMap.put( instanceId, objectsMap );
+    }
+    objectsMap.put( guiPluginClassname, guiPluginObject );
+  }
+
+  /**
+   * @param hopGuiId           The HopGui ID
+   * @param guiPluginClassname
+   * @param instanceId
+   * @return
+   */
+  public Object findGuiPluginObject( String hopGuiId, String guiPluginClassname, String instanceId ) {
+
+    Map<String, Map<String, Object>> instanceObjectsMap = guiPluginObjectsMap.get( hopGuiId );
+    if ( instanceObjectsMap == null ) {
+      return null;
+    }
+    Map<String, Object> objectsMap = instanceObjectsMap.get( instanceId );
+    if ( objectsMap == null ) {
+      return null;
+    }
+    return objectsMap.get( guiPluginClassname );
+  }
+
+  /**
+   * Remove the GuiPlugin object once it's disposed.
+   *
+   * @param hopGuiId
+   * @param guiPluginClassname
+   * @param instanceId
+   */
+  public void removeGuiPluginObject( String hopGuiId, String guiPluginClassname, String instanceId ) {
+    Map<String, Map<String, Object>> instanceObjectsMap = guiPluginObjectsMap.get( hopGuiId );
+    if ( instanceObjectsMap == null ) {
+      return;
+    }
+    Map<String, Object> objectsMap = instanceObjectsMap.get( instanceId );
+    if ( objectsMap == null ) {
+      return;
+    }
+    objectsMap.remove( guiPluginClassname );
+  }
+
+  /**
+   * Remove all objects with the given instanceId
+   *
+   * @param hopGuiId
+   * @param instanceId
+   */
+  public void removeGuiPluginObjects( String hopGuiId, String instanceId ) {
+    Map<String, Map<String, Object>> instanceObjectsMap = guiPluginObjectsMap.get( hopGuiId );
+    if ( instanceObjectsMap == null ) {
+      return;
+    }
+    instanceObjectsMap.remove( instanceId );
+  }
 
   /**
    * Gets dataElementsMap
@@ -474,6 +549,22 @@ public class GuiRegistry {
    */
   public void setGuiToolbarMap( Map<String, Map<String, GuiToolbarItem>> guiToolbarMap ) {
     this.guiToolbarMap = guiToolbarMap;
+  }
+
+  /**
+   * Gets guiPluginObjectsMap
+   *
+   * @return value of guiPluginObjectsMap
+   */
+  public Map<String, Map<String, Map<String, Object>>> getGuiPluginObjectsMap() {
+    return guiPluginObjectsMap;
+  }
+
+  /**
+   * @param guiPluginObjectsMap The guiPluginObjectsMap to set
+   */
+  public void setGuiPluginObjectsMap( Map<String, Map<String, Map<String, Object>>> guiPluginObjectsMap ) {
+    this.guiPluginObjectsMap = guiPluginObjectsMap;
   }
 
 }

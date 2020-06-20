@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
@@ -238,7 +237,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected void pickFileVFS() {
-    HopWorkflowFileType<WorkflowMeta> workflowFileType = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType();
+    HopWorkflowFileType<WorkflowMeta> workflowFileType = new HopWorkflowFileType<>();
     BaseDialog.presentFileDialog( shell, wPath, workflowMeta, workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
   }
 

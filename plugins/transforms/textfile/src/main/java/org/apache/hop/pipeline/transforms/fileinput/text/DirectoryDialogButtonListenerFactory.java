@@ -22,48 +22,18 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.extension.ExtensionPoint;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DirectoryDialogButtonListenerFactory {
   public static final SelectionAdapter getSelectionAdapter( final Shell shell, final TextVar destination ) {
     // Listen to the Browse... button
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent event ) {
-        DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
-        if ( destination.getText() != null ) {
-          String filterPath = destination.getText();
-          directoryDialog.setFilterPath( filterPath );
-        }
-
-        AtomicBoolean doIt = new AtomicBoolean( true );
-        try {
-          ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileDirectoryDialog.id,
-            new HopGuiDirectoryDialogExtension( doIt, directoryDialog ) );
-        } catch(Exception xe) {
-          LogChannel.UI.logError( "Error handling extension point 'HopGuiFileDirectoryDialog'", xe );
-        }
-
-        // doIt false means: don't open the dialog, just get the value from it.
-        // We assume the plugin changed it.
-        //
-        if ( !doIt.get() || directoryDialog.open() != null ) {
-          String str = directoryDialog.getFilterPath();
-          destination.setText( str );
-        }
+        BaseDialog.presentDirectoryDialog(shell, destination, null);
       }
     };
   }

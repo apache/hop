@@ -143,7 +143,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
           if ( useXML ) {
             out.println( new WebResult( WebResult.STRING_ERROR,
               BaseMessages.getString( PKG, "PrepareExecutionPipelineServlet.Error.PipelineInitFailed", Const.CR  +
-                logText + Const.CR + Const.getStackTracker( e ) ) )
+                logText + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) ) )
             );
           } else {
             out.println( "<H1>" + Encode.forHtml( BaseMessages.getString( PKG, "PrepareExecutionPipelineServlet.Log.PipelineNotInit", pipelineName ) ) + "</H1>" );

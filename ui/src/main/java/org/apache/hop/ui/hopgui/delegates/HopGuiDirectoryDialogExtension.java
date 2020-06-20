@@ -22,17 +22,15 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.FileDialog;
+import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopGuiDirectoryDialogExtension {
   public AtomicBoolean doIt;
-  public DirectoryDialog directoryDialog;
+  public IDirectoryDialog directoryDialog;
 
-  public HopGuiDirectoryDialogExtension( AtomicBoolean doIt, DirectoryDialog directoryDialog) {
+  public HopGuiDirectoryDialogExtension( AtomicBoolean doIt, IDirectoryDialog directoryDialog) {
     this.doIt = doIt;
     this.directoryDialog = directoryDialog;
   }
@@ -58,14 +56,14 @@ public class HopGuiDirectoryDialogExtension {
    *
    * @return value of directoryDialog
    */
-  public DirectoryDialog getDirectoryDialog() {
+  public IDirectoryDialog getDirectoryDialog() {
     return directoryDialog;
   }
 
   /**
    * @param directoryDialog The directoryDialog to set
    */
-  public void setDirectoryDialog( DirectoryDialog directoryDialog ) {
+  public void setDirectoryDialog( IDirectoryDialog directoryDialog ) {
     this.directoryDialog = directoryDialog;
   }
 }

@@ -49,7 +49,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -379,7 +378,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     }
 
     try {
-      HopPipelineFileType<PipelineMeta> fileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
+      HopPipelineFileType<PipelineMeta> fileType = HopGui.getDataOrchestrationPerspective().getPipelineFileType();
       String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
         loadPipelineFile( filename );

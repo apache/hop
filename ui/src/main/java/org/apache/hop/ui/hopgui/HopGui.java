@@ -30,11 +30,11 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
@@ -49,6 +49,7 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -80,10 +81,13 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
@@ -103,7 +107,6 @@ import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -179,6 +182,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String APP_NAME = "Hop";
 
   private static HopGui hopGui;
+  private String id;
 
   private IHopMetadataProvider metadataProvider;
 
@@ -231,6 +235,8 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private HopGui( Display display ) {
     this.display = display;
+    this.id = UuidUtil.getUUIDAsString();
+
     commandLineArguments = new ArrayList<>();
     variables = Variables.getADefaultVariableSpace();
     props = PropsUi.getInstance();
@@ -358,28 +364,29 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private void loadPerspectives() {
     try {
+      // Pre-load the perspectives and store them in the manager as well as the GuiRegistry
+      //
       perspectiveManager = new HopGuiPerspectiveManager( this, mainPerspectivesComposite );
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
       boolean first = true;
       List<Plugin> perspectivePlugins = PluginRegistry.getInstance().getPlugins( HopPerspectivePluginType.class );
+
       // Sort by ID
       //
-      Collections.sort( perspectivePlugins, new Comparator<Plugin>() {
-        @Override public int compare( Plugin p1, Plugin p2 ) {
-          return p1.getIds()[ 0 ].compareTo( p2.getIds()[ 0 ] );
-        }
-      } );
+      Collections.sort( perspectivePlugins, Comparator.comparing( p -> p.getIds()[ 0 ] ) );
+
       for ( Plugin perspectivePlugin : perspectivePlugins ) {
         Class<IHopPerspective> perspectiveClass = pluginRegistry.getClass( perspectivePlugin, IHopPerspective.class );
-        Method method = perspectiveClass.getDeclaredMethod( "getInstance" );
-        if ( method == null ) {
-          throw new HopException( "Unable to find the getInstance() method in class " + perspectiveClass.getName() + " : make it a singleton" );
-        }
-        // Get the singleton
+        // Create a new instance & initialize.
         //
-        IHopPerspective perspective = (IHopPerspective) method.invoke( null );
+        IHopPerspective perspective = perspectiveClass.newInstance();
         perspective.initialize( this, mainPerspectivesComposite );
         perspectiveManager.addPerspective( perspective );
+
+        // Save in registry
+        //
+        GuiRegistry.getInstance().registerGuiPluginObject( getId(), perspectiveClass.getName(), perspectivesToolbarWidgets.getInstanceId(), perspective );
+
         if ( first ) {
           first = false;
           perspective.show();
@@ -425,6 +432,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainMenu = new Menu( shell, SWT.BAR );
 
     mainMenuWidgets = new GuiMenuWidgets();
+    mainMenuWidgets.registerGuiPluginObject( this );
     mainMenuWidgets.createMenuWidgets( ID_MAIN_MENU, shell, mainMenu );
 
     shell.setMenuBar( mainMenu );
@@ -672,6 +680,7 @@ public class HopGui implements IActionContextHandlersProvider {
     props.setLook( mainToolbar, Props.WIDGET_STYLE_TOOLBAR );
 
     mainToolbarWidgets = new GuiToolbarWidgets();
+    mainToolbarWidgets.registerGuiPluginObject( this );
     mainToolbarWidgets.createToolbarWidgets( mainToolbar, ID_MAIN_TOOLBAR );
     mainToolbar.pack();
   }
@@ -698,6 +707,7 @@ public class HopGui implements IActionContextHandlersProvider {
     perspectivesToolbar.setLayoutData( fdToolBar );
 
     perspectivesToolbarWidgets = new GuiToolbarWidgets();
+    perspectivesToolbarWidgets.registerGuiPluginObject( this );
     perspectivesToolbarWidgets.createToolbarWidgets( perspectivesToolbar, GUI_PLUGIN_PERSPECTIVES_PARENT_ID );
     perspectivesToolbar.pack();
   }
@@ -1057,6 +1067,41 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   /**
+   * Convenience method to pick up the active pipeline graph
+   *
+   * @return The active pipeline graph or null if none is active
+   */
+  public static HopGuiPipelineGraph getActivePipelineGraph() {
+    IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
+    if (!(activePerspective instanceof HopDataOrchestrationPerspective ) ) {
+      return null;
+    }
+    HopDataOrchestrationPerspective perspective = (HopDataOrchestrationPerspective) activePerspective;
+    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+    if (!(typeHandler instanceof HopGuiPipelineGraph)) {
+      return null;
+    }
+    return (HopGuiPipelineGraph) typeHandler;
+  }
+
+  public static HopGuiWorkflowGraph getActiveWorkflowGraph() {
+    IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
+    if (!(activePerspective instanceof HopDataOrchestrationPerspective ) ) {
+      return null;
+    }
+    HopDataOrchestrationPerspective perspective = (HopDataOrchestrationPerspective) activePerspective;
+    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+    if (!(typeHandler instanceof HopGuiWorkflowGraph)) {
+      return null;
+    }
+    return (HopGuiWorkflowGraph) typeHandler;
+  }
+
+  public static HopDataOrchestrationPerspective getDataOrchestrationPerspective() {
+    return (HopDataOrchestrationPerspective) HopGui.getInstance().getPerspectiveManager().findPerspective( HopDataOrchestrationPerspective.class );
+  }
+
+  /**
    * Gets databaseMetaManager
    *
    * @return value of databaseMetaManager
@@ -1202,7 +1247,6 @@ public class HopGui implements IActionContextHandlersProvider {
     this.openingLastFiles = openingLastFiles;
   }
 
-  
   public void instructShortcuts() {
     ShowMessageDialog dialog =
       new ShowMessageDialog( shell, SWT.ICON_WARNING | SWT.OK,
@@ -1211,4 +1255,14 @@ public class HopGui implements IActionContextHandlersProvider {
     );
     dialog.open();
   }
+
+  /**
+   * Gets the unique id of this HopGui instance
+   *
+   * @return value of id
+   */
+  public static String getId() {
+    return getInstance().id;
+  }
+
 }

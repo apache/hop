@@ -21,6 +21,7 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.env.environment.EnvironmentDialog;
@@ -46,25 +47,10 @@ public class EnvironmentGuiPlugin {
   public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-40040-environment-delete";
 
   public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_ENV_OME = "1000-navigate-environment-home";
-
-  private static EnvironmentGuiPlugin instance;
+  private static final String BROWSER_ITEM_ID_NAVIGATE_ENV_OME = "0005-navigate-environment-home"; // right next to Home button
 
   /**
-   * Gets instance
-   *
-   * @return value of instance
-   */
-  public static EnvironmentGuiPlugin getInstance() {
-    if ( instance == null ) {
-      instance = new EnvironmentGuiPlugin();
-    }
-    return instance;
-  }
-
-  /**
-   * Not supposed to be instantiated but needs to be public to get the MetaStore element class.
-   * The methods below are called on the instance given by getInstance().
+   * Automatically instantiated when the toolbar widgets etc need it
    */
   public EnvironmentGuiPlugin() {
   }
@@ -339,7 +325,7 @@ public class EnvironmentGuiPlugin {
     }
   }
 
-  private Combo getEnvironmentsCombo() {
+  private static Combo getEnvironmentsCombo() {
     Control control = HopGui.getInstance().getMainToolbarWidgets().getWidgetsMap().get( EnvironmentGuiPlugin.ID_TOOLBAR_ENVIRONMENT_COMBO );
     if ( ( control != null ) && ( control instanceof Combo ) ) {
       Combo combo = (Combo) control;
@@ -366,15 +352,14 @@ public class EnvironmentGuiPlugin {
   }
 
   public static void selectEnvironmentInList( String name ) {
-    HopGui.getInstance().getMainToolbarWidgets().selectComboItem( ID_TOOLBAR_ENVIRONMENT_COMBO, name );
+    GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
 
-    // Update the combo tooltip with the home folder
-    //
-    Combo environmentsCombo = getInstance().getEnvironmentsCombo();
-    if (environmentsCombo!=null) {
+    toolbarWidgets.selectComboItem( ID_TOOLBAR_ENVIRONMENT_COMBO, name );
+    Combo combo = getEnvironmentsCombo();
+    if ( combo != null ) {
       String environmentHomeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( name );
-      if (StringUtils.isNotEmpty( environmentHomeFolder )) {
-        environmentsCombo.setToolTipText( environmentHomeFolder );
+      if ( StringUtils.isNotEmpty( environmentHomeFolder ) ) {
+        combo.setToolTipText( environmentHomeFolder );
       }
     }
   }
@@ -389,11 +374,11 @@ public class EnvironmentGuiPlugin {
   )
   public void fileDialogBrowserEnvironmentHome() {
     String homeFolder = EnvironmentConfigSingleton.getEnvironmentHomeFolder( HopNamespace.getNamespace() );
-    if (StringUtils.isNotEmpty(homeFolder)) {
+    if ( StringUtils.isNotEmpty( homeFolder ) ) {
       // Navigate to the home folder
       //
       HopVfsFileDialog instance = HopVfsFileDialog.getInstance();
-      if (instance!=null) {
+      if ( instance != null ) {
         instance.navigateTo( homeFolder, true );
       }
     }

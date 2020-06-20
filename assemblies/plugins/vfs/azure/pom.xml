@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-assemblies-plugins-vfs</artifactId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
+    <version>0.30-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins VFS Azure</name>
+    <description></description>
+
+    <properties>
+        <azure-storage.version>4.2.0</azure-storage.version>
+        <vfs-azure.version>3.0.2</vfs-azure.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-plugins-vfs-azure</artifactId>
+            <version>0.30-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>vfs-azure</artifactId>
+            <version>${vfs-azure.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <version>${azure-storage.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

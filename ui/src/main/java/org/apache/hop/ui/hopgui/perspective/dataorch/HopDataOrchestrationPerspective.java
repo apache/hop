@@ -48,7 +48,6 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -75,7 +74,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";
 
-  private HopDataOrchestrationPerspective perspective;
   private final HopPipelineFileType<PipelineMeta> pipelineFileType;
   private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
 
@@ -93,11 +91,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private Stack<Integer> tabSelectionHistory;
   private int tabSelectionIndex;
 
-  public static final HopDataOrchestrationPerspective getInstance() {
-    return SingletonUtil.getUniqueInstance( HopDataOrchestrationPerspective.class, WebSpoonUtils.getUISession() );
-  }
-
-  private HopDataOrchestrationPerspective() {
+  public HopDataOrchestrationPerspective() {
     items = new ArrayList<>();
     activeItem = null;
     tabSelectionHistory = new Stack<>();

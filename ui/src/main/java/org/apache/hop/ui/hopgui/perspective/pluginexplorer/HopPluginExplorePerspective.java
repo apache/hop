@@ -22,22 +22,15 @@
 
 package org.apache.hop.ui.hopgui.perspective.pluginexplorer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -47,8 +40,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -65,13 +58,18 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @HopPerspectivePlugin(id = "Hop-Plugin-Explorer-Perspective", name = "Plugin explorer", description = "The Hop Plugin Explorer Perspective")
 @GuiPlugin
 public class HopPluginExplorePerspective implements IHopPerspective {
 
 	public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";
-
-	private static HopPluginExplorePerspective perspective;
 
 	private HopGui hopGui;
 	private Composite parent;
@@ -89,14 +87,8 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	private Image pluginImage;
 	private Image pluginDisabledImage;
 
-	public static final HopPluginExplorePerspective getInstance() {
-		if (perspective == null) {
-			perspective = new HopPluginExplorePerspective();
-		}
-		return perspective;
-	}
 
-	private HopPluginExplorePerspective() {
+	public HopPluginExplorePerspective() {
 	}
 
 	@Override public String getId() {

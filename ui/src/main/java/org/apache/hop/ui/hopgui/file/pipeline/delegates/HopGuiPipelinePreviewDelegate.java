@@ -78,6 +78,8 @@ public class HopGuiPipelinePreviewDelegate {
   private CTabItem pipelinePreviewTab;
 
   private ToolBar toolbar;
+  private GuiToolbarWidgets toolbarWidgets;
+
   private Composite pipelinePreviewComposite;
 
   protected Map<String, RowBuffer> previewDataMap;
@@ -176,7 +178,7 @@ public class HopGuiPipelinePreviewDelegate {
    */
   public static HopGuiPipelinePreviewDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph ) {
+    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
       HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
       return graph.pipelinePreviewDelegate;
     }
@@ -192,8 +194,9 @@ public class HopGuiPipelinePreviewDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    GuiToolbarWidgets widgets = new GuiToolbarWidgets( );
-    widgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
+    toolbarWidgets = new GuiToolbarWidgets();
+    toolbarWidgets.registerGuiPluginObject( this );
+    toolbarWidgets.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
 
@@ -266,7 +269,7 @@ public class HopGuiPipelinePreviewDelegate {
     }
   }
 
-  protected void showPreviewGrid( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowBuffer rowBuffer) throws HopException {
+  protected void showPreviewGrid( PipelineMeta pipelineMeta, TransformMeta transformMeta, RowBuffer rowBuffer ) throws HopException {
     clearPreviewComposite();
 
     IRowMeta rowMeta = rowBuffer.getRowMeta();
@@ -352,7 +355,7 @@ public class HopGuiPipelinePreviewDelegate {
     previewLogMap.clear();
     previewDataMap.clear();
 
-    if (pipelineEngine.getEngineCapabilities().isSupportingPreview()) {
+    if ( pipelineEngine.getEngineCapabilities().isSupportingPreview() ) {
       try {
         for ( final TransformMeta transformMeta : transformMetas ) {
           pipelineEngine.retrieveComponentOutput( transformMeta.getName(), 0, PropsUi.getInstance().getDefaultPreviewSize(),
@@ -389,7 +392,7 @@ public class HopGuiPipelinePreviewDelegate {
   public void addPreviewData( TransformMeta transformMeta, IRowMeta rowMeta, List<Object[]> rowsData,
                               StringBuffer buffer ) {
     previewLogMap.put( transformMeta.getName(), buffer.toString() );
-    previewDataMap.put( transformMeta.getName(), new RowBuffer(rowMeta, rowsData) );
+    previewDataMap.put( transformMeta.getName(), new RowBuffer( rowMeta, rowsData ) );
   }
 
   /**

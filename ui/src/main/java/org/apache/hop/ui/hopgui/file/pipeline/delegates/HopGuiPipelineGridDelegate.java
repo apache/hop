@@ -243,7 +243,7 @@ public class HopGuiPipelineGridDelegate {
    */
   public static HopGuiPipelineGridDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
-    if (fileTypeHandler instanceof HopGuiPipelineGraph ) {
+    if ( fileTypeHandler instanceof HopGuiPipelineGraph ) {
       HopGuiPipelineGraph graph = (HopGuiPipelineGraph) fileTypeHandler;
       return graph.pipelineGridDelegate;
     }
@@ -260,7 +260,8 @@ public class HopGuiPipelineGridDelegate {
     toolbar.setLayoutData( fdToolBar );
     hopGui.getProps().setLook( toolbar, Props.WIDGET_STYLE_TOOLBAR );
 
-    toolbarWidget = new GuiToolbarWidgets( );
+    toolbarWidget = new GuiToolbarWidgets();
+    toolbarWidget.registerGuiPluginObject( this );
     toolbarWidget.createToolbarWidgets( toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolbar.pack();
   }
@@ -389,7 +390,8 @@ public class HopGuiPipelineGridDelegate {
       // Remove the old stuff on the composite...
       //
       pipelineGridView.dispose();
-      pipelineGridView = new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUi.getInstance() );
+      pipelineGridView =
+        new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUi.getInstance() );
       pipelineGridView.setSortable( false ); // TODO: re-implement
       FormData fdView = new FormData();
       fdView.left = new FormAttachment( 0, 0 );
@@ -411,10 +413,10 @@ public class HopGuiPipelineGridDelegate {
 
         for ( IEngineMetric metric : usedMetrics ) {
           Long value = engineMetrics.getComponentMetric( component, metric );
-          item.setText( col++, value == null ? "" : formatMetric(value) );
+          item.setText( col++, value == null ? "" : formatMetric( value ) );
         }
-        String duration = calculateDuration(component );
-        item.setText(col++, duration);
+        String duration = calculateDuration( component );
+        item.setText( col++, duration );
         String speed = engineMetrics.getComponentSpeedMap().get( component );
         item.setText( col++, Const.NVL( speed, "" ) );
         String status = engineMetrics.getComponentStatusMap().get( component );
@@ -430,14 +432,14 @@ public class HopGuiPipelineGridDelegate {
   private String calculateDuration( IEngineComponent component ) {
     String duration;
     Date firstRowReadDate = component.getFirstRowReadDate();
-    if (firstRowReadDate!=null) {
+    if ( firstRowReadDate != null ) {
       long durationMs;
-      if (component.getLastRowWrittenDate()==null) {
+      if ( component.getLastRowWrittenDate() == null ) {
         durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
       } else {
         durationMs = component.getLastRowWrittenDate().getTime() - firstRowReadDate.getTime();
       }
-      duration = Utils.getDurationHMS( ((double)durationMs)/1000 );
+      duration = Utils.getDurationHMS( ( (double) durationMs ) / 1000 );
     } else {
       duration = "";
     }
