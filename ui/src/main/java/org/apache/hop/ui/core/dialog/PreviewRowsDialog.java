@@ -78,8 +78,6 @@ public class PreviewRowsDialog {
 
   private final List<Object[]> buffer;
 
-  private final PropsUi props;
-
   private String title, message;
 
   private Rectangle bounds;
@@ -132,7 +130,6 @@ public class PreviewRowsDialog {
     this.style = ( style != SWT.None ) ? style : this.style;
     this.dialogClosedListeners = new ArrayList<IDialogClosedListener>();
 
-    props = PropsUi.getInstance();
     bounds = null;
     hscroll = -1;
     vscroll = -1;
@@ -149,6 +146,8 @@ public class PreviewRowsDialog {
 
   public void open() {
     shell = new Shell( parentShell, style );
+    PropsUi props = PropsUi.getInstance();
+
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
@@ -259,6 +258,7 @@ public class PreviewRowsDialog {
   }
 
   private boolean addFields() {
+    PropsUi props = PropsUi.getInstance();
     int margin = props.getMargin();
 
     if ( wlFields == null ) {
@@ -317,7 +317,7 @@ public class PreviewRowsDialog {
   }
 
   public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    PropsUi.getInstance().setScreen( new WindowProperty( shell ) );
     bounds = shell.getBounds();
     hscroll = wFields.getHorizontalBar().getSelection();
     vscroll = wFields.getVerticalBar().getSelection();
@@ -543,7 +543,7 @@ public class PreviewRowsDialog {
           }
         }
 
-        if ( wFields.table.getItemCount() > props.getDefaultPreviewSize() ) {
+        if ( wFields.table.getItemCount() > PropsUi.getInstance().getDefaultPreviewSize() ) {
           wFields.table.remove( 0 );
         }
 
