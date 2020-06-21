@@ -35,6 +35,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -64,6 +65,7 @@ import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -80,8 +82,10 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -368,6 +372,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private boolean ignoreNextClick;
   private boolean doubleClick;
   private PipelineHopMeta clickedPipelineHop;
+
+  protected Map<String, RowBuffer> outputRowsMap;
 
   public void setCurrentNote( NotePadMeta ni ) {
     this.ni = ni;
@@ -3549,6 +3555,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           pipeline.setLogLevel( executionConfiguration.getLogLevel() );
           log.logBasic( BaseMessages.getString( PKG, "PipelineLog.Log.PipelineOpened" ) );
+
+          // When running locally in the GUI, sample rows in every transform to show in the user interface...
+          //
+          if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration ) {
+            addRowsSamplerToPipeline( pipeline );
+          }
         } catch ( HopException e ) {
           pipeline = null;
           new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "PipelineLog.Dialog.ErrorOpeningPipeline.Title" ),
@@ -3584,6 +3596,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         showSaveFileMessage();
       }
     }
+  }
+
+  private void addRowsSamplerToPipeline( IPipelineEngine<PipelineMeta> pipeline ) {
+
+    outputRowsMap = new HashMap<>();
+
+    for (final String transformName : pipelineMeta.getTransformNames()) {
+      IEngineComponent component = pipeline.findComponent( transformName, 0 );
+      component.addRowListener(new RowAdapter(){
+        @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
+          RowBuffer rowBuffer = outputRowsMap.get( transformName );
+          if (rowBuffer==null) {
+            rowBuffer = new RowBuffer(rowMeta);
+            outputRowsMap.put(transformName, rowBuffer);
+          }
+          if (rowBuffer.size()<100) {
+            rowBuffer.addRow( row );
+          }
+        }
+      });
+    }
+
   }
 
   public void showSaveFileMessage() {
@@ -4063,23 +4097,28 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void sniff( HopGuiPipelineTransformContext context ) {
     TransformMeta transformMeta = context.getTransformMeta();
 
-    if ( pipeline == null || pipeline.isFinished() ) {
+    if ( pipeline == null ) {
       MessageBox messageBox = new MessageBox( hopShell(), SWT.ICON_INFORMATION | SWT.OK );
       messageBox.setText( BaseMessages.getString( PKG, "PipelineGraph.SniffTestingAvailableWhenRunning.Title" ) );
       messageBox.setMessage( BaseMessages.getString( PKG, "PipelineGraph.SniffTestingAvailableWhenRunning.Message" ) );
       messageBox.open();
       return;
     }
+    if ( pipeline.isFinished() ) {
+      // Show collected sample data...
+      //
 
-    try {
-      pipeline.retrieveComponentOutput( transformMeta.getName(), 0, 50, ( ( pipelineEngine, rowBuffer ) -> {
-        hopDisplay().asyncExec( () -> {
-          PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), hopGui.getVariables(), SWT.NONE, transformMeta.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
-          dialog.open();
-        } );
-      } ) );
-    } catch ( HopException e ) {
-      new ErrorDialog( hopShell(), "Error", "Error sniffing rows", e );
+    } else {
+      try {
+        pipeline.retrieveComponentOutput( transformMeta.getName(), 0, 50, ( ( pipelineEngine, rowBuffer ) -> {
+          hopDisplay().asyncExec( () -> {
+            PreviewRowsDialog dialog = new PreviewRowsDialog( hopShell(), hopGui.getVariables(), SWT.NONE, transformMeta.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
+            dialog.open();
+          } );
+        } ) );
+      } catch ( HopException e ) {
+        new ErrorDialog( hopShell(), "Error", "Error sniffing rows", e );
+      }
     }
   }
 
@@ -4399,6 +4438,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pasteFromClipboard( context.getClick() );
   }
 
+
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
@@ -4411,5 +4451,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    */
   public GuiToolbarWidgets getToolBarWidgets() {
     return toolBarWidgets;
+  }
+
+  /**
+   * Gets outputRowsMap
+   *
+   * @return value of outputRowsMap
+   */
+  public Map<String, RowBuffer> getOutputRowsMap() {
+    return outputRowsMap;
+  }
+
+  /**
+   * @param outputRowsMap The outputRowsMap to set
+   */
+  public void setOutputRowsMap( Map<String, RowBuffer> outputRowsMap ) {
+    this.outputRowsMap = outputRowsMap;
   }
 }

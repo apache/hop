@@ -85,6 +85,14 @@ public class RowBuffer {
     }
   }
 
+  public int size() {
+    return buffer.size();
+  }
+
+  public void addRow(Object[] row) {
+    buffer.add(row);
+  }
+
   /**
    * @return the rowMeta
    */

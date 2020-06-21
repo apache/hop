@@ -23,7 +23,6 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -87,9 +86,6 @@ public class SubPipelineExecutorTest {
     HopClientEnvironment.init();
     PluginRegistry.addPluginType( TransformPluginType.getInstance() );
     PluginRegistry.init();
-    if ( !Props.isInitialized() ) {
-      Props.init();
-    }
   }
 
   @Test

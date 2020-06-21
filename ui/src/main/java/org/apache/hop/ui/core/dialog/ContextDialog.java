@@ -627,7 +627,6 @@ public class ContextDialog extends Dialog {
 		// shell.open();
 
 		HopClientEnvironment.init();
-		PropsUi.init( display );
 		HopEnvironment.init();
 
 		List<GuiAction> actions = new ArrayList<>();

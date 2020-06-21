@@ -74,6 +74,7 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     // Execute Spoon.createContents
     HopGui.getInstance().setCommandLineArguments( args );
     HopGui.getInstance().setShell( parent.getShell() );
+    HopGui.getInstance().setProps( PropsUi.getInstance() );
     try {
       HopGuiEnvironment.init();
     } catch (HopException e1) {

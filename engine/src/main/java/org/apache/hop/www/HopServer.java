@@ -190,7 +190,7 @@ public class HopServer {
   }
 
   public static void runHopServer( SlaveServerConfig config ) throws Exception {
-    HopLogStore.init( config.getMaxLogLines(), config.getMaxLogTimeoutMinutes() );
+    HopLogStore.init();
 
     config.setJoining( true );
 
