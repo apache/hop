@@ -1756,13 +1756,6 @@ public class Const {
     }
   }
 
-  public static String getUser() {
-    try {
-      return WebSpoonUtils.getUser( WebSpoonUtils.getConnectionId() );
-    } catch ( Exception e ) { // when accessed from background threads (e.g., when the webSpoon server is starting)
-      return null;
-    }
-  }
   /**
    * Returns the path to the Hop local (current directory) Hop Server password file:
    * <p>
