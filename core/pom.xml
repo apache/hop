@@ -18,9 +18,6 @@
   </parent>
 
   <properties>
-    <!-- webSpoon specific dependencies -->
-    <rap.version>3.12.0</rap.version>
-
     <!-- Test running configuration -->
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
     <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US</maven-surefire-plugin.argLine>
@@ -442,17 +439,6 @@
       <artifactId>woodstox-core-asl</artifactId>
       <version>${woodstox-core-asl.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.rwt</artifactId>
-      <version>${rap.version}-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>

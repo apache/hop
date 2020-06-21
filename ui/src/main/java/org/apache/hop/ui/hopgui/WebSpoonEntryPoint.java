@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -40,17 +39,12 @@ import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.ExitConfirmation;
 import org.eclipse.rap.rwt.client.service.StartupParameters;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 public class WebSpoonEntryPoint extends AbstractEntryPoint {
 
   @Override
   protected void createContents( Composite parent ) {
-    // Set UISession so that any child thread of UIThread can access it
-    WebSpoonUtils.setUISession( RWT.getUISession() );
-    WebSpoonUtils.setUISession( WebSpoonUtils.getConnectionId(), RWT.getUISession() );
-    WebSpoonUtils.setUser( WebSpoonUtils.getConnectionId(), RWT.getRequest().getRemoteUser() );
     // Transferring Widget Data for client-side canvas drawing instructions
     WidgetUtil.registerDataKeys( "props" );
     WidgetUtil.registerDataKeys( "mode" );
@@ -88,23 +82,6 @@ public class WebSpoonEntryPoint extends AbstractEntryPoint {
     }
 
     HopGui.getInstance().open();
-
-    /*
-     *  The following lines are webSpoon additional functions
-     */
-    // In webSpoon, SWT.Close is not triggered on closing a browser (tab).
-    parent.getDisplay().addListener( SWT.Dispose, ( event ) -> {
-      try {
-        /**
-         *  UISession at WebSpoonUtils.uiSession will be GCed when UIThread dies.
-         *  But the one at WebSpoonUtils.uiSessionMap should be explicitly removed.
-         */
-        WebSpoonUtils.removeUISession( WebSpoonUtils.getConnectionId() );
-        WebSpoonUtils.removeUser( WebSpoonUtils.getConnectionId() );
-      } catch ( Exception e ) {
-        LogChannel.GENERAL.logError( "Error closing Spoon", e );
-      }
-    });
   }
 
 }

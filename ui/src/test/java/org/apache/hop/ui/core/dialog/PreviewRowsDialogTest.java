@@ -24,7 +24,6 @@ package org.apache.hop.ui.core.dialog;
 
 import org.eclipse.rap.rwt.testfixture.TestContext;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -47,11 +46,6 @@ public class PreviewRowsDialogTest {
 
   @Rule
   public TestContext context = new TestContext();
-
-  @Before
-  public void setUp() {
-    WebSpoonUtils.setUISession( context.getUISession() );
-  }
 
   @Test
   public void getDataForRow() throws Exception {
