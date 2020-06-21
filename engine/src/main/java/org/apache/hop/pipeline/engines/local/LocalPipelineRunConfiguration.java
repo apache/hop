@@ -26,10 +26,15 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @GuiPlugin
 public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IPipelineEngineRunConfiguration {
@@ -106,12 +111,46 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty(key="feedback_size")
   protected String feedbackSize;
 
+  /**
+   * The feedback size.
+   */
+  @GuiWidgetElement(
+    id = "sampleTypeInGui",
+    order = "70",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.COMBO,
+    i18nPackage = "org.apache.hop.ui.pipeline.config",
+    label = "PipelineRunConfigurationDialog.SampleTypeInGui.Label",
+    comboValuesMethod = "getSampleTypes"
+  )
+  @HopMetadataProperty(key="sample_type_in_gui")
+  protected String sampleTypeInGui;
+
+  /**
+   * The feedback size.
+   */
+  @GuiWidgetElement(
+    id = "sampleSize",
+    order = "80",
+    parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+    type = GuiElementType.TEXT,
+    i18nPackage = "org.apache.hop.ui.pipeline.config",
+    label = "PipelineRunConfigurationDialog.SampleSize.Label"
+  )
+  @HopMetadataProperty(key="sample_size")
+  protected String sampleSize;
+
+  public enum SampleType {
+    None, First, Last, Random;
+  }
 
   public LocalPipelineRunConfiguration() {
     super();
     this.rowSetSize = Integer.toString( Const.ROWS_IN_ROWSET );
     this.feedbackShown = false;
     this.feedbackSize = Integer.toString( Const.ROWS_UPDATE );
+    this.sampleTypeInGui = SampleType.First.name();
+    this.sampleSize = "100";
   }
 
   public LocalPipelineRunConfiguration( LocalPipelineRunConfiguration config ) {
@@ -122,12 +161,21 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.safeModeEnabled = config.safeModeEnabled;
     this.gatheringMetrics = config.gatheringMetrics;
     this.sortingTransformsTopologically = config.sortingTransformsTopologically;
+    this.sampleTypeInGui = config.sampleTypeInGui;
+    this.sampleSize = config.sampleSize;
   }
 
   public LocalPipelineRunConfiguration clone() {
     return new LocalPipelineRunConfiguration( this );
   }
 
+  public List<String> getSampleTypes( ILogChannel log, IHopMetadataProvider metadataProvider ) {
+    List<String> list = new ArrayList<>();
+    for (SampleType type : SampleType.values()) {
+      list.add(type.name());
+    }
+    return list;
+  }
   /**
    * Gets rowSetSize
    *
@@ -222,5 +270,37 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
    */
   public void setFeedbackSize( String feedbackSize ) {
     this.feedbackSize = feedbackSize;
+  }
+
+  /**
+   * Gets sampleTypeInGui
+   *
+   * @return value of sampleTypeInGui
+   */
+  public String getSampleTypeInGui() {
+    return sampleTypeInGui;
+  }
+
+  /**
+   * @param sampleTypeInGui The sampleTypeInGui to set
+   */
+  public void setSampleTypeInGui( String sampleTypeInGui ) {
+    this.sampleTypeInGui = sampleTypeInGui;
+  }
+
+  /**
+   * Gets sampleSize
+   *
+   * @return value of sampleSize
+   */
+  public String getSampleSize() {
+    return sampleSize;
+  }
+
+  /**
+   * @param sampleSize The sampleSize to set
+   */
+  public void setSampleSize( String sampleSize ) {
+    this.sampleSize = sampleSize;
   }
 }

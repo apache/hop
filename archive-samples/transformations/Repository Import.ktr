@@ -446,12 +446,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2011&#x2f;01&#x2f;24 13&#x3a;12&#x3a;50.000</created_date>
     <modified_user>admin</modified_user>
@@ -583,9 +577,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -613,9 +605,7 @@
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>&#x2f;&#x2f; Get the repository we&#x27;re connected to&#xa;var rep &#x3d; _transform_.getTrans&#x28;&#x29;.getRepository&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Load the repository directory structure&#xa;var root &#x3d; rep.loadRepositoryDirectoryTree&#x28;&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; Find the directory we want to import into in the repository and create it if it doesn&#x27;t exist.&#xa;&#x2f;&#x2f;&#xa;var repdir &#x3d; root.findDirectory&#x28;directory&#x29;&#x3b;&#xa;if &#x28;repdir&#x3d;&#x3d;null&#x29; &#x7b;&#xa; repdir &#x3d; rep.createRepositoryDirectory&#x28;root, directory&#x29;&#x3b;&#xa;&#x7d;&#xa;&#x2f;&#x2f; Ask the repository for its importer&#xa;var importer &#x3d; rep.getImporter&#x28;&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; Set the directory overrides if they&#x27;re being used&#xa;if &#x28;transDirOverride &#x21;&#x3d; null &#x26;&#x26; &#x21;&#x22;&#x22;.equals&#x28;transDirOverride&#x29;&#x29; &#x7b;&#xa;  importer.setTransDirOverride&#x28;transDirOverride&#x29;&#x3b;&#xa;&#x7d;&#xa;if &#x28;jobDirOverride &#x21;&#x3d; null &#x26;&#x26; &#x21;&#x22;&#x22;.equals&#x28;jobDirOverride&#x29;&#x29; &#x7b;&#xa;  importer.setJobDirOverride&#x28;jobDirOverride&#x29;&#x3b;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; Get the file that was specified as FILENAME&#xa;var file &#x3d; new Packages.java.io.File&#x28;filename&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; Must pass file names to import as an array&#xa;var filenames &#x3d; null&#x3b;&#xa;&#x2f;&#x2f; Check if the filename is a directory&#xa;if &#x28;file.isDirectory&#x28;&#x29;&#x29; &#x7b;&#xa;  &#x2f;&#x2f; If the file is a directory find all the files inside of it&#xa;  &#x2f;&#x2f; and use those for the import&#xa;  var files &#x3d; file.listFiles&#x28;&#x29;&#x3b;&#xa;  filenames &#x3d; java.lang.reflect.Array.newInstance&#x28;&#xa;    java.lang.String, &#x2f;&#x2f; Element type, do not change&#xa;    files.length  &#x2f;&#x2f; Number of file names to pass in&#xa;  &#x29;&#x3b;&#xa;  for &#x28;i&#x3d;0&#x3b;i&#x3c;files.length&#x3b;i&#x2b;&#x2b;&#x29; &#x7b;&#xa;    filenames&#x5b;i&#x5d; &#x3d; files&#x5b;i&#x5d;.getAbsolutePath&#x28;&#x29;&#x3b;&#xa;  &#x7d;&#xa;&#x7d; else &#x7b;&#xa;  &#x2f;&#x2f; If the file is not a directory it is the only file to be used&#xa;  &#x2f;&#x2f; for importing&#xa;  filenames &#x3d; java.lang.reflect.Array.newInstance&#x28;&#xa;    java.lang.String, &#x2f;&#x2f; Element type, do not change&#xa;    1  &#x2f;&#x2f; Number of file names to pass in&#xa;  &#x29;&#x3b;&#xa;  filenames&#x5b;0&#x5d; &#x3d; filename&#x3b;&#xa;&#x7d;&#xa;&#xa;&#x2f;&#x2f; Set the overwrite flag&#xa;var overwrite &#x3d; Packages.java.lang.Boolean.parseBoolean&#x28;overwrite&#x29;&#x3b;&#xa;&#xa;&#x2f;&#x2f; Perform the import&#xa;&#x2f;&#x2f;&#xa;importer.importAll&#x28;&#xa;   importer,        &#x2f;&#x2f; The feedback object&#xa;   null,            &#x2f;&#x2f; Relative file directory of filenames &#x28;next parameter&#x29;&#xa;   filenames,       &#x2f;&#x2f; The export files to import&#xa;   repdir,          &#x2f;&#x2f; The directory to import into&#xa;   overwrite,            &#x2f;&#x2f; Overwrite existing objects&#xa;   true,            &#x2f;&#x2f; Continue on error&#xa;   &#x22;Batch import&#x22;&#x29;&#x3b; &#x2f;&#x2f; Version comment&#xa;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-
-      <input>
+      </jsScript>    </jsScripts>    <fields>    </fields><input>
       </input>
       <output>
       </output>
@@ -629,7 +619,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

@@ -24,7 +24,7 @@ package org.apache.hop.run;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -301,12 +301,12 @@ public class HopRun implements Runnable {
     return LogLevel.getLogLevelForCode( variables.environmentSubstitute( level ) );
   }
 
-  private void configureSlaveServer( IExecutionConfiguration configuration, String name ) throws HopException {
+  private void configureHopServer( IExecutionConfiguration configuration, String name ) throws HopException {
 
-    IHopMetadataSerializer<SlaveServer> serializer = metadataProvider.getSerializer( SlaveServer.class );
-    SlaveServer slaveServer = serializer.load( name );
-    if ( slaveServer == null ) {
-      throw new ParameterException( cmd, "Unable to find slave server '" + name + "' in the metadata" );
+    IHopMetadataSerializer<HopServer> serializer = metadataProvider.getSerializer( HopServer.class );
+    HopServer hopServer = serializer.load( name );
+    if ( hopServer == null ) {
+      throw new ParameterException( cmd, "Unable to find hop server '" + name + "' in the metadata" );
     }
   }
 

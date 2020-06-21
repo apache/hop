@@ -60,13 +60,7 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <created_user/>
+    <created_user/>
   <created_date>2013&#x2f;08&#x2f;22 22&#x3a;40&#x3a;59.566</created_date>
   <modified_user/>
   <modified_date>2007&#x2f;09&#x2f;11 21&#x3a;34&#x3a;50.919</modified_date>
@@ -134,8 +128,7 @@
       <file_required/>
       <include_subfolders/>
     </file>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>96</xloc>
       <yloc>86</yloc>
       <draw>Y</draw>
@@ -164,8 +157,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </field>    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>295</xloc>
       <yloc>86</yloc>
       <draw>Y</draw>
@@ -202,8 +194,7 @@
     <return_field/>
     <fields>
     </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>525</xloc>
       <yloc>86</yloc>
       <draw>Y</draw>
@@ -212,8 +203,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-
-</pipeline>
+ </pipeline>

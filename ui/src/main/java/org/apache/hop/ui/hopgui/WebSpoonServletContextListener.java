@@ -40,7 +40,6 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.www.HopServerSingleton;
-import org.apache.hop.www.SlaveServerConfig;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

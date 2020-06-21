@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;02&#x2f;26 15&#x3a;30&#x3a;16.506</created_date>
     <modified_user/>
@@ -594,9 +588,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1009,9 +1001,7 @@
       <grouping_symbol/>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1172,9 +1162,7 @@
         <update>Y</update>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1226,9 +1214,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1594,9 +1580,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1704,9 +1688,7 @@
         </field>      <field>        <name>WeekendInd7</name>
         <value>7</value>
         <norm>WeekendInd</norm>
-        </field>      </fields>    <cluster_schema/>
-
-      <input>
+        </field>      </fields><input>
       </input>
       <output>
       </output>
@@ -1739,9 +1721,7 @@
       <start_at>0</start_at>
       <increment_by>1</increment_by>
       <max_value>10000000</max_value>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1829,9 +1809,7 @@
         <length>60</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -1877,9 +1855,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2197,9 +2173,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2295,9 +2269,7 @@
         </field>      <field>        <name>short12</name>
         <value>12</value>
         <norm>MonthDescShort</norm>
-        </field>      </fields>    <cluster_schema/>
-
-      <input>
+        </field>      </fields><input>
       </input>
       <output>
       </output>
@@ -2358,9 +2330,7 @@
       </field>      <field>        <name>year_sort_number</name>
       </field>      <field>        <name>day_of_week_sort_name</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -2406,9 +2376,7 @@
       </field>      <field>        <name>week_of_month_name</name>
       </field>      <field>        <name>week_name</name>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -2422,7 +2390,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

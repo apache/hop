@@ -39,6 +39,7 @@ import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
@@ -53,6 +54,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,16 +78,17 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   private boolean startErrorHopTransform;
   private IPipelineEngine<PipelineMeta> pipeline;
   private boolean slowTransformIndicatorEnabled;
+  private Map<String, RowBuffer> outputRowsMap;
 
   public static final String[] magnificationDescriptions =
     new String[] { "1000%", "800%", "600%", "400%", "200%", "150%", "100%", "75%", "50%", "25%" };
 
   public PipelinePainter( IGc gc, PipelineMeta pipelineMeta, Point area, IScrollBar hori,
                           IScrollBar vert, PipelineHopMeta candidate, Point drop_candidate, Rectangle selrect,
-                          List<AreaOwner> areaOwners, int iconsize, int linewidth, int gridsize,
+                          List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
                           String noteFontName, int noteFontHeight, IPipelineEngine<PipelineMeta> pipeline,
-                          boolean slowTransformIndicatorEnabled, double zoomFactor ) {
-    super( gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconsize, linewidth, gridsize,
+                          boolean slowTransformIndicatorEnabled, double zoomFactor, Map<String, RowBuffer> outputRowsMap ) {
+    super( gc, pipelineMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconSize, lineWidth, gridSize,
       noteFontName, noteFontHeight, zoomFactor );
     this.pipelineMeta = pipelineMeta;
 
@@ -93,6 +96,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     this.pipeline = pipeline;
     this.slowTransformIndicatorEnabled = slowTransformIndicatorEnabled;
+
+    this.outputRowsMap = outputRowsMap;
 
     transformLogMap = null;
   }
@@ -103,7 +108,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
                           String noteFontName, int noteFontHeight, double zoomFactor ) {
 
     this( gc, pipelineMeta, area, hori, vert, candidate, dropCandidate, selectionRectangle, areaOwners, iconSize,
-      lineWidth, gridSize, noteFontName, noteFontHeight, null, false, zoomFactor );
+      lineWidth, gridSize, noteFontName, noteFontHeight, null, false, zoomFactor, new HashMap<>() );
   }
 
   private static String[] getPeekTitles() {
@@ -233,6 +238,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
       TransformMeta transformMeta = pipelineMeta.getTransform( i );
       drawTransformStatusIndicator( transformMeta );
+    }
+
+    // Draw data grid indicators (output data available)
+    if ( outputRowsMap != null && !outputRowsMap.isEmpty() ) {
+      for ( int i = 0; i < pipelineMeta.nrTransforms(); i++ ) {
+        TransformMeta transformMeta = pipelineMeta.getTransform( i );
+        drawTransformOutputIndicator( transformMeta );
+      }
     }
 
     // Draw performance table for selected transform(s)
@@ -456,29 +469,29 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     long durationMs;
     String duration;
     Date firstRowReadDate = component.getFirstRowReadDate();
-    if (firstRowReadDate!=null) {
+    if ( firstRowReadDate != null ) {
       durationMs = System.currentTimeMillis() - firstRowReadDate.getTime();
-      duration = Utils.getDurationHMS( ((double)durationMs)/1000 );
+      duration = Utils.getDurationHMS( ( (double) durationMs ) / 1000 );
     } else {
       durationMs = 0;
       duration = "";
     }
     String speed;
-    if (durationMs>0) {
+    if ( durationMs > 0 ) {
       // Look at the maximum read/written
       //
-      long maxReadWritten = Math.max(component.getLinesRead(), component.getLinesWritten());
-      long maxInputOutput = Math.max(component.getLinesInput(), component.getLinesOutput());
-      long processed = Math.max(maxReadWritten, maxInputOutput);
+      long maxReadWritten = Math.max( component.getLinesRead(), component.getLinesWritten() );
+      long maxInputOutput = Math.max( component.getLinesInput(), component.getLinesOutput() );
+      long processed = Math.max( maxReadWritten, maxInputOutput );
 
-      double durationSec = ((double)durationMs) / 1000.0;
-      double rowsPerSec = ((double)processed) / durationSec;
-      speed = new DecimalFormat("##,###,##0").format( rowsPerSec );
+      double durationSec = ( (double) durationMs ) / 1000.0;
+      double rowsPerSec = ( (double) processed ) / durationSec;
+      speed = new DecimalFormat( "##,###,##0" ).format( rowsPerSec );
     } else {
       speed = "-";
     }
 
-    boolean active = firstRowReadDate!=null && component.getLastRowWrittenDate()==null;
+    boolean active = firstRowReadDate != null && component.getLastRowWrittenDate() == null;
 
     String[] fields =
       new String[] {
@@ -493,7 +506,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         active ? "Yes" : "No",
         duration,
         speed,
-        component.getInputBufferSize()+"/"+component.getOutputBufferSize()
+        component.getInputBufferSize() + "/" + component.getOutputBufferSize()
       };
     return fields;
 
@@ -526,6 +539,35 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
           }
         }
+      }
+    }
+  }
+
+  private void drawTransformOutputIndicator( TransformMeta transformMeta ) {
+
+    if ( transformMeta == null ) {
+      return;
+    }
+
+    // draw status indicator
+    if ( pipeline != null ) {
+
+      Point pt = transformMeta.getLocation();
+      if ( pt == null ) {
+        pt = new Point( 50, 50 );
+      }
+
+      Point screen = real2screen( pt.x, pt.y );
+      int x = screen.x;
+      int y = screen.y;
+
+      RowBuffer rowBuffer = outputRowsMap.get( transformMeta.getName() );
+      if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
+        int iconWidth = MINI_ICON_SIZE;
+        int iconX = x + iconSize - iconWidth + 10;
+        int iconY = y + iconSize - iconWidth + 10 ;
+        gc.drawImage( EImage.DATA, iconX, iconY, magnification );
+        areaOwners.add( new AreaOwner( AreaType.TRANSFORM_OUTPUT_DATA, iconX, iconY, iconWidth, iconWidth, offset, transformMeta, rowBuffer ) );
       }
     }
   }
@@ -1033,5 +1075,21 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   public boolean isStartErrorHopTransform() {
     return startErrorHopTransform;
+  }
+
+  /**
+   * Gets outputRowsMap
+   *
+   * @return value of outputRowsMap
+   */
+  public Map<String, RowBuffer> getOutputRowsMap() {
+    return outputRowsMap;
+  }
+
+  /**
+   * @param outputRowsMap The outputRowsMap to set
+   */
+  public void setOutputRowsMap( Map<String, RowBuffer> outputRowsMap ) {
+    this.outputRowsMap = outputRowsMap;
   }
 }

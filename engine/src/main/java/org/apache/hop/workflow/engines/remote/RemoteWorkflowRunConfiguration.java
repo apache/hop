@@ -22,7 +22,7 @@
 
 package org.apache.hop.workflow.engines.remote;
 
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -44,12 +44,12 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
     order = "10",
     parentId = WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.COMBO,
-    comboValuesMethod = "getSlaveServerNames",
+    comboValuesMethod = "getHopServerNames",
     i18nPackage = "org.apache.hop.ui.pipeline.config",
-    label = "PipelineRunConfigurationDialog.SlaveServer.Label"
+    label = "PipelineRunConfigurationDialog.HopServer.Label"
   )
-  @HopMetadataProperty( key = "slave_server" )
-  protected String slaveServerName;
+  @HopMetadataProperty( key = "hop_server" )
+  protected String hopServerName;
 
   @GuiWidgetElement(
     order = "20",
@@ -89,19 +89,19 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
 
   public RemoteWorkflowRunConfiguration( RemoteWorkflowRunConfiguration config ) {
     super( config );
-    this.slaveServerName = config.slaveServerName;
+    this.hopServerName = config.hopServerName;
     this.runConfigurationName = config.runConfigurationName;
     this.serverPollDelay = config.serverPollDelay;
     this.serverPollInterval = config.serverPollInterval;
   }
 
-  public List<String> getSlaveServerNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
+  public List<String> getHopServerNames( ILogChannel log, IHopMetadataProvider metadataProvider ) {
     List<String> names = new ArrayList<>();
     try {
-      names.addAll( metadataProvider.getSerializer( SlaveServer.class ).listObjectNames() );
+      names.addAll( metadataProvider.getSerializer( HopServer.class ).listObjectNames() );
       Collections.sort( names );
     } catch ( Exception e ) {
-      log.logError( "Error getting slave server names from the metadata", e );
+      log.logError( "Error getting hop server names from the metadata", e );
     }
     return names;
   }
@@ -122,19 +122,19 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
   }
 
   /**
-   * Gets slaveServerName
+   * Gets hopServerName
    *
-   * @return value of slaveServerName
+   * @return value of hopServerName
    */
-  public String getSlaveServerName() {
-    return slaveServerName;
+  public String getHopServerName() {
+    return hopServerName;
   }
 
   /**
-   * @param slaveServerName The slaveServerName to set
+   * @param hopServerName The hopServerName to set
    */
-  public void setSlaveServerName( String slaveServerName ) {
-    this.slaveServerName = slaveServerName;
+  public void setHopServerName( String hopServerName ) {
+    this.hopServerName = hopServerName;
   }
 
   /**

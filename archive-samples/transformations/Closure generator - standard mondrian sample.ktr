@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;03&#x2f;03 20&#x3a;38&#x3a;59.516</created_date>
     <modified_user>-</modified_user>
@@ -463,9 +457,7 @@
     <child_id_field>employee_id</child_id_field>
     <distance_field>distance</distance_field>
     <is_root_zero>N</is_root_zero>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -521,9 +513,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -594,9 +584,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -610,7 +598,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

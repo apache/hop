@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -152,11 +152,11 @@ public class WebServer {
     } else {
       roles.add( "default" );
       HashLoginService hashLoginService;
-      SlaveServer slaveServer = pipelineMap.getSlaveServerConfig().getSlaveServer();
-      if ( !Utils.isEmpty( slaveServer.getPassword() ) ) {
+      HopServer hopServer = pipelineMap.getHopServerConfig().getHopServer();
+      if ( !Utils.isEmpty( hopServer.getPassword() ) ) {
         hashLoginService = new HashLoginService( "Hop" );
         UserStore userStore = new UserStore();
-        userStore.addUser( slaveServer.getUsername(), new Password( slaveServer.getPassword() ), new String[] { "default" } );
+        userStore.addUser( hopServer.getUsername(), new Password( hopServer.getPassword() ), new String[] { "default" } );
         hashLoginService.setUserStore( userStore );
       } else {
         // See if there is a hop.pwd file in the HOP_HOME directory:
@@ -328,21 +328,21 @@ public class WebServer {
    */
   protected void setupJettyOptions( ServerConnector connector ) {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor( server );
-    if ( validProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) {
-      server.addBean( new ConnectionLimit( Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_ACCEPTORS ) ) ) );
+    if ( validProperty( Const.HOP_SERVER_JETTY_ACCEPTORS ) ) {
+      server.addBean( new ConnectionLimit( Integer.parseInt( System.getProperty( Const.HOP_SERVER_JETTY_ACCEPTORS ) ) ) );
       log.logBasic(
         BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "acceptors", connector.getAcceptors() ) );
     }
 
-    if ( validProperty( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE ) ) {
+    if ( validProperty( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE ) ) {
       connector
-        .setAcceptQueueSize( Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE ) ) );
+        .setAcceptQueueSize( Integer.parseInt( System.getProperty( Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE ) ) );
       log.logBasic( BaseMessages
         .getString( PKG, "WebServer.Log.ConfigOptions", "acceptQueueSize", connector.getAcceptQueueSize() ) );
     }
 
-    if ( validProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) {
-      connector.setIdleTimeout( Integer.parseInt( System.getProperty( Const.HOP_CARTE_JETTY_RES_MAX_IDLE_TIME ) ) );
+    if ( validProperty( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME ) ) {
+      connector.setIdleTimeout( Integer.parseInt( System.getProperty( Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME ) ) );
       log.logBasic( BaseMessages.getString( PKG, "WebServer.Log.ConfigOptions", "lowResourcesMaxIdleTime",
         connector.getIdleTimeout() ) );
     }
@@ -436,7 +436,7 @@ public class WebServer {
   }
 
   public int defaultDetectionTimer() {
-    String sDetectionTimer = System.getProperty( Const.HOP_SLAVE_DETECTION_TIMER );
+    String sDetectionTimer = System.getProperty( Const.HOP_SERVER_DETECTION_TIMER );
 
     if ( sDetectionTimer != null ) {
       return Integer.parseInt( sDetectionTimer );

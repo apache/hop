@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2011&#x2f;03&#x2f;23 15&#x3a;05&#x3a;46.581</created_date>
     <modified_user>-</modified_user>
@@ -484,9 +478,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -585,9 +577,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </usage_parameter><usage_parameter><parameter_tag>NAME_FIELD</parameter_tag>
 <parameter_value>name</parameter_value>
 <parameter_description>The name of the output field.</parameter_description>
-</usage_parameter></usage_parameters>    <cluster_schema/>
-
-      <input>
+</usage_parameter></usage_parameters><input>
       </input>
       <output>
       </output>
@@ -601,7 +591,4 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

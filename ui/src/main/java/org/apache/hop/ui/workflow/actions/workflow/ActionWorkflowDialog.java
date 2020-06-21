@@ -136,7 +136,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     // Start Server Section
     wPassExport = new Button( gExecution, SWT.CHECK );
-    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToSlave.Label" ) );
+    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToServer.Label" ) );
     props.setLook( wPassExport );
     FormData fdPassExport = new FormData();
     fdPassExport.left = new FormAttachment( 0, 0 );
@@ -145,7 +145,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wPassExport.setLayoutData( fdPassExport );
 
     wExpandRemote = new Button( gExecution, SWT.CHECK );
-    wExpandRemote.setText( BaseMessages.getString( PKG, "ActionWorkflowDialog.ExpandRemoteOnSlave.Label" ) );
+    wExpandRemote.setText( BaseMessages.getString( PKG, "ActionWorkflowDialog.ExpandRemoteOnServer.Label" ) );
     props.setLook( wExpandRemote );
     FormData fdExpandRemote = new FormData();
     fdExpandRemote.top = new FormAttachment( wPassExport, 10 );

@@ -426,12 +426,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2011&#x2f;01&#x2f;14 13&#x3a;37&#x3a;59.729</created_date>
     <modified_user>-</modified_user>
@@ -563,9 +557,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -598,9 +590,7 @@
  <rightvalue/>
  <value><name>constant</name><type>String</type><text>&#x2f;ProductInformation&#x2f;Products&#x2f;Product</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -633,9 +623,7 @@
  <rightvalue/>
  <value><name>constant</name><type>String</type><text>name</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -787,9 +775,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
         </field>
     </fields><clear_result_fields>N</clear_result_fields>
-<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters></usage_parameters>    <cluster_schema/>
-
-      <input>
+<info_transforms></info_transforms><target_transforms></target_transforms><usage_parameters></usage_parameters><input>
       </input>
       <output>
       </output>
@@ -818,9 +804,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
       </field>      <field>        <name>xml_data_value</name>
         <rename>ProductName</rename>
       </field>        <select_unspecified>N</select_unspecified>
-    </fields>    <cluster_schema/>
-
-      <input>
+    </fields><input>
       </input>
       <output>
       </output>
@@ -877,9 +861,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <xmlDataNameField>xml_data_name</xmlDataNameField>
     <includeXmlDataValueField>Y</includeXmlDataValueField>
     <xmlDataValueField>xml_data_value</xmlDataValueField>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -893,7 +875,4 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

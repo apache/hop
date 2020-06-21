@@ -62,9 +62,9 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-         <slaveserver><name>8081</name><hostname>localhost</hostname><port>8081</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-    </slaveservers>
+    <hop-servers>
+         <hop-server><name>8081</name><hostname>localhost</hostname><port>8081</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+    </hop-servers>
     <clusterschemas>
     </clusterschemas>
   <created_user>-</created_user>
@@ -119,8 +119,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>146</xloc>
       <yloc>142</yloc>
       <draw>Y</draw>
@@ -165,8 +164,7 @@
       </valuetypes>
     <fields>
       </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>290</xloc>
       <yloc>143</yloc>
       <draw>Y</draw>
@@ -175,8 +173,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-
-</pipeline>
+ </pipeline>

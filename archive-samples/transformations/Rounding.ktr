@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2013&#x2f;04&#x2f;29 09&#x3a;56&#x3a;59.714</created_date>
     <modified_user>-</modified_user>
@@ -612,9 +606,7 @@
       <grouping_symbol/>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -667,9 +659,7 @@
       <grouping_symbol/>
       <currency_symbol/>
     </calculation>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -714,9 +704,7 @@
   </conditions>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -761,9 +749,7 @@
   </conditions>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -796,9 +782,7 @@
  <rightvalue>calculated_with_precision_round</rightvalue>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -831,9 +815,7 @@
  <rightvalue>calculated_with_precision_round</rightvalue>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -859,9 +841,7 @@
       <row_threshold>0</row_threshold>
       <message>Not expected value</message>
       <always_log_rows>Y</always_log_rows>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -887,9 +867,7 @@
       <row_threshold>0</row_threshold>
       <message>Not expected value</message>
       <always_log_rows>Y</always_log_rows>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -922,9 +900,7 @@
  <rightvalue>calculated_with_no_precision</rightvalue>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -947,9 +923,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -972,9 +946,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -997,9 +969,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1081,9 +1051,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1154,9 +1122,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1170,7 +1136,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

@@ -96,6 +96,8 @@ public class SwingGc implements IGc {
 
   private static SwingUniversalImage imageInject;
 
+  private static SwingUniversalImage imageData;
+
   private static SwingUniversalImage defaultArrow;
   private static SwingUniversalImage okArrow;
   private static SwingUniversalImage errorArrow;
@@ -219,6 +221,7 @@ public class SwingGc implements IGc {
     imageDummy = getImageIcon( BasePropertyHandler.getProperty( "DUM_image" ) );
     imageBusy = getImageIcon( BasePropertyHandler.getProperty( "Busy_image" ) );
     imageInject = getImageIcon( BasePropertyHandler.getProperty( "Inject_image" ) );
+    imageData = getImageIcon( BasePropertyHandler.getProperty( "Data_image" ) );
 
     defaultArrow = getImageIcon( BasePropertyHandler.getProperty( "defaultArrow_image" ) );
     okArrow = getImageIcon( BasePropertyHandler.getProperty( "okArrow_image" ) );
@@ -456,6 +459,8 @@ public class SwingGc implements IGc {
         return errorArrow;
       case ARROW_DISABLED:
         return disabledArrow;
+      case DATA:
+        return imageData;
       default:
         break;
     }

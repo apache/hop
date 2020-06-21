@@ -187,7 +187,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     fdName = new FormData();
-    fdName.width = 250;
+    fdName.right = new FormAttachment(100, 0);
     fdName.top = new FormAttachment( wlName, 5 );
     fdName.left = new FormAttachment( 0, 0 );
     wName.setLayoutData( fdName );
@@ -207,21 +207,22 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlPath.right = new FormAttachment( 50, 0 );
     wlPath.setLayoutData( fdlPath );
 
+    wbBrowse = new Button( shell, SWT.PUSH );
+    props.setLook( wbBrowse );
+    wbBrowse.setText( BaseMessages.getString( PKG, "ActionPipeline.Browse.Label" ) );
+    FormData fdBrowse = new FormData();
+    fdBrowse.right = new FormAttachment( 100, 0 );
+    fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
+    wbBrowse.setLayoutData( fdBrowse );
+
     wPath = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment( 0, 0 );
     fdPath.top = new FormAttachment( wlPath, 5 );
-    fdPath.right = new FormAttachment( 50, 0 );
+    fdPath.right = new FormAttachment( wbBrowse, -5 );
     wPath.setLayoutData( fdPath );
 
-    wbBrowse = new Button( shell, SWT.PUSH );
-    props.setLook( wbBrowse );
-    wbBrowse.setText( BaseMessages.getString( PKG, "ActionPipeline.Browse.Label" ) );
-    FormData fdBrowse = new FormData();
-    fdBrowse.left = new FormAttachment( wPath, 5 );
-    fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
-    wbBrowse.setLayoutData( fdBrowse );
 
 
     wlRunConfiguration = new Label( shell, SWT.LEFT );

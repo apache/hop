@@ -23,7 +23,7 @@
 package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.cluster.HttpUtil;
+import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
@@ -149,7 +149,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
             response.setContentType( "text/xml" );
             response.setCharacterEncoding( Const.XML_ENCODING );
 
-            SlaveServerPipelineStatus pipelineStatus = new SlaveServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatusDescription() );
+            HopServerPipelineStatus pipelineStatus = new HopServerPipelineStatus( pipelineName, entry.getId(), pipeline.getStatusDescription() );
             pipelineStatus.setFirstLoggingLineNr( startLineNr );
             pipelineStatus.setLastLoggingLineNr( lastLineNr );
             pipelineStatus.setLogDate( new Date() );
@@ -208,7 +208,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
         out.println( "<HEAD>" );
         out.println( "<TITLE>"
           + BaseMessages.getString( PKG, "PipelineStatusServlet.HopPipelineStatus" ) + "</TITLE>" );
-        if ( EnvUtil.getSystemProperty( Const.HOP_CARTE_REFRESH_STATUS, "N" ).equalsIgnoreCase( "Y" ) ) {
+        if ( EnvUtil.getSystemProperty( Const.HOP_SERVER_REFRESH_STATUS, "N" ).equalsIgnoreCase( "Y" ) ) {
           out.println( "<META http-equiv=\"Refresh\" content=\"10;url="
             + convertContextPath( CONTEXT_PATH ) + "?name=" + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id="
             + URLEncoder.encode( id, "UTF-8" ) + "\">" );

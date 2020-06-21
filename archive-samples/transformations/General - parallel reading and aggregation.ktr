@@ -431,11 +431,10 @@
           <id>P2</id>
         </partition>
         <dynamic>N</dynamic>
-        <partitions_per_slave/>
       </partitionschema>
     </partitionschemas>
-    <slaveservers>
-    </slaveservers>
+    <hop-servers>
+    </hop-servers>
     <clusterschemas>
     </clusterschemas>
     <created_user/>
@@ -595,9 +594,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -620,9 +617,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -660,9 +655,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -676,7 +669,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>
