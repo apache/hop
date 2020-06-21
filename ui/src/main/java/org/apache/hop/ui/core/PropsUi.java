@@ -25,7 +25,6 @@ package org.apache.hop.ui.core;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
@@ -92,7 +91,7 @@ public class PropsUi extends Props {
   }
 
   public static PropsUi getInstance() {
-    return SingletonUtil.getUniqueInstance( PropsUi.class, WebSpoonUtils.getUISession() );
+    return SingletonUtil.getSessionInstance( PropsUi.class );
   }
 
   private PropsUi() {

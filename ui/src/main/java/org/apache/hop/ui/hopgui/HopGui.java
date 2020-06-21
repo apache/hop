@@ -27,7 +27,6 @@ import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.WebSpoonUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -262,7 +261,7 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   public static final HopGui getInstance() {
-    return SingletonUtil.getUniqueInstance( HopGui.class, WebSpoonUtils.getUISession() );
+    return SingletonUtil.getSessionInstance( HopGui.class );
   }
 
   public static void main( String[] arguments ) {
