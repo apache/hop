@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/checksum/src/main/doc/checksum.adoc
-= Checksum
+= Add a checksum
 
 == Description
 
@@ -22,7 +22,6 @@ This transform calculates checksums for one or more fields in the input stream a
 * SHA-256 : Secure Hash Algorithm 2 : http://en.wikipedia.org/wiki/SHA-256
 |Result Type|Some checksum types allow to set different result types: String, Hexadecimal and Binary
 |Result field|The name of the result field containing the checksum
-|Compatibility Mode|Check this to be compatible with pipelines that were created with a PDI version before 4.2.0. Before 4.2.0 there have been issues with a wrong hexadecimal encoding when Result Type is set to Hexadecimal (see details in PDI-5190).
 |Fields used in the checksum|The names of the fields to include in the checksum calculation.
 Note: You can use the "Get Fields" button to insert all input fields from previous transforms.
 |===

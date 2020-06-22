@@ -19,7 +19,7 @@ If you have a database table that has identity columns and you are inserting a r
 |Target table|The name of the table to which data is written.
 |Commit size|Use transactions to insert rows in the database table. Commit the connection every N rows if N is larger than zero (0); otherwise, don't use transactions. (Slower)
 |Truncate table|Select if you want the table to be truncated before the first row is inserted into the table
-|Ignore insert errors|Makes Kettle ignore all insert errors such as violated primary keys. A maximum of 20 warnings will be logged however. This option is not available for batch inserts.
+|Ignore insert errors|Makes Hop ignore all insert errors such as violated primary keys. A maximum of 20 warnings will be logged however. This option is not available for batch inserts.
 |Specify database fields|Enable this option to specify the fields in the Database fields tab. Otherwise all fields are taken into account by default.
 |Partition data over tables a|Use to split the data over multiple tables. For example instead of inserting all data into table SALES, put the data into tables SALES_200510, SALES_200511, SALES_200512, ... Use this on systems that don't have partitioned tables and/or don't allow inserts into UNION ALL views or the master of inherited tables. The view SALES allows you to report on the complete sales:
 [source,sql]

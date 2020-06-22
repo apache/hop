@@ -50,7 +50,7 @@ String firstnameField;
 String lastnameField;
 String nameField;
  
-public boolean processRow() throws KettleException
+public boolean processRow() throws HopException
 {
     // Let's look up parameters only once for performance reason.
     //
@@ -174,7 +174,7 @@ Because looking up field names can be slow if you need to do it for every row th
 if (first) {
  yearIndex = getInputRowMeta().indexOfValue(getParameter("YEAR"));
  if (yearIndex<0) {
-   throw new KettleException("Year field not found in the input row, check parameter 'YEAR'\!");
+   throw new HopException("Year field not found in the input row, check parameter 'YEAR'\!");
  }
 }
 ----

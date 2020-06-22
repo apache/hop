@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/excelinput/src/main/doc/excelinput.adoc
-= Excel input
+= Microsoft Excel input
 
 == Description
 
@@ -51,9 +51,9 @@ In this tab you can specify the names of the sheets in the Excel workbook to rea
 
 |===
 |Option|Description
-|Strict types?|If checked, PDI will report data type errors in the input.
+|Strict types?|If checked, Hop will report data type errors in the input.
 |Ignore errors?|Enable if you want to ignore errors during parsing
-|Skip error lines?|If checked, PDI will skip lines that contain errors. These lines can be dumped to a separate file by specifying a path in the Failing line numbers files directory field below. If this is not checked, lines with errors will appear as NULL values in the output.
+|Skip error lines?|If checked, Hop will skip lines that contain errors. These lines can be dumped to a separate file by specifying a path in the Failing line numbers files directory field below. If this is not checked, lines with errors will appear as NULL values in the output.
 |Warnings file directory|When warnings are generated, they are placed in this directory. The name of that file is <warning dir>/filename.<date_time>.<warning extension>
 |Error files directory|When errors occur, they are placed in this directory. The name of that file is <errorfile_dir>/filename.<date_time>.<errorfile_extension>
 |Failing line numbers files directory|When a parsing error occurs on a line, the line number is placed in this directory. The name of that file is <errorline dir>/filename.<date_time>.<errorline extension>

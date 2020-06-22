@@ -2,11 +2,11 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/rowstoresult/src/main/doc/rowstoresult.adoc
 
-= Get Rows from Result
+= Copy rows to result
 
 == Description
 
-The Get Rows from Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set. It can be used by the Get Rows from Result transform and some workflow entries that allow to process the internal result row set.
+The Copy rows to result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set. It can be used by the Get Rows from Result transform and some workflow actions that allow to process the internal result row set.
 
 == Options
 

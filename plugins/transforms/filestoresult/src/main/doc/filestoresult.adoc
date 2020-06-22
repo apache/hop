@@ -5,7 +5,7 @@
 
 == Description
 
-This transform allows you to set filenames in the internal result files of a pipeline. Subsequent job entries can then use this information as it routes the list of files to the result files stream e.g. by using the Get files from result transform or some job entries that can process on the list of result files. For example, the Mail job entry can use this list of files to attach to a mail, so perhaps you don't want all files sent, but only a certain selection. For this, you can create a pipeline that sets exactly those files you want to attach.
+This transform allows you to set filenames in the internal result files of a pipeline. Subsequent workflow actions can then use this information as it routes the list of files to the result files stream e.g. by using the Get files from result transform or some workflow actions that can process on the list of result files. For example, the Mail workflow action can use this list of files to attach to a mail, so perhaps you don't want all files sent, but only a certain selection. For this, you can create a pipeline that sets exactly those files you want to attach.
 
 == Options
 
