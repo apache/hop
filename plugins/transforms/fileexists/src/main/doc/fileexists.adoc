@@ -17,7 +17,7 @@ The result is a boolean flag field that gets added to the input fields in the ou
 |Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Filename field|The input field that will contain the filename at runtime
 |Result fieldname|The name of the field that will contain the boolean flag.
-|Add filename to result|Enable this option if you want to add the filename to the list of filenames that can be used in the next job entry.
+|Add filename to result|Enable this option if you want to add the filename to the list of filenames that can be used in the next workflow action.
 |Include file type|Include the file type in a field.
 |File type field|The name of the field that will contain the file type as a String: "file", "folder", "imaginary"
 |===

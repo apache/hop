@@ -31,7 +31,7 @@ When the transform runs, the (?) placeholder defined in the SQL query will be re
 [width="90%", options="header"]
 |===
 |Option|Description
-|transform name|Name of the transform; This name has to be unique in a single transformation
+|transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|The database connection to use for the query.
 |SQL|SQL query to form the join; use question marks as parameter placeholders
 |Number of rows to return|Zero (0) returns all rows; any other number limits the number of rows returned.

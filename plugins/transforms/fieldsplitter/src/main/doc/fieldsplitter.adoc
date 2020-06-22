@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/fieldsplitter/src/main/doc/fieldsplitter.adoc
-= Fields splitter
+= Split Fields
 
 == Description
 

@@ -9,9 +9,9 @@ The Get File Names transform allows you to get information associated with file 
 
 The output fields for this transform are:
 
-* filename - the complete filename, including the path (/tmp/kettle/somefile.txt)
+* filename - the complete filename, including the path (/tmp/hop/somefile.txt)
 * short_filename - only the filename, without the path (somefile.txt)
-* path - only the path (/tmp/kettle/)
+* path - only the path (/tmp/hop/)
 * type
 * exists
 * ishidden

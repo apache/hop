@@ -59,7 +59,7 @@ Note: Only integer values for B are supported. If you need non-integer calculati
 |Metaphone of A (Phonetics)|Calculates the metaphone of A:  http://en.wikipedia.org/wiki/Metaphone
 |Double metaphone of A|Calculates the double metaphone of A: http://en.wikipedia.org/wiki/Double_Metaphone
 |Absolute value ABS(A)|Calculates the Absolute value of A.
-|Remove time from a date A|Removes time value of A. Note: Daylight Savings Time (DST) changes in Sao Paulo and some other parts of Brazil at midnight 0:00. This makes it impossible to set the time to 0:00 at the specific date, when the DST changes from 0:00 to 1:00 am. So, there is one date in one year in these regions where this function will fail with an "IllegalArgumentException: HOUR_OF_DAY: 0 -> 1". It is not an issue for Europe, the US and other regions where the time changes at 1:00 or 2:00 or 3:00 am. Details in PDI-13228.
+|Remove time from a date A|Removes time value of A. Note: Daylight Savings Time (DST) changes in Sao Paulo and some other parts of Brazil at midnight 0:00. This makes it impossible to set the time to 0:00 at the specific date, when the DST changes from 0:00 to 1:00 am. So, there is one date in one year in these regions where this function will fail with an "IllegalArgumentException: HOUR_OF_DAY: 0 -> 1". It is not an issue for Europe, the US and other regions where the time changes at 1:00 or 2:00 or 3:00 am.
 |Date A - Date B (in days)|Calculates difference, in days, between A date field and B date field.
 |A + B + C|A plus B plus C.
 |First letter of each word of a string A in capital|Transforms the first letter of each word within a string.
@@ -112,7 +112,7 @@ Note: Only integer values for B are supported. If you need non-integer calculati
 
 == FAQ on length and precision and data types affecting the results
 
-*Q*: I made a transformation using A/B in a calculator transform and it rounded wrong: the 2 input fields are integer but my result type was Number(6, 4) so I would expect the integers to be cast to Number before executing the division.
+*Q*: I made a pipeline using A/B in a calculator transform and it rounded wrong: the 2 input fields are integer but my result type was Number(6, 4) so I would expect the integers to be cast to Number before executing the division.
 
 If I wanted to execute e.g. 28/222, I got 0.0 instead of 0.1261 which I expected. So it seems the result type is ignored. If I change the input types both to Number(6, 4) I get as result 0.12612612612612611 which still ignores the result type (4 places after the comma).
 
@@ -122,7 +122,7 @@ Why is this?
 
 If you want to round to the specified precision, you should do this in another transform. However: please keep in mind that rounding double point precision values is futile anyway. A floating point number is stored as an approximation (it floats) so 0.1261 (your desired output) could (would probably) end up being stored as 0.126099999999 or 0.1261000000001 (Note: this is not the case for BigNumbers)
 
-So in the end we round using BigDecimals once we store the numbers in the output table, but NOT during the transformation. The same is true for the Text File Output transform. If you would have specified Integer as result type, the internal number format would have been retained, you would press "Get Fields" and it the required Integer type would be filled in. The required conversion would take place there and then.
+So in the end we round using BigDecimals once we store the numbers in the output table, but NOT during the pipeline. The same is true for the Text File Output transform. If you would have specified Integer as result type, the internal number format would have been retained, you would press "Get Fields" and it the required Integer type would be filled in. The required conversion would take place there and then.
 
 In short: we convert to the required metadata type when we land the data somewhere, NOT BEFORE.
 

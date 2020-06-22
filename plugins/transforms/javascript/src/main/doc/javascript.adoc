@@ -2,11 +2,11 @@
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/javascript/src/main/doc/javascript.adoc
 
-= Modified Java Script Value
+= JavaScript
 
 == Description
 
-THe Modified Java Script Value transform allows you to create JavaScript scripts for each transform.
+The JavaScript transform allows you to create JavaScript scripts for each transform.
 
 == Options
 
