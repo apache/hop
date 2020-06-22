@@ -159,13 +159,13 @@ public class GuiResource {
   private ManagedFont fontBold;
 
   /* * * Images * * */
-  private static Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
+  private Map<String, SwtUniversalImage> imagesTransforms = new Hashtable<>();
 
-  private static Map<String, Image> imagesTransformsSmall = new Hashtable<>();
+  private Map<String, Image> imagesTransformsSmall = new Hashtable<>();
 
-  private static Map<String, SwtUniversalImage> imagesActions = new Hashtable<>();
+  private Map<String, SwtUniversalImage> imagesActions;
 
-  private static Map<String, Image> imagesActionsSmall = new Hashtable<>();
+  private Map<String, Image> imagesActionsSmall;
 
   private SwtUniversalImage imageHop;
 
@@ -771,6 +771,12 @@ public class GuiResource {
       imageToolbarView.dispose();
       imageToolbarViewAsXml.dispose();
 
+      // big images
+      disposeUniversalImages( imagesTransforms.values() );
+
+      // Small images
+      disposeImages( imagesTransformsSmall.values() );
+
       // Dispose of the images in the map
       disposeImages( imageMap.values() );
     }
@@ -1277,6 +1283,9 @@ public class GuiResource {
    * Load all transform images from files.
    */
   private void loadWorkflowActionImages() {
+    imagesActions = new Hashtable<>();
+    imagesActionsSmall = new Hashtable<>();
+
     // //
     // // ACTION IMAGES TO LOAD
     // //
