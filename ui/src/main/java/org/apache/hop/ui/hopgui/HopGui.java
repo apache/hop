@@ -642,11 +642,11 @@ public class HopGui implements IActionContextHandlersProvider {
 
   @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_OPTIONS, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
   public void menuToolsOptions() {
-    if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
+    if (new EnterOptionsDialog( getShell() ).open()!=null) {
       try {
         HopConfig.saveToFile();
       } catch(Exception e) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving the configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+        new ErrorDialog( getShell(), "Error", "Error saving the configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
       }
     }
   }
@@ -659,7 +659,7 @@ public class HopGui implements IActionContextHandlersProvider {
       try {
         HopConfig.saveSystemProperties( systemSettings );
       } catch(Exception e) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving system properties to configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+        new ErrorDialog( getShell(), "Error", "Error saving system properties to configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
       }
     }
   }
