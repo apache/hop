@@ -34,6 +34,7 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -82,14 +83,6 @@ public class PropsUi extends Props {
 
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
 
-  /**
-   * Initialize the properties: load from disk.
-   *
-   * @param d The Display
-   */
-  public static void init( Display d ) {
-  }
-
   public static PropsUi getInstance() {
     return SingletonUtil.getSessionInstance( PropsUi.class );
   }
@@ -102,8 +95,9 @@ public class PropsUi extends Props {
   public void setDefault() {
 
     super.setDefault();
+    Display display = HopGui.getInstance().getDisplay();
 
-    if ( Display.getCurrent() != null ) {
+    if ( display != null ) {
       FontData fontData = getFixedFont();
       setProperty( STRING_FONT_FIXED_NAME, fontData.getName() );
       setProperty( STRING_FONT_FIXED_SIZE, "" + fontData.getHeight() );
@@ -361,7 +355,7 @@ public class PropsUi extends Props {
   }
 
   public FontData getDefaultFontData() {
-    return Display.getCurrent().getSystemFont().getFontData()[ 0 ];
+    return HopGui.getInstance().getDisplay().getSystemFont().getFontData()[ 0 ];
   }
 
   public void setMaxUndo( int max ) {
@@ -579,13 +573,7 @@ public class PropsUi extends Props {
    * @return Returns the display.
    */
   public static Display getDisplay() {
-    return Display.getCurrent();
-  }
-
-  /**
-   * @param d The display to set.
-   */
-  public static void setDisplay( Display d ) {
+    return HopGui.getInstance().getDisplay();
   }
 
   public void setDefaultPreviewSize( int size ) {
