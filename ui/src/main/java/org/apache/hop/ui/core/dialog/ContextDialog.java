@@ -598,7 +598,7 @@ public class ContextDialog extends Dialog {
 	private Item findItem( int x, int y ) {
 		ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
 
-		int startRow = verticalBar.getSelection();
+		int startRow = Math.round( verticalBar.getSelection() / verticalBar.getMaximum() );
 		int nrColumns = calculateNrColumns();
 		int nrRows = calculateNrRows();
 
