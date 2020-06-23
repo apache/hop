@@ -431,7 +431,7 @@ public class ContextDialog extends Dialog {
 
 	private int calculateNrColumns() {
 		//System.out.println("Client="+wCanvas.getClientArea() + " bounds="+wCanvas.getBounds());
-		return Math.floorDiv( wCanvas.getClientArea().width, cellWidth );
+		return Math.floorDiv( wScrolledComposite.getClientArea().width, cellWidth );
 	}
 
 	private int calculateNrRows() {
@@ -592,16 +592,7 @@ public class ContextDialog extends Dialog {
 	}
 
 	private void updateVerticalBar() {
-	        wCanvas.setSize( wScrolledComposite.getClientArea().width, wScrolledComposite.getClientArea().height );
-		ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
-
-		int pageRows = Math.floorDiv( wCanvas.getClientArea().height, cellHeight );
-
-		verticalBar.setMinimum( 0 );
-		verticalBar.setIncrement( 1 );
-		verticalBar.setPageIncrement( pageRows );
-		verticalBar.setMaximum( calculateNrRows() );
-		verticalBar.setThumb( pageRows );
+	        wCanvas.setSize( calculateNrColumns() * cellWidth, calculateNrRows() * cellHeight );
 	}
 
 	private Item findItem( int x, int y ) {
