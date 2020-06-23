@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
@@ -75,6 +76,7 @@ public class ContextDialog extends Dialog {
 	private Text wSearch;
 	private Label wlTooltip;
 	private Canvas wCanvas;
+	private ScrolledComposite wScrolledComposite;
 
 	private int iconSize;
 	private int maxNameWidth;
@@ -199,13 +201,15 @@ public class ContextDialog extends Dialog {
 
 		// The rest of the dialog is used to draw the actions...
 		//
-		wCanvas = new Canvas( shell, SWT.NO_BACKGROUND | SWT.V_SCROLL );
+		wScrolledComposite = new ScrolledComposite( shell, SWT.V_SCROLL | SWT.H_SCROLL );
+		wCanvas = new Canvas( wScrolledComposite, SWT.NO_BACKGROUND | SWT.V_SCROLL );
+		wScrolledComposite.setContent( wCanvas );
 		FormData fdCanvas = new FormData();
 		fdCanvas.left = new FormAttachment( 0, 0 );
 		fdCanvas.right = new FormAttachment( 100, 0 );
 		fdCanvas.top = new FormAttachment( toolBar, 0 );
 		fdCanvas.bottom = new FormAttachment( wlTooltip, 0 );
-		wCanvas.setLayoutData( fdCanvas );
+		wScrolledComposite.setLayoutData( fdCanvas );
 
 		// TODO: Calculate a more dynamic size based on number of actions, screen size
 		// and so on
@@ -386,7 +390,7 @@ public class ContextDialog extends Dialog {
 
 		// So at which row do we start rendering?
 		//
-		ScrollBar bar = wCanvas.getVerticalBar();
+		ScrollBar bar = wScrolledComposite.getVerticalBar();
 		int startRow = bar.getSelection();
 		int startItem = startRow * nrColumns;
 
@@ -455,7 +459,7 @@ public class ContextDialog extends Dialog {
 		} else {
 			wlTooltip.setText( Const.NVL( item.getAction().getTooltip(), "" ) );
 
-			ScrollBar bar = wCanvas.getVerticalBar();
+			ScrollBar bar = wScrolledComposite.getVerticalBar();
 
 			int row = Math.floorDiv( index, nrColumns );
 
@@ -588,7 +592,8 @@ public class ContextDialog extends Dialog {
 	}
 
 	private void updateVerticalBar() {
-		ScrollBar verticalBar = wCanvas.getVerticalBar();
+	        wCanvas.setSize( wScrolledComposite.getClientArea().width, wScrolledComposite.getClientArea().height );
+		ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
 
 		int pageRows = Math.floorDiv( wCanvas.getClientArea().height, cellHeight );
 
@@ -600,7 +605,7 @@ public class ContextDialog extends Dialog {
 	}
 
 	private Item findItem( int x, int y ) {
-		ScrollBar verticalBar = wCanvas.getVerticalBar();
+		ScrollBar verticalBar = wScrolledComposite.getVerticalBar();
 
 		int startRow = verticalBar.getSelection();
 		int nrColumns = calculateNrColumns();
