@@ -68,7 +68,8 @@ import java.util.regex.Pattern;
 		name = "ActionCopyMoveResultFilenames.Name",
 		description = "ActionCopyMoveResultFilenames.Description",
 		image = "CopyMoveResultFilenames.svg",
-		categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+		categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/copymoveresultfilenames.html"
 )
 public class ActionCopyMoveResultFilenamesI extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionCopyMoveResultFilenamesI.class; // for i18n purposes, needed by Translator!!

@@ -63,7 +63,8 @@ import java.util.List;
   name = "ActionTruncateTables.Name",
   description = "ActionTruncateTables.Description",
   image = "TruncateTables.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/truncatetables.html"
 )
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!

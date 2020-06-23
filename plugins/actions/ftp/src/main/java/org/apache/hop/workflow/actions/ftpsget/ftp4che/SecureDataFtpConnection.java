@@ -22,6 +22,10 @@
 
 package org.apache.hop.workflow.actions.ftpsget.ftp4che;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import org.ftp4che.FTPConnection;
 import org.ftp4che.commands.Command;
 import org.ftp4che.exception.ConfigurationException;
@@ -29,10 +33,6 @@ import org.ftp4che.exception.FtpIOException;
 import org.ftp4che.exception.FtpWorkflowException;
 import org.ftp4che.impl.SecureFTPConnection;
 import org.ftp4che.util.ftpfile.FTPFile;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * SecureFTPConnection changed to force data channel encryption for implicit TLS/SSL connections with crypted data.

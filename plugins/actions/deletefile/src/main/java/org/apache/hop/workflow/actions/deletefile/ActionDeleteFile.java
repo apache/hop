@@ -62,7 +62,8 @@ import java.util.List;
   name = "ActionDeleteFile.Name",
   description = "ActionDeleteFile.Description",
   image = "DeleteFile.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefile.html"
 )
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionDeleteFile.class; // for i18n purposes, needed by Translator!!

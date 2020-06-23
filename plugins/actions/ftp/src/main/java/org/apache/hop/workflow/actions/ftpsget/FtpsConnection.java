@@ -22,7 +22,15 @@
 
 package org.apache.hop.workflow.actions.ftpsget;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -41,14 +49,7 @@ import org.ftp4che.event.FTPListener;
 import org.ftp4che.exception.ConfigurationException;
 import org.ftp4che.util.ftpfile.FTPFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import com.google.common.annotations.VisibleForTesting;
 
 public class FtpsConnection implements FTPListener {
 

@@ -738,12 +738,10 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * appropriate class name
    *
    * @return full class name of the dialog
-   * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
    */
-  @Deprecated
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
-    className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
+    //className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     className += "Dialog";
     return className;
   }

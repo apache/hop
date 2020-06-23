@@ -41,7 +41,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -75,7 +74,8 @@ import java.util.regex.Pattern;
   name = "ActionDeleteFiles.Name",
   description = "ActionDeleteFiles.Description",
   image = "DeleteFiles.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefiles.html"
 )
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 

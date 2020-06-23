@@ -71,7 +71,8 @@ import java.util.regex.Pattern;
   name = "ActionGetPOP.Name",
   description = "ActionGetPOP.Description",
   image = "GetPOP.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/getpop.html"
 )
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!

@@ -68,8 +68,9 @@ import java.util.regex.Pattern;
         i18nPackageName = "org.apache.hop.workflow.actions.xml.xmlwellformed",
         name = "XML_WELL_FORMED.Name",
         description = "XML_WELL_FORMED.Description",
+        image = "XFC.svg",
         categoryDescription = "XML_WELL_FORMED.Category",
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xmlwellformed.html"
 )
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!

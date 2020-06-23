@@ -85,7 +85,8 @@ import java.util.zip.ZipOutputStream;
   name = "ActionMail.Name",
   description = "ActionMail.Description",
   image = "Mail.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mail.html"
 )
 public class ActionMail extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionMail.class; // for i18n purposes, needed by Translator!!

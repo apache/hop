@@ -22,23 +22,24 @@
 
 package org.apache.hop.workflow.actions.sftpput;
 
+import java.net.InetAddress;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.sftp.SftpClient;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -63,20 +64,12 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import java.net.InetAddress;
-
 /**
  * This dialog allows you to edit the FTP Put action settings.
  *
  * @author Matt
  * @since 19-06-2003
  */
-@PluginDialog( 
-		  id = "SFTPPUT", 
-		  image = "SFTPPut.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sftpput.html"
-)
 public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!
   private static final String[] FILETYPES = new String[] {

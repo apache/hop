@@ -29,6 +29,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -77,8 +78,9 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         i18nPackageName = "org.apache.hop.workflow.actions.xml.xslt",
         name = "XSLT.Name",
         description = "XSLT.Description",
-        categoryDescription = "XSLT.Category",
-        documentationUrl = ""
+        image = "XSLT.svg",
+        categoryDescription = "XSLT.Category",               
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xslt.html"
 )
 public class Xslt extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!

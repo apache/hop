@@ -69,7 +69,8 @@ import java.util.List;
   name = "ActionMysqlBulkLoad.Name",
   description = "ActionMysqlBulkLoad.Description",
   image = "MysqlBulkLoad.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BulkLoading",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mysqlbulkload.html"
 )
 public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionMysqlBulkLoad.class; // for i18n purposes, needed by Translator!!

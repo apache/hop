@@ -22,12 +22,19 @@
 
 package org.apache.hop.workflow.actions.evalfilesmetrics;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -39,24 +46,16 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This defines a 'evaluate files metrics' action.
@@ -71,7 +70,8 @@ import java.util.regex.Pattern;
   name = "ActionEvalFilesMetrics.Name",
   description = "ActionEvalFilesMetrics.Description",
   image = "EvalFilesMetrics.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/evalfilesmetrics.html"
 )
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionEvalFilesMetrics.class; // for i18n purposes, needed by Translator!!

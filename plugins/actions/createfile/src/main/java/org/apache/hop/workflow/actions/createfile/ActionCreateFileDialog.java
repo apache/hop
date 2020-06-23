@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.createfile;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -48,7 +47,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -61,12 +59,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Sven Boden
  * @since 28-01-2007
  */
-@PluginDialog( 
-		  id = "CREATE_FILE", 
-		  image = "CreateFile.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfile.html"
-)
 public class ActionCreateFileDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionCreateFile.class; // for i18n purposes, needed by Translator!!
 

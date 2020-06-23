@@ -22,23 +22,23 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
-import com.enterprisedt.net.ftp.FTPClient;
+import java.net.InetAddress;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import java.net.InetAddress;
+import com.enterprisedt.net.ftp.FTPClient;
 
 /**
  * This dialog allows you to edit the FTP Get action settings.
@@ -71,13 +71,6 @@ import java.net.InetAddress;
  * @author Matt
  * @since 19-06-2003
  */
-
-@PluginDialog( 
-		  id = "FTP", 
-		  image = "FTP.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftp.html"
-)
 public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtp.class; // for i18n purposes, needed by Translator!!
 
