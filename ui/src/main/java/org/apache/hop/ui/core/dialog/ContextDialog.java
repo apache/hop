@@ -295,6 +295,7 @@ public class ContextDialog extends Dialog {
 		// Show the dialog now
 		//
 		shell.layout();
+		updateVerticalBar();
 		shell.open();
 
 		// Wait until the dialog is closed
