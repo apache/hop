@@ -72,7 +72,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 06-05-2007
  */
 public class ActionCheckFilesLockedDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionICheckFilesLocked.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ActionCheckFilesLocked.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCheckFilesLocked.Filetype.All" ) };
@@ -93,7 +93,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionICheckFilesLocked action;
+  private ActionCheckFilesLocked action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -123,7 +123,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
   public ActionCheckFilesLockedDialog( Shell parent, IAction action,
                                        WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionICheckFilesLocked) action;
+    this.action = (ActionCheckFilesLocked) action;
 
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobCheckFilesLocked.Name.Default" ) );
