@@ -879,7 +879,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlFilename.top = new FormAttachment( 0, margin );
     wlFilename.setLayoutData( fdlFilename );
     wFilename = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wFilename.setText( Const.NVL( HopConfig.getInstance().getFilename(), "" ) );
+    wFilename.setText( Const.NVL( HopConfig.getInstance().getConfigFilename(), "" ) );
     wlFilename.setEnabled( false );
     props.setLook( wFilename );
     FormData fdFilename = new FormData();

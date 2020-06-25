@@ -26,6 +26,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
@@ -126,8 +127,12 @@ public class HopEnvironment {
 
         // If the HopConfig system properties is empty, initialize with the variables...
         //
-        if ( HopConfig.getSystemProperties().isEmpty() ) {
-          HopConfig.saveSystemProperties( HopVariablesList.getInstance().getDefaultValueMap() );
+        List<DescribedVariable> configVariables = HopConfig.getInstance().getDescribedVariables();
+        if ( configVariables.isEmpty() ) {
+          List<DescribedVariable> describedVariables = HopVariablesList.getInstance().getEnvironmentVariables();
+          for ( DescribedVariable describedVariable : describedVariables ) {
+            HopConfig.getInstance().setDescribedVariable( new DescribedVariable( describedVariable ) );
+          }
         }
 
         ready.set( true );

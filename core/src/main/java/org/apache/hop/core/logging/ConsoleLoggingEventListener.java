@@ -22,13 +22,9 @@
 
 package org.apache.hop.core.logging;
 
-import java.util.Timer;
-
 public class ConsoleLoggingEventListener implements IHopLoggingEventListener {
 
   private HopLogLayout layout;
-
-  private Timer flushTimer;
 
   public ConsoleLoggingEventListener() {
     this.layout = new HopLogLayout( true );

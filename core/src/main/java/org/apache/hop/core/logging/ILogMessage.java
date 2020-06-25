@@ -35,4 +35,6 @@ public interface ILogMessage {
 
   Object[] getArguments();
 
+  boolean isSimplified();
+
 }

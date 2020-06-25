@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xml:space="preserve"
+   enable-background="new 0 0 42 42"
+   viewBox="0 0 42 42"
+   height="42px"
+   width="42px"
+   y="0px"
+   x="0px"
+   id="Layer_1"
+   version="1.1"><metadata
+   id="metadata25"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs23" />
+
+
+<text
+   xml:space="preserve"
+   style="font-style:normal;font-weight:normal;font-size:192px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+   x="56.459057"
+   y="19.834593"
+   id="text816"><tspan
+     id="tspan814"
+     x="56.459057"
+     y="194.53062" /></text>
+
+
+
+
+<polygon
+   transform="matrix(1.6377839,0,0,1.6377839,-23.702184,-25.258686)"
+   style="fill:#ea102a"
+   id="polygon18"
+   points="37.6,31.4 34.7,34.3 31.8,31.4 30.4,32.7 33.3,35.6 30.4,38.5 31.8,39.9 34.7,37 37.6,39.9 38.9,38.5 36,35.6 38.9,32.7 " /><text
+   id="text821"
+   y="28.091171"
+   x="2.7267504"
+   style="font-style:normal;font-weight:normal;font-size:48.81200027px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.25422916"
+   xml:space="preserve"><tspan
+     style="stroke-width:0.25422916"
+     y="28.091171"
+     x="2.7267504"
+     id="tspan819">p</tspan></text>
+</svg>

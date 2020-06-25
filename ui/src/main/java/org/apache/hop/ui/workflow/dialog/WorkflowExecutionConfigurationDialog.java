@@ -117,9 +117,9 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     WorkflowMeta workflowMeta = (WorkflowMeta) super.abstractMeta;
 
-    String[] names = new String[ workflowMeta.getJobCopies().size() ];
+    String[] names = new String[ workflowMeta.getActionCopies().size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      ActionCopy copy = workflowMeta.getJobCopies().get( i );
+      ActionCopy copy = workflowMeta.getActionCopies().get( i );
       names[ i ] = getActionCopyName( copy );
     }
     wStartAction.setItems( names );
@@ -252,7 +252,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       int startCopyNr = 0;
       if ( !Utils.isEmpty( wStartAction.getText() ) ) {
         if ( wStartAction.getSelectionIndex() >= 0 ) {
-          ActionCopy copy = ( (WorkflowMeta) abstractMeta ).getJobCopies().get( wStartAction.getSelectionIndex() );
+          ActionCopy copy = ( (WorkflowMeta) abstractMeta ).getActionCopies().get( wStartAction.getSelectionIndex() );
           startCopyName = copy.getName();
           startCopyNr = copy.getNr();
         }

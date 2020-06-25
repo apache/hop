@@ -52,11 +52,13 @@ import java.util.Properties;
 )
 public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
+  public static final String WORKFLOW_FILE_TYPE_DESCRIPTION = "Workflow";
+
   public HopWorkflowFileType() {
   }
 
   @Override public String getName() {
-    return "Workflow"; // TODO: i18n
+    return WORKFLOW_FILE_TYPE_DESCRIPTION;
   }
 
   @Override public String[] getFilterExtensions() {

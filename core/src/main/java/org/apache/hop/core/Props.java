@@ -22,9 +22,12 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+
+import java.util.Map;
 
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors, fonts, positions of
@@ -127,6 +130,7 @@ public class Props implements Cloneable {
   protected void setProperty(String key, String value) {
     try {
       HopConfig.setGuiProperty( key, value );
+      HopConfig.getInstance().saveToFile();
     } catch(Exception e) {
       throw new RuntimeException("Error saving hop config option key '"+key+"', value '"+value+"'", e);
     }
@@ -137,11 +141,15 @@ public class Props implements Cloneable {
   }
 
   public String getProperty( String propertyName, String defaultValue ) {
-    return HopConfig.readOptionString( propertyName, defaultValue );
+    String value = HopConfig.getGuiProperty( propertyName );
+    if ( StringUtils.isEmpty(value)) {
+      return defaultValue;
+    }
+    return value;
   }
 
   public boolean containsKey(String key) {
-    return HopConfig.getConfigMap().containsKey( key );
+    return HopConfig.getInstance().getConfigMap().containsKey( key );
   }
 
   public void setUseDBCache( boolean use ) {
@@ -175,11 +183,11 @@ public class Props implements Cloneable {
   }
 
   public void clearCustomParameters() {
-
-    for (String key : HopConfig.getConfigMap().keySet() ) {
+    Map<String, Object> configMap = HopConfig.getInstance().getConfigMap();
+    for (String key : configMap.keySet() ) {
       if ( key.startsWith( STRING_CUSTOM_PARAMETER ) ) {
         // Clear this one
-        HopConfig.getConfigMap().remove( key );
+        configMap.remove( key );
       }
     }
   }
@@ -189,7 +197,7 @@ public class Props implements Cloneable {
   }
 
   private void clear() {
-    HopConfig.getConfigMap().clear();
+    HopConfig.getInstance().getConfigMap().clear();
   }
 
 

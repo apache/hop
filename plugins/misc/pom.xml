@@ -25,7 +25,7 @@
       </property>
     </activation>
     <modules>
-      <module>environment</module>
+      <module>projects</module>
       <module>debug</module>
       <module>testing</module>
       <module>git</module>

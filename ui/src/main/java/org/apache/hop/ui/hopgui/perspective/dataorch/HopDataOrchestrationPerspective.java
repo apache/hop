@@ -29,6 +29,8 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -517,6 +519,44 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       }
     }
     return null;
+  }
+
+  @Override public List<ISearchable> getSearchables() {
+    List<ISearchable> searchables = new ArrayList<>();
+    for (final TabItemHandler item : items) {
+      // The type handler is the pipeline or workflow
+      //
+      IHopFileTypeHandler typeHandler = item.getTypeHandler();
+      searchables.add( new ISearchable() {
+        @Override public String getLocation() {
+          return "Data orchestration perspective in tab : "+item.getTabItem().getText();
+        }
+
+        @Override public String getName() {
+          return typeHandler.getName();
+        }
+
+        @Override public String getType() {
+          return typeHandler.getFileType().getName();
+        }
+
+        @Override public String getFilename() {
+          return typeHandler.getFilename();
+        }
+
+        @Override public Object getSearchableObject() {
+          return typeHandler.getSubject();
+        }
+
+        @Override public ISearchableCallback getSearchCallback() {
+          return ( searchable, searchResult ) -> {
+            show();
+            switchToTab( item );
+          };
+        }
+      } );
+    }
+    return searchables;
   }
 
   /**

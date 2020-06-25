@@ -97,19 +97,19 @@
   </hop-variable>
 
   <hop-variable>
-    <description>The name of the environment variable that will contain the alternative location of the hop-transforms.xml file. You can use this to customize the list of available internal transforms outside of the codebase.</description>
+    <description>The name of the project variable that will contain the alternative location of the hop-transforms.xml file. You can use this to customize the list of available internal transforms outside of the codebase.</description>
     <variable>HOP_CORE_TRANSFORMS_FILE</variable>
     <default-value></default-value>
   </hop-variable>
 
   <hop-variable>
-    <description>The name of the environment variable that will contain the alternative location of the hop-workflow-actions.xml file.</description>
+    <description>The name of the project variable that will contain the alternative location of the hop-workflow-actions.xml file.</description>
     <variable>HOP_CORE_WORKFLOW_ACTIONS_FILE</variable>
     <default-value></default-value>
   </hop-variable>
 
   <hop-variable>
-    <description>This environment variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).</description>
+    <description>This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day).</description>
     <variable>HOP_SERVER_OBJECT_TIMEOUT_MINUTES</variable>
     <default-value>1440</default-value>
   </hop-variable>
@@ -250,13 +250,13 @@
   </hop-variable>
 
   <hop-variable>
-    <description>This environment variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded</description>
+    <description>This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_COUNT</variable>
     <default-value>1024</default-value>
   </hop-variable>
 
   <hop-variable>
-    <description>This environment variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.</description>
+    <description>This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform.</description>
     <variable>HOP_FILE_OUTPUT_MAX_STREAM_LIFE</variable>
     <default-value>0</default-value>
   </hop-variable>

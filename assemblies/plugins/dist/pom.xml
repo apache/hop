@@ -2611,7 +2611,7 @@
 
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins-misc-environment</artifactId>
+      <artifactId>hop-assemblies-plugins-misc-projects</artifactId>
       <version>${hop-plugins-misc.version}</version>
       <type>zip</type>
       <exclusions>

@@ -80,8 +80,13 @@ public class HopRun implements Runnable {
 
   // This is only used by the environment plugin : TODO: figure out how to make it pluggable as well. (picocli)?
   //
-  @Option( names = { "-e", "--environment" }, description = "The name of the environment to use" )
+  @Option( names = { "-e", "--environment" }, description = "The name of the lifecycle environment to use" )
   private String environment = null;
+
+  // This is only used by the environment plugin : TODO: figure out how to make it pluggable as well. (picocli)?
+  //
+  @Option( names = { "-j", "--project" }, description = "The name of the project to use" )
+  private String project = null;
 
   private IVariables variables;
   private String realRunConfigurationName;
@@ -587,6 +592,22 @@ public class HopRun implements Runnable {
    */
   public void setEnvironment( String environment ) {
     this.environment = environment;
+  }
+
+  /**
+   * Gets project
+   *
+   * @return value of project
+   */
+  public String getProject() {
+    return project;
+  }
+
+  /**
+   * @param project The project to set
+   */
+  public void setProject( String project ) {
+    this.project = project;
   }
 
   /**

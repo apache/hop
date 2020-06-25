@@ -6,7 +6,7 @@
 
 == Description
 
-The Get System Info transform retrieves system information from the Hop environment. The transform includes a table where you can designate a name and assign it to any available system info type you want to retrieve. This transform generates a single row with the fields containing the requested information.
+The Get System Info transform retrieves system information from the Hop project. The transform includes a table where you can designate a name and assign it to any available system info type you want to retrieve. This transform generates a single row with the fields containing the requested information.
 
 It can also accept any number of input streams, aggregate any fields defined by this transform, and send the combined results to the output stream.
 

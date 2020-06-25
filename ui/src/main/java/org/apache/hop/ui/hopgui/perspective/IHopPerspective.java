@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -122,4 +123,8 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    */
   List<TabItemHandler> getItems();
 
+  /**
+   * @return A list of searchable items
+   */
+  List<ISearchable> getSearchables();
 }

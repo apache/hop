@@ -316,7 +316,7 @@ public class Const {
   /**
    * Name of the hop configuration file
    */
-  public static final String HOP_CONFIG = "config.json";
+  public static final String HOP_CONFIG = "hop-config.json";
 
   /**
    * The prefix that all internal hop variables should have
@@ -757,6 +757,11 @@ public class Const {
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
    */
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
+
+  /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS = "hop-search-analyser-plugins.xml";
 
   /**
    * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)

@@ -27,8 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
-import org.apache.hop.core.plugins.PluginAnnotationType;
-import org.apache.hop.core.plugins.PluginMainClassType;
 
 import java.util.Map;
 
@@ -37,8 +35,6 @@ import java.util.Map;
  *
  * @author matt
  */
-@PluginMainClassType( IDatabase.class )
-@PluginAnnotationType( DatabaseMetaPlugin.class )
 public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> implements IPluginType<DatabaseMetaPlugin> {
   private static DatabasePluginType pluginType;
 
