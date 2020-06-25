@@ -16,7 +16,7 @@
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective</classname>
     <description>Hop Search Perspective GUI</description>
   </gui-plugin>
 

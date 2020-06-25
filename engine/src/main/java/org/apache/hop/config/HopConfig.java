@@ -58,7 +58,9 @@ public class HopConfig implements Runnable {
   public void run() {
 
     try {
-      log = new LogChannel( "hop-config" );
+      LogChannel logChannel = new LogChannel( "hop-config" );
+      logChannel.setSimplified( true );
+      log = logChannel;
       variables = Variables.getADefaultVariableSpace();
       buildMetadataProvider();
 
@@ -75,7 +77,7 @@ public class HopConfig implements Runnable {
       }
 
       if (!actionTaken) {
-        CommandLine.printHelpIfRequested( cmd.getParseResult() );
+        cmd.usage( System.out );
       }
 
     } catch ( Exception e ) {
@@ -119,7 +121,7 @@ public class HopConfig implements Runnable {
       List<IPlugin> configPlugins = PluginRegistry.getInstance().getPlugins( ConfigPluginType.class );
       for ( IPlugin configPlugin : configPlugins ) {
         IConfigOptions configOptions = PluginRegistry.getInstance().loadClass( configPlugin, IConfigOptions.class );
-        cmd.addMixin( configPlugin.getName(), configOptions );
+        cmd.addMixin( configPlugin.getIds()[0], configOptions );
       }
 
       hopConfig.setCmd( cmd );

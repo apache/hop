@@ -7,7 +7,7 @@
 
   <hop-perspective-plugin id="Hop-Search-Perspective">
     <description>Hop Search</description>
-    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective</classname>
   </hop-perspective-plugin>
   
   <hop-perspective-plugin id="Hop-Plugin-Explorer-Perspective">

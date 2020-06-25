@@ -26,8 +26,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -263,7 +264,8 @@ public class HopGuiPipelineTransformDelegate {
               mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeTransformname.Title" ) );
               mb.open();
             }
-            transformMeta.setLocation( location.x, location.y ); // default location at (20,20)
+            PropsUi.setLocation(transformMeta, location.x, location.y );
+            transformMeta.setLocation( location.x, location.y );
             pipelineMeta.addTransform( transformMeta );
             hopGui.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
 

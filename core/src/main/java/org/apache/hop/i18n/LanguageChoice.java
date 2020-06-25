@@ -38,7 +38,7 @@ public class LanguageChoice {
     String defaultLocaleString = HopConfig.readOptionString( STRING_DEFAULT_LOCALE, null );
     if ( defaultLocaleString == null ) {
       defaultLocale = Locale.getDefault();
-      HopConfig.saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
+      HopConfig.getInstance().saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
     } else {
       defaultLocale = EnvUtil.createLocale( defaultLocaleString );
     }

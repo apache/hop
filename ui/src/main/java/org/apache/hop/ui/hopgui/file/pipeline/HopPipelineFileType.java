@@ -52,11 +52,13 @@ import java.util.Properties;
 )
 public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
+  public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
+
   public HopPipelineFileType() {
   }
 
   @Override public String getName() {
-    return "Pipeline"; // TODO: i18n?
+    return PIPELINE_FILE_TYPE_DESCRIPTION;
   }
 
   @Override public String[] getFilterExtensions() {

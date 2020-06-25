@@ -2037,7 +2037,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @return the workflow copies
    */
-  public List<ActionCopy> getJobCopies() {
+  public List<ActionCopy> getActionCopies() {
     return actionCopies;
   }
 

@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface IHopMetadataProvider {
 
+  String getDescription();
+
   <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer( Class<T> managedClass ) throws HopException;
 
   /**

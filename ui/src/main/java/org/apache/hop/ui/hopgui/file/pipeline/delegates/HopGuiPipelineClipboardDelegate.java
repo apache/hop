@@ -31,9 +31,10 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -81,7 +82,7 @@ public class HopGuiPipelineClipboardDelegate {
     }
   }
 
-  public void pasteXml(PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
+  public void pasteXml( PipelineMeta pipelineMeta, String clipcontent, Point loc ) {
 
     try {
       Document doc = XmlHandler.loadXmlString( clipcontent );
@@ -142,7 +143,7 @@ public class HopGuiPipelineClipboardDelegate {
         Point p = transforms[ i ].getLocation();
         String name = transforms[ i ].getName();
 
-        transforms[ i ].setLocation( p.x + offset.x, p.y + offset.y );
+        PropsUi.setLocation( transforms[ i ], p.x + offset.x, p.y + offset.y );
 
         // Check the name, find alternative...
         transformOldNames.add( name );

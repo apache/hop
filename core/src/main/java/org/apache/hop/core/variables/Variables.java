@@ -23,6 +23,7 @@
 package org.apache.hop.core.variables;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,6 +34,7 @@ import org.apache.hop.core.util.Utils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,13 +118,9 @@ public class Variables implements IVariables {
       getProperties().put( key, System.getProperties().getProperty( key ) );
     }
 
-    // Also get the Hop system properties if they're available
-    //
-    Map<String, String> systemProperties = HopConfig.getSystemProperties();
-    if (systemProperties!=null) {
-      getProperties().putAll(systemProperties);
-    } else {
-      throw new RuntimeException("The system properties haven't been initialized properly");
+    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
+    for ( DescribedVariable describedVariable : describedVariables ) {
+      getProperties().put( describedVariable.getName(), describedVariable.getValue());
     }
 
     if ( parent != null ) {

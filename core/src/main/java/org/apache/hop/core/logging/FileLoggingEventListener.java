@@ -103,6 +103,7 @@ public class FileLoggingEventListener implements IHopLoggingEventListener {
           String logText = layout.format( event );
           outputStream.write( logText.getBytes() );
           outputStream.write( Const.CR.getBytes() );
+          outputStream.flush();
         }
       }
     } catch ( Exception e ) {

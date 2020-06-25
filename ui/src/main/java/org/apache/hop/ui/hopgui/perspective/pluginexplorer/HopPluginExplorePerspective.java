@@ -31,6 +31,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -102,13 +103,13 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		toolTip = "Explore plugin"
 	)
 	public void activate() {
-		hopGui.getPerspectiveManager().showPerspective(this.getClass());
+		hopGui.getPerspectiveManager().showPerspective( this.getClass() );
 	}
 
 	@Override
 	public void show() {
-		composite.setVisible(true);
-		if (pluginImage==null) {
+		composite.setVisible( true );
+		if ( pluginImage == null ) {
 			pluginImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin.svg", ConstUi.SMALL_ICON_SIZE );
 		}
 		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginImage );
@@ -116,8 +117,8 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
 	@Override
 	public void hide() {
-		composite.setVisible(false);
-		if (pluginDisabledImage==null) {
+		composite.setVisible( false );
+		if ( pluginDisabledImage == null ) {
 			pluginDisabledImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin_inactive.svg", ConstUi.SMALL_ICON_SIZE );
 		}
 		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginDisabledImage );
@@ -142,7 +143,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	@Override
-	public void initialize(HopGui hopGui, Composite parent) {
+	public void initialize( HopGui hopGui, Composite parent ) {
 		this.hopGui = hopGui;
 		this.parent = parent;
 
@@ -150,59 +151,59 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
 		PropsUi props = PropsUi.getInstance();
 
-		composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(new FormLayout());
+		composite = new Composite( parent, SWT.NONE );
+		composite.setLayout( new FormLayout() );
 
 		formData = new FormData();
-		formData.left = new FormAttachment(0, 0);
-		formData.top = new FormAttachment(0, 0);
-		formData.right = new FormAttachment(100, 0);
-		formData.bottom = new FormAttachment(100, 0);
-		composite.setLayoutData(formData);
+		formData.left = new FormAttachment( 0, 0 );
+		formData.top = new FormAttachment( 0, 0 );
+		formData.right = new FormAttachment( 100, 0 );
+		formData.bottom = new FormAttachment( 100, 0 );
+		composite.setLayoutData( formData );
 
-		Label label = new Label(composite, SWT.LEFT);
-		label.setText("Plugin type");
+		Label label = new Label( composite, SWT.LEFT );
+		label.setText( "Plugin type" );
 		FormData fdlFields = new FormData();
-		fdlFields.left = new FormAttachment(0, 0);
-		fdlFields.top = new FormAttachment(0, props.getMargin());
-		label.setLayoutData(fdlFields);
+		fdlFields.left = new FormAttachment( 0, 0 );
+		fdlFields.top = new FormAttachment( 0, props.getMargin() );
+		label.setLayoutData( fdlFields );
 
-		wPluginType = new CCombo(composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
-		wPluginType.setItems(pluginsType);
-		wPluginType.setText(selectedPluginType);
-		props.setLook(wPluginType);
+		wPluginType = new CCombo( composite, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER );
+		wPluginType.setItems( pluginsType );
+		wPluginType.setText( selectedPluginType );
+		props.setLook( wPluginType );
 		FormData fdlSubject = new FormData();
-		fdlSubject.left = new FormAttachment(label, props.getMargin());
-		fdlSubject.top = new FormAttachment(label, 0, SWT.CENTER);
-		wPluginType.setLayoutData(fdlSubject);
+		fdlSubject.left = new FormAttachment( label, props.getMargin() );
+		fdlSubject.top = new FormAttachment( label, 0, SWT.CENTER );
+		wPluginType.setLayoutData( fdlSubject );
 
-		wPluginType.addSelectionListener(new SelectionAdapter() {
+		wPluginType.addSelectionListener( new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent arg0) {
+			public void widgetSelected( SelectionEvent arg0 ) {
 				selectedPluginType = wPluginType.getText();
 				refresh();
 			}
-		});
+		} );
 
-		IRowMeta rowMeta = metaMap.get(selectedPluginType);
-		ColumnInfo[] colinf = new ColumnInfo[rowMeta.size()];
-		for (int i = 0; i < rowMeta.size(); i++) {
-			IValueMeta v = rowMeta.getValueMeta(i);
-			colinf[i] = new ColumnInfo(v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric());
-			colinf[i].setToolTip(v.toStringMeta());
-			colinf[i].setValueMeta(v);
+		IRowMeta rowMeta = metaMap.get( selectedPluginType );
+		ColumnInfo[] colinf = new ColumnInfo[ rowMeta.size() ];
+		for ( int i = 0; i < rowMeta.size(); i++ ) {
+			IValueMeta v = rowMeta.getValueMeta( i );
+			colinf[ i ] = new ColumnInfo( v.getName(), ColumnInfo.COLUMN_TYPE_TEXT, v.isNumeric() );
+			colinf[ i ].setToolTip( v.toStringMeta() );
+			colinf[ i ].setValueMeta( v );
 		}
 
-		wPluginView = new TableView(new Variables(), composite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 0,
-				null, props);
-		wPluginView.setShowingBlueNullValues(true);
+		wPluginView = new TableView( new Variables(), composite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 0,
+			null, props );
+		wPluginView.setShowingBlueNullValues( true );
 
 		FormData fdFields = new FormData();
-		fdFields.left = new FormAttachment(0, 0);
-		fdFields.top = new FormAttachment(wPluginType, props.getMargin());
-		fdFields.right = new FormAttachment(100, 0);
-		fdFields.bottom = new FormAttachment(100, 0);
-		wPluginView.setLayoutData(fdFields);
+		fdFields.left = new FormAttachment( 0, 0 );
+		fdFields.top = new FormAttachment( wPluginType, props.getMargin() );
+		fdFields.right = new FormAttachment( 100, 0 );
+		fdFields.bottom = new FormAttachment( 100, 0 );
+		wPluginView.setLayoutData( fdFields );
 
 		this.refresh();
 	}
@@ -214,77 +215,77 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 			dataMap = new HashMap<>();
 			PluginRegistry registry = PluginRegistry.getInstance();
 			List<Class<? extends IPluginType>> pluginTypeClasses = registry.getPluginTypes();
-			for (Class<? extends IPluginType> pluginTypeClass : pluginTypeClasses) {
-				IPluginType pluginTypeInterface = registry.getPluginType(pluginTypeClass);
-				if (pluginTypeInterface.isFragment()) {
+			for ( Class<? extends IPluginType> pluginTypeClass : pluginTypeClasses ) {
+				IPluginType pluginTypeInterface = registry.getPluginType( pluginTypeClass );
+				if ( pluginTypeInterface.isFragment() ) {
 					continue;
 				}
 				String name = pluginTypeInterface.getName();
-				RowBuffer pluginInformation = registry.getPluginInformation(pluginTypeClass);
-				metaMap.put(name, pluginInformation.getRowMeta());
-				dataMap.put(name, pluginInformation.getBuffer());
+				RowBuffer pluginInformation = registry.getPluginInformation( pluginTypeClass );
+				metaMap.put( name, pluginInformation.getRowMeta() );
+				dataMap.put( name, pluginInformation.getBuffer() );
 			}
 
-			this.pluginsType = metaMap.keySet().toArray(new String[metaMap.size()]);
-			Arrays.sort(pluginsType);
+			this.pluginsType = metaMap.keySet().toArray( new String[ metaMap.size() ] );
+			Arrays.sort( pluginsType );
 
 			selectedPluginType = "";
-			if (!metaMap.isEmpty()) {
-				selectedPluginType = pluginsType[0];
+			if ( !metaMap.isEmpty() ) {
+				selectedPluginType = pluginsType[ 0 ];
 			}
-		} catch (HopPluginException e) {
-			new ErrorDialog(hopGui.getShell(), "Error", "Error collect plugins", e);
+		} catch ( HopPluginException e ) {
+			new ErrorDialog( hopGui.getShell(), "Error", "Error collect plugins", e );
 		}
 	}
 
 	protected void refresh() {
 
 		wPluginView.clearAll();
-		
+
 		// Add the data rows...
-		IRowMeta rowMeta = metaMap.get(selectedPluginType);
-		List<Object[]> buffer = dataMap.get(selectedPluginType);
+		IRowMeta rowMeta = metaMap.get( selectedPluginType );
+		List<Object[]> buffer = dataMap.get( selectedPluginType );
 
 		Table table = wPluginView.getTable();
-		table.setRedraw(false);
-		
-		for (int i = 0; i < buffer.size(); i++) {
+		table.setRedraw( false );
+
+		for ( int i = 0; i < buffer.size(); i++ ) {
 			TableItem item;
-			if (i == 0) {
-				item = table.getItem(i);
+			if ( i == 0 ) {
+				item = table.getItem( i );
 			} else {
-				item = new TableItem(table, SWT.NONE);
+				item = new TableItem( table, SWT.NONE );
 			}
 
-			Object[] row = buffer.get(i);
+			Object[] row = buffer.get( i );
 
 			// Display line number
-			item.setText(0, Integer.toString(i+1));
+			item.setText( 0, Integer.toString( i + 1 ) );
 
 			// Display plugins infos
-			for (int column = 0; column < rowMeta.size(); column++) {
+			for ( int column = 0; column < rowMeta.size(); column++ ) {
 				try {
-					IValueMeta vm = rowMeta.getValueMeta(column);
-					String value = vm.getString(row[column]);
+					IValueMeta vm = rowMeta.getValueMeta( column );
+					String value = vm.getString( row[ column ] );
 
-					if (value != null) {
-						item.setText(column + 1, value);
-						item.setForeground(column + 1, GuiResource.getInstance().getColorBlack());
-					} 
-				} catch (HopValueException e) {
+					if ( value != null ) {
+						item.setText( column + 1, value );
+						item.setForeground( column + 1, GuiResource.getInstance().getColorBlack() );
+					}
+				} catch ( HopValueException e ) {
 					// Ignore
 				}
 			}
 		}
-		
-		if (!wPluginView.isDisposed()) {
-			wPluginView.optWidth(true, buffer.size());
-			table.setRedraw(true);
+
+		if ( !wPluginView.isDisposed() ) {
+			wPluginView.optWidth( true, buffer.size() );
+			table.setRedraw( true );
 		}
 	}
 
 	@Override
-	public boolean remove(IHopFileTypeHandler typeHandler) {
+	public boolean remove( IHopFileTypeHandler typeHandler ) {
 		return false; // Nothing to do here
 	}
 
@@ -324,7 +325,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	/**
 	 * @param hopGui The hopGui to set
 	 */
-	public void setHopGui(HopGui hopGui) {
+	public void setHopGui( HopGui hopGui ) {
 		this.hopGui = hopGui;
 	}
 
@@ -340,7 +341,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	/**
 	 * @param parent The parent to set
 	 */
-	public void setParent(Composite parent) {
+	public void setParent( Composite parent ) {
 		this.parent = parent;
 	}
 
@@ -357,7 +358,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	/**
 	 * @param composite The composite to set
 	 */
-	public void setComposite(Composite composite) {
+	public void setComposite( Composite composite ) {
 		this.composite = composite;
 	}
 
@@ -375,5 +376,10 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	public List<IGuiContextHandler> getContextHandlers() {
 		List<IGuiContextHandler> handlers = new ArrayList<>();
 		return handlers;
+	}
+
+	@Override public List<ISearchable> getSearchables() {
+		List<ISearchable> searchables = new ArrayList<>();
+		return searchables;
 	}
 }

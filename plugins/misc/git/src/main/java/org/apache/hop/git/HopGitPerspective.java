@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.git.model.IVCS;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
@@ -911,6 +912,10 @@ public class HopGitPerspective implements IHopPerspective {
 
   @Override public List<TabItemHandler> getItems() {
     return null;
+  }
+
+  @Override public List<ISearchable> getSearchables() {
+    return Collections.emptyList();
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

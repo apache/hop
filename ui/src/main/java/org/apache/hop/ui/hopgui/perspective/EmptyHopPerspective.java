@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -105,5 +106,10 @@ public class EmptyHopPerspective implements IHopPerspective {
   @Override public List<IGuiContextHandler> getContextHandlers() {
     List<IGuiContextHandler> handlers = new ArrayList<>();
     return handlers;
+  }
+
+  @Override public List<ISearchable> getSearchables() {
+    List<ISearchable> searchables = new ArrayList<>();
+    return searchables;
   }
 }

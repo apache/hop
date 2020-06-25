@@ -2,10 +2,9 @@ package org.apache.hop.core.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.util.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,39 +15,21 @@ import java.util.Map;
  * This class keeps track of storing and retrieving all the configuration options in Hop.
  * This includes all options of the various plugins in the Hop ecosystem.
  */
-public class HopConfig {
+public class HopConfig extends ConfigFile implements IConfigFile {
 
-  private static final String HOP_SYSTEM_PROPERTIES_KEY = "systemProperties";
   private static final String HOP_GUI_PROPERTIES_KEY = "guiProperties";
+
+  private String configFilename;
 
   @JsonIgnore
   private static HopConfig hopConfig;
 
-  private Map<String, Object> configMap;
-
-  @JsonIgnore
-  private String filename;
-
-  @JsonIgnore
-  private IHopConfigSerializer serializer;
-
   private HopConfig() {
     try {
-      this.filename = Const.HOP_CONFIG_DIRECTORY + Const.FILE_SEPARATOR + Const.HOP_CONFIG;
-
-      if ( new File( this.filename ).exists() ) {
-        // Let's write to the file
-        //
-        this.serializer = new ConfigFileSerializer();
-      } else {
-        // Doesn't serialize anything really, reads an empty map with an empty file
-        //
-        System.out.println("Hop configuration file not found, not serializing: "+this.filename);
-        this.serializer = new ConfigNoFileSerializer();
-      }
-      configMap = serializer.readFromFile( filename );
+      this.configFilename = Const.HOP_CONFIG_DIRECTORY + Const.FILE_SEPARATOR + Const.HOP_CONFIG;
+      readFromFile();
     } catch ( Exception e ) {
-      throw new RuntimeException( "Error reading the hop config file '" + filename + "'", e );
+      throw new RuntimeException( "Error reading the hop config file '" + configFilename + "'", e );
     }
   }
 
@@ -59,7 +40,7 @@ public class HopConfig {
     return hopConfig;
   }
 
-  public synchronized static void saveOption( String optionKey, Object optionValue ) {
+  public synchronized void saveOption( String optionKey, Object optionValue ) {
     try {
       HopConfig hopConfig = getInstance();
       hopConfig.configMap.put( optionKey, optionValue );
@@ -73,7 +54,7 @@ public class HopConfig {
     try {
       HopConfig hopConfig = getInstance();
       hopConfig.configMap.putAll( extraOptions );
-      saveToFile();
+      hopConfig.saveToFile();
     } catch ( Exception e ) {
       throw new RuntimeException( "Error saving configuration options", e );
     }
@@ -132,15 +113,6 @@ public class HopConfig {
     return "true".equalsIgnoreCase( str ) || "y".equalsIgnoreCase( str );
   }
 
-  /**
-   * Gets configMap
-   *
-   * @return value of configMap
-   */
-  public static Map<String, Object> getConfigMap() {
-    return getInstance().configMap;
-  }
-
   public static List<String> getSortedKeys() {
     try {
       List<String> keys = new ArrayList<>( getInstance().configMap.keySet() );
@@ -150,40 +122,6 @@ public class HopConfig {
       throw new RuntimeException( "Error getting a list of sorted configuration keys", e );
     }
   }
-
-  public synchronized static Map<String, String> getSystemProperties() {
-    try {
-      Object propertiesObject = getInstance().configMap.get( HOP_SYSTEM_PROPERTIES_KEY );
-      if ( propertiesObject == null ) {
-        Map<String, String> map = new HashMap<>();
-        getInstance().configMap.put( HOP_SYSTEM_PROPERTIES_KEY, map );
-        return map;
-      } else {
-        return (Map<String, String>) propertiesObject;
-      }
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Error getting system properties from the Hop configuration" );
-    }
-  }
-
-  public static void saveSystemProperty( String key, String value ) {
-    try {
-      getSystemProperties().put( key, value );
-      saveToFile();
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Error adding system property key '" + key + "' with value '" + value + "'", e );
-    }
-  }
-
-  public synchronized static void saveSystemProperties( Map<String, String> map ) {
-    try {
-      getSystemProperties().putAll( map );
-      saveToFile();
-    } catch ( HopException e ) {
-      throw new RuntimeException( "Error adding system properties map with " + map.size() + " entries", e );
-    }
-  }
-
 
   public static Map<String, String> readGuiProperties() {
     try {
@@ -204,22 +142,27 @@ public class HopConfig {
     readGuiProperties().put( key, value );
   }
 
+  public static String getGuiProperty(String key) {
+    return readGuiProperties().get(key);
+  }
+
   public static void setGuiProperties( Map<String, String> map ) {
     readGuiProperties().putAll( map );
   }
 
-  public static void saveToFile() throws HopException {
-    synchronized ( hopConfig.serializer ) {
-      hopConfig.serializer.writeToFile( hopConfig.filename, hopConfig.configMap );
-    }
+  /**
+   * Gets configFilename
+   *
+   * @return value of configFilename
+   */
+  @Override public String getConfigFilename() {
+    return configFilename;
   }
 
   /**
-   * Gets filename
-   *
-   * @return value of filename
+   * @param configFilename The configFilename to set
    */
-  public String getFilename() {
-    return filename;
+  public void setConfigFilename( String configFilename ) {
+    this.configFilename = configFilename;
   }
 }
