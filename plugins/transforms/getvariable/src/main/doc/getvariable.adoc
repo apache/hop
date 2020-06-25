@@ -1,13 +1,13 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getvariable/src/main/doc/getvariable.adoc
-= Get variable
+= Get variables
 
 == Description
 
 This transform allows you to get the value of a variable. This transform can return rows or add values to input rows.
 
-For example, you can specify: ${java.io.tmpdir}/kettle/tempfile.txt and it will be expanded to /tmp/kettle/tempfile.txt on Unix-like systems.
+For example, you can specify: ${java.io.tmpdir}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
 
 See also the Set Variables transform.
 To convert the Variable into a data type other than String use Select Values - Meta Data tab.
@@ -20,7 +20,7 @@ To get system values, including command line arguments, use the Get System Info 
 |Option|Description
 |transform Name|The name of this transform as it appears in the pipeline workspace.
 |Name|Name of the field.
-|Variable|Allows you to enter variables as complete strings to return rows or add values to input rows. For example, you can specify: ${java.io.tmpdir}/kettle/tempfile.txt and it will be expanded to /tmp/kettle/tempfile.txt on Unix-like systems.
+|Variable|Allows you to enter variables as complete strings to return rows or add values to input rows. For example, you can specify: ${java.io.tmpdir}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
 |Type|Specifies the field type: String, Date, Number, Boolean, Integer, BigNumber, Serializable, or Binary.
 |Format|Allows you to specify the format of the field after the type has been determined.
 |Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string (for example, entering 4 would only return the year).

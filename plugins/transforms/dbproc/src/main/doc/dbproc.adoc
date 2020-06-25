@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/dbproc/src/main/doc/dbproc.adoc
-= DB procedure
+= Call DB procedure
 
 == Description
 
@@ -24,6 +24,6 @@ The Call DB Procedure transform allows you to execute a database procedure (or f
 
 * Field name: Name of the field.
 * Direction: Can be either IN (input only), OUT (output only), INOUT (value is changed on the database).
-* Type: Used for output parameters so that Kettle knows what returns
+* Type: Used for output parameters so that Hop knows what returns
 |Get Fields|Fills in all the fields in the input streams to make your life easier; delete the lines you don't need and re-order the remaining lines 
 |===

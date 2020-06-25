@@ -5,7 +5,7 @@
 
 == Description
 
-The Microsoft Excel Writer transform writes incoming rows from PDI out to an MS Excel file and supports both the .xls and .xlsx file formats. The .xls files use a binary format which is better suited for simple content, while the .xlsx files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
+The Microsoft Excel Writer transform writes incoming rows from Hop out to an MS Excel file and supports both the .xls and .xlsx file formats. The .xls files use a binary format which is better suited for simple content, while the .xlsx files use the Open XML format which works well with templates since it can better preserve charts and miscellaneous objects.
 
 == Options
 
@@ -78,7 +78,7 @@ When creating new sheets, the transform may copy a sheet from the current docume
 |Type|The type of data
 |Format|The Excel format to use in the sheet. Please consult the Excel manual for valid formats. There are some online references as well.
 |Style from cell|A cell (i.e. A1, B3 etc.) to copy the styling from for this column (usually some pre-styled cell in a template)
-|Field Title|If set, this is used for the Header/Footer instead of the kettle field name
+|Field Title|If set, this is used for the Header/Footer instead of the Hop field name
 |Header/Footer style from cell|A cell to copy the styling from for headers/footers (usually some pre-styled cell in a template)
 |Field Contains Formula|Set to Yes, if the field contains an Excel formula (no leading '=')
 |Hyperlink|A field, that contains the target to link to. The supported targets are Link to other cells, http, ftp, email, and local documents
