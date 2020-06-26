@@ -2359,7 +2359,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     WorkflowMeta workflowMeta = (WorkflowMeta) meta;
     JsonObject jsonNodes = new JsonObject();
-    workflowMeta.getJobCopies().forEach( node -> {
+    workflowMeta.getActionCopies().forEach( node -> {
       JsonObject jsonNode = new JsonObject();
       jsonNode.add( "x", node.getLocation().x );
       jsonNode.add( "y", node.getLocation().y );

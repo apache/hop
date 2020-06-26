@@ -31,6 +31,9 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
     this.baseFolder = baseFolder;
   }
 
+  @Override public String getDescription() {
+    return "JSON metadata in folder "+baseFolder;
+  }
 
   @Override public <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer( Class<T> managedClass ) throws HopException {
     if (managedClass==null) {
@@ -55,7 +58,7 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
       }
     }
 
-    return new JsonMetadataSerializer<T>( this, serializerBaseFolderName, managedClass, variables );
+    return new JsonMetadataSerializer<T>( this, serializerBaseFolderName, managedClass, variables, hopMetadata.name() );
   }
 
   /**

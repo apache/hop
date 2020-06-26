@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/exceloutput/src/main/doc/exceloutput.adoc
-= Excel output
+= Microsoft Excel output
 
 == Description
 
@@ -46,7 +46,7 @@ This transform exports data to a Microsoft Excel 2003 spreadsheet file (xls). If
 |Retain NULL values|If checked, NULL values are preserved in the output. If un-checked, NULLs are replaced with empty strings.
 |Use temporary file|Sets whether a temporary file is used during the generation of the workbook. If not set, the workbook will take place entirely in memory. Setting this flag involves an assessment of the trade-offs between memory usage and performance.
 |Temporary files directory|Define the temporary files directoy.
-|Use Template|If checked, PDI will use the specified Excel template to create the output file. The template must be specified in the Excel template field.
+|Use Template|If checked, Hop will use the specified Excel template to create the output file. The template must be specified in the Excel template field.
 |Excel Template|Define the Excel template to use.
 |Append to Excel Template|Appends output to the specified Excel template.
 |===

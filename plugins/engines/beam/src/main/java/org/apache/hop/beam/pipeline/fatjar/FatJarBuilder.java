@@ -18,6 +18,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -179,8 +181,10 @@ public class FatJarBuilder {
       ActionPluginType actionPluginType = ActionPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, actionPluginType.getMainTag(), actionPluginType.getSubTag(), ActionPluginType.class, IAction.class, null );
       ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class,
-        extraXpPluginClasses );
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class, extraXpPluginClasses );
+      SearchableAnalyserPluginType saPluginType = SearchableAnalyserPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, extraXpPluginClasses );
+
 
 
       zipOutputStream.close();

@@ -29,18 +29,24 @@ import java.util.List;
  */
 public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
-  private IHopMetadataProvider metadataProvider;
-  private String baseFolder;
-  private Class<T> managedClass;
-  private JsonMetadataParser<T> parser;
-  private IVariables variables;
+  protected IHopMetadataProvider metadataProvider;
+  protected String baseFolder;
+  protected Class<T> managedClass;
+  protected JsonMetadataParser<T> parser;
+  protected IVariables variables;
+  protected String description;
 
-  public JsonMetadataSerializer( IHopMetadataProvider metadataProvider, String baseFolder, Class<T> managedClass, IVariables variables ) {
+  public JsonMetadataSerializer( IHopMetadataProvider metadataProvider, String baseFolder, Class<T> managedClass, IVariables variables, String description ) {
     this.metadataProvider = metadataProvider;
     this.baseFolder = baseFolder;
     this.managedClass = managedClass;
     this.parser = new JsonMetadataParser<>( managedClass, metadataProvider );
     this.variables = variables;
+    this.description = description;
+  }
+
+  @Override public String getDescription() {
+    return null;
   }
 
   @Override public List<T> loadAll() throws HopException {
@@ -206,5 +212,12 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
    */
   public void setManagedClass( Class<T> managedClass ) {
     this.managedClass = managedClass;
+  }
+
+  /**
+   * @param description The description to set
+   */
+  public void setDescription( String description ) {
+    this.description = description;
   }
 }

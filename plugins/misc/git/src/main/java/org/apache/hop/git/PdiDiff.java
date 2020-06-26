@@ -69,8 +69,8 @@ public class PdiDiff {
   }
 
   public static WorkflowMeta compareJobEntries( WorkflowMeta jobMeta1, WorkflowMeta jobMeta2, boolean isForward ) {
-    jobMeta1.getJobCopies().forEach( je -> {
-      Optional<ActionCopy> je2 = jobMeta2.getJobCopies().stream()
+    jobMeta1.getActionCopies().forEach( je -> {
+      Optional<ActionCopy> je2 = jobMeta2.getActionCopies().stream()
           .filter( obj -> je.getName().equals( obj.getName() ) ).findFirst();
       String status = null;
       if ( je2.isPresent() ) {

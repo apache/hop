@@ -23,7 +23,7 @@ The Get a file with SFTP action can be used to retrieve one or more files from a
 |Private key filename|If "Use private keyfile" is checked then this field is enabled. The file can be browsed to using the browse button to the right of the field.  The Private Key should be in the PEM file format.  For PuTTY-based Private Keys, use PuTTYgen to convert the file into "OpenSSH" format.
 |Key passphrase|If "Use private keyfile" is checked then this field is enabled. If a passphrase is required then enter it here.
 |Remote directory|The remote directory on the SFTP server from which we get the files
-|Target directory|The directory on the machine on which Kettle runs in which you want to place the transferred files
+|Target directory|The directory on the machine on which Hop runs in which you want to place the transferred files
 |Wildcard a|Specify a regular expression here if you want to select multiple files. For example:
 
 [source,bash]
@@ -51,7 +51,7 @@ multiple files. For example:
 A.*[ENG:0-9].txt  : files tarting with A, ending with a number and .txt
 ----
 |Remove files after retrieval|Delete the remote file after the file is transferred.
-|Target Directory|The directory on the machine on which Kettle runs in which you want to place the transferred files
+|Target Directory|The directory on the machine on which Hop runs in which you want to place the transferred files
 |Create target folder|Check this option if the destination folder does not exist and should be created.
 |Add filenames to result|If checked the name of the file is added to the result stream.
 |===

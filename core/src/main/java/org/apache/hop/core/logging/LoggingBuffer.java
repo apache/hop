@@ -127,8 +127,7 @@ public class LoggingBuffer {
   public StringBuffer getBuffer( String parentLogChannelId, boolean includeGeneral, int startLineNr, int endLineNr ) {
     StringBuilder eventBuffer = new StringBuilder( 10000 );
 
-    List<HopLoggingEvent> events =
-      getLogBufferFromTo( parentLogChannelId, includeGeneral, startLineNr, endLineNr );
+    List<HopLoggingEvent> events = getLogBufferFromTo( parentLogChannelId, includeGeneral, startLineNr, endLineNr );
     for ( HopLoggingEvent event : events ) {
       eventBuffer.append( layout.format( event ) ).append( Const.CR );
     }

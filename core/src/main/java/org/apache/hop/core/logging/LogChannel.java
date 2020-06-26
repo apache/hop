@@ -54,6 +54,8 @@ public class LogChannel implements ILogChannel {
 
   private LogChannelFileWriterBuffer fileWriter;
 
+  private boolean simplified;
+
   public LogChannel( Object subject ) {
     logLevel = DefaultLogLevel.getLogLevel();
     logChannelId = LoggingRegistry.getInstance().registerLoggingSource( subject );
@@ -136,73 +138,73 @@ public class LogChannel implements ILogChannel {
     println( message, channelLogLevel );
 
     String stackTrace = Const.getStackTracker( e );
-    LogMessage traceMessage = new LogMessage( stackTrace, message.getLogChannelId(), LogLevel.ERROR );
+    LogMessage traceMessage = new LogMessage( stackTrace, message.getLogChannelId(), LogLevel.ERROR, simplified );
     println( traceMessage, channelLogLevel );
   }
 
   @Override
   public void logMinimal( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.MINIMAL ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.MINIMAL, simplified ), logLevel );
   }
 
   @Override
   public void logBasic( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.BASIC ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.BASIC, simplified ), logLevel );
   }
 
   @Override
   public void logError( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.ERROR ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.ERROR, simplified ), logLevel );
   }
 
   @Override
   public void logError( String s, Throwable e ) {
-    println( new LogMessage( s, logChannelId, LogLevel.ERROR ), e, logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.ERROR, simplified ), e, logLevel );
   }
 
   @Override
   public void logBasic( String s, Object... arguments ) {
-    println( new LogMessage( s, logChannelId, arguments, LogLevel.BASIC ), logLevel );
+    println( new LogMessage( s, logChannelId, arguments, LogLevel.BASIC, simplified ), logLevel );
   }
 
   @Override
   public void logDetailed( String s, Object... arguments ) {
-    println( new LogMessage( s, logChannelId, arguments, LogLevel.DETAILED ), logLevel );
+    println( new LogMessage( s, logChannelId, arguments, LogLevel.DETAILED, simplified ), logLevel );
   }
 
   @Override
   public void logError( String s, Object... arguments ) {
-    println( new LogMessage( s, logChannelId, arguments, LogLevel.ERROR ), logLevel );
+    println( new LogMessage( s, logChannelId, arguments, LogLevel.ERROR, simplified ), logLevel );
   }
 
   @Override
   public void logDetailed( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.DETAILED ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.DETAILED, simplified ), logLevel );
   }
 
   @Override
   public void logDebug( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.DEBUG ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.DEBUG, simplified ), logLevel );
   }
 
   @Override
   public void logDebug( String message, Object... arguments ) {
-    println( new LogMessage( message, logChannelId, arguments, LogLevel.DEBUG ), logLevel );
+    println( new LogMessage( message, logChannelId, arguments, LogLevel.DEBUG, simplified ), logLevel );
   }
 
   @Override
   public void logRowlevel( String s ) {
-    println( new LogMessage( s, logChannelId, LogLevel.ROWLEVEL ), logLevel );
+    println( new LogMessage( s, logChannelId, LogLevel.ROWLEVEL, simplified ), logLevel );
   }
 
   @Override
   public void logMinimal( String message, Object... arguments ) {
-    println( new LogMessage( message, logChannelId, arguments, LogLevel.MINIMAL ), logLevel );
+    println( new LogMessage( message, logChannelId, arguments, LogLevel.MINIMAL, simplified ), logLevel );
   }
 
   @Override
   public void logRowlevel( String message, Object... arguments ) {
-    println( new LogMessage( message, logChannelId, arguments, LogLevel.ROWLEVEL ), logLevel );
+    println( new LogMessage( message, logChannelId, arguments, LogLevel.ROWLEVEL, simplified ), logLevel );
   }
 
   @Override
@@ -390,5 +392,21 @@ public class LogChannel implements ILogChannel {
   @Override
   public void setFilter( String filter ) {
     this.filter = filter;
+  }
+
+  /**
+   * Gets simplified
+   *
+   * @return value of simplified
+   */
+  public boolean isSimplified() {
+    return simplified;
+  }
+
+  /**
+   * @param simplified The simplified to set
+   */
+  public void setSimplified( boolean simplified ) {
+    this.simplified = simplified;
   }
 }

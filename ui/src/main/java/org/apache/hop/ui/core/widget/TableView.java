@@ -1290,11 +1290,15 @@ public class TableView extends Composite {
   }
 
   protected int getTextWidgetCaretPosition( int colNr ) {
-    boolean b = columns[ colNr - 1 ].isUsingVariables();
-    if ( b ) {
-      return ( (TextVar) text ).getTextWidget().getCaretPosition();
+    if (colNr>=0) {
+      boolean b = columns[ colNr - 1 ].isUsingVariables();
+      if ( b ) {
+        return ( (TextVar) text ).getTextWidget().getCaretPosition();
+      } else {
+        return ( (Text) text ).getCaretPosition();
+      }
     } else {
-      return ( (Text) text ).getCaretPosition();
+      return -1;
     }
   }
 

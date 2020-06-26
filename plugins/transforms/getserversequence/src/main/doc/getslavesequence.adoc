@@ -1,7 +1,7 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getserversequence/src/main/doc/getserversequence.adoc
-= Get slave sequence
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/getslavesequence/src/main/doc/getslavesequence.adoc
+= Get ID from slave server
 
 == Description
 
@@ -17,9 +17,9 @@ The last value returned + the size of the range (increment) are stored in a data
 
 When processing large amounts of data on multiple distinct systems (for example when running a clustered pipeline) you sometimes still need to generate a unique numeric ID for each one. Since a GUID is not guaranteed to be unique and consumes a lot more memory and space compared to a numeric integer (long) ID, you may prefer to use numerical IDs.
 
-A unique ID identifies a piece of information, which is useful for: looking up data, support cases, incremental processing, error handling (recovering from where you left off by looking up the last inserted ID) and so on. Typically you would use a database to generate such an ID, for example using an Oracle sequence. However, there are cases where you don't have a database available (such as when you add a unique ID to a text/log file), when the database doesn't support sequences (column databases, typically), or when retrieving the ID from a database is slow (going back and forth to the database for each row severely limits performance). In all these situations, you need a high-performance way of providing unique IDs to a PDI pipeline. The Get ID From Hop Server transform is designed to fit this need.
+A unique ID identifies a piece of information, which is useful for: looking up data, support cases, incremental processing, error handling (recovering from where you left off by looking up the last inserted ID) and so on. Typically you would use a database to generate such an ID, for example using an Oracle sequence. However, there are cases where you don't have a database available (such as when you add a unique ID to a text/log file), when the database doesn't support sequences (column databases, typically), or when retrieving the ID from a database is slow (going back and forth to the database for each row severely limits performance). In all these situations, you need a high-performance way of providing unique IDs to a Hop pipeline. The Get ID From Slave Server transform is designed to fit this need.
 
-Assuming you have (or are now configuring) Carte hop servers set up in PDI, this transform retrieves a unique ID from the Carte hop server of your choice. It works by asking a hop server for a range of values. In other words, the transform reserves a range of IDs for a certain given central hop server sequence. It then increments by one until there are no more values in the range, asks another range, and so forth. This means that the returned IDs can be sequential, however this is not guaranteed. The only thing you know is that after each execution for each input row you get a unique ID that has a higher value than the last one returned. The last value returned plus the size of the range (increment) are stored in a database table to persist the value over several runs of a pipeline.
+Assuming you have (or are now configuring) Hop Server slave servers set up in Hop, this transform retrieves a unique ID from the Hop Server slave server of your choice. It works by asking a slave server for a range of values. In other words, the transform reserves a range of IDs for a certain given central slave server sequence. It then increments by one until there are no more values in the range, asks another range, and so forth. This means that the returned IDs can be sequential, however this is not guaranteed. The only thing you know is that after each execution for each input row you get a unique ID that has a higher value than the last one returned. The last value returned plus the size of the range (increment) are stored in a database table to persist the value over several runs of a pipeline.
 
 == Options
 
@@ -78,8 +78,8 @@ The start tag is optional and will default to 0 if you leave it out of the defin
 
 == Servlet information
 
-Once the configuration files are changed as shown above, hop servers receive a new servlet that can be called as follows (authentication required):http://hostname:port/kettle/nextSequence/?name=SequenceName&increment=NumberOfIDsToReserveIn
-case no increment is specified, 10000 IDs are reserved, for example:http://localhost:8282/kettle/nextSequence/?name=test
+Once the configuration files are changed as shown above, slave servers receive a new servlet that can be called as follows (authentication required):http://hostname:port/hop/nextSequence/?name=SequenceName&increment=NumberOfIDsToReserveIn
+case no increment is specified, 10000 IDs are reserved, for example:http://localhost:8282/hop/nextSequence/?name=test
 The servlet will return a simple piece of XML containing both the start of the range as well as the number of IDs reserved, or the increment:
 
 ====

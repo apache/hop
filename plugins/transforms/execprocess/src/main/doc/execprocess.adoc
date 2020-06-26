@@ -1,13 +1,13 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
 :page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/execprocess/src/main/doc/execprocess.adoc
-= Execute process
+= Execute a process
 
 == Description
 
-You can use the Execute a process transform to execute a shell script on the host where a job will run.
+You can use the Execute a process transform to execute a shell script on the host where a workflow will run.
 
-* The transform is similar to the job entry Shell, but can be used in a pipeline to execute for every row.
+* The transform is similar to the workflow action Shell, but can be used in a pipeline to execute for every row.
 
 
 == Options

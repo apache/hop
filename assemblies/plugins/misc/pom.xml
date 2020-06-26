@@ -18,7 +18,7 @@
 
     <modules>
         <module>debug</module>
-        <module>environment</module>
+        <module>projects</module>
         <module>testing</module>
         <module>git</module>
     </modules>

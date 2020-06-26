@@ -183,6 +183,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -4249,7 +4250,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if ( newTransform == null ) {
       return;
     }
-    newTransform.setLocation( p.x, p.y );
+    PropsUi.setLocation(newTransform,  p.x, p.y);
 
     if ( lastChained != null ) {
       PipelineHopMeta hop = new PipelineHopMeta( lastChained, newTransform );
@@ -4476,6 +4477,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   )
   public void pasteFromClipboard( HopGuiPipelineContext context ) {
     pasteFromClipboard( context.getClick() );
+  }
+
+  @GuiContextAction(
+    id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
+    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+    type = GuiActionType.Custom,
+    name = "Copy transform to clipboard",
+    tooltip = "Copy the XML representation of this transform to the clipboard",
+    image = "ui/images/copy.svg"
+  )
+  public void copyTransformToClipboard( HopGuiPipelineTransformContext context ) {
+    pipelineClipboardDelegate.copySelected( pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList() );
   }
 
 
