@@ -28,6 +28,7 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
     ProjectConfig projectConfig = null;
     List<String> configurationFiles = new ArrayList<>();
     String projectName = null;
+    String environmentName = null;
 
     // You can specify the project using -p (project) or -e (lifecycle environment)
     // The main difference is that the environment provides extra configuration files to consider.
@@ -48,6 +49,8 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
         throw new HopException( "Unable to find lifecycle environment '" + hopRun.getEnvironment() + "'" );
       }
       projectName = environment.getProjectName();
+      environmentName = environment.getName();
+
       if ( StringUtils.isEmpty( projectName ) ) {
         throw new HopException( "Lifecycle environment '" + hopRun.getEnvironment() + "' is not referencing a project." );
       }
@@ -74,7 +77,7 @@ public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
       }
       // Now we just enable this project
       //
-      ProjectsUtil.enableProject( log, projectName, project, hopRun.getVariables(), configurationFiles );
+      ProjectsUtil.enableProject( log, projectName, project, hopRun.getVariables(), configurationFiles, environmentName );
     } catch ( Exception e ) {
       throw new HopException( "Error enabling project '" + projectName + "'", e );
     }

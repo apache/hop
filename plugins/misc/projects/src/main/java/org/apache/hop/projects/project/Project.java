@@ -82,7 +82,7 @@ public class Project extends ConfigFile implements IConfigFile {
     }
   }
 
-  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles ) {
+  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles, String environmentName ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
@@ -90,7 +90,8 @@ public class Project extends ConfigFile implements IConfigFile {
 
     // Set the name of the active environment
     //
-    variables.setVariable( Defaults.VARIABLE_ACTIVE_PROJECT, Const.NVL( projectConfig.getProjectName(), "" ) );
+    variables.setVariable( Defaults.VARIABLE_PROJECT_NAME, Const.NVL( projectConfig.getProjectName(), "" ) );
+    variables.setVariable( Defaults.VARIABLE_ENVIRONMENT_NAME, Const.NVL( environmentName, "" ) );
 
     // To allow circular logic where an environment file is relative to the project home
     //
@@ -123,7 +124,6 @@ public class Project extends ConfigFile implements IConfigFile {
         LogChannel.GENERAL.logError( "Configuration file '"+realConfigurationFile+"' does not exist to read variables from.");
       }
     }
-
 
     if ( StringUtils.isNotEmpty( metadataBaseFolder ) ) {
       String realValue = variables.environmentSubstitute( metadataBaseFolder );

@@ -70,7 +70,7 @@ public class ProjectDialog extends Dialog {
 
     this.variables = new Variables();
     this.variables.initializeVariablesFrom( null );
-    project.modifyVariables( variables, projectConfig, Collections.emptyList() );
+    project.modifyVariables( variables, projectConfig, Collections.emptyList(), null );
   }
 
   public String open() {
@@ -283,7 +283,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlVariables = new Label( shell, SWT.RIGHT );
     props.setLook( wlVariables );
-    wlVariables.setText( "System variables to set : " );
+    wlVariables.setText( "Project variables to set : " );
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment( 0, 0 );
     fdlVariables.right = new FormAttachment( middle, 0 );
@@ -348,7 +348,7 @@ public class ProjectDialog extends Dialog {
     Project env = new Project();
     ProjectConfig pc = new ProjectConfig();
     getInfo( env, pc );
-    env.modifyVariables( variables, pc, Collections.emptyList() );
+    env.modifyVariables( variables, pc, Collections.emptyList(), null );
   }
 
   private void ok() {

@@ -42,7 +42,7 @@ public class ProjectsUtil {
    * @throws HopException
    * @throws HopException
    */
-  public static void enableProject( ILogChannel log, String projectName, Project project, IVariables variables, List<String> configurationFiles ) throws HopException {
+  public static void enableProject( ILogChannel log, String projectName, Project project, IVariables variables, List<String> configurationFiles, String environmentName ) throws HopException {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
@@ -54,7 +54,7 @@ public class ProjectsUtil {
     // Variable system variables but also apply them to variables
     // We'll use those to change the loaded variables in HopGui
     //
-    project.modifyVariables( variables, projectConfig, configurationFiles );
+    project.modifyVariables( variables, projectConfig, configurationFiles, environmentName );
 
     // Change the metadata
     //
@@ -115,7 +115,7 @@ public class ProjectsUtil {
 
     // What is the active project?
     //
-    String activeProjectName = System.getProperty( Defaults.VARIABLE_ACTIVE_PROJECT );
+    String activeProjectName = System.getProperty( Defaults.VARIABLE_PROJECT_NAME );
     if ( StringUtils.isEmpty( activeProjectName ) ) {
       // Nothing to be done here...
       //
