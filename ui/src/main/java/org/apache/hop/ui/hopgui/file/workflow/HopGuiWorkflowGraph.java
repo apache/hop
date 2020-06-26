@@ -447,7 +447,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     ActionCopy action = workflowMeta.getAction( real.x, real.y, iconSize );
     if ( action != null ) {
       if ( e.button == 1 ) {
-        editEntry( action );
+        editAction( action );
       } else {
         // open tab in HopGui
         launchStuff( action );
@@ -529,7 +529,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             clearSettings();
             currentEntry = (ActionCopy) areaOwner.getOwner();
             stopEntryMouseOverDelayTimer( currentEntry );
-            editEntry( currentEntry );
+            editAction( currentEntry );
             break;
 
           case ACTION_MINI_ICON_CONTEXT:
@@ -2357,45 +2357,45 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     tooltip = "Edit the action properties",
     image = "ui/images/Edit.svg"
   )
-  public void editEntry( HopGuiWorkflowActionContext context ) {
+  public void editAction( HopGuiWorkflowActionContext context ) {
 
     workflowEntryDelegate.editAction( workflowMeta, context.getActionCopy() );
   }
 
-  public void editEntry( ActionCopy je ) {
+  public void editAction( ActionCopy je ) {
     workflowEntryDelegate.editAction( workflowMeta, je );
   }
 
-  protected void editNote( NotePadMeta ni ) {
-    NotePadMeta before = (NotePadMeta) ni.clone();
+  protected void editNote( NotePadMeta notePadMeta ) {
+    NotePadMeta before = notePadMeta.clone();
     String title = BaseMessages.getString( PKG, "WorkflowGraph.Dialog.EditNote.Title" );
 
-    NotePadDialog dd = new NotePadDialog( workflowMeta, hopShell(), title, ni );
+    NotePadDialog dd = new NotePadDialog( workflowMeta, hopShell(), title, notePadMeta );
     NotePadMeta n = dd.open();
     if ( n != null ) {
-      ni.setChanged();
-      ni.setNote( n.getNote() );
-      ni.setFontName( n.getFontName() );
-      ni.setFontSize( n.getFontSize() );
-      ni.setFontBold( n.isFontBold() );
-      ni.setFontItalic( n.isFontItalic() );
+      notePadMeta.setChanged();
+      notePadMeta.setNote( n.getNote() );
+      notePadMeta.setFontName( n.getFontName() );
+      notePadMeta.setFontSize( n.getFontSize() );
+      notePadMeta.setFontBold( n.isFontBold() );
+      notePadMeta.setFontItalic( n.isFontItalic() );
       // font color
-      ni.setFontColorRed( n.getFontColorRed() );
-      ni.setFontColorGreen( n.getFontColorGreen() );
-      ni.setFontColorBlue( n.getFontColorBlue() );
+      notePadMeta.setFontColorRed( n.getFontColorRed() );
+      notePadMeta.setFontColorGreen( n.getFontColorGreen() );
+      notePadMeta.setFontColorBlue( n.getFontColorBlue() );
       // background color
-      ni.setBackGroundColorRed( n.getBackGroundColorRed() );
-      ni.setBackGroundColorGreen( n.getBackGroundColorGreen() );
-      ni.setBackGroundColorBlue( n.getBackGroundColorBlue() );
+      notePadMeta.setBackGroundColorRed( n.getBackGroundColorRed() );
+      notePadMeta.setBackGroundColorGreen( n.getBackGroundColorGreen() );
+      notePadMeta.setBackGroundColorBlue( n.getBackGroundColorBlue() );
       // border color
-      ni.setBorderColorRed( n.getBorderColorRed() );
-      ni.setBorderColorGreen( n.getBorderColorGreen() );
-      ni.setBorderColorBlue( n.getBorderColorBlue() );
+      notePadMeta.setBorderColorRed( n.getBorderColorRed() );
+      notePadMeta.setBorderColorGreen( n.getBorderColorGreen() );
+      notePadMeta.setBorderColorBlue( n.getBorderColorBlue() );
 
-      hopGui.undoDelegate.addUndoChange( workflowMeta, new NotePadMeta[] { before }, new NotePadMeta[] { ni }, new int[] { workflowMeta
-        .indexOfNote( ni ) } );
-      ni.width = ConstUi.NOTE_MIN_SIZE;
-      ni.height = ConstUi.NOTE_MIN_SIZE;
+      hopGui.undoDelegate.addUndoChange( workflowMeta, new NotePadMeta[] { before }, new NotePadMeta[] { notePadMeta }, new int[] { workflowMeta
+        .indexOfNote( notePadMeta ) } );
+      notePadMeta.width = ConstUi.NOTE_MIN_SIZE;
+      notePadMeta.height = ConstUi.NOTE_MIN_SIZE;
 
       updateGui();
     }
@@ -3303,7 +3303,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
 
     if ( shift ) {
-      editEntry( newEntry );
+      editAction( newEntry );
     }
 
     workflowMeta.unselectAll();

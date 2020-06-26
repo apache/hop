@@ -20,11 +20,11 @@ public class HopServerSearchableAnalyser extends BaseSearchableAnalyser<HopServe
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Hop server name", hopServer.getName() );
-    matchProperty( searchable, results, searchQuery, "Hop server hostname", hopServer.getHostname() );
-    matchProperty( searchable, results, searchQuery, "Hop server port", hopServer.getPort() );
-    matchProperty( searchable, results, searchQuery, "Hop server username", hopServer.getUsername() );
-    matchProperty( searchable, results, searchQuery, "Hop server webapp", hopServer.getWebAppName() );
+    matchProperty( searchable, results, searchQuery, "Hop server name", hopServer.getName(), null );
+    matchProperty( searchable, results, searchQuery, "Hop server hostname", hopServer.getHostname(), null );
+    matchProperty( searchable, results, searchQuery, "Hop server port", hopServer.getPort(), null );
+    matchProperty( searchable, results, searchQuery, "Hop server username", hopServer.getUsername(), null );
+    matchProperty( searchable, results, searchQuery, "Hop server webapp", hopServer.getWebAppName(), null );
     return results;
   }
 }

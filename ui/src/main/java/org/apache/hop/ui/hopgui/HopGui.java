@@ -687,7 +687,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   public void menuToolsEditConfigVariables() {
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
     String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
-    HopDescribedVariablesDialog dialog = new HopDescribedVariablesDialog( shell, message, describedVariables );
+    HopDescribedVariablesDialog dialog = new HopDescribedVariablesDialog( shell, message, describedVariables, null );
     if ( dialog.open() != null ) {
       try {
         HopConfig.getInstance().setDescribedVariables( describedVariables );
@@ -1146,9 +1146,9 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     return locations;
   }
 
-  public static boolean editConfigFile( Shell shell, String configFilename, DescribedVariablesConfigFile variablesConfigFile ) throws HopException {
+  public static boolean editConfigFile( Shell shell, String configFilename, DescribedVariablesConfigFile variablesConfigFile, String selectedVariable ) throws HopException {
     String message = "Editing configuration file: "+configFilename;
-    HopDescribedVariablesDialog variablesDialog = new HopDescribedVariablesDialog( shell, message, variablesConfigFile.getDescribedVariables() );
+    HopDescribedVariablesDialog variablesDialog = new HopDescribedVariablesDialog( shell, message, variablesConfigFile.getDescribedVariables(), selectedVariable );
     List<DescribedVariable> vars = variablesDialog.open();
     if (vars!=null) {
       variablesConfigFile.setDescribedVariables( vars );

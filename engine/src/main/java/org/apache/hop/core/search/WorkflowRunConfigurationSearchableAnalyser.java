@@ -20,8 +20,8 @@ public class WorkflowRunConfigurationSearchableAnalyser extends BaseSearchableAn
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Workflow run configuration name", runConfig.getName() );
-    matchProperty( searchable, results, searchQuery, "Workflow run configuration description", runConfig.getDescription() );
+    matchProperty( searchable, results, searchQuery, "Workflow run configuration name", runConfig.getName(), null );
+    matchProperty( searchable, results, searchQuery, "Workflow run configuration description", runConfig.getDescription(), null );
 
     /* Analyze the variables
     //
@@ -34,7 +34,7 @@ public class WorkflowRunConfigurationSearchableAnalyser extends BaseSearchableAn
 
     // Analyze the configuration plugin fields
     //
-    matchObjectFields( searchable, results, searchQuery, runConfig.getEngineRunConfiguration(), "Workflow run configuration property" );
+    matchObjectFields( searchable, results, searchQuery, runConfig.getEngineRunConfiguration(), "Workflow run configuration property", null );
 
     return results;
   }

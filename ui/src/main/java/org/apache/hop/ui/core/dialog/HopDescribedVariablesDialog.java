@@ -61,16 +61,19 @@ public class HopDescribedVariablesDialog extends Dialog {
   private final PropsUi props;
   private String message;
   private List<DescribedVariable> describedVariables;
+  private String selectedVariable;
 
   /**
    * Constructs a new dialog
    *
    * @param parent  The parent shell to link to
+   * @param selectedVariable
    */
-  public HopDescribedVariablesDialog( Shell parent, String message, List<DescribedVariable> describedVariables ) {
+  public HopDescribedVariablesDialog( Shell parent, String message, List<DescribedVariable> describedVariables, String selectedVariable ) {
     super( parent, SWT.NONE );
-    this.describedVariables = describedVariables;
     this.message = message;
+    this.describedVariables = describedVariables;
+    this.selectedVariable = selectedVariable;
     props = PropsUi.getInstance();
   }
 
@@ -184,6 +187,17 @@ public class HopDescribedVariablesDialog extends Dialog {
       wFields.removeEmptyRows();
       wFields.setRowNums();
       wFields.optWidth( true );
+
+      // Select the selected variable...
+      //
+      if (selectedVariable==null) {
+        for (TableItem item : wFields.table.getItems()) {
+          if (item.getText(1).equals(selectedVariable)) {
+            wFields.table.setSelection( item );
+          }
+        }
+        wFields.table.showSelection();
+      }
 
     } catch ( Exception e ) {
       new ErrorDialog( shell,

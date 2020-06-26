@@ -91,9 +91,11 @@ public class Project extends ConfigFile implements IConfigFile {
     // Apply the described variables from the various configuration files in the given order...
     //
     for (String configurationFile : configurationFiles) {
-      File file = new File(configurationFile);
+      String realConfigurationFile = variables.environmentSubstitute( configurationFile );
+
+      File file = new File(realConfigurationFile);
       if (file.exists()) {
-        ConfigFile configFile = new DescribedVariablesConfigFile( configurationFile );
+        ConfigFile configFile = new DescribedVariablesConfigFile( realConfigurationFile );
         try {
           configFile.readFromFile();
 
@@ -104,10 +106,10 @@ public class Project extends ConfigFile implements IConfigFile {
           }
 
         } catch(Exception e) {
-          LogChannel.GENERAL.logError( "Error reading described variables from configuration file '"+configurationFile+"'", e);
+          LogChannel.GENERAL.logError( "Error reading described variables from configuration file '"+realConfigurationFile+"'", e);
         }
       } else {
-        LogChannel.GENERAL.logError( "Configuration file '"+configurationFile+"' does not exist to read variables from.");
+        LogChannel.GENERAL.logError( "Configuration file '"+realConfigurationFile+"' does not exist to read variables from.");
       }
     }
 

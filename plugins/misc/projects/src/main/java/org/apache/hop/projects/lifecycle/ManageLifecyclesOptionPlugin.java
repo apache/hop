@@ -1,7 +1,6 @@
 package org.apache.hop.projects.lifecycle;
 
 import org.apache.hop.core.config.HopConfig;
-import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -15,10 +14,15 @@ import picocli.CommandLine;
 import java.util.Arrays;
 import java.util.List;
 
+/*
+
+TODO: Re-enable when we have usage for it
+
 @ConfigPlugin(
   id = "ManageLifecyclesOptionPlugin",
   description = "Allows command line editing of the lifecycles"
 )
+ */
 public class ManageLifecyclesOptionPlugin implements IConfigOptions {
 
   @CommandLine.Option(

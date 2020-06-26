@@ -20,9 +20,9 @@ public class DescribedVariableSearchableAnalyser extends BaseSearchableAnalyser<
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "variable name", describedVariable.getName() );
-    matchProperty( searchable, results, searchQuery, "variable value", describedVariable.getValue() );
-    matchProperty( searchable, results, searchQuery, "variable description", describedVariable.getDescription() );
+    matchProperty( searchable, results, searchQuery, "variable name", describedVariable.getName(), null );
+    matchProperty( searchable, results, searchQuery, "variable value", describedVariable.getValue(), null );
+    matchProperty( searchable, results, searchQuery, "variable description", describedVariable.getDescription(), null );
 
     return results;
   }

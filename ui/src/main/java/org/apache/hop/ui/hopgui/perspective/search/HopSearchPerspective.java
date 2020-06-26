@@ -304,6 +304,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdResults.top = new FormAttachment( lastControl, margin );
     fdResults.bottom = new FormAttachment( wbOpen, -2*margin );
     wResults.setLayoutData( fdResults );
+    wResults.table.addListener( SWT.DefaultSelection, this::open );
   }
 
   private void open( Event event ) {
