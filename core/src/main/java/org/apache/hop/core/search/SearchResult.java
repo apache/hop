@@ -5,11 +5,17 @@ public class SearchResult implements ISearchResult {
   private ISearchable matchingSearchable;
   private String matchingString;
   private String description;
+  private String component;
 
   public SearchResult( ISearchable matchingSearchable, String matchingString, String description ) {
+    this(matchingSearchable, matchingString, description, null);
+  }
+
+  public SearchResult( ISearchable matchingSearchable, String matchingString, String description, String component ) {
     this.matchingSearchable = matchingSearchable;
     this.matchingString = matchingString;
     this.description = description;
+    this.component = component;
   }
 
   /**
@@ -58,5 +64,21 @@ public class SearchResult implements ISearchResult {
    */
   public void setDescription( String description ) {
     this.description = description;
+  }
+
+  /**
+   * Gets component
+   *
+   * @return value of component
+   */
+  @Override public String getComponent() {
+    return component;
+  }
+
+  /**
+   * @param component The component to set
+   */
+  public void setComponent( String component ) {
+    this.component = component;
   }
 }

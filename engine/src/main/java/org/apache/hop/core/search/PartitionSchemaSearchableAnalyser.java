@@ -20,8 +20,8 @@ public class PartitionSchemaSearchableAnalyser extends BaseSearchableAnalyser<Pa
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Partition schema name", partitionSchema.getName() );
-    matchProperty( searchable, results, searchQuery, "Partition schema number of partitions", partitionSchema.getNumberOfPartitions() );
+    matchProperty( searchable, results, searchQuery, "Partition schema name", partitionSchema.getName(), null );
+    matchProperty( searchable, results, searchQuery, "Partition schema number of partitions", partitionSchema.getNumberOfPartitions(), null );
     return results;
   }
 }

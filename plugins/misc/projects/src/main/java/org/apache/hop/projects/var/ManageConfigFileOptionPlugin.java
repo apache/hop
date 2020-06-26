@@ -9,8 +9,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.projects.config.ProjectsConfig;
-import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -32,15 +30,15 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
 
   @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
 
-    if ( StringUtils.isEmpty( configFile ) ) {
+    String realConfigFile = variables.environmentSubstitute( configFile );
+    if ( StringUtils.isEmpty( realConfigFile ) ) {
       return false;
     }
 
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( configFile );
-      if ( new File( configFile ).exists() ) {
+      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realConfigFile );
+      if ( new File( realConfigFile ).exists() ) {
         variablesConfigFile.readFromFile();
       }
 

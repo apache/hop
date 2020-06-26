@@ -219,9 +219,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
       if ( StringUtils.isEmpty( configFilename ) ) {
         return;
       }
-      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( configFilename );
+      String realConfigFilename = variables.environmentSubstitute(configFilename);
 
-      File file = new File( configFilename );
+      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realConfigFilename );
+
+      File file = new File( realConfigFilename );
       if ( !file.exists() ) {
         MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
         box.setText( "Create file?" );
@@ -234,7 +236,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
         variablesConfigFile.readFromFile();
       }
 
-      HopGui.editConfigFile(shell, configFilename, variablesConfigFile);
+      HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
 
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error editing configuration file", e );

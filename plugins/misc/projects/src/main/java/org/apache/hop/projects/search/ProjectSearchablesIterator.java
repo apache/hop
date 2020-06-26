@@ -84,8 +84,10 @@ public class ProjectSearchablesIterator implements Iterator<ISearchable> {
       // Now the described variables in the configuration files...
       //
       for (String configurationFile : configurationFiles) {
-        if (new File(configurationFile).exists()) {
-          DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( configurationFile );
+        String realConfigurationFile = hopGui.getVariables().environmentSubstitute( configurationFile );
+
+        if (new File(realConfigurationFile).exists()) {
+          DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( realConfigurationFile );
           configFile.readFromFile();
           for ( DescribedVariable describedVariable : configFile.getDescribedVariables() ) {
             searchables.add( new HopGuiDescribedVariableSearchable( describedVariable, configurationFile ) );

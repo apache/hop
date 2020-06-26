@@ -19,7 +19,7 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
   }
 
   @Override public String getLocation() {
-    return "A variable in : " + HopConfig.getInstance().getConfigFilename();
+    return "A variable in : " + (configFilename==null ? HopConfig.getInstance().getConfigFilename() : configFilename);
   }
 
   @Override public String getName() {
@@ -40,13 +40,16 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
 
   @Override public ISearchableCallback getSearchCallback() {
     return ( searchable, searchResult ) -> {
-      if (configFilename==null) {
+
+      String realConfigFilename = HopGui.getInstance().getVariables().environmentSubstitute( configFilename );
+
+      if (realConfigFilename==null) {
         HopGui.getInstance().menuToolsEditConfigVariables();
       } else {
-        if (new File(configFilename).exists()) {
-          DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( configFilename );
+        if (new File(realConfigFilename).exists()) {
+          DescribedVariablesConfigFile configFile = new DescribedVariablesConfigFile( realConfigFilename );
           configFile.readFromFile();
-          HopGui.editConfigFile( HopGui.getInstance().getShell(), configFilename, configFile );
+          HopGui.editConfigFile( HopGui.getInstance().getShell(), realConfigFilename, configFile, searchResult.getComponent() );
         }
       }
     };
