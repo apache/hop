@@ -358,21 +358,6 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     if ( openingLastFiles ) {
       auditDelegate.openLastFiles();
     }
-
-    boolean retry = true;
-    while ( retry ) {
-      try {
-        while ( !shell.isDisposed() ) {
-          if ( !display.readAndDispatch() ) {
-            display.sleep();
-          }
-        }
-        retry = false;
-      } catch ( Throwable throwable ) {
-        System.err.println( "Error in the Hop GUI : " + throwable.getMessage() + Const.CR + Const.getClassicStackTrace( throwable ) );
-      }
-    }
-    display.dispose();
   }
 
   private void closeEvent( Event event ) {
