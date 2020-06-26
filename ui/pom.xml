@@ -89,7 +89,7 @@
     <dependency>
       <groupId>org.eclipse.rap</groupId>
       <artifactId>org.eclipse.rap.jface</artifactId>
-      <version>${rap.version}-SNAPSHOT</version>
+      <version>${rap.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.rap</groupId>
