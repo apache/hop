@@ -31,6 +31,9 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
@@ -134,6 +137,11 @@ public class HopEnvironment {
             HopConfig.getInstance().setDescribedVariable( new DescribedVariable( describedVariable ) );
           }
         }
+
+        // Inform the outside world that we're ready with the init of the Hop Environment
+        // Others might want to register extra plugins that perhaps were not found automatically
+        //
+        ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.HopEnvironmentAfterInit.name(), PluginRegistry.getInstance());
 
         ready.set( true );
       } catch ( Throwable t ) {

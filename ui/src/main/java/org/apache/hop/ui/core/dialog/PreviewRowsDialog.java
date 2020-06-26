@@ -40,6 +40,9 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
@@ -241,6 +244,19 @@ public class PreviewRowsDialog {
         close();
       }
     } );
+
+    KeyListener escapeListener = new KeyAdapter() {
+      @Override public void keyPressed( KeyEvent e ) {
+        if (e.keyCode==SWT.ESC) {
+          close();
+        }
+      }
+    };
+
+    shell.addKeyListener( escapeListener );
+    wFields.addKeyListener( escapeListener );
+    wFields.table.addKeyListener( escapeListener );
+    buttons.stream().forEach( b->b.addKeyListener( escapeListener ) );
 
     getData();
 
