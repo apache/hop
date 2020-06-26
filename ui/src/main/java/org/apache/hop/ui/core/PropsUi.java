@@ -35,7 +35,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -84,8 +83,13 @@ public class PropsUi extends Props {
 
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
 
+  private static PropsUi instance;
+
   public static PropsUi getInstance() {
-    return SingletonUtil.getSessionInstance( PropsUi.class );
+    if ( instance == null ) {
+      instance = new PropsUi();
+    }
+    return instance;
   }
 
   private PropsUi() {
