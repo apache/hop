@@ -82,10 +82,22 @@ public class Project extends ConfigFile implements IConfigFile {
     }
   }
 
-  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles ) {
+  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles, String environmentName ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
+    }
+
+    // Set the name of the active environment
+    //
+    variables.setVariable( Defaults.VARIABLE_PROJECT_NAME, Const.NVL( projectConfig.getProjectName(), "" ) );
+    variables.setVariable( Defaults.VARIABLE_ENVIRONMENT_NAME, Const.NVL( environmentName, "" ) );
+
+    // To allow circular logic where an environment file is relative to the project home
+    //
+    if ( StringUtils.isNotEmpty( projectConfig.getProjectHome() ) ) {
+      String realValue = variables.environmentSubstitute( projectConfig.getProjectHome() );
+      variables.setVariable( ProjectsUtil.VARIABLE_PROJECT_HOME, realValue );
     }
 
     // Apply the described variables from the various configuration files in the given order...
@@ -113,14 +125,6 @@ public class Project extends ConfigFile implements IConfigFile {
       }
     }
 
-    // Set the name of the active environment
-    //
-    variables.setVariable( Defaults.VARIABLE_ACTIVE_PROJECT, Const.NVL( projectConfig.getProjectName(), "" ) );
-
-    if ( StringUtils.isNotEmpty( projectConfig.getProjectHome() ) ) {
-      String realValue = variables.environmentSubstitute( projectConfig.getProjectHome() );
-      variables.setVariable( ProjectsUtil.VARIABLE_PROJECT_HOME, realValue );
-    }
     if ( StringUtils.isNotEmpty( metadataBaseFolder ) ) {
       String realValue = variables.environmentSubstitute( metadataBaseFolder );
       variables.setVariable( Const.HOP_METADATA_FOLDER, realValue );

@@ -125,8 +125,8 @@ public class ProjectsGuiPlugin {
 
     LifecycleEnvironment environment = null;
     List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject( projectName );
-    if (!environments.isEmpty()) {
-      environment = environments.get(0);
+    if ( !environments.isEmpty() ) {
+      environment = environments.get( 0 );
     }
 
     try {
@@ -362,14 +362,14 @@ public class ProjectsGuiPlugin {
     }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     LifecycleEnvironment environment = config.findEnvironment( environmentName );
-    if (environment==null) {
+    if ( environment == null ) {
       return;
     }
-    if (StringUtils.isEmpty(environment.getProjectName())) {
+    if ( StringUtils.isEmpty( environment.getProjectName() ) ) {
       return;
     }
     ProjectConfig projectConfig = config.findProjectConfig( environment.getProjectName() );
-    if (projectConfig==null) {
+    if ( projectConfig == null ) {
       return;
     }
 
@@ -405,10 +405,10 @@ public class ProjectsGuiPlugin {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       String projectName = getProjectsCombo().getText(); // The default is the active project
 
-      LifecycleEnvironment environment = new LifecycleEnvironment(projectName, "", projectName, new ArrayList<>() );
+      LifecycleEnvironment environment = new LifecycleEnvironment( projectName, "", projectName, new ArrayList<>() );
       LifecycleEnvironmentDialog dialog = new LifecycleEnvironmentDialog( hopGui.getShell(), environment, hopGui.getVariables() );
       String environmentName = dialog.open();
-      if (environmentName!=null) {
+      if ( environmentName != null ) {
         config.addEnvironment( environment );
         ProjectsConfigSingleton.saveConfig();
 
@@ -416,7 +416,7 @@ public class ProjectsGuiPlugin {
         selectEnvironmentInList( environmentName );
 
         ProjectConfig projectConfig = config.findProjectConfig( projectName );
-        if (projectConfig!=null) {
+        if ( projectConfig != null ) {
           Project project = projectConfig.loadProject( hopGui.getVariables() );
           enableHopGuiProject( projectName, project, environment );
         }
@@ -446,7 +446,7 @@ public class ProjectsGuiPlugin {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     LifecycleEnvironment environment = config.findEnvironment( environmentName );
-    if (environment==null) {
+    if ( environment == null ) {
       return;
     }
 
@@ -505,7 +505,8 @@ public class ProjectsGuiPlugin {
 
       // Set the variables and so on...
       //
-      ProjectsUtil.enableProject( hopGui.getLog(), projectName, project, variables, configurationFiles );
+      String environmentName = environment == null ? null : environment.getName();
+      ProjectsUtil.enableProject( hopGui.getLog(), projectName, project, variables, configurationFiles, environmentName);
 
       // We need to change the currently set variables in the newly loaded files
       //
@@ -534,7 +535,7 @@ public class ProjectsGuiPlugin {
       // Update the toolbar combos
       //
       ProjectsGuiPlugin.selectProjectInList( projectName );
-      ProjectsGuiPlugin.selectEnvironmentInList( environment==null ? null : environment.getName() );
+      ProjectsGuiPlugin.selectEnvironmentInList( environment == null ? null : environment.getName() );
 
       // Also add this as an event so we know what the project usage history is
       //
@@ -547,7 +548,7 @@ public class ProjectsGuiPlugin {
       );
       AuditManager.getActive().storeEvent( prjUsedEvent );
 
-      if (environment!=null) {
+      if ( environment != null ) {
         ProjectsGuiPlugin.selectProjectInList( projectName );
 
         // Also add this as an event so we know what the project usage history is
