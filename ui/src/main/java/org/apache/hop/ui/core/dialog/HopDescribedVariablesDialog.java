@@ -190,7 +190,7 @@ public class HopDescribedVariablesDialog extends Dialog {
 
       // Select the selected variable...
       //
-      if (selectedVariable==null) {
+      if (selectedVariable!=null) {
         for (TableItem item : wFields.table.getItems()) {
           if (item.getText(1).equals(selectedVariable)) {
             wFields.table.setSelection( item );

@@ -35,9 +35,10 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
+import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -96,6 +97,18 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       //
       HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
+
+      // See if the same pipeline isn't already open.
+      // Other file types we might allow to open more than once but not pipelines for now.
+      //
+      TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( filename );
+      if (tabItemHandlerWithFilename!=null) {
+        // Same file so we can simply switch to it.
+        // This will prevent confusion.
+        //
+        perspective.switchToTab( tabItemHandlerWithFilename );
+        return tabItemHandlerWithFilename.getTypeHandler();
+      }
 
       // Load the pipeline
       //

@@ -6,7 +6,6 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.hopgui.HopGui;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ public class AuditManagerGuiUtil {
   public static final String getLastUsedValue(String type) {
     // What is the last pipeline execution configuration used for the active namespace in HopGui?
     //
-    HopGui hopGui = HopGui.getInstance();
     try {
       AuditList list = AuditManager.getActive().retrieveList( HopNamespace.getNamespace(), type );
       if (list==null || list.getNames()==null || list.getNames().isEmpty()) {
@@ -33,8 +31,30 @@ public class AuditManagerGuiUtil {
       }
       return list.getNames().get( 0 );
     } catch(Exception e) {
-      LogChannel.UI.logError( "Unable to get list from audit manager type: "+type+" in group "+HopNamespace.getNamespace(), e );
+      LogChannel.UI.logError( "Unable to get last used value from audit manager type: "+type+" in group "+HopNamespace.getNamespace(), e );
       return "";
+    }
+  }
+
+  /**
+   * Return the last used values of a certain type.
+   * This method looks in the active namespace in HopGui
+   * In case there is an error it is simply logged on the UI log channel as it's not THAT important.
+   * @param type The type of list to query
+   * @return The last used values or String[0] (empty array) if nothing could be found (or there was an error)
+   */
+  public static final String[] getLastUsedValues(String type) {
+    // What is the last pipeline execution configuration used for the active namespace in HopGui?
+    //
+    try {
+      AuditList list = AuditManager.getActive().retrieveList( HopNamespace.getNamespace(), type );
+      if (list==null || list.getNames()==null || list.getNames().isEmpty()) {
+        return new String[0];
+      }
+      return list.getNames().toArray(new String[0]);
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Unable to get last used values from audit manager type: "+type+" in group "+HopNamespace.getNamespace(), e );
+      return new String[0];
     }
   }
 
@@ -42,7 +62,6 @@ public class AuditManagerGuiUtil {
     if ( StringUtil.isEmpty(value)) {
       return; // Not storing empty values
     }
-    HopGui hopGui = HopGui.getInstance();
     IAuditManager auditManager = AuditManager.getActive();
     try {
       AuditList list = auditManager.retrieveList( HopNamespace.getNamespace(), type );
@@ -59,10 +78,10 @@ public class AuditManagerGuiUtil {
       }
       names.add(0, value);
 
-      // Remove the last items when we have more than 20 in the list // TODO allow this to be configured
+      // Remove the last items when we have more than 50 in the list // TODO allow this to be configured
       // We don't want these things to grow out of control
       //
-      while (list.getNames().size()>20) {
+      while (list.getNames().size()>50) {
         list.getNames().remove( list.getNames().size()-1 );
       }
       auditManager.storeList( HopNamespace.getNamespace(), type, list );
