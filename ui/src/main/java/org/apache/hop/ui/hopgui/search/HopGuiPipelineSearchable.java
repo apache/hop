@@ -7,6 +7,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 
 public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
@@ -42,10 +43,25 @@ public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
   @Override public ISearchableCallback getSearchCallback() {
     return ( searchable, searchResult ) -> {
       HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      HopGuiPipelineGraph pipelineGraph = (HopGuiPipelineGraph) perspective.addPipeline( perspective.getComposite(), HopGui.getInstance(), pipelineMeta, perspective.getPipelineFileType() );
       perspective.show();
 
-      // Select and open the found transform?
+      HopGuiPipelineGraph pipelineGraph;
+
+      // See if the same pipeline isn't already open.
+      // Other file types we might allow to open more than once but not pipelines for now.
+      //
+      TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( pipelineMeta.getFilename() );
+      if (tabItemHandlerWithFilename!=null) {
+        // Same file so we can simply switch to it.
+        // This will prevent confusion.
+        //
+        perspective.switchToTab( tabItemHandlerWithFilename );
+        pipelineGraph = (HopGuiPipelineGraph) tabItemHandlerWithFilename.getTypeHandler();
+      } else {
+        pipelineGraph = (HopGuiPipelineGraph) perspective.addPipeline( perspective.getComposite(), HopGui.getInstance(), pipelineMeta, perspective.getPipelineFileType() );
+      }
+
+      // Optionally select and open the matching transform component
       //
       if (searchResult.getComponent()!=null) {
         TransformMeta transformMeta = pipelineMeta.findTransform( searchResult.getComponent() );

@@ -307,6 +307,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     }
     wConfigFiles.setRowNums();
     wConfigFiles.optWidth( true );
+
+    // Select the first configuration file by default
+    // That way you can immediately hit the edit button
+    //
+    if (!environment.getConfigurationFiles().isEmpty()) {
+      wConfigFiles.setSelection( new int[] { 0 } );
+    }
+
   }
 
   private void getInfo( LifecycleEnvironment env ) {
