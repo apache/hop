@@ -44,6 +44,7 @@ import java.util.List;
 
 @Transform(
         id = "DataGrid",
+        image = "datagrid.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.datagrid",
         name = "BaseTransform.TypeLongDesc.DataGrid",
         description = "BaseTransform.TypeTooltipDesc.DataGrid",

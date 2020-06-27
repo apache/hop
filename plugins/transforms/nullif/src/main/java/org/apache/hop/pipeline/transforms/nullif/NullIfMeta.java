@@ -48,6 +48,7 @@ import java.util.List;
 
 @Transform(
         id = "NullIf",
+        image = "NullIf.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.NullIf",
         name = "NullIf.Name",
         description = "NullIf.Description",

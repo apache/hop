@@ -50,6 +50,7 @@ import java.util.List;
 
 @Transform(
         id = "CreditCardValidator",
+        image = "creditcardvalidator.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.creditcardvalidator",
         name = "BaseTransform.TypeLongDesc.CreditCardValidator",
         description = "BaseTransform.TypeTooltipDesc.CreditCardValidator",

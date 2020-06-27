@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionDeleteResultFilenamesTest extends WorkflowActionLoadSaveTestSupport<ActionDeleteResultFilenamesI> {
+public class WorkflowActionDeleteResultFilenamesTest extends WorkflowActionLoadSaveTestSupport<ActionDeleteResultFilenames> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<ActionDeleteResultFilenamesI> getActionClass() {
-    return ActionDeleteResultFilenamesI.class;
+  protected Class<ActionDeleteResultFilenames> getActionClass() {
+    return ActionDeleteResultFilenames.class;
   }
 
   @Override

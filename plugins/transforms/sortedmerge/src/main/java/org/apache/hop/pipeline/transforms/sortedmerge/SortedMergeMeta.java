@@ -54,6 +54,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "SortedMerge.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "SortedMerge",
+        image = "sortedmerge.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.sortedmerge",
         name = "BaseTransform.TypeLongDesc.SortedMerge",
         description = "BaseTransform.TypeTooltipDesc.SortedMerge",

@@ -48,6 +48,7 @@ import java.util.List;
 
 @Transform(
         id = "BlockUntilTransformsFinish",
+        image = "blockinguntiltransformsfinish.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.blockuntiltransformsfinish",
         name = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",
         description = "BaseTransform.TypeLongDesc.BlockUntilTransformsFinish",

@@ -51,7 +51,8 @@ import java.net.URLConnection;
   name = "ActionWebServiceAvailable.Name",
   description = "ActionWebServiceAvailable.Description",
   image = "WebServiceAvailable.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/webserviceavailable.html"
 )
 public class ActionWebServiceAvailable extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionWebServiceAvailable.class; // for i18n purposes, needed by Translator!!

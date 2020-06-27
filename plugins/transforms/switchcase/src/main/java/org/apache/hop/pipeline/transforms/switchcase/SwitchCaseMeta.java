@@ -58,7 +58,9 @@ import java.util.List;
  *
  */
 @InjectionSupported( groups = {}, localizationPrefix = "SwitchCaseMeta.Injection." )
-@Transform(  id = "SwitchCase",
+@Transform(
+        id = "SwitchCase",
+        image = "switchcase.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.switchcase",
         name = "BaseTransform.TypeLongDesc.SwitchCase",
         description = "BaseTransform.TypeTooltipDesc.SwitchCase",

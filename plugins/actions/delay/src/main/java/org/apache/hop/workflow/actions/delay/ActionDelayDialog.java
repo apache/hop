@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.delay;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -60,12 +59,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since 21-02-2007
  */
-@PluginDialog( 
-		  id = "DELAY", 
-		  image = "Delay.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/delay.html"
-)
 public class ActionDelayDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionDelay.class; // for i18n purposes, needed by Translator!!
 

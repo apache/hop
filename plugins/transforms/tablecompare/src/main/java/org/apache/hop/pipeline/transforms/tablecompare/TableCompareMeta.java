@@ -49,9 +49,10 @@ import java.util.List;
 
 @Transform(
         id = "TableCompare",
+        image = "tablecompare.svg",
         description ="BaseTransform.TypeTooltipDesc.TableCompare",
         name = "BaseTransform.TypeLongDesc.TableCompare",
-        categoryDescription="kJube.Category.Name",
+        categoryDescription="i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
         i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
   )

@@ -47,6 +47,7 @@ import java.util.List;
 
 @Transform(
         id = "Delay",
+        image = "delay.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.delay",
         name = "BaseTransform.TypeLongDesc.Delay",
         description = "BaseTransform.TypeTooltipDesc.Delay",

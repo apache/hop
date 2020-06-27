@@ -40,7 +40,9 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform(  id = "SyslogMessage",
+@Transform(
+        id = "SyslogMessage",
+        image = "syslogmessage.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.syslog",
         name = "BaseTransform.TypeLongDesc.SyslogMessage",
         description = "BaseTransform.TypeTooltipDesc.SyslogMessage",

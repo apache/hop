@@ -67,6 +67,7 @@ import java.util.Map;
 @Deprecated
 @Transform(
         id = "TextFileInput",
+        image = "textfileinput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.fileinput",
         name = "BaseTransform.TypeLongDesc.TextFileInput",
         description = "BaseTransform.TypeTooltipDesc.TextFileInput",

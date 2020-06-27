@@ -48,6 +48,7 @@ import java.util.List;
 
 @Transform(
         id = "Unique",
+        image = "uniquerows.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.uniquerows",
         name = "BaseTransform.TypeLongDesc.UniqueRows",
         description = "BaseTransform.TypeTooltipDesc.UniqueRows",

@@ -60,6 +60,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "MergeRows.Injection." )
 @Transform(
         id = "MergeRows",
+        image = "mergerows.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.mergerows",
         name = "BaseTransform.TypeLongDesc.MergeRows",
         description = "BaseTransform.TypeTooltipDesc.MergeRows",

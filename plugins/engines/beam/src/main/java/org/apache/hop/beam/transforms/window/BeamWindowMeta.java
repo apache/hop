@@ -23,11 +23,12 @@ import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamWindow",
-  name = "Beam Window",
-  description = "Create a Beam Window",
-  image = "beam-window.svg",
-  categoryDescription = "Big Data"
+        id = "BeamWindow",
+        name = "Beam Window",
+        description = "Create a Beam Window",
+        image = "beam-window.svg",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamwindow.html"
 )
 public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

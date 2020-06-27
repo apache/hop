@@ -55,7 +55,8 @@ import java.util.List;
   name = "ActionSyslog.Name",
   description = "ActionSyslog.Description",
   image = "Syslog.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/syslog.html"
 )
 public class ActionSyslog extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!

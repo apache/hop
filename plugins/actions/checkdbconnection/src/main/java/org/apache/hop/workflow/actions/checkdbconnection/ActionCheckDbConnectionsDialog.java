@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.checkdbconnection;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -63,12 +62,6 @@ import java.util.List;
  * @author Samatar
  * @since 12-10-2007
  */
-@PluginDialog(
-  id = "CHECK_DB_CONNECTIONS",
-  image = "CheckDbConnection.svg",
-  pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/checkdbconnection.html"
-)
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
 

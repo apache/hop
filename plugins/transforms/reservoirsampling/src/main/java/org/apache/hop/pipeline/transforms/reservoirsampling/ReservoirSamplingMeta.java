@@ -41,12 +41,9 @@ import org.w3c.dom.Node;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Contains the meta data for the ReservoirSampling transform.
- *
- * @version 1.0
- */
-@Transform(  id = "ReservoirSampling",
+@Transform(
+        id = "ReservoirSampling",
+        image = "reservoirsampling.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.reservoirsampling",
         name = "BaseTransform.TypeLongDesc.ReservoirSampling",
         description = "BaseTransform.TypeTooltipDesc.ReservoirSampling",

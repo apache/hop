@@ -53,6 +53,7 @@ import java.util.List;
  */
 @Transform(
         id = "Http",
+        image = "http.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.http",
         name = "BaseTransform.TypeLongDesc.HTTP",
         description = "BaseTransform.TypeTooltipDesc.HTTP",

@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -50,10 +49,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-@PluginDialog(
-        id = "Calculator",
-        image = "calculator.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM)
+
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 

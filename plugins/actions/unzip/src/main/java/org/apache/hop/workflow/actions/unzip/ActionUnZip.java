@@ -22,6 +22,16 @@
 
 package org.apache.hop.workflow.actions.unzip;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -51,16 +61,6 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * This defines a 'unzip' action. Its main use would be to unzip files in a directory
  *
@@ -74,7 +74,8 @@ import java.util.regex.Pattern;
   name = "ActionUnZip.Name",
   description = "ActionUnZip.Description",
   image = "UnZip.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/unzip.html"
 )
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionUnZip.class; // for i18n purposes, needed by Translator!!

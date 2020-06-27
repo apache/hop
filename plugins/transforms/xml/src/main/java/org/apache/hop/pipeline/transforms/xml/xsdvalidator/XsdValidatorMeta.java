@@ -56,10 +56,14 @@ import java.util.Map;
  * Created on 14-08-2007
  *
  */
-@Transform( id = "XSDValidator", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xsdvalidator",
-  name = "XSDValidator.name", description = "XSDValidator.description",
-  categoryDescription = "XSDValidator.category",
-  documentationUrl = "" )
+@Transform(
+        id = "XSDValidator",
+        image = "XOU.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xsdvalidator",
+        name = "XSDValidator.name",
+        description = "XSDValidator.description",
+        categoryDescription = "XSDValidator.category",
+        documentationUrl = "" )
 public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 

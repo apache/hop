@@ -59,6 +59,7 @@ import java.util.Map;
 
 @Transform(
         id = "GetFileNames",
+        image = "getfilenames.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getfilenames",
         name = "BaseTransform.TypeLongDesc.GetFileNames",
         description = "BaseTransform.TypeTooltipDesc.GetFileNames",

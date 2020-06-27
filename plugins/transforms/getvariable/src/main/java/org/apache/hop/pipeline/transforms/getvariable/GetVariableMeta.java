@@ -55,6 +55,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "GetVariable.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "GetVariable",
+        image = "getvariable.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getvariable",
         name = "BaseTransform.TypeLongDesc.GetVariable",
         description = "BaseTransform.TypeTooltipDesc.GetVariable",

@@ -17,11 +17,12 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.w3c.dom.Node;
 
 @Transform(
-  id = "BeamKafkaProduce",
-  name = "Beam Kafka Produce",
-  description = "Send messages to a Kafka Topic (Producer)",
-  image = "beam-kafka-output.svg",
-  categoryDescription = "Big Data"
+        id = "BeamKafkaProduce",
+        name = "Beam Kafka Produce",
+        description = "Send messages to a Kafka Topic (Producer)",
+        image = "beam-kafka-output.svg",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamproduce.html"
 )
 public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta<BeamProduce, DummyData> {
 

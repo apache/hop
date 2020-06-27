@@ -58,6 +58,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "MemoryGroupBy.Injection.", groups = { "FIELDS", "AGGREGATES" } )
 @Transform(
         id = "MemoryGroupBy",
+        image = "memorygroupby.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.memgroupby",
         name = "BaseTransform.TypeLongDesc.MemoryGroupBy",
         description = "BaseTransform.TypeTooltipDesc.MemoryGroupBy",

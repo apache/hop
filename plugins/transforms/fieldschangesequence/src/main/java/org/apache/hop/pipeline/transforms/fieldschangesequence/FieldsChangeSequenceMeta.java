@@ -49,6 +49,7 @@ import java.util.List;
 
 @Transform(
         id = "FieldsChangeSequence",
+        image = "fieldschangesequence.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.datagrid",
         name = "BaseTransform.TypeLongDesc.FieldsChangeSequence",
         description = "BaseTransform.TypeTooltipDesc.FieldsChangeSequence",

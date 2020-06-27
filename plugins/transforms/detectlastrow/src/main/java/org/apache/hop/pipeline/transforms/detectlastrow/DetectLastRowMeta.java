@@ -43,12 +43,9 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * @author Samatar
- * @since 03June2008
- */
 @Transform(
         id = "DetectLastRow",
+        image = "detectlastrow.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectlastrow",
         name = "BaseTransform.TypeLongDesc.DetectLastRow",
         description = "BaseTransform.TypeTooltipDesc.DetectLastRow",

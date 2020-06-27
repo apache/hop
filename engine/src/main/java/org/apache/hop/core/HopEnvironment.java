@@ -34,14 +34,12 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.ActionDialogFragmentType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
 import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformDialogFragmentType;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -85,10 +83,8 @@ public class HopEnvironment {
     return Arrays.asList(
       RowDistributionPluginType.getInstance(),
       TransformPluginType.getInstance(),
-      TransformDialogFragmentType.getInstance(),
       PartitionerPluginType.getInstance(),
       ActionPluginType.getInstance(),
-      ActionDialogFragmentType.getInstance(),
       HopLifecyclePluginType.getInstance(),
       HopServerPluginType.getInstance(),
       CompressionPluginType.getInstance(),

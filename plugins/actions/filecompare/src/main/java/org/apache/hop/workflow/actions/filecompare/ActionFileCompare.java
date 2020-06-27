@@ -67,7 +67,8 @@ import java.util.List;
   name = "ActionFileCompare.Name",
   description = "ActionFileCompare.Description",
   image = "FileCompare.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/filecompare.html"
 )
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionFileCompare.class; // for i18n purposes, needed by Translator!!
